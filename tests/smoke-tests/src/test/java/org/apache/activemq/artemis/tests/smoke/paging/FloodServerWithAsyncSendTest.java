@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +33,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,22 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    public static final String SERVER_NAME_0 = "paging";
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/paging");
+         cliCreateServer.createServer();
+      }
+   }
+
 
    volatile boolean running = true;
 

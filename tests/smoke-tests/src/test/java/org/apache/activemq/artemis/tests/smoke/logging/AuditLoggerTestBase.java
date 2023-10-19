@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Before;
 
 public abstract class AuditLoggerTestBase extends SmokeTestBase {
@@ -29,6 +30,17 @@ public abstract class AuditLoggerTestBase extends SmokeTestBase {
 
    @Before
    public void before() throws Exception {
+
+      File server0Location = getFileServerLocation(getServerName());
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/" + getServerName()).setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+
       cleanupData(getServerName());
       disableCheckThread();
       startServer(getServerName(), 0, 30000);

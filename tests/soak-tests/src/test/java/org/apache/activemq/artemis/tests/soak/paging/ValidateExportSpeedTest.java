@@ -38,9 +38,11 @@ import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,20 @@ import org.slf4j.LoggerFactory;
 public class ValidateExportSpeedTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "paging-export";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.setArgs("--global-max-messages", "10000", "--java-options", "-ea", "--queues", "TEST");
+         cliCreateServer.createServer();
+      }
+   }
+
    public static final String TARGET_EXPORTER_DMP = "./target/exporter.dmp";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    Process serverProcess;

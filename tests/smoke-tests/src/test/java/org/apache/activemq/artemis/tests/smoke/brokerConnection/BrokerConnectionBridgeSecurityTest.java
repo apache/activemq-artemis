@@ -25,14 +25,40 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 
 public class BrokerConnectionBridgeSecurityTest extends SmokeTestBase {
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_A);
+      File server1Location = getFileServerLocation(SERVER_NAME_B);
+      deleteDirectory(server0Location);
+      deleteDirectory(server1Location);
+
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(false).setUser("A").setPassword("A").setNoWeb(true).setConfiguration("./src/main/resources/servers/brokerConnect/bridgeSecurityA").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(false).setUser("A").setPassword("A").setNoWeb(true).setConfiguration("./src/main/resources/servers/brokerConnect/bridgeSecurityB").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
 
    public static final String SERVER_NAME_A = "brokerConnect/bridgeSecurityA";
    public static final String SERVER_NAME_B = "brokerConnect/bridgeSecurityB";

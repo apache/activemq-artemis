@@ -37,9 +37,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.TestParameters;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -47,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.utils.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
@@ -81,6 +83,22 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "subscriptionPaging";
 
+   @BeforeClass
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         // some limited memory to make it more likely to fail
+         cliCreateServer.setArgs("--java-memory", "512M");
+         cliCreateServer.setConfiguration("./src/main/resources/servers/subscriptionPaging");
+         cliCreateServer.createServer();
+      }
+   }
+
+
    @Parameterized.Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
@@ -96,12 +114,12 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public SubscriptionPagingTest(String protocol) {
       this.protocol = protocol;
-      MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGES");
-      COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL");
+      MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGES", 1000);
+      COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 100);
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL");
-      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
-      SLOW_SUBSCRIPTIONS = intMandatoryProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS");
+      RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 100);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 1000);
+      SLOW_SUBSCRIPTIONS = TestParameters.testProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS", 100);
       SLEEP_SLOW = testProperty(TEST_NAME, "SLEEP_SLOW", 1000);
    }
 

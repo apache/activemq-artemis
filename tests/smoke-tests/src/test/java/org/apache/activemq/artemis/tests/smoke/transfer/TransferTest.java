@@ -25,14 +25,17 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -48,6 +51,65 @@ public class TransferTest extends SmokeTestBase {
    String targetTransferProtocol = "amqp";
    String senderProtocol = "amqp";
    String consumerProtocol = "amqp";
+
+   /*
+                  <execution>
+                  <phase>test-compile</phase>
+                  <id>create-transfer-1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/transfer1</instance>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-transfer-2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <portOffset>100</portOffset>
+                     <instance>${basedir}/target/transfer2</instance>
+                  </configuration>
+               </execution>
+
+    */
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      File server1Location = getFileServerLocation(SERVER_NAME_1);
+      deleteDirectory(server1Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).setPortOffset(100);
+         cliCreateServer.createServer();
+      }
+   }
+
 
    public TransferTest(String sender, String consumer, String source, String target) {
       this.senderProtocol = sender;

@@ -35,8 +35,10 @@ import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DualMirrorNoContainerTest extends SmokeTestBase {
@@ -49,6 +51,27 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
 
    Process processB;
    Process processA;
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_A);
+      File server1Location = getFileServerLocation(SERVER_NAME_B);
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(false).setUser("A").setPassword("A").setNoWeb(true).setConfiguration("./src/main/resources/servers/brokerConnect/mirrorSecurityA").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(false).setUser("B").setPassword("B").setNoWeb(true).setPortOffset(1).setConfiguration("./src/main/resources/servers/brokerConnect/mirrorSecurityB").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
 
    @Before
    public  void beforeClass() throws Exception {

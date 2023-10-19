@@ -22,14 +22,40 @@ import java.io.File;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SmokeMaxMessagePagingTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_GLOBAL = "pagingGlobalMaxMessages";
    public static final String SERVER_NAME_ADDRESS = "pagingAddressMaxMessages";
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_GLOBAL);
+      deleteDirectory(server0Location);
+      File server1Location = getFileServerLocation(SERVER_NAME_ADDRESS);
+      deleteDirectory(server1Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location);
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost", "--global-max-messages", "1000");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).
+            setConfiguration("./src/main/resources/servers/" + SERVER_NAME_ADDRESS);
+         cliCreateServer.createServer();
+      }
+   }
 
    @Before
    public void before() throws Exception {

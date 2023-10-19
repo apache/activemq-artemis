@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.smoke.mqtt;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -31,6 +33,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MQTTLeakTest extends SmokeTestBase {
@@ -38,6 +41,41 @@ public class MQTTLeakTest extends SmokeTestBase {
    public static final String SERVER_NAME_0 = "mqtt";
 
    private static Process server0;
+
+   /*
+                 <execution>
+                  <phase>test-compile</phase>
+                  <id>create-mqtt</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/mqtt</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/mqtt</instance>
+                     <configuration>${basedir}/target/classes/servers/mqtt</configuration>
+                  </configuration>
+               </execution>
+
+    */
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location);
+            //setConfiguration("./src/main/resources/servers/mqtt");
+         cliCreateServer.createServer();
+      }
+   }
+
 
    @Before
    public void before() throws Exception {

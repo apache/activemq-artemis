@@ -21,6 +21,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
@@ -31,14 +32,32 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JournalFlushInterruptTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "interruptjf";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/interruptjf");
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost", "--queues", "JournalFlushInterruptTest", "--name", "interruptjf");
+         cliCreateServer.createServer();
+      }
+   }
+
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 1099;
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

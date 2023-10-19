@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmx2;
 
+import java.io.File;
 import java.util.Map;
 
 import javax.jms.MessageConsumer;
@@ -38,8 +39,10 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JmxServerControlTest extends SmokeTestBase {
@@ -49,6 +52,23 @@ public class JmxServerControlTest extends SmokeTestBase {
    private static final int JMX_SERVER_PORT = 11099;
 
    public static final String SERVER_NAME_0 = "jmx2";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/jmx").setArgs("--java-options",
+                                                                         "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true " +
+                                                                            "-Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 " +
+                                                                            "-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false");
+         cliCreateServer.createServer();
+      }
+   }
 
    @Before
    public void before() throws Exception {

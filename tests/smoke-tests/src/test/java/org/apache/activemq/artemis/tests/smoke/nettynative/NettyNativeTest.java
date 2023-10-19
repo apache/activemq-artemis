@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.tests.smoke.nettynative;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -37,6 +39,22 @@ public class NettyNativeTest extends SmokeTestBase {
    public static final String SERVER_NAME = "nettynative";
    protected static final String SERVER_ADMIN_USERNAME = "admin";
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/nettynative");
+         cliCreateServer.createServer();
+      }
+   }
+
 
    @Before
    public void before() throws Exception {

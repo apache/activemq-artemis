@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -31,9 +32,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,6 +46,28 @@ import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
 public class BridgeTransferingTest extends SmokeTestBase {
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      File server1Location = getFileServerLocation(SERVER_NAME_1);
+
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      if (!server0Location.exists()) {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setNoWeb(true).setConfiguration("./src/main/resources/servers/bridgeTransfer/serverA").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      if (!server1Location.exists()) {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setNoWeb(true).setConfiguration("./src/main/resources/servers/bridgeTransfer/serverB").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
 
    public static final String SERVER_NAME_0 = "bridgeTransfer/serverA";
    public static final String SERVER_NAME_1 = "bridgeTransfer/serverB";
@@ -116,6 +141,7 @@ public class BridgeTransferingTest extends SmokeTestBase {
          int killElement = 0;
 
          for (int i = 0; i < numberOfMessages; i++) {
+            System.out.println("message " + i);
             producer.send(session.createTextMessage(body + " " + i));
 
             if (++txElement == commitInterval) {

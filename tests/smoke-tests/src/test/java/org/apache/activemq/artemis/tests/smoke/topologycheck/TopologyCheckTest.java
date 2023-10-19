@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.smoke.topologycheck;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
@@ -28,8 +29,10 @@ import org.apache.activemq.artemis.json.JsonString;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,103 @@ public class TopologyCheckTest extends SmokeTestBase {
    private static final String URI_2 = "tcp://localhost:61617";
    private static final String URI_3 = "tcp://localhost:61618";
    private static final String URI_4 = "tcp://localhost:61619";
+
+   /*
+                 <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-one</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker1</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker1</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-two</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>1</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker2</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker2</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-three</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>2</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker3</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker3</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-four</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>3</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker4</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker4</configuration>
+                  </configuration>
+               </execution>
+
+    */
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      for (int i = 1; i <= 4; i++) {
+         String serverConfigName = "topology-check/broker" + i;
+
+         File server0Location = getFileServerLocation(serverConfigName);
+         deleteDirectory(server0Location);
+
+         {
+            HelperCreate cliCreateServer = new HelperCreate();
+            cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+               setConfiguration("./src/main/resources/servers/" + serverConfigName);
+            cliCreateServer.createServer();
+         }
+
+      }
+
+   }
+
 
    Process[] process = new Process[4];
    String[] URLS = new String[]{URI_1, URI_2, URI_3, URI_4};

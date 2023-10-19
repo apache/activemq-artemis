@@ -25,13 +25,43 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ClusteredLargeMessageTest extends SmokeTestBase {
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      File server1Location = getFileServerLocation(SERVER_NAME_1);
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setAllowAnonymous(true).setNoWeb(true).
+            setArtemisInstance(server0Location).setClustered(true).
+               setStaticCluster("tcp://localhost:61716").setArgs("--name", "cluster1", "--max-hops", "1", "--queues", "testQueue");
+         cliCreateServer.createServer();
+      }
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setAllowAnonymous(true).setNoWeb(true).setPortOffset(100).
+            setArtemisInstance(server1Location).setClustered(true).
+               setStaticCluster("tcp://localhost:61616").setArgs("--name", "cluster2", "--max-hops", "1", "--queues", "testQueue");
+         cliCreateServer.createServer();
+      }
+   }
+
+
 
    public static final String SERVER_NAME_0 = "clusteredLargeMessage/cluster1";
    public static final String SERVER_NAME_1 = "clusteredLargeMessage/cluster2";

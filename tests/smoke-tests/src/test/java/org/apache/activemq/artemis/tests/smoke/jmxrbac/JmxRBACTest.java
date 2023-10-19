@@ -23,6 +23,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import java.io.File;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -34,8 +35,10 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JmxRBACTest extends SmokeTestBase {
@@ -52,6 +55,21 @@ public class JmxRBACTest extends SmokeTestBase {
    public static final String SERVER_USER = "user";
 
    public static final String ADDRESS_TEST = "TEST";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/jmx-rbac").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
+
 
    @Before
    public void before() throws Exception {

@@ -23,6 +23,7 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.File;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -43,8 +44,10 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,6 +176,46 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
    private static final int MASTER_2_PORT_ID = MASTER_1_PORT_ID + 100;
    private static final int MASTER_3_PORT_ID = MASTER_2_PORT_ID + 100;
    private static final int SLAVE_1_PORT_ID = MASTER_3_PORT_ID + 100;
+
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(MASTER_1_DATA_FOLDER);
+      deleteDirectory(server0Location);
+      File server1Location = getFileServerLocation(MASTER_2_DATA_FOLDER);
+      deleteDirectory(server1Location);
+      File server2Location = getFileServerLocation(MASTER_3_DATA_FOLDER);
+      deleteDirectory(server2Location);
+      File server3Location = getFileServerLocation(SLAVE_1_DATA_FOLDER);
+      deleteDirectory(server3Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).setConfiguration("./src/main/resources/servers/replicated-failback-master1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).setConfiguration("./src/main/resources/servers/replicated-failback-master2").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server2Location).setConfiguration("./src/main/resources/servers/replicated-failback-master3").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server3Location).setConfiguration("./src/main/resources/servers/replicated-failback-slave1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
+
+
 
    private enum Broker {
       master1(JMX_PORT_MASTER_1, MASTER_1_DATA_FOLDER, MASTER_1_PORT_ID), master2(JMX_PORT_MASTER_2, MASTER_2_DATA_FOLDER, MASTER_2_PORT_ID), master3(JMX_PORT_MASTER_3, MASTER_3_DATA_FOLDER, MASTER_3_PORT_ID), slave1(JMX_PORT_SLAVE_1, SLAVE_1_DATA_FOLDER, SLAVE_1_PORT_ID);

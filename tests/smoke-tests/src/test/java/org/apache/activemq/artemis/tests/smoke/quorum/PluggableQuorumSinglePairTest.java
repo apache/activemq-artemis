@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.smoke.quorum;
 
 import javax.management.remote.JMXServiceURL;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +31,11 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -64,6 +67,29 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
 
    static final int PRIMARY_PORT_OFFSET = 0;
    static final int BACKUP_PORT_OFFSET = PRIMARY_PORT_OFFSET + 100;
+
+   public static void simpleCreate(String serverName) throws Exception {
+
+      File server0Location = getFileServerLocation(serverName);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/" + serverName);
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      simpleCreate("zkReplicationPrimary");
+      simpleCreate("zkReplicationPrimaryPeerA");
+      simpleCreate("zkReplicationPrimaryPeerB");
+      simpleCreate("zkReplicationBackup");
+   }
+
 
    public static class BrokerControl {
 

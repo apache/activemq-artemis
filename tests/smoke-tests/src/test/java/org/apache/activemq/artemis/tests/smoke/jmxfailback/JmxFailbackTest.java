@@ -27,8 +27,10 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JmxFailbackTest extends SmokeTestBase {
@@ -40,6 +42,29 @@ public class JmxFailbackTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "jmx-failback1";
    public static final String SERVER_NAME_1 = "jmx-failback2";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+      File server1Location = getFileServerLocation(SERVER_NAME_1);
+      deleteDirectory(server1Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/jmx-failback1").setArgs( "--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).
+            setConfiguration("./src/main/resources/servers/jmx-failback2").setArgs( "--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
 
    String urlString_1 = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
    String urlString_2 = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_1 + "/jmxrmi";

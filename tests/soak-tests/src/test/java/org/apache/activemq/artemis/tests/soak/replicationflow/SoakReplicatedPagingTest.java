@@ -43,6 +43,7 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+import java.io.File;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
@@ -55,12 +56,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -107,6 +110,30 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
    private static Process server0;
 
    private static Process server1;
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
+         cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static0");
+         cliCreateServer.createServer();
+      }
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_1);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
+         cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static1");
+         cliCreateServer.createServer();
+      }
+   }
+
+
    @Before
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
