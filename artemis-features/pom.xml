@@ -117,6 +117,7 @@
                             <goal>verify</goal>
                         </goals>
                         <configuration>
+                            <skip>${skipFeaturesVerification}</skip>
                             <descriptors>
                                 <descriptor>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.karaf.features/framework/${karaf.version}/xml/features</descriptor>
