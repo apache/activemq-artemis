@@ -96,7 +96,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    /*
     * Create a server side connection
     */
-   RemotingConnectionImpl(final PacketDecoder packetDecoder,
+   public RemotingConnectionImpl(final PacketDecoder packetDecoder,
                           final Connection transportConnection,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
