@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "upgrade", defaultPhase = LifecyclePhase.TEST_COMPILE)
+@Mojo(name = "upgrade", defaultPhase = LifecyclePhase.TEST_COMPILE, threadSafe = true)
 public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
 
    @Parameter

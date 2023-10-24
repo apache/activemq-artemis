@@ -49,7 +49,7 @@ import org.eclipse.aether.resolution.ArtifactResult;
  * X{fileMD} with the fileName on a LINK with MD style
  * X{URI} with the URI
  * X{detail} with the detail provided in the config */
-@Mojo(name = "dependency-doc", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "dependency-doc", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
    @Parameter

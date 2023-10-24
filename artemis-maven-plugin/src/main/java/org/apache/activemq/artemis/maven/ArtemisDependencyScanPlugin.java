@@ -33,7 +33,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
