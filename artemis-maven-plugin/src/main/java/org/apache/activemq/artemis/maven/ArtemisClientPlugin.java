@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Allows a Java Client to be run which must hve a static main(String[] args) method
  */
-@Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
 
    @Parameter

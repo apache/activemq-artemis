@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
    private PluginDescriptor descriptor;
