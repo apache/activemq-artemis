@@ -115,7 +115,7 @@
       <netty.version>4.1.100.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
       <curator.version>5.5.0</curator.version>
-      <zookeeper.version>3.8.2</zookeeper.version>
+      <zookeeper.version>3.8.3</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
 
       <!-- docs -->
