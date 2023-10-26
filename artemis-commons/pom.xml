@@ -156,6 +156,9 @@
                            <include>jakarta.json:jakarta.json-api</include>
                         </includes>
                      </artifactSet>
+                     <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                     </transformers>
                   </configuration>
                </execution>
             </executions>
