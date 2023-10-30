@@ -71,12 +71,12 @@ When prompted make sure the new development version matches with the next expect
 
 ```
 [INFO] Checking dependencies and plugins for snapshots ...
-What is the release version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.0: :
-What is the SCM release tag or label for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.0: :
-What is the new development version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.1-SNAPSHOT: : 2.28.0-SNAPSHOT
+What is the release version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.0: :
+What is the SCM release tag or label for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.0: :
+What is the new development version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.1-SNAPSHOT: : 2.32.0-SNAPSHOT
 ```
 
-Otherwise snapshots would be created at 2.27.1-SNAPSHOT and left to go stale rather than get cleaned out if the next release is actually 2.28.0. (Unless we did ever release 2.27.1 in that example).
+Otherwise snapshots would be created at 2.31.1-SNAPSHOT and probably left to go stale rather than get cleaned out if the next release is actually 2.32.0. (Unless we did ever release 2.31.1 in that example).
 
 For more information look at the prepare plugin:
 
@@ -121,7 +121,7 @@ In case you want to upload a previously tagged release, add this file as follows
 - release.properties
 ```
 scm.url=scm:git:https://github.com/apache/activemq-artemis.git
-scm.tag=1.4.0
+scm.tag=2.31.0
 ```
 
 
@@ -163,13 +163,13 @@ $ git clone https://github.com/rh-messaging/jira-git-report.git
 $ cd jira-git-report
 $ mvn compile assembly:single
 $ cd target
-$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web <checkoutDirectory>/activemq-artemis <checkoutDirectory>/artemis-website commit-report-<version>.html <previous-version> <version> true
+$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis <path.to.checkout>/activemq-artemis <path.to.checkout>/activemq-website/src/components/artemis/download/commit-report-<version>.html <previous-version> <version> true
 ```
 
-real example used on [2.6.1](http://activemq.apache.org/artemis/commit-report-2.6.1.html):
+real example used on [2.31.0](https://activemq.apache.org/components/artemis/download/commit-report-2.31.0.html):
 ```bash
 $ java -jar 
-java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.16.0.html 2.15.0 2.16.0 true
+java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.31.0.html 2.30.0 2.31.0 true
 ```
 - This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
 
@@ -218,17 +218,13 @@ https://activemq.apache.org/components/artemis/download/commit-report-<version>
 Source and binary distributions can be found here:
 https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/<version>/
 
-The Maven repository is here:
+The Maven staging repository is here:
 https://repository.apache.org/content/repositories/orgapacheactivemq-<repoID>
 
-In case you want to give it a try with the maven repo on examples:
-https://activemq.apache.org/components/artemis/documentation/hacking-guide/validating-releases.html
+If you would like to validate the release:
+https://activemq.apache.org/components/artemis/documentation/hacking-guide/#validating-releases
 
-The source tag:
-https://gitbox.apache.org/repos/asf/activemq-artemis.git;a=tag;h=refs/tags/<version>
-
-I will update the website after the vote has passed.
-
+It is tagged in the git repo as <version>
 
 [ ] +1 approve this release
 [ ] +0 no opinion
@@ -246,9 +242,7 @@ Assuming the vote is successful send a email with a subject like `[RESULT] [VOTE
 informing the list about the voting results, e.g.:
 
 ```
-Results of the Apache ActiveMQ Artemis <version> release vote.
-
-Vote passes with 4 votes, 3 binding and 1 non-binding.
+The vote passed with 4 votes, 3 binding and 1 non-binding.
 
 The following votes were received:
 
@@ -263,8 +257,10 @@ Non Binding:
 Thank you to everyone who contributed and took the time to review the
 release candidates and vote.
 
-I'll update the website as soon as the mirrors are updated (I will
-wait 24 hours after I update SVN).
+I will add the files to the dist release repo and release the maven
+staging repo, updating the website once it has had time to sync to the
+CDN and Maven Central.
+
 
 Regards
 ```
@@ -332,11 +328,11 @@ Once pushed, the changes should be published automatically by the `jekyll_websit
    creating an INFRA Jira ticket (e.g. https://issues.apache.org/jira/browse/INFRA-24831).
 4. Go to the `scripts` directory and run `release-docker.sh` with the proper parameters, e.g.:
    ```shell
-   $ ./release-docker.sh 2.30.0 apache
+   $ ./release-docker.sh 2.31.0 apache
    ```
    You can easily perform a test run by using your personal account, e.g.:
    ```shell
-   $ ./release-docker.sh 2.30.0 jbertram
+   $ ./release-docker.sh 2.31.0 jbertram
    ```
 
 ## Send announcement to user list
