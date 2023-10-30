@@ -163,8 +163,10 @@ $ git clone https://github.com/rh-messaging/jira-git-report.git
 $ cd jira-git-report
 $ mvn compile assembly:single
 $ cd target
-$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis <path.to.checkout>/activemq-artemis <path.to.checkout>/activemq-website/src/components/artemis/download/commit-report-<version>.html <previous-version> <version> true
+# Make sure you use artemis-web as the project name, as this has the proper file references to the website (https://activemq.apache.org)
+$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web <path.to.checkout>/activemq-artemis <path.to.checkout>/activemq-website/src/components/artemis/download/commit-report-<version>.html <previous-version> <version> true
 ```
+
 
 real example used on [2.31.0](https://activemq.apache.org/components/artemis/download/commit-report-2.31.0.html):
 ```bash
