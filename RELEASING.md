@@ -171,7 +171,7 @@ $ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web <path.to
 real example used on [2.31.0](https://activemq.apache.org/components/artemis/download/commit-report-2.31.0.html):
 ```bash
 $ java -jar 
-java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.31.0.html 2.30.0 2.31.0 true
+java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.31.0.html 2.30.0 2.31.0 true
 ```
 - This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
 
