@@ -382,8 +382,7 @@ public class TransactionImpl implements Transaction {
          // We will like to execute afterRollback and clear anything pending
          ActiveMQServerLogger.LOGGER.failedToPerformRollback(e);
       }
-      // We want to make sure that nothing else gets done after the commit is issued
-      // this will eliminate any possibility or races
+      // We want to make sure that nothing else gets done after the rollback is issued
       final List<TransactionOperation> operationsToComplete = this.operations;
       this.operations = null;
 

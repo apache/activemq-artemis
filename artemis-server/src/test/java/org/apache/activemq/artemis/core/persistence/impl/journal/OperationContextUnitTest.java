@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +28,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -246,6 +248,45 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
          executor.shutdown();
       }
    }
+
+   @Test
+   public void testSequentialCompletionN() throws Exception {
+      ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
+      final int N = 500;
+      try {
+         final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
+
+         // pending work to queue completions till done
+         impl.storeLineUp();
+
+         for (long l = 0; l < N; l++) {
+            long finalL = l;
+            impl.executeOnCompletion(new IOCallback() {
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+               }
+
+               @Override
+               public void done() {
+                  completions.add(finalL);
+               }
+            });
+         }
+
+         impl.done();
+
+         Wait.assertEquals(N, ()-> completions.size());
+
+         for (long i = 0; i < N; i++) {
+            assertEquals("ordered", i, (long) completions.poll());
+         }
+
+      } finally {
+         executor.shutdownNow();
+      }
+   }
+
 
    @Test
    public void testErrorNotLostOnPageSyncError() throws Exception {

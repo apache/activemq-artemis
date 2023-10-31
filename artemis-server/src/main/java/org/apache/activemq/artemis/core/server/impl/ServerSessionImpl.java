@@ -142,7 +142,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final ServerProducers serverProducers;
 
-   protected Transaction tx;
+   protected volatile Transaction tx;
 
    /** This will store the Transaction between xaEnd and xaPrepare or xaCommit.
     *  in a failure scenario (client is gone), this will be held between xaEnd and xaCommit. */
@@ -395,15 +395,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          callback.close(failed);
       }
       synchronized (this) {
-         if (!closed) {
-            if (server.hasBrokerSessionPlugins()) {
-               server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
-            }
+         if (server.hasBrokerSessionPlugins()) {
+            server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
          }
          this.setStarted(false);
-         if (closed)
-            return;
-
          if (failed) {
 
             Transaction txToRollback = tx;
@@ -432,7 +427,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                }
             }
          }
-         closed = true;
       }
 
       //putting closing of consumers outside the sync block
@@ -653,7 +647,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
     * Notice that we set autoCommitACK and autoCommitSends to true if tx == null
     */
    @Override
-   public void resetTX(Transaction transaction) {
+   public synchronized void resetTX(Transaction transaction) {
       this.tx = transaction;
       this.autoCommitAcks = transaction == null;
       this.autoCommitSends = transaction == null;
@@ -1724,20 +1718,29 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void close(final boolean failed, final boolean force) {
-      if (closed)
-         return;
+      synchronized (this) {
+         if (closed) {
+            return;
+         }
+         closed = true;
+      }
 
       if (force) {
-         context.clear();
+         context.reset();
       }
 
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
+            callDoClose();
          }
 
          @Override
          public void done() {
+            callDoClose();
+         }
+
+         private void callDoClose() {
             try {
                doClose(failed);
             } catch (Exception e) {

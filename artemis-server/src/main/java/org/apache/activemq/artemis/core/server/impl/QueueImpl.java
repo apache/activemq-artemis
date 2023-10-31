@@ -1534,13 +1534,37 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (consumer == exclusiveConsumer) {
-               exclusiveConsumer = null;
+
+               // await context completion such that any delivered are returned
+               // to the queue. Preserve an ordered view for the next exclusive
+               // consumer
+               storageManager.afterCompleteOperations(new IOCallback() {
+
+                  @Override
+                  public void onError(final int errorCode, final String errorMessage) {
+                     releaseExclusiveConsumer();
+                  }
+
+                  @Override
+                  public void done() {
+                     releaseExclusiveConsumer();
+                  }
+
+               });
             }
 
             groups.removeIf(consumer::equals);
 
          }
       }
+   }
+
+   private void releaseExclusiveConsumer() {
+      synchronized (QueueImpl.this) {
+         exclusiveConsumer = null;
+         resetAllIterators();
+      }
+      deliverAsync();
    }
 
    private void stopDispatch() {
@@ -3136,7 +3160,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (holder == null) {
                   // this shouldn't happen, however I'm adding this check just in case
                   logger.debug("consumers.next() returned null.");
-                  consumers.remove();
                   deliverAsync(true);
                   return false;
                }

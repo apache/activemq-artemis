@@ -449,7 +449,7 @@ public class OperationContextImpl implements OperationContext {
    }
 
    @Override
-   public synchronized void clear() {
+   public synchronized void reset() {
       stored = 0;
       storeLineUpField = 0;
       minimalReplicated = 0;

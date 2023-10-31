@@ -547,6 +547,14 @@ public class AMQSession implements SessionCallback {
       this.coreSession.close(false);
    }
 
+   @Override
+   public void close(boolean failed) {
+      try {
+         this.coreSession.close(failed);
+      } catch (Exception bestEffort) {
+      }
+   }
+
    public OpenWireConnection getConnection() {
       return connection;
    }

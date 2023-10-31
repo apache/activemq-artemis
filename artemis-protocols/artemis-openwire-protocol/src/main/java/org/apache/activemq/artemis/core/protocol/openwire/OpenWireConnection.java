@@ -682,18 +682,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private void rollbackInProgressLocalTransactions() {
 
       for (Transaction tx : txMap.values()) {
-         AMQSession session = (AMQSession) tx.getProtocolData();
-         if (session != null) {
-            session.getCoreSession().resetTX(tx);
-            try {
-               session.getCoreSession().rollback(false);
-            } catch (Exception expectedOnExistingOutcome) {
-            } finally {
-               session.getCoreSession().resetTX(null);
-            }
-         } else {
-            tx.tryRollback();
-         }
+         tx.tryRollback();
       }
    }
 
@@ -729,7 +718,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          for (SessionId sessionId : sessionIdMap.values()) {
             AMQSession session = sessions.get(sessionId);
             if (session != null) {
-               session.close();
+               session.close(fail);
             }
          }
          internalSession.close(false);
@@ -782,8 +771,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       recoverOperationContext();
 
-      rollbackInProgressLocalTransactions();
-
       if (me != null) {
          //filter it like the other protocols
          if (!(me instanceof ActiveMQRemoteDisconnectException)) {
@@ -796,6 +783,20 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
       } catch (InvalidClientIDException e) {
          logger.warn("Couldn't close connection because invalid clientID", e);
+      } finally {
+         // there may be some transactions not associated with sessions
+         // deal with them after sessions are removed via connection removal
+         operationContext.executeOnCompletion(new IOCallback() {
+            @Override
+            public void done() {
+               rollbackInProgressLocalTransactions();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+               rollbackInProgressLocalTransactions();
+            }
+         });
       }
       shutdown(true);
    }
@@ -1338,7 +1339,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRollbackTransaction(TransactionInfo info) throws Exception {
-         Transaction tx = lookupTX(info.getTransactionId(), null, true);
+         Transaction tx = lookupTX(info.getTransactionId(), null);
+
+         if (tx == null) {
+            throw new IllegalStateException("Transaction not started, " + info.getTransactionId());
+         }
 
          final AMQSession amqSession;
          if (tx != null) {
@@ -1354,11 +1359,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             if (amqSession != null) {
                amqSession.getCoreSession().resetTX(tx);
 
-               try {
-                  returnReferences(tx, amqSession);
-               } finally {
-                  amqSession.getCoreSession().resetTX(null);
-               }
+               tx.addOperation(new TransactionOperationAbstract() {
+                  @Override
+                  public void beforeRollback(Transaction tx) throws Exception {
+                     returnReferences(tx, amqSession);
+                  }
+               });
             }
          }
 
@@ -1406,6 +1412,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
          } else {
             if (tx != null) {
+               // returnReferences() is only interested in acked messages already in the tx, hence we bypass
+               // getCoreSession().rollback() logic for CORE which would add any prefetched/delivered which have
+               // not yet been processed by the openwire client.
                tx.rollback();
             }
          }
@@ -1490,18 +1499,46 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       @Override
       public Response processBeginTransaction(TransactionInfo info) throws Exception {
          final TransactionId txID = info.getTransactionId();
-
          try {
             internalSession.resetTX(null);
             if (txID.isXATransaction()) {
-               Xid xid = OpenWireUtil.toXID(txID);
+               final Xid xid = OpenWireUtil.toXID(txID);
                internalSession.xaStart(xid);
+               final ResourceManager resourceManager = server.getResourceManager();
+               final Transaction transaction = resourceManager.getTransaction(xid);
+               transaction.addOperation(new TransactionOperationAbstract() {
+                  @Override
+                  public void afterCommit(Transaction tx) {
+                     removeFromResourceManager();
+                  }
+
+                  @Override
+                  public void afterRollback(Transaction tx) {
+                     removeFromResourceManager();
+                  }
+
+                  private void removeFromResourceManager() {
+                     try {
+                        resourceManager.removeTransaction(xid, getRemotingConnection());
+                     } catch (ActiveMQException bestEffort) {
+                     }
+                  }
+               });
             } else {
-               Transaction transaction = internalSession.newTransaction();
+               final Transaction transaction = internalSession.newTransaction();
                txMap.put(txID, transaction);
                transaction.addOperation(new TransactionOperationAbstract() {
                   @Override
                   public void afterCommit(Transaction tx) {
+                     removeFromTxMap();
+                  }
+
+                  @Override
+                  public void afterRollback(Transaction tx) {
+                     removeFromTxMap();
+                  }
+
+                  private void removeFromTxMap() {
                      txMap.remove(txID);
                   }
                });
@@ -1520,7 +1557,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       private Response processCommit(TransactionInfo info, boolean onePhase) throws Exception {
          TransactionId txID = info.getTransactionId();
 
-         Transaction tx = lookupTX(txID, null, true);
+         Transaction tx = lookupTX(txID, null);
+
+         if (tx == null) {
+            throw new IllegalStateException("Transaction not started, " + txID);
+         }
 
          if (txID.isXATransaction()) {
             ResourceManager resourceManager = server.getResourceManager();
@@ -1557,7 +1598,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
          } else {
             if (tx != null) {
-               tx.commit(onePhase);
+               AMQSession amqSession = (AMQSession) tx.getProtocolData();
+               if (amqSession != null) {
+                  amqSession.getCoreSession().resetTX(tx);
+                  amqSession.getCoreSession().commit();
+               } else {
+                  tx.commit(true);
+               }
             }
          }
 
@@ -1630,8 +1677,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                logger.warn("Error during method invocation", e);
                throw e;
             }
-         } else {
-            txMap.remove(txID);
          }
 
          return null;
@@ -1705,8 +1750,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                sendException(e);
             }
             throw e;
-         } finally {
-            session.getCoreSession().resetTX(null);
          }
 
          return null;
@@ -1716,6 +1759,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       public Response processMessageAck(MessageAck ack) throws Exception {
          AMQSession session = getSession(ack.getConsumerId().getParentId());
          Transaction tx = lookupTX(ack.getTransactionId(), session);
+
+         if (ack.getTransactionId() != null && tx == null) {
+            throw new IllegalStateException("Transaction not started, " + ack.getTransactionId());
+         }
+
          session.getCoreSession().resetTX(tx);
 
          try {
@@ -1725,8 +1773,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             if (tx != null) {
                tx.markAsRollbackOnly(new ActiveMQException(e.getMessage()));
             }
-         } finally {
-            session.getCoreSession().resetTX(null);
          }
          return null;
       }
@@ -1819,21 +1865,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private Transaction lookupTX(TransactionId txID, AMQSession session) throws Exception {
-      return lookupTX(txID, session, false);
-   }
-
-   private Transaction lookupTX(TransactionId txID, AMQSession session, boolean remove) throws Exception {
       if (txID == null) {
          return null;
       }
 
-      Xid xid = null;
       Transaction transaction;
       if (txID.isXATransaction()) {
-         xid = OpenWireUtil.toXID(txID);
-         transaction = remove ? server.getResourceManager().removeTransaction(xid, this) : server.getResourceManager().getTransaction(xid);
+         final Xid xid = OpenWireUtil.toXID(txID);
+         transaction = server.getResourceManager().getTransaction(xid);
       } else {
-         transaction = remove ? txMap.remove(txID) : txMap.get(txID);
+         transaction = txMap.get(txID);
       }
 
       if (transaction == null) {
