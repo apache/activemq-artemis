@@ -62,7 +62,7 @@ public interface OperationContext extends IOCompletion {
     */
    boolean waitCompletion(long timeout) throws Exception;
 
-   default void clear() {
+   default void reset() {
 
    }
 }

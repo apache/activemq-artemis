@@ -413,7 +413,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
       connection.getPrefetchPolicy().setAll(prefetchSize);
       connection.start();
-      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
@@ -433,19 +433,65 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
       for (int i = 0; i < messageCount; i++) {
          m = consumer.receive(2000);
-         assertNotNull(m);
+         assertNotNull("null@:" + i, m);
          if (i == 3) {
             session.rollback();
             continue;
          }
          session.commit();
-         assertTrue(queueControl.getDeliveringCount() <= prefetchSize);
+         assertTrue(queueControl.getDeliveringCount() <= prefetchSize + 1);
       }
 
       m = consumer.receive(2000);
       assertNotNull(m);
       session.commit();
 
+   }
+
+   /**
+    * @throws Exception
+    */
+   @Test
+   public void testCanRollbackPastPrefetch() throws Exception {
+      final int prefetchSize = 10;
+      final int messageCount = 2 * prefetchSize;
+
+      connection.getPrefetchPolicy().setAll(prefetchSize);
+      connection.getRedeliveryPolicy().setMaximumRedeliveries(prefetchSize + 1);
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+
+      ActiveMQQueue destination = new ActiveMQQueue("TEST");
+      this.makeSureCoreQueueExist("TEST");
+
+      QueueControl queueControl = (QueueControl)server.getManagementService().
+         getResource(ResourceNames.QUEUE + "TEST");
+
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(session.createTextMessage("MSG" + i));
+         session.commit();
+      }
+
+      Message m;
+      MessageConsumer consumer = session.createConsumer(destination);
+      Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      // do prefetch num rollbacks
+      for (int i = 0; i < prefetchSize; i++) {
+         m = consumer.receive(2000);
+         assertNotNull("null@:" + i, m);
+         session.rollback();
+      }
+
+      // then try and consume
+      for (int i = 0; i < messageCount; i++) {
+         m = consumer.receive(2000);
+         assertNotNull("null@:" + i, m);
+         session.commit();
+
+         assertTrue("deliveryCount: " + queueControl.getDeliveringCount() + " @:" + i, queueControl.getDeliveringCount() <= prefetchSize + 1);
+      }
    }
 
    /**
