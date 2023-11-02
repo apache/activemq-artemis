@@ -909,6 +909,16 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="literal-match-markers" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The characters that mark a "literal" match. A literal match means the setting(s) will only apply to
+                  the exact match regardless of wildcards. If this setting is not omitted then it must be two
+                  characters - the start marker and the end marker.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element ref="security-settings" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element ref="broker-plugins" maxOccurs="1" minOccurs="0"/>

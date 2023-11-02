@@ -24,10 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -110,6 +112,26 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals("B", message.getBodyBuffer().readString());
       sendSession.close();
       session.close();
+
+   }
+
+   @Test
+   public void testLiteralMatch() throws Exception {
+      final SimpleString literal = RandomUtil.randomSimpleString();
+      final SimpleString nonLiteral = RandomUtil.randomSimpleString();
+
+      Configuration configuration = createDefaultConfig(false);
+      configuration.setLiteralMatchMarkers("()");
+      ActiveMQServer server = createServer(false, configuration);
+      server.start();
+      HierarchicalRepository<AddressSettings> repo = server.getAddressSettingsRepository();
+      repo.addMatch("(foo.#)", new AddressSettings().setDeadLetterAddress(literal));
+      repo.addMatch("foo.#", new AddressSettings().setDeadLetterAddress(nonLiteral));
+
+      // should be the DLA from foo.# - the literal match
+      Assert.assertEquals(literal, repo.getMatch("foo.#").getDeadLetterAddress());
+
+      Assert.assertEquals(nonLiteral, repo.getMatch("foo.bar").getDeadLetterAddress());
 
    }
 

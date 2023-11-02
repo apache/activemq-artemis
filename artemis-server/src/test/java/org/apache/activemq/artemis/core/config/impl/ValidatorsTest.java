@@ -30,7 +30,7 @@ public class ValidatorsTest extends Assert {
    private static void failure(final Validators.Validator validator, final Object value) {
       try {
          validator.validate(RandomUtil.randomString(), value);
-         Assert.fail(validator + " must not validate " + value);
+         Assert.fail(validator + " must not validate '" + value + "'");
       } catch (IllegalArgumentException e) {
 
       }
@@ -139,6 +139,16 @@ public class ValidatorsTest extends Assert {
 
       ValidatorsTest.success(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE);
       ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE + 1);
+   }
+
+   @Test
+   public void testTWO_CHARACTERS() {
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "1234");
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "123");
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "1");
+
+      ValidatorsTest.success(Validators.NULL_OR_TWO_CHARACTERS, "12");
+      ValidatorsTest.success(Validators.NULL_OR_TWO_CHARACTERS, null);
    }
 
 }

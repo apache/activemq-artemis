@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,14 @@ public class RepositoryTest extends ActiveMQTestBase {
       super.setUp();
 
       securityRepository = new HierarchicalObjectRepository<>();
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception {
+      super.tearDown();
+
+      DummyMergeable.reset();
    }
 
    @Test
@@ -63,6 +72,32 @@ public class RepositoryTest extends ActiveMQTestBase {
       Assert.assertEquals("root", repo.getMatch("a.babc"));
       Assert.assertEquals("ab#", repo.getMatch("a.b.dabc"));
       Assert.assertEquals("abd#", repo.getMatch("a.b.d"));
+   }
+
+   /*
+    * A "literal" match is one which uses wild-cards but should not be applied to other matches "below" it in the hierarchy.
+    */
+   @Test
+   public void testLiteral() {
+      HierarchicalObjectRepository<DummyMergeable> repo = new HierarchicalObjectRepository<>(null, new HierarchicalObjectRepository.MatchModifier() { }, "()");
+
+      repo.addMatch("#", new DummyMergeable(0));
+      repo.addMatch("(a.#)", new DummyMergeable(1));
+      repo.addMatch("a.#", new DummyMergeable(2));
+      repo.addMatch("a.b", new DummyMergeable(3));
+
+      repo.getMatch("a.b");
+      assertTrue(DummyMergeable.contains(0));
+      assertFalse(DummyMergeable.contains(1));
+      assertTrue(DummyMergeable.contains(2));
+      assertTrue(DummyMergeable.contains(3));
+
+      DummyMergeable.reset();
+      repo.getMatch("a.#");
+      assertTrue(DummyMergeable.contains(0));
+      assertTrue(DummyMergeable.contains(1));
+      assertFalse(DummyMergeable.contains(2));
+      assertFalse(DummyMergeable.contains(3));
    }
 
    @Test

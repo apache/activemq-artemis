@@ -42,10 +42,17 @@ public class Match<T> {
 
    private final T value;
 
+   private final boolean literal;
+
    public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration) {
+      this(match, value, wildcardConfiguration, false);
+   }
+
+   public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration, final boolean literal) {
       this.match = match;
       this.value = value;
       pattern = createPattern(match, wildcardConfiguration, false);
+      this.literal = literal;
    }
 
    /**
@@ -91,6 +98,10 @@ public class Match<T> {
 
    public final T getValue() {
       return value;
+   }
+
+   public final boolean isLiteral() {
+      return literal;
    }
 
    @Override

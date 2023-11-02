@@ -682,6 +682,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT = 5000;
 
+   public static final String DEFAULT_LITERAL_MATCH_MARKERS = null;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1869,4 +1871,7 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT;
    }
 
+   public static String getLiteralMatchMarkers() {
+      return DEFAULT_LITERAL_MATCH_MARKERS;
+   }
 }

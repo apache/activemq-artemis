@@ -1457,4 +1457,8 @@ public interface Configuration {
        Eventually with some coordination we can update it from various server components. */
    // Inspired by https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#:~:text=The%20status%20describes%20the%20current,the%20desired%20state%20you%20supplied
    void setStatus(String status);
+
+   String getLiteralMatchMarkers();
+
+   Configuration setLiteralMatchMarkers(String literalMatchMarkers);
 }

@@ -68,6 +68,7 @@
       <critical-analyzer-check-period>333</critical-analyzer-check-period>
       <critical-analyzer-timeout>777</critical-analyzer-timeout>
       <critical-analyzer>false</critical-analyzer>
+      <literal-match-markers>()</literal-match-markers>
       <xi:include href="${xincludePath}/ConfigurationTest-xinclude-schema-config-remoting-incoming-interceptors.xml"/>
       <xi:include href="${xincludePath}/ConfigurationTest-xinclude-schema-config-remoting-outgoing-interceptors.xml"/>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
