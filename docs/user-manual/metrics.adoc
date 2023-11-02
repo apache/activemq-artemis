@@ -16,6 +16,8 @@ public interface ActiveMQMetricsPlugin extends Serializable {
    ActiveMQMetricsPlugin init(Map<String, String> options);
 
    MeterRegistry getRegistry();
+
+   default void registered(ActiveMQServer server) { }
 }
 ----
 
@@ -23,6 +25,8 @@ When the broker starts it will call `init` and pass in the `options` which can b
 At this point the plugin should instantiate and configure the `io.micrometer.core.instrument.MeterRegistry` implementation.
 
 Later during the broker startup process it will call `getRegistry` in order to get the `MeterRegistry` implementation and use it for registering meters.
+Once registered, it will call `registered` to provide the plugin with a handle to the server.
+The plugin can then use that handle later to inspect whether the broker is operational and not in a startup or shutdown phase.
 
 The broker ships with two `ActiveMQMetricsPlugin` implementations:
 
@@ -46,11 +50,15 @@ A description for each metric is exported along with the metric itself therefore
 * connection.count
 * total.connection.count
 * address.memory.usage
+* address.memory.usage.percentage
+* disk.store.usage
 
 === Address
 
 * routed.message.count
 * unrouted.message.count
+* address.size
+* number.of.pages
 
 === Queue
 
