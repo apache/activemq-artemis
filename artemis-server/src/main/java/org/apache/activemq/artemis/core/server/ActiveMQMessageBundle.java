@@ -542,4 +542,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229250, value = "Connection has been marked as destroyed for remote connection {}.")
    ActiveMQException connectionDestroyed(String remoteAddress);
+
+   @Message(id = 229251, value = "{} value '{}' is too long. It is {} characters but must be {} characters.")
+   IllegalArgumentException wrongLength(String name, String val, int actualLength, int requiredLength);
 }

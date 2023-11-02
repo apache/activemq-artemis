@@ -5,13 +5,15 @@
 With address settings you can provide a block of settings which will be applied to any addresses that match the string in the `match` attribute.
 In the below example the settings would only be applied to the address `order.foo` address, but it is also possible to use xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] to apply settings.
 
-For example, if you used the `match` string `queue.#` the settings would be applied to all addresses which start with `queue.`
+For example, if you used the `match` string `queue.#` the settings would be applied to _all_ addresses which start with `queue.`.
 
 Address settings are *hierarchical*.
 Therefore, if more than one `address-setting` would match then the settings are applied in order of their specificity with the more specific match taking priority.
-A match on the any-words delimiter (`#`) is considered less specific than a match without it.
-A match with a single word delimiter `*` is considered less specific than a match on an exact queue name.
+A match on the any-words delimiter (`#` by default) is considered less specific than a match without it.
+A match with a single word delimiter (`*` by default) is considered less specific than a match on an exact queue name.
 In this way settings can be "layered" so that configuration details don't need to be repeated.
+
+Address setting matches can also be "literal" which can be used to interrupt the hierarchy in useful ways.
 
 The meaning of the specific settings are explained fully throughout the user manual, however here is a brief description with a link to the appropriate chapter if available.
 
@@ -389,3 +391,39 @@ defines the maximum size of the duplicate ID cache for an address, as each addre
 that helps to detect and prevent the processing of duplicate messages based on their unique identification.
 By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000`
 elements if not explicitly configured. Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
+
+## Literal Matches
+
+A _literal_ match is a match that contains wildcards but should be applied _without regard_ to those wildcards. In other words, the wildcards should be ignored and the address settings should only be applied to the literal (i.e. exact) match.
+
+This can be useful when an application uses a xref:wildcard-routing.adoc[wildcard address]. For example, if an application creates a multicast queue on the address `orders.#` and that queue needs a different configuration than other matching addresses like `orders.retail` and `orders.wholesale`. Generally speaking this kind of use-case is rare, but wildcard addresses are often used by MQTT clients, and this kind of configuration flexiblity is useful.
+
+### Configuring a Literal Match
+
+If you want to configure a literal match the first thing to do is to configure the `literal-match-markers` parameter in `broker.xml`. This defines the beginning and ending characters used to mark the literal match, e.g.:
+
+[,xml]
+----
+<core>
+   ...
+   <literal-match-markers>()</literal-match-markers>
+   ...
+</core>
+----
+
+By default, no value is defined for `literal-match-markers` which means that literal matches are disabled by default. The value must be only 2 characters.
+
+Once `literal-match-markers` is defined you can then use those markers in the `match` of the address setting, e.g.
+
+[,xml]
+----
+<address-settings>
+   <address-setting match="(orders.#)">
+      <enable-metrics>true</enable-metrics>
+   </address-setting>
+   <address-setting match="orders.#">
+      <enable-metrics>false</enable-metrics>
+   </address-setting>
+</address-settings>
+----
+Using these settings metrics will be enabled on the address `orders.#` and any queues bound directly on that address, but metrics will _not_ be enabled for other matching addresses like `orders.retail` or `orders.wholesale` and any queues bound to those addresses.

@@ -810,6 +810,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setSuppressSessionNotifications(getBoolean(e, "suppress-session-notifications", config.isSuppressSessionNotifications()));
 
+      config.setLiteralMatchMarkers(getString(e, "literal-match-markers", config.getLiteralMatchMarkers(), Validators.NULL_OR_TWO_CHARACTERS));
+
       parseAddressSettings(e, config);
 
       parseResourceLimits(e, config);

@@ -69,6 +69,7 @@
       <critical-analyzer-timeout>777</critical-analyzer-timeout>
       <critical-analyzer>false</critical-analyzer>
       <suppress-session-notifications>false</suppress-session-notifications>
+      <literal-match-markers>()</literal-match-markers>
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>

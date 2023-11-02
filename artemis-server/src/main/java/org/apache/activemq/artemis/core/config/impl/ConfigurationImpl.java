@@ -423,6 +423,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean suppressSessionNotifications = ActiveMQDefaultConfiguration.getDefaultSuppressSessionNotifications();
 
+   private String literalMatchMarkers = ActiveMQDefaultConfiguration.getLiteralMatchMarkers();
+
    /**
     * Parent folder for all data folders.
     */
@@ -3192,6 +3194,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public synchronized void setStatus(String status) {
       JsonObject update = JsonUtil.readJsonObject(status);
       this.jsonStatus = JsonUtil.mergeAndUpdate(getJsonStatus(), update);
+   }
+
+   @Override
+   public String getLiteralMatchMarkers() {
+      return literalMatchMarkers;
+   }
+
+   @Override
+   public Configuration setLiteralMatchMarkers(String literalMatchMarkers) {
+      this.literalMatchMarkers = literalMatchMarkers;
+      return this;
    }
 
    // extend property utils with ability to auto-fill and locate from collections

@@ -33,12 +33,29 @@ public interface HierarchicalRepository<T> {
    /**
     * Add a new match to the repository
     *
-    * @param match The regex to use to match against
+    * @param match the pattern to use to match against
     * @param value the value to hold against the match
     */
    void addMatch(String match, T value);
 
+   /**
+    * Add a new match to the repository
+    *
+    * @param match the pattern to use to match against
+    * @param value the value to hold against the match
+    * @param immutableMatch
+    */
    void addMatch(String match, T value, boolean immutableMatch);
+
+   /**
+    * Add a new match to the repository
+    *
+    * @param match the pattern to use to match against
+    * @param value the value to hold against the match
+    * @param immutableMatch whether this match can be removed
+    * @param notifyListeners whether to notify any listeners that the match has been added
+    */
+   void addMatch(String match, T value, boolean immutableMatch, boolean notifyListeners);
 
    /**
     * return the value held against the nearest match

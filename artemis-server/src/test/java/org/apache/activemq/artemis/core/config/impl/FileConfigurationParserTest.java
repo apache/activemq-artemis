@@ -443,6 +443,17 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       Assert.assertEquals(-1, settings.getMaxReadPageMessages());
    }
 
+   @Test
+   public void testLiteralMatchMarkers() throws Exception {
+      String configStr = "<configuration><literal-match-markers>()</literal-match-markers><address-settings>\n<address-setting match=\"(foo)\">\n<max-read-page-bytes>-1</max-read-page-bytes></address-setting>\n</address-settings></configuration>\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      Assert.assertEquals("()", configuration.getLiteralMatchMarkers());
+   }
+
    // you should not use K, M notations on address settings max-size-messages
    @Test
    public void testExpectedErrorOverMaxMessageNotation() throws Exception {

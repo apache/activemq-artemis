@@ -494,7 +494,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          public String modify(String input) {
             return CompositeAddress.extractAddressName(input);
          }
-      });
+      }, this.configuration.getLiteralMatchMarkers());
 
       addressSettingsRepository.setDefault(new AddressSettings());
 

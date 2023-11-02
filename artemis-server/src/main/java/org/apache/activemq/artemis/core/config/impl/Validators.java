@@ -297,4 +297,14 @@ public final class Validators {
          }
       }
    };
+
+   public static final Validator NULL_OR_TWO_CHARACTERS = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val != null && val.length() != 2) {
+            throw ActiveMQMessageBundle.BUNDLE.wrongLength(name, val, val.length(), 2);
+         }
+      }
+   };
 }

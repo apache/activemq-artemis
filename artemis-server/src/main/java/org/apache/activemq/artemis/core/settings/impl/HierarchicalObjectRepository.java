@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +39,6 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.core.settings.Mergeable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
@@ -60,6 +60,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     */
    private final Map<String, Match<T>> wildcardMatches = new HashMap<>();
    private final Map<String, Match<T>> exactMatches = new HashMap<>();
+   private final Map<String, Match<T>> literalMatches = new HashMap<>();
 
    /**
     * Certain values cannot be removed after installed.
@@ -78,6 +79,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private final MatchModifier matchModifier;
 
    private final WildcardConfiguration wildcardConfiguration;
+
+   private final boolean checkLiteral;
+
+   private final char literalMatchMarkerStart;
+
+   private final char literalMatchMarkerEnd;
 
    /**
     * a cache
@@ -111,13 +118,22 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration) {
-      this(wildcardConfiguration, new MatchModifier() { });
+      this(wildcardConfiguration, new MatchModifier() { }, null);
    }
 
-   public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier) {
+   public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier, final String literalMatchMarkers) {
       this.wildcardConfiguration = wildcardConfiguration == null ? DEFAULT_WILDCARD_CONFIGURATION : wildcardConfiguration;
       this.matchComparator = new MatchComparator(this.wildcardConfiguration);
       this.matchModifier = matchModifier;
+      if (literalMatchMarkers != null) {
+         this.checkLiteral = true;
+         this.literalMatchMarkerStart = literalMatchMarkers.charAt(0);
+         this.literalMatchMarkerEnd = literalMatchMarkers.charAt(1);
+      } else {
+         this.checkLiteral = false;
+         this.literalMatchMarkerStart = 0;
+         this.literalMatchMarkerEnd = 0;
+      }
    }
 
    @Override
@@ -142,15 +158,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    @Override
-   public void addMatch(final String match, final T value) {
-      addMatch(match, value, false);
-   }
-
-   @Override
    public List<T> values() {
       lock.readLock().lock();
       try {
-         ArrayList<T> values = new ArrayList<>(wildcardMatches.size() + exactMatches.size());
+         ArrayList<T> values = new ArrayList<>(wildcardMatches.size() + exactMatches.size() + literalMatches.size());
 
          for (Match<T> matchValue : wildcardMatches.values()) {
             values.add(matchValue.getValue());
@@ -160,27 +171,39 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             values.add(matchValue.getValue());
          }
 
+         for (Match<T> matchValue : literalMatches.values()) {
+            values.add(matchValue.getValue());
+         }
+
          return values;
       } finally {
          lock.readLock().unlock();
       }
    }
 
-   /**
-    * Add a new match to the repository
-    *
-    * @param match The regex to use to match against
-    * @param value the value to hold against the match
-    */
+   @Override
+   public void addMatch(final String match, final T value) {
+      addMatch(match, value, false);
+   }
+
    @Override
    public void addMatch(final String match, final T value, final boolean immutableMatch) {
       addMatch(match, value, immutableMatch, true);
    }
 
-   private void addMatch(final String match, final T value, final boolean immutableMatch, boolean notifyListeners) {
+   @Override
+   public void addMatch(final String match, final T value, final boolean immutableMatch, final boolean notifyListeners) {
+      String modifiedMatch = match;
+      boolean literal = false;
+      if (checkLiteral) {
+         literal = match.charAt(0) == literalMatchMarkerStart && match.charAt(match.length() - 1) == literalMatchMarkerEnd;
+         if (literal) {
+            modifiedMatch = match.substring(1, match.length() - 1);
+         }
+      }
+      modifiedMatch = matchModifier.modify(modifiedMatch);
       lock.writeLock().lock();
       try {
-         String modifiedMatch = matchModifier.modify(match);
          // an exact match (i.e. one without wildcards) won't impact any other matches so no need to clear the cache
          if (usesWildcards(modifiedMatch)) {
             clearCache();
@@ -192,8 +215,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             immutables.add(modifiedMatch);
          }
          Match.verify(modifiedMatch, wildcardConfiguration);
-         Match<T> match1 = new Match<>(modifiedMatch, value, wildcardConfiguration);
-         if (usesWildcards(modifiedMatch)) {
+         Match<T> match1 = new Match<>(modifiedMatch, value, wildcardConfiguration, literal);
+         if (literal) {
+            literalMatches.put(modifiedMatch, match1);
+         } else if (usesWildcards(modifiedMatch)) {
             wildcardMatches.put(modifiedMatch, match1);
          } else {
             exactMatches.put(modifiedMatch, match1);
@@ -272,6 +297,9 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             }
          } else {
             ((Mergeable) actualMatch).merge(match.getValue());
+            if (match.isLiteral()) {
+               break;
+            }
          }
       }
       return actualMatch;
@@ -304,8 +332,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.writeLock().lock();
       try {
          String modMatch = matchModifier.modify(match);
-         boolean isImmutable = immutables.contains(modMatch);
-         if (isImmutable) {
+         if (immutables.contains(modMatch)) {
             logger.debug("Cannot remove match {} since it came from a main config", modMatch);
          } else {
             /**
@@ -318,6 +345,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             } else {
                clearCache();
                exactMatches.remove(modMatch);
+               literalMatches.remove(modMatch);
             }
             onChange();
          }
@@ -411,6 +439,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private void clearMatches() {
       wildcardMatches.clear();
       exactMatches.clear();
+      literalMatches.clear();
    }
 
    private void onChange() {
@@ -449,6 +478,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             possibleMatches.put(entry.getKey(), entryMatch);
          }
       }
+
+      if (literalMatches.containsKey(match)) {
+         possibleMatches.put(match, literalMatches.get(match));
+      }
+
       return possibleMatches;
    }
 
