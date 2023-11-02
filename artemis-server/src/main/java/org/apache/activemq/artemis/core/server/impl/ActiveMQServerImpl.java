@@ -4738,4 +4738,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return managementLock::unlock;
       }
    }
+
+   public int getNetworkTopologyLives() { return 9; }
+
+   public int getNetworkTopologyBackups() { return 7; }
 }

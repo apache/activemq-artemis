@@ -232,6 +232,8 @@ public class ManagementServiceImpl implements ManagementService {
             builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE, messagingServer, metrics -> Double.valueOf(messagingServerControl.getAddressMemoryUsage()), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_DESCRIPTION);
             builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE_PERCENTAGE, messagingServer, metrics -> Double.valueOf(messagingServerControl.getAddressMemoryUsagePercentage()), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION);
             builder.build(BrokerMetricNames.DISK_STORE_USAGE, messagingServer, metrics -> Double.valueOf(messagingServer.getDiskStoreUsage()), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION);
+            builder.build(BrokerMetricNames.CLUSTER_LIVES_COUNT, messagingServer, metrics -> Double.valueOf(messagingServer.getNetworkTopologyLives()), ActiveMQServerControl.CLUSTER_LIVES_COUNT_DESCRIPTION);
+            builder.build(BrokerMetricNames.CLUSTER_BACKUPS_COUNT, messagingServer, metrics -> Double.valueOf(messagingServer.getNetworkTopologyBackups()), ActiveMQServerControl.CLUSTER_BACKUPS_COUNT_DESCRIPTION);
          });
       }
    }

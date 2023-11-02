@@ -169,7 +169,10 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
               new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
               new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0),
-              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0)
+              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0),
+              new Metric("artemis.cluster.lives.count", "Number of live brokers in the broker cluster topology", 0.0),
+              new Metric("artemis.cluster.backups.count", "Number of backup brokers in the broker cluster topology", 0.0)
+
       ));
    }
 

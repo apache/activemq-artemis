@@ -23,4 +23,6 @@ public class BrokerMetricNames {
    public static final String ADDRESS_MEMORY_USAGE = "address.memory.usage";
    public static final String ADDRESS_MEMORY_USAGE_PERCENTAGE = "address.memory.usage.percentage";
    public static final String DISK_STORE_USAGE = "disk.store.usage";
+   public static final String CLUSTER_LIVES_COUNT = "cluster.lives.count";
+   public static final String CLUSTER_BACKUPS_COUNT = "cluster.backups.count";
 }

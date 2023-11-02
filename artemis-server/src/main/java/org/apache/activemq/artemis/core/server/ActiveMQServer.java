@@ -997,4 +997,8 @@ public interface ActiveMQServer extends ServiceComponent {
    default String getStatus() {
       return "";
    }
+
+   int getNetworkTopologyLives();
+
+   int getNetworkTopologyBackups();
 }
