@@ -44,6 +44,8 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
+import org.apache.activemq.broker.region.MessageReference;
+import org.apache.activemq.broker.region.Subscription;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.broker.region.virtual.VirtualDestination;
@@ -173,6 +175,11 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
    @Override
    public void virtualDestinationRemoved(ConnectionContext connectionContext, VirtualDestination virtualDestination) {
+
+   }
+
+   @Override
+   public void messageDispatched(ConnectionContext context, Subscription sub, MessageReference messageReference) {
 
    }
 
