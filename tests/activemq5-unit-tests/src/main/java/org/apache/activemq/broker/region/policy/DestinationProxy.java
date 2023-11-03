@@ -591,6 +591,11 @@ public class DestinationProxy implements Destination {
    }
 
    @Override
+   public void messageDispatched(ConnectionContext context, Subscription sub, MessageReference messageReference) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
    public void messageDiscarded(ConnectionContext context, Subscription sub, MessageReference messageReference) {
       throw new UnsupportedOperationException("Not implemented yet");
 

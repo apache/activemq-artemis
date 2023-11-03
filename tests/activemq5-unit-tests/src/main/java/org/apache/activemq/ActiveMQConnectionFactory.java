@@ -19,6 +19,7 @@ package org.apache.activemq;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -995,5 +996,25 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
 
    public boolean isTrustAllPackages() {
       return trustAllPackages;
+   }
+
+   @Override
+   public JMSContext createContext() {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(String userName, String password) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(String userName, String password, int sessionMode) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(int sessionMode) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
    }
 }
