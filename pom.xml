@@ -130,7 +130,7 @@
       <netty-tcnative-version>2.0.61.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
       <protonj2.version>1.0.0-M17</protonj2.version>
-      <slf4j.version>1.7.36</slf4j.version>
+      <slf4j.version>2.0.9</slf4j.version>
       <log4j.version>2.21.1</log4j.version>
       <qpid.jms.version>1.10.0</qpid.jms.version>
       <johnzon.version>1.2.21</johnzon.version>
@@ -776,7 +776,7 @@
          </dependency>
          <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j.version}</version>
          </dependency>
          <dependency>
