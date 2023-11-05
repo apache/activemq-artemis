@@ -219,6 +219,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
                                        .withNullTarget();
          peer.remoteDetach().withErrorCondition("amqp:unauthorized-access", "Not authroized").queue();
          peer.expectDetach().optional();
+         peer.expectClose().optional();
          // Broker reconnect and allow it to attach this time.
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
          peer.expectOpen().respond();

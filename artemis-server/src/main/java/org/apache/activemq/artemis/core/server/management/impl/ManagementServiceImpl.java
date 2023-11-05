@@ -619,6 +619,8 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerInRegistry(final String resourceName, final Object managedResource) {
       unregisterFromRegistry(resourceName);
 
+      logger.debug("Registering {} as {}", resourceName, managedResource);
+
       registry.put(resourceName, managedResource);
    }
 

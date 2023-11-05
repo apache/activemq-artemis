@@ -55,4 +55,7 @@ public interface ActiveMQAMQPProtocolLogger {
 
    @LogMessage(id = 111006, value = "Unable to send message {} to Dead Letter Address.", level = LogMessage.Level.WARN)
    void unableToSendMessageToDLA(MessageReference ref, Throwable t);
+
+   @LogMessage(id = 111007, value = "Invalid Connection State: {} for remote IP {}", level = LogMessage.Level.WARN)
+   void invalidAMQPConnectionState(Object state, Object remoteIP);
 }

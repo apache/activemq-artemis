@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -92,6 +93,7 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
+import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
@@ -295,7 +297,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } catch (ActiveMQException e) {
          throw e;
       } catch (Exception e) {
-         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
+         ActiveMQAMQPInternalErrorException internalErrorException = ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
+         internalErrorException.initCause(e);
+         throw internalErrorException;
       }
    }
 
@@ -980,6 +984,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       @Override
       public Consumer init(ProtonServerSenderContext senderContext) throws Exception {
+         validateConnectionState();
+
          Source source = (Source) sender.getRemoteSource();
          final Map<Symbol, Object> supportedFilters = new HashMap<>();
 
@@ -1332,6 +1338,24 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                //ignore on close, its temp anyway and will be removed later
             }
          }
+      }
+   }
+
+   private void validateConnectionState() throws ActiveMQException {
+      ProtonHandler handler = null;
+      Connection qpidConnection = null;
+
+      if (connection == null || (handler = connection.getHandler()) == null || (qpidConnection = handler.getConnection()) == null) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("validateConnectionState:: connection={}, handler={}, qpidConnection={}", connection, handler, qpidConnection);
+         }
+
+         ActiveMQAMQPProtocolLogger.LOGGER.invalidAMQPConnectionState("null", "null");
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.invalidAMQPConnectionState("null");
+      }
+      if (qpidConnection.getRemoteState() == EndpointState.CLOSED) {
+         ActiveMQAMQPProtocolLogger.LOGGER.invalidAMQPConnectionState(qpidConnection.getRemoteState(), connection.getRemoteAddress());
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.invalidAMQPConnectionState(qpidConnection.getRemoteState());
       }
    }
 }

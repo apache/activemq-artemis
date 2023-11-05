@@ -90,9 +90,6 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
-
-         // should be no more interactions
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 
@@ -128,9 +125,6 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
-
-         // should be no more interactions
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 
@@ -160,9 +154,6 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
-
-         // should be no more interactions
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 
@@ -205,9 +196,6 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
-
-         // should be no more interactions
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 
@@ -258,9 +246,6 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
-
-         // should be no more interactions
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 }

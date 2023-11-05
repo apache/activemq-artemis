@@ -128,6 +128,17 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       int MESSAGES = 20;
       basicMemoryAsserts();
 
+      // The separate method here exists to ensure basicMemoryAsserts runs correctly.
+      // Since I'm evaluating RemotingConnectionImpl the connectionFactory inside the method may still
+      // hold a reference that would only be released at the end of the method,
+      // because of that I need to make these calls on a separate method.
+      // I tried not needing this by creating a context but that was not enough to release the references.
+      doManyConsumers(protocol, REPEATS, MESSAGES, checkLeak);
+
+      basicMemoryAsserts();
+   }
+
+   private void doManyConsumers(String protocol, int REPEATS, int MESSAGES, CheckLeak checkLeak) throws Exception {
       ConnectionFactory cf = createConnectionFactory(protocol);
 
       try (Connection producerConnection = cf.createConnection(); Connection consumerConnection = cf.createConnection()) {
@@ -175,7 +186,6 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
 
       assertMemory(new CheckLeak(), 0, ServerConsumerImpl.class.getName());
 
-
       // this is just to drain the messages
       try (Connection targetConnection = cf.createConnection(); Connection consumerConnection = cf.createConnection()) {
          Session targetSession = targetConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -205,9 +215,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
          ((ActiveMQConnectionFactory)cf).close();
       }
 
-      basicMemoryAsserts();
    }
-
 
    @Test
    public void testCancelledDeliveries() throws Exception {

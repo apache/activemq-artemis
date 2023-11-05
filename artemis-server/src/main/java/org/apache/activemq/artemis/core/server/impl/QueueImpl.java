@@ -4762,7 +4762,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   RemotingService remotingService = server.getRemotingService();
 
                   for (RemotingConnection potentialConnection : remotingService.getConnections()) {
-                     if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
+                     if (potentialConnection.getID().toString().equals(String.valueOf(serverConsumer.getConnectionID()))) {
                         connection = potentialConnection;
                      }
                   }

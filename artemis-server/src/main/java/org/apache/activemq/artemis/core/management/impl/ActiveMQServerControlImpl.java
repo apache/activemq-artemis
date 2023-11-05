@@ -2297,7 +2297,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                         RemotingConnection connection = null;
 
                         for (RemotingConnection potentialConnection : remotingService.getConnections()) {
-                           if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
+                           if (potentialConnection.getID().toString().equals(String.valueOf(serverConsumer.getConnectionID()))) {
                               connection = potentialConnection;
                            }
                         }

@@ -108,4 +108,7 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 119026, value = "Malformed Federation control message: {}")
    ActiveMQException malformedFederationControlMessage(String address);
+
+   @Message(id = 119027, value = "Invalid AMQPConnection Remote State: {}")
+   ActiveMQException invalidAMQPConnectionState(Object state);
 }
