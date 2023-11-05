@@ -21,7 +21,10 @@ import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
+import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 
 import org.junit.Test;
@@ -41,6 +44,13 @@ public class ProtonServerSenderContextTest {
       when(mock.getServer()).thenReturn(mock(ActiveMQServer.class));
       Sender mockSender = mock(Sender.class);
       AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
+
+      ProtonHandler handler = mock(ProtonHandler.class);
+      Connection connection = mock(Connection.class);
+      when(connection.getRemoteState()).thenReturn(EndpointState.ACTIVE);
+      when(mockConnContext.getHandler()).thenReturn(handler);
+      when(handler.getConnection()).thenReturn(connection);
+
       when(mockConnContext.getProtocolManager()).thenReturn(mock);
 
       AMQPSessionCallback mockSessionCallback = mock(AMQPSessionCallback.class);

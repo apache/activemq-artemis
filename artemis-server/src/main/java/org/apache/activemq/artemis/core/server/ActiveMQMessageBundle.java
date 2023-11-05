@@ -539,4 +539,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229249, value = "Invalid Store property, only DATABASE property is supported")
    RuntimeException unsupportedStorePropertyType();
+
+   @Message(id = 229250, value = "Connection has been marked as destroyed for remote connection {}.")
+   ActiveMQException connectionDestroyed(String remoteAddress);
 }

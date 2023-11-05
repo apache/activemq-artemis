@@ -20,10 +20,13 @@ package org.apache.activemq.artemis.tests.leak;
 import java.lang.invoke.MethodHandles;
 
 import io.github.checkleak.core.CheckLeak;
+import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
@@ -42,6 +45,9 @@ public class MemoryAssertions {
       assertMemory(checkLeak, 0, OpenWireConnection.class.getName());
       assertMemory(checkLeak, 0, ProtonServerSenderContext.class.getName());
       assertMemory(checkLeak, 0, ProtonServerReceiverContext.class.getName());
+      assertMemory(checkLeak, 0, ActiveMQProtonRemotingConnection.class.getName());
+      assertMemory(checkLeak, 0, RemotingConnectionImpl.class.getName());
+      assertMemory(checkLeak, 0, ServerSessionImpl.class.getName());
       assertMemory(checkLeak, 0, AMQPSessionContext.class.getName());
       assertMemory(checkLeak, 0, ServerConsumerImpl.class.getName());
       assertMemory(checkLeak, 0, RoutingContextImpl.class.getName());

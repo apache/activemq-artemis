@@ -937,6 +937,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
             peer.expectDetach().optional(); // Broker is not consistent on sending the detach
+            peer.expectClose().optional();
             peer.expectSASLAnonymousConnect();
             peer.expectOpen().respond();
             peer.expectBegin().respond();

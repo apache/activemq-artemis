@@ -148,8 +148,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final OpenWireProtocolManager protocolManager;
 
-   private boolean destroyed = false;
-
    private volatile ScheduledFuture ttlCheck;
 
    //separated in/out wireFormats allow deliveries (eg async and consumers) to not slow down bufferReceived
@@ -1233,6 +1231,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
             dispatchAsync(command);
          }
+         // During a chanceClientID a disconnect could have been sent by the client, and the client will then re-issue a connect packet
+         destroyed = false;
          return null;
 
       }

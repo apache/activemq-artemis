@@ -460,7 +460,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return started;
    }
 
-   private RemotingConnection getConnection(final Object remotingConnectionID) {
+   @Override
+   public RemotingConnection getConnection(final Object remotingConnectionID) {
       ConnectionEntry entry = connections.get(remotingConnectionID);
 
       if (entry != null) {

@@ -1841,6 +1841,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                        .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), serverConsumer.getMessagesAcknowledgedAwaitingCommit())
                        .add(ConsumerField.LAST_DELIVERED_TIME.getName(), serverConsumer.getLastDeliveredTime())
                        .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), serverConsumer.getLastAcknowledgedTime());
+
+               if (server.getRemotingService().getConnection(((ServerConsumer) consumer).getConnectionID()) == null) {
+                  obj.add(ConsumerField.ORPHANED.getName(), true);
+               }
+
                jsonArray.add(obj);
             }
 

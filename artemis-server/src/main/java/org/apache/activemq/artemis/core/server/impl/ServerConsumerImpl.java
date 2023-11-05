@@ -219,6 +219,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                              final boolean supportLargeMessage,
                              final Integer credits,
                              final ActiveMQServer server) throws Exception {
+
+
+      if (session == null || session.getRemotingConnection() == null) {
+         throw new NullPointerException("session = " + session);
+      }
+
+      if (session != null && session.getRemotingConnection() != null && session.getRemotingConnection().isDestroyed()) {
+         throw ActiveMQMessageBundle.BUNDLE.connectionDestroyed(session.getRemotingConnection().getRemoteAddress());
+      }
+
       this.id = id;
 
       this.sequentialID = server.getStorageManager().generateID();
@@ -356,8 +366,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public String getConnectionID() {
-      return this.session.getConnectionID().toString();
+   public Object getConnectionID() {
+      return this.session.getConnectionID();
    }
 
    @Override
@@ -1575,7 +1585,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public String getConnectionRemoteAddress() {
-      return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+      if (this.session == null || this.session.getRemotingConnection() == null || this.session.getRemotingConnection().getTransportConnection() == null) {
+         return null;
+      } else {
+         return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+      }
    }
 
    @Override

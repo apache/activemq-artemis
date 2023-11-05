@@ -2675,4 +2675,11 @@ public interface AuditLogger {
    @LogMessage(id = 601771, value = "User {} is getting name on target resource: {}", level = LogMessage.Level.INFO)
    void getCurrentTimeMillis(Object source);
 
+   static void verifyConnections(Object source) {
+      BASE_LOGGER.verifyConnections(getCaller(), source);
+   }
+
+   @LogMessage(id = 601772, value = "User {} is calling verifyConnections on resource: {}", level = LogMessage.Level.INFO)
+   void verifyConnections(String user, Object queue);
+
 }

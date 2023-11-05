@@ -42,7 +42,9 @@ public enum ConsumerField {
    MESSAGES_ACKNOWLEDGED("messagesAcknowledged"),
    MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT("messagesAcknowledgedAwaitingCommit"),
    LAST_DELIVERED_TIME("lastDeliveredTime"),
-   LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime");
+   LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime"),
+   ORPHANED("orphaned");
+
 
    private static final Map<String, ConsumerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

@@ -44,6 +44,8 @@ public interface RemotingService {
     */
    RemotingConnection removeConnection(Object remotingConnectionID);
 
+   RemotingConnection getConnection(Object remotingConnectionID);
+
    Set<RemotingConnection> getConnections();
 
    /**
