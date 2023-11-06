@@ -46,7 +46,7 @@ public interface BaseConnectionLifeCycleListener<ProtocolClass> {
     *
     * @param connectionID the connection being destroyed.
     */
-   void connectionDestroyed(Object connectionID);
+   void connectionDestroyed(Object connectionID, boolean failed);
 
    /**
     * Called when an error occurs on the connection.

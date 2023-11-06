@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -74,6 +75,8 @@ public interface Connection {
     * @return the id
     */
    Object getID();
+
+   EventLoop getEventLoop();
 
    /**
     * writes the buffer to the connection and if flush is true request to flush the buffer

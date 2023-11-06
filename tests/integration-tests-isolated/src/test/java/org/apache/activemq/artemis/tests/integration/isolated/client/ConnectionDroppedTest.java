@@ -158,11 +158,10 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
 
       Assert.assertFalse(loggerHandler.findText("AMQ212037"));
 
-      // TODO: Fix these as part of ARTEMIS-4483
-      /*Assert.assertFalse(loggerHandler.findText("Connection failure"));
+      Assert.assertFalse(loggerHandler.findText("Connection failure"));
       Assert.assertFalse(loggerHandler.findText("REMOTE_DISCONNECT"));
       Assert.assertFalse(loggerHandler.findText("AMQ222061"));
-      Assert.assertFalse(loggerHandler.findText("AMQ222107")); */
+      Assert.assertFalse(loggerHandler.findText("AMQ222107"));
 
       Wait.assertEquals(0, () -> serverQueue.getConsumers().size(), 5000, 100);
       Wait.assertEquals(0, server::getConnectionCount, 5000);

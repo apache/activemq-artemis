@@ -404,7 +404,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public void connectionDestroyed(final Object connectionID) {
+   public void connectionDestroyed(final Object connectionID, boolean failed) {
       // The exception has to be created in the same thread where it's being called
       // as to avoid a different stack trace cause
       final ActiveMQException ex = ActiveMQClientMessageBundle.BUNDLE.channelDisconnected();

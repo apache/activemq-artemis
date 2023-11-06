@@ -794,7 +794,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), true);
       }
 
       connections.clear();
@@ -969,9 +969,9 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
-            listener.connectionDestroyed(connectionID);
+            listener.connectionDestroyed(connectionID, failed);
          }
       }
 

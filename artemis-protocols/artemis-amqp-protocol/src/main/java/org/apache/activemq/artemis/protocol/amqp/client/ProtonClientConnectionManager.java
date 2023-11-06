@@ -62,7 +62,7 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    }
 
    @Override
-   public void connectionDestroyed(Object connectionID) {
+   public void connectionDestroyed(Object connectionID, boolean failed) {
       RemotingConnection connection = connectionMap.remove(connectionID);
       if (connection != null) {
          logger.info("Connection {} destroyed", connection.getRemoteAddress());

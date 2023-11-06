@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
@@ -159,7 +160,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
       }
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), true);
       }
 
       connections.clear();
@@ -220,7 +221,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
    public void connect(final String connectionID,
                        final BufferHandler remoteHandler,
                        final InVMConnector connector,
-                       final Executor clientExecutor) {
+                       final ArtemisExecutor clientExecutor) {
       if (!started) {
          throw new IllegalStateException("Acceptor is not started");
       }
@@ -287,12 +288,12 @@ public final class InVMAcceptor extends AbstractAcceptor {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          InVMConnection connection = (InVMConnection) connections.remove(connectionID);
 
          if (connection != null) {
 
-            listener.connectionDestroyed(connectionID);
+            listener.connectionDestroyed(connectionID, failed);
 
             // Execute on different thread after all the packets are sent, to avoid deadlocks
             connection.getExecutor().execute(new Runnable() {

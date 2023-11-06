@@ -35,7 +35,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -50,7 +49,6 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurity
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
-import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExecutorNettyAdapter;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
@@ -168,12 +166,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      EventLoop nettyExecutor;
-      if (connectionCallback.getTransportConnection() instanceof NettyConnection) {
-         nettyExecutor = ((NettyConnection) connectionCallback.getTransportConnection()).getNettyChannel().eventLoop();
-      } else {
-         nettyExecutor = new ExecutorNettyAdapter(protocolManager.getServer().getExecutorFactory().getExecutor());
-      }
+      EventLoop nettyExecutor = connectionCallback.getTransportConnection().getEventLoop();
       this.handler = new ProtonHandler(nettyExecutor, protocolManager.getServer().getExecutorFactory().getExecutor(), isIncomingConnection && saslClientFactory == null);
       handler.addEventHandler(this);
       Transport transport = handler.getTransport();

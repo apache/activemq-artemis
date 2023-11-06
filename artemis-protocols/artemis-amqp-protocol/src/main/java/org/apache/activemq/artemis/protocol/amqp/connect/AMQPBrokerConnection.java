@@ -787,7 +787,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    @Override
-   public void connectionDestroyed(Object connectionID) {
+   public void connectionDestroyed(Object connectionID, boolean failed) {
       server.getRemotingService().removeConnection(connectionID);
       redoConnection();
    }

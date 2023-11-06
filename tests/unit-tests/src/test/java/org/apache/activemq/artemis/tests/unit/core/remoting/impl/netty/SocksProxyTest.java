@@ -107,7 +107,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
 
          @Override
-         public void connectionDestroyed(final Object connectionID) {
+         public void connectionDestroyed(final Object connectionID, boolean failed) {
          }
 
          @Override
@@ -170,7 +170,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
 
          @Override
-         public void connectionDestroyed(final Object connectionID) {
+         public void connectionDestroyed(final Object connectionID, boolean failed) {
          }
 
          @Override
@@ -214,7 +214,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
 
          @Override
-         public void connectionDestroyed(final Object connectionID) {
+         public void connectionDestroyed(final Object connectionID, boolean failed) {
          }
 
          @Override

@@ -106,6 +106,28 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    @Override
+   public void close() {
+      if (destroyed) {
+         return;
+      }
+
+      destroyed = true;
+
+      if (logger.isDebugEnabled()) {
+         try {
+            logger.debug("Connection regular close. amqpConnection.getHandler().getConnection().getRemoteState() = {}, remoteIP={}", amqpConnection.getHandler().getConnection().getRemoteState(), amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress());
+         } catch (Throwable e) { // just to avoid a possible NPE from the debug statement itself
+            logger.debug(e.getMessage(), e);
+         }
+      }
+
+      amqpConnection.runNow(() -> {
+         callClosingListeners();
+         internalClose();
+      });
+   }
+
+   @Override
    public void destroy() {
       synchronized (this) {
          if (destroyed) {
