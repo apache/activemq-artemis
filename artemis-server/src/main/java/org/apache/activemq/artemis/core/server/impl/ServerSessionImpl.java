@@ -452,8 +452,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
       }
 
-      consumers.clear();
-      serverProducers.clear();
+      try {
+         if (consumers != null) {
+            consumers.clear();
+         }
+         if (serverProducers != null) {
+            serverProducers.clear();
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+      }
+
 
       if (closeables != null) {
          for (Closeable closeable : closeables) {
@@ -1146,7 +1155,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
             logger.debug("deleting temporary queue {}", bindingName);
             AddressInfo addressInfo = server.getAddressInfo(binding.getAddress());
-            server.destroyQueue(bindingName, null, false, false, addressInfo == null || addressInfo.isTemporary());
+            try {
+               server.destroyQueue(bindingName, null, false, false, addressInfo == null || addressInfo.isTemporary());
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
             if (observer != null) {
                observer.tempQueueDeleted(bindingName);
             }

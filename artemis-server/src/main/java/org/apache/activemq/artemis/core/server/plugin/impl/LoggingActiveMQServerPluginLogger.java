@@ -50,11 +50,11 @@ public interface LoggingActiveMQServerPluginLogger {
    @LogMessage(id = 841001, value = "destroyed connection: {}", level = LogMessage.Level.INFO)
    void afterDestroyConnection(RemotingConnection connection);
 
-   @LogMessage(id = 841002, value = "created session name: {}, session connectionID: {}", level = LogMessage.Level.INFO)
-   void afterCreateSession(String sessionName, Object sesssionConnectionID);
+   @LogMessage(id = 841002, value = "created session name: {}, session connectionID: {}, remote address {}", level = LogMessage.Level.INFO)
+   void afterCreateSession(String sessionName, Object sesssionConnectionID, String remoteAddress);
 
-   @LogMessage(id = 841003, value = "closed session with session name: {}, failed: {}", level = LogMessage.Level.INFO)
-   void afterCloseSession(String sessionName, boolean sesssionConnectionID);
+   @LogMessage(id = 841003, value = "closed session with session name: {}, failed: {}, RemoteAddress: {}", level = LogMessage.Level.INFO)
+   void afterCloseSession(String sessionName, boolean sesssionConnectionID, String remoteAddress);
 
    @LogMessage(id = 841004, value = "added session metadata for session name : {}, key: {}, data: {}", level = LogMessage.Level.INFO)
    void afterSessionMetadataAdded(String sessionName, String key, String data);

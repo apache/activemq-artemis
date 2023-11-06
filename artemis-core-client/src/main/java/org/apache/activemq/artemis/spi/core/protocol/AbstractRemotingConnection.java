@@ -233,6 +233,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    }
 
    @Override
+   public void close() {
+      fail(new ActiveMQException());
+   }
+
+   @Override
    public Future asyncFail(final ActiveMQException me) {
 
       FutureTask<Void> task = new FutureTask(() -> {

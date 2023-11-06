@@ -198,9 +198,22 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    @Override
    public void afterCreateSession(ServerSession session) throws ActiveMQException {
       if (logAll || logSessionEvents) {
-         LoggingActiveMQServerPluginLogger.LOGGER.afterCreateSession((session == null ? UNAVAILABLE : session.getName()), (session == null ? UNAVAILABLE : session.getConnectionID()));
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCreateSession((session == null ? UNAVAILABLE : session.getName()), (session == null ? UNAVAILABLE : session.getConnectionID()), getRemoteAddress(session));
       }
 
+   }
+
+   private String getRemoteAddress(ServerSession session) {
+      if (session == null) {
+         return null;
+      }
+
+      RemotingConnection remotingConnection = session.getRemotingConnection();
+      if (remotingConnection == null) {
+         return null;
+      }
+
+      return remotingConnection.getRemoteAddress();
    }
 
    /**
@@ -227,7 +240,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    @Override
    public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
       if (logAll || logSessionEvents) {
-         LoggingActiveMQServerPluginLogger.LOGGER.afterCloseSession((session == null ? UNAVAILABLE : session.getName()), failed);
+         LoggingActiveMQServerPluginLogger.LOGGER.afterCloseSession((session == null ? UNAVAILABLE : session.getName()), failed, getRemoteAddress(session));
       }
    }
 

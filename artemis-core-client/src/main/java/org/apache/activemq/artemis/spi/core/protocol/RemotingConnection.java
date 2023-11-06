@@ -133,6 +133,8 @@ public interface RemotingConnection extends BufferHandler {
     */
    void fail(ActiveMQException me);
 
+   void close();
+
    /** Same thing as fail, but using an executor.
     *  semantic of send here, is asynchrounous.
     * @param me

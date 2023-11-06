@@ -201,6 +201,10 @@ public class ManagementRemotingConnection implements RemotingConnection {
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
    }
 
+   @Override
+   public void close() {
+   }
+
    public SessionCallback callback = new SessionCallback() {
       @Override
       public boolean hasCredits(ServerConsumer consumerID) {

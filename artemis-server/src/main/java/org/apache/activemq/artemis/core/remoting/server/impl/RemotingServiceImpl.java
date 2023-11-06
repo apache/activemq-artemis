@@ -591,12 +591,16 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    }
 
    @Override
-   public void connectionDestroyed(final Object connectionID) {
+   public void connectionDestroyed(final Object connectionID, boolean failed) {
       if (logger.isTraceEnabled()) {
          logger.trace("Connection removed {} from server {}", connectionID, this.server, new Exception("trace"));
       }
 
-      issueFailure(connectionID, new ActiveMQRemoteDisconnectException());
+      if (failed) {
+         issueFailure(connectionID, new ActiveMQRemoteDisconnectException());
+      } else {
+         issueClose(connectionID);
+      }
    }
 
    private void issueFailure(Object connectionID, ActiveMQException e) {
@@ -618,6 +622,26 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          conn.connection.fail(e);
       }
    }
+
+   private void issueClose(Object connectionID) {
+      ConnectionEntry conn = connections.get(connectionID);
+
+      if (conn != null && !conn.connection.isSupportReconnect()) {
+         RemotingConnection removedConnection = removeConnection(connectionID);
+         if (removedConnection != null) {
+            try {
+               if (server.hasBrokerConnectionPlugins()) {
+                  server.callBrokerConnectionPlugins(plugin -> plugin.afterDestroyConnection(removedConnection));
+               }
+            } catch (ActiveMQException t) {
+               logger.warn("Error executing afterDestroyConnection plugin method: {}", t.getMessage(), t);
+            }
+         }
+         conn.connection.close();
+      }
+   }
+
+
 
    @Override
    public void connectionException(final Object connectionID, final ActiveMQException me) {

@@ -85,7 +85,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
       }
 
       @Override

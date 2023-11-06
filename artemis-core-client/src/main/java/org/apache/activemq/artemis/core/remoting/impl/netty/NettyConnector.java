@@ -832,7 +832,7 @@ public class NettyConnector extends AbstractConnector {
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), false);
       }
 
       connections.clear();
@@ -1231,13 +1231,13 @@ public class NettyConnector extends AbstractConnector {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
             // Execute on different thread to avoid deadlocks
             closeExecutor.execute(new Runnable() {
                @Override
                public void run() {
-                  listener.connectionDestroyed(connectionID);
+                  listener.connectionDestroyed(connectionID, failed);
                }
             });
          }

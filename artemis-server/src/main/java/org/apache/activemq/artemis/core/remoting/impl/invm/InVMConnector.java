@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +170,7 @@ public class InVMConnector extends AbstractConnector {
       }
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), false);
       }
 
       started = false;
@@ -232,7 +233,7 @@ public class InVMConnector extends AbstractConnector {
    // This may be an injection point for mocks on tests
    protected Connection internalCreateConnection(final BufferHandler handler,
                                                  final ClientConnectionLifeCycleListener listener,
-                                                 final Executor serverExecutor) {
+                                                 final ArtemisExecutor serverExecutor) {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
       inVMConnection.setEnableBufferPooling(bufferPoolingEnabled);
@@ -267,7 +268,7 @@ public class InVMConnector extends AbstractConnector {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
             // Close the corresponding connection on the other side
             acceptor.disconnect((String) connectionID);
@@ -276,7 +277,7 @@ public class InVMConnector extends AbstractConnector {
             closeExecutor.execute(new Runnable() {
                @Override
                public void run() {
-                  listener.connectionDestroyed(connectionID);
+                  listener.connectionDestroyed(connectionID, failed);
                }
             });
          }

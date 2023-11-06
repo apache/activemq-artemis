@@ -108,10 +108,10 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    }
 
    @Override
-   public void connectionDestroyed(Object connectionID) {
+   public void connectionDestroyed(Object connectionID, boolean failed) {
       for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
          if (connection.getConnection() != null && connectionID.equals(connection.getConnection().getID())) {
-            connection.connectionDestroyed(connectionID);
+            connection.connectionDestroyed(connectionID, failed);
          }
       }
    }
