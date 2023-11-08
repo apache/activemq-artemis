@@ -580,7 +580,7 @@ public interface Message {
     * Puts a String property in this message.
     * <p>
     * Callers must call {@link #reencode()} in order to be sent to clients
-    * 
+    *
     * @param key   property name
     * @param value property value
     */
