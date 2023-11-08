@@ -466,6 +466,7 @@ public interface Message {
 
    void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
 
+   /** Propagate message modifications to clients. */
    default void reencode() {
       // only valid probably on AMQP
    }
@@ -520,54 +521,75 @@ public interface Message {
       return null;
    }
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putBooleanProperty(String key, boolean value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putByteProperty(String key, byte value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putBytesProperty(String key, byte[] value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putShortProperty(String key, short value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putCharProperty(String key, char value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putIntProperty(String key, int value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putLongProperty(String key, long value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putFloatProperty(String key, float value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putDoubleProperty(String key, double value);
 
 
-
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putBooleanProperty(SimpleString key, boolean value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putByteProperty(SimpleString key, byte value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putBytesProperty(SimpleString key, byte[] value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putShortProperty(SimpleString key, short value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putCharProperty(SimpleString key, char value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putIntProperty(SimpleString key, int value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putLongProperty(SimpleString key, long value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putFloatProperty(SimpleString key, float value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putDoubleProperty(SimpleString key, double value);
 
    /**
     * Puts a String property in this message.
+    * <p>
+    * Callers must call {@link #reencode()} in order to be sent to clients
     *
     * @param key   property name
     * @param value property value
     */
    Message putStringProperty(String key, String value);
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException;
 
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
    Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
    Object removeProperty(String key);
