@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.api.core.management;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -94,9 +95,28 @@ public class SimpleManagement implements AutoCloseable {
       return responseLong.get();
    }
 
+   public int simpleManagementInt(String resource, String method, Object... parameters) throws Exception {
+      AtomicInteger responseInt = new AtomicInteger();
+      doManagement((m) -> setupCall(m, resource, method, parameters), m -> setIntResult(m, responseInt), SimpleManagement::failed);
+      return responseInt.get();
+   }
+
    public long getMessageCountOnQueue(String queueName) throws Exception {
       return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessageCount");
    }
+
+   public int getDeliveringCountOnQueue(String queueName) throws Exception {
+      return simpleManagementInt(ResourceNames.QUEUE + queueName, "getDeliveringCount");
+   }
+
+   public int getNumberOfConsumersOnQueue(String queueName) throws Exception {
+      String responseString = simpleManagement(ResourceNames.QUEUE + queueName, "listConsumersAsJSON");
+
+      JsonArray consumersAsJSON = JsonUtil.readJsonArray(responseString);
+
+      return consumersAsJSON.size();
+   }
+
 
    public long getMessagesAddedOnQueue(String queueName) throws Exception {
       return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessagesAdded");
@@ -152,6 +172,12 @@ public class SimpleManagement implements AutoCloseable {
       long resultLong = (long)ManagementHelper.getResult(m, Long.class);
       logger.debug("management result:: {}", resultLong);
       result.set(resultLong);
+   }
+
+   protected static void setIntResult(ClientMessage m, AtomicInteger result) throws Exception {
+      int resultInt = (int)ManagementHelper.getResult(m, Integer.class);
+      logger.debug("management result:: {}", resultInt);
+      result.set(resultInt);
    }
 
    protected void doManagement(ManagementHelper.MessageAcceptor setup, ManagementHelper.MessageAcceptor ok, ManagementHelper.MessageAcceptor failed) throws Exception {

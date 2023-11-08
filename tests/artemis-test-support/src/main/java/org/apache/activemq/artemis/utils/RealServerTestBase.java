@@ -22,13 +22,17 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -112,7 +116,11 @@ public class RealServerTestBase extends ActiveMQTestBase {
    }
 
    public Process startServer(String serverName, int portID, int timeout) throws Exception {
-      Process process = ServerUtil.startServer(getServerLocation(serverName), serverName, portID, timeout);
+      return startServer(serverName, portID, timeout, null);
+   }
+
+   public Process startServer(String serverName, int portID, int timeout, File brokerProperties) throws Exception {
+      Process process = ServerUtil.startServer(getServerLocation(serverName), serverName, portID, timeout, brokerProperties);
       addProcess(process);
       return process;
    }
@@ -270,6 +278,12 @@ public class RealServerTestBase extends ActiveMQTestBase {
       }
 
       return false;
+   }
+
+   protected static void saveProperties(Properties properties, File propertiesFile) throws Exception {
+      OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(propertiesFile));
+      properties.store(outputStream, "# Broker properties");
+      outputStream.close();
    }
 
 }
