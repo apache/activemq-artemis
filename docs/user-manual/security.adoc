@@ -113,14 +113,14 @@ Let's look at an example of that, here's another `security-setting` block:
 </security-setting>
 ----
 
-In this `security-setting` block the match 'globalqueues.europe.orders.#' is more specific than the previous match 'globalqueues.europe.#'.
-So any addresses which match 'globalqueues.europe.orders.#' will take their security settings _only_ from the latter security-setting block.
+In this `security-setting` block the match `globalqueues.europe.orders.\#` is more specific than the previous match `globalqueues.europe.#`.
+So any addresses which match `globalqueues.europe.orders.#` will take their security settings _only_ from the latter security-setting block.
 
-Note that settings are not inherited from the former block.
-All the settings will be taken from the more specific matching block, so for the address 'globalqueues.europe.orders.plastics' the only permissions that exist are `send` and `consume` for the role europe-users.
-The permissions `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue` are not inherited from the other security-setting block.
+Note that *settings are not inherited* from the former block.
+All the settings will be taken from the more specific matching block, so for the address `globalqueues.europe.orders.plastics` the only permissions that exist are `send` and `consume` for the role `europe-users`.
+The permissions `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue` are not inherited from the other `security-setting` block.
 
-By not inheriting permissions, it allows you to effectively deny permissions in more specific security-setting blocks by simply not specifying them.
+By not inheriting permissions, it allows you to effectively deny permissions in more specific `security-setting` blocks by simply not specifying them.
 Otherwise it would not be possible to deny permissions in sub-groups of addresses.
 
 === Fine-grained security using fully qualified queue name

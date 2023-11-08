@@ -492,6 +492,25 @@ public class JMSMessageTest extends JmsTestSupport {
       public String getText() throws JMSException {
          return text;
       }
+
+      @Override
+      public long getJMSDeliveryTime() throws JMSException {
+         return 0;
+      }
+
+      @Override
+      public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+      }
+
+      @Override
+      public <T> T getBody(Class<T> c) throws JMSException {
+         throw new UnsupportedOperationException("Test class does not implement getBody");
+      }
+
+      @Override
+      public boolean isBodyAssignableTo(Class c) throws JMSException {
+         throw new UnsupportedOperationException("Test class does not implement isBodyAssignableTo");
+      }
    }
 
    public void testForeignMessage() throws Exception {

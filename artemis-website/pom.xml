@@ -374,7 +374,6 @@
                         <sectnums />
                         <idprefix />
                         <idseparator>-</idseparator>
-                        <project-version>${project.version}</project-version>
                         <nofooter>true</nofooter>
                         <linkcss>true</linkcss>
                         <iconfont-remote>false</iconfont-remote>
@@ -383,6 +382,10 @@
                         <prewrap>false</prewrap>
                         <!-- enable "experimental" for keyboard macros - https://docs.asciidoctor.org/asciidoc/latest/macros/keyboard-macro/ -->
                         <experimental>true</experimental>
+
+                        <!-- Version substitution attributes -->
+                        <project-version>${project.version}</project-version>
+                        <log4j-version>${log4j.version}</log4j-version>
                      </attributes>
                   </configuration>
                </plugin>

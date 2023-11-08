@@ -83,11 +83,11 @@
       <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
       <activemq-artemis-native-version>2.0.0</activemq-artemis-native-version>
-      <karaf.version>4.4.3</karaf.version>
+      <karaf.version>4.4.4</karaf.version>
       <pax.exam.version>4.13.5</pax.exam.version>
       <commons.config.version>2.9.0</commons.config.version>
       <commons.lang.version>3.12.0</commons.lang.version>
-      <activemq5-version>5.17.6</activemq5-version>
+      <activemq5-version>5.18.3</activemq5-version>
       <apache.derby.version>10.14.2.0</apache.derby.version>
       <commons.beanutils.version>1.9.4</commons.beanutils.version>
       <commons.dbcp2.version>2.7.0</commons.dbcp2.version>
@@ -130,8 +130,8 @@
       <netty-tcnative-version>2.0.61.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
       <protonj2.version>1.0.0-M17</protonj2.version>
-      <slf4j.version>1.7.36</slf4j.version>
-      <log4j.version>2.20.0</log4j.version>
+      <slf4j.version>2.0.9</slf4j.version>
+      <log4j.version>2.21.1</log4j.version>
       <qpid.jms.version>1.10.0</qpid.jms.version>
       <johnzon.version>1.2.21</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
@@ -262,7 +262,7 @@
       <testFailureIgnore>true</testFailureIgnore>
       <fast-tests>false</fast-tests>
 
-      <project.build.outputTimestamp>2023-10-25T18:45:41Z</project.build.outputTimestamp>
+      <project.build.outputTimestamp>2023-10-27T10:14:44Z</project.build.outputTimestamp>
    </properties>
 
    <scm>
@@ -776,7 +776,7 @@
          </dependency>
          <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j.version}</version>
          </dependency>
          <dependency>
