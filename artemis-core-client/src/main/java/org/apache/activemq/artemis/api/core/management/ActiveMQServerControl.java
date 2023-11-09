@@ -2025,5 +2025,9 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Clear the authorization cache", impact = MBeanOperationInfo.ACTION)
    void clearAuthorizationCache() throws Exception;
+
+   int getNetworkTopologyLives();
+
+   int getNetworkTopologyBackups();
 }
 

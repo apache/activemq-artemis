@@ -4693,5 +4693,45 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
    }
+
+   @Override
+   public int getNetworkTopologyLives() {
+      ClusterManager clusterManager = server.getClusterManager();
+      int cnt = 0;
+      if (clusterManager != null) {
+         Set<ClusterConnection> clusterConnections = clusterManager.getClusterConnections();
+         for (ClusterConnection clusterConnection : clusterConnections) {
+            Topology topology = clusterConnection.getTopology();
+            Collection<TopologyMemberImpl> members = topology.getMembers();
+            for (TopologyMemberImpl member : members) {
+               TransportConfiguration live = member.getLive();
+               if (live != null) {
+                  cnt++;
+               }
+            }
+         }
+      }
+      return cnt;
+   }
+
+   @Override
+   public int getNetworkTopologyBackups() {
+      ClusterManager clusterManager = server.getClusterManager();
+      int cnt = 0;
+      if (clusterManager != null) {
+         Set<ClusterConnection> clusterConnections = clusterManager.getClusterConnections();
+         for (ClusterConnection clusterConnection : clusterConnections) {
+            Topology topology = clusterConnection.getTopology();
+            Collection<TopologyMemberImpl> members = topology.getMembers();
+            for (TopologyMemberImpl member : members) {
+               TransportConfiguration backup = member.getBackup();
+               if (backup != null) {
+                  cnt++;
+               }
+            }
+         }
+      }
+      return cnt;
+   }
 }
 

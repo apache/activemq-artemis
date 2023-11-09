@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
@@ -4739,7 +4740,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   public int getNetworkTopologyLives() { return 9; }
+   public int getNetworkTopologyLives() {
+	   return messagingServerControl.getNetworkTopologyLives();
+   }
 
-   public int getNetworkTopologyBackups() { return 7; }
+   public int getNetworkTopologyBackups() { 
+	   return messagingServerControl.getNetworkTopologyBackups();
+   }
 }
