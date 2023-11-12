@@ -2786,6 +2786,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
             .add(ConsumerField.ID.getAlternativeName(), consumer.getID())
+            .add(ConsumerField.SEQUENTIAL_ID.getAlternativeName(), consumer.getSequentialID())
             .add(ConsumerField.CONNECTION.getAlternativeName(), consumer.getConnectionID().toString())
             .add(ConsumerField.SESSION.getAlternativeName(), consumer.getSessionID())
             .add(ConsumerField.QUEUE.getAlternativeName(), consumer.getQueue().getName().toString())
@@ -2800,7 +2801,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), consumer.getMessagesAcknowledged())
             .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), consumer.getMessagesAcknowledgedAwaitingCommit())
             .add(ConsumerField.LAST_DELIVERED_TIME.getName(), consumer.getLastDeliveredTime())
-            .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime());
+            .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime())
+            .add(ConsumerField.STATUS.getName(), ConsumerView.checkConsumerStatus(consumer, server));
       if (consumer.getFilter() != null) {
          obj.add("filter", consumer.getFilter().getFilterString().toString());
       }
