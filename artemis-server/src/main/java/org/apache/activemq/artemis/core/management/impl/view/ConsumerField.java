@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 public enum ConsumerField {
    ID("id", "consumerID"),
+   SEQUENTIAL_ID("sequentialId", "sequentialId"),
    SESSION("session", "sessionID"),
    CONNECTION("connection", "connectionID"),
    QUEUE("queue", "queueName"),
@@ -43,7 +44,7 @@ public enum ConsumerField {
    MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT("messagesAcknowledgedAwaitingCommit"),
    LAST_DELIVERED_TIME("lastDeliveredTime"),
    LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime"),
-   ORPHANED("orphaned");
+   STATUS("status");
 
 
    private static final Map<String, ConsumerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);

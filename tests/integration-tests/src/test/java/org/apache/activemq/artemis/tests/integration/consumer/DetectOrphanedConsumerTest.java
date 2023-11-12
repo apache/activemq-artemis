@@ -27,8 +27,11 @@ import java.lang.invoke.MethodHandles;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerView;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
@@ -94,7 +97,7 @@ public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
 
       JsonArray resultArray = JsonUtil.readJsonArray(result);
       Assert.assertEquals(1, resultArray.size());
-      Assert.assertFalse(resultArray.getJsonObject(0).containsKey(ConsumerField.ORPHANED.getName()));
+      Assert.assertEquals(ConsumerView.CONSUMER_STATUS_OK, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
 
       queue.getConsumers().forEach(c -> {
          ServerConsumerImpl serverConsumer = (ServerConsumerImpl) c;
@@ -104,12 +107,16 @@ public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
       });
 
       result = queueControl.listConsumersAsJSON();
-
       logger.debug("json: {}", result);
 
       resultArray = JsonUtil.readJsonArray(result);
       Assert.assertEquals(1, resultArray.size());
-      Assert.assertTrue(resultArray.getJsonObject(0).containsKey(ConsumerField.ORPHANED.getName()));
-      Assert.assertTrue(resultArray.getJsonObject(0).getBoolean(ConsumerField.ORPHANED.getName()));
+      Assert.assertEquals(ConsumerView.CONSUMER_STATUS_ORPHANED, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
+
+      ActiveMQServerControl serverControl = (ActiveMQServerControl) server.getManagementService().getResource(ResourceNames.BROKER);
+      String sessionID = resultArray.getJsonObject(0).getString(ConsumerField.SESSION.getAlternativeName());
+      int consumerID = resultArray.getJsonObject(0).getInt(ConsumerField.SEQUENTIAL_ID.getAlternativeName());
+      logger.debug("SessionID{} ConsumerID::{}", sessionID, consumerID);
+      Assert.assertTrue(serverControl.closeConsumerWithID(sessionID, String.valueOf(consumerID)));
    }
 }

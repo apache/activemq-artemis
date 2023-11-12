@@ -106,7 +106,8 @@ var Artemis;
               {name: "Messages Acknowledged", visible: false},
               {name: "Messages Acknowledged awaiting Commit", visible: false},
               {name: "Last Delivered Time", visible: false},
-              {name: "Last Acknowledged Time", visible: false}
+              {name: "Last Acknowledged Time", visible: false},
+              {name: "Status", visible: false}
          ]
         };
 
@@ -144,7 +145,8 @@ var Artemis;
                 {id: 'messagesDelivered', name: 'Messages Delivered'},
                 {id: 'messagesDeliveredSize', name: 'Messages Delivered Size'},
                 {id: 'messagesAcknowledged', name: 'Messages Acknowledged'},
-                {id: 'messagesAcknowledgedAwaitingCommit', name: 'Messages Acknowledged awaiting Commit'}
+                {id: 'messagesAcknowledgedAwaitingCommit', name: 'Messages Acknowledged awaiting Commit'},
+                {id: 'status', name: 'status'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -203,7 +205,8 @@ var Artemis;
             { header: 'Messages Acknowledged', itemField: 'messagesAcknowledged' },
             { header: 'Messages Acknowledged awaiting Commit', itemField: 'messagesAcknowledgedAwaitingCommit' },
             { header: 'Last Delivered Time', itemField: 'lastDeliveredTime', templateFn: function(value) { return formatTimestamp(value);} },
-            { header: 'Last Acknowledged Time', itemField: 'lastAcknowledgedTime' ,  templateFn: function(value) { return formatTimestamp(value);} }
+            { header: 'Last Acknowledged Time', itemField: 'lastAcknowledgedTime' ,  templateFn: function(value) { return formatTimestamp(value);} },
+            { header: 'Status', itemField: 'status' }
         ];
 
         ctrl.refresh = function () {

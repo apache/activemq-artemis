@@ -29,6 +29,10 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
+   public static final String CONSUMER_STATUS_OK = "OK";
+   public static final String CONSUMER_STATUS_ORPHANED = "Orphaned";
+
+
    private static final String defaultSortColumn = ConsumerField.ID.getName();
 
    private final ActiveMQServer server;
@@ -80,7 +84,9 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), toString(consumer.getMessagesAcknowledged()))
          .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), toString(consumer.getMessagesAcknowledgedAwaitingCommit()))
          .add(ConsumerField.LAST_DELIVERED_TIME.getName(), consumer.getLastDeliveredTime())
-         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime());
+         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime())
+         .add(ConsumerField.STATUS.getName(), ConsumerView.checkConsumerStatus(consumer, server));
+
       return obj;
    }
 
@@ -136,9 +142,20 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
             return consumer.getLastDeliveredTime();
          case LAST_ACKNOWLEDGED_TIME:
             return consumer.getLastAcknowledgedTime();
+         case STATUS:
+            return checkConsumerStatus(consumer, server);
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }
+   }
+
+   public static String checkConsumerStatus(ServerConsumer consumer, ActiveMQServer server) {
+      if (server.getRemotingService().getConnection((consumer).getConnectionID()) == null) {
+         return CONSUMER_STATUS_ORPHANED;
+      } else {
+         return CONSUMER_STATUS_OK;
+      }
+
    }
 
    @Override
