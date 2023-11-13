@@ -12,6 +12,25 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.32.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa...
+
+=== Highlights
+
+* highlight 1
+* highlight 2
+
+=== Upgrading from 2.31.x
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4501[ARTEMIS-4501] MQTT subscription queues will be automatically removed when the corresponding session expires, either based on the session expiry interval passed by an MQTT 5 client or based on the configured `defaultMqttSessionExpiryInterval` for MQTT 3.x clients or MQTT 5 clients which don't explicitly pass a session expiry interval.
++
+Prior to this change removing subscription queues relied on the generic `auto-delete-*` `address-settings`.
++
+These settings are now no longer required.
++
+Configure `defaultMqttSessionExpiryInterval` instead.
+
 == 2.31.2
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353776[Full release notes]

@@ -110,8 +110,11 @@ public class MQTTStateManager {
       for (String key : toRemove) {
          try {
             MQTTSessionState state = removeSessionState(key);
-            if (state != null && state.isWill() && !state.isAttached() && state.isFailed()) {
-               state.getSession().sendWillMessage();
+            if (state != null) {
+               if (state.isWill() && !state.isAttached() && state.isFailed()) {
+                  state.getSession().sendWillMessage();
+               }
+               state.getSession().clean(false);
             }
          } catch (Exception e) {
             MQTTLogger.LOGGER.failedToRemoveSessionState(key, e);

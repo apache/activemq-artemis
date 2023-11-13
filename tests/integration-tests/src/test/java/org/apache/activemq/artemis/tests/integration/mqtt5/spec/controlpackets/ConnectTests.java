@@ -968,13 +968,20 @@ public class ConnectTests extends MQTT5TestSupport {
          .build();
       consumer.connect(options);
       consumer.subscribe(TOPIC, 2);
+      long start = System.currentTimeMillis();
       consumer.disconnect();
 
-      // session should *not* still exist since session expiry interval has passed
-      long start = System.currentTimeMillis();
+      // ensure the subscription queue still exists since the session hasn't expired
+      assertNotNull(getSubscriptionQueue(TOPIC, CONSUMER_ID));
+
       Wait.assertEquals(0, () -> getSessionStates().size(), EXPIRY_INTERVAL * 1000 * 2, 100);
-      assertTrue(System.currentTimeMillis() - start > (EXPIRY_INTERVAL * 1000));
+      assertTrue(System.currentTimeMillis() - start >= (EXPIRY_INTERVAL * 1000));
+
+      // session should *not* still exist since session expiry interval has passed
       assertNull(getSessionStates().get(CONSUMER_ID));
+
+      // ensure the subscription queue is cleaned up when the session expires
+      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID) == null, 2000, 100);
    }
 
    /*
