@@ -23,6 +23,7 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -55,6 +56,8 @@ public class Consumer extends DestAbstract {
 
       context.out.println("Consumer:: filter = " + filter);
 
+      OutputStream outputStream = null;
+
       SerialiserMessageListener listener = null;
       MessageSerializer serializer = null;
       if (file != null) {
@@ -64,15 +67,14 @@ public class Consumer extends DestAbstract {
             return null;
          }
 
-         OutputStream out;
          try {
-            out = new FileOutputStream(file);
+            outputStream = new BufferedOutputStream(new FileOutputStream(file));
          } catch (Exception e) {
             System.err.println("Error: Unable to open file for writing\n" + e.getMessage());
             return null;
          }
 
-         listener = new SerialiserMessageListener(serializer, out);
+         listener = new SerialiserMessageListener(serializer, outputStream);
          serializer.start();
       }
 
@@ -120,6 +122,10 @@ public class Consumer extends DestAbstract {
 
          if (serializer != null) {
             serializer.stop();
+         }
+
+         if (outputStream != null) {
+            outputStream.close();
          }
 
          return received;
