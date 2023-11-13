@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -352,12 +353,32 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return routingHandler;
    }
 
-   public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      return super.invokeInterceptors(this.incomingInterceptors, message, connection);
+   public String invokeIncoming(Message message, ActiveMQProtonRemotingConnection connection) {
+      // For tunneled messages we need to check the type as our interceptor only cares about
+      // AMQP message right now so there's not notification point for other types that cross
+      if (incomingInterceptors != null && !incomingInterceptors.isEmpty()) {
+         if (message instanceof AMQPMessage) {
+            return super.invokeInterceptors(this.incomingInterceptors, (AMQPMessage) message, connection);
+         } else {
+            return null;
+         }
+      } else {
+         return null;
+      }
    }
 
-   public String invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      return super.invokeInterceptors(this.outgoingInterceptors, message, connection);
+   public String invokeOutgoing(Message message, ActiveMQProtonRemotingConnection connection) {
+      // For tunneled messages we need to check the type as our interceptor only cares about
+      // AMQP message right now so there's not notification point for other types that cross
+      if (outgoingInterceptors != null && !outgoingInterceptors.isEmpty()) {
+         if (message instanceof AMQPMessage) {
+            return super.invokeInterceptors(this.outgoingInterceptors, (AMQPMessage) message, connection);
+         } else {
+            return null;
+         }
+      } else {
+         return null;
+      }
    }
 
    public int getInitialRemoteMaxFrameSize() {

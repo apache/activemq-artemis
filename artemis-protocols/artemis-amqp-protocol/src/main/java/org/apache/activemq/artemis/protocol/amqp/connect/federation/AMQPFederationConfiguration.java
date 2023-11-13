@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.qpid.proton.engine.Receiver;
 
 /**
@@ -43,6 +44,13 @@ public final class AMQPFederationConfiguration {
     * failed due to not responding to an attach request.
     */
    public static final int DEFAULT_LINK_ATTACH_TIMEOUT = 30;
+
+   /**
+    * Default value for the core message tunneling feature that indicates if core protocol messages
+    * should be streamed as binary blobs as the payload of an custom AMQP message which avoids any
+    * conversions of the messages to / from AMQP.
+    */
+   public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
    private final Map<String, Object> properties;
    private final AMQPConnectionContext connection;
@@ -117,6 +125,20 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
+    * @return true if the federation is configured to tunnel core messages as AMQP custom messages.
+    */
+   public boolean isCoreMessageTunnelingEnabled() {
+      final Object property = properties.get(AmqpSupport.TUNNEL_CORE_MESSAGES);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED;
+      }
+   }
+
+   /**
     * Enumerate the configuration options in this configuration object and return a {@link Map} that
     * contains the values which can be sent to a remote peer
     *
@@ -129,6 +151,7 @@ public final class AMQPFederationConfiguration {
       configMap.put(RECEIVER_CREDITS_LOW, getReceiverCreditsLow());
       configMap.put(LARGE_MESSAGE_THRESHOLD, getLargeMessageThreshold());
       configMap.put(LINK_ATTACH_TIMEOUT, getLinkAttachTimeout());
+      configMap.put(AmqpSupport.TUNNEL_CORE_MESSAGES, isCoreMessageTunnelingEnabled());
 
       return configMap;
    }

@@ -55,16 +55,19 @@ public class ProtonServerSenderContextTest {
 
       AMQPSessionCallback mockSessionCallback = mock(AMQPSessionCallback.class);
 
+      AMQPSessionContext mockSessionContext = mock(AMQPSessionContext.class);
+      when(mockSessionContext.getSessionSPI()).thenReturn(mockSessionCallback);
+      when(mockSessionContext.getAMQPConnectionContext()).thenReturn(mockConnContext);
+
       AddressQueryResult queryResult = new AddressQueryResult(null, Collections.emptySet(), 0, false, false, false, false, 0);
       when(mockSessionCallback.addressQuery(any(), any(), anyBoolean())).thenReturn(queryResult);
-      ProtonServerSenderContext sc = new ProtonServerSenderContext( mockConnContext, mockSender, null, mockSessionCallback);
+      ProtonServerSenderContext sc = new ProtonServerSenderContext(
+         mockConnContext, mockSender, mockSessionContext, mockSessionCallback);
 
       Source source = new Source();
       source.setAddress(null);
       when(mockSender.getRemoteSource()).thenReturn(source);
 
-
       sc.initialize();
    }
-
 }

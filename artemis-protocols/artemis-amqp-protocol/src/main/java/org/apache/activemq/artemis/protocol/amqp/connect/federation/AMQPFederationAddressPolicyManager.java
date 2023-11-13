@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.generateAddressFilter;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,15 +53,7 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
       super(federation, addressPolicy);
 
       this.federation = federation;
-
-      if (policy.getMaxHops() > 0) {
-         this.remoteQueueFilter = "\"m." + AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString() +
-                                  "\" IS NULL OR \"m." + AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString() +
-                                  "\"<" + policy.getMaxHops();
-      } else {
-         this.remoteQueueFilter = null;
-      }
-
+      this.remoteQueueFilter = generateAddressFilter(policy.getMaxHops());
       this.configuration = new AMQPFederationConsumerConfiguration(federation, policy.getProperties());
    }
 

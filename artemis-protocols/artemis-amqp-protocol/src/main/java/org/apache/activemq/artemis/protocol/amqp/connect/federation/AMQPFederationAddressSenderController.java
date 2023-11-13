@@ -25,6 +25,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 
 import java.util.Collections;
 import java.util.Map;
@@ -38,7 +39,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -64,26 +64,10 @@ import org.apache.qpid.proton.engine.Sender;
  * create it using the configuration values supplied in the link source properties that
  * control the lifetime of the address once the link is closed.
  */
-public final class AMQPFederationAddressSenderController implements SenderController {
-
-   // Capabilities offered to the attaching federation receiver link that indicate this sender
-   // is a federation sender which allows the link open to complete.
-   private static final Symbol[] OFFERED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_ADDRESS_RECEIVER};
-
-   private final AMQPSessionContext session;
-   private final AMQPSessionCallback sessionSPI;
+public final class AMQPFederationAddressSenderController extends AMQPFederationBaseSenderController {
 
    public AMQPFederationAddressSenderController(AMQPSessionContext session) {
-      this.session = session;
-      this.sessionSPI = session.getSessionSPI();
-   }
-
-   public AMQPSessionContext getSessionContext() {
-      return session;
-   }
-
-   public AMQPSessionCallback getSessionCallback() {
-      return sessionSPI;
+      super(session);
    }
 
    @SuppressWarnings("unchecked")
@@ -104,8 +88,15 @@ public final class AMQPFederationAddressSenderController implements SenderContro
       sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
       // We don't currently support SECOND so enforce that the answer is always FIRST
       sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-      // We need to offer back that we support federation for the remote to complete the attach.
-      sender.setOfferedCapabilities(OFFERED_LINK_CAPABILITIES);
+      // We need to offer back that we support federation for the remote to complete the attach
+      sender.setOfferedCapabilities(new Symbol[] {FEDERATION_ADDRESS_RECEIVER});
+      // We indicate desired to meet specification that we cannot use a capability unless we
+      // indicated it was desired, however unless offered by the remote we cannot use it.
+      sender.setDesiredCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+
+      // We need to check that the remote offers its ability to read tunneled core messages and
+      // if not we must not send them but instead convert all messages to AMQP messages first.
+      tunnelCoreMessages = verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
 
       final Map<String, Object> addressSourceProperties;
 
@@ -188,11 +179,6 @@ public final class AMQPFederationAddressSenderController implements SenderContro
       }
 
       return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
-   }
-
-   @Override
-   public void close() throws Exception {
-      // Currently there isn't anything needed on close of this controller.
    }
 
    private static RoutingType getRoutingType(Source source) {

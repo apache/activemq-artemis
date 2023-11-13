@@ -40,9 +40,12 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
-
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
@@ -50,11 +53,17 @@ import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
+import org.apache.qpid.proton.message.Message;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import io.netty.buffer.Unpooled;
 
 public class ProtonServerReceiverContextTest {
 
@@ -102,14 +111,22 @@ public class ProtonServerReceiverContextTest {
 
       AMQPSessionCallback mockSessionSpi = mock(AMQPSessionCallback.class);
       when(mockSessionSpi.getStorageManager()).thenReturn(new NullStorageManager());
+      when(mockSessionSpi.createStandardMessage(any(), any())).thenAnswer(new Answer<AMQPStandardMessage>() {
+
+         @Override
+         public AMQPStandardMessage answer(InvocationOnMock invocation) throws Throwable {
+            return new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null);
+         }
+      });
 
       AMQPSessionContext mockProtonContext = mock(AMQPSessionContext.class);
+      when(mockProtonContext.getSessionSPI()).thenReturn(mockSessionSpi);
 
       AtomicInteger clearLargeMessage = new AtomicInteger(0);
       ProtonServerReceiverContext rc = new ProtonServerReceiverContext(mockSessionSpi, mockConnContext, mockProtonContext, mockReceiver) {
          @Override
-         protected void clearLargeMessage() {
-            super.clearLargeMessage();
+         protected void closeCurrentReader() {
+            super.closeCurrentReader();
             clearLargeMessage.incrementAndGet();
          }
       };
@@ -120,6 +137,7 @@ public class ProtonServerReceiverContextTest {
       when(mockDelivery.getLink()).thenReturn(mockReceiver);
 
       when(mockReceiver.current()).thenReturn(mockDelivery);
+      when(mockReceiver.recv()).thenReturn(createAMQPMessageBuffer());
 
       rc.onMessage(mockDelivery);
 
@@ -129,9 +147,7 @@ public class ProtonServerReceiverContextTest {
       verify(mockReceiver, times(1)).advance();
 
       Assert.assertTrue(clearLargeMessage.get() > 0);
-
    }
-
 
    private void doOnMessageWithAbortedDeliveryTestImpl(boolean drain) throws ActiveMQAMQPException {
       Receiver mockReceiver = mock(Receiver.class);
@@ -145,8 +161,8 @@ public class ProtonServerReceiverContextTest {
       AtomicInteger clearLargeMessage = new AtomicInteger(0);
       ProtonServerReceiverContext rc = new ProtonServerReceiverContext(null, mockConnContext, null, mockReceiver) {
          @Override
-         protected void clearLargeMessage() {
-            super.clearLargeMessage();
+         protected void closeCurrentReader() {
+            super.closeCurrentReader();
             clearLargeMessage.incrementAndGet();
          }
       };
@@ -198,9 +214,19 @@ public class ProtonServerReceiverContextTest {
       when(mockConnContext.getProtocolManager()).thenReturn(mockProtocolManager);
 
       AMQPSessionCallback mockSession = mock(AMQPSessionCallback.class);
+      when(mockSession.createStandardMessage(any(), any())).thenAnswer(new Answer<AMQPStandardMessage>() {
+
+         @Override
+         public AMQPStandardMessage answer(InvocationOnMock invocation) throws Throwable {
+            return new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null);
+         }
+      });
+
+      AMQPSessionContext mockSessionContext = mock(AMQPSessionContext.class);
+      when(mockSessionContext.getSessionSPI()).thenReturn(mockSession);
 
       Receiver mockReceiver = mock(Receiver.class);
-      ProtonServerReceiverContext rc = new ProtonServerReceiverContext(mockSession, mockConnContext, null, mockReceiver);
+      ProtonServerReceiverContext rc = new ProtonServerReceiverContext(mockSession, mockConnContext, mockSessionContext, mockReceiver);
       rc.incrementSettle();
 
       Delivery mockDelivery = mock(Delivery.class);
@@ -220,7 +246,6 @@ public class ProtonServerReceiverContextTest {
       verify(mockDelivery, times(1)).disposition(any(expectedDeliveryState));
    }
 
-
    @Test
    public void calculateFlowControl() {
       Assert.assertFalse(ProtonServerReceiverContext.isBellowThreshold(1000, 100, 1000));
@@ -230,4 +255,13 @@ public class ProtonServerReceiverContextTest {
       Assert.assertEquals(900, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 100));
    }
 
+   private ReadableBuffer createAMQPMessageBuffer() {
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
+
+      NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
+      message.encode(encoded);
+
+      return new NettyReadable(encoded.getByteBuf());
+   }
 }

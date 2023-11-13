@@ -98,7 +98,6 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
       testPersistedSend("AMQP", false, 200 * 1024);
    }
 
-
    @Test
    public void testPersistedSendCore() throws Exception {
       testPersistedSend("CORE", false, 100);
@@ -173,7 +172,8 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                   logger.warn(e.getMessage(), e);
                }
             }
-            if (recordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL) {
+            if (recordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL ||
+                recordType == JournalRecordIds.ADD_LARGE_MESSAGE) {
                try {
                   countStored.incrementAndGet();
                   if (!transactional) {

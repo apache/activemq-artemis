@@ -169,6 +169,15 @@ public class AMQPFederationSource extends AMQPFederation {
       return configuration.getLargeMessageThreshold();
    }
 
+   @Override
+   public boolean isCoreMessageTunnelingEnabled() {
+      if (!connected) {
+         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
+      }
+
+      return configuration.isCoreMessageTunnelingEnabled();
+   }
+
    /**
     * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that the
     * remote end of this federation will use to create demand on the this server when local

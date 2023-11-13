@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.engine.Link;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -107,5 +109,47 @@ public class AmqpSupportTest {
       Mockito.when(link.getRemoteDesiredCapabilities()).thenReturn((Symbol[]) null);
 
       assertFalse(AmqpSupport.verifyDesiredCapability(link, A));
+   }
+
+   @Test
+   public void testVerifySourceCapability() {
+      final Source source = Mockito.mock(Source.class);
+
+      Mockito.when(source.getCapabilities()).thenReturn(new Symbol[] {B, C});
+
+      assertFalse(AmqpSupport.verifySourceCapability(source, A));
+
+      Mockito.when(source.getCapabilities()).thenReturn(ALL);
+
+      assertTrue(AmqpSupport.verifySourceCapability(source, A));
+      assertTrue(AmqpSupport.verifySourceCapability(source, B));
+      assertTrue(AmqpSupport.verifySourceCapability(source, C));
+
+      assertThrows(NullPointerException.class, () -> AmqpSupport.verifySourceCapability(source, null));
+
+      Mockito.when(source.getCapabilities()).thenReturn(null);
+
+      assertFalse(AmqpSupport.verifySourceCapability(source, A));
+   }
+
+   @Test
+   public void testVerifyTargetCapability() {
+      final Target target = Mockito.mock(Target.class);
+
+      Mockito.when(target.getCapabilities()).thenReturn(new Symbol[] {B, C});
+
+      assertFalse(AmqpSupport.verifyTargetCapability(target, A));
+
+      Mockito.when(target.getCapabilities()).thenReturn(ALL);
+
+      assertTrue(AmqpSupport.verifyTargetCapability(target, A));
+      assertTrue(AmqpSupport.verifyTargetCapability(target, B));
+      assertTrue(AmqpSupport.verifyTargetCapability(target, C));
+
+      assertThrows(NullPointerException.class, () -> AmqpSupport.verifyTargetCapability(target, null));
+
+      Mockito.when(target.getCapabilities()).thenReturn(null);
+
+      assertFalse(AmqpSupport.verifyTargetCapability(target, A));
    }
 }

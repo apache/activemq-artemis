@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 
@@ -30,7 +31,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
@@ -57,26 +57,10 @@ import org.apache.qpid.proton.engine.Sender;
  * link should be closed with an error indicating that the matching resource is not
  * present on this peer.
  */
-public final class AMQPFederationQueueSenderController implements SenderController {
-
-   // Capabilities offered to the attaching federation receiver link that indicate this sender
-   // is a federation sender which allows the link open to complete.
-   private static final Symbol[] OFFERED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_QUEUE_RECEIVER};
-
-   private final AMQPSessionContext session;
-   private final AMQPSessionCallback sessionSPI;
+public final class AMQPFederationQueueSenderController extends AMQPFederationBaseSenderController {
 
    public AMQPFederationQueueSenderController(AMQPSessionContext session) {
-      this.session = session;
-      this.sessionSPI = session.getSessionSPI();
-   }
-
-   public AMQPSessionContext getSessionContext() {
-      return session;
-   }
-
-   public AMQPSessionCallback getSessionCallback() {
-      return sessionSPI;
+      super(session);
    }
 
    @SuppressWarnings("unchecked")
@@ -137,8 +121,15 @@ public final class AMQPFederationQueueSenderController implements SenderControll
       sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
       // We don't currently support SECOND so enforce that the answer is always FIRST
       sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-      // We need to offer back that we support federation for the remote to complete the attach.
-      sender.setOfferedCapabilities(OFFERED_LINK_CAPABILITIES);
+      // We need to offer back that we support federation for the remote to complete the attach
+      sender.setOfferedCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
+      // We indicate desired to meet specification that we cannot use a capability unless we
+      // indicated it was desired, however unless offered by the remote we cannot use it.
+      sender.setDesiredCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+
+      // We need to check that the remote offers its ability to read tunneled core messages and
+      // if not we must not send them but instead convert all messages to AMQP messages first.
+      tunnelCoreMessages = verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
 
       return (Consumer) sessionSPI.createSender(senderContext, targetQueue, selector, false);
    }
@@ -157,10 +148,5 @@ public final class AMQPFederationQueueSenderController implements SenderControll
       }
 
       return ActiveMQDefaultConfiguration.getDefaultRoutingType();
-   }
-
-   @Override
-   public void close() throws Exception {
-      // Currently there isn't anything needed on close of the controller
    }
 }

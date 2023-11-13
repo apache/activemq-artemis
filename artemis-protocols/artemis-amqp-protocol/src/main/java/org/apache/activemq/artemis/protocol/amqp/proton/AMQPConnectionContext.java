@@ -435,7 +435,15 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return;
       }
 
-      receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
+      // We need to check if the remote desires to send us tunneled core messages or not, and if
+      // we support that we need to offer that back so it knows it can actually do core tunneling.
+      if (verifyDesiredCapability(receiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
+         receiver.setOfferedCapabilities(new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
+                                                       AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+      } else {
+         receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
+      }
+
       protonSession.addReplicaTarget(receiver);
    }
 

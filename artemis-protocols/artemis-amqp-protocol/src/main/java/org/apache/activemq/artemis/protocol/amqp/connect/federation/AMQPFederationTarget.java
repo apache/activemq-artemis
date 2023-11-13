@@ -87,6 +87,11 @@ public class AMQPFederationTarget extends AMQPFederation {
    }
 
    @Override
+   public boolean isCoreMessageTunnelingEnabled() {
+      return configuration.isCoreMessageTunnelingEnabled();
+   }
+
+   @Override
    protected void handleFederationStarted() throws ActiveMQException {
       // Tag the session with Federation metadata which will allow local federation policies sent by
       // the remote to apply checks when seeing local demand to determine if a federation consumer

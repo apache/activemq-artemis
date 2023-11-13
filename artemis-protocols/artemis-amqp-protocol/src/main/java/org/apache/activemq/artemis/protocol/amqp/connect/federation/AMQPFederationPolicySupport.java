@@ -86,10 +86,41 @@ public final class AMQPFederationPolicySupport {
    public static final Symbol MESSAGE_HOPS_ANNOTATION = Symbol.valueOf("x-opt-amq-fed-hops");
 
    /**
+    * Property value placed on Core messages to indicate number of hops that a message has
+    * made when crossing Federation links. This value is used when Core messages are tunneled
+    * via an AMQP custom message and then recreated again on the other side.
+    */
+   public static final String MESSAGE_HOPS_PROPERTY = "_AMQ_Fed_Hops";
+
+   /**
     * Property name used to embed a nested map of properties meant to be applied if the address
     * indicated in an federation address receiver auto creates the federated address.
     */
    public static final Symbol FEDERATED_ADDRESS_SOURCE_PROPERTIES = Symbol.valueOf("federated-address-source-properties");
+
+   /**
+    * Constructs an address filter for a federated address receiver link that deals with
+    * both AMQP messages and unwrapped Core messages which can carry different hops markers.
+    * If the max is less than or equal to zero no filter is created as these values are used
+    * to indicate no max hops for federated messages on an address.
+    *
+    * @param maxHops
+    *    The max allowed number of hops before a message should stop cross federation links.
+    *
+    * @return the address filter string or null if not needed.
+    */
+   public static String generateAddressFilter(int maxHops) {
+      if (maxHops <= 0) {
+         return null;
+      }
+
+      return "(\"m." + MESSAGE_HOPS_ANNOTATION.toString() +
+             "\" IS NULL OR \"m." + MESSAGE_HOPS_ANNOTATION.toString() +
+             "\"<" + maxHops + ")" +
+             " AND " +
+             "(" + MESSAGE_HOPS_PROPERTY + " IS NULL OR " +
+             MESSAGE_HOPS_PROPERTY + "<" + maxHops + ")";
+   }
 
    /**
     * Create an AMQP Message used to instruct the remote peer that it should perform

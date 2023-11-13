@@ -547,7 +547,7 @@ public class AMQPSessionCallback implements SessionCallback {
                            final RoutingContext routingContext) {
       OperationContext oldContext = recoverContext();
       try {
-         if (invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
+         if (invokeIncoming(message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
             serverSession.send(transaction, message, directDeliver, receiver.getName(), false, routingContext);
 
             afterIO(new IOCallback() {
@@ -770,11 +770,11 @@ public class AMQPSessionCallback implements SessionCallback {
       manager.getServer().getSecurityStore().check(address, checkType, session);
    }
 
-   public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeIncoming(Message message, ActiveMQProtonRemotingConnection connection) {
       return protonSPI.invokeIncomingInterceptors(message, connection);
    }
 
-   public String invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeOutgoing(Message message, ActiveMQProtonRemotingConnection connection) {
       return protonSPI.invokeOutgoingInterceptors(message, connection);
    }
 

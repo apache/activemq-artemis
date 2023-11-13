@@ -51,11 +51,15 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.pools.MpscPool;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -77,6 +81,8 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.TARGET_QUEUES;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 
 public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements MirrorController {
 
@@ -166,6 +172,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    OperationContext mirrorContext;
 
+   private MessageReader coreMessageReader;
+
+   private MessageReader coreLargeMessageReader;
+
    public AMQPMirrorControllerTarget(AMQPSessionCallback sessionSPI,
                                      AMQPConnectionContext connection,
                                      AMQPSessionContext protonSession,
@@ -190,7 +200,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    @Override
-   protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
+   protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
       recoverContext();
       incrementSettle();
 
@@ -202,47 +212,58 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       ACKMessageOperation messageAckOperation = this.ackMessageMpscPool.borrow().setDelivery(delivery);
 
       try {
-         /** We use message annotations, because on the same link we will receive control messages
-          *  coming from mirror events,
-          *  and the actual messages that need to be replicated.
-          *  Using anything from the body would force us to parse the body on regular messages.
-          *  The body of the message may still be used on control messages, on cases where a JSON string is sent. */
-         Object eventType = AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, EVENT_TYPE);
-         if (eventType != null) {
-            if (eventType.equals(ADD_ADDRESS)) {
-               AddressInfo addressInfo = parseAddress(message);
 
-               addAddress(addressInfo);
-            } else if (eventType.equals(DELETE_ADDRESS)) {
-               AddressInfo addressInfo = parseAddress(message);
+         if (message instanceof AMQPMessage) {
+            final AMQPMessage amqpMessage = (AMQPMessage) message;
 
-               deleteAddress(addressInfo);
-            } else if (eventType.equals(CREATE_QUEUE)) {
-               QueueConfiguration queueConfiguration = parseQueue(message);
+            /** We use message annotations, because on the same link we will receive control messages
+             *  coming from mirror events,
+             *  and the actual messages that need to be replicated.
+             *  Using anything from the body would force us to parse the body on regular messages.
+             *  The body of the message may still be used on control messages, on cases where a JSON string is sent. */
+            Object eventType = AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, EVENT_TYPE);
+            if (eventType != null) {
+               if (eventType.equals(ADD_ADDRESS)) {
+                  AddressInfo addressInfo = parseAddress(amqpMessage);
 
-               createQueue(queueConfiguration);
-            } else if (eventType.equals(DELETE_QUEUE)) {
-               String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, ADDRESS);
-               String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, QUEUE);
+                  addAddress(addressInfo);
+               } else if (eventType.equals(DELETE_ADDRESS)) {
+                  AddressInfo addressInfo = parseAddress(amqpMessage);
 
-               deleteQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
-            } else if (eventType.equals(POST_ACK)) {
-               String nodeID = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, BROKER_ID);
+                  deleteAddress(addressInfo);
+               } else if (eventType.equals(CREATE_QUEUE)) {
+                  QueueConfiguration queueConfiguration = parseQueue(amqpMessage);
 
-               AckReason ackReason = AMQPMessageBrokerAccessor.getMessageAnnotationAckReason(message);
+                  createQueue(queueConfiguration);
+               } else if (eventType.equals(DELETE_QUEUE)) {
+                  String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, ADDRESS);
+                  String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, QUEUE);
 
-               if (nodeID == null) {
-                  nodeID = getRemoteMirrorId(); // not sending the nodeID means it's data generated on that broker
+                  deleteQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+               } else if (eventType.equals(POST_ACK)) {
+                  String nodeID = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, BROKER_ID);
+
+                  AckReason ackReason = AMQPMessageBrokerAccessor.getMessageAnnotationAckReason(amqpMessage);
+
+                  if (nodeID == null) {
+                     nodeID = getRemoteMirrorId(); // not sending the nodeID means it's data generated on that broker
+                  }
+                  String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, QUEUE);
+                  AmqpValue value = (AmqpValue) amqpMessage.getBody();
+                  Long messageID = (Long) value.getValue();
+                  if (postAcknowledge(queueName, nodeID, messageID, messageAckOperation, ackReason)) {
+                     messageAckOperation = null;
+                  }
                }
-               String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, QUEUE);
-               AmqpValue value = (AmqpValue) message.getBody();
-               Long messageID = (Long) value.getValue();
-               if (postAcknowledge(queueName, nodeID, messageID, messageAckOperation, ackReason)) {
+            } else {
+               if (sendMessage(amqpMessage, deliveryAnnotations, messageAckOperation)) {
+                  // since the send was successful, we give up the reference here,
+                  // so there won't be any call on afterCompleteOperations
                   messageAckOperation = null;
                }
             }
          } else {
-            if (sendMessage(message, messageAckOperation)) {
+            if (sendMessage(message, deliveryAnnotations, messageAckOperation)) {
                // since the send was successful, we give up the reference here,
                // so there won't be any call on afterCompleteOperations
                messageAckOperation = null;
@@ -267,7 +288,21 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       // We don't currently support SECOND so enforce that the answer is anlways FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+
       flow();
+   }
+
+   @Override
+   protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
+      if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
+         return coreMessageReader != null ?
+            coreMessageReader : (coreMessageReader = new AMQPTunneledCoreMessageReader(this));
+      } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
+         return coreLargeMessageReader != null ?
+            coreLargeMessageReader : (coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this));
+      } else {
+         return super.trySelectMessageReader(receiver, delivery);
+      }
    }
 
    private QueueConfiguration parseQueue(AMQPMessage message) {
@@ -428,20 +463,19 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
     * as the sendMessage was successful the OperationContext of the transaction will take care of the completion.
     * The caller of this method should give up any reference to messageCompletionAck when this method returns true.
     * */
-   private boolean sendMessage(AMQPMessage message, ACKMessageOperation messageCompletionAck) throws Exception {
-
+   private boolean sendMessage(Message message, DeliveryAnnotations deliveryAnnotations, ACKMessageOperation messageCompletionAck) throws Exception {
       if (message.getMessageID() <= 0) {
          message.setMessageID(server.getStorageManager().generateID());
       }
 
-      String internalMirrorID = (String)AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, BROKER_ID);
+      String internalMirrorID = (String) deliveryAnnotations.getValue().get(BROKER_ID);
       if (internalMirrorID == null) {
          internalMirrorID = getRemoteMirrorId(); // not pasisng the ID means the data was generated on the remote broker
       }
-      Long internalIDLong = (Long) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, INTERNAL_ID);
-      String internalAddress = (String) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, INTERNAL_DESTINATION);
+      Long internalIDLong = (Long) deliveryAnnotations.getValue().get(INTERNAL_ID);
+      String internalAddress = (String) deliveryAnnotations.getValue().get(INTERNAL_DESTINATION);
 
-      Collection<String> targetQueues = (Collection) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, TARGET_QUEUES);
+      Collection<String> targetQueues = (Collection<String>) deliveryAnnotations.getValue().get(TARGET_QUEUES);
 
       long internalID = 0;
 
@@ -502,9 +536,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    /** When the source mirror receives messages from a cluster member of his own, it should then fill targetQueues so we could play the same semantic the source applied on its routing */
-   private void targetQueuesRouting( final Message message,
-                               final RoutingContext context,
-                               final Collection<String> queueNames) throws Exception {
+   private void targetQueuesRouting(final Message message,
+                                    final RoutingContext context,
+                                    final Collection<String> queueNames) throws Exception {
       Bindings bindings = server.getPostOffice().getBindingsForAddress(message.getAddressSimpleString());
       queueNames.forEach(name -> {
          Binding binding = bindings.getBinding(name);
@@ -517,7 +551,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          }
       });
    }
-
 
    @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) {
@@ -590,7 +623,5 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       public void run() {
          operation.done();
       }
-
    }
-
 }

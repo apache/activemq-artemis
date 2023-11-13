@@ -34,6 +34,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -60,6 +61,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -69,7 +71,13 @@ import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorContro
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPLargeMessageWriter;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPMessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageWriter;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageWriter;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.MessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
@@ -96,6 +104,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 
 import java.lang.invoke.MethodHandles;
@@ -103,6 +112,13 @@ import java.lang.invoke.MethodHandles;
 public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, ActiveMQServerQueuePlugin, BrokerConnection {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   /**
+    * Default value for the core message tunneling feature that indicates if core protocol messages
+    * should be streamed as binary blobs as the payload of an custom AMQP message which avoids any
+    * conversions of the messages to / from AMQP.
+    */
+   public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
    private final AMQPBrokerConnectConfiguration brokerConnectConfiguration;
    private final ProtonProtocolManager protonProtocolManager;
@@ -250,11 +266,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
          Symbol[] dispatchCapability = new Symbol[]{AMQPMirrorControllerSource.QPID_DISPATCH_WAYPOINT_CAPABILITY};
-         connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability);
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability, null);
          connectReceiver(protonRemotingConnection, session, sessionContext, queue, dispatchCapability);
       } else {
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString(), null, null, null, null, null);
+            connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null);
          }
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
             connectReceiver(protonRemotingConnection, session, sessionContext, queue);
@@ -378,10 +394,28 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
                   AMQPMirrorBrokerConnectionElement replica = (AMQPMirrorBrokerConnectionElement)connectionElement;
 
-                  Queue queue = server.locateQueue(getMirrorSNF(replica));
+                  final Queue queue = server.locateQueue(getMirrorSNF(replica));
 
-                  connectSender(queue, queue.getName().toString(), mirrorControllerSource::setLink, (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)), server.getNodeID().toString(),
-                                new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY}, null);
+                  final boolean coreTunnelingEnabled = isCoreMessageTunnelingEnabled(replica);
+                  final Symbol[] desiredCapabilities;
+
+                  if (coreTunnelingEnabled) {
+                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
+                                                         AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT};
+                  } else {
+                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+                  }
+
+                  final Symbol[] requiredOfferedCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+
+                  connectSender(queue,
+                                queue.getName().toString(),
+                                mirrorControllerSource::setLink,
+                                (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)),
+                                server.getNodeID().toString(),
+                                desiredCapabilities,
+                                null,
+                                requiredOfferedCapabilities);
                } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.FEDERATION) {
                   // Starting the Federation triggers rebuild of federation links
                   // based on current broker state.
@@ -608,7 +642,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
                               String brokerID,
                               Symbol[] desiredCapabilities,
-                              Symbol[] targetCapabilities) {
+                              Symbol[] targetCapabilities,
+                              Symbol[] requiredOfferedCapabilities) {
       logger.debug("Connecting outbound for {}", queue);
 
       if (session == null) {
@@ -675,9 +710,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                         error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.senderLinkRefused(sender.getTarget().getAddress()), lastRetryCounter);
                         return;
                      }
-                     if (desiredCapabilities != null) {
-                        if (!verifyOfferedCapabilities(sender, desiredCapabilities)) {
-                           error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(desiredCapabilities)), lastRetryCounter);
+                     if (requiredOfferedCapabilities != null) {
+                        if (!verifyOfferedCapabilities(sender, requiredOfferedCapabilities)) {
+                           error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(requiredOfferedCapabilities)), lastRetryCounter);
                            return;
                         }
                      }
@@ -761,6 +796,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       final Sender sender;
       final AMQPSessionCallback sessionSPI;
 
+      protected boolean tunnelCoreMessages;
+
+      protected AMQPMessageWriter standardMessageWriter;
+      protected AMQPLargeMessageWriter largeMessageWriter;
+
+      protected AMQPTunneledCoreMessageWriter coreMessageWriter;
+      protected AMQPTunneledCoreLargeMessageWriter coreLargeMessageWriter;
+
       AMQPOutgoingController(Queue queue, Sender sender, AMQPSessionCallback sessionSPI) {
          this.queue = queue;
          this.sessionSPI = sessionSPI;
@@ -770,11 +813,45 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       @Override
       public Consumer init(ProtonServerSenderContext senderContext) throws Exception {
          SimpleString queueName = queue.getName();
+
+         // Did we ask for core tunneling? If so did the remote offer it in return
+         tunnelCoreMessages = verifyCapabilities(sender.getDesiredCapabilities(), AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT) &&
+                              verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+
          return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
       }
 
       @Override
       public void close() throws Exception {
+      }
+
+      @Override
+      public MessageWriter selectOutgoingMessageWriter(ProtonServerSenderContext sender, MessageReference reference) {
+         final MessageWriter selected;
+         final Message message = reference.getMessage();
+
+         if (message instanceof AMQPMessage) {
+            if (message.isLargeMessage()) {
+               selected = largeMessageWriter != null ? largeMessageWriter :
+                  (largeMessageWriter = new AMQPLargeMessageWriter(sender));
+            } else {
+               selected = standardMessageWriter != null ? standardMessageWriter :
+                  (standardMessageWriter = new AMQPMessageWriter(sender));
+            }
+         } else if (tunnelCoreMessages) {
+            if (message.isLargeMessage()) {
+               selected = coreLargeMessageWriter != null ? coreLargeMessageWriter :
+                  (coreLargeMessageWriter = new AMQPTunneledCoreLargeMessageWriter(sender));
+            } else {
+               selected = coreMessageWriter != null ? coreMessageWriter :
+                  (coreMessageWriter = new AMQPTunneledCoreMessageWriter(sender));
+            }
+         } else {
+            selected = standardMessageWriter != null ? standardMessageWriter :
+               (standardMessageWriter = new AMQPMessageWriter(sender));
+         }
+
+         return selected;
       }
    }
 
@@ -955,6 +1032,18 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          }
 
          return null;
+      }
+   }
+
+   public static boolean isCoreMessageTunnelingEnabled(AMQPMirrorBrokerConnectionElement configuration) {
+      final Object property = configuration.getProperties().get(AmqpSupport.TUNNEL_CORE_MESSAGES);
+
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED;
       }
    }
 }

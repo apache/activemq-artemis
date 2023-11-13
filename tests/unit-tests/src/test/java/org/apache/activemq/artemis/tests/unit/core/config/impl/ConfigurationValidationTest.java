@@ -67,7 +67,7 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      Assert.assertEquals(4, fc.getAMQPConnection().size());
+      Assert.assertEquals(5, fc.getAMQPConnection().size());
 
       AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(0);
       Assert.assertEquals("testuser", amqpBrokerConnectConfiguration.getUser());
@@ -198,6 +198,15 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
          Assert.assertTrue(p.getProperties().containsKey("amqpLowCredits"));
          Assert.assertEquals("1", p.getProperties().get("amqpLowCredits"));
       });
+
+      amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(4);
+      Assert.assertEquals("test-property", amqpBrokerConnectConfiguration.getName());
+      Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());
+      Assert.assertNotNull(amqpBrokerConnectConfiguration.getConnectionElements().get(0));
+      mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
+      Assert.assertNotNull(mirrorConnectionElement.getProperties());
+      Assert.assertFalse(mirrorConnectionElement.getProperties().isEmpty());
+      Assert.assertFalse(Boolean.valueOf((String) mirrorConnectionElement.getProperties().get("tunnel-core-messages")));
    }
 
    @Test

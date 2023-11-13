@@ -70,6 +70,11 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
    private ActiveMQServer slowServer;
 
    @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,CORE,OPENWIRE";
+   }
+
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -89,7 +94,17 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
    }
 
    @Test
-   public void testMirrorTargetFastACK() throws Exception {
+   public void testMirrorTargetFastACKCore() throws Exception {
+      doTestMirrorTargetFastACK("CORE");
+   }
+
+   @Test
+   public void testMirrorTargetFastACKAMQP() throws Exception {
+      doTestMirrorTargetFastACK("AMQP");
+   }
+
+   private void doTestMirrorTargetFastACK(String protocol) throws Exception {
+
       final int NUMBER_OF_MESSAGES = 10;
       CountDownLatch done = new CountDownLatch(NUMBER_OF_MESSAGES);
 
@@ -104,12 +119,13 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
       server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
 
       try (Connection connection = factory.createConnection()) {
-         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+         Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         MessageConsumer consumer = consumerSession.createConsumer(consumerSession.createQueue(getQueueName()));
+         Session producerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         MessageProducer producer = producerSession.createProducer(producerSession.createQueue(getQueueName()));
 
          connection.start();
 
@@ -128,7 +144,7 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            producer.send(session.createTextMessage("i=" + i));
+            producer.send(producerSession.createTextMessage("i=" + i));
          }
 
          Assert.assertTrue(done.await(5000, TimeUnit.MILLISECONDS));
