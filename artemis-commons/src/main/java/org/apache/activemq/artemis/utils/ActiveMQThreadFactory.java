@@ -123,7 +123,14 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       };
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
-      t.setContextClassLoader(tccl);
+      if (acc != null) {
+         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            t.setContextClassLoader(tccl);
+            return null; // nothing to return
+         });
+      } else {
+         t.setContextClassLoader(tccl);
+      }
       return t;
    }
 
