@@ -20,9 +20,13 @@ import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.engine.Link;
 
 /**
@@ -69,6 +73,8 @@ public class AmqpSupport {
    public static final Symbol DELAYED_DELIVERY = Symbol.valueOf("DELAYED_DELIVERY");
    public static final Symbol QUEUE_PREFIX = Symbol.valueOf("queue-prefix");
    public static final Symbol TOPIC_PREFIX = Symbol.valueOf("topic-prefix");
+   public static final Symbol SHARED = Symbol.valueOf("shared");
+   public static final Symbol GLOBAL = Symbol.valueOf("global");
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final Symbol PRODUCT = Symbol.valueOf("product");
    public static final Symbol VERSION = Symbol.valueOf("version");
@@ -94,6 +100,20 @@ public class AmqpSupport {
    public static final Symbol LIFETIME_POLICY = Symbol.valueOf("lifetime-policy");
 
    public static final Symbol SOLE_CONNECTION_CAPABILITY = Symbol.valueOf("sole-connection-for-container");
+
+   /**
+    * A capability added to the sender or receiver links that indicate that the link either wants
+    * support for or offers support for tunneling Core messages as custom formatted AMQP messages.
+    */
+   public static final Symbol CORE_MESSAGE_TUNNELING_SUPPORT = Symbol.getSymbol("AMQ_CORE_MESSAGE_TUNNELING");
+
+   /**
+    * Property value that can be applied to federation configuration that controls if the federation
+    * receivers will request that the sender peer tunnel core messages inside an AMQP message as a binary
+    * blob to be unwrapped on the other side. The sending peer would still need to support this feature
+    * for message tunneling to occur.
+    */
+   public static final String TUNNEL_CORE_MESSAGES = "tunnel-core-messages";
 
    /**
     * Search for a given Symbol in a given array of Symbol object.
@@ -173,7 +193,7 @@ public class AmqpSupport {
     * @return true if the remote offered all of the capabilities that were desired.
     */
    public static boolean verifyOfferedCapabilities(final Link link) {
-      return verifyOfferedCapabilities(link, link.getDesiredCapabilities());
+      return verifyCapabilities(link.getRemoteOfferedCapabilities(), link.getDesiredCapabilities());
    }
 
    /**
@@ -194,15 +214,76 @@ public class AmqpSupport {
     * @return true if the remote offered all of the capabilities that were desired.
     */
    public static boolean verifyOfferedCapabilities(final Link link, final Symbol... capabilities) {
-      final Symbol[] desiredCapabilites = capabilities == null ? EMPTY_CAPABILITIES : capabilities;
-      final Symbol[] remoteOfferedCapabilites =
-         link.getRemoteOfferedCapabilities() == null ? EMPTY_CAPABILITIES : link.getRemoteOfferedCapabilities();
+      return verifyCapabilities(link.getRemoteOfferedCapabilities(), capabilities);
+   }
 
-      for (Symbol desired : desiredCapabilites) {
+   /**
+    * Verifies that the given desired capability is present in the remote link details.
+    * <p>
+    * The remote could have desired more capabilities than the one given, this method does
+    * not validate that or consider that a failure.
+    *
+    * @param link
+    *    The link in question (Sender or Receiver).
+    * @param desiredCapability
+    *    The non-null capability that is being checked as being desired.
+    *
+    * @return true if the remote desired all of the capabilities that were given.
+    */
+   public static boolean verifyDesiredCapability(final Link link, final Symbol desiredCapability) {
+      return verifyCapabilities(link.getRemoteDesiredCapabilities(), desiredCapability);
+   }
+
+   /**
+    * Verifies that the desired capability is present in the Source capabilities.
+    *
+    * @param source
+    *    The Source instance whose capabilities are being searched.
+    * @param capability
+    *    The non-null capability that is being checked as being desired.
+    *
+    * @return true if the remote desired all of the capabilities that were given.
+    */
+   public static boolean verifySourceCapability(final Source source, final Symbol capability) {
+      return verifyCapabilities(source.getCapabilities(), capability);
+   }
+
+   /**
+    * Verifies that the desired capability is present in the Source capabilities.
+    *
+    * @param target
+    *    The Target instance whose capabilities are being searched.
+    * @param capability
+    *    The non-null capability that is being checked as being desired.
+    *
+    * @return true if the remote desired all of the capabilities that were given.
+    */
+   public static boolean verifyTargetCapability(final Target target, final Symbol capability) {
+      return verifyCapabilities(target.getCapabilities(), capability);
+   }
+
+   /**
+    * Verifies that the given set of capabilities contains each of the desired capabilities.
+    * <p>
+    * The remote could have offered more capabilities than the requested desired capabilities,
+    * this method does not validate that or consider that a failure.
+    *
+    * @param offered
+    *    The capabilities that were offered from the remote or were set by the local side
+    * @param desired
+    *    The desired capabilities to search for in the offered set.
+    *
+    * @return <code>true</code> if the desired capabilities were found in the offered set.
+    */
+   public static boolean verifyCapabilities(final Symbol[] offered, final Symbol... desired) {
+      final Symbol[] desiredCapabilites = desired == null ? EMPTY_CAPABILITIES : desired;
+      final Symbol[] offeredCapabilites = offered == null ? EMPTY_CAPABILITIES : offered;
+
+      for (Symbol desiredCapability : desiredCapabilites) {
          boolean foundCurrent = false;
 
-         for (Symbol offered : remoteOfferedCapabilites) {
-            if (desired.equals(offered)) {
+         for (Symbol offeredCapability : offeredCapabilites) {
+            if (desiredCapability.equals(offeredCapability)) {
                foundCurrent = true;
                break;
             }
@@ -217,31 +298,53 @@ public class AmqpSupport {
    }
 
    /**
-    * Verifies that the given remote desired capability is present in the remote link details.
-    * <p>
-    * The remote could have desired more capabilities than the one given, this method does
-    * not validate that or consider that a failure.
+    * Given the input values construct a Queue name for use in messaging handlers.
     *
-    * @param link
-    *    The link in question (Sender or Receiver).
-    * @param desiredCapability
-    *    The non-null capability that is being checked as being desired.
+    * @param useCoreSubscriptionNaming
+    *    Should the name match core client subscription naming.
+    * @param clientId
+    *    The client ID of the remote peer.
+    * @param senderId
+    *    The ID assigned to the sender asking for a generated Queue name.
+    * @param shared
+    *    Is this Queue used for shared subscriptions
+    * @param global
+    *    Should the shared subscription Queue indicate globally shared.
+    * @param isVolatile
+    *    Is the Queue meant to be volatile or not.
     *
-    * @return true if the remote desired all of the capabilities that were given.
+    * @return a queue name based on the provided inputs.
     */
-   public static boolean verifyDesiredCapability(final Link link, final Symbol desiredCapability) {
-      Objects.requireNonNull(desiredCapability, "Desired capability to verifiy cannot be null");
+   public static SimpleString createQueueName(boolean useCoreSubscriptionNaming,
+                                              String clientId,
+                                              String senderId,
+                                              boolean shared,
+                                              boolean global,
+                                              boolean isVolatile) {
 
-      if (link.getRemoteDesiredCapabilities() == null) {
-         return false;
-      }
+      Objects.requireNonNull(senderId, "The sender Id cannot be null");
 
-      for (Symbol capability : link.getRemoteDesiredCapabilities()) {
-         if (capability.equals(desiredCapability)) {
-            return true;
+      if (useCoreSubscriptionNaming) {
+         final boolean durable = !isVolatile;
+         final String subscriptionName = senderId.contains("|") ? senderId.split("\\|")[0] : senderId;
+         final String clientID = clientId == null || clientId.isEmpty() || global ? null : clientId;
+         return DestinationUtil.createQueueNameForSubscription(durable, clientID, subscriptionName);
+      } else {
+         String queue = clientId == null || clientId.isEmpty() || global ? senderId : clientId + "." + senderId;
+
+         if (shared) {
+            if (queue.contains("|")) {
+               queue = queue.split("\\|")[0];
+            }
+            if (isVolatile) {
+               queue += ":shared-volatile";
+            }
+            if (global) {
+               queue += ":global";
+            }
          }
-      }
 
-      return false;
+         return SimpleString.toSimpleString(queue);
+      }
    }
 }

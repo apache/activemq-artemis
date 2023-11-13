@@ -22,7 +22,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
-
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.MESSAGE_HOPS_PROPERTY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DETACH_FORCED;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NOT_FOUND;
@@ -39,6 +41,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -60,9 +63,13 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpJmsSelectorFilter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
@@ -90,10 +97,6 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
    // Redefined because AMQPMessage uses SimpleString in its annotations API for some reason.
    private static final SimpleString MESSAGE_HOPS_ANNOTATION =
       new SimpleString(AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString());
-
-   // Desired capabilities that the federation receiver link needs the remote to offer in order
-   // for the federation receiver to be successfully opened.
-   private static final Symbol[] DESIRED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_ADDRESS_RECEIVER};
 
    private static final Symbol[] DEFAULT_OUTCOMES = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL,
                                                                  Released.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL};
@@ -298,7 +301,14 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
 
             protonReceiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             protonReceiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-            protonReceiver.setDesiredCapabilities(DESIRED_LINK_CAPABILITIES);
+            protonReceiver.setDesiredCapabilities(new Symbol[] {FEDERATION_ADDRESS_RECEIVER});
+            // If enabled offer core tunneling which we prefer to AMQP conversions of core as
+            // the large ones will be converted to standard AMQP messages in memory. When not
+            // offered the remote must not use core tunneling and AMQP conversion will be the
+            // fallback.
+            if (configuration.isCoreMessageTunnelingEnabled()) {
+               protonReceiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+            }
             protonReceiver.setProperties(receiverProperties);
             protonReceiver.setTarget(target);
             protonReceiver.setSource(source);
@@ -331,9 +341,9 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
                   // Remote must support federation receivers otherwise we fail the connection unless the
                   // Attach indicates that a detach is incoming in which case we just allow the normal handling
                   // to occur.
-                  if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver)) {
+                  if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver, FEDERATION_ADDRESS_RECEIVER)) {
                      federation.signalResourceCreateError(
-                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(DESIRED_LINK_CAPABILITIES)));
+                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(FEDERATION_ADDRESS_RECEIVER.toString()));
                      return;
                   }
 
@@ -365,8 +375,9 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
       });
    }
 
-   private static AMQPMessage incrementMessageHops(AMQPMessage message) {
+   private static AMQPMessage incrementAMQPMessageHops(AMQPMessage message) {
       Object hops = message.getAnnotation(MESSAGE_HOPS_ANNOTATION);
+
       if (hops == null) {
          message.setAnnotation(MESSAGE_HOPS_ANNOTATION, 1);
       } else {
@@ -380,6 +391,19 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
       return message;
    }
 
+   private static ICoreMessage incrementCoreMessageHops(ICoreMessage message) {
+      Object hops = message.getObjectProperty(MESSAGE_HOPS_PROPERTY);
+
+      if (hops == null) {
+         message.putObjectProperty(MESSAGE_HOPS_PROPERTY, 1);
+      } else {
+         Number numHops = (Number) hops;
+         message.putObjectProperty(MESSAGE_HOPS_PROPERTY, numHops.intValue() + 1);
+      }
+
+      return message;
+   }
+
    /**
     * Wrapper around the standard receiver context that provides federation specific entry
     * points and customizes inbound delivery handling for this Address receiver.
@@ -387,6 +411,10 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
    private class AMQPFederatedAddressDeliveryReceiver extends ProtonServerReceiverContext {
 
       private final SimpleString cachedAddress;
+
+      private MessageReader coreMessageReader;
+
+      private MessageReader coreLargeMessageReader;
 
       /**
        * Creates the federation receiver instance.
@@ -474,18 +502,39 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
       }
 
       @Override
-      protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
+      protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
+         if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
+            return coreMessageReader != null ?
+               coreMessageReader : (coreMessageReader = new AMQPTunneledCoreMessageReader(this));
+         } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
+            return coreLargeMessageReader != null ?
+               coreLargeMessageReader : (coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this));
+         } else {
+            return super.trySelectMessageReader(receiver, delivery);
+         }
+      }
+
+      @Override
+      protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
          try {
             if (logger.isTraceEnabled()) {
                logger.trace("AMQP Federation {} address consumer {} dispatching incoming message: {}",
                             federation.getName(), consumerInfo, message);
             }
 
-            final Message theMessage = transformer.transform(incrementMessageHops(message));
+            final Message baseMessage;
 
-            if (theMessage != message && logger.isTraceEnabled()) {
+            if (message instanceof ICoreMessage) {
+               baseMessage = incrementCoreMessageHops((ICoreMessage) message);
+            } else {
+               baseMessage = incrementAMQPMessageHops((AMQPMessage) message);
+            }
+
+            final Message theMessage = transformer.transform(baseMessage);
+
+            if (theMessage != baseMessage && logger.isTraceEnabled()) {
                logger.trace("The transformer {} replaced the original message {} with a new instance {}",
-                            transformer, message, theMessage);
+                            transformer, baseMessage, theMessage);
             }
 
             signalBeforeFederationConsumerMessageHandled(theMessage);

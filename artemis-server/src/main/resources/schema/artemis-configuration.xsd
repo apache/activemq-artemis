@@ -806,7 +806,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         
+
          <xsd:element name="min-disk-free" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -2137,7 +2137,16 @@
             All events will be send towards this AMQP connection acting like a replica.
          </xsd:documentation>
       </xsd:annotation>
-
+      <xsd:sequence minOccurs="1" maxOccurs="unbounded">
+         <xsd:element ref="property" minOccurs="0"
+            maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Optional properties that can be applied to the mirror configuration
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
       <xsd:attribute name="message-acknowledgements" type="xsd:boolean" use="optional" default="true">
          <xsd:annotation>
             <xsd:documentation>
@@ -2183,7 +2192,6 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
-
    </xsd:complexType>
 
    <xsd:complexType name="amqp-federation-type">

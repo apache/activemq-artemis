@@ -16,19 +16,17 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
-import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 
@@ -46,7 +44,13 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    protected final AMQPSessionCallback sessionSPI;
 
-   protected volatile AMQPLargeMessage currentLargeMessage;
+   // Cached instances used for this receiver which will be swapped as message of varying types
+   // are sent to this receiver from the remote peer.
+   protected final MessageReader standardMessageReader = new AMQPMessageReader(this);
+
+   protected final MessageReader largeMessageReader = new AMQPLargeMessageReader(this);
+
+   protected volatile MessageReader messageReader;
 
    protected final Runnable creditRunnable;
 
@@ -76,20 +80,19 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
    }
 
+   public AMQPSessionContext getSessionContext() {
+      return protonSession;
+   }
+
    protected void recoverContext() {
       sessionSPI.recoverContext();
    }
 
-   protected void clearLargeMessage() {
+   protected void closeCurrentReader() {
       connection.runNow(() -> {
-         if (currentLargeMessage != null) {
-            try {
-               currentLargeMessage.deleteFile();
-            } catch (Throwable error) {
-               ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
-            } finally {
-               currentLargeMessage = null;
-            }
+         if (messageReader != null) {
+            messageReader.close();
+            messageReader = null;
          }
       });
    }
@@ -238,100 +241,114 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       flow();
    }
 
+   private void handleAbortedDelivery(Delivery delivery) {
+      Receiver receiver = ((Receiver) delivery.getLink());
+
+      closeCurrentReader();
+
+      // Aborting implicitly remotely settles, so advance
+      // receiver to the next delivery and settle locally.
+      receiver.advance();
+      delivery.settle();
+
+      // Replenish the credit if not doing a drain
+      if (!receiver.getDrain()) {
+         receiver.flow(1);
+      }
+   }
+
+   private MessageReader getOrSelectMessageReader(Receiver receiver, Delivery delivery) {
+      // The reader will be nulled once a message has been read, otherwise a large message
+      // is being read in chunks from the remote.
+      if (messageReader != null) {
+         return messageReader;
+      } else {
+         final MessageReader selected = trySelectMessageReader(receiver, delivery);
+
+         if (selected != null) {
+            return messageReader = selected.open();
+         } else {
+            return null;
+         }
+      }
+   }
+
+   protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
+      if (sessionSPI.getStorageManager() instanceof NullStorageManager) {
+         // if we are dealing with the NullStorageManager we should just make it a regular message anyways
+         return standardMessageReader;
+      } else if (delivery.isPartial()) {
+         if (minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
+            return largeMessageReader;
+         } else {
+            return null; // Not enough context to decide yet.
+         }
+      } else if (minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
+         // this is treating the case where the frameSize > minLargeMessage and the message is still large enough
+         return largeMessageReader;
+      } else {
+         // Either minLargeMessageSize < 0 which means disable or the entire message has
+         // arrived and is under the threshold so use the standard variant.
+         return standardMessageReader;
+      }
+   }
+
    /*
     * called when Proton receives a message to be delivered via a Delivery.
     *
     * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
     */
    @Override
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
+   public final void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       connection.requireInHandler();
-      Receiver receiver = ((Receiver) delivery.getLink());
+
+      final Receiver receiver = ((Receiver) delivery.getLink());
 
       if (receiver.current() != delivery) {
          return;
       }
 
+      if (delivery.isAborted()) {
+         handleAbortedDelivery(delivery);
+         return;
+      }
+
       try {
-         if (delivery.isAborted()) {
-            clearLargeMessage();
+         final MessageReader messageReader = getOrSelectMessageReader(receiver, delivery);
 
-            // Aborting implicitly remotely settles, so advance
-            // receiver to the next delivery and settle locally.
-            receiver.advance();
-            delivery.settle();
-
-            // Replenish the credit if not doing a drain
-            if (!receiver.getDrain()) {
-               receiver.flow(1);
-            }
-
-            return;
-         } else if (delivery.isPartial()) {
-            if (sessionSPI.getStorageManager() instanceof NullStorageManager) {
-               // if we are dealing with the NullStorageManager we should just make it a regular message anyways
-               return;
-            }
-
-            if (currentLargeMessage == null) {
-               // minLargeMessageSize < 0 means no large message treatment, make it disabled
-               if (minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
-                  initializeCurrentLargeMessage(delivery, receiver);
-               }
-            } else {
-               currentLargeMessage.addBytes(receiver.recv());
-            }
-
+         if (messageReader == null) {
             return;
          }
 
-         AMQPMessage message;
+         final Message message = messageReader.readBytes(delivery);
 
-         // this is treating the case where the frameSize > minLargeMessage and the message is still large enough
-         if (!(sessionSPI.getStorageManager() instanceof NullStorageManager) && currentLargeMessage == null && minLargeMessageSize > 0 && delivery.available() >= minLargeMessageSize) {
-            initializeCurrentLargeMessage(delivery, receiver);
-         }
+         if (message != null) {
+            // Fetch this before the close of the reader as that will clear any read message
+            // delivery annotations.
+            final DeliveryAnnotations deliveryAnnotations = messageReader.getDeliveryAnnotations();
 
-         if (currentLargeMessage != null) {
-            currentLargeMessage.addBytes(receiver.recv());
+            this.messageReader.close();
+            this.messageReader = null;
+
             receiver.advance();
-            message = currentLargeMessage;
-            currentLargeMessage.releaseResources(true, true);
-            currentLargeMessage = null;
-         } else {
-            ReadableBuffer data = receiver.recv();
-            receiver.advance();
-            message = sessionSPI.createStandardMessage(delivery, data);
-         }
 
-         Transaction tx = null;
-         if (delivery.getRemoteState() instanceof TransactionalState) {
-            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-            tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
-         }
+            Transaction tx = null;
+            if (delivery.getRemoteState() instanceof TransactionalState) {
+               TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+               tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
+            }
 
-         actualDelivery(message, delivery, receiver, tx);
+            actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
+         }
       } catch (Exception e) {
          throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
-
-   }
-
-   protected void initializeCurrentLargeMessage(Delivery delivery, Receiver receiver) throws Exception {
-      long id = sessionSPI.getStorageManager().generateID();
-      currentLargeMessage = new AMQPLargeMessage(id, delivery.getMessageFormat(), null, sessionSPI.getCoreMessageObjectPools(), sessionSPI.getStorageManager());
-
-      ReadableBuffer dataBuffer = receiver.recv();
-      currentLargeMessage.parseHeader(dataBuffer);
-
-      sessionSPI.getStorageManager().largeMessageCreated(id, currentLargeMessage);
-      currentLargeMessage.addBytes(dataBuffer);
    }
 
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
-      clearLargeMessage();
+      closeCurrentReader();
    }
 
    @Override
@@ -344,7 +361,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return connection;
    }
 
-   protected abstract void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx);
+   protected abstract void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx);
 
    // TODO: how to implement flow here?
    public abstract void flow();

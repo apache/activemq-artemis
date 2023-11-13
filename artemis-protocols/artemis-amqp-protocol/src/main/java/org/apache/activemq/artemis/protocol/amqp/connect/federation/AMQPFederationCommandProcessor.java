@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -31,6 +32,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
@@ -111,22 +113,24 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
    }
 
    @Override
-   protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
+   protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
       logger.trace("{}::actualdelivery called for {}", server, message);
+
+      final AMQPMessage controlMessage = (AMQPMessage) message;
 
       delivery.setContext(message);
 
       try {
-         final Object eventType = AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, OPERATION_TYPE);
+         final Object eventType = AMQPMessageBrokerAccessor.getMessageAnnotationProperty(controlMessage, OPERATION_TYPE);
 
          if (ADD_QUEUE_POLICY.equals(eventType)) {
             final FederationReceiveFromQueuePolicy policy =
-               AMQPFederationPolicySupport.decodeReceiveFromQueuePolicy(message, federation.getWildcardConfiguration());
+               AMQPFederationPolicySupport.decodeReceiveFromQueuePolicy(controlMessage, federation.getWildcardConfiguration());
 
             federation.addQueueMatchPolicy(policy);
          } else if (ADD_ADDRESS_POLICY.equals(eventType)) {
             final FederationReceiveFromAddressPolicy policy =
-               AMQPFederationPolicySupport.decodeReceiveFromAddressPolicy(message, federation.getWildcardConfiguration());
+               AMQPFederationPolicySupport.decodeReceiveFromAddressPolicy(controlMessage, federation.getWildcardConfiguration());
 
             federation.addAddressMatchPolicy(policy);
          } else {

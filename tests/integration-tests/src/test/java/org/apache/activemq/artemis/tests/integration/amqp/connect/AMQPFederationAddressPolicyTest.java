@@ -38,6 +38,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_PROPERTIES_MAP;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.generateAddressFilter;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -46,11 +49,13 @@ import static org.hamcrest.CoreMatchers.containsString;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -102,6 +107,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
+
+   @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,CORE";
+   }
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
@@ -367,9 +377,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.start();
          server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
 
-         final String expectedJMSFilter = "\"m." + MESSAGE_HOPS_ANNOTATION +
-                                          "\" IS NULL OR \"m." + MESSAGE_HOPS_ANNOTATION +
-                                          "\"<1";
+         final String expectedJMSFilter = generateAddressFilter(1);
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -2093,6 +2101,167 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.close();
          }
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testCoreMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
+      doTestCoreMessageHandlingBasedOnTunnelingState(false);
+   }
+
+   @Test(timeout = 20000)
+   public void testCoreMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
+      doTestCoreMessageHandlingBasedOnTunnelingState(true);
+   }
+
+   private void doTestCoreMessageHandlingBasedOnTunnelingState(boolean tunneling) throws Exception {
+      server.start();
+
+      final String[] receiverOfferedCapabilities;
+      final int messageFormat;
+
+      if (tunneling) {
+         receiverOfferedCapabilities = new String[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString()};
+         messageFormat = AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+      } else {
+         receiverOfferedCapabilities = null;
+         messageFormat = 0;
+      }
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test");
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withDesiredCapabilities(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                                       .withSource().withAddress("test");
+
+         // Connect to remote as if an address had demand and matched our federation policy
+         // If core message tunneling is enabled we include the desired capability
+         peer.remoteAttach().ofReceiver()
+                            .withOfferedCapabilities(receiverOfferedCapabilities)
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName("federation-address-receiver")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test")
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(10).now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         peer.expectTransfer().withNonNullPayload()
+                              .withMessageFormat(messageFormat).accept();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory(
+            "CORE", "tcp://localhost:" + AMQP_PORT + "?minLargeMessageSize=512");
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createTopic("test"));
+
+            producer.send(session.createTextMessage("Hello World"));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testCoreLargeMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
+      doTestCoreLargeMessageHandlingBasedOnTunnelingState(false);
+   }
+
+   @Test(timeout = 20000)
+   public void testCoreLargeMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
+      doTestCoreLargeMessageHandlingBasedOnTunnelingState(true);
+   }
+
+   private void doTestCoreLargeMessageHandlingBasedOnTunnelingState(boolean tunneling) throws Exception {
+      server.start();
+
+      final String[] receiverOfferedCapabilities;
+      final int messageFormat;
+
+      if (tunneling) {
+         receiverOfferedCapabilities = new String[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString()};
+         messageFormat = AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+      } else {
+         receiverOfferedCapabilities = null;
+         messageFormat = 0;
+      }
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test");
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withDesiredCapabilities(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                                       .withSource().withAddress("test");
+
+         // Connect to remote as if an address had demand and matched our federation policy
+         // If core message tunneling is enabled we include the offered capability
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withOfferedCapabilities(receiverOfferedCapabilities)
+                            .withName("federation-address-receiver")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test")
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(10).now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         peer.expectTransfer().withNonNullPayload()
+                              .withMessageFormat(messageFormat).accept();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory(
+            "CORE", "tcp://localhost:" + AMQP_PORT + "?minLargeMessageSize=512");
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createTopic("test"));
+
+            final byte[] payload = new byte[1024];
+            Arrays.fill(payload, (byte) 65);
+
+            final BytesMessage message = session.createBytesMessage();
+
+            message.writeBytes(payload);
+
+            producer.send(message);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
       }
    }
 

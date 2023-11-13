@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+
 /**
  * Configuration options applied to a consumer created from federation policies
  * for address or queue federation. The options first check the policy properties
@@ -89,6 +91,17 @@ public final class AMQPFederationConsumerConfiguration {
          return Integer.parseInt((String) property);
       } else {
          return federation.getLinkAttachTimeout();
+      }
+   }
+
+   public boolean isCoreMessageTunnelingEnabled() {
+      final Object property = properties.get(AmqpSupport.TUNNEL_CORE_MESSAGES);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return federation.isCoreMessageTunnelingEnabled();
       }
    }
 }

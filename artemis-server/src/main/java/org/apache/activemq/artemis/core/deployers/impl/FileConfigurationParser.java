@@ -2191,6 +2191,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).setDurable(durable).setAddressFilter(addressFilter).setSync(sync);
                connectionElement = amqpMirrorConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.MIRROR);
+
+               final NodeList federationAttrs = e2.getChildNodes();
+
+               for (int j = 0; j < federationAttrs.getLength(); j++) {
+                  final Node mirrorElement = federationAttrs.item(j);
+
+                  if (mirrorElement.getNodeName().equals("property")) {
+                     amqpMirrorConnectionElement.addProperty(getAttributeValue(mirrorElement, "key"), getAttributeValue(mirrorElement, "value"));
+                  }
+               }
+
             } else if (nodeType == AMQPBrokerConnectionAddressType.FEDERATION) {
                final AMQPFederatedBrokerConnectionElement amqpFederationConnectionElement = new AMQPFederatedBrokerConnectionElement(name);
                final NodeList federationAttrs = e2.getChildNodes();

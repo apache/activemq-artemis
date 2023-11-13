@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionElement {
@@ -33,6 +36,8 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
    SimpleString mirrorSNF;
 
    String addressFilter;
+
+   private Map<String, Object> properties = new HashMap<>();
 
    public SimpleString getMirrorSNF() {
       return mirrorSNF;
@@ -107,5 +112,42 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
    public AMQPMirrorBrokerConnectionElement setSync(boolean sync) {
       this.sync = sync;
       return this;
+   }
+
+   /**
+    * Adds the given property key and value to the mirror broker configuration element.
+    *
+    * @param key
+    *    The key that identifies the property
+    * @param value
+    *    The value associated with the property key.
+    *
+    * @return this configuration element instance.
+    */
+   public AMQPMirrorBrokerConnectionElement addProperty(String key, String value) {
+      properties.put(key, value);
+      return this;
+   }
+
+   /**
+    * Adds the given property key and value to the mirror broker configuration element.
+    *
+    * @param key
+    *    The key that identifies the property
+    * @param value
+    *    The value associated with the property key.
+    *
+    * @return this configuration element instance.
+    */
+   public AMQPMirrorBrokerConnectionElement addProperty(String key, Number value) {
+      properties.put(key, value);
+      return this;
+   }
+
+   /**
+    * @return the collection of configuration properties associated with this mirror configuration element.
+    */
+   public Map<String, Object> getProperties() {
+      return properties;
    }
 }

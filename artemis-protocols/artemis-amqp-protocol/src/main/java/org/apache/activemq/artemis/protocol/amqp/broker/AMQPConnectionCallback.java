@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
@@ -268,11 +269,11 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       return null;
    }
 
-   public String invokeIncomingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeIncomingInterceptors(Message message, ActiveMQProtonRemotingConnection connection) {
       return manager.invokeIncoming(message, connection);
    }
 
-   public String invokeOutgoingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeOutgoingInterceptors(Message message, ActiveMQProtonRemotingConnection connection) {
       return manager.invokeOutgoing(message, connection);
    }
 }

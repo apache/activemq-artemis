@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_RECEIVER_PRIORITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DETACH_FORCED;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NOT_FOUND;
@@ -44,7 +46,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
@@ -57,9 +58,13 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpJmsSelectorFilter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
@@ -89,10 +94,6 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
 
    public static final int DEFAULT_PENDING_MSG_CHECK_BACKOFF_MULTIPLIER = 2;
    public static final int DEFAULT_PENDING_MSG_CHECK_MAX_DELAY = 30;
-
-   // Desired capabilities that the federation receiver link needs the remote to offer in order
-   // for the federation receiver to be successfully opened.
-   private static final Symbol[] DESIRED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_QUEUE_RECEIVER};
 
    private static final Symbol[] DEFAULT_OUTCOMES = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL,
                                                                  Released.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL};
@@ -291,7 +292,14 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
 
             protonReceiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             protonReceiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-            protonReceiver.setDesiredCapabilities(DESIRED_LINK_CAPABILITIES);
+            protonReceiver.setDesiredCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
+            // If enabled offer core tunneling which we prefer to AMQP conversions of core as
+            // the large ones will be converted to standard AMQP messages in memory. When not
+            // offered the remote must not use core tunneling and AMQP conversion will be the
+            // fallback.
+            if (configuration.isCoreMessageTunnelingEnabled()) {
+               protonReceiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+            }
             protonReceiver.setProperties(receiverProperties);
             protonReceiver.setTarget(target);
             protonReceiver.setSource(source);
@@ -324,9 +332,9 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
                   // Remote must support federation receivers otherwise we fail the connection unless the
                   // Attach indicates that a detach is incoming in which case we just allow the normal handling
                   // to occur.
-                  if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver)) {
+                  if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver, FEDERATION_QUEUE_RECEIVER)) {
                      federation.signalResourceCreateError(
-                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(DESIRED_LINK_CAPABILITIES)));
+                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(FEDERATION_QUEUE_RECEIVER.toString()));
                      return;
                   }
 
@@ -379,6 +387,10 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
       private final SimpleString cachedFqqn;
 
       private final Queue localQueue;
+
+      private MessageReader coreMessageReader;
+
+      private MessageReader coreLargeMessageReader;
 
       /**
        * Creates the federation receiver instance.
@@ -454,7 +466,20 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
       }
 
       @Override
-      protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
+      protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
+         if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
+            return coreMessageReader != null ?
+               coreMessageReader : (coreMessageReader = new AMQPTunneledCoreMessageReader(this));
+         } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
+            return coreLargeMessageReader != null ?
+               coreLargeMessageReader : (coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this));
+         } else {
+            return super.trySelectMessageReader(receiver, delivery);
+         }
+      }
+
+      @Override
+      protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
          try {
             if (logger.isTraceEnabled()) {
                logger.trace("AMQP Federation {} queue consumer {} dispatching incoming message: {}",

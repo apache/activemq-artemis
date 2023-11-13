@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFedera
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
@@ -137,12 +138,14 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final int AMQP_CREDITS = 100;
       final int AMQP_CREDITS_LOW = 50;
       final int AMQP_LINK_ATTACH_TIMEOUT = 60;
+      final boolean AMQP_TUNNEL_CORE_MESSAGES = false;
 
       final Map<String, Object> federationConfiguration = new HashMap<>();
       federationConfiguration.put(RECEIVER_CREDITS, AMQP_CREDITS);
       federationConfiguration.put(RECEIVER_CREDITS_LOW, AMQP_CREDITS_LOW);
       federationConfiguration.put(LARGE_MESSAGE_THRESHOLD, AMQP_MIN_LARGE_MESSAGE_SIZE);
       federationConfiguration.put(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
+      federationConfiguration.put(AmqpSupport.TUNNEL_CORE_MESSAGES, AMQP_TUNNEL_CORE_MESSAGES);
 
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
@@ -171,6 +174,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          amqpConnection.setReconnectAttempts(0);// No reconnects
          final AMQPFederatedBrokerConnectionElement federation = new AMQPFederatedBrokerConnectionElement("myFederation");
          federation.addProperty(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
+         federation.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(AMQP_TUNNEL_CORE_MESSAGES));
          amqpConnection.addElement(federation);
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
