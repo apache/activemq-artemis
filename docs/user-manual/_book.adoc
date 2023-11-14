@@ -34,6 +34,7 @@ include::upgrading.adoc[leveloffset=1]
 
 //== Getting Started
 
+include::docker.adoc[leveloffset=1]
 include::using-server.adoc[leveloffset=1]
 include::using-cli.adoc[leveloffset=1]
 include::client-classpath.adoc[leveloffset=1]
