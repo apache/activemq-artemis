@@ -180,53 +180,41 @@ under the License.
                <execution>
                   <id>stop0</id>
                   <goals>
-                     <goal>cli</goal>
+                     <goal>stop</goal>
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server0</location>
-                     <args>
-                        <param>stop</param>
-                     </args>
                   </configuration>
                </execution>
                <execution>
                   <id>stop1</id>
                   <goals>
-                     <goal>cli</goal>
+                     <goal>stop</goal>
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server1</location>
-                     <args>
-                        <param>stop</param>
-                     </args>
                   </configuration>
                </execution>
                <execution>
                   <id>stop2</id>
                   <goals>
-                     <goal>cli</goal>
+                     <goal>stop</goal>
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server2</location>
-                     <args>
-                        <param>stop</param>
-                     </args>
                   </configuration>
                </execution>
                <execution>
                   <id>stop3</id>
                   <goals>
-                     <goal>cli</goal>
+                     <goal>stop</goal>
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server3</location>
-                     <args>
-                        <param>stop</param>
-                     </args>
                   </configuration>
                </execution>
             </executions>

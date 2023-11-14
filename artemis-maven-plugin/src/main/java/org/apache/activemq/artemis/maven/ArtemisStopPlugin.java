@@ -17,12 +17,8 @@
 package org.apache.activemq.artemis.maven;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -31,16 +27,18 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "upgrade", defaultPhase = LifecyclePhase.TEST_COMPILE, threadSafe = true)
-public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
+@Mojo(name = "stop", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
+public class ArtemisStopPlugin extends ArtemisAbstractPlugin {
 
-   @Parameter
-   String name;
+   private static final String STOP = "stop";
 
-   /**
-    * The plugin descriptor
-    */
    private PluginDescriptor descriptor;
+
+   @Parameter(defaultValue = "${noServer}")
+   boolean ignore;
+
+   @Parameter(defaultValue = "server")
+   String name;
 
    @Parameter(defaultValue = "${activemq.basedir}", required = true)
    private File home;
@@ -49,61 +47,46 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
    private File alternateHome;
 
    @Parameter(defaultValue = "${basedir}/target/server0", required = true)
-   private File instance;
+   private File location;
+
+   @Parameter(defaultValue = "30000")
+   private long spawnTimeout;
 
    @Parameter
-   private String[] args;
-
+   boolean useSystemOutput = getLog().isDebugEnabled();
 
    @Override
    protected boolean isIgnore() {
-      return false;
-   }
-
-   @Parameter boolean useSystemOutput = getLog().isDebugEnabled();
-
-   private void add(List<String> list, String... str) {
-      for (String s : str) {
-         list.add(s);
-      }
+      return ignore;
    }
 
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
-      getLog().debug("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
       home = findArtemisHome(home, alternateHome);
 
-      Map properties = getPluginContext();
-
-      Set<Map.Entry> entries = properties.entrySet();
-
-      if (getLog().isDebugEnabled()) {
-         getLog().debug("Entries.size " + entries.size());
-         for (Map.Entry entry : entries) {
-            getLog().debug("... key=" + entry.getKey() + " = " + entry.getValue());
-         }
-      }
-
-      ArrayList<String> listCommands = new ArrayList<>();
-
-      add(listCommands, "upgrade");
-
-      add(listCommands, instance.getAbsolutePath());
-
-      if (args != null) {
-         for (String a : args) {
-            add(listCommands, a);
-         }
-      }
-      getLog().debug("***** Server upgrading at " + instance + " with home=" + home + " *****");
-
       try {
-         Artemis.execute(home, null, null, useSystemOutput, listCommands);
+         final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, new String[] {STOP});
+         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+               process.destroy();
+            }
+         });
+
+         boolean complete = process.waitFor(spawnTimeout, TimeUnit.MILLISECONDS);
+         if (!complete) {
+            getLog().error("Stop process did not exit within the spawnTimeout of " + spawnTimeout);
+
+            throw new MojoExecutionException("Stop process did not exit within the spawnTimeout of " + spawnTimeout);
+         }
+
+         Thread.sleep(600);
       } catch (Throwable e) {
-         getLog().error(e);
-         throw new MojoFailureException(e.getMessage());
+         throw new MojoExecutionException(e.getMessage(), e);
+      } finally {
+         org.apache.activemq.artemis.cli.process.ProcessBuilder.cleanupProcess();
       }
    }
 }
