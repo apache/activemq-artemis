@@ -94,6 +94,23 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       return Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
    }
 
+   protected File findArtemisHome(final File home, final File alternateHome) throws MojoExecutionException {
+      if (isArtemisHome(home.toPath())) {
+         return home;
+      }
+
+      if (isArtemisHome(alternateHome.toPath())) {
+         return alternateHome;
+      }
+
+      getLog().error("********************************************************************************************");
+      getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
+      getLog().error("Use the binary distribution or build the distribution before running the examples");
+      getLog().error("********************************************************************************************");
+
+      throw new MojoExecutionException("Couldn't find artemis.home");
+   }
+
    protected abstract boolean isIgnore();
 
    protected Artifact newArtifact(String artifactID) throws MojoFailureException {

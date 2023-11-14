@@ -89,18 +89,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!isArtemisHome(home.toPath())) {
-         if (isArtemisHome(alternateHome.toPath())) {
-            home = alternateHome;
-         } else {
-            getLog().error("********************************************************************************************");
-            getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
-            getLog().error("Use the binary distribution or build the distribution before running the examples");
-            getLog().error("********************************************************************************************");
-
-            throw new MojoExecutionException("Couldn't find artemis.home");
-         }
-      }
+      home = findArtemisHome(home, alternateHome);
 
       try {
          if (spawn) {
