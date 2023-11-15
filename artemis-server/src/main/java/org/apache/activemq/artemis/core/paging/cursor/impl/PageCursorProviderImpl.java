@@ -61,7 +61,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    // We can't call cleanup before counters were rebuilt
    // as they will determine if a subscription is empty or not
-   protected volatile boolean countersRebuilt = true;
+   protected volatile boolean rebuildDone = true;
 
    protected final PagingStore pagingStore;
 
@@ -268,7 +268,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    protected void cleanup() {
 
-      if (!countersRebuilt) {
+      if (!rebuildDone) {
          logger.debug("Counters were not rebuilt yet, cleanup has to be ignored on address {}", pagingStore != null ? pagingStore.getAddress() : "NULL");
          return;
       }
@@ -611,11 +611,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void counterRebuildStarted() {
-      this.countersRebuilt = false;
+      this.rebuildDone = false;
    }
 
    @Override
    public void counterRebuildDone() {
-      this.countersRebuilt = true;
+      this.rebuildDone = true;
+   }
+
+   @Override
+   public boolean isRebuildDone() {
+      return this.rebuildDone;
    }
 }

@@ -73,4 +73,9 @@ public interface PageTransactionInfo extends EncodingSupport {
     */
    boolean deliverAfterCommit(PageIterator pageIterator, PageSubscription cursor, PagedReference pagedMessage);
 
+   /** Used on PageRebuildManager to cleanup orphaned Page Transactions */
+   boolean isOrphaned();
+
+   PageTransactionInfo setOrphaned(boolean orphaned);
+
 }

@@ -39,10 +39,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
 /** this class will copy current data from the Subscriptions, count messages while the server is already active
  * performing other activity */
+// TODO: Rename this as RebuildManager in a future major version
 public class PageCounterRebuildManager implements Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,7 +60,7 @@ public class PageCounterRebuildManager implements Runnable {
    private final Set<Long> storedLargeMessages;
 
 
-   public PageCounterRebuildManager(PagingManager pagingManager, PagingStore store, Map<Long, PageTransactionInfo> transactions, Set<Long> storedLargeMessages) {
+   public PageCounterRebuildManager(PagingManager pagingManager, PagingStore store, Map<Long, PageTransactionInfo> transactions, Set<Long> storedLargeMessages, AtomicLong minPageTXIDFound) {
       // we make a copy of the data because we are allowing data to influx. We will consolidate the values at the end
       initialize(store);
       this.pagingManager = pagingManager;
@@ -253,6 +255,9 @@ public class PageCounterRebuildManager implements Runnable {
 
                if (msg.getTransactionID() > 0) {
                   txInfo = transactions.get(msg.getTransactionID());
+                  if (txInfo != null) {
+                     txInfo.setOrphaned(false);
+                  }
                }
 
                Transaction preparedTX = txInfo == null ? null : txInfo.getPreparedTransaction();

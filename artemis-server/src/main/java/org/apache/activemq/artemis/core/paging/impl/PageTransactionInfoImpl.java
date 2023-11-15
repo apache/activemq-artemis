@@ -67,9 +67,24 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    private List<LateDelivery> lateDeliveries;
 
+   /** To be used during by the RebuildManager.
+    *  When reading transactions not found transactions are marked as done. */
+   private boolean orphaned;
+
    public PageTransactionInfoImpl(final long transactionID) {
       this();
       this.transactionID = transactionID;
+   }
+
+   @Override
+   public boolean isOrphaned() {
+      return orphaned;
+   }
+
+   @Override
+   public PageTransactionInfoImpl setOrphaned(boolean orphaned) {
+      this.orphaned = orphaned;
+      return this;
    }
 
    public PageTransactionInfoImpl() {
