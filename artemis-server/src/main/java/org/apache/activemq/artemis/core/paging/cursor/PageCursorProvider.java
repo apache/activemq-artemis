@@ -67,4 +67,6 @@ public interface PageCursorProvider {
 
    void counterRebuildDone();
 
+   boolean isRebuildDone();
+
 }

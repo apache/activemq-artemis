@@ -1593,4 +1593,13 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224130, value = "The {} value {} will override the {} value {} since both are set.", level = LogMessage.Level.INFO)
    void configParamOverride(String overridingParam, Object overridingParamValue, String overriddenParam, Object overriddenParamValue);
+
+   @LogMessage(id = 224131, value = "Removing orphaned page transaction {}", level = LogMessage.Level.INFO)
+   void removeOrphanedPageTransaction(long transactionID);
+
+   @LogMessage(id = 224132, value = "{} orphaned page transactions were removed", level = LogMessage.Level.INFO)
+   void completeOrphanedTXCleanup(long numberOfPageTx);
+
+   @LogMessage(id = 224133, value = "{} orphaned page transactions have been removed", level = LogMessage.Level.INFO)
+   void cleaningOrphanedTXCleanup(long numberOfPageTx);
 }
