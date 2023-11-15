@@ -1903,7 +1903,7 @@ public class MQTTTest extends MQTTTestSupport {
       Exception peerDisconnectedException = null;
       try {
          String clientId = "test.client";
-         SimpleString coreAddress = new SimpleString("foo/bar");
+         String coreAddress = MQTTUtil.convertMqttTopicFilterToCore("foo/bar", server.getConfiguration().getWildcardConfiguration());
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
          getServer().createQueue(new QueueConfiguration(new SimpleString(clientId + "." + coreAddress)).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
@@ -2151,11 +2151,11 @@ public class MQTTTest extends MQTTTestSupport {
    @Test(timeout = 60 * 1000)
    public void testAutoDeleteRetainedQueue() throws Exception {
       final String TOPIC = "/abc/123";
-      final String RETAINED_QUEUE = MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration());
+      final String RETAINED_QUEUE = MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration());
       final MQTTClientProvider publisher = getMQTTClientProvider();
       final MQTTClientProvider subscriber = getMQTTClientProvider();
 
-      server.getAddressSettingsRepository().addMatch(MQTTUtil.convertMqttTopicFilterToCoreAddress("#", server.getConfiguration().getWildcardConfiguration()), new AddressSettings().setExpiryDelay(500L).setAutoDeleteQueues(true).setAutoDeleteAddresses(true));
+      server.getAddressSettingsRepository().addMatch(MQTTUtil.convertMqttTopicFilterToCore("#", server.getConfiguration().getWildcardConfiguration()), new AddressSettings().setExpiryDelay(500L).setAutoDeleteQueues(true).setAutoDeleteAddresses(true));
 
       initializeConnection(publisher);
       initializeConnection(subscriber);

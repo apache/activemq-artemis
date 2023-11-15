@@ -269,7 +269,7 @@ public class PublishTests extends MQTT5TestSupport {
       // send first retained message
       producer.publish(TOPIC, "retain1".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
 
       // send second retained message; should *remove* the first
       producer.publish(TOPIC, new byte[0], 2, true);
@@ -277,7 +277,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 0, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 0, 2000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -311,7 +311,7 @@ public class PublishTests extends MQTT5TestSupport {
 
       // send retained message
       producer.publish(TOPIC, RETAINED_PAYLOAD.getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 1000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 1000, 100);
 
       // send an unretained message; should *not* remove the existing retained message
       producer.publish(TOPIC, UNRETAINED_PAYLOAD.getBytes(), 2, false);
@@ -319,7 +319,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertFalse(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() > 1, 1000, 100);
+      Wait.assertFalse(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() > 1, 1000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -405,7 +405,7 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          final String topicName = topicNames[i];
          producer.publish(topicName, retainedPayloads[i].getBytes(), 2, true);
-         Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, topicName, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, topicName, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
       }
       producer.disconnect();
       producer.close();
@@ -467,7 +467,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -530,7 +530,7 @@ public class PublishTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -586,7 +586,7 @@ public class PublishTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -635,7 +635,7 @@ public class PublishTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 

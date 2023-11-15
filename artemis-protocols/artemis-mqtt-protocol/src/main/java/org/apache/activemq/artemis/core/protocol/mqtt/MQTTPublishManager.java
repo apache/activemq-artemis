@@ -216,7 +216,7 @@ public class MQTTPublishManager {
                }
             }
          }
-         String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(topic, session.getWildcardConfiguration());
+         String coreAddress = MQTTUtil.convertMqttTopicFilterToCore(topic, session.getWildcardConfiguration());
          SimpleString address = SimpleString.toSimpleString(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
          Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, address, message);
          int qos = message.fixedHeader().qosLevel().value();

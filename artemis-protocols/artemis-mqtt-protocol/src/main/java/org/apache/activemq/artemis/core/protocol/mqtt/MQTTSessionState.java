@@ -204,7 +204,7 @@ public class MQTTSessionState {
    public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.convertMqttTopicFilterToCoreAddress(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
+         addressMessageMap.putIfAbsent(MQTTUtil.convertMqttTopicFilterToCore(subscription.topicName(), wildcardConfiguration).toString(), new ConcurrentHashMap<>());
 
          Pair<MqttTopicSubscription, Integer> existingSubscription = subscriptions.get(subscription.topicName());
          if (existingSubscription != null) {
