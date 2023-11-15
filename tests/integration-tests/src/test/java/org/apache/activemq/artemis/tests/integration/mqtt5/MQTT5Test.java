@@ -611,4 +611,17 @@ public class MQTT5Test extends MQTT5TestSupport {
       }
       client.close();
    }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSubscriptionQueueName() throws Exception {
+      final String topic = "a/b";
+      final String clientID = "myClientID";
+
+      MqttClient client = createPahoClient(clientID);
+      client.connect();
+      client.subscribe(topic, 1);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString(clientID.concat(".").concat(topic.replace('/', '.')))) != null, 2000, 100);
+      client.disconnect();
+      client.close();
+   }
 }

@@ -44,6 +44,7 @@ import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -137,11 +138,11 @@ public class MQTTUtil {
 
    public static final int DEFAULT_MAXIMUM_PACKET_SIZE = MAX_PACKET_SIZE;
 
-   public static String convertMqttTopicFilterToCoreAddress(String filter, WildcardConfiguration wildcardConfiguration) {
-      return convertMqttTopicFilterToCoreAddress(null, filter, wildcardConfiguration);
+   public static String convertMqttTopicFilterToCore(String filter, WildcardConfiguration wildcardConfiguration) {
+      return convertMqttTopicFilterToCore(null, filter, wildcardConfiguration);
    }
 
-   public static String convertMqttTopicFilterToCoreAddress(String prefixToAdd, String filter, WildcardConfiguration wildcardConfiguration) {
+   public static String convertMqttTopicFilterToCore(String prefixToAdd, String filter, WildcardConfiguration wildcardConfiguration) {
       if (filter == null) {
          return "";
       }
@@ -527,5 +528,32 @@ public class MQTTUtil {
       }
 
       return defaultReturnValue == null ? null : defaultReturnValue;
+   }
+
+
+
+   /*
+    * MQTT shared subscriptions are specified with the syntax from
+    * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901250:
+    *   $share/<shareName>/<topicFilter>
+    * This method takes this syntax and returns the shareName and the topicFilter.
+    */
+   public static Pair<String, String> decomposeSharedSubscriptionTopicFilter(String topicFilter) {
+      if (isSharedSubscription(topicFilter)) {
+         int prefix = SHARED_SUBSCRIPTION_PREFIX.length();
+         String shareName = topicFilter.substring(prefix, topicFilter.indexOf(SLASH, prefix));
+         String parsedTopicName = topicFilter.substring(topicFilter.indexOf(SLASH, prefix) + 1);
+         return new Pair(shareName, parsedTopicName);
+      } else {
+         return new Pair(null, topicFilter);
+      }
+   }
+
+   public static boolean isSharedSubscription(String topicFilter) {
+      if (topicFilter.startsWith(SHARED_SUBSCRIPTION_PREFIX)) {
+         return true;
+      } else {
+         return false;
+      }
    }
 }
