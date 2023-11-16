@@ -1702,6 +1702,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       setParams(cf, overrideProperties);
 
       //now make sure we are HA in any way
+      cf.setUseTopologyForLoadBalancing(raProperties.isUseTopologyForLoadBalancing());
 
       cf.setReconnectAttempts(0);
       cf.setInitialConnectAttempts(0);
