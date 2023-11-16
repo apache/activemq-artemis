@@ -29,9 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -53,14 +53,11 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final int PAGE_MAX = 100 * 1024;
-
-   private static final int PAGE_SIZE = 10 * 1024;
-
-   static final SimpleString ADDRESS = new SimpleString("TestQueue");
 
    @Test
    public void testPageTXCleanup() throws Throwable {
+      final int PAGE_MAX = 100 * 1024;
+      final int PAGE_SIZE = 10 * 1024;
 
       Configuration config = createDefaultConfig(true).setJournalSyncNonTransactional(false);
 
@@ -100,15 +97,20 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
          logger.debug("removing file {}", fileToRemove);
       }
 
+
+      HashMap<Integer, AtomicInteger> journalCount = countJournal(server.getConfiguration());
+      Assert.assertEquals(NUMBER_OF_MESSAGES * 2, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
+
       try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {
          server.start();
          Wait.assertTrue(() -> handler.findText("AMQ224132"));
       }
 
+      // compacting to clean up older records before counting them
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(60_000);
 
-      HashMap<Integer, AtomicInteger> countedJournal = countJournal(server.getConfiguration());
-      Assert.assertEquals(NUMBER_OF_MESSAGES, countedJournal.get(35).get());
+      journalCount = countJournal(server.getConfiguration());
+      Assert.assertEquals(NUMBER_OF_MESSAGES, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
 
       server.stop();
       server.start();
