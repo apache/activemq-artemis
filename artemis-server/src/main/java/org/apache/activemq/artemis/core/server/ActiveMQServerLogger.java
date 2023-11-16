@@ -1436,7 +1436,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224080, value = "The server process will now be stopped, as component {} is not responsive", level = LogMessage.Level.ERROR)
    void criticalSystemShutdown(Object component);
 
-   @LogMessage(id = 224081, value = "The component {} is not responsive", level = LogMessage.Level.WARN)
+   @LogMessage(id = 224081, value = "The component {} is not responsive", level = LogMessage.Level.ERROR)
    void criticalSystemLog(Object component);
 
    @LogMessage(id = 224076, value = "Undeploying address {}", level = LogMessage.Level.INFO)
