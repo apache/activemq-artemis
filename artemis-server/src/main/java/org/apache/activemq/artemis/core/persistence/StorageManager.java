@@ -38,7 +38,9 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
@@ -348,9 +350,11 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception;
 
+   void storeAddressSetting(PersistedAddressSettingJSON addressSetting) throws Exception;
+
    void deleteAddressSetting(SimpleString addressMatch) throws Exception;
 
-   List<PersistedAddressSetting> recoverAddressSettings() throws Exception;
+   List<AbstractPersistedAddressSetting> recoverAddressSettings() throws Exception;
 
    void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception;
 

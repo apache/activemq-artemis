@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -3023,78 +3024,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
-      String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP" : "FAIL";
-      String consumerPolicy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY" : "KILL";
-      JsonObjectBuilder settings = JsonLoader.createObjectBuilder();
-      if (addressSettings.getDeadLetterAddress() != null) {
-         settings.add("DLA", addressSettings.getDeadLetterAddress().toString());
-      }
-      if (addressSettings.getExpiryAddress() != null) {
-         settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
-      }
-
-      return settings.add("expiryDelay", addressSettings.getExpiryDelay())
-            .add("minExpiryDelay", addressSettings.getMinExpiryDelay())
-            .add("maxExpiryDelay", addressSettings.getMaxExpiryDelay())
-            .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
-            .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
-            .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
-            .add("pageSizeBytes", addressSettings.getPageSizeBytes())
-            .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
-            .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
-            .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
-            .add("redistributionDelay", addressSettings.getRedistributionDelay())
-            .add("lastValueQueue", addressSettings.isDefaultLastValueQueue())
-            .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
-            .add("addressFullMessagePolicy", policy)
-            .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
-            .add("slowConsumerThresholdMeasurementUnit", addressSettings.getSlowConsumerThresholdMeasurementUnit().toString())
-            .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
-            .add("slowConsumerPolicy", consumerPolicy)
-            .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
-            .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
-            .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
-            .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics())
-            .add("autoCreateQueues", addressSettings.isAutoCreateQueues())
-            .add("autoDeleteQueues", addressSettings.isAutoDeleteQueues())
-            .add("autoCreateAddresses", addressSettings.isAutoCreateAddresses())
-            .add("autoDeleteAddresses", addressSettings.isAutoDeleteAddresses())
-            .add("configDeleteQueues", addressSettings.getConfigDeleteQueues().toString())
-            .add("configDeleteAddresses", addressSettings.getConfigDeleteAddresses().toString())
-            .add("maxSizeBytesRejectThreshold", addressSettings.getMaxSizeBytesRejectThreshold())
-            .add("defaultLastValueKey", addressSettings.getDefaultLastValueKey() == null ? "" : addressSettings.getDefaultLastValueKey().toString())
-            .add("defaultNonDestructive", addressSettings.isDefaultNonDestructive())
-            .add("defaultExclusiveQueue", addressSettings.isDefaultExclusiveQueue())
-            .add("defaultGroupRebalance", addressSettings.isDefaultGroupRebalance())
-            .add("defaultGroupRebalancePauseDispatch", addressSettings.isDefaultGroupRebalancePauseDispatch())
-            .add("defaultGroupBuckets", addressSettings.getDefaultGroupBuckets())
-            .add("defaultGroupFirstKey", addressSettings.getDefaultGroupFirstKey() == null ? "" : addressSettings.getDefaultGroupFirstKey().toString())
-            .add("defaultMaxConsumers", addressSettings.getDefaultMaxConsumers())
-            .add("defaultPurgeOnNoConsumers", addressSettings.isDefaultPurgeOnNoConsumers())
-            .add("defaultConsumersBeforeDispatch", addressSettings.getDefaultConsumersBeforeDispatch())
-            .add("defaultDelayBeforeDispatch", addressSettings.getDefaultDelayBeforeDispatch())
-            .add("defaultQueueRoutingType", addressSettings.getDefaultQueueRoutingType().toString())
-            .add("defaultAddressRoutingType", addressSettings.getDefaultAddressRoutingType().toString())
-            .add("defaultConsumerWindowSize", addressSettings.getDefaultConsumerWindowSize())
-            .add("defaultRingSize", addressSettings.getDefaultRingSize())
-            .add("autoDeleteCreatedQueues", addressSettings.isAutoDeleteCreatedQueues())
-            .add("autoDeleteQueuesDelay", addressSettings.getAutoDeleteQueuesDelay())
-            .add("autoDeleteQueuesMessageCount", addressSettings.getAutoDeleteQueuesMessageCount())
-            .add("autoDeleteAddressesDelay", addressSettings.getAutoDeleteAddressesDelay())
-            .add("redeliveryCollisionAvoidanceFactor", addressSettings.getRedeliveryCollisionAvoidanceFactor())
-            .add("retroactiveMessageCount", addressSettings.getRetroactiveMessageCount())
-            .add("autoCreateDeadLetterResources", addressSettings.isAutoCreateDeadLetterResources())
-            .add("deadLetterQueuePrefix", addressSettings.getDeadLetterQueuePrefix().toString())
-            .add("deadLetterQueueSuffix", addressSettings.getDeadLetterQueueSuffix().toString())
-            .add("autoCreateExpiryResources", addressSettings.isAutoCreateExpiryResources())
-            .add("expiryQueuePrefix", addressSettings.getExpiryQueuePrefix().toString())
-            .add("expiryQueueSuffix", addressSettings.getExpiryQueueSuffix().toString())
-            .add("enableMetrics", addressSettings.isEnableMetrics())
-            .build()
-            .toString();
+      return addressSettings.toJSON();
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3146,6 +3080,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3224,6 +3159,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3331,6 +3267,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3447,6 +3384,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3594,6 +3532,40 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
 
+   }
+
+   @Override
+   public String addAddressSettings(String address, String addressSettingsConfigurationAsJson) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.addAddressSettings(this.server, addressSettingsConfigurationAsJson);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         AddressSettings addressSettingsConfiguration = AddressSettings.fromJSON(addressSettingsConfigurationAsJson);
+
+         if (addressSettingsConfiguration == null) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(addressSettingsConfigurationAsJson);
+         }
+         // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
+         if (addressSettingsConfiguration.getPageSizeBytes() > addressSettingsConfiguration.getMaxSizeBytes() && addressSettingsConfiguration.getMaxSizeBytes() > 0) {
+            throw new IllegalStateException("pageSize has to be lower than maxSizeBytes. Invalid argument (" + addressSettingsConfiguration.getPageSizeBytes() + " < " + addressSettingsConfiguration.getMaxSizeBytes() + ")");
+         }
+
+         if (addressSettingsConfiguration.getMaxSizeBytes() < -1) {
+            throw new IllegalStateException("Invalid argument on maxSizeBytes");
+         }
+         server.getAddressSettingsRepository().addMatch(address, addressSettingsConfiguration);
+
+         storageManager.storeAddressSetting(new PersistedAddressSettingJSON(new SimpleString(address), addressSettingsConfiguration, SimpleString.toSimpleString(addressSettingsConfigurationAsJson)));
+         return addressSettingsConfiguration.toJSON();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
    }
 
    @Override

@@ -78,6 +78,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_REF;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_BINDING_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_SETTING_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_SETTING_RECORD_JSON;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_STATUS_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
@@ -745,6 +746,9 @@ public final class DescribeJournal {
 
          case ADDRESS_SETTING_RECORD:
             return AbstractJournalStorageManager.newAddressEncoding(id, buffer);
+
+         case ADDRESS_SETTING_RECORD_JSON:
+            return AbstractJournalStorageManager.newAddressJSONEncoding(id, buffer);
 
          case SECURITY_SETTING_RECORD:
             return AbstractJournalStorageManager.newSecurityRecord(id, buffer);

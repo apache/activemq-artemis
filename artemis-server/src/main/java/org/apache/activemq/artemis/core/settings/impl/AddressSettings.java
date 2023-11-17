@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -25,6 +26,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.apache.activemq.artemis.utils.bean.MetaBean;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -32,6 +34,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
  * Configuration settings that are applied on the address level
  */
 public class AddressSettings implements Mergeable<AddressSettings>, Serializable, EncodingSupport {
+
+   static MetaBean<AddressSettings> metaBean = new MetaBean<>();
 
    private static final long serialVersionUID = 1607502280582336366L;
 
@@ -143,160 +147,388 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_ENABLE_INGRESS_TIMESTAMP = false;
 
+   {
+      metaBean.add(AddressFullMessagePolicy.class, "addressFullMessagePolicy", (t, p) -> t.addressFullMessagePolicy = p, t -> t.addressFullMessagePolicy);
+   }
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
+   {
+      metaBean.add(Long.class, "maxSizeBytes", (t, p) -> t.maxSizeBytes = p, t -> t.maxSizeBytes);
+   }
    private Long maxSizeBytes = null;
 
+   {
+      metaBean.add(Integer.class, "maxReadPageBytes", (t, p) -> t.maxReadPageBytes = p, t -> t.maxReadPageBytes);
+   }
    private Integer maxReadPageBytes = null;
 
+   {
+      metaBean.add(Integer.class, "maxReadPageMessages", (t, p) -> t.maxReadPageMessages = p, t -> t.maxReadPageMessages);
+   }
    private Integer maxReadPageMessages = null;
 
+   {
+      metaBean.add(Integer.class, "prefetchPageBytes", (t, p) -> t.prefetchPageBytes = p, t -> t.prefetchPageBytes);
+   }
    private Integer prefetchPageBytes = null;
 
+   {
+      metaBean.add(Integer.class, "prefetchPageMessages", (t, p) -> t.prefetchPageMessages = p, t -> t.prefetchPageMessages);
+   }
    private Integer prefetchPageMessages = null;
 
+   {
+      metaBean.add(Long.class, "pageLimitBytes", (t, p) -> t.pageLimitBytes = p, t -> t.pageLimitBytes);
+   }
    private Long pageLimitBytes = null;
 
+   {
+      metaBean.add(Long.class, "pageLimitMessages", (t, p) -> t.pageLimitMessages = p, t -> t.pageLimitMessages);
+   }
    private Long pageLimitMessages = null;
 
+   {
+      metaBean.add(PageFullMessagePolicy.class, "pageFullMessagePolicy", (t, p) -> t.pageFullMessagePolicy = p, t -> t.pageFullMessagePolicy);
+   }
    private PageFullMessagePolicy pageFullMessagePolicy = null;
 
+   {
+      metaBean.add(Long.class, "maxSizeMessages", (t, p) -> t.maxSizeMessages = p, t -> t.maxSizeMessages);
+   }
    private Long maxSizeMessages = null;
 
+   {
+      metaBean.add(Integer.class, "pageSizeBytes", (t, p) -> t.pageSizeBytes = p, t -> t.pageSizeBytes);
+   }
    private Integer pageSizeBytes = null;
 
-   private Integer pageMaxCache = null;
+   {
+      metaBean.add(Integer.class, "pageCacheMaxSize", (t, p) -> t.pageCacheMaxSize = p, t -> t.pageCacheMaxSize);
+   }
+   private Integer pageCacheMaxSize = null;
 
+   {
+      metaBean.add(Boolean.class, "dropMessagesWhenFull", (t, p) -> t.dropMessagesWhenFull = p, t -> t.dropMessagesWhenFull);
+   }
    private Boolean dropMessagesWhenFull = null;
 
+   {
+      metaBean.add(Integer.class, "maxDeliveryAttempts", (t, p) -> t.maxDeliveryAttempts = p, t -> t.maxDeliveryAttempts);
+   }
    private Integer maxDeliveryAttempts = null;
 
+   {
+      metaBean.add(Integer.class, "messageCounterHistoryDayLimit", (t, p) -> t.messageCounterHistoryDayLimit = p, t -> t.messageCounterHistoryDayLimit);
+   }
    private Integer messageCounterHistoryDayLimit = null;
 
+   {
+      metaBean.add(Long.class, "redeliveryDelay", (t, p) -> t.redeliveryDelay = p, t -> t.redeliveryDelay);
+   }
    private Long redeliveryDelay = null;
 
+   {
+      metaBean.add(Double.class, "redeliveryMultiplier", (t, p) -> t.redeliveryMultiplier = p, t -> t.redeliveryMultiplier);
+   }
    private Double redeliveryMultiplier = null;
 
+   {
+      metaBean.add(Double.class, "redeliveryCollisionAvoidanceFactor", (t, p) -> t.redeliveryCollisionAvoidanceFactor = p, t -> t.redeliveryCollisionAvoidanceFactor);
+   }
    private Double redeliveryCollisionAvoidanceFactor = null;
 
+   {
+      metaBean.add(Long.class, "maxRedeliveryDelay", (t, p) -> t.maxRedeliveryDelay = p, t -> t.maxRedeliveryDelay);
+   }
    private Long maxRedeliveryDelay = null;
 
+   {
+      metaBean.add(SimpleString.class, "deadLetterAddress", (t, p) -> t.deadLetterAddress = p, t -> t.deadLetterAddress);
+   }
    private SimpleString deadLetterAddress = null;
 
+   {
+      metaBean.add(SimpleString.class, "expiryAddress", (t, p) -> t.expiryAddress = p, t -> t.expiryAddress);
+   }
    private SimpleString expiryAddress = null;
 
+   {
+      metaBean.add(Long.class, "expiryDelay", (t, p) -> t.expiryDelay = p, t -> t.expiryDelay);
+   }
    private Long expiryDelay = null;
 
+   {
+      metaBean.add(Long.class, "minExpiryDelay", (t, p) -> t.minExpiryDelay = p, t -> t.minExpiryDelay);
+   }
    private Long minExpiryDelay = null;
 
+   {
+      metaBean.add(Long.class, "maxExpiryDelay", (t, p) -> t.maxExpiryDelay = p, t -> t.maxExpiryDelay);
+   }
    private Long maxExpiryDelay = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultLastValueQueue", (t, p) -> t.defaultLastValueQueue = p, t -> t.defaultLastValueQueue);
+   }
    private Boolean defaultLastValueQueue = null;
 
+   {
+      metaBean.add(SimpleString.class, "defaultLastValueKey", (t, p) -> t.defaultLastValueKey = p, t -> t.defaultLastValueKey);
+   }
    private SimpleString defaultLastValueKey = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultNonDestructive", (t, p) -> t.defaultNonDestructive = p, t -> t.defaultNonDestructive);
+   }
    private Boolean defaultNonDestructive = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultExclusiveQueue", (t, p) -> t.defaultExclusiveQueue = p, t -> t.defaultExclusiveQueue);
+   }
    private Boolean defaultExclusiveQueue = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultGroupRebalance", (t, p) -> t.defaultGroupRebalance = p, t -> t.defaultGroupRebalance);
+   }
    private Boolean defaultGroupRebalance = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultGroupRebalancePauseDispatch", (t, p) -> t.defaultGroupRebalancePauseDispatch = p, t -> t.defaultGroupRebalancePauseDispatch);
+   }
    private Boolean defaultGroupRebalancePauseDispatch = null;
 
+   {
+      metaBean.add(Integer.class, "defaultGroupBuckets", (t, p) -> t.defaultGroupBuckets = p, t -> t.defaultGroupBuckets);
+   }
    private Integer defaultGroupBuckets = null;
 
+   {
+      metaBean.add(SimpleString.class, "defaultGroupFirstKey", (t, p) -> t.defaultGroupFirstKey = p, t -> t.defaultGroupFirstKey);
+   }
    private SimpleString defaultGroupFirstKey = null;
 
+   {
+      metaBean.add(Long.class, "redistributionDelay", (t, p) -> t.redistributionDelay = p, t -> t.redistributionDelay);
+   }
    private Long redistributionDelay = null;
 
+   {
+      metaBean.add(Boolean.class, "sendToDLAOnNoRoute", (t, p) -> t.sendToDLAOnNoRoute = p, t -> t.sendToDLAOnNoRoute);
+   }
    private Boolean sendToDLAOnNoRoute = null;
 
+   {
+      metaBean.add(Long.class, "slowConsumerThreshold", (t, p) -> t.slowConsumerThreshold = p, t -> t.slowConsumerThreshold);
+   }
    private Long slowConsumerThreshold = null;
 
+   {
+      metaBean.add(SlowConsumerThresholdMeasurementUnit.class, "slowConsumerThresholdMeasurementUnit", (t, p) -> t.slowConsumerThresholdMeasurementUnit = p, t -> t.slowConsumerThresholdMeasurementUnit);
+   }
    private SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
 
+   {
+      metaBean.add(Long.class, "slowConsumerCheckPeriod", (t, p) -> t.slowConsumerCheckPeriod = p, t -> t.slowConsumerCheckPeriod);
+   }
    private Long slowConsumerCheckPeriod = null;
 
+   {
+      metaBean.add(SlowConsumerPolicy.class, "slowConsumerPolicy", (t, p) -> t.slowConsumerPolicy = p, t -> t.slowConsumerPolicy);
+   }
    private SlowConsumerPolicy slowConsumerPolicy = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateJmsQueues", (t, p) -> t.autoCreateJmsQueues = (Boolean) p, t -> t.autoCreateJmsQueues, t -> t.autoCreateJmsQueues != null);
+   }
    @Deprecated
    private Boolean autoCreateJmsQueues = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteJmsQueues", (t, p) -> t.autoDeleteJmsQueues = (Boolean) p, t -> t.autoDeleteJmsQueues, t -> t.autoDeleteJmsQueues != null);
+   }
    @Deprecated
    private Boolean autoDeleteJmsQueues = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateJmsTopics", (t, p) -> t.autoCreateJmsTopics = (Boolean) p, t -> t.autoCreateJmsTopics, t -> t.autoCreateJmsTopics != null);
+   }
    @Deprecated
    private Boolean autoCreateJmsTopics = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteJmsTopics", (t, p) -> t.autoDeleteJmsTopics = (Boolean) p, t -> t.autoDeleteJmsTopics, t -> t.autoDeleteJmsTopics != null);
+   }
    @Deprecated
    private Boolean autoDeleteJmsTopics = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateQueues", (t, p) -> t.autoCreateQueues = p, t -> t.autoCreateQueues);
+   }
    private Boolean autoCreateQueues = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteQueues", (t, p) -> t.autoDeleteQueues = p, t -> t.autoDeleteQueues);
+   }
    private Boolean autoDeleteQueues = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteCreatedQueues", (t, p) -> t.autoDeleteCreatedQueues = p, t -> t.autoDeleteCreatedQueues);
+   }
    private Boolean autoDeleteCreatedQueues = null;
 
+   {
+      metaBean.add(Long.class, "autoDeleteQueuesDelay", (t, p) -> t.autoDeleteQueuesDelay = p, t -> t.autoDeleteQueuesDelay);
+   }
    private Long autoDeleteQueuesDelay = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteQueuesSkipUsageCheck", (t, p) -> t.autoDeleteQueuesSkipUsageCheck = p, t -> t.autoDeleteQueuesSkipUsageCheck);
+   }
    private Boolean autoDeleteQueuesSkipUsageCheck = null;
 
+   {
+      metaBean.add(Long.class, "autoDeleteQueuesMessageCount", (t, p) -> t.autoDeleteQueuesMessageCount = p, t -> t.autoDeleteQueuesMessageCount);
+   }
    private Long autoDeleteQueuesMessageCount = null;
 
+   {
+      metaBean.add(Long.class, "defaultRingSize", (t, p) -> t.defaultRingSize = p, t -> t.defaultRingSize);
+   }
    private Long defaultRingSize = null;
 
+   {
+      metaBean.add(Long.class, "retroactiveMessageCount", (t, p) -> t.retroactiveMessageCount = p, t -> t.retroactiveMessageCount);
+   }
    private Long retroactiveMessageCount = null;
 
+   {
+      metaBean.add(DeletionPolicy.class, "configDeleteQueues", (t, p) -> t.configDeleteQueues = p, t -> t.configDeleteQueues);
+   }
    private DeletionPolicy configDeleteQueues = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateAddresses", (t, p) -> t.autoCreateAddresses = p, t -> t.autoCreateAddresses);
+   }
    private Boolean autoCreateAddresses = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteAddresses", (t, p) -> t.autoDeleteAddresses = p, t -> t.autoDeleteAddresses);
+   }
    private Boolean autoDeleteAddresses = null;
 
+   {
+      metaBean.add(Long.class, "autoDeleteAddressesDelay", (t, p) -> t.autoDeleteAddressesDelay = p, t -> t.autoDeleteAddressesDelay);
+   }
    private Long autoDeleteAddressesDelay = null;
 
+   {
+      metaBean.add(Boolean.class, "autoDeleteAddressesSkipUsageCheck", (t, p) -> t.autoDeleteAddressesSkipUsageCheck = p, t -> t.autoDeleteAddressesSkipUsageCheck);
+   }
    private Boolean autoDeleteAddressesSkipUsageCheck = null;
 
+   {
+      metaBean.add(DeletionPolicy.class, "configDeleteAddresses", (t, p) -> t.configDeleteAddresses = p, t -> t.configDeleteAddresses);
+   }
    private DeletionPolicy configDeleteAddresses = null;
 
+   {
+      metaBean.add(DeletionPolicy.class, "configDeleteDiverts", (t, p) -> t.configDeleteDiverts = p, t -> t.configDeleteDiverts);
+   }
    private DeletionPolicy configDeleteDiverts = null;
 
+   {
+      metaBean.add(Integer.class, "managementBrowsePageSize", (t, p) -> t.managementBrowsePageSize = p, t -> t.managementBrowsePageSize);
+   }
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
+   {
+      metaBean.add(Long.class, "maxSizeBytesRejectThreshold", (t, p) -> t.maxSizeBytesRejectThreshold = p, t -> t.maxSizeBytesRejectThreshold);
+   }
    private Long maxSizeBytesRejectThreshold = null;
 
+   {
+      metaBean.add(Integer.class, "defaultMaxConsumers", (t, p) -> t.defaultMaxConsumers = p, t -> t.defaultMaxConsumers);
+   }
    private Integer defaultMaxConsumers = null;
 
+   {
+      metaBean.add(Boolean.class, "defaultPurgeOnNoConsumers", (t, p) -> t.defaultPurgeOnNoConsumers = p, t -> t.defaultPurgeOnNoConsumers);
+   }
    private Boolean defaultPurgeOnNoConsumers = null;
 
+   {
+      metaBean.add(Integer.class, "defaultConsumersBeforeDispatch", (t, p) -> t.defaultConsumersBeforeDispatch = p, t -> t.defaultConsumersBeforeDispatch);
+   }
    private Integer defaultConsumersBeforeDispatch = null;
 
+   {
+      metaBean.add(Long.class, "defaultDelayBeforeDispatch", (t, p) -> t.defaultDelayBeforeDispatch = p, t -> t.defaultDelayBeforeDispatch);
+   }
    private Long defaultDelayBeforeDispatch = null;
 
+   {
+      metaBean.add(RoutingType.class, "defaultQueueRoutingType", (t, p) -> t.defaultQueueRoutingType = p, t -> t.defaultQueueRoutingType);
+   }
    private RoutingType defaultQueueRoutingType = null;
 
+   {
+      metaBean.add(RoutingType.class, "defaultAddressRoutingType", (t, p) -> t.defaultAddressRoutingType = p, t -> t.defaultAddressRoutingType);
+   }
    private RoutingType defaultAddressRoutingType = null;
 
+   {
+      metaBean.add(Integer.class, "defaultConsumerWindowSize", (t, p) -> t.defaultConsumerWindowSize = p, t -> t.defaultConsumerWindowSize);
+   }
    private Integer defaultConsumerWindowSize = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateDeadLetterResources", (t, p) -> t.autoCreateDeadLetterResources = p, t -> t.autoCreateDeadLetterResources);
+   }
    private Boolean autoCreateDeadLetterResources = null;
 
+   {
+      metaBean.add(SimpleString.class, "deadLetterQueuePrefix", (t, p) -> t.deadLetterQueuePrefix = p, t -> t.deadLetterQueuePrefix);
+   }
    private SimpleString deadLetterQueuePrefix = null;
 
+   {
+      metaBean.add(SimpleString.class, "deadLetterQueueSuffix", (t, p) -> t.deadLetterQueueSuffix = p, t -> t.deadLetterQueueSuffix);
+   }
    private SimpleString deadLetterQueueSuffix = null;
 
+   {
+      metaBean.add(Boolean.class, "autoCreateExpiryResources", (t, p) -> t.autoCreateExpiryResources = p, t -> t.autoCreateExpiryResources);
+   }
    private Boolean autoCreateExpiryResources = null;
 
+   {
+      metaBean.add(SimpleString.class, "expiryQueuePrefix", (t, p) -> t.expiryQueuePrefix = p, t -> t.expiryQueuePrefix);
+   }
    private SimpleString expiryQueuePrefix = null;
 
+   {
+      metaBean.add(SimpleString.class, "expiryQueueSuffix", (t, p) -> t.expiryQueueSuffix = p, t -> t.expiryQueueSuffix);
+   }
    private SimpleString expiryQueueSuffix = null;
 
+   {
+      metaBean.add(Boolean.class, "enableMetrics", (t, p) -> t.enableMetrics = p, t -> t.enableMetrics);
+   }
    private Boolean enableMetrics = null;
 
+   {
+      metaBean.add(Integer.class, "managementMessageAttributeSizeLimit", (t, p) -> t.managementMessageAttributeSizeLimit = p, t -> t.managementMessageAttributeSizeLimit);
+   }
    private Integer managementMessageAttributeSizeLimit = null;
 
+   {
+      metaBean.add(Boolean.class, "enableIngressTimestamp", (t, p) -> t.enableIngressTimestamp = p, t -> t.enableIngressTimestamp);
+   }
    private Boolean enableIngressTimestamp = null;
 
+   {
+      metaBean.add(Integer.class, "idCacheSize", (t, p) -> t.idCacheSize = p, t -> t.idCacheSize);
+   }
    private Integer idCacheSize = null;
 
    //from amq5
@@ -304,79 +536,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private transient Integer queuePrefetch = null;
 
    public AddressSettings(AddressSettings other) {
-      this.addressFullMessagePolicy = other.addressFullMessagePolicy;
-      this.maxSizeBytes = other.maxSizeBytes;
-      this.maxSizeMessages = other.maxSizeMessages;
-      this.maxReadPageMessages = other.maxReadPageMessages;
-      this.maxReadPageBytes = other.maxReadPageBytes;
-      this.pageLimitBytes = other.pageLimitBytes;
-      this.pageLimitMessages = other.pageLimitMessages;
-      this.pageFullMessagePolicy = other.pageFullMessagePolicy;
-      this.pageSizeBytes = other.pageSizeBytes;
-      this.pageMaxCache = other.pageMaxCache;
-      this.dropMessagesWhenFull = other.dropMessagesWhenFull;
-      this.maxDeliveryAttempts = other.maxDeliveryAttempts;
-      this.messageCounterHistoryDayLimit = other.messageCounterHistoryDayLimit;
-      this.redeliveryDelay = other.redeliveryDelay;
-      this.redeliveryMultiplier = other.redeliveryMultiplier;
-      this.redeliveryCollisionAvoidanceFactor = other.redeliveryCollisionAvoidanceFactor;
-      this.maxRedeliveryDelay = other.maxRedeliveryDelay;
-      this.deadLetterAddress = other.deadLetterAddress;
-      this.autoCreateDeadLetterResources = other.autoCreateDeadLetterResources;
-      this.deadLetterQueuePrefix = other.deadLetterQueuePrefix;
-      this.deadLetterQueueSuffix = other.deadLetterQueueSuffix;
-      this.expiryAddress = other.expiryAddress;
-      this.autoCreateExpiryResources = other.autoCreateExpiryResources;
-      this.expiryQueuePrefix = other.expiryQueuePrefix;
-      this.expiryQueueSuffix = other.expiryQueueSuffix;
-      this.expiryDelay = other.expiryDelay;
-      this.minExpiryDelay = other.minExpiryDelay;
-      this.maxExpiryDelay = other.maxExpiryDelay;
-      this.defaultLastValueQueue = other.defaultLastValueQueue;
-      this.defaultLastValueKey = other.defaultLastValueKey;
-      this.defaultNonDestructive = other.defaultNonDestructive;
-      this.defaultExclusiveQueue = other.defaultExclusiveQueue;
-      this.redistributionDelay = other.redistributionDelay;
-      this.sendToDLAOnNoRoute = other.sendToDLAOnNoRoute;
-      this.slowConsumerThreshold = other.slowConsumerThreshold;
-      this.slowConsumerCheckPeriod = other.slowConsumerCheckPeriod;
-      this.slowConsumerPolicy = other.slowConsumerPolicy;
-      this.autoCreateJmsQueues = other.autoCreateJmsQueues;
-      this.autoDeleteJmsQueues = other.autoDeleteJmsQueues;
-      this.autoCreateJmsTopics = other.autoCreateJmsTopics;
-      this.autoDeleteJmsTopics = other.autoDeleteJmsTopics;
-      this.autoCreateQueues = other.autoCreateQueues;
-      this.autoDeleteQueues = other.autoDeleteQueues;
-      this.autoDeleteCreatedQueues = other.autoDeleteCreatedQueues;
-      this.autoDeleteQueuesDelay = other.autoDeleteQueuesDelay;
-      this.autoDeleteQueuesSkipUsageCheck = other.autoDeleteQueuesSkipUsageCheck;
-      this.configDeleteQueues = other.configDeleteQueues;
-      this.autoCreateAddresses = other.autoCreateAddresses;
-      this.autoDeleteAddresses = other.autoDeleteAddresses;
-      this.autoDeleteAddressesDelay = other.autoDeleteAddressesDelay;
-      this.autoDeleteAddressesSkipUsageCheck = other.autoDeleteAddressesSkipUsageCheck;
-      this.configDeleteAddresses = other.configDeleteAddresses;
-      this.configDeleteDiverts = other.configDeleteDiverts;
-      this.managementBrowsePageSize = other.managementBrowsePageSize;
-      this.queuePrefetch = other.queuePrefetch;
-      this.maxSizeBytesRejectThreshold = other.maxSizeBytesRejectThreshold;
-      this.defaultMaxConsumers = other.defaultMaxConsumers;
-      this.defaultPurgeOnNoConsumers = other.defaultPurgeOnNoConsumers;
-      this.defaultConsumersBeforeDispatch = other.defaultConsumersBeforeDispatch;
-      this.defaultDelayBeforeDispatch = other.defaultDelayBeforeDispatch;
-      this.defaultQueueRoutingType = other.defaultQueueRoutingType;
-      this.defaultAddressRoutingType = other.defaultAddressRoutingType;
-      this.defaultConsumerWindowSize = other.defaultConsumerWindowSize;
-      this.defaultGroupRebalance = other.defaultGroupRebalance;
-      this.defaultGroupRebalancePauseDispatch = other.defaultGroupRebalancePauseDispatch;
-      this.defaultGroupBuckets = other.defaultGroupBuckets;
-      this.defaultGroupFirstKey = other.defaultGroupFirstKey;
-      this.defaultRingSize = other.defaultRingSize;
-      this.enableMetrics = other.enableMetrics;
-      this.managementMessageAttributeSizeLimit = other.managementMessageAttributeSizeLimit;
-      this.slowConsumerThresholdMeasurementUnit = other.slowConsumerThresholdMeasurementUnit;
-      this.enableIngressTimestamp = other.enableIngressTimestamp;
-      this.idCacheSize = other.idCacheSize;
+      metaBean.copy(other, this);
    }
 
    public AddressSettings() {
@@ -385,6 +545,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    @Deprecated
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues != null ? autoCreateJmsQueues : AddressSettings.DEFAULT_AUTO_CREATE_JMS_QUEUES;
+   }
+
+   public String toJSON() {
+      return metaBean.toJSON(this, true).toString();
+   }
+
+   public static AddressSettings fromJSON(String jsonString) {
+      AddressSettings newSettings = new AddressSettings();
+      metaBean.fromJSON(newSettings, jsonString);
+      return newSettings;
    }
 
    @Deprecated
@@ -653,11 +823,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    public int getPageCacheMaxSize() {
-      return pageMaxCache != null ? pageMaxCache : AddressSettings.DEFAULT_PAGE_MAX_CACHE;
+      return pageCacheMaxSize != null ? pageCacheMaxSize : AddressSettings.DEFAULT_PAGE_MAX_CACHE;
    }
 
-   public AddressSettings setPageCacheMaxSize(final int pageMaxCache) {
-      this.pageMaxCache = pageMaxCache;
+   public AddressSettings setPageCacheMaxSize(final int pageCacheMaxSize) {
+      this.pageCacheMaxSize = pageCacheMaxSize;
       return this;
    }
 
@@ -1133,8 +1303,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (maxReadPageMessages == null) {
          maxReadPageMessages = merged.maxReadPageMessages;
       }
-      if (pageMaxCache == null) {
-         pageMaxCache = merged.pageMaxCache;
+      if (pageCacheMaxSize == null) {
+         pageCacheMaxSize = merged.pageCacheMaxSize;
       }
       if (pageSizeBytes == null) {
          pageSizeBytes = merged.pageSizeBytes;
@@ -1374,7 +1544,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       Long pageSizeLong = BufferHelper.readNullableLong(buffer);
       pageSizeBytes = pageSizeLong == null ? null : pageSizeLong.intValue();
 
-      pageMaxCache = BufferHelper.readNullableInteger(buffer);
+      pageCacheMaxSize = BufferHelper.readNullableInteger(buffer);
 
       dropMessagesWhenFull = BufferHelper.readNullableBoolean(buffer);
 
@@ -1641,7 +1811,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return BufferHelper.sizeOfNullableSimpleString(addressFullMessagePolicy != null ? addressFullMessagePolicy.toString() : null) +
          BufferHelper.sizeOfNullableLong(maxSizeBytes) +
          BufferHelper.sizeOfNullableLong(pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes)) +
-         BufferHelper.sizeOfNullableInteger(pageMaxCache) +
+         BufferHelper.sizeOfNullableInteger(pageCacheMaxSize) +
          BufferHelper.sizeOfNullableBoolean(dropMessagesWhenFull) +
          BufferHelper.sizeOfNullableInteger(maxDeliveryAttempts) +
          BufferHelper.sizeOfNullableInteger(messageCounterHistoryDayLimit) +
@@ -1722,7 +1892,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableLong(buffer, pageSizeBytes == null ? null : Long.valueOf(pageSizeBytes));
 
-      BufferHelper.writeNullableInteger(buffer, pageMaxCache);
+      BufferHelper.writeNullableInteger(buffer, pageCacheMaxSize);
 
       BufferHelper.writeNullableBoolean(buffer, dropMessagesWhenFull);
 
@@ -1869,672 +2039,254 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, prefetchPageMessages);
    }
 
-   /* (non-Javadoc)
-       * @see java.lang.Object#hashCode()
-       */
+   @Override
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
+
+      AddressSettings that = (AddressSettings) o;
+
+      if (addressFullMessagePolicy != that.addressFullMessagePolicy)
+         return false;
+      if (!Objects.equals(maxSizeBytes, that.maxSizeBytes))
+         return false;
+      if (!Objects.equals(maxReadPageBytes, that.maxReadPageBytes))
+         return false;
+      if (!Objects.equals(maxReadPageMessages, that.maxReadPageMessages))
+         return false;
+      if (!Objects.equals(prefetchPageBytes, that.prefetchPageBytes))
+         return false;
+      if (!Objects.equals(prefetchPageMessages, that.prefetchPageMessages))
+         return false;
+      if (!Objects.equals(pageLimitBytes, that.pageLimitBytes))
+         return false;
+      if (!Objects.equals(pageLimitMessages, that.pageLimitMessages))
+         return false;
+      if (pageFullMessagePolicy != that.pageFullMessagePolicy)
+         return false;
+      if (!Objects.equals(maxSizeMessages, that.maxSizeMessages))
+         return false;
+      if (!Objects.equals(pageSizeBytes, that.pageSizeBytes))
+         return false;
+      if (!Objects.equals(pageCacheMaxSize, that.pageCacheMaxSize))
+         return false;
+      if (!Objects.equals(dropMessagesWhenFull, that.dropMessagesWhenFull))
+         return false;
+      if (!Objects.equals(maxDeliveryAttempts, that.maxDeliveryAttempts))
+         return false;
+      if (!Objects.equals(messageCounterHistoryDayLimit, that.messageCounterHistoryDayLimit))
+         return false;
+      if (!Objects.equals(redeliveryDelay, that.redeliveryDelay))
+         return false;
+      if (!Objects.equals(redeliveryMultiplier, that.redeliveryMultiplier))
+         return false;
+      if (!Objects.equals(redeliveryCollisionAvoidanceFactor, that.redeliveryCollisionAvoidanceFactor))
+         return false;
+      if (!Objects.equals(maxRedeliveryDelay, that.maxRedeliveryDelay))
+         return false;
+      if (!Objects.equals(deadLetterAddress, that.deadLetterAddress))
+         return false;
+      if (!Objects.equals(expiryAddress, that.expiryAddress))
+         return false;
+      if (!Objects.equals(expiryDelay, that.expiryDelay))
+         return false;
+      if (!Objects.equals(minExpiryDelay, that.minExpiryDelay))
+         return false;
+      if (!Objects.equals(maxExpiryDelay, that.maxExpiryDelay))
+         return false;
+      if (!Objects.equals(defaultLastValueQueue, that.defaultLastValueQueue))
+         return false;
+      if (!Objects.equals(defaultLastValueKey, that.defaultLastValueKey))
+         return false;
+      if (!Objects.equals(defaultNonDestructive, that.defaultNonDestructive))
+         return false;
+      if (!Objects.equals(defaultExclusiveQueue, that.defaultExclusiveQueue))
+         return false;
+      if (!Objects.equals(defaultGroupRebalance, that.defaultGroupRebalance))
+         return false;
+      if (!Objects.equals(defaultGroupRebalancePauseDispatch, that.defaultGroupRebalancePauseDispatch))
+         return false;
+      if (!Objects.equals(defaultGroupBuckets, that.defaultGroupBuckets))
+         return false;
+      if (!Objects.equals(defaultGroupFirstKey, that.defaultGroupFirstKey))
+         return false;
+      if (!Objects.equals(redistributionDelay, that.redistributionDelay))
+         return false;
+      if (!Objects.equals(sendToDLAOnNoRoute, that.sendToDLAOnNoRoute))
+         return false;
+      if (!Objects.equals(slowConsumerThreshold, that.slowConsumerThreshold))
+         return false;
+      if (slowConsumerThresholdMeasurementUnit != that.slowConsumerThresholdMeasurementUnit)
+         return false;
+      if (!Objects.equals(slowConsumerCheckPeriod, that.slowConsumerCheckPeriod))
+         return false;
+      if (slowConsumerPolicy != that.slowConsumerPolicy)
+         return false;
+      if (!Objects.equals(autoCreateJmsQueues, that.autoCreateJmsQueues))
+         return false;
+      if (!Objects.equals(autoDeleteJmsQueues, that.autoDeleteJmsQueues))
+         return false;
+      if (!Objects.equals(autoCreateJmsTopics, that.autoCreateJmsTopics))
+         return false;
+      if (!Objects.equals(autoDeleteJmsTopics, that.autoDeleteJmsTopics))
+         return false;
+      if (!Objects.equals(autoCreateQueues, that.autoCreateQueues))
+         return false;
+      if (!Objects.equals(autoDeleteQueues, that.autoDeleteQueues))
+         return false;
+      if (!Objects.equals(autoDeleteCreatedQueues, that.autoDeleteCreatedQueues))
+         return false;
+      if (!Objects.equals(autoDeleteQueuesDelay, that.autoDeleteQueuesDelay))
+         return false;
+      if (!Objects.equals(autoDeleteQueuesSkipUsageCheck, that.autoDeleteQueuesSkipUsageCheck))
+         return false;
+      if (!Objects.equals(autoDeleteQueuesMessageCount, that.autoDeleteQueuesMessageCount))
+         return false;
+      if (!Objects.equals(defaultRingSize, that.defaultRingSize))
+         return false;
+      if (!Objects.equals(retroactiveMessageCount, that.retroactiveMessageCount))
+         return false;
+      if (configDeleteQueues != that.configDeleteQueues)
+         return false;
+      if (!Objects.equals(autoCreateAddresses, that.autoCreateAddresses))
+         return false;
+      if (!Objects.equals(autoDeleteAddresses, that.autoDeleteAddresses))
+         return false;
+      if (!Objects.equals(autoDeleteAddressesDelay, that.autoDeleteAddressesDelay))
+         return false;
+      if (!Objects.equals(autoDeleteAddressesSkipUsageCheck, that.autoDeleteAddressesSkipUsageCheck))
+         return false;
+      if (configDeleteAddresses != that.configDeleteAddresses)
+         return false;
+      if (configDeleteDiverts != that.configDeleteDiverts)
+         return false;
+      if (!Objects.equals(managementBrowsePageSize, that.managementBrowsePageSize))
+         return false;
+      if (!Objects.equals(maxSizeBytesRejectThreshold, that.maxSizeBytesRejectThreshold))
+         return false;
+      if (!Objects.equals(defaultMaxConsumers, that.defaultMaxConsumers))
+         return false;
+      if (!Objects.equals(defaultPurgeOnNoConsumers, that.defaultPurgeOnNoConsumers))
+         return false;
+      if (!Objects.equals(defaultConsumersBeforeDispatch, that.defaultConsumersBeforeDispatch))
+         return false;
+      if (!Objects.equals(defaultDelayBeforeDispatch, that.defaultDelayBeforeDispatch))
+         return false;
+      if (defaultQueueRoutingType != that.defaultQueueRoutingType)
+         return false;
+      if (defaultAddressRoutingType != that.defaultAddressRoutingType)
+         return false;
+      if (!Objects.equals(defaultConsumerWindowSize, that.defaultConsumerWindowSize))
+         return false;
+      if (!Objects.equals(autoCreateDeadLetterResources, that.autoCreateDeadLetterResources))
+         return false;
+      if (!Objects.equals(deadLetterQueuePrefix, that.deadLetterQueuePrefix))
+         return false;
+      if (!Objects.equals(deadLetterQueueSuffix, that.deadLetterQueueSuffix))
+         return false;
+      if (!Objects.equals(autoCreateExpiryResources, that.autoCreateExpiryResources))
+         return false;
+      if (!Objects.equals(expiryQueuePrefix, that.expiryQueuePrefix))
+         return false;
+      if (!Objects.equals(expiryQueueSuffix, that.expiryQueueSuffix))
+         return false;
+      if (!Objects.equals(enableMetrics, that.enableMetrics))
+         return false;
+      if (!Objects.equals(managementMessageAttributeSizeLimit, that.managementMessageAttributeSizeLimit))
+         return false;
+      if (!Objects.equals(enableIngressTimestamp, that.enableIngressTimestamp))
+         return false;
+      if (!Objects.equals(idCacheSize, that.idCacheSize))
+         return false;
+      return Objects.equals(queuePrefetch, that.queuePrefetch);
+   }
+
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((addressFullMessagePolicy == null) ? 0 : addressFullMessagePolicy.hashCode());
-      result = prime * result + ((deadLetterAddress == null) ? 0 : deadLetterAddress.hashCode());
-      result = prime * result + ((dropMessagesWhenFull == null) ? 0 : dropMessagesWhenFull.hashCode());
-      result = prime * result + ((expiryAddress == null) ? 0 : expiryAddress.hashCode());
-      result = prime * result + ((expiryDelay == null) ? 0 : expiryDelay.hashCode());
-      result = prime * result + ((minExpiryDelay == null) ? 0 : expiryDelay.hashCode());
-      result = prime * result + ((maxExpiryDelay == null) ? 0 : expiryDelay.hashCode());
-      result = prime * result + ((defaultLastValueQueue == null) ? 0 : defaultLastValueQueue.hashCode());
-      result = prime * result + ((defaultLastValueKey == null) ? 0 : defaultLastValueKey.hashCode());
-      result = prime * result + ((defaultNonDestructive == null) ? 0 : defaultNonDestructive.hashCode());
-      result = prime * result + ((defaultExclusiveQueue == null) ? 0 : defaultExclusiveQueue.hashCode());
-      result = prime * result + ((maxDeliveryAttempts == null) ? 0 : maxDeliveryAttempts.hashCode());
-      result = prime * result + ((maxSizeBytes == null) ? 0 : maxSizeBytes.hashCode());
-      result = prime * result + ((messageCounterHistoryDayLimit == null) ? 0 : messageCounterHistoryDayLimit.hashCode());
-      result = prime * result + ((pageSizeBytes == null) ? 0 : pageSizeBytes.hashCode());
-      result = prime * result + ((pageMaxCache == null) ? 0 : pageMaxCache.hashCode());
-      result = prime * result + ((redeliveryDelay == null) ? 0 : redeliveryDelay.hashCode());
-      result = prime * result + ((redeliveryMultiplier == null) ? 0 : redeliveryMultiplier.hashCode());
-      result = prime * result + ((redeliveryCollisionAvoidanceFactor == null) ? 0 : redeliveryCollisionAvoidanceFactor.hashCode());
-      result = prime * result + ((maxRedeliveryDelay == null) ? 0 : maxRedeliveryDelay.hashCode());
-      result = prime * result + ((redistributionDelay == null) ? 0 : redistributionDelay.hashCode());
-      result = prime * result + ((sendToDLAOnNoRoute == null) ? 0 : sendToDLAOnNoRoute.hashCode());
-      result = prime * result + ((slowConsumerThreshold == null) ? 0 : slowConsumerThreshold.hashCode());
-      result = prime * result + ((slowConsumerCheckPeriod == null) ? 0 : slowConsumerCheckPeriod.hashCode());
-      result = prime * result + ((slowConsumerPolicy == null) ? 0 : slowConsumerPolicy.hashCode());
-      result = prime * result + ((autoCreateJmsQueues == null) ? 0 : autoCreateJmsQueues.hashCode());
-      result = prime * result + ((autoDeleteJmsQueues == null) ? 0 : autoDeleteJmsQueues.hashCode());
-      result = prime * result + ((autoCreateJmsTopics == null) ? 0 : autoCreateJmsTopics.hashCode());
-      result = prime * result + ((autoDeleteJmsTopics == null) ? 0 : autoDeleteJmsTopics.hashCode());
-      result = prime * result + ((autoCreateQueues == null) ? 0 : autoCreateQueues.hashCode());
-      result = prime * result + ((autoDeleteQueues == null) ? 0 : autoDeleteQueues.hashCode());
-      result = prime * result + ((autoDeleteCreatedQueues == null) ? 0 : autoDeleteCreatedQueues.hashCode());
-      result = prime * result + ((autoDeleteQueuesDelay == null) ? 0 : autoDeleteQueuesDelay.hashCode());
-      result = prime * result + ((autoDeleteQueuesSkipUsageCheck == null) ? 0 : autoDeleteQueuesSkipUsageCheck.hashCode());
-      result = prime * result + ((autoDeleteQueuesMessageCount == null) ? 0 : autoDeleteQueuesMessageCount.hashCode());
-      result = prime * result + ((configDeleteQueues == null) ? 0 : configDeleteQueues.hashCode());
-      result = prime * result + ((autoCreateAddresses == null) ? 0 : autoCreateAddresses.hashCode());
-      result = prime * result + ((autoDeleteAddresses == null) ? 0 : autoDeleteAddresses.hashCode());
-      result = prime * result + ((autoDeleteAddressesDelay == null) ? 0 : autoDeleteAddressesDelay.hashCode());
-      result = prime * result + ((autoDeleteAddressesSkipUsageCheck == null) ? 0 : autoDeleteAddressesSkipUsageCheck.hashCode());
-      result = prime * result + ((configDeleteAddresses == null) ? 0 : configDeleteAddresses.hashCode());
-      result = prime * result + ((configDeleteDiverts == null) ? 0 : configDeleteDiverts.hashCode());
-      result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
-      result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
-      result = prime * result + ((maxSizeBytesRejectThreshold == null) ? 0 : maxSizeBytesRejectThreshold.hashCode());
-      result = prime * result + ((defaultMaxConsumers == null) ? 0 : defaultMaxConsumers.hashCode());
-      result = prime * result + ((defaultPurgeOnNoConsumers == null) ? 0 : defaultPurgeOnNoConsumers.hashCode());
-      result = prime * result + ((defaultQueueRoutingType == null) ? 0 : defaultQueueRoutingType.hashCode());
-      result = prime * result + ((defaultAddressRoutingType == null) ? 0 : defaultAddressRoutingType.hashCode());
-      result = prime * result + ((defaultConsumersBeforeDispatch == null) ? 0 : defaultConsumersBeforeDispatch.hashCode());
-      result = prime * result + ((defaultDelayBeforeDispatch == null) ? 0 : defaultDelayBeforeDispatch.hashCode());
-      result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
-      result = prime * result + ((defaultGroupRebalance == null) ? 0 : defaultGroupRebalance.hashCode());
-      result = prime * result + ((defaultGroupRebalancePauseDispatch == null) ? 0 : defaultGroupRebalancePauseDispatch.hashCode());
-      result = prime * result + ((defaultGroupBuckets == null) ? 0 : defaultGroupBuckets.hashCode());
-      result = prime * result + ((defaultGroupFirstKey == null) ? 0 : defaultGroupFirstKey.hashCode());
-      result = prime * result + ((defaultRingSize == null) ? 0 : defaultRingSize.hashCode());
-      result = prime * result + ((retroactiveMessageCount == null) ? 0 : retroactiveMessageCount.hashCode());
-      result = prime * result + ((autoCreateDeadLetterResources == null) ? 0 : autoCreateDeadLetterResources.hashCode());
-      result = prime * result + ((deadLetterQueuePrefix == null) ? 0 : deadLetterQueuePrefix.hashCode());
-      result = prime * result + ((deadLetterQueueSuffix == null) ? 0 : deadLetterQueueSuffix.hashCode());
-      result = prime * result + ((autoCreateExpiryResources == null) ? 0 : autoCreateExpiryResources.hashCode());
-      result = prime * result + ((expiryQueuePrefix == null) ? 0 : expiryQueuePrefix.hashCode());
-      result = prime * result + ((expiryQueueSuffix == null) ? 0 : expiryQueueSuffix.hashCode());
-      result = prime * result + ((enableMetrics == null) ? 0 : enableMetrics.hashCode());
-      result = prime * result + ((managementMessageAttributeSizeLimit == null) ? 0 : managementMessageAttributeSizeLimit.hashCode());
-      result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
-      result = prime * result + ((enableIngressTimestamp == null) ? 0 : enableIngressTimestamp.hashCode());
-      result = prime * result + ((maxSizeMessages == null) ? 0 : maxSizeMessages.hashCode());
-      result = prime * result + ((pageLimitBytes == null) ? 0 : pageLimitBytes.hashCode());
-      result = prime * result + ((pageLimitMessages == null) ? 0 : pageLimitMessages.hashCode());
-      result = prime * result + ((pageFullMessagePolicy == null) ? 0 : pageFullMessagePolicy.hashCode());
-      result = prime * result + ((idCacheSize == null) ? 0 : idCacheSize.hashCode());
-      result = prime * result + ((prefetchPageBytes == null) ? 0 : prefetchPageBytes.hashCode());
-      result = prime * result + ((prefetchPageMessages == null) ? 0 : prefetchPageMessages.hashCode());
-
+      int result = addressFullMessagePolicy != null ? addressFullMessagePolicy.hashCode() : 0;
+      result = 31 * result + (maxSizeBytes != null ? maxSizeBytes.hashCode() : 0);
+      result = 31 * result + (maxReadPageBytes != null ? maxReadPageBytes.hashCode() : 0);
+      result = 31 * result + (maxReadPageMessages != null ? maxReadPageMessages.hashCode() : 0);
+      result = 31 * result + (prefetchPageBytes != null ? prefetchPageBytes.hashCode() : 0);
+      result = 31 * result + (prefetchPageMessages != null ? prefetchPageMessages.hashCode() : 0);
+      result = 31 * result + (pageLimitBytes != null ? pageLimitBytes.hashCode() : 0);
+      result = 31 * result + (pageLimitMessages != null ? pageLimitMessages.hashCode() : 0);
+      result = 31 * result + (pageFullMessagePolicy != null ? pageFullMessagePolicy.hashCode() : 0);
+      result = 31 * result + (maxSizeMessages != null ? maxSizeMessages.hashCode() : 0);
+      result = 31 * result + (pageSizeBytes != null ? pageSizeBytes.hashCode() : 0);
+      result = 31 * result + (pageCacheMaxSize != null ? pageCacheMaxSize.hashCode() : 0);
+      result = 31 * result + (dropMessagesWhenFull != null ? dropMessagesWhenFull.hashCode() : 0);
+      result = 31 * result + (maxDeliveryAttempts != null ? maxDeliveryAttempts.hashCode() : 0);
+      result = 31 * result + (messageCounterHistoryDayLimit != null ? messageCounterHistoryDayLimit.hashCode() : 0);
+      result = 31 * result + (redeliveryDelay != null ? redeliveryDelay.hashCode() : 0);
+      result = 31 * result + (redeliveryMultiplier != null ? redeliveryMultiplier.hashCode() : 0);
+      result = 31 * result + (redeliveryCollisionAvoidanceFactor != null ? redeliveryCollisionAvoidanceFactor.hashCode() : 0);
+      result = 31 * result + (maxRedeliveryDelay != null ? maxRedeliveryDelay.hashCode() : 0);
+      result = 31 * result + (deadLetterAddress != null ? deadLetterAddress.hashCode() : 0);
+      result = 31 * result + (expiryAddress != null ? expiryAddress.hashCode() : 0);
+      result = 31 * result + (expiryDelay != null ? expiryDelay.hashCode() : 0);
+      result = 31 * result + (minExpiryDelay != null ? minExpiryDelay.hashCode() : 0);
+      result = 31 * result + (maxExpiryDelay != null ? maxExpiryDelay.hashCode() : 0);
+      result = 31 * result + (defaultLastValueQueue != null ? defaultLastValueQueue.hashCode() : 0);
+      result = 31 * result + (defaultLastValueKey != null ? defaultLastValueKey.hashCode() : 0);
+      result = 31 * result + (defaultNonDestructive != null ? defaultNonDestructive.hashCode() : 0);
+      result = 31 * result + (defaultExclusiveQueue != null ? defaultExclusiveQueue.hashCode() : 0);
+      result = 31 * result + (defaultGroupRebalance != null ? defaultGroupRebalance.hashCode() : 0);
+      result = 31 * result + (defaultGroupRebalancePauseDispatch != null ? defaultGroupRebalancePauseDispatch.hashCode() : 0);
+      result = 31 * result + (defaultGroupBuckets != null ? defaultGroupBuckets.hashCode() : 0);
+      result = 31 * result + (defaultGroupFirstKey != null ? defaultGroupFirstKey.hashCode() : 0);
+      result = 31 * result + (redistributionDelay != null ? redistributionDelay.hashCode() : 0);
+      result = 31 * result + (sendToDLAOnNoRoute != null ? sendToDLAOnNoRoute.hashCode() : 0);
+      result = 31 * result + (slowConsumerThreshold != null ? slowConsumerThreshold.hashCode() : 0);
+      result = 31 * result + (slowConsumerThresholdMeasurementUnit != null ? slowConsumerThresholdMeasurementUnit.hashCode() : 0);
+      result = 31 * result + (slowConsumerCheckPeriod != null ? slowConsumerCheckPeriod.hashCode() : 0);
+      result = 31 * result + (slowConsumerPolicy != null ? slowConsumerPolicy.hashCode() : 0);
+      result = 31 * result + (autoCreateJmsQueues != null ? autoCreateJmsQueues.hashCode() : 0);
+      result = 31 * result + (autoDeleteJmsQueues != null ? autoDeleteJmsQueues.hashCode() : 0);
+      result = 31 * result + (autoCreateJmsTopics != null ? autoCreateJmsTopics.hashCode() : 0);
+      result = 31 * result + (autoDeleteJmsTopics != null ? autoDeleteJmsTopics.hashCode() : 0);
+      result = 31 * result + (autoCreateQueues != null ? autoCreateQueues.hashCode() : 0);
+      result = 31 * result + (autoDeleteQueues != null ? autoDeleteQueues.hashCode() : 0);
+      result = 31 * result + (autoDeleteCreatedQueues != null ? autoDeleteCreatedQueues.hashCode() : 0);
+      result = 31 * result + (autoDeleteQueuesDelay != null ? autoDeleteQueuesDelay.hashCode() : 0);
+      result = 31 * result + (autoDeleteQueuesSkipUsageCheck != null ? autoDeleteQueuesSkipUsageCheck.hashCode() : 0);
+      result = 31 * result + (autoDeleteQueuesMessageCount != null ? autoDeleteQueuesMessageCount.hashCode() : 0);
+      result = 31 * result + (defaultRingSize != null ? defaultRingSize.hashCode() : 0);
+      result = 31 * result + (retroactiveMessageCount != null ? retroactiveMessageCount.hashCode() : 0);
+      result = 31 * result + (configDeleteQueues != null ? configDeleteQueues.hashCode() : 0);
+      result = 31 * result + (autoCreateAddresses != null ? autoCreateAddresses.hashCode() : 0);
+      result = 31 * result + (autoDeleteAddresses != null ? autoDeleteAddresses.hashCode() : 0);
+      result = 31 * result + (autoDeleteAddressesDelay != null ? autoDeleteAddressesDelay.hashCode() : 0);
+      result = 31 * result + (autoDeleteAddressesSkipUsageCheck != null ? autoDeleteAddressesSkipUsageCheck.hashCode() : 0);
+      result = 31 * result + (configDeleteAddresses != null ? configDeleteAddresses.hashCode() : 0);
+      result = 31 * result + (configDeleteDiverts != null ? configDeleteDiverts.hashCode() : 0);
+      result = 31 * result + (managementBrowsePageSize != null ? managementBrowsePageSize.hashCode() : 0);
+      result = 31 * result + (maxSizeBytesRejectThreshold != null ? maxSizeBytesRejectThreshold.hashCode() : 0);
+      result = 31 * result + (defaultMaxConsumers != null ? defaultMaxConsumers.hashCode() : 0);
+      result = 31 * result + (defaultPurgeOnNoConsumers != null ? defaultPurgeOnNoConsumers.hashCode() : 0);
+      result = 31 * result + (defaultConsumersBeforeDispatch != null ? defaultConsumersBeforeDispatch.hashCode() : 0);
+      result = 31 * result + (defaultDelayBeforeDispatch != null ? defaultDelayBeforeDispatch.hashCode() : 0);
+      result = 31 * result + (defaultQueueRoutingType != null ? defaultQueueRoutingType.hashCode() : 0);
+      result = 31 * result + (defaultAddressRoutingType != null ? defaultAddressRoutingType.hashCode() : 0);
+      result = 31 * result + (defaultConsumerWindowSize != null ? defaultConsumerWindowSize.hashCode() : 0);
+      result = 31 * result + (autoCreateDeadLetterResources != null ? autoCreateDeadLetterResources.hashCode() : 0);
+      result = 31 * result + (deadLetterQueuePrefix != null ? deadLetterQueuePrefix.hashCode() : 0);
+      result = 31 * result + (deadLetterQueueSuffix != null ? deadLetterQueueSuffix.hashCode() : 0);
+      result = 31 * result + (autoCreateExpiryResources != null ? autoCreateExpiryResources.hashCode() : 0);
+      result = 31 * result + (expiryQueuePrefix != null ? expiryQueuePrefix.hashCode() : 0);
+      result = 31 * result + (expiryQueueSuffix != null ? expiryQueueSuffix.hashCode() : 0);
+      result = 31 * result + (enableMetrics != null ? enableMetrics.hashCode() : 0);
+      result = 31 * result + (managementMessageAttributeSizeLimit != null ? managementMessageAttributeSizeLimit.hashCode() : 0);
+      result = 31 * result + (enableIngressTimestamp != null ? enableIngressTimestamp.hashCode() : 0);
+      result = 31 * result + (idCacheSize != null ? idCacheSize.hashCode() : 0);
+      result = 31 * result + (queuePrefetch != null ? queuePrefetch.hashCode() : 0);
       return result;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      AddressSettings other = (AddressSettings) obj;
-      if (addressFullMessagePolicy == null) {
-         if (other.addressFullMessagePolicy != null)
-            return false;
-      } else if (!addressFullMessagePolicy.equals(other.addressFullMessagePolicy))
-         return false;
-      if (deadLetterAddress == null) {
-         if (other.deadLetterAddress != null)
-            return false;
-      } else if (!deadLetterAddress.equals(other.deadLetterAddress))
-         return false;
-      if (dropMessagesWhenFull == null) {
-         if (other.dropMessagesWhenFull != null)
-            return false;
-      } else if (!dropMessagesWhenFull.equals(other.dropMessagesWhenFull))
-         return false;
-      if (expiryAddress == null) {
-         if (other.expiryAddress != null)
-            return false;
-      } else if (!expiryAddress.equals(other.expiryAddress))
-         return false;
-      if (expiryDelay == null) {
-         if (other.expiryDelay != null)
-            return false;
-      } else if (!expiryDelay.equals(other.expiryDelay))
-         return false;
-      if (minExpiryDelay == null) {
-         if (other.minExpiryDelay != null)
-            return false;
-      } else if (!minExpiryDelay.equals(other.minExpiryDelay))
-         return false;
-      if (maxExpiryDelay == null) {
-         if (other.maxExpiryDelay != null)
-            return false;
-      } else if (!maxExpiryDelay.equals(other.maxExpiryDelay))
-         return false;
-      if (defaultLastValueQueue == null) {
-         if (other.defaultLastValueQueue != null)
-            return false;
-      } else if (!defaultLastValueQueue.equals(other.defaultLastValueQueue))
-         return false;
-      if (defaultLastValueKey == null) {
-         if (other.defaultLastValueKey != null)
-            return false;
-      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
-         return false;
-      if (defaultNonDestructive == null) {
-         if (other.defaultNonDestructive != null)
-            return false;
-      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
-         return false;
-      if (defaultExclusiveQueue == null) {
-         if (other.defaultExclusiveQueue != null)
-            return false;
-      } else if (!defaultExclusiveQueue.equals(other.defaultExclusiveQueue))
-         return false;
-      if (maxDeliveryAttempts == null) {
-         if (other.maxDeliveryAttempts != null)
-            return false;
-      } else if (!maxDeliveryAttempts.equals(other.maxDeliveryAttempts))
-         return false;
-      if (maxSizeBytes == null) {
-         if (other.maxSizeBytes != null)
-            return false;
-      } else if (!maxSizeBytes.equals(other.maxSizeBytes))
-         return false;
-      if (messageCounterHistoryDayLimit == null) {
-         if (other.messageCounterHistoryDayLimit != null)
-            return false;
-      } else if (!messageCounterHistoryDayLimit.equals(other.messageCounterHistoryDayLimit))
-         return false;
-      if (pageSizeBytes == null) {
-         if (other.pageSizeBytes != null)
-            return false;
-      } else if (!pageSizeBytes.equals(other.pageSizeBytes))
-         return false;
-      if (pageMaxCache == null) {
-         if (other.pageMaxCache != null)
-            return false;
-      } else if (!pageMaxCache.equals(other.pageMaxCache))
-         return false;
-      if (redeliveryDelay == null) {
-         if (other.redeliveryDelay != null)
-            return false;
-      } else if (!redeliveryDelay.equals(other.redeliveryDelay))
-         return false;
-      if (redeliveryMultiplier == null) {
-         if (other.redeliveryMultiplier != null)
-            return false;
-      } else if (!redeliveryMultiplier.equals(other.redeliveryMultiplier))
-         return false;
-      if (redeliveryCollisionAvoidanceFactor == null) {
-         if (other.redeliveryCollisionAvoidanceFactor != null)
-            return false;
-      } else if (!redeliveryCollisionAvoidanceFactor.equals(other.redeliveryCollisionAvoidanceFactor))
-         return false;
-      if (maxRedeliveryDelay == null) {
-         if (other.maxRedeliveryDelay != null)
-            return false;
-      } else if (!maxRedeliveryDelay.equals(other.maxRedeliveryDelay))
-         return false;
-      if (redistributionDelay == null) {
-         if (other.redistributionDelay != null)
-            return false;
-      } else if (!redistributionDelay.equals(other.redistributionDelay))
-         return false;
-      if (sendToDLAOnNoRoute == null) {
-         if (other.sendToDLAOnNoRoute != null)
-            return false;
-      } else if (!sendToDLAOnNoRoute.equals(other.sendToDLAOnNoRoute))
-         return false;
-      if (slowConsumerThreshold == null) {
-         if (other.slowConsumerThreshold != null)
-            return false;
-      } else if (!slowConsumerThreshold.equals(other.slowConsumerThreshold))
-         return false;
-      if (slowConsumerCheckPeriod == null) {
-         if (other.slowConsumerCheckPeriod != null)
-            return false;
-      } else if (!slowConsumerCheckPeriod.equals(other.slowConsumerCheckPeriod))
-         return false;
-      if (slowConsumerPolicy == null) {
-         if (other.slowConsumerPolicy != null)
-            return false;
-      } else if (!slowConsumerPolicy.equals(other.slowConsumerPolicy))
-         return false;
-      if (autoCreateJmsQueues == null) {
-         if (other.autoCreateJmsQueues != null)
-            return false;
-      } else if (!autoCreateJmsQueues.equals(other.autoCreateJmsQueues))
-         return false;
-      if (autoDeleteJmsQueues == null) {
-         if (other.autoDeleteJmsQueues != null)
-            return false;
-      } else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
-         return false;
-      if (autoCreateJmsTopics == null) {
-         if (other.autoCreateJmsTopics != null)
-            return false;
-      } else if (!autoCreateJmsTopics.equals(other.autoCreateJmsTopics))
-         return false;
-      if (autoDeleteJmsTopics == null) {
-         if (other.autoDeleteJmsTopics != null)
-            return false;
-      } else if (!autoDeleteJmsTopics.equals(other.autoDeleteJmsTopics))
-         return false;
-      if (autoCreateQueues == null) {
-         if (other.autoCreateQueues != null)
-            return false;
-      } else if (!autoCreateQueues.equals(other.autoCreateQueues))
-         return false;
-      if (autoDeleteQueues == null) {
-         if (other.autoDeleteQueues != null)
-            return false;
-      } else if (!autoDeleteQueues.equals(other.autoDeleteQueues))
-         return false;
-      if (autoDeleteCreatedQueues == null) {
-         if (other.autoDeleteCreatedQueues != null)
-            return false;
-      } else if (!autoDeleteCreatedQueues.equals(other.autoDeleteCreatedQueues))
-         return false;
-      if (autoDeleteQueuesDelay == null) {
-         if (other.autoDeleteQueuesDelay != null)
-            return false;
-      } else if (!autoDeleteQueuesDelay.equals(other.autoDeleteQueuesDelay))
-         return false;
-      if (autoDeleteQueuesSkipUsageCheck == null) {
-         if (other.autoDeleteQueuesSkipUsageCheck != null)
-            return false;
-      } else if (!autoDeleteQueuesSkipUsageCheck.equals(other.autoDeleteQueuesSkipUsageCheck))
-         return false;
-      if (autoDeleteQueuesMessageCount == null) {
-         if (other.autoDeleteQueuesMessageCount != null)
-            return false;
-      } else if (!autoDeleteQueuesMessageCount.equals(other.autoDeleteQueuesMessageCount))
-         return false;
-      if (configDeleteQueues == null) {
-         if (other.configDeleteQueues != null)
-            return false;
-      } else if (!configDeleteQueues.equals(other.configDeleteQueues))
-         return false;
-      if (autoCreateAddresses == null) {
-         if (other.autoCreateAddresses != null)
-            return false;
-      } else if (!autoCreateAddresses.equals(other.autoCreateAddresses))
-         return false;
-      if (autoDeleteAddresses == null) {
-         if (other.autoDeleteAddresses != null)
-            return false;
-      } else if (!autoDeleteAddresses.equals(other.autoDeleteAddresses))
-         return false;
-      if (autoDeleteAddressesDelay == null) {
-         if (other.autoDeleteAddressesDelay != null)
-            return false;
-      } else if (!autoDeleteAddressesDelay.equals(other.autoDeleteAddressesDelay))
-         return false;
-      if (autoDeleteAddressesSkipUsageCheck == null) {
-         if (other.autoDeleteAddressesSkipUsageCheck != null)
-            return false;
-      } else if (!autoDeleteAddressesSkipUsageCheck.equals(other.autoDeleteAddressesSkipUsageCheck))
-         return false;
-      if (configDeleteAddresses == null) {
-         if (other.configDeleteAddresses != null)
-            return false;
-      } else if (!configDeleteAddresses.equals(other.configDeleteAddresses))
-         return false;
-      if (configDeleteDiverts == null) {
-         if (other.configDeleteDiverts != null)
-            return false;
-      } else if (!configDeleteDiverts.equals(other.configDeleteDiverts))
-         return false;
-      if (managementBrowsePageSize == null) {
-         if (other.managementBrowsePageSize != null)
-            return false;
-      } else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
-         return false;
-      if (managementMessageAttributeSizeLimit == null) {
-         if (other.managementMessageAttributeSizeLimit != null)
-            return false;
-      } else if (!managementMessageAttributeSizeLimit.equals(other.managementMessageAttributeSizeLimit))
-         return false;
-      if (queuePrefetch == null) {
-         if (other.queuePrefetch != null)
-            return false;
-      } else if (!queuePrefetch.equals(other.queuePrefetch))
-         return false;
-
-      if (maxSizeBytesRejectThreshold == null) {
-         if (other.maxSizeBytesRejectThreshold != null)
-            return false;
-      } else if (!maxSizeBytesRejectThreshold.equals(other.maxSizeBytesRejectThreshold))
-         return false;
-
-      if (defaultMaxConsumers == null) {
-         if (other.defaultMaxConsumers != null)
-            return false;
-      } else if (!defaultMaxConsumers.equals(other.defaultMaxConsumers))
-         return false;
-
-      if (defaultPurgeOnNoConsumers == null) {
-         if (other.defaultPurgeOnNoConsumers != null)
-            return false;
-      } else if (!defaultPurgeOnNoConsumers.equals(other.defaultPurgeOnNoConsumers))
-         return false;
-
-      if (defaultQueueRoutingType == null) {
-         if (other.defaultQueueRoutingType != null)
-            return false;
-      } else if (!defaultQueueRoutingType.equals(other.defaultQueueRoutingType))
-         return false;
-
-      if (defaultAddressRoutingType == null) {
-         if (other.defaultAddressRoutingType != null)
-            return false;
-      } else if (!defaultAddressRoutingType.equals(other.defaultAddressRoutingType))
-         return false;
-
-      if (defaultConsumersBeforeDispatch == null) {
-         if (other.defaultConsumersBeforeDispatch != null)
-            return false;
-      } else if (!defaultConsumersBeforeDispatch.equals(other.defaultConsumersBeforeDispatch))
-         return false;
-
-      if (defaultDelayBeforeDispatch == null) {
-         if (other.defaultDelayBeforeDispatch != null)
-            return false;
-      } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
-         return false;
-
-      if (defaultConsumerWindowSize == null) {
-         if (other.defaultConsumerWindowSize != null)
-            return false;
-      } else if (!defaultConsumerWindowSize.equals(other.defaultConsumerWindowSize))
-         return false;
-
-      if (defaultGroupRebalance == null) {
-         if (other.defaultGroupRebalance != null)
-            return false;
-      } else if (!defaultGroupRebalance.equals(other.defaultGroupRebalance))
-         return false;
-
-      if (defaultGroupRebalancePauseDispatch == null) {
-         if (other.defaultGroupRebalancePauseDispatch != null)
-            return false;
-      } else if (!defaultGroupRebalancePauseDispatch.equals(other.defaultGroupRebalancePauseDispatch))
-         return false;
-
-      if (defaultGroupBuckets == null) {
-         if (other.defaultGroupBuckets != null)
-            return false;
-      } else if (!defaultGroupBuckets.equals(other.defaultGroupBuckets))
-         return false;
-
-      if (defaultGroupFirstKey == null) {
-         if (other.defaultGroupFirstKey != null)
-            return false;
-      } else if (!defaultGroupFirstKey.equals(other.defaultGroupFirstKey))
-         return false;
-
-      if (defaultRingSize == null) {
-         if (other.defaultRingSize != null)
-            return false;
-      } else if (!defaultRingSize.equals(other.defaultRingSize))
-         return false;
-
-      if (retroactiveMessageCount == null) {
-         if (other.retroactiveMessageCount != null)
-            return false;
-      } else if (!retroactiveMessageCount.equals(other.retroactiveMessageCount))
-         return false;
-
-      if (autoCreateDeadLetterResources == null) {
-         if (other.autoCreateDeadLetterResources != null)
-            return false;
-      } else if (!autoCreateDeadLetterResources.equals(other.autoCreateDeadLetterResources))
-         return false;
-
-      if (deadLetterQueuePrefix == null) {
-         if (other.deadLetterQueuePrefix != null)
-            return false;
-      } else if (!deadLetterQueuePrefix.equals(other.deadLetterQueuePrefix))
-         return false;
-
-      if (deadLetterQueueSuffix == null) {
-         if (other.deadLetterQueueSuffix != null)
-            return false;
-      } else if (!deadLetterQueueSuffix.equals(other.deadLetterQueueSuffix))
-         return false;
-
-      if (autoCreateExpiryResources == null) {
-         if (other.autoCreateExpiryResources != null)
-            return false;
-      } else if (!autoCreateExpiryResources.equals(other.autoCreateExpiryResources))
-         return false;
-
-      if (expiryQueuePrefix == null) {
-         if (other.expiryQueuePrefix != null)
-            return false;
-      } else if (!expiryQueuePrefix.equals(other.expiryQueuePrefix))
-         return false;
-
-      if (expiryQueueSuffix == null) {
-         if (other.expiryQueueSuffix != null)
-            return false;
-      } else if (!expiryQueueSuffix.equals(other.expiryQueueSuffix))
-         return false;
-
-      if (enableMetrics == null) {
-         if (other.enableMetrics != null)
-            return false;
-      } else if (!enableMetrics.equals(other.enableMetrics))
-         return false;
-
-      if (slowConsumerThresholdMeasurementUnit != other.slowConsumerThresholdMeasurementUnit)
-         return false;
-
-      if (enableIngressTimestamp == null) {
-         if (other.enableIngressTimestamp != null)
-            return false;
-      } else if (!enableIngressTimestamp.equals(other.enableIngressTimestamp))
-         return false;
-
-      if (maxSizeMessages == null) {
-         if (other.maxSizeMessages != null)
-            return false;
-      } else if (!maxSizeMessages.equals(other.maxSizeMessages))
-         return false;
-
-      if (pageLimitBytes == null) {
-         if (other.pageLimitBytes != null) {
-            return false;
-         }
-      } else if (!pageLimitBytes.equals(other.pageLimitBytes)) {
-         return false;
-      }
-
-      if (pageLimitMessages == null) {
-         if (other.pageLimitMessages != null) {
-            return false;
-         }
-      } else if (!pageLimitMessages.equals(other.pageLimitMessages)) {
-         return false;
-      }
-
-      if (pageFullMessagePolicy == null) {
-         if (other.pageFullMessagePolicy != null) {
-            return false;
-         }
-      } else if (!pageFullMessagePolicy.equals(other.pageFullMessagePolicy)) {
-         return false;
-      }
-
-      if (idCacheSize == null) {
-         if (other.idCacheSize != null) {
-            return false;
-         }
-      } else if (!idCacheSize.equals(other.idCacheSize)) {
-         return false;
-      }
-
-      if (prefetchPageMessages == null) {
-         if (other.prefetchPageMessages != null) {
-            return false;
-         }
-      } else if (!prefetchPageMessages.equals(other.prefetchPageMessages)) {
-         return false;
-      }
-
-      if (prefetchPageBytes == null) {
-         if (other.prefetchPageBytes != null) {
-            return false;
-         }
-      } else if (!prefetchPageBytes.equals(other.prefetchPageBytes)) {
-         return false;
-      }
-
-      return true;
-   }
-
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
-      return "AddressSettings [addressFullMessagePolicy=" + addressFullMessagePolicy +
-         ", deadLetterAddress=" +
-         deadLetterAddress +
-         ", dropMessagesWhenFull=" +
-         dropMessagesWhenFull +
-         ", expiryAddress=" +
-         expiryAddress +
-         ", expiryDelay=" +
-         expiryDelay +
-         ", minExpiryDelay=" +
-         minExpiryDelay +
-         ", maxExpiryDelay=" +
-         maxExpiryDelay +
-         ", defaultLastValueQueue=" +
-         defaultLastValueQueue +
-         ", defaultLastValueKey=" +
-         defaultLastValueKey +
-         ", defaultNonDestructive=" +
-         defaultNonDestructive +
-         ", defaultExclusiveQueue=" +
-         defaultExclusiveQueue +
-         ", maxDeliveryAttempts=" +
-         maxDeliveryAttempts +
-         ", maxSizeBytes=" +
-         maxSizeBytes +
-         ", maxSizeBytesRejectThreshold=" +
-         maxSizeBytesRejectThreshold +
-         ", messageCounterHistoryDayLimit=" +
-         messageCounterHistoryDayLimit +
-         ", pageSizeBytes=" +
-         pageSizeBytes +
-         ", pageMaxCache=" +
-         pageMaxCache +
-         ", redeliveryDelay=" +
-         redeliveryDelay +
-         ", redeliveryMultiplier=" +
-         redeliveryMultiplier +
-         ", redeliveryCollisionAvoidanceFactor=" +
-         redeliveryCollisionAvoidanceFactor +
-         ", maxRedeliveryDelay=" +
-         maxRedeliveryDelay +
-         ", redistributionDelay=" +
-         redistributionDelay +
-         ", sendToDLAOnNoRoute=" +
-         sendToDLAOnNoRoute +
-         ", slowConsumerThreshold=" +
-         slowConsumerThreshold +
-         ", slowConsumerThresholdMeasurementUnit=" +
-         slowConsumerThresholdMeasurementUnit +
-         ", slowConsumerCheckPeriod=" +
-         slowConsumerCheckPeriod +
-         ", slowConsumerPolicy=" +
-         slowConsumerPolicy +
-         ", autoCreateJmsQueues=" +
-         autoCreateJmsQueues +
-         ", autoDeleteJmsQueues=" +
-         autoDeleteJmsQueues +
-         ", autoCreateJmsTopics=" +
-         autoCreateJmsTopics +
-         ", autoDeleteJmsTopics=" +
-         autoDeleteJmsTopics +
-         ", autoCreateQueues=" +
-         autoCreateQueues +
-         ", autoDeleteQueues=" +
-         autoDeleteQueues +
-         ", autoDeleteCreatedQueues=" +
-         autoDeleteCreatedQueues +
-         ", autoDeleteQueuesDelay=" +
-         autoDeleteQueuesDelay +
-         ", autoDeleteQueuesSkipUsageCheck=" +
-         autoDeleteQueuesSkipUsageCheck +
-         ", autoDeleteQueuesMessageCount=" +
-         autoDeleteQueuesMessageCount +
-         ", configDeleteQueues=" +
-         configDeleteQueues +
-         ", autoCreateAddresses=" +
-         autoCreateAddresses +
-         ", autoDeleteAddresses=" +
-         autoDeleteAddresses +
-         ", autoDeleteAddressesDelay=" +
-         autoDeleteAddressesDelay +
-         ", autoDeleteAddressesSkipUsageCheck=" +
-         autoDeleteAddressesSkipUsageCheck +
-         ", configDeleteAddresses=" +
-         configDeleteAddresses  +
-         ", configDeleteDiverts=" +
-         configDeleteDiverts +
-         ", managementBrowsePageSize=" +
-         managementBrowsePageSize +
-         ", managementMessageAttributeSizeLimit=" +
-         managementMessageAttributeSizeLimit +
-         ", defaultMaxConsumers=" +
-         defaultMaxConsumers +
-         ", defaultPurgeOnNoConsumers=" +
-         defaultPurgeOnNoConsumers +
-         ", defaultQueueRoutingType=" +
-         defaultQueueRoutingType +
-         ", defaultAddressRoutingType=" +
-         defaultAddressRoutingType +
-         ", defaultConsumersBeforeDispatch=" +
-         defaultConsumersBeforeDispatch +
-         ", defaultDelayBeforeDispatch=" +
-         defaultDelayBeforeDispatch +
-         ", defaultClientWindowSize=" +
-         defaultConsumerWindowSize +
-         ", defaultGroupRebalance=" +
-         defaultGroupRebalance +
-         ", defaultGroupRebalancePauseDispatch=" +
-         defaultGroupRebalancePauseDispatch +
-         ", defaultGroupBuckets=" +
-         defaultGroupBuckets +
-         ", defaultGroupFirstKey=" +
-         defaultGroupFirstKey +
-         ", defaultRingSize=" +
-         defaultRingSize +
-         ", retroactiveMessageCount=" +
-         retroactiveMessageCount +
-         ", autoCreateDeadLetterResources=" +
-         autoCreateDeadLetterResources +
-         ", deadLetterQueuePrefix=" +
-         deadLetterQueuePrefix +
-         ", deadLetterQueueSuffix=" +
-         deadLetterQueueSuffix +
-         ", autoCreateExpiryResources=" +
-         autoCreateExpiryResources +
-         ", expiryQueuePrefix=" +
-         expiryQueuePrefix +
-         ", expiryQueueSuffix=" +
-         expiryQueueSuffix +
-         ", enableMetrics=" +
-         enableMetrics +
-         ", enableIngressTime=" +
-         enableIngressTimestamp +
-         ", pageLimitBytes=" +
-         pageLimitBytes +
-         ", pageLimitMessages=" +
-         pageLimitMessages +
-         ", pageFullMessagePolicy=" +
-         pageFullMessagePolicy +
-         ", idCacheSize=" +
-         idCacheSize +
-         ", prefetchPageMessages=" +
-         prefetchPageMessages +
-         ", prefetchPageBytes=" +
-         prefetchPageBytes +
-         "]";
+      return "AddressSettings{" + "addressFullMessagePolicy=" + addressFullMessagePolicy + ", maxSizeBytes=" + maxSizeBytes + ", maxReadPageBytes=" + maxReadPageBytes + ", maxReadPageMessages=" + maxReadPageMessages + ", prefetchPageBytes=" + prefetchPageBytes + ", prefetchPageMessages=" + prefetchPageMessages + ", pageLimitBytes=" + pageLimitBytes + ", pageLimitMessages=" + pageLimitMessages + ", pageFullMessagePolicy=" + pageFullMessagePolicy + ", maxSizeMessages=" + maxSizeMessages + ", pageSizeBytes=" + pageSizeBytes + ", pageMaxCache=" + pageCacheMaxSize + ", dropMessagesWhenFull=" + dropMessagesWhenFull + ", maxDeliveryAttempts=" + maxDeliveryAttempts + ", messageCounterHistoryDayLimit=" + messageCounterHistoryDayLimit + ", redeliveryDelay=" + redeliveryDelay + ", redeliveryMultiplier=" + redeliveryMultiplier + ", redeliveryCollisionAvoidanceFactor=" + redeliveryCollisionAvoidanceFactor + ", maxRedeliveryDelay=" + maxRedeliveryDelay + ", deadLetterAddress=" + deadLetterAddress + ", expiryAddress=" + expiryAddress + ", expiryDelay=" + expiryDelay + ", minExpiryDelay=" + minExpiryDelay + ", maxExpiryDelay=" + maxExpiryDelay + ", defaultLastValueQueue=" + defaultLastValueQueue + ", defaultLastValueKey=" + defaultLastValueKey + ", defaultNonDestructive=" + defaultNonDestructive + ", defaultExclusiveQueue=" + defaultExclusiveQueue + ", defaultGroupRebalance=" + defaultGroupRebalance + ", defaultGroupRebalancePauseDispatch=" + defaultGroupRebalancePauseDispatch + ", defaultGroupBuckets=" + defaultGroupBuckets + ", defaultGroupFirstKey=" + defaultGroupFirstKey + ", redistributionDelay=" + redistributionDelay + ", sendToDLAOnNoRoute=" + sendToDLAOnNoRoute + ", slowConsumerThreshold=" + slowConsumerThreshold + ", slowConsumerThresholdMeasurementUnit=" + slowConsumerThresholdMeasurementUnit + ", slowConsumerCheckPeriod=" + slowConsumerCheckPeriod + ", slowConsumerPolicy=" + slowConsumerPolicy + ", autoCreateJmsQueues=" + autoCreateJmsQueues + ", autoDeleteJmsQueues=" + autoDeleteJmsQueues + ", autoCreateJmsTopics=" + autoCreateJmsTopics + ", autoDeleteJmsTopics=" + autoDeleteJmsTopics + ", autoCreateQueues=" + autoCreateQueues + ", autoDeleteQueues=" + autoDeleteQueues + ", autoDeleteCreatedQueues=" + autoDeleteCreatedQueues + ", autoDeleteQueuesDelay=" + autoDeleteQueuesDelay + ", autoDeleteQueuesSkipUsageCheck=" + autoDeleteQueuesSkipUsageCheck + ", autoDeleteQueuesMessageCount=" + autoDeleteQueuesMessageCount + ", defaultRingSize=" + defaultRingSize + ", retroactiveMessageCount=" + retroactiveMessageCount + ", configDeleteQueues=" + configDeleteQueues + ", autoCreateAddresses=" + autoCreateAddresses + ", autoDeleteAddresses=" + autoDeleteAddresses + ", autoDeleteAddressesDelay=" + autoDeleteAddressesDelay + ", autoDeleteAddressesSkipUsageCheck=" + autoDeleteAddressesSkipUsageCheck + ", configDeleteAddresses=" + configDeleteAddresses + ", configDeleteDiverts=" + configDeleteDiverts + ", managementBrowsePageSize=" + managementBrowsePageSize + ", maxSizeBytesRejectThreshold=" + maxSizeBytesRejectThreshold + ", defaultMaxConsumers=" + defaultMaxConsumers + ", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers + ", defaultConsumersBeforeDispatch=" + defaultConsumersBeforeDispatch + ", defaultDelayBeforeDispatch=" + defaultDelayBeforeDispatch + ", defaultQueueRoutingType=" + defaultQueueRoutingType + ", defaultAddressRoutingType=" + defaultAddressRoutingType + ", defaultConsumerWindowSize=" + defaultConsumerWindowSize + ", autoCreateDeadLetterResources=" + autoCreateDeadLetterResources + ", deadLetterQueuePrefix=" + deadLetterQueuePrefix + ", deadLetterQueueSuffix=" + deadLetterQueueSuffix + ", autoCreateExpiryResources=" + autoCreateExpiryResources + ", expiryQueuePrefix=" + expiryQueuePrefix + ", expiryQueueSuffix=" + expiryQueueSuffix + ", enableMetrics=" + enableMetrics + ", managementMessageAttributeSizeLimit=" + managementMessageAttributeSizeLimit + ", enableIngressTimestamp=" + enableIngressTimestamp + ", idCacheSize=" + idCacheSize + ", queuePrefetch=" + queuePrefetch + '}';
    }
 }

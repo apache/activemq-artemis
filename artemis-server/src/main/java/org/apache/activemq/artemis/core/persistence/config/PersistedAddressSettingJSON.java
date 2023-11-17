@@ -21,52 +21,51 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
+public class PersistedAddressSettingJSON extends AbstractPersistedAddressSetting implements EncodingSupport {
 
+   SimpleString jsonSetting;
 
-   public PersistedAddressSetting() {
+   public PersistedAddressSettingJSON() {
       super();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
-   public String toString() {
-      return "PersistedAddressSetting [storeId=" + storeId +
-         ", addressMatch=" +
-         addressMatch +
-         ", setting=" +
-         setting +
-         "]";
+   public AddressSettings getSetting() {
+      if (setting == null) {
+         setting = AddressSettings.fromJSON(jsonSetting.toString());
+      }
+      return super.getSetting();
    }
 
    /**
     * @param addressMatch
     * @param setting
     */
-   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
+   public PersistedAddressSettingJSON(SimpleString addressMatch, AddressSettings setting, SimpleString jsonSetting) {
       super(addressMatch, setting);
+      this.jsonSetting = jsonSetting;
    }
 
    @Override
    public void decode(ActiveMQBuffer buffer) {
       addressMatch = buffer.readSimpleString();
-
-      setting = new AddressSettings();
-      setting.decode(buffer);
+      jsonSetting = buffer.readSimpleString();
+      setting = AddressSettings.fromJSON(jsonSetting.toString());
    }
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeSimpleString(addressMatch);
-
-      setting.encode(buffer);
+      buffer.writeSimpleString(jsonSetting);
    }
 
    @Override
    public int getEncodeSize() {
-      return addressMatch.sizeof() + setting.getEncodeSize();
+      return addressMatch.sizeof() + jsonSetting.sizeof();
    }
 
+   @Override
+   public String toString() {
+      return "PersistedAddressSettingJSON{" + "jsonSetting=" + jsonSetting + ", storeId=" + storeId + ", addressMatch=" + addressMatch + ", setting=" + setting + '}';
+   }
 }

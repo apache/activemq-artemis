@@ -22,7 +22,9 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressSettingsInfo;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +47,16 @@ public class DuplicateRecordIdTest extends ActiveMQTestBase {
          server.start();
          ActiveMQServerControl serverControl = server.getActiveMQServerControl();
          serverControl.removeAddressSettings("q");
-         AddressSettingsInfo defaultSettings = AddressSettingsInfo.from(serverControl.getAddressSettingsAsJSON("#"));
-         serverControl.addAddressSettings("q", "dlq", defaultSettings.getExpiryAddress(), -1, false, 1, defaultSettings.getMaxSizeBytes(), defaultSettings.getPageSizeBytes(), defaultSettings.getPageCacheMaxSize(), defaultSettings.getRedeliveryDelay(), defaultSettings.getRedeliveryMultiplier(), defaultSettings.getMaxRedeliveryDelay(), defaultSettings.getRedistributionDelay(), defaultSettings.isSendToDLAOnNoRoute(), defaultSettings.getAddressFullMessagePolicy(), defaultSettings.getSlowConsumerThreshold(), defaultSettings.getSlowConsumerCheckPeriod(), defaultSettings.getSlowConsumerPolicy(), defaultSettings.isAutoCreateJmsQueues(), defaultSettings.isAutoDeleteJmsQueues(), defaultSettings.isAutoCreateJmsQueues(), defaultSettings.isAutoDeleteJmsTopics());
+         AddressSettingsInfo defaultSettings = AddressSettingsInfo.fromJSON(serverControl.getAddressSettingsAsJSON("#"));
+         AddressSettings settings = new AddressSettings();
+         settings.setExpiryAddress(SimpleString.toSimpleString(defaultSettings.getExpiryAddress())).setExpiryDelay(defaultSettings.getExpiryDelay()).setMaxDeliveryAttempts(1)
+                 .setMaxSizeBytes(defaultSettings.getMaxSizeBytes()).setPageSizeBytes(defaultSettings.getPageSizeBytes())
+                 .setPageCacheMaxSize(defaultSettings.getPageCacheMaxSize()).setRedeliveryDelay(defaultSettings.getRedeliveryDelay())
+                 .setMaxExpiryDelay(defaultSettings.getMaxRedeliveryDelay()).setRedistributionDelay(defaultSettings.getRedistributionDelay())
+                 .setSendToDLAOnNoRoute(defaultSettings.isSendToDLAOnNoRoute()).setAddressFullMessagePolicy(AddressFullMessagePolicy.valueOf(defaultSettings.getAddressFullMessagePolicy()))
+                 .setSlowConsumerThreshold(defaultSettings.getSlowConsumerThreshold())
+                 .setSlowConsumerCheckPeriod(defaultSettings.getSlowConsumerCheckPeriod()).setSlowConsumerPolicy(SlowConsumerPolicy.valueOf(defaultSettings.getSlowConsumerPolicy()));
+         serverControl.addAddressSettings("q", settings.toJSON());
          server.stop();
          PrintData.printData(server.getConfiguration().getBindingsLocation().getAbsoluteFile(), server.getConfiguration().getJournalLocation().getAbsoluteFile(), server.getConfiguration().getPagingLocation().getAbsoluteFile());
       }

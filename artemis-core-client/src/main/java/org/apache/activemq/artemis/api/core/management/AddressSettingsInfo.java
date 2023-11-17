@@ -16,304 +16,307 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.utils.bean.MetaBean;
 
-import org.apache.activemq.artemis.api.core.JsonUtil;
-
-// XXX no javadocs
 public final class AddressSettingsInfo {
 
-   private final String addressFullMessagePolicy;
+   static final MetaBean<AddressSettingsInfo> META_BEAN = new MetaBean<>();
 
-   private final long maxSizeBytes;
 
-   private final int pageSizeBytes;
+   {
+      META_BEAN.add(String.class, "addressFullMessagePolicy", (o, p) -> o.addressFullMessagePolicy = p, o -> o.addressFullMessagePolicy);
+   }
+   private String addressFullMessagePolicy;
 
+   {
+      META_BEAN.add(Long.class, "maxSizeBytes", (o, p) -> o.maxSizeBytes = p, o -> o.maxSizeBytes);
+   }
+   private long maxSizeBytes;
+
+   {
+      META_BEAN.add(Integer.class, "pageSizeBytes", (o, p) -> o.pageSizeBytes = p, o -> o.pageSizeBytes);
+   }
+   private int pageSizeBytes;
+
+   {
+      META_BEAN.add(Integer.class, "pageCacheMaxSize", (o, p) -> o.pageCacheMaxSize = p, o -> o.pageCacheMaxSize);
+   }
    private int pageCacheMaxSize;
 
-   private final int maxDeliveryAttempts;
+   {
+      META_BEAN.add(Integer.class, "maxDeliveryAttempts", (o, p) -> o.maxDeliveryAttempts = p, o -> o.maxDeliveryAttempts);
+   }
+   private int maxDeliveryAttempts;
 
-   private final double redeliveryMultiplier;
+   {
+      META_BEAN.add(Double.class, "redeliveryMultiplier", (o, p) -> o.redeliveryMultiplier = p, o -> o.redeliveryMultiplier);
+   }
+   private double redeliveryMultiplier;
 
-   private final long maxRedeliveryDelay;
+   {
+      META_BEAN.add(Long.class, "maxRedeliveryDelay", (o, p) -> o.maxRedeliveryDelay = p, o -> o.maxRedeliveryDelay);
+   }
+   private long maxRedeliveryDelay;
 
-   private final long redeliveryDelay;
+   {
+      META_BEAN.add(Long.class, "redeliveryDelay", (o, p) -> o.redeliveryDelay = p, o -> o.redeliveryDelay);
+   }
+   private long redeliveryDelay;
 
-   private final String deadLetterAddress;
+   {
+      META_BEAN.add(String.class, "deadLetterAddress", (o, p) -> o.deadLetterAddress = p, o -> o.deadLetterAddress);
+   }
+   private String deadLetterAddress;
 
-   private final String expiryAddress;
+   {
+      META_BEAN.add(String.class, "expiryAddress", (o, p) -> o.expiryAddress = p, o -> o.expiryAddress);
+   }
+   private String expiryAddress;
 
-   private final boolean lastValueQueue;
+   {
+      META_BEAN.add(Boolean.class, "defaultLastValueQueue", (o, p) -> o.defaultLastValueQueue = p, o -> o.defaultLastValueQueue);
+   }
+   private boolean defaultLastValueQueue;
 
-   private final long redistributionDelay;
+   {
+      META_BEAN.add(Long.class, "redistributionDelay", (o, p) -> o.redistributionDelay = p, o -> o.redistributionDelay);
+   }
+   private long redistributionDelay;
 
-   private final boolean sendToDLAOnNoRoute;
+   {
+      META_BEAN.add(Boolean.class, "sendToDLAOnNoRoute", (o, p) -> o.sendToDLAOnNoRoute = p, o -> o.sendToDLAOnNoRoute);
+   }
+   private boolean sendToDLAOnNoRoute;
 
-   private final long slowConsumerThreshold;
+   {
+      META_BEAN.add(Long.class, "slowConsumerThreshold", (o, p) -> o.slowConsumerThreshold = p, o -> o.slowConsumerThreshold);
+   }
+   private long slowConsumerThreshold;
 
-   private final long slowConsumerCheckPeriod;
+   {
+      META_BEAN.add(Long.class, "slowConsumerCheckPeriod", (o, p) -> o.slowConsumerCheckPeriod = p, o -> o.slowConsumerCheckPeriod);
+   }
+   private long slowConsumerCheckPeriod;
 
-   private final String slowConsumerPolicy;
+   {
+      META_BEAN.add(String.class, "slowConsumerPolicy", (o, p) -> o.slowConsumerPolicy = p, o -> o.slowConsumerPolicy);
+   }
+   private String slowConsumerPolicy;
 
-   private final boolean autoCreateJmsQueues;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateJmsQueues", (o, p) -> o.autoCreateJmsQueues = p, o -> o.autoCreateJmsQueues);
+   }
+   private boolean autoCreateJmsQueues;
 
-   private final boolean autoDeleteJmsQueues;
+   {
+      META_BEAN.add(Boolean.class, "autoDeleteJmsQueues", (o, p) -> o.autoDeleteJmsQueues = p, o -> o.autoDeleteJmsQueues);
+   }
+   private boolean autoDeleteJmsQueues;
 
-   private final boolean autoCreateJmsTopics;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateJmsTopics", (o, p) -> o.autoCreateJmsTopics = p, o -> o.autoCreateJmsTopics);
+   }
+   private boolean autoCreateJmsTopics;
 
-   private final boolean autoDeleteJmsTopics;
+   {
+      META_BEAN.add(Boolean.class, "autoDeleteJmsTopics", (o, p) -> o.autoDeleteJmsTopics = p, o -> o.autoDeleteJmsTopics);
+   }
+   private boolean autoDeleteJmsTopics;
 
-   private final boolean autoCreateQueues;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateQueues", (o, p) -> o.autoCreateQueues = p, o -> o.autoCreateQueues);
+   }
+   private boolean autoCreateQueues;
 
-   private final boolean autoDeleteQueues;
+   {
+      META_BEAN.add(Boolean.class, "autoDeleteQueues", (o, p) -> o.autoDeleteQueues = p, o -> o.autoDeleteQueues);
+   }
+   private boolean autoDeleteQueues;
 
-   private final boolean autoCreateAddresses;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateAddresses", (o, p) -> o.autoCreateAddresses = p, o -> o.autoCreateAddresses);
+   }
+   private boolean autoCreateAddresses;
 
-   private final boolean autoDeleteAddresses;
+   {
+      META_BEAN.add(Boolean.class, "autoDeleteAddresses", (o, p) -> o.autoDeleteAddresses = p, o -> o.autoDeleteAddresses);
+   }
+   private boolean autoDeleteAddresses;
 
-   private final String configDeleteQueues;
+   {
+      META_BEAN.add(String.class, "configDeleteQueues", (o, p) -> o.configDeleteQueues = p, o -> o.configDeleteQueues);
+   }
+   private String configDeleteQueues;
 
-   private final String configDeleteAddresses;
+   {
+      META_BEAN.add(String.class, "configDeleteAddresses", (o, p) -> o.configDeleteAddresses = p, o -> o.configDeleteAddresses);
+   }
+   private String configDeleteAddresses;
 
-   private final long maxSizeBytesRejectThreshold;
+   {
+      META_BEAN.add(Long.class, "maxSizeBytesRejectThreshold", (o, p) -> o.maxSizeBytesRejectThreshold = p, o -> o.maxSizeBytesRejectThreshold);
+   }
+   private long maxSizeBytesRejectThreshold;
 
-   private final String defaultLastValueKey;
+   {
+      META_BEAN.add(String.class, "defaultLastValueKey", (o, p) -> o.defaultLastValueKey = p, o -> o.defaultLastValueKey);
+   }
+   private String defaultLastValueKey;
 
-   private final boolean defaultNonDestructive;
+   {
+      META_BEAN.add(Boolean.class, "defaultNonDestructive", (o, p) -> o.defaultNonDestructive = p, o -> o.defaultNonDestructive);
+   }
+   private boolean defaultNonDestructive;
 
-   private final boolean defaultExclusiveQueue;
+   {
+      META_BEAN.add(Boolean.class, "defaultExclusiveQueue", (o, p) -> o.defaultExclusiveQueue = p, o -> o.defaultExclusiveQueue);
+   }
+   private boolean defaultExclusiveQueue;
 
-   private final boolean defaultGroupRebalance;
+   {
+      META_BEAN.add(Boolean.class, "defaultGroupRebalance", (o, p) -> o.defaultGroupRebalance = p, o -> o.defaultGroupRebalance);
+   }
+   private boolean defaultGroupRebalance;
 
-   private final int defaultGroupBuckets;
+   {
+      META_BEAN.add(Integer.class, "defaultGroupBuckets", (o, p) -> o.defaultGroupBuckets = p, o -> o.defaultGroupBuckets);
+   }
+   private int defaultGroupBuckets;
 
-   private final String defaultGroupFirstKey;
+   {
+      META_BEAN.add(String.class, "defaultGroupFirstKey", (o, p) -> o.defaultGroupFirstKey = p, o -> o.defaultGroupFirstKey);
+   }
+   private String defaultGroupFirstKey;
 
-   private final int defaultMaxConsumers;
+   {
+      META_BEAN.add(Integer.class, "defaultMaxConsumers", (o, p) -> o.defaultMaxConsumers = p, o -> o.defaultMaxConsumers);
+   }
+   private int defaultMaxConsumers;
 
-   private final boolean defaultPurgeOnNoConsumers;
+   {
+      META_BEAN.add(Boolean.class, "defaultPurgeOnNoConsumers", (o, p) -> o.defaultPurgeOnNoConsumers = p, o -> o.defaultPurgeOnNoConsumers);
+   }
+   private boolean defaultPurgeOnNoConsumers;
 
-   private final int defaultConsumersBeforeDispatch;
+   {
+      META_BEAN.add(Integer.class, "defaultConsumersBeforeDispatch", (o, p) -> o.defaultConsumersBeforeDispatch = p, o -> o.defaultConsumersBeforeDispatch);
+   }
+   private int defaultConsumersBeforeDispatch;
 
-   private final long defaultDelayBeforeDispatch;
+   {
+      META_BEAN.add(Long.class, "defaultDelayBeforeDispatch", (o, p) -> o.defaultDelayBeforeDispatch = p, o -> o.defaultDelayBeforeDispatch);
+   }
+   private long defaultDelayBeforeDispatch;
 
-   private final String defaultQueueRoutingType;
+   {
+      META_BEAN.add(String.class, "defaultQueueRoutingType", (o, p) -> o.defaultQueueRoutingType = p, o -> o.defaultQueueRoutingType);
+   }
+   private String defaultQueueRoutingType;
 
-   private final String defaultAddressRoutingType;
+   {
+      META_BEAN.add(String.class, "defaultAddressRoutingType", (o, p) -> o.defaultAddressRoutingType = p, o -> o.defaultAddressRoutingType);
+   }
+   private String defaultAddressRoutingType;
 
-   private final int defaultConsumerWindowSize;
+   {
+      META_BEAN.add(Integer.class, "defaultConsumerWindowSize", (o, p) -> o.defaultConsumerWindowSize = p, o -> o.defaultConsumerWindowSize);
+   }
+   private int defaultConsumerWindowSize;
 
-   private final long defaultRingSize;
+   {
+      META_BEAN.add(Long.class, "defaultRingSize", (o, p) -> o.defaultRingSize = p, o -> o.defaultRingSize);
+   }
+   private long defaultRingSize;
 
-   private final boolean autoDeleteCreatedQueues;
+   {
+      META_BEAN.add(Boolean.class, "autoDeleteCreatedQueues", (o, p) -> o.autoDeleteCreatedQueues = p, o -> o.autoDeleteCreatedQueues);
+   }
+   private boolean autoDeleteCreatedQueues;
 
-   private final long autoDeleteQueuesDelay;
+   {
+      META_BEAN.add(Long.class, "autoDeleteQueuesDelay", (o, p) -> o.autoDeleteQueuesDelay = p, o -> o.autoDeleteQueuesDelay);
+   }
+   private long autoDeleteQueuesDelay;
 
-   private final long autoDeleteQueuesMessageCount;
+   {
+      META_BEAN.add(Long.class, "autoDeleteQueuesMessageCount", (o, p) -> o.autoDeleteQueuesMessageCount = p, o -> o.autoDeleteQueuesMessageCount);
+   }
+   private long autoDeleteQueuesMessageCount;
 
-   private final long autoDeleteAddressesDelay;
+   {
+      META_BEAN.add(Long.class, "autoDeleteAddressesDelay", (o, p) -> o.autoDeleteAddressesDelay = p, o -> o.autoDeleteAddressesDelay);
+   }
+   private long autoDeleteAddressesDelay;
 
-   private final double redeliveryCollisionAvoidanceFactor;
+   {
+      META_BEAN.add(Double.class, "redeliveryCollisionAvoidanceFactor", (o, p) -> o.redeliveryCollisionAvoidanceFactor = p, o -> o.redeliveryCollisionAvoidanceFactor);
+   }
+   private double redeliveryCollisionAvoidanceFactor;
 
-   private final long retroactiveMessageCount;
+   {
+      META_BEAN.add(Long.class, "retroactiveMessageCount", (o, p) -> o.retroactiveMessageCount = p, o -> o.retroactiveMessageCount);
+   }
+   private long retroactiveMessageCount;
 
-   private final boolean autoCreateDeadLetterResources;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateDeadLetterResources", (o, p) -> o.autoCreateDeadLetterResources = p, o -> o.autoCreateDeadLetterResources);
+   }
+   private boolean autoCreateDeadLetterResources;
 
-   private final String deadLetterQueuePrefix;
+   {
+      META_BEAN.add(String.class, "deadLetterQueuePrefix", (o, p) -> o.deadLetterQueuePrefix = p, o -> o.deadLetterQueuePrefix);
+   }
+   private String deadLetterQueuePrefix;
 
-   private final String deadLetterQueueSuffix;
+   {
+      META_BEAN.add(String.class, "deadLetterQueueSuffix", (o, p) -> o.deadLetterQueueSuffix = p, o -> o.deadLetterQueueSuffix);
+   }
+   private String deadLetterQueueSuffix;
 
-   private final boolean autoCreateExpiryResources;
-
-   private final String expiryQueuePrefix;
-
-   private final String expiryQueueSuffix;
-
-   private final long expiryDelay;
-
-   private final long minExpiryDelay;
-
-   private final long maxExpiryDelay;
-
-   private final boolean enableMetrics;
+   {
+      META_BEAN.add(Boolean.class, "autoCreateExpiryResources", (o, p) -> o.autoCreateExpiryResources = p, o -> o.autoCreateExpiryResources);
+   }
+   private boolean autoCreateExpiryResources;
 
 
-   public static AddressSettingsInfo from(final String jsonString) {
-      JsonObject object = JsonUtil.readJsonObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"),
-                                     object.getJsonNumber("maxSizeBytes").longValue(),
-                                     object.getInt("pageSizeBytes"),
-                                     object.getInt("pageCacheMaxSize"),
-                                     object.getInt("maxDeliveryAttempts"),
-                                     object.getJsonNumber("redeliveryDelay").longValue(),
-                                     object.getJsonNumber("redeliveryMultiplier").doubleValue(),
-                                     object.getJsonNumber("maxRedeliveryDelay").longValue(),
-                                     object.getString("DLA"),
-                                     object.getString("expiryAddress"),
-                                     object.getBoolean("lastValueQueue"),
-                                     object.getJsonNumber("redistributionDelay").longValue(),
-                                     object.getBoolean("sendToDLAOnNoRoute"),
-                                     object.getJsonNumber("slowConsumerThreshold").longValue(),
-                                     object.getJsonNumber("slowConsumerCheckPeriod").longValue(),
-                                     object.getString("slowConsumerPolicy"),
-                                     object.getBoolean("autoCreateJmsQueues"),
-                                     object.getBoolean("autoCreateJmsTopics"),
-                                     object.getBoolean("autoDeleteJmsQueues"),
-                                     object.getBoolean("autoDeleteJmsTopics"),
-                                     object.getBoolean("autoCreateQueues"),
-                                     object.getBoolean("autoDeleteQueues"),
-                                     object.getBoolean("autoCreateAddresses"),
-                                     object.getBoolean("autoDeleteAddresses"),
-                                     object.getString("configDeleteQueues"),
-                                     object.getString("configDeleteAddresses"),
-                                     object.getJsonNumber("maxSizeBytesRejectThreshold").longValue(),
-                                     object.getString("defaultLastValueKey"),
-                                     object.getBoolean("defaultNonDestructive"),
-                                     object.getBoolean("defaultExclusiveQueue"),
-                                     object.getBoolean("defaultGroupRebalance"),
-                                     object.getInt("defaultGroupBuckets"),
-                                     object.getString("defaultGroupFirstKey"),
-                                     object.getInt("defaultMaxConsumers"),
-                                     object.getBoolean("defaultPurgeOnNoConsumers"),
-                                     object.getInt("defaultConsumersBeforeDispatch"),
-                                     object.getJsonNumber("defaultDelayBeforeDispatch").longValue(),
-                                     object.getString("defaultQueueRoutingType"),
-                                     object.getString("defaultAddressRoutingType"),
-                                     object.getInt("defaultConsumerWindowSize"),
-                                     object.getJsonNumber("defaultRingSize").longValue(),
-                                     object.getBoolean("autoDeleteCreatedQueues"),
-                                     object.getJsonNumber("autoDeleteQueuesDelay").longValue(),
-                                     object.getJsonNumber("autoDeleteQueuesMessageCount").longValue(),
-                                     object.getJsonNumber("autoDeleteAddressesDelay").longValue(),
-                                     object.getJsonNumber("redeliveryCollisionAvoidanceFactor").doubleValue(),
-                                     object.getJsonNumber("retroactiveMessageCount").longValue(),
-                                     object.getBoolean("autoCreateDeadLetterResources"),
-                                     object.getString("deadLetterQueuePrefix"),
-                                     object.getString("deadLetterQueueSuffix"),
-                                     object.getBoolean("autoCreateExpiryResources"),
-                                     object.getString("expiryQueuePrefix"),
-                                     object.getString("expiryQueueSuffix"),
-                                     object.getJsonNumber("expiryDelay").longValue(),
-                                     object.getJsonNumber("minExpiryDelay").longValue(),
-                                     object.getJsonNumber("maxExpiryDelay").longValue(),
-                                     object.getBoolean("enableMetrics"));
+   {
+      META_BEAN.add(String.class, "expiryQueuePrefix", (o, p) -> o.expiryQueuePrefix = p, o -> o.expiryQueuePrefix);
+   }
+   private String expiryQueuePrefix;
+
+   {
+      META_BEAN.add(String.class, "expiryQueueSuffix", (o, p) -> o.expiryQueueSuffix = p, o -> o.expiryQueueSuffix);
+   }
+   private String expiryQueueSuffix;
+
+   {
+      META_BEAN.add(Long.class, "expiryDelay", (o, p) -> o.expiryDelay = p, o -> o.expiryDelay);
+   }
+   private long expiryDelay;
+
+   {
+      META_BEAN.add(Long.class, "minExpiryDelay", (o, p) -> o.minExpiryDelay = p, o -> o.minExpiryDelay);
+   }
+   private long minExpiryDelay;
+
+   {
+      META_BEAN.add(Long.class, "maxExpiryDelay", (o, p) -> o.maxExpiryDelay = p, o -> o.maxExpiryDelay);
+   }
+   private long maxExpiryDelay;
+
+   {
+      META_BEAN.add(Boolean.class, "enableMetrics", (o, p) -> o.enableMetrics = p, o -> o.enableMetrics);
+   }
+   private boolean enableMetrics;
+
+
+   public static AddressSettingsInfo fromJSON(final String jsonString) {
+      AddressSettingsInfo newInfo = new AddressSettingsInfo();
+      META_BEAN.fromJSON(newInfo, jsonString);
+      return newInfo;
    }
 
-
-   public AddressSettingsInfo(String addressFullMessagePolicy,
-                              long maxSizeBytes,
-                              int pageSizeBytes,
-                              int pageCacheMaxSize,
-                              int maxDeliveryAttempts,
-                              long redeliveryDelay,
-                              double redeliveryMultiplier,
-                              long maxRedeliveryDelay,
-                              String deadLetterAddress,
-                              String expiryAddress,
-                              boolean lastValueQueue,
-                              long redistributionDelay,
-                              boolean sendToDLAOnNoRoute,
-                              long slowConsumerThreshold,
-                              long slowConsumerCheckPeriod,
-                              String slowConsumerPolicy,
-                              boolean autoCreateJmsQueues,
-                              boolean autoCreateJmsTopics,
-                              boolean autoDeleteJmsQueues,
-                              boolean autoDeleteJmsTopics,
-                              boolean autoCreateQueues,
-                              boolean autoDeleteQueues,
-                              boolean autoCreateAddresses,
-                              boolean autoDeleteAddresses,
-                              String configDeleteQueues,
-                              String configDeleteAddresses,
-                              long maxSizeBytesRejectThreshold,
-                              String defaultLastValueKey,
-                              boolean defaultNonDestructive,
-                              boolean defaultExclusiveQueue,
-                              boolean defaultGroupRebalance,
-                              int defaultGroupBuckets,
-                              String defaultGroupFirstKey,
-                              int defaultMaxConsumers,
-                              boolean defaultPurgeOnNoConsumers,
-                              int defaultConsumersBeforeDispatch,
-                              long defaultDelayBeforeDispatch,
-                              String defaultQueueRoutingType,
-                              String defaultAddressRoutingType,
-                              int defaultConsumerWindowSize,
-                              long defaultRingSize,
-                              boolean autoDeleteCreatedQueues,
-                              long autoDeleteQueuesDelay,
-                              long autoDeleteQueuesMessageCount,
-                              long autoDeleteAddressesDelay,
-                              double redeliveryCollisionAvoidanceFactor,
-                              long retroactiveMessageCount,
-                              boolean autoCreateDeadLetterResources,
-                              String deadLetterQueuePrefix,
-                              String deadLetterQueueSuffix,
-                              boolean autoCreateExpiryResources,
-                              String expiryQueuePrefix,
-                              String expiryQueueSuffix,
-                              long expiryDelay,
-                              long minExpiryDelay,
-                              long maxExpiryDelay,
-                              boolean enableMetrics) {
-      this.addressFullMessagePolicy = addressFullMessagePolicy;
-      this.maxSizeBytes = maxSizeBytes;
-      this.pageSizeBytes = pageSizeBytes;
-      this.pageCacheMaxSize = pageCacheMaxSize;
-      this.maxDeliveryAttempts = maxDeliveryAttempts;
-      this.redeliveryDelay = redeliveryDelay;
-      this.redeliveryMultiplier = redeliveryMultiplier;
-      this.maxRedeliveryDelay = maxRedeliveryDelay;
-      this.deadLetterAddress = deadLetterAddress;
-      this.expiryAddress = expiryAddress;
-      this.lastValueQueue = lastValueQueue;
-      this.redistributionDelay = redistributionDelay;
-      this.sendToDLAOnNoRoute = sendToDLAOnNoRoute;
-      this.slowConsumerThreshold = slowConsumerThreshold;
-      this.slowConsumerCheckPeriod = slowConsumerCheckPeriod;
-      this.slowConsumerPolicy = slowConsumerPolicy;
-      this.autoCreateJmsQueues = autoCreateJmsQueues;
-      this.autoDeleteJmsQueues = autoDeleteJmsQueues;
-      this.autoCreateJmsTopics = autoCreateJmsTopics;
-      this.autoDeleteJmsTopics = autoDeleteJmsTopics;
-      this.autoCreateQueues = autoCreateQueues;
-      this.autoDeleteQueues = autoDeleteQueues;
-      this.autoCreateAddresses = autoCreateAddresses;
-      this.autoDeleteAddresses = autoDeleteAddresses;
-      this.configDeleteQueues = configDeleteQueues;
-      this.configDeleteAddresses = configDeleteAddresses;
-      this.maxSizeBytesRejectThreshold = maxSizeBytesRejectThreshold;
-      this.defaultLastValueKey = defaultLastValueKey;
-      this.defaultNonDestructive = defaultNonDestructive;
-      this.defaultExclusiveQueue = defaultExclusiveQueue;
-      this.defaultGroupRebalance = defaultGroupRebalance;
-      this.defaultGroupBuckets = defaultGroupBuckets;
-      this.defaultGroupFirstKey = defaultGroupFirstKey;
-      this.defaultMaxConsumers = defaultMaxConsumers;
-      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
-      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
-      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
-      this.defaultQueueRoutingType = defaultQueueRoutingType;
-      this.defaultAddressRoutingType = defaultAddressRoutingType;
-      this.defaultConsumerWindowSize = defaultConsumerWindowSize;
-      this.defaultRingSize = defaultRingSize;
-      this.autoDeleteCreatedQueues = autoDeleteCreatedQueues;
-      this.autoDeleteQueuesDelay = autoDeleteQueuesDelay;
-      this.autoDeleteQueuesMessageCount = autoDeleteQueuesMessageCount;
-      this.autoDeleteAddressesDelay = autoDeleteAddressesDelay;
-      this.redeliveryCollisionAvoidanceFactor = redeliveryCollisionAvoidanceFactor;
-      this.retroactiveMessageCount = retroactiveMessageCount;
-      this.autoCreateDeadLetterResources = autoCreateDeadLetterResources;
-      this.deadLetterQueuePrefix = deadLetterQueuePrefix;
-      this.deadLetterQueueSuffix = deadLetterQueueSuffix;
-      this.autoCreateExpiryResources = autoCreateExpiryResources;
-      this.expiryQueuePrefix = expiryQueuePrefix;
-      this.expiryQueueSuffix = expiryQueueSuffix;
-      this.expiryDelay = expiryDelay;
-      this.minExpiryDelay = minExpiryDelay;
-      this.maxExpiryDelay = maxExpiryDelay;
-      this.enableMetrics = enableMetrics;
+   public AddressSettingsInfo() {
    }
 
    public int getPageCacheMaxSize() {
@@ -352,8 +355,8 @@ public final class AddressSettingsInfo {
       return expiryAddress;
    }
 
-   public boolean isLastValueQueue() {
-      return lastValueQueue;
+   public boolean isDefaultLastValueQueue() {
+      return defaultLastValueQueue;
    }
 
    public long getRedistributionDelay() {

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -117,11 +118,11 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
     * @throws Exception
     */
    private void checkAddresses(StorageManager journal1) throws Exception {
-      List<PersistedAddressSetting> listSetting = journal1.recoverAddressSettings();
+      List<AbstractPersistedAddressSetting> listSetting = journal1.recoverAddressSettings();
 
       assertEquals(mapExpectedAddresses.size(), listSetting.size());
 
-      for (PersistedAddressSetting el : listSetting) {
+      for (AbstractPersistedAddressSetting el : listSetting) {
          PersistedAddressSetting el2 = mapExpectedAddresses.get(el.getAddressMatch());
 
          assertEquals(el.getAddressMatch(), el2.getAddressMatch());

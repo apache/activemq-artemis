@@ -97,7 +97,7 @@ import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
@@ -3881,8 +3881,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void recoverStoredAddressSettings() throws Exception {
-      List<PersistedAddressSetting> adsettings = storageManager.recoverAddressSettings();
-      for (PersistedAddressSetting set : adsettings) {
+      List<AbstractPersistedAddressSetting> adsettings = storageManager.recoverAddressSettings();
+      for (AbstractPersistedAddressSetting set : adsettings) {
          addressSettingsRepository.addMatch(set.getAddressMatch().toString(), set.getSetting());
       }
    }
