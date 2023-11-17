@@ -39,9 +39,9 @@ public class AddressSettingsInfoTest {
          "\"redeliveryDelay\":70000,\n" +
          "\"redeliveryMultiplier\":1.5,\n" +
          "\"maxRedeliveryDelay\":100000,\n" +
-         "\"DLA\":\"deadLettersGoHere\",\n" +
+         "\"deadLetterAddress\":\"deadLettersGoHere\",\n" +
          "\"expiryAddress\":\"\",\n" +
-         "\"lastValueQueue\":true,\n" +
+         "\"defaultLastValueQueue\":true,\n" +
          "\"redistributionDelay\":10004,\n" +
          "\"sendToDLAOnNoRoute\":true,\n" +
          "\"slowConsumerThreshold\":200,\n" +
@@ -89,7 +89,7 @@ public class AddressSettingsInfoTest {
          "\"maxExpiryDelay\":4004,\n" +
          "\"enableMetrics\":false\n" +
          "}";
-      AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.from(json);
+      AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.fromJSON(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
       assertEquals(500L, addressSettingsInfo.getMaxSizeBytes());
       assertEquals(200L, addressSettingsInfo.getPageSizeBytes());
@@ -100,7 +100,7 @@ public class AddressSettingsInfoTest {
       assertEquals(100000, addressSettingsInfo.getMaxRedeliveryDelay());
       assertEquals("deadLettersGoHere", addressSettingsInfo.getDeadLetterAddress());
       assertEquals("", addressSettingsInfo.getExpiryAddress());
-      assertTrue(addressSettingsInfo.isLastValueQueue());
+      assertTrue(addressSettingsInfo.isDefaultLastValueQueue());
       assertEquals(10004L, addressSettingsInfo.getRedistributionDelay());
       assertTrue(addressSettingsInfo.isSendToDLAOnNoRoute());
       assertEquals(200L, addressSettingsInfo.getSlowConsumerThreshold());

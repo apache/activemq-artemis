@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
@@ -615,7 +616,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.createTopic(true, "tt", "/topic/TT");
 
-      server.getActiveMQServerControl().addAddressSettings("TT", "DLQ", "DLQ", -1, false, 5, 1024 * 1024, 1024 * 10, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+                      .setMaxSizeBytes(1024 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+              .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+                      .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+
+      server.getActiveMQServerControl().addAddressSettings("TT", addressSettings.toJSON());
 
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -671,7 +678,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
-      server.getActiveMQServerControl().addAddressSettings("Q1", "DLQ", "DLQ", -1, false, 5, 100 * 1024, 10 * 1024, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+              .setMaxSizeBytes(100 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+              .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+              .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+
+      server.getActiveMQServerControl().addAddressSettings("Q1", addressSettings.toJSON());
 
       jmsServer.createQueue(true, "Q1", null, true, "/queue/Q1");
 

@@ -14,59 +14,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.persistence.config;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
+public abstract class AbstractPersistedAddressSetting implements EncodingSupport {
 
+   protected long storeId;
 
-   public PersistedAddressSetting() {
+   protected SimpleString addressMatch;
+
+   protected AddressSettings setting;
+
+   public AbstractPersistedAddressSetting() {
       super();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
-   @Override
-   public String toString() {
-      return "PersistedAddressSetting [storeId=" + storeId +
-         ", addressMatch=" +
-         addressMatch +
-         ", setting=" +
-         setting +
-         "]";
+   public AbstractPersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
+      this.addressMatch = addressMatch;
+      this.setting = setting;
    }
 
-   /**
-    * @param addressMatch
-    * @param setting
-    */
-   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
-      super(addressMatch, setting);
+   public long getStoreId() {
+      return storeId;
    }
 
-   @Override
-   public void decode(ActiveMQBuffer buffer) {
-      addressMatch = buffer.readSimpleString();
-
-      setting = new AddressSettings();
-      setting.decode(buffer);
+   public AbstractPersistedAddressSetting setStoreId(long storeId) {
+      this.storeId = storeId;
+      return this;
    }
 
-   @Override
-   public void encode(ActiveMQBuffer buffer) {
-      buffer.writeSimpleString(addressMatch);
-
-      setting.encode(buffer);
+   public SimpleString getAddressMatch() {
+      return addressMatch;
    }
 
-   @Override
-   public int getEncodeSize() {
-      return addressMatch.sizeof() + setting.getEncodeSize();
+   public AbstractPersistedAddressSetting setAddressMatch(SimpleString addressMatch) {
+      this.addressMatch = addressMatch;
+      return this;
    }
 
+   public AddressSettings getSetting() {
+      return setting;
+   }
+
+   public AbstractPersistedAddressSetting setSetting(AddressSettings setting) {
+      this.setting = setting;
+      return this;
+   }
 }
