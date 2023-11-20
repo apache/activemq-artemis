@@ -83,9 +83,9 @@ under the License.
             </anycast>
          </address>
          <address name="target">
-            <multicast>
+            <anycast>
                <queue name="target"/>
-            </multicast>
+            </anycast>
          </address>
       </addresses>
 

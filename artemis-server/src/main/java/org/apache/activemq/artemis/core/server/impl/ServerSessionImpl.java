@@ -1838,7 +1838,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (queueConfig.getRoutingType() == RoutingType.ANYCAST || queueConfig.isFqqn()) {
-         if (server.locateQueue(unPrefixedQueue) == null) {
+         Queue q = server.locateQueue(unPrefixedQueue);
+         if (q == null) {
             // The queue doesn't exist.
             Bindings bindings = server.getPostOffice().lookupBindingsForAddress(unPrefixedAddress);
             if (bindings != null && bindings.hasLocalBinding() && !queueConfig.isFqqn()) {
@@ -1858,7 +1859,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } else {
             // The queue exists.
-            result = AutoCreateResult.EXISTED;
+            if (q.getRoutingType() != RoutingType.ANYCAST && !queueConfig.isFqqn()) {
+               // The queue exists, but it does not support the requested routing type, and it's not FQQN.
+               return AutoCreateResult.NOT_FOUND;
+            } else {
+               // The queue exists, and it supports the requested routing type or it's FQQN so it doesn't matter.
+               result = AutoCreateResult.EXISTED;
+            }
          }
       }
 

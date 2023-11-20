@@ -176,7 +176,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    }
 
    private RoutingType getDefaultRoutingType(SimpleString address) {
-      RoutingType defaultRoutingType = sessionSPI.getDefaultRoutingType(address);
+      RoutingType defaultRoutingType = sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address));
       return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
    }
 
