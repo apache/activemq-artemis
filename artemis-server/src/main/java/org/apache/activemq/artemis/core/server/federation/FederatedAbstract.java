@@ -117,6 +117,7 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
             remoteQueueConsumer = new FederatedQueueConsumerImpl(federation, server, transformer, key, upstream, callback);
             remoteQueueConsumer.start();
             remoteQueueConsumers.put(key, remoteQueueConsumer);
+            remoteQueueConsumer.incrementCount();
 
             if (server.hasBrokerFederationPlugins()) {
                try {
@@ -128,7 +129,6 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
                }
             }
          }
-         remoteQueueConsumer.incrementCount();
       }
    }
 
