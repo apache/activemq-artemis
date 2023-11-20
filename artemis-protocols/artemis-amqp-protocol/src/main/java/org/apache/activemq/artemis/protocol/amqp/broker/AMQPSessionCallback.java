@@ -766,6 +766,10 @@ public class AMQPSessionCallback implements SessionCallback {
       return manager.getServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultAddressRoutingType();
    }
 
+   public RoutingType getRoutingTypeFromPrefix(SimpleString address, RoutingType defaultRoutingType) {
+      return serverSession.getRoutingTypeFromPrefix(address, defaultRoutingType);
+   }
+
    public void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception {
       manager.getServer().getSecurityStore().check(address, checkType, session);
    }

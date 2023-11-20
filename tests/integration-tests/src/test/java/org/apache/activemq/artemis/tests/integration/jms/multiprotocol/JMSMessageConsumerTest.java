@@ -99,6 +99,36 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test(timeout = 30000)
+   public void testQueueRoutingTypeMismatchCore() throws Exception {
+      testQueueRoutingTypeMismatch(createCoreConnection());
+   }
+
+   @Test(timeout = 30000)
+   public void testQueueRoutingTypeMismatchOpenWire() throws Exception {
+      testQueueRoutingTypeMismatch(createOpenWireConnection());
+   }
+
+   @Test(timeout = 30000)
+   public void testQueueRoutingTypeMismatchAMQP() throws Exception {
+      testQueueRoutingTypeMismatch(createConnection());
+   }
+
+   private void testQueueRoutingTypeMismatch(Connection connection) throws Exception {
+      server.getAddressSettingsRepository().getMatch("#").setAutoCreateQueues(false).setAutoCreateAddresses(false);
+      String name = getTopicName();
+      server.createQueue(new QueueConfiguration(name).setAddress(name).setRoutingType(RoutingType.MULTICAST).setAutoCreateAddress(true));
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         session.createConsumer(session.createQueue(name));
+         fail("Should have thrown a JMSException!");
+      } catch (JMSException e) {
+         // expected
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
    public void testPriorityAMQPProducerCoreConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createCoreConnection(); //CORE

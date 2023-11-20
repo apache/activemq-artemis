@@ -218,8 +218,8 @@ public class QueuesTest extends ConsoleTest {
       createQueueCommand.setUser(SERVER_ADMIN_USERNAME);
       createQueueCommand.setPassword(SERVER_ADMIN_PASSWORD);
       createQueueCommand.setName(queueName);
-      createQueueCommand.setMulticast(true);
-      createQueueCommand.setAnycast(false);
+      createQueueCommand.setMulticast(false);
+      createQueueCommand.setAnycast(true);
       createQueueCommand.setAutoCreateAddress(true);
       createQueueCommand.execute(new ActionContext());
 

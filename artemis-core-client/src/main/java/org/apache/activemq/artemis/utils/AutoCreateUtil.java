@@ -16,18 +16,21 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
+import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST;
 
 /**
  * Utility class to create queues 'automatically'.
@@ -58,6 +61,13 @@ public class AutoCreateUtil {
          } else {
             throw new ActiveMQException("Destination " + destAddress + " does not exist", QUEUE_DOES_NOT_EXIST);
          }
+      } else {
+         QueueQuery queueQueryResult = session.queueQuery(queueName);
+         // the routing type might be null if the server is very old in which case we default to the old behavior
+         RoutingType routingType = queueQueryResult.getRoutingType();
+         if (routingType != null && routingType != RoutingType.ANYCAST && !CompositeAddress.isFullyQualified(destAddress)) {
+            throw new ActiveMQException("Destination " + destAddress + " does not support JMS queue semantics", QUEUE_DOES_NOT_EXIST);
+         }
       }
    }
 
@@ -70,7 +80,7 @@ public class AutoCreateUtil {
     * @param filter to apply on the queue
     * @param durable if queue is durable
     */
-   public static void setRequiredQueueConfigurationIfNotSet(QueueConfiguration queueConfiguration, ClientSession.AddressQuery addressQuery, RoutingType routingType, SimpleString filter, boolean durable) {
+   public static void setRequiredQueueConfigurationIfNotSet(QueueConfiguration queueConfiguration, AddressQuery addressQuery, RoutingType routingType, SimpleString filter, boolean durable) {
       if (queueConfiguration.getRoutingType() == null) {
          queueConfiguration.setRoutingType(routingType);
       }
