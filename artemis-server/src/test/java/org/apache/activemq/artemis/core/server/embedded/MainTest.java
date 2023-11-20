@@ -16,15 +16,42 @@
  */
 package org.apache.activemq.artemis.core.server.embedded;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.junit.Test;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainTest {
 
-   @Test(expected = IOException.class, timeout = 5000)
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   /* Tests what happens when no workdir arg is given and the default can't
+    * be accessed as not in container env, expect to throw IOE. */
+   @Test(timeout = 5000)
    public void testNull() throws Exception {
-      Main.main(new String[]{});
+      try {
+         Main.main(new String[] {""});
+         fail("Should have thrown an exception");
+      } catch (IOException expected) {
+         // Expected
+         logger.info("Caught expected IOException: " + expected.getMessage());
+      } finally {
+         EmbeddedActiveMQ server = Main.getEmbeddedServer();
+         if (server != null) {
+            // Happens if the startup succeeds unexpectedly, but is
+            // interrupted before return, e.g during a test timeout.
+            // Clean up to avoid impacting later tests.
+            try {
+               server.stop();
+            } catch (Throwable t) {
+               // Log but suppress, allowing original issue be reported as failure.
+               logger.warn("Caught issue while stopping the unexpectedly-present server", t);
+            }
+         }
+      }
    }
 }
