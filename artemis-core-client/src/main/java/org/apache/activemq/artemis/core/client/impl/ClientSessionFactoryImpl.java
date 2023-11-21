@@ -119,6 +119,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final Executor closeExecutor;
 
+   private final Executor flowControlExecutor;
+
    private RemotingConnection connection;
 
    private final long retryInterval;
@@ -173,24 +175,27 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    final int reconnectAttempts,
                                    final Executor threadPool,
                                    final ScheduledExecutorService scheduledThreadPool,
+                                   final Executor flowControlPool,
                                    final List<Interceptor> incomingInterceptors,
                                    final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, new Pair<>(connectorConfig, null),
                locatorConfig, reconnectAttempts, threadPool,
-               scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
+               scheduledThreadPool,flowControlPool, incomingInterceptors, outgoingInterceptors);
    }
 
+
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
-      final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
-      final ServerLocatorConfig locatorConfig,
-      final int reconnectAttempts,
-      final Executor threadPool,
-      final ScheduledExecutorService scheduledThreadPool,
-      final List<Interceptor> incomingInterceptors,
-      final List<Interceptor> outgoingInterceptors) {
+                            final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
+                            final ServerLocatorConfig locatorConfig,
+                            final int reconnectAttempts,
+                            final Executor threadPool,
+                            final ScheduledExecutorService scheduledThreadPool,
+                            final Executor flowControlPool,
+                            final List<Interceptor> incomingInterceptors,
+                            final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, connectorConfig,
-         locatorConfig, reconnectAttempts, threadPool,
-         scheduledThreadPool, incomingInterceptors, outgoingInterceptors, null);
+           locatorConfig, reconnectAttempts, threadPool,
+           scheduledThreadPool, flowControlPool,incomingInterceptors, outgoingInterceptors, null);
    }
 
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
@@ -199,6 +204,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                           final int reconnectAttempts,
                           final Executor threadPool,
                           final ScheduledExecutorService scheduledThreadPool,
+                          final Executor flowControlPoll,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
                           final TransportConfiguration[] connectorConfigs) {
@@ -249,6 +255,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.threadPool = threadPool;
 
       orderedExecutorFactory = new OrderedExecutorFactory(threadPool);
+
+      flowControlExecutor = new OrderedExecutorFactory(flowControlPoll).getExecutor();
 
       closeExecutor = orderedExecutorFactory.getExecutor();
 
@@ -836,7 +844,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       SessionContext context = createSessionChannel(name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, clientID);
 
-      ClientSessionInternal session = new ClientSessionImpl(this, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, serverLocator.isBlockOnAcknowledge(), serverLocator.isAutoGroup(), ackBatchSize, serverLocator.getConsumerWindowSize(), serverLocator.getConsumerMaxRate(), serverLocator.getConfirmationWindowSize(), serverLocator.getProducerWindowSize(), serverLocator.getProducerMaxRate(), serverLocator.isBlockOnNonDurableSend(), serverLocator.isBlockOnDurableSend(), serverLocator.isCacheLargeMessagesClient(), serverLocator.getMinLargeMessageSize(), serverLocator.isCompressLargeMessage(), serverLocator.getCompressionLevel(), serverLocator.getInitialMessagePacketSize(), serverLocator.getGroupID(), context, orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor());
+      ClientSessionInternal session = new ClientSessionImpl(this, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, serverLocator.isBlockOnAcknowledge(), serverLocator.isAutoGroup(), ackBatchSize, serverLocator.getConsumerWindowSize(), serverLocator.getConsumerMaxRate(), serverLocator.getConfirmationWindowSize(), serverLocator.getProducerWindowSize(), serverLocator.getProducerMaxRate(), serverLocator.isBlockOnNonDurableSend(), serverLocator.isBlockOnDurableSend(), serverLocator.isCacheLargeMessagesClient(), serverLocator.getMinLargeMessageSize(), serverLocator.isCompressLargeMessage(), serverLocator.getCompressionLevel(), serverLocator.getInitialMessagePacketSize(), serverLocator.getGroupID(), context, orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), flowControlExecutor, orderedExecutorFactory.getExecutor());
 
       synchronized (sessions) {
          if (closed || !clientProtocolManager.isAlive()) {

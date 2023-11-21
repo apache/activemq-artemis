@@ -51,6 +51,8 @@ public final class ActiveMQClient {
 
    private static int globalScheduledThreadPoolSize;
 
+   private static  int flowControlThreadPoolSize;
+
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
    public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = ActiveMQDefaultConfiguration.getDefaultClientFailureCheckPeriod();
@@ -130,6 +132,8 @@ public final class ActiveMQClient {
 
    public static final int DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE = 5;
 
+   public static final int DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE = 10;
+
    public static final boolean DEFAULT_CACHE_LARGE_MESSAGE_CLIENT = false;
 
    public static final int DEFAULT_INITIAL_MESSAGE_PACKET_SIZE = 1500;
@@ -148,6 +152,8 @@ public final class ActiveMQClient {
 
    private static ExecutorService globalThreadPool;
 
+   private static ExecutorService flowControlThreadPool;
+
    private static boolean injectedPools = false;
 
    private static ScheduledExecutorService globalScheduledThreadPool;
@@ -165,6 +171,7 @@ public final class ActiveMQClient {
       if (injectedPools) {
          globalThreadPool = null;
          globalScheduledThreadPool = null;
+         flowControlThreadPool = null;
          injectedPools = false;
          return;
       }
@@ -194,6 +201,20 @@ public final class ActiveMQClient {
             throw new ActiveMQInterruptedException(e);
          } finally {
             globalScheduledThreadPool = null;
+         }
+      }
+
+      if (flowControlThreadPool != null) {
+         flowControlThreadPool.shutdownNow();
+         try {
+            if (!flowControlThreadPool.awaitTermination(time, unit)) {
+               flowControlThreadPool.shutdownNow();
+               ActiveMQClientLogger.LOGGER.unableToProcessScheduledlIn10Sec();
+            }
+         } catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         } finally {
+            flowControlThreadPool = null;
          }
       }
    }
@@ -230,6 +251,25 @@ public final class ActiveMQClient {
          }
       }
       return globalThreadPool;
+   }
+
+
+   public static synchronized ExecutorService getFlowControlThreadPool() {
+      if (flowControlThreadPool == null) {
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-flow-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
+
+         if (flowControlThreadPoolSize == -1) {
+            flowControlThreadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), factory);
+         } else {
+            flowControlThreadPool = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.flowControlThreadPoolSize, 60L, TimeUnit.SECONDS, factory);
+         }
+      }
+      return flowControlThreadPool;
    }
 
    public static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
@@ -288,6 +328,7 @@ public final class ActiveMQClient {
 
       ActiveMQClient.globalScheduledThreadPoolSize = globalScheduledThreadPoolSize;
       ActiveMQClient.globalThreadPoolSize = globalThreadMaxPoolSize;
+      ActiveMQClient.flowControlThreadPoolSize = DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE;
    }
 
    /**
