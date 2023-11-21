@@ -725,7 +725,7 @@ public class FederatedAddressTest extends FederatedTestBase {
       // Verify that federated queues have indeed been removed from both servers
       assertTrue(server0.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty());
       assertTrue(server1.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty());
-   
+
       // Close the connections
       connection0.close();
       connection1.close();
