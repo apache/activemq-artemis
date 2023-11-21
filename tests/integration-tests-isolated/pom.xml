@@ -206,6 +206,12 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-web</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>jakarta.management.j2ee</groupId>
          <artifactId>jakarta.management.j2ee-api</artifactId>
       </dependency>
