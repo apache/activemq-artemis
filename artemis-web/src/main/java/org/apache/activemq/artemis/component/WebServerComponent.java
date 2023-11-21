@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.component;
 
 import javax.servlet.DispatcherType;
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
@@ -47,14 +49,12 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class WebServerComponent implements ExternalComponent, WebServerComponentMarker {
 
@@ -175,7 +175,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       defaultHandler.setRootRedirectLocation(this.webServerConfig.rootRedirectLocation);
 
       if (this.webServerConfig.requestLog != null) {
-         handlers.addHandler(getLogHandler());
+         server.setRequestLog(getRequestLog());
       }
 
       if (this.webServerConfig.webContentEnabled != null &&
@@ -269,7 +269,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       return connector;
    }
 
-   private RequestLogHandler getLogHandler() {
+   private RequestLog getRequestLog() {
       RequestLogWriter requestLogWriter = new RequestLogWriter();
       CustomRequestLog requestLog;
 
@@ -305,9 +305,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          requestLog.setIgnorePaths(ignorePaths);
       }
 
-      RequestLogHandler requestLogHandler = new RequestLogHandler();
-      requestLogHandler.setRequestLog(requestLog);
-      return requestLogHandler;
+      return requestLog;
    }
 
    private File getLibFolder() {

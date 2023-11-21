@@ -1,0 +1,185 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.tests.integration.isolated.web;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.CharsetUtil;
+import org.apache.activemq.artemis.component.WebServerComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.dto.BindingDTO;
+import org.apache.activemq.artemis.dto.RequestLogDTO;
+import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * This test leaks a thread named org.eclipse.jetty.util.RolloverFileOutputStream which is why it is isolated now.
+ * In the future Jetty might fix this.
+ */
+public class WebServerComponentTest extends Assert {
+
+   static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
+
+   private List<ActiveMQComponent> testedComponents;
+
+   @Before
+   public void setupNetty() throws URISyntaxException {
+      System.setProperty("jetty.base", "./target");
+      // Configure the client.
+      testedComponents = new ArrayList<>();
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      System.clearProperty("jetty.base");
+      for (ActiveMQComponent c : testedComponents) {
+         c.stop();
+      }
+      testedComponents.clear();
+   }
+
+   @Test
+   public void testRequestLog() throws Exception {
+      String requestLogFileName = "target/httpRequest.log";
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
+      RequestLogDTO requestLogDTO = new RequestLogDTO();
+      requestLogDTO.filename = requestLogFileName;
+      webServerDTO.setRequestLog(requestLogDTO);
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+
+      final int port = webServerComponent.getPort();
+      // Make the connection attempt.
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      Channel ch = getChannel(port, clientHandler);
+
+      URI uri = new URI(URL);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertEquals("12345", clientHandler.body.toString());
+      assertEquals(clientHandler.body.toString(), "12345");
+      assertNull(clientHandler.serverHeader);
+      // Wait for the server to close the connection.
+      ch.close();
+      ch.eventLoop().shutdownGracefully();
+      ch.eventLoop().awaitTermination(5, TimeUnit.SECONDS);
+      Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+      File requestLog = new File(requestLogFileName);
+      assertTrue(requestLog.exists());
+      boolean logEntryFound = false;
+      try (BufferedReader reader = new BufferedReader(new FileReader(requestLog))) {
+         String line;
+         while ((line = reader.readLine()) != null) {
+            if (line.contains("\"GET /WebServerComponentTest.txt HTTP/1.1\" 200 5")) {
+               logEntryFound = true;
+               break;
+            }
+         }
+      }
+      assertTrue(logEntryFound);
+   }
+
+   private Channel getChannel(int port, ClientHandler clientHandler) throws InterruptedException {
+      EventLoopGroup group = new NioEventLoopGroup();
+      Bootstrap bootstrap = new Bootstrap();
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      return bootstrap.connect("localhost", port).sync().channel();
+   }
+
+   class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
+
+      private CountDownLatch latch;
+      private StringBuilder body = new StringBuilder();
+      private String serverHeader;
+
+      ClientHandler(CountDownLatch latch) {
+         this.latch = latch;
+      }
+
+      @Override
+      public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
+         if (msg instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse) msg;
+            serverHeader = response.headers().get("Server");
+         } else if (msg instanceof HttpContent) {
+            HttpContent content = (HttpContent) msg;
+            body.append(content.content().toString(CharsetUtil.UTF_8));
+            if (msg instanceof LastHttpContent) {
+               latch.countDown();
+            }
+         }
+      }
+
+      @Override
+      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+         cause.printStackTrace();
+         ctx.close();
+      }
+   }
+}
