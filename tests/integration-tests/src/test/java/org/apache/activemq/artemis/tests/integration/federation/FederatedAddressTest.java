@@ -24,6 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -32,6 +33,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
@@ -650,6 +652,83 @@ public class FederatedAddressTest extends FederatedTestBase {
          producer2.send(session2.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
       }
+   }
+
+   @Test
+   public void testFederatedQueueRemovalOnSubscriberLeave() throws Exception {
+      String address = getName();
+
+      ActiveMQServer server0 = getServer(0);
+      ActiveMQServer server1 = getServer(1);
+
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server1", address, "server0");
+      server0.getConfiguration().getFederationConfigurations().add(federationConfiguration);
+      server0.getFederationManager().deploy();
+
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressDownstreamFederationConfiguration("server0", address, "server1");
+      server1.getConfiguration().getFederationConfigurations().add(federationConfiguration2);
+      server1.getFederationManager().deploy();
+
+      ConnectionFactory cf1 = getCF(1);
+      ConnectionFactory cf0 = getCF(0);
+
+      Connection connection1 = cf1.createConnection();
+      Connection connection0 = cf0.createConnection();
+
+      connection1.start();
+      connection0.start();
+
+      // Create sessions
+      Session session0 = connection0.createSession();
+      Session session1 = connection1.createSession();
+
+      // Create the topic on server0
+      Topic topic = session0.createTopic(address);
+
+      // Create message producer and consumer
+      MessageProducer producer = session0.createProducer(topic);
+      MessageConsumer consumer0 = session0.createConsumer(topic);
+      MessageConsumer consumer1 = session1.createConsumer(topic);
+
+      SimpleString sAddress = SimpleString.toSimpleString(address);
+
+      // Wait for federated queues to be created
+      Wait.waitFor(() -> server0.getPostOffice().getBindingsForAddress(sAddress).getBindings().size() > 1, 1000, 100);
+      Wait.waitFor(() -> server1.getPostOffice().getBindingsForAddress(sAddress).getBindings().size() > 1, 1000, 100);
+
+      // Send test message
+      String text = "hello";
+      producer.send(session0.createTextMessage(text));
+
+      // Wait for messages to be received on the federated server
+      Message message = consumer1.receive(1000);
+      assertNotNull(message);
+
+      // Verify that the content of the messages is the same
+      assertTrue(message instanceof TextMessage);
+      assertEquals(((TextMessage) message).getText(), text);
+
+      // Close both subscribers
+      consumer0.close();
+      consumer1.close();
+
+      // Start queue garbage collection on both servers
+      server0.getPostOffice().startExpiryScanner();
+      server1.getPostOffice().startExpiryScanner();
+      server0.getPostOffice().startAddressQueueScanner();
+      server1.getPostOffice().startAddressQueueScanner();
+
+      // Wait for federated queues to have been removed
+      Wait.waitFor(() -> server0.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty(), 1000, 100);
+      Wait.waitFor(() -> server1.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty(), 1000, 100);
+
+      // Verify that federated queues have indeed been removed from both servers
+      assertTrue(server0.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty());
+      assertTrue(server1.getPostOffice().getBindingsForAddress(sAddress).getBindings().isEmpty());
+   
+      // Close the connections
+      connection0.close();
+      connection1.close();
    }
 
    private Message createTextMessage(Session session1, String group) throws JMSException {
