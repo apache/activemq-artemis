@@ -36,6 +36,10 @@ public class TransportConstants {
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
+   public static final String SSL_AUTO_RELOAD_PROP_NAME = "sslAutoReload";
+
+   public static final boolean DEFAULT_SSL_AUTO_RELOAD = false;
+
    public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
 
    public static final String HTTP_CLIENT_IDLE_PROP_NAME = "httpClientIdleTime";
@@ -396,6 +400,7 @@ public class TransportConstants {
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.SSL_AUTO_RELOAD_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME);

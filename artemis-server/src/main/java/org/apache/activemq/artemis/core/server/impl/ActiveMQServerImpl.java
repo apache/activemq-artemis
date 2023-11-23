@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -63,6 +64,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -202,6 +204,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
@@ -220,6 +223,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SSL_AUTO_RELOAD;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_AUTO_RELOAD_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME;
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 /**
@@ -3361,6 +3368,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                PropertiesLoader.reload();
             });
          }
+
+         // track tls resources on acceptors and reload via remoting server
+         configuration.getAcceptorConfigurations().forEach((acceptorConfig) -> {
+            Map<String, Object> config = acceptorConfig.getCombinedParams();
+            if (ConfigurationHelper.getBooleanProperty(SSL_AUTO_RELOAD_PROP_NAME, DEFAULT_SSL_AUTO_RELOAD, config)) {
+               URL pathUrl = fileUrlFrom(config.get(KEYSTORE_PATH_PROP_NAME));
+               if (pathUrl != null) {
+                  reloadManager.addCallback(pathUrl, (uri) -> {
+                     reloadNamedAcceptor(acceptorConfig.getName());
+                  });
+               }
+               pathUrl = fileUrlFrom(config.get(TRUSTSTORE_PATH_PROP_NAME));
+               if (pathUrl != null) {
+                  reloadManager.addCallback(pathUrl, (uri) -> {
+                     reloadNamedAcceptor(acceptorConfig.getName());
+                  });
+               }
+            }
+         });
       }
 
       if (hasBrokerPlugins()) {
@@ -3372,6 +3398,26 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       return true;
+   }
+
+   private void reloadNamedAcceptor(String name) {
+      // preference for Control to capture consistent audit logging
+      if (managementService != null) {
+         Object targetControl = managementService.getResource(ResourceNames.ACCEPTOR + name);
+         if (targetControl instanceof AcceptorControl) {
+            ((AcceptorControl) targetControl).reload();
+         }
+      }
+   }
+
+   private URL fileUrlFrom(Object o) {
+      if (o instanceof String) {
+         try {
+            return new File((String) o).toURI().toURL();
+         } catch (MalformedURLException ignored) {
+         }
+      }
+      return null;
    }
 
    @Override
