@@ -1969,7 +1969,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          AddressSettings settings = addressSettingsRepository.getMatch(queue.getAddress().toString());
          if (!queue.isInternalQueue() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings))) {
             // we only reap queues on the initialCheck if they are actually empty
-            boolean validInitialCheck = initialCheck && queue.getMessageCount() == 0 && !queue.getPagingStore().isPaging();
+            PagingStore queuePagingStore = queue.getPagingStore();
+            boolean isPaging = queuePagingStore != null && queuePagingStore.isPaging();
+            boolean validInitialCheck = initialCheck && queue.getMessageCount() == 0 && !isPaging;
             if (validInitialCheck || queue.isSwept()) {
                if (logger.isDebugEnabled()) {
                   if (initialCheck) {
