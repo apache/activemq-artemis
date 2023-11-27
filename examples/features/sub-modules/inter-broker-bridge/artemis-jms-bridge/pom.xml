@@ -59,6 +59,10 @@ under the License.
                <groupId>org.apache.geronimo.specs</groupId>
                <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
             </exclusion>
+            <exclusion>
+               <groupId>org.slf4j</groupId>
+               <artifactId>slf4j-api</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
