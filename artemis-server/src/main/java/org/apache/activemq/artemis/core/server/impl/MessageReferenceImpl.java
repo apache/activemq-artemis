@@ -33,17 +33,21 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public class MessageReferenceImpl extends AbstractProtocolReference implements MessageReference, Runnable {
 
-   private static final MessageReferenceComparatorByID idComparator = new MessageReferenceComparatorByID();
+   private static final MessageReferenceComparatorSequence sequenceComparator = new MessageReferenceComparatorSequence();
 
-   public static Comparator<MessageReference> getIDComparator() {
-      return idComparator;
+   public static Comparator<MessageReference> getSequenceComparator() {
+      return sequenceComparator;
    }
 
-   private static class MessageReferenceComparatorByID implements Comparator<MessageReference> {
+   private static class MessageReferenceComparatorSequence implements Comparator<MessageReference> {
 
       @Override
       public int compare(MessageReference o1, MessageReference o2) {
-         long value = o2.getMessage().getMessageID() - o1.getMessage().getMessageID();
+         // ID is assigned to the producer on send via the message store and order can depend on producer interleaving
+         // and transaction completion order.
+         // ID gives a relative producer view order but not a total queue order.
+         // each queue needs to track its own sequence to be able to preserve queue order wit rollback, redelivery and cancel
+         long value = o2.getSequence() - o1.getSequence();
          if (value > 0) {
             return 1;
          } else if (value < 0) {
@@ -100,6 +104,7 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
 
       this.queue = queue;
 
+      sequence = other.sequence;
    }
 
    public MessageReferenceImpl(final Message message, final Queue queue) {

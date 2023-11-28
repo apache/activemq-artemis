@@ -239,6 +239,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             Message message = session.createTextMessage("hello " + i);
             message.setIntProperty("i", i);
+            message.setStringProperty("text", "hello " + i);
             producer.send(message);
          }
       }
@@ -332,10 +333,12 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          connection.start();
 
          int start = rollback ? 5 : 10;
+         logger.debug("start is at {}, since rollback={}", start, rollback);
 
          for (int i = start; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
             Assert.assertNotNull(message);
+            logger.debug("Received message {}", message.getText());
             Assert.assertEquals("hello " + i, message.getText());
             Assert.assertEquals(i, message.getIntProperty("i"));
          }

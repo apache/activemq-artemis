@@ -1996,7 +1996,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                if (sub != null) {
                   sub.reloadPreparedACK(tx, encoding.position);
-                  referencesToAck.add(new QueryPagedReferenceImpl(encoding.position, null, sub));
+                  QueryPagedReferenceImpl reference = new QueryPagedReferenceImpl(encoding.position, null, sub);
+                  referencesToAck.add(reference);
+                  if (sub.getQueue() != null) {
+                     sub.getQueue().reloadSequence(reference);
+                  }
                } else {
                   ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
                }

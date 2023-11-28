@@ -216,7 +216,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences = new MpscUnboundedArrayQueue<>(8192);
 
    // This is where messages are stored
-   protected final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getIDComparator());
+   protected final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getSequenceComparator());
 
    private NodeStore<MessageReference> nodeStore;
 
@@ -320,6 +320,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
    private final AtomicLong messagesAddedSnapshot = new AtomicLong(0);
+
+   private final AtomicLong queueSequence = new AtomicLong(0);
 
    private ScheduledFuture slowConsumerReaperFuture;
 
@@ -1241,6 +1243,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (!ref.isPaged()) {
          incrementMesssagesAdded();
       }
+   }
+
+   @Override
+   public void reloadSequence(final MessageReference ref) {
+      ref.setSequence(queueSequence.incrementAndGet());
    }
 
    @Override
@@ -2984,6 +2991,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
+      ref.setSequence(queueSequence.incrementAndGet());
       messageReferences.addTail(ref, getPriority(ref));
       pendingMetrics.incrementMetrics(ref);
       enforceRing(false);
@@ -3979,6 +3987,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                reference.setInDelivery(true);
                proceedDeliver(consumer, reference);
                consumers.reset();
+               reference.setSequence(queueSequence.incrementAndGet());
                return true;
             }
 
