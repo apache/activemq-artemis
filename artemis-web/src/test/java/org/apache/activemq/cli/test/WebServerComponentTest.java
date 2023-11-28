@@ -89,6 +89,7 @@ import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.junit.After;
@@ -175,6 +176,28 @@ public class WebServerComponentTest extends Assert {
       ch.close();
       ch.eventLoop().shutdownNow();
       Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testThreadPool() throws Exception {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
+      webServerDTO.maxThreads = 75;
+      webServerDTO.minThreads = 50;
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+      ThreadPool.SizedThreadPool jettyPool = (ThreadPool.SizedThreadPool) webServerComponent.getWebServer().getThreadPool();
+      assertEquals((long) webServerDTO.minThreads, jettyPool.getMinThreads());
+      assertEquals((long) webServerDTO.maxThreads, jettyPool.getMaxThreads());
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
    }
