@@ -392,6 +392,10 @@ public class RoutingContextTest {
       }
 
       @Override
+      public void reloadSequence(MessageReference ref) {
+      }
+
+      @Override
       public void addTail(MessageReference ref) {
 
       }

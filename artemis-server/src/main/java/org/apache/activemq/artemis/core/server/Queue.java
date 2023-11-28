@@ -199,6 +199,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void reload(MessageReference ref);
 
+   void reloadSequence(MessageReference ref);
+
    default void flushOnIntermediate(Runnable runnable) {
    }
 

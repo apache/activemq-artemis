@@ -838,6 +838,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void reloadSequence(MessageReference ref) {
+      }
+
+      @Override
       public boolean isEnabled() {
          return false;
       }

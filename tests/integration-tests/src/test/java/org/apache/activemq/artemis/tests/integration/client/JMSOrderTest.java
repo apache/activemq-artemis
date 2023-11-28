@@ -195,6 +195,93 @@ public class JMSOrderTest extends JMSTestBase {
 
    }
 
+   protected void sendToAmqQueueOutOfOrder(int totalCount) throws Exception {
+      Connection activemqConnection = protocolCF.createConnection();
+      Session amqSession = activemqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue amqTestQueue = amqSession.createQueue(name.getMethodName());
+
+      for (int i = 1; i <= totalCount; i += 2) {
+         Session sessionA = activemqConnection.createSession(true, Session.SESSION_TRANSACTED);
+         Session sessionB = activemqConnection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer pA = sessionA.createProducer(amqTestQueue);
+         MessageProducer pB = sessionB.createProducer(amqTestQueue);
+
+         TextMessage message = sessionA.createTextMessage();
+         // this is sent/committed second
+         message.setText("TextMessage: " + i + 1);
+         message.setIntProperty("nr", i + 1);
+         pA.send(message);
+
+         message = sessionB.createTextMessage();
+         message.setText("TextMessage: " + i);
+         message.setIntProperty("nr", i);
+         pB.send(message);
+
+         // commit in reverse to get sequenceId out of order on the queue.
+         sessionB.commit();
+         sessionA.commit();
+
+         sessionA.close();
+         sessionB.close();
+      }
+      activemqConnection.close();
+   }
+
+
+   @Test(timeout = 30000)
+   public void testReceiveOutOfOrderProducers() throws Exception {
+      Connection connection = protocolCF.createConnection();
+      try {
+         connection.start();
+
+         int totalCount = 4;
+         int consumeBeforeRollback = 2;
+
+         sendToAmqQueueOutOfOrder(totalCount);
+
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(name.getMethodName());
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         List<Integer> messageNumbers = new ArrayList<>();
+
+         for (int i = 1; i <= consumeBeforeRollback; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull(message);
+            assertEquals("Unexpected message number", i, message.getIntProperty("nr"));
+            messageNumbers.add(message.getIntProperty("nr"));
+         }
+
+         for (int i = 0; i < messageNumbers.size(); i++) {
+            assertEquals("Unexpected order of messages: " + messageNumbers, Integer.valueOf(i + 1), messageNumbers.get(i));
+         }
+         session.close();
+
+         session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         queue = session.createQueue(name.getMethodName());
+         consumer = session.createConsumer(queue);
+
+         // Consume again.. the previously consumed messages should get delivered
+         // again after the rollback and then the remainder should follow
+         messageNumbers = new ArrayList<>();
+         for (int i = 1; i <= totalCount; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull("Failed to receive message: " + i, message);
+            int msgNum = message.getIntProperty("nr");
+            messageNumbers.add(msgNum);
+         }
+
+         session.commit();
+
+         assertEquals("Unexpected size of list", totalCount, messageNumbers.size());
+         for (int i = 0; i < messageNumbers.size(); i++) {
+            assertEquals("Unexpected order of messages: " + messageNumbers, Integer.valueOf(i + 1), messageNumbers.get(i));
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
    @Test
    public void testMultipleConsumersRollback() throws Exception {
       internalMultipleConsumers(true);

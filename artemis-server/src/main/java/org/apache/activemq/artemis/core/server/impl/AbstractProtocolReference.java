@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 public abstract class AbstractProtocolReference extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
    private HashMap<Class, Object> protocolDataMap;
+   protected volatile long sequence = 0;
 
    @Override
    public <T> T getProtocolData(Class<T> classType) {
@@ -45,5 +46,16 @@ public abstract class AbstractProtocolReference extends LinkedListImpl.Node<Mess
       }
       protocolDataMap.put(classType, protocolData);
    }
+
+   @Override
+   public long getSequence() {
+      return sequence;
+   }
+
+   @Override
+   public void setSequence(long nextSequence) {
+      this.sequence = nextSequence;
+   }
+
 
 }

@@ -218,4 +218,14 @@ public class GroupFirstMessageReference implements MessageReference {
       return messageReference.getPersistentSize();
    }
 
+   @Override
+   public long getSequence() {
+      return messageReference.getSequence();
+   }
+
+   @Override
+   public void setSequence(long nextSequence) {
+      messageReference.setSequence(nextSequence);
+   }
+
 }

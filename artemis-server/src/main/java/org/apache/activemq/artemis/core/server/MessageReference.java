@@ -142,4 +142,7 @@ public interface MessageReference {
     */
    long getPersistentSize() throws ActiveMQException;
 
+   long getSequence();
+
+   void setSequence(long nextSequence);
 }

@@ -53,6 +53,10 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void reloadSequence(MessageReference ref) {
+   }
+
+   @Override
    public boolean isEnabled() {
       return false;
    }
