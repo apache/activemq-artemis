@@ -95,6 +95,15 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    public Boolean webContentEnabled;
 
+   @XmlAttribute
+   public Integer maxThreads = 200;
+
+   @XmlAttribute
+   public Integer minThreads = Math.min(8, maxThreads);
+
+   @XmlAttribute
+   public Integer idleThreadTimeout = 60000;
+
    public String getPath() {
       return path;
    }
@@ -133,6 +142,30 @@ public class WebServerDTO extends ComponentDTO {
 
    public void setWebContentEnabled(Boolean webContentEnabled) {
       this.webContentEnabled = webContentEnabled;
+   }
+
+   public Integer getMaxThreads() {
+      return maxThreads;
+   }
+
+   public void setMaxThreads(Integer maxThreads) {
+      this.maxThreads = maxThreads;
+   }
+
+   public Integer getMinThreads() {
+      return minThreads;
+   }
+
+   public void setMinThreads(Integer minThreads) {
+      this.minThreads = minThreads;
+   }
+
+   public Integer getIdleThreadTimeout() {
+      return idleThreadTimeout;
+   }
+
+   public void setIdleThreadTimeout(Integer idleThreadTimeout) {
+      this.idleThreadTimeout = idleThreadTimeout;
    }
 
    public List<BindingDTO> getBindings() {

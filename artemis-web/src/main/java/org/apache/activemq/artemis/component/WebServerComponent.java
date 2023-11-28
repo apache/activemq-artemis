@@ -52,6 +52,7 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       }
       ActiveMQWebLogger.LOGGER.startingEmbeddedWebServer();
 
-      server = new Server();
+      server = new Server(new QueuedThreadPool(webServerConfig.maxThreads, webServerConfig.minThreads, webServerConfig.idleThreadTimeout));
       handlers = new HandlerList();
 
       HttpConfiguration httpConfiguration = new HttpConfiguration();
@@ -410,5 +411,9 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
    public List<Pair<WebAppContext, String>> getWebContextData() {
       return this.webContextData;
+   }
+
+   public Server getWebServer() {
+      return server;
    }
 }

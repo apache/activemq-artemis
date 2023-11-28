@@ -35,6 +35,14 @@ The location to redirect the requests with the root target.
 webContentEnabled::
 Whether or not the content included in the web folder of the home and the instance directories is accessible.
 Default is `false`.
+maxThreads::
+The maximum number of threads the embedded web server can create to service HTTP requests.
+Default is `200`.
+minThreads::
+The minimum number of threads the embedded web server will hold to service HTTP requests.
+Default is `8` or the value of `maxThreads` if it is lower.
+idleThreadTimeout::
+The time to wait before terminating an idle thread from the embedded web server. Measured in milliseconds. Default is `60000`.
 
 === Binding
 
