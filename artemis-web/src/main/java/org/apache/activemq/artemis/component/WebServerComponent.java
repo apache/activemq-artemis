@@ -174,7 +174,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       defaultHandler.setServeIcon(false);
       defaultHandler.setRootRedirectLocation(this.webServerConfig.rootRedirectLocation);
 
-      if (this.webServerConfig.requestLog != null) {
+      if (this.webServerConfig.requestLog != null &&
+         this.webServerConfig.requestLog.filename != null) {
          server.setRequestLog(getRequestLog());
       }
 

@@ -147,6 +147,7 @@ public class WebServerDTO extends ComponentDTO {
    public WebServerDTO() {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
       bindings = new ArrayList<>();
+      requestLog = new RequestLogDTO();
    }
 
    public List<BindingDTO> getAllBindings() {

@@ -156,6 +156,31 @@ public class WebServerDTOConfigTest {
       testSetWebBindingAppProperties(webServer, BINDING_TEST_NAME, APP_TEST_URL);
    }
 
+   @Test
+   public void testSetRequestLogProperties() throws Throwable {
+      WebServerDTO webServer = new WebServerDTO();
+      Properties properties = new Properties();
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.filename", "filenameTest");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.append", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.extended", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.filenameDateFormat", "filenameDateFormatTest");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.retainDays", "3");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.ignorePaths", "ignorePathTest0,ignorePathTest1,ignorePathTest2");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog." + INVALID_ATTRIBUTE_NAME, "true");
+      Configuration configuration = new ConfigurationImpl();
+      String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
+      configuration.parsePrefixedProperties(webServer, "system-" + systemWebPropertyPrefix, properties, systemWebPropertyPrefix);
+
+      Assert.assertEquals("filenameTest", webServer.getRequestLog().getFilename());
+      Assert.assertEquals(true, webServer.getRequestLog().getAppend());
+      Assert.assertEquals(true, webServer.getRequestLog().getExtended());
+      Assert.assertEquals("filenameDateFormatTest", webServer.getRequestLog().getFilenameDateFormat());
+      Assert.assertEquals(Integer.valueOf(3), webServer.getRequestLog().getRetainDays());
+      Assert.assertEquals("ignorePathTest0,ignorePathTest1,ignorePathTest2", webServer.getRequestLog().getIgnorePaths());
+
+      testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "requestLog.");
+   }
+
    private void testSetWebBindingAppProperties(WebServerDTO webServer, String bindingName, String appName) throws Throwable {
       Properties properties = new Properties();
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".apps." + appName + ".url", APP_TEST_URL);
