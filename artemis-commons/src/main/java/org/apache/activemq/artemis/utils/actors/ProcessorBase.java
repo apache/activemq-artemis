@@ -98,12 +98,17 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    public void shutdown(long timeout, TimeUnit unit) {
-      requestedShutdown = true;
+
+      requestShutdown();
 
       if (!inHandler()) {
          // if it's in handler.. we just return
          flush(timeout, unit);
       }
+   }
+
+   public void requestShutdown() {
+      requestedShutdown = true;
    }
 
    public void yield() {

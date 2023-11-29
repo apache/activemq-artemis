@@ -761,7 +761,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       final ThresholdActor<Command> localVisibleActor = openWireActor;
       if (localVisibleActor != null) {
-         localVisibleActor.shutdown(() -> doFail(me, message));
+         localVisibleActor.requestShutdown();
+      }
+
+      if (executor != null) {
+         executor.execute(() -> doFail(me, message));
       } else {
          doFail(me, message);
       }
