@@ -63,7 +63,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    @Override
    public Message receive() {
       try {
-         return context.setLastMessage(this, consumer.receive());
+         return context.setLastMessage(consumer.receive());
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
@@ -72,7 +72,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    @Override
    public Message receive(long timeout) {
       try {
-         return context.setLastMessage(this, consumer.receive(timeout));
+         return context.setLastMessage(consumer.receive(timeout));
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
@@ -81,7 +81,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    @Override
    public Message receiveNoWait() {
       try {
-         return context.setLastMessage(this, consumer.receiveNoWait());
+         return context.setLastMessage(consumer.receiveNoWait());
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
@@ -100,7 +100,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public <T> T receiveBody(Class<T> c) {
       try {
          Message message = consumer.receive();
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
+         context.setLastMessage(message);
          return message == null ? null : message.getBody(c);
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
@@ -111,7 +111,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public <T> T receiveBody(Class<T> c, long timeout) {
       try {
          Message message = consumer.receive(timeout);
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
+         context.setLastMessage(message);
          return message == null ? null : message.getBody(c);
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
@@ -122,7 +122,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public <T> T receiveBodyNoWait(Class<T> c) {
       try {
          Message message = consumer.receiveNoWait();
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
+         context.setLastMessage(message);
          return message == null ? null : message.getBody(c);
       } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
@@ -139,7 +139,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
 
       @Override
       public void onMessage(Message message) {
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
+         context.setLastMessage(message);
 
          context.getThreadAwareContext().setCurrentThread(false);
          try {
