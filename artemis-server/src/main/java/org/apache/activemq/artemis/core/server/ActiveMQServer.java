@@ -732,6 +732,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void destroyDivert(SimpleString name) throws Exception;
 
+   void destroyDivert(SimpleString name, boolean deleteFromStorage) throws Exception;
+
    ConnectorsService getConnectorsService();
 
    boolean deployBridge(BridgeConfiguration config) throws Exception;

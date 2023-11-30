@@ -1734,6 +1734,34 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCreateAndDestroyDivertServerRestart() throws Exception {
+      String address = RandomUtil.randomString();
+      String name = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      assertEquals(0, serverControl.getDivertNames().length);
+
+      serverControl.createDivert(name.toString(), RandomUtil.randomString(), address, RandomUtil.randomString(), true, null, null);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      assertEquals(1, serverControl.getDivertNames().length);
+
+      serverControl.destroyDivert(name.toString());
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      assertEquals(0, serverControl.getDivertNames().length);
+
+      server.stop();
+
+      server.start();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      assertEquals(0, serverControl.getDivertNames().length);
+   }
+
+   @Test
    public void testCreateAndUpdateDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();

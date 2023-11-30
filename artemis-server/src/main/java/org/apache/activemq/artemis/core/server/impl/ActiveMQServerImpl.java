@@ -2970,6 +2970,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void destroyDivert(SimpleString name) throws Exception {
+      destroyDivert(name, false);
+   }
+
+   @Override
+   public void destroyDivert(SimpleString name, boolean deleteFromStorage) throws Exception {
       Binding binding = postOffice.getBinding(name);
       if (binding == null) {
          throw ActiveMQMessageBundle.BUNDLE.noBindingForDivert(name);
@@ -2982,6 +2987,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (((DivertBinding)binding).getDivert().getTransformer() != null) {
          getServiceRegistry().removeDivertTransformer(name.toString());
+      }
+
+      if (deleteFromStorage) {
+         storageManager.deleteDivertConfiguration(name.toString());
       }
    }
 
