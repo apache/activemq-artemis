@@ -4623,6 +4623,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configuration.setAddressConfigurations(config.getAddressConfigurations());
       configuration.setQueueConfigs(config.getQueueConfigs());
       configuration.setBridgeConfigurations(config.getBridgeConfigurations());
+      configuration.setConnectorConfigurations(config.getConnectorConfigurations());
       configurationReloadDeployed.set(false);
       if (isActive()) {
          configuration.parseProperties(propertiesFileUrl);
