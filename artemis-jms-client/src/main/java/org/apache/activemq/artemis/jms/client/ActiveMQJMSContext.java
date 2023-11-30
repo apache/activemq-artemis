@@ -582,8 +582,8 @@ public class ActiveMQJMSContext implements JMSContext {
    /**
     * this is to ensure Context.acknowledge would work on ClientACK
     */
-   Message setLastMessage(final JMSConsumer consumer, final Message lastMessageReceived) {
-      if (sessionMode == CLIENT_ACKNOWLEDGE) {
+   Message setLastMessage(final Message lastMessageReceived) {
+      if (sessionMode == CLIENT_ACKNOWLEDGE && lastMessageReceived != null) {
          lastMessagesWaitingAck = lastMessageReceived;
       }
       return lastMessageReceived;

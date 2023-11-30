@@ -512,6 +512,50 @@ public class JmsContextTest extends JMSTestBase {
    }
 
    @Test
+   public void receiveNullAckTest() throws Exception {
+      // Create JMSContext with CLIENT_ACKNOWLEDGE
+
+      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE)) {
+         int numMessages = 10;
+
+         TextMessage textMessage = null;
+
+         // Create JMSConsumer from JMSContext
+         JMSConsumer consumer = context.createConsumer(queue1);
+
+         // Create JMSProducer from JMSContext
+         JMSProducer producer = context.createProducer();
+
+         // send messages
+         for (int i = 0; i < numMessages; i++) {
+            String message = "text message " + i;
+            textMessage = context.createTextMessage(message);
+            textMessage.setStringProperty("COM_SUN_JMS_TESTNAME", "recoverAckTest" + i);
+            producer.send(queue1, textMessage);
+         }
+
+         // receive messages but do not acknowledge
+         for (int i = 0; i < numMessages; i++) {
+            textMessage = (TextMessage) consumer.receive(5000);
+            assertNotNull(textMessage);
+         }
+
+         assertNull(consumer.receiveNoWait());
+
+         // Acknowledge all messages
+         context.acknowledge();
+      }
+
+      // doing this check with another context / consumer to make sure it was acked.
+      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE)) {
+         // Create JMSConsumer from JMSContext
+         JMSConsumer consumer = context.createConsumer(queue1);
+
+         assertNull(consumer.receiveNoWait());
+      }
+   }
+
+   @Test
    public void bytesMessage() throws Exception {
       context = cf.createContext();
       try {
