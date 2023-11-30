@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
@@ -184,6 +185,42 @@ public class RedeployTest extends ActiveMQTestBase {
             Assert.assertNotNull("Divert wasn't redeployed accordingly", consumer.receive(5000));
          }
 
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployConnector() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-connector.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-connector-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+         Assert.assertEquals("127.0.0.1", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis").getParams().get(TransportConstants.HOST_PROP_NAME));
+         Assert.assertEquals("61616", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis").getParams().get(TransportConstants.PORT_PROP_NAME));
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         Assert.assertEquals("127.0.0.2", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis").getParams().get(TransportConstants.HOST_PROP_NAME));
+         Assert.assertEquals("61617", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis").getParams().get(TransportConstants.PORT_PROP_NAME));
+         Assert.assertEquals("127.0.0.3", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis2").getParams().get(TransportConstants.HOST_PROP_NAME));
+         Assert.assertEquals("61618", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis2").getParams().get(TransportConstants.PORT_PROP_NAME));
       } finally {
          embeddedActiveMQ.stop();
       }
