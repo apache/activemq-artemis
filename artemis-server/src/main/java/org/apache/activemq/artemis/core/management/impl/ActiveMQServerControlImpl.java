@@ -3722,7 +3722,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.destroyDivert(SimpleString.toSimpleString(name));
+         server.destroyDivert(SimpleString.toSimpleString(name), true);
       } finally {
          blockOnIO();
       }

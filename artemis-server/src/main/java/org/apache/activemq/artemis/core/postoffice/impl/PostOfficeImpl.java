@@ -637,7 +637,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, address);
       if (getBinding(internalDivertName) != null) {
-         server.destroyDivert(internalDivertName);
+         server.destroyDivert(internalDivertName, true);
       }
 
       SimpleString internalAnycastQueueName = ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, address, RoutingType.ANYCAST);
