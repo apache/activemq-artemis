@@ -47,6 +47,8 @@ public class MemoryAssertions {
       assertMemory(checkLeak, 0, ProtonServerReceiverContext.class.getName());
       assertMemory(checkLeak, 0, ActiveMQProtonRemotingConnection.class.getName());
       assertMemory(checkLeak, 0, RemotingConnectionImpl.class.getName());
+      assertMemory(checkLeak, 0, OpenWireConnection.class.getName());
+      assertMemory(checkLeak, 0, ActiveMQProtonRemotingConnection.class.getName());
       assertMemory(checkLeak, 0, ServerSessionImpl.class.getName());
       assertMemory(checkLeak, 0, AMQPSessionContext.class.getName());
       assertMemory(checkLeak, 0, ServerConsumerImpl.class.getName());

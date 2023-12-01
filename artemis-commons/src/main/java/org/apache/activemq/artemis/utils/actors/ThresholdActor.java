@@ -41,7 +41,6 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
    private final ActorListener<T> listener;
    private final Runnable overThreshold;
    private final Runnable clearThreshold;
-   private volatile Runnable shutdownTask;
 
    public ThresholdActor(Executor parent, ActorListener<T> listener, int maxSize, ToIntFunction<T> sizeGetter, Runnable overThreshold, Runnable clearThreshold) {
       super(parent);
@@ -54,10 +53,6 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
 
    @Override
    protected final void doTask(Object task) {
-      if (task == shutdownTask) {
-         shutdownTask.run();
-         return;
-      }
       if (task == FLUSH) {
          clearThreshold.run();
          // should set to 0 no matter the value. There's a single thread setting this value back to zero
@@ -100,14 +95,8 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
       }
    }
 
-   public void shutdown(Runnable runnable) {
-      // do no more pending work
+   public void requestShutdown() {
+      requestedShutdown = true;
       tasks.clear();
-      // run this task next
-      shutdownTask = runnable;
-      tasks.add(runnable);
-      // wait for shutdown task to complete
-      flush();
-      shutdown();
    }
 }
