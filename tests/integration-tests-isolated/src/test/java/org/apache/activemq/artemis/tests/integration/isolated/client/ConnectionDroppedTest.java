@@ -41,6 +41,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -497,5 +499,61 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       Wait.assertEquals(0, serverQueue::getConsumerCount, 5000);
 
    }
+
+
+   @Test(timeout = 10_000)
+   public void testForceDropOpenWire() throws Throwable {
+      ActiveMQServer server = createServer(true, createDefaultConfig(true));
+      server.start();
+
+      Queue serverQueue = server.createQueue(new QueueConfiguration("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
+
+      CountDownLatch beforeCreateCalled = new CountDownLatch(1);
+      CountDownLatch goCreateConsumer = new CountDownLatch(1);
+      server.registerBrokerPlugin(new ActiveMQServerConsumerPlugin() {
+         @Override
+         public void afterCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
+            if (consumer.getQueue() == serverQueue) {
+               logger.info("Creating a consumer at {}", consumer.getQueue());
+               beforeCreateCalled.countDown();
+               try {
+                  goCreateConsumer.await(5, TimeUnit.MINUTES);
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
+            }
+         }
+      });
+
+      ExecutorService executorService = Executors.newFixedThreadPool(1);
+      runAfter(executorService::shutdownNow);
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");
+
+      CountDownLatch done = new CountDownLatch(1);
+
+      executorService.execute(() -> {
+         try (Connection connection = factory.createConnection();
+              Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+              MessageConsumer consumer = session.createConsumer(session.createQueue("test-queue"))) {
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         } finally {
+            done.countDown();
+         }
+      });
+
+      Assert.assertTrue(beforeCreateCalled.await(5, TimeUnit.MINUTES));
+
+      server.getRemotingService().getConnections().forEach(r -> {
+         r.fail(new ActiveMQException("this is a simulation"));
+      });
+
+      goCreateConsumer.countDown();
+
+      Wait.assertEquals(0, serverQueue::getConsumerCount);
+   }
+
+
 
 }

@@ -49,7 +49,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    // Request of forced shutdown
    private volatile boolean requestedForcedShutdown = false;
    // Request of educated shutdown:
-   private volatile boolean requestedShutdown = false;
+   protected volatile boolean requestedShutdown = false;
    // Request to yield to another thread
    private volatile boolean yielded = false;
 

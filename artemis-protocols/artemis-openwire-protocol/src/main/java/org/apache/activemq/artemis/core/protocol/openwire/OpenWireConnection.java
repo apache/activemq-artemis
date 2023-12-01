@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.IllegalStateException;
-import javax.jms.InvalidClientIDException;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSSecurityException;
 import javax.transaction.xa.XAException;
@@ -761,7 +760,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       final ThresholdActor<Command> localVisibleActor = openWireActor;
       if (localVisibleActor != null) {
-         localVisibleActor.shutdown(() -> doFail(me, message));
+         localVisibleActor.requestShutdown();
+      }
+
+      if (executor != null) {
+         executor.execute(() -> doFail(me, message));
       } else {
          doFail(me, message);
       }
@@ -779,11 +782,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
       try {
          if (this.getConnectionInfo() != null) {
-            protocolManager.removeConnection(this.getConnectionInfo(), me);
+            protocolManager.removeConnection(getClientID(), this);
          }
-      } catch (InvalidClientIDException e) {
-         logger.warn("Couldn't close connection because invalid clientID", e);
       } finally {
+         try {
+            disconnect(false);
+         } catch (Throwable e) {
+            // it should never happen, but never say never
+            logger.debug("OpenWireConnection::disconnect failure", e);
+         }
+
          // there may be some transactions not associated with sessions
          // deal with them after sessions are removed via connection removal
          operationContext.executeOnCompletion(new IOCallback() {
@@ -874,29 +882,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private void createInternalSession(ConnectionInfo info) throws Exception {
       internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), validatedUser, false);
-   }
-
-   //raise the refCount of context
-   public void reconnect(AMQConnectionContext existingContext, ConnectionInfo info) throws Exception {
-      this.context = existingContext;
-      WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
-      // Older clients should have been defaulting this field to true.. but
-      // they were not.
-      if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
-         info.setClientMaster(true);
-      }
-      if (info.getClientIp() == null) {
-         info.setClientIp(getRemoteAddress());
-      }
-      createInternalSession(info);
-      state = new ConnectionState(info);
-      state.reset(info);
-
-      context.setConnection(this);
-      context.setConnectionState(state);
-      context.setClientMaster(info.isClientMaster());
-      context.setFaultTolerant(info.isFaultTolerant());
-      context.setReconnect(true);
    }
 
    /**
@@ -1817,13 +1802,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       @Override
       public Response processRemoveConnection(ConnectionId id, long lastDeliveredSequenceId) throws Exception {
          //we let protocol manager to handle connection add/remove
+         for (SessionState sessionState : state.getSessionStates()) {
+            propagateLastSequenceId(sessionState, lastDeliveredSequenceId);
+         }
          try {
-            for (SessionState sessionState : state.getSessionStates()) {
-               propagateLastSequenceId(sessionState, lastDeliveredSequenceId);
-            }
-            protocolManager.removeConnection(state.getInfo(), null);
-         } catch (Throwable e) {
-            // log
+            protocolManager.removeConnection(getClientID(), OpenWireConnection.this);
+         } finally {
+            OpenWireConnection.this.disconnect(false);
          }
          return null;
       }

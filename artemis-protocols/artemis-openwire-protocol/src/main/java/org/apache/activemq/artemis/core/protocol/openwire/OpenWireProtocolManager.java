@@ -109,7 +109,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   private final Map<String, AMQConnectionContext> clientIdSet = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<String, OpenWireConnection> clientIdSet = new ConcurrentHashMap<>();
 
    private String brokerName;
 
@@ -244,18 +244,9 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       }
    }
 
-   public void removeConnection(ConnectionInfo info, Throwable error) throws InvalidClientIDException {
-      String clientId = info.getClientId();
-      if (clientId != null) {
-         AMQConnectionContext context = this.clientIdSet.remove(clientId);
-         if (context != null) {
-            //connection is still there and need to close
-            context.getConnection().disconnect(error != null);
-            this.connections.remove(context.getConnection());
-         }
-      } else {
-         throw new InvalidClientIDException("No clientID specified for connection disconnect request");
-      }
+   public void removeConnection(String clientID, OpenWireConnection connection) {
+      clientIdSet.remove(clientID, connection);
+      connections.remove(connection);
    }
 
    /*** if set, the OpenWire connection will bypass the tcpReadBuferSize and use this value instead.
@@ -421,22 +412,16 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       }
 
       AMQConnectionContext context;
-      context = clientIdSet.get(clientId);
-      if (context != null) {
-         if (info.isFailoverReconnect()) {
-            OpenWireConnection oldConnection = context.getConnection();
-            oldConnection.disconnect(true);
-            connections.remove(oldConnection);
-            connection.reconnect(context, info);
-         } else {
-            throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + context.getConnection().getRemoteAddress());
+      OpenWireConnection oldConnection = clientIdSet.get(clientId);
+      if (oldConnection != null) {
+         if (!info.isFailoverReconnect()) {
+            throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + oldConnection.getRemoteAddress());
          }
-      } else {
-         //new connection
-         context = connection.initContext(info);
-         clientIdSet.put(clientId, context);
       }
 
+      context = connection.initContext(info);
+
+      clientIdSet.put(clientId, connection);
       connections.add(connection);
 
       ActiveMQTopic topic = AdvisorySupport.getConnectionAdvisoryTopic();
