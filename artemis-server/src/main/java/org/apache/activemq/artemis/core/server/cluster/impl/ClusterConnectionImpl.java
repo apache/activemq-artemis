@@ -796,7 +796,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // There are a few things that will behave differently when it's an internal queue
                // such as we don't hold groupIDs inside the SnF queue
-               queue.setInternalQueue(true);
+               queue.setInternal(true);
 
                createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getLive(), queueName, queue, true);
             } else {

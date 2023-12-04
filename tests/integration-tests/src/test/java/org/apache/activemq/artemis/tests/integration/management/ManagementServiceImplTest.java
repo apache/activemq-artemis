@@ -140,8 +140,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       SimpleString address = RandomUtil.randomSimpleString();
       managementService.registerAddress(new AddressInfo(address));
-      Queue queue = new FakeQueue(RandomUtil.randomSimpleString());
-      managementService.registerQueue(queue, RandomUtil.randomSimpleString(), new FakeStorageManager());
+      Queue queue = new FakeQueue(RandomUtil.randomSimpleString(), address);
+      managementService.registerQueue(queue, new FakeStorageManager());
 
       Object[] addresses = managementService.getResources(AddressControl.class);
       Assert.assertEquals(1, addresses.length);

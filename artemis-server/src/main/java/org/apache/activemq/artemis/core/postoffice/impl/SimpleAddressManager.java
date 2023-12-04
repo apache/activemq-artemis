@@ -403,7 +403,7 @@ public class SimpleAddressManager implements AddressManager {
             for (Binding binding : bindings.getBindings()) {
                if (binding instanceof LocalQueueBinding) {
                   LocalQueueBinding localQueueBinding = (LocalQueueBinding)binding;
-                  if (!localQueueBinding.getQueue().isMirrorController() && !localQueueBinding.getQueue().isInternalQueue()) {
+                  if (!localQueueBinding.getQueue().isMirrorController() && !localQueueBinding.getQueue().isInternal()) {
                      mirrorController.createQueue(localQueueBinding.getQueue().getQueueConfiguration());
                   }
                }

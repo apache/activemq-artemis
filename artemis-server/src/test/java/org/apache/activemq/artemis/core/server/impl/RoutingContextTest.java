@@ -864,12 +864,12 @@ public class RoutingContextTest {
       }
 
       @Override
-      public boolean isInternalQueue() {
+      public boolean isInternal() {
          return isInternal;
       }
 
       @Override
-      public void setInternalQueue(boolean internalQueue) {
+      public void setInternal(boolean internal) {
 
       }
 

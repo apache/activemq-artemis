@@ -1595,12 +1595,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean isInternalQueue() {
+      public boolean isInternal() {
          return false;
       }
 
       @Override
-      public void setInternalQueue(boolean internalQueue) {
+      public void setInternal(boolean internal) {
 
       }
 

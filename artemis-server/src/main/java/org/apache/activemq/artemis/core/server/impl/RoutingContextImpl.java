@@ -200,10 +200,10 @@ public class RoutingContextImpl implements RoutingContext {
       }
 
       if (internalOnly == null) {
-         internalOnly = queue.isInternalQueue();
+         internalOnly = queue.isInternal();
       } else {
          // every queue added has to be internal only
-         internalOnly = internalOnly && queue.isInternalQueue();
+         internalOnly = internalOnly && queue.isInternal();
       }
 
       queueCount++;

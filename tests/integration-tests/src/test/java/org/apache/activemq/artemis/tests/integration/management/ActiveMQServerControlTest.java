@@ -26,6 +26,7 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -131,7 +132,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
@@ -1227,6 +1227,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryQueuePrefix(), info.getExpiryQueuePrefix());
       assertEquals(addressSettings.getExpiryQueueSuffix(), info.getExpiryQueueSuffix());
       assertEquals(addressSettings.isEnableMetrics(), info.isEnableMetrics());
+      assertEquals(addressSettings.isEnableManagementForInternal(), info.isEnableManagementForInternal());
    }
    @Test
    public void testAddressSettings() throws Exception {
@@ -1287,6 +1288,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
       boolean enableMetrics = RandomUtil.randomBoolean();
+      boolean enableManagementForInternal = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(new SimpleString(DLA))
@@ -1341,7 +1343,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
-              .setEnableMetrics(enableMetrics);
+              .setEnableMetrics(enableMetrics)
+              .setEnableManagementForInternal(enableManagementForInternal);
 
 
       serverControl.addAddressSettings(addressMatch, addressSettings.toJSON());
@@ -1415,6 +1418,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
+      assertEquals(enableManagementForInternal, info.isEnableManagementForInternal());
 
 
       addressSettings.setMaxSizeBytes(-1).setPageSizeBytes(1000);
@@ -1476,7 +1480,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
-
+      assertEquals(enableManagementForInternal, info.isEnableManagementForInternal());
 
       addressSettings.setMaxSizeBytes(-2).setPageSizeBytes(1000);
       ex = false;
@@ -1553,6 +1557,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
       boolean enableMetrics = RandomUtil.randomBoolean();
+      boolean enableManagementForInternal = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(new SimpleString(DLA))
@@ -1607,7 +1612,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
-              .setEnableMetrics(enableMetrics);
+              .setEnableMetrics(enableMetrics)
+              .setEnableManagementForInternal(enableManagementForInternal);
 
       serverControl.addAddressSettings(root, addressSettings.toJSON());
 

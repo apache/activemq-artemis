@@ -82,6 +82,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isInternal() {
+            return (Boolean) proxy.retrieveAttributeValue("internal");
+         }
+
+         @Override
          public void resetAllGroups() {
             try {
                proxy.invokeOperation("resetAllGroups");

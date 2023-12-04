@@ -87,7 +87,8 @@ public class AddressSettingsInfoTest {
          "\"expiryDelay\":404,\n" +
          "\"minExpiryDelay\":40,\n" +
          "\"maxExpiryDelay\":4004,\n" +
-         "\"enableMetrics\":false\n" +
+         "\"enableMetrics\":false,\n" +
+         "\"enableManagementForInternal\":false\n" +
          "}";
       AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.fromJSON(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
@@ -147,6 +148,7 @@ public class AddressSettingsInfoTest {
       assertEquals(40, addressSettingsInfo.getMinExpiryDelay());
       assertEquals(4004, addressSettingsInfo.getMaxExpiryDelay());
       assertEquals(false, addressSettingsInfo.isEnableMetrics());
+      assertEquals(false, addressSettingsInfo.isEnableManagementForInternal());
    }
 
 }

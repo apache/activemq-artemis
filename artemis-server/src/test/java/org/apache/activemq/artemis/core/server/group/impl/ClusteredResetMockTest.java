@@ -264,7 +264,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void registerQueue(Queue queue, SimpleString address, StorageManager storageManager) throws Exception {
+      public void registerQueue(Queue queue, StorageManager storageManager) throws Exception {
 
       }
 

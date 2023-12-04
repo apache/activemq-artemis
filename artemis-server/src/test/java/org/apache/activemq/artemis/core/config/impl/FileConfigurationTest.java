@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
-import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -57,11 +57,6 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
-import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
-import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
-import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
-import org.apache.activemq.artemis.core.server.routing.policies.LeastConnectionsPolicy;
-import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
@@ -69,6 +64,11 @@ import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.routing.KeyType;
+import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
+import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
+import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
+import org.apache.activemq.artemis.core.server.routing.policies.LeastConnectionsPolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
@@ -462,6 +462,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(0, conf.getAddressSettings().get("a1").getRetroactiveMessageCount());
       assertTrue(conf.getAddressSettings().get("a1").isEnableMetrics());
       assertTrue(conf.getAddressSettings().get("a1").isEnableIngressTimestamp());
+      assertFalse(conf.getAddressSettings().get("a1").isEnableManagementForInternal());
       assertEquals(null, conf.getAddressSettings().get("a1").getIDCacheSize());
 
       assertEquals("a2.1", conf.getAddressSettings().get("a2").getDeadLetterAddress().toString());
@@ -502,6 +503,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(10, conf.getAddressSettings().get("a2").getRetroactiveMessageCount());
       assertFalse(conf.getAddressSettings().get("a2").isEnableMetrics());
       assertFalse(conf.getAddressSettings().get("a2").isEnableIngressTimestamp());
+      assertTrue(conf.getAddressSettings().get("a2").isEnableManagementForInternal());
       assertEquals(Integer.valueOf(500), conf.getAddressSettings().get("a2").getIDCacheSize());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));

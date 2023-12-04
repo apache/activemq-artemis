@@ -489,14 +489,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    SimpleString getAddress();
 
-   /**
-    * We can't send stuff to DLQ on queues used on clustered-bridge-communication
-    *
-    * @return
-    */
-   boolean isInternalQueue();
+   boolean isInternal();
 
-   void setInternalQueue(boolean internalQueue);
+   void setInternal(boolean internal);
 
    void resetMessagesAdded();
 

@@ -17,19 +17,16 @@ package metrics
  */
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectName;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 
 //validate metrics are recovered
 Object[] queueControls = server.getJMSServerManager().getActiveMQServer().getManagementService().getResources(QueueControl.class);
 for (Object o : queueControls) {
     QueueControl c = (QueueControl) o;
+    if (c.isInternal()) {
+        continue
+    }
     GroovyRun.assertTrue(c.getPersistentSize() > 0);
     GroovyRun.assertTrue(c.getDurablePersistentSize() > 0);
     GroovyRun.assertEquals(33l, c.getMessageCount());

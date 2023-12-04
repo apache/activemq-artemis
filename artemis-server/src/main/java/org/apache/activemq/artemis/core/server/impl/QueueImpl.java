@@ -305,7 +305,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final ArtemisExecutor executor;
 
-   private boolean internalQueue;
+   private boolean internal;
 
    private volatile long lastDirectDeliveryCheck = 0;
 
@@ -722,7 +722,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.server = server;
 
-      this.internalQueue = queueConfiguration.isInternal();
+      this.internal = queueConfiguration.isInternal();
 
       scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor, this);
 
@@ -2951,16 +2951,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return the internalQueue
     */
    @Override
-   public boolean isInternalQueue() {
-      return internalQueue;
+   public boolean isInternal() {
+      return internal;
    }
 
    /**
-    * @param internalQueue the internalQueue to set
+    * @param internal the internal to set
     */
    @Override
-   public void setInternalQueue(boolean internalQueue) {
-      this.internalQueue = internalQueue;
+   public void setInternal(boolean internal) {
+      this.internal = internal;
    }
 
    // Public
@@ -3378,7 +3378,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private SimpleString extractGroupID(MessageReference ref) {
-      if (internalQueue || exclusive || groupBuckets == 0) {
+      if (internal || exclusive || groupBuckets == 0) {
          return null;
       } else {
          try {
@@ -3391,7 +3391,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private int extractGroupSequence(MessageReference ref) {
-      if (internalQueue) {
+      if (internal) {
          return 0;
       } else {
          try {
@@ -3526,7 +3526,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
 
-      if (internalQueue) {
+      if (internal) {
          logger.trace("Queue {} is an internal queue, no checkRedelivery", name);
 
          // no DLQ check on internal queues
@@ -3535,7 +3535,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return new Pair<>(true, false);
       }
 
-      if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
+      if (!internal && reference.isDurable() && isDurable() && !reference.isPaged()) {
          storageManager.updateDeliveryCount(reference);
       }
 
@@ -4320,7 +4320,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          .setRingSize(ringSize)
          .setConfigurationManaged(configurationManaged)
          .setTemporary(temporary)
-         .setInternal(internalQueue)
+         .setInternal(internal)
          .setTransient(refCountForConsumers instanceof TransientQueueManagerImpl)
          .setAutoCreated(autoCreated);
    }
@@ -4739,7 +4739,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void checkDeadLetterAddressAndExpiryAddress() {
-      if (!Env.isTestEnv() && !internalQueue && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
+      if (!Env.isTestEnv() && !internal && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
          if (addressSettings.getDeadLetterAddress() == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
          }

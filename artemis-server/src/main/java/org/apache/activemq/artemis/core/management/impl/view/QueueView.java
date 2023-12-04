@@ -77,7 +77,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add(QueueField.RING_SIZE.getName(), toString(queue.getRingSize()))
          .add(QueueField.CONSUMERS_BEFORE_DISPATCH.getName(), toString(queue.getConsumersBeforeDispatch()))
          .add(QueueField.DELAY_BEFORE_DISPATCH.getName(), toString(queue.getDelayBeforeDispatch()))
-         .add(QueueField.AUTO_DELETE.getName(), toString(q.isAutoDelete()));
+         .add(QueueField.AUTO_DELETE.getName(), toString(q.isAutoDelete()))
+         .add(QueueField.INTERNAL.getName(), toString(q.isInternal()));
       return obj;
    }
 
@@ -152,6 +153,10 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return q.getConsumersBeforeDispatch();
          case DELAY_BEFORE_DISPATCH:
             return q.getDelayBeforeDispatch();
+         case AUTO_DELETE:
+            return q.isAutoDelete();
+         case INTERNAL:
+            return q.isInternal();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

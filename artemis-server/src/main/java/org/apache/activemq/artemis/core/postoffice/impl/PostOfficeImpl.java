@@ -555,9 +555,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // only register address if it is new
          if (result) {
             try {
-               if (!addressInfo.isInternal()) {
-                  managementService.registerAddress(addressInfo);
-               }
+               managementService.registerAddress(addressInfo);
                if (server.hasBrokerAddressPlugins()) {
                   server.callBrokerAddressPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
                }
@@ -1967,7 +1965,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    void reapAddresses(boolean initialCheck) {
       getLocalQueues().forEach(queue -> {
          AddressSettings settings = addressSettingsRepository.getMatch(queue.getAddress().toString());
-         if (!queue.isInternalQueue() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings))) {
+         if (!queue.isInternal() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings))) {
             // we only reap queues on the initialCheck if they are actually empty
             boolean validInitialCheck = initialCheck && queue.getMessageCount() == 0 && !queue.getPagingStore().isPaging();
             if (validInitialCheck || queue.isSwept()) {

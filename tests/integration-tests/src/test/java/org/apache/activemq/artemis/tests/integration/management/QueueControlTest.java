@@ -279,6 +279,27 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testManageInternalQueue() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      server.createQueue(new QueueConfiguration(queue).setInternal(true).setRoutingType(RoutingType.MULTICAST));
+
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(queue, queue, RoutingType.MULTICAST));
+      QueueControl queueControl = createManagementControl(queue, queue);
+      assertTrue(queueControl.isInternal());
+   }
+
+   @Test
+   public void testManageInternalQueueNegative() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+      server.getAddressSettingsRepository().addMatch(queue.toString(), new AddressSettings().setEnableManagementForInternal(false));
+
+      server.createQueue(new QueueConfiguration(queue).setInternal(true));
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(queue, queue, RoutingType.MULTICAST));
+   }
+
+   @Test
    public void testAutoDeleteAttribute() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();

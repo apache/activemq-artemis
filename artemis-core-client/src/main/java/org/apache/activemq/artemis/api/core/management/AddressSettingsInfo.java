@@ -309,6 +309,11 @@ public final class AddressSettingsInfo {
    }
    private boolean enableMetrics;
 
+   {
+      META_BEAN.add(Boolean.class, "enableManagementForInternal", (o, p) -> o.enableManagementForInternal = p, o -> o.enableManagementForInternal);
+   }
+   private boolean enableManagementForInternal;
+
 
    public static AddressSettingsInfo fromJSON(final String jsonString) {
       AddressSettingsInfo newInfo = new AddressSettingsInfo();
@@ -553,6 +558,10 @@ public final class AddressSettingsInfo {
 
    public boolean isEnableMetrics() {
       return enableMetrics;
+   }
+
+   public boolean isEnableManagementForInternal() {
+      return enableManagementForInternal;
    }
 }
 

@@ -149,7 +149,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
       if (forceInternal) {
          // pretending this is an internal queue
          // as the check acks will play it differently
-         serverQueue1.setInternalQueue(true);
+         serverQueue1.setInternal(true);
       }
 
       int TRANSACTIONS = 10;

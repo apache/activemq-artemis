@@ -788,4 +788,10 @@ public interface QueueControl {
     */
    @Attribute(desc = "whether this queue is available for auto deletion")
    boolean isAutoDelete();
+
+   /**
+    * Returns whether this queue was created for the broker's internal use.
+    */
+   @Attribute(desc = "whether this queue was created for the broker's internal use")
+   boolean isInternal();
 }

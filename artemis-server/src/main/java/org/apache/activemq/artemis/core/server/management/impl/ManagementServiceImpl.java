@@ -248,6 +248,12 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public void registerAddress(AddressInfo addressInfo) throws Exception {
+
+      if (messagingServer != null && !messagingServer.getAddressSettingsRepository().getMatch(addressInfo.getName().toString()).isEnableManagementForInternal() && addressInfo.isInternal()) {
+         logger.debug("won't register internal address: {}", addressInfo);
+         return;
+      }
+
       ObjectName objectName = objectNameBuilder.getAddressObjectName(addressInfo.getName());
       AddressControlImpl addressControl = new AddressControlImpl(addressInfo, messagingServer, pagingManager, storageManager, securityRepository, securityStore, this);
 
@@ -284,34 +290,27 @@ public class ManagementServiceImpl implements ManagementService {
       unregisterMeters(ResourceNames.ADDRESS + address);
    }
 
+   @Override
    public synchronized void registerQueue(final Queue queue,
-                                          final AddressInfo addressInfo,
                                           final StorageManager storageManager) throws Exception {
 
-      if (addressInfo.isInternal() || queue.isInternalQueue()) {
+      if (messagingServer != null && !messagingServer.getAddressSettingsRepository().getMatch(queue.getAddress().toString()).isEnableManagementForInternal() && queue.isInternal()) {
          logger.debug("won't register internal queue: {}", queue);
          return;
       }
 
-      QueueControlImpl queueControl = new QueueControlImpl(queue, addressInfo.getName().toString(), messagingServer, storageManager, securityStore, addressSettingsRepository);
+      QueueControlImpl queueControl = new QueueControlImpl(queue, queue.getAddress().toString(), messagingServer, storageManager, securityStore, addressSettingsRepository);
       if (messageCounterManager != null) {
          MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurable(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);
          messageCounterManager.registerMessageCounter(queue.getName().toString(), counter);
       }
-      ObjectName objectName = objectNameBuilder.getQueueObjectName(addressInfo.getName(), queue.getName(), queue.getRoutingType());
+      ObjectName objectName = objectNameBuilder.getQueueObjectName(queue.getAddress(), queue.getName(), queue.getRoutingType());
       registerInJMX(objectName, queueControl);
       registerInRegistry(ResourceNames.QUEUE + queue.getName(), queueControl);
       registerQueueMeters(queue);
 
       logger.debug("registered queue {}", objectName);
-   }
-
-   @Override
-   public synchronized void registerQueue(final Queue queue,
-                                          final SimpleString address,
-                                          final StorageManager storageManager) throws Exception {
-      registerQueue(queue, new AddressInfo(address), storageManager);
    }
 
    @Override

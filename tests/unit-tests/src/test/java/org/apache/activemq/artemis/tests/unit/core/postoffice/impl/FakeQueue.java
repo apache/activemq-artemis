@@ -233,7 +233,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean isInternalQueue() {
+   public boolean isInternal() {
       // no-op
       return false;
    }
@@ -273,7 +273,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void setInternalQueue(boolean internalQueue) {
+   public void setInternal(boolean internal) {
       // no-op
 
    }
@@ -360,6 +360,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    private final SimpleString name;
 
+   private final SimpleString address;
+
    private final Long id;
 
    private boolean durable;
@@ -370,10 +372,19 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
       this(name, 0);
    }
 
-   public FakeQueue(final SimpleString name, final long id) {
+   public FakeQueue(final SimpleString name, final SimpleString address, final long id) {
       super(EmptyCriticalAnalyzer.getInstance(), 1);
       this.name = name;
+      this.address = address;
       this.id = id;
+   }
+
+   public FakeQueue(final SimpleString name, final long id) {
+      this(name, null, id);
+   }
+
+   public FakeQueue(final SimpleString name, final SimpleString address) {
+      this(name, address, 0);
    }
 
    @Override
@@ -700,8 +711,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public SimpleString getAddress() {
-      // no-op
-      return null;
+      return address;
    }
 
    @Override

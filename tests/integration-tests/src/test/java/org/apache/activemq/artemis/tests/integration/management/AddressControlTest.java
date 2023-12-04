@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -845,6 +846,27 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
       Assert.assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
       Assert.assertEquals(exactPercentBeforeRestart, addressControl.getAddressLimitPercent());
+   }
+
+   @Test
+   public void testManageInternalAddress() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      server.addAddressInfo(new AddressInfo(address).setInternal(true));
+
+      checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+      AddressControl addressControl = createManagementControl(address);
+      assertTrue(addressControl.isInternal());
+   }
+
+   @Test
+   public void testManageInternalQueueNegative() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setEnableManagementForInternal(false));
+
+      server.addAddressInfo(new AddressInfo(address).setInternal(true));
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
    }
 
 

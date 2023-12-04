@@ -177,7 +177,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
          queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
-         managementService.registerQueue(queue, queue.getAddress(), storageManager);
+         managementService.registerQueue(queue, storageManager);
 
       }
    }

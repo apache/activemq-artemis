@@ -353,6 +353,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ID_CACHE_SIZE = "id-cache-size";
 
+   private static final String ENABLE_MANAGEMENT_FOR_INTERNAL = "enable-management-for-internal";
+
    private boolean validateAIO = false;
 
    private boolean printPageMaxSizeUsed = false;
@@ -1483,6 +1485,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             int idCacheSize = XMLUtil.parseInt(child);
             Validators.GE_ZERO.validate(ID_CACHE_SIZE, idCacheSize);
             addressSettings.setIDCacheSize(XMLUtil.parseInt(child));
+         } else if (ENABLE_MANAGEMENT_FOR_INTERNAL.equalsIgnoreCase(name)) {
+            addressSettings.setEnableManagementForInternal(XMLUtil.parseBoolean(child));
          }
       }
       return setting;

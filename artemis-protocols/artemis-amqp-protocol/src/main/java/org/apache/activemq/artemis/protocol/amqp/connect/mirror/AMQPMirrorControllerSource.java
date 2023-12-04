@@ -411,7 +411,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
-      if ((ref.getQueue() != null && (ref.getQueue().isInternalQueue() || ref.getQueue().isMirrorController()))) {
+      if ((ref.getQueue() != null && (ref.getQueue().isInternal() || ref.getQueue().isMirrorController()))) {
          if (logger.isDebugEnabled()) {
             logger.debug("preAcknowledge::{} rejecting preAcknowledge queue={}, ref={} to avoid infinite loop with the mirror (reflection)", server, ref.getQueue().getName(), ref);
          }

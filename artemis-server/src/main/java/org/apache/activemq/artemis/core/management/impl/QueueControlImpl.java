@@ -2086,6 +2086,22 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
+   public boolean isInternal() {
+
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.isInternal(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isInternal();
+      } finally {
+         blockOnIO();
+      }
+   }
+
    private void checkStarted() {
       if (!server.getPostOffice().isStarted()) {
          throw new IllegalStateException("Broker is not started. Queue can not be managed yet");
