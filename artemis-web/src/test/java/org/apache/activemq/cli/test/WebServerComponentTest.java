@@ -560,15 +560,8 @@ public class WebServerComponentTest extends Assert {
       createTestWar(warName);
       final String url = "simple-app/";
 
-      AppDTO app = new AppDTO();
-      app.url = url;
-      app.war = warName;
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "http://localhost:0";
-      bindingDTO.apps = new ArrayList<>();
-      WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
-      webServerDTO.path = "";
+      WebServerDTO webServerDTO = createDefaultWebServerDTO(warName, url);
+
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       testedComponents.add(webServerComponent);
@@ -599,6 +592,30 @@ public class WebServerComponentTest extends Assert {
          assertFalse("file exist: " + file.getAbsolutePath(), file.exists());
       }
       Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testServerDeterministicWebappName() throws Exception {
+      final String warName = "simple-app.war";
+      createTestWar(warName);
+      final String url = "simple-app/";
+
+      WebServerDTO webServerDTO = createDefaultWebServerDTO(warName, url);
+      WebServerComponent webServerComponent = new WebServerComponent();
+      webServerComponent.configure(webServerDTO, "./target", "./target");
+      WebAppContext ctxt = WebServerComponentTestAccessor.createWebAppContext(webServerComponent, url, warName, Paths.get(".").resolve("target").toAbsolutePath(), null);
+      testedComponents.add(webServerComponent);
+
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.start();
+
+      File tmpDir = ctxt.getTempDirectory();
+      Assert.assertTrue(tmpDir.getParentFile().listFiles().length == 1);
+      Assert.assertEquals(tmpDir.getName(), warName);
+      Assert.assertTrue(webServerComponent.isStarted());
+
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
    }
@@ -640,6 +657,20 @@ public class WebServerComponentTest extends Assert {
       } finally {
          webServerComponent.stop(true);
       }
+   }
+
+   private static WebServerDTO createDefaultWebServerDTO(String warName, String url) {
+      AppDTO app = new AppDTO();
+      app.url = url;
+      app.war = warName;
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      bindingDTO.apps = new ArrayList<>();
+      bindingDTO.apps.add(app);
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "";
+      return webServerDTO;
    }
 
    private void createTestWar(String warName) throws Exception {

@@ -379,7 +379,9 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       webapp.setWar(warDirectory.resolve(warFile).toString());
 
-      webapp.setAttribute("org.eclipse.jetty.webapp.basetempdir", temporaryWarDir.toFile().getAbsolutePath());
+      String baseTempDir = temporaryWarDir.toFile().getAbsolutePath();
+      webapp.setAttribute("org.eclipse.jetty.webapp.basetempdir", baseTempDir);
+      webapp.setTempDirectory(new File(baseTempDir + File.separator + warFile));
 
       // Set the default authenticator factory to avoid NPE due to the following commit:
       // https://github.com/eclipse/jetty.project/commit/7e91d34177a880ecbe70009e8f200d02e3a0c5dd
