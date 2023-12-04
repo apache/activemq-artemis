@@ -139,6 +139,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
                handlers.addHandler(webContext);
                webContext.setInitParameter(DIR_ALLOWED, "false");
+               webContext.setTempDirectory(new File(temporaryWarDir + "/" + app.name));
                webContext.getSessionHandler().getSessionCookieConfig().setComment("__SAME_SITE_STRICT__");
                webContextData.add(new Pair(webContext, binding.uri));
             }
