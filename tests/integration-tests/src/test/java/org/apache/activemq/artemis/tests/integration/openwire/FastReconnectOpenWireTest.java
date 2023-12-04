@@ -93,7 +93,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
          executor.execute(() -> {
             try {
                while (numIterations.decrementAndGet() > 0) {
-                  try (Connection conn = exFact.createConnection(); Session consumerConnectionSession = conn.createSession(Session.SESSION_TRANSACTED); MessageConsumer messageConsumer = consumerConnectionSession.createConsumer(queue)) {
+                  try (Connection conn = exFact.createConnection(); Session consumerConnectionSession = conn.createSession(true, Session.SESSION_TRANSACTED); MessageConsumer messageConsumer = consumerConnectionSession.createConsumer(queue)) {
 
                      messageConsumer.receiveNoWait();
 
@@ -153,7 +153,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
       for (int i = 0; i < concurrent; i++) {
          executor.execute(() -> {
             try (Connection conn = exFact.createConnection();
-                 Session consumerConnectionSession = conn.createSession(Session.SESSION_TRANSACTED);
+                 Session consumerConnectionSession = conn.createSession(true, Session.SESSION_TRANSACTED);
                  MessageConsumer messageConsumer = consumerConnectionSession.createConsumer(queue)
             ) {
                conn.start();
