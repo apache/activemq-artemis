@@ -21,7 +21,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -48,8 +47,7 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
    @Test
    public void testSimplyDownAfterError() throws Exception {
       disableCheckThread();
-      deleteDirectory(new File("./target/server"));
-      ActiveMQServer server = createServer("./target/server");
+      ActiveMQServer server = createServer(temporaryFolder.getRoot().getAbsolutePath() + "/server");
 
       server.start();
 
