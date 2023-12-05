@@ -59,6 +59,28 @@ public class MQTT5Test extends MQTT5TestSupport {
       super(protocol);
    }
 
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSimpleSendReceive() throws Exception {
+      String topic = RandomUtil.randomString();
+
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient subscriber = createPahoClient("subscriber");
+      subscriber.connect();
+      subscriber.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            log.info("Message received from {}", topic);
+            latch.countDown();
+         }
+      });
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(topic, "myMessage".getBytes(StandardCharsets.UTF_8), 1, false);
+      assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+   }
+
    /*
     * Ensure that the broker adds a timestamp on the message when sending via MQTT
     */
