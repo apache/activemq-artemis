@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt5;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.Message;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -68,8 +69,8 @@ public class MQTT5Test extends MQTT5TestSupport {
       subscriber.connect();
       subscriber.setCallback(new DefaultMqttCallback() {
          @Override
-         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            log.info("Message received from {}", topic);
+         public void messageArrived(String topic, MqttMessage message) {
+            System.out.println("Message received from " + topic + ": " + message);
             latch.countDown();
          }
       });
