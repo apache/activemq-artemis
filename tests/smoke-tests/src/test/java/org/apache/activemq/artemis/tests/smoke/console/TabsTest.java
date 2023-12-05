@@ -27,7 +27,7 @@ import org.openqa.selenium.NoSuchElementException;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
-public class TabsTest extends ConsoleTest {
+public class TabsTest extends ArtemisTest {
 
    public TabsTest(String browser) {
       super(browser);
@@ -64,9 +64,9 @@ public class TabsTest extends ConsoleTest {
    }
 
    private void testTab(String userpass, String tab) {
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       new LoginPage(driver).loginValidUser(userpass, userpass, DEFAULT_TIMEOUT);
-      driver.findElement(By.xpath("//a[contains(text(),'" + tab + "')]"));
+      driver.findElement(By.xpath("//button/span[contains(text(),'" + tab + "')]"));
    }
 
    @TestTemplate
@@ -106,7 +106,7 @@ public class TabsTest extends ConsoleTest {
    }
 
    private void testTabNegative(String userpass, String tab) {
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       new LoginPage(driver).loginValidUser(userpass, userpass, DEFAULT_TIMEOUT);
       try {
          driver.findElement(By.xpath("//a[contains(text(),'" + tab + "')]"));
