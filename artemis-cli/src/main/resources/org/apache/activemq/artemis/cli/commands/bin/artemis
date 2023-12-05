@@ -44,7 +44,7 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
   ARTEMIS_INSTANCE=`cd "$ARTEMIS_INSTANCE/.." && pwd`
 fi
 
-HAWTIO_ROLE="NO_HAWTIO_ROLE"
+HAWTIO_ROLES="NO_HAWTIO_ROLES"
 
 # Load Profile Data
 ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
@@ -102,7 +102,7 @@ fi
 
 exec "$JAVACMD" \
     $JAVA_ARGS \
-    -Dhawtio.role="$HAWTIO_ROLE" \
+    -Dhawtio.roles="$HAWTIO_ROLES" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \

@@ -54,7 +54,7 @@
    <startargument>-Dhawtio.disableProxy=true</startargument>
    <startargument>-Dhawtio.realm=activemq</startargument>
    <startargument>-Dhawtio.offline="true"</startargument>
-   <startargument>-Dhawtio.role=amq</startargument>
+   <startargument>-Dhawtio.roles=amq</startargument>
    <startargument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</startargument>
    <startargument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</startargument>
 

@@ -33,3 +33,15 @@ artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h
 
 # overlay outpit
 **/overlays/**/*
+
+#for the console and yarn builds
+artemis-hawtio/artemis-plugin/artemis-plugin/build
+artemis-hawtio/artemis-plugin/artemis-plugin/node_modules
+artemis-hawtio/artemis-plugin/artemis-plugin/node
+# yarn (zero-installs)
+artemis-hawtio/artemis-plugin/artemis-plugin/.yarn/*
+artemis-hawtio/artemis-plugin/artemis-plugin/!.yarn/patches
+artemis-hawtio/artemis-plugin/artemis-plugin/!.yarn/plugins
+artemis-hawtio/artemis-plugin/artemis-plugin/!.yarn/releases
+artemis-hawtio/artemis-plugin/artemis-plugin/!.yarn/sdks
+artemis-hawtio/artemis-plugin/artemis-plugin/!.yarn/versions

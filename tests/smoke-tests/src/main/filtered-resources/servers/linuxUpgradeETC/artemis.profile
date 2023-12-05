@@ -33,7 +33,7 @@ ARTEMIS_INSTANCE_ETC_URI='file:${project.basedir}/target/classes/servers/linuxUp
 # Hawtio Properties
 # HAWTIO_ROLE define the user role or roles required to be able to login to the console. Multiple roles to allow can
 # be separated by a comma. Set to '*' or an empty value to disable role checking when Hawtio authenticates a user.
-HAWTIO_ROLE='amq'
+HAWTIO_ROLES='amq'
 
 # Java Opts
 if [ -z "$JAVA_ARGS" ]; then
