@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.component;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
+import jakarta.servlet.DispatcherType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.components.ExternalComponent;
@@ -79,7 +79,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    public static final String DIR_ALLOWED = "org.eclipse.jetty.servlet.Default.dirAllowed";
 
    // this should match the value of <display-name> in the console war's WEB-INF/web.xml
-   public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "hawtio");
+   public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "Artemis Console");
 
    public static final boolean DEFAULT_SNI_HOST_CHECK_VALUE = true;
 

@@ -179,9 +179,9 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-plugin</artifactId>
+            <artifactId>artemis-console-war</artifactId>
             <type>war</type>
-            <version>${project.version}</version>
+            <version>${artemis-console-war-version}</version>
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>

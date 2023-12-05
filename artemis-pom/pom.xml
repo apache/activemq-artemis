@@ -525,7 +525,7 @@
          </dependency>
          <dependency>
             <groupId>org.eclipse.jetty.toolchain</groupId>
-            <artifactId>jetty-servlet-api</artifactId>
+            <artifactId>jetty-jakarta-servlet-api</artifactId>
             <version>${jetty-servlet-api.version}</version>
             <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>

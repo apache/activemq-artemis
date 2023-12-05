@@ -16,16 +16,19 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -36,8 +39,9 @@ import picocli.CommandLine.Command;
 @Command(name = "upgrade", description = "Update a broker instance to the current artemis.home, keeping all the data and broker.xml. Warning: backup your instance before using this command and compare the files.")
 public class Upgrade extends InstallAbstract {
 
-   // these are the JVM argumnents we must keep between upgrades
-   private static final String[] KEEPING_JVM_ARGUMENTS = new String[]{"-Xmx", "-Djava.security.auth.login.config", "-Dhawtio.role="};
+   // These are the JVM arguments we must keep between upgrades
+   private static final String[] KEEPING_JVM_ARGUMENTS = new String[]{"-Xmx", "-Djava.security.auth.login.config", "-Dhawtio.roles="};
+
 
    // this is the prefix where we can find the JDK arguments in Windows script
    private static final String JDK_PREFIX_WINDOWS = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS=";
@@ -148,7 +152,7 @@ public class Upgrade extends InstallAbstract {
                  "<env name=\"ARTEMIS_INSTANCE\"", "<env name=\"ARTEMIS_INSTANCE_ETC\"",
                  "<env name=\"ARTEMIS_INSTANCE_URI\"", "<env name=\"ARTEMIS_INSTANCE_ETC_URI\"",
                  "<env name=\"ARTEMIS_DATA_DIR\"", "<logpath>", "<startargument>-Xmx", "<stopargument>-Xmx",
-                 "<name>", "<id>", "<startargument>-Dhawtio.role=");
+                 "<name>", "<id>", "<startargument>-Dhawtio.roles=");
 
          final File artemisProfileCmdTmp = new File(tmp, Create.ETC_ARTEMIS_PROFILE_CMD);
          final File artemisProfileCmd = new File(etcFolder, Create.ETC_ARTEMIS_PROFILE_CMD);
@@ -194,10 +198,10 @@ public class Upgrade extends InstallAbstract {
          File artemisProfile = new File(etcFolder, Create.ETC_ARTEMIS_PROFILE);
          File artemisProfileTmp = new File(tmp, Create.ETC_ARTEMIS_PROFILE);
          File artemisProfileBkp = new File(etcBkp, Create.ETC_ARTEMIS_PROFILE);
-
          write("etc/" + Create.ETC_ARTEMIS_PROFILE, artemisProfileTmp, filters, false, false);
          upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS, artemisProfileTmp, artemisProfile, artemisProfileBkp,
                "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLE=");
+         replaceLines(context, artemisProfileTmp, artemisProfile, artemisProfileBkp, "^HAWTIO_ROLE(.*)$,HAWTIO_ROLES$1");
 
          File artemisUtilityProfile = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE);
          File artemisUtilityProfileTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
@@ -229,6 +233,10 @@ public class Upgrade extends InstallAbstract {
          "^(.*)<app url=(.*branding.*)$", "$1<app name=\"branding\" url=$2",
          "^(.*)<app url=(.*plugin.*)$", "$1<app name=\"plugin\" url=$2",
          "^(.*)<app url=\"([^\"]+)\"(.*)$", "$1<app name=\"$2\" url=\"$2\"$3");
+
+      //we remove the unwanted wars after updating them above just in case we are upgrading from an older version where the format was different
+      removeWars(context, bootstrapXml);
+
       upgradeLogging(context, etcFolder, etcBkp);
 
       context.out.println();
@@ -420,5 +428,32 @@ public class Upgrade extends InstallAbstract {
          }
       }
       throw new RuntimeException("Too many backup folders in place already. Please remove some of the old-config-bkp.* folders");
+   }
+
+   private void removeWars(ActionContext context, File bootstrapXml) throws Exception {
+      StringBuilder sb = new StringBuilder();
+      boolean remove = false;
+      try (Stream<String> lines = Files.lines(bootstrapXml.toPath())) {
+         Iterator<String> linesIterator = lines.iterator();
+         while (linesIterator.hasNext()) {
+            String line = linesIterator.next();
+            if (line.matches("^(.*)<app name=(.*branding.*)$")) {
+               context.out.println("removing branding war as no longer needed");
+               remove = true;
+            } else if (line.matches("^(.*)<app name=(.*plugin.*)$")) {
+               context.out.println("removing plugin war as no longer needed");
+               remove = true;
+            } else {
+               sb.append(line).append(System.lineSeparator());
+            }
+         }
+      }
+      if (remove) {
+         try (InputStream inputStream = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
+              OutputStream outputStream = new FileOutputStream(bootstrapXml)) {
+            copy(inputStream, outputStream);
+         }
+      }
+
    }
 }
