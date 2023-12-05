@@ -14,15 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.component;
+package org.apache.activemq.artemis.tests.smoke.console.pages.artemis;
 
-import java.nio.file.Path;
+import org.openqa.selenium.WebDriver;
 
-import org.eclipse.jetty.ee9.webapp.WebAppContext;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_VIEW_BODY;
 
-public class WebServerComponentTestAccessor {
+public class MessagePage extends ArtemisPage {
 
-   public static WebAppContext createWebAppContext(WebServerComponent webServerComponent, String url, String warFile, Path warDirectory, String virtualHost) {
-      return webServerComponent.createWebAppContext(url, warFile, warDirectory, virtualHost);
+   public MessagePage(WebDriver driver) {
+      super(driver);
+   }
+
+   public String getMessageText() {
+      return driver.findElement(MESSAGE_VIEW_BODY).getText();
    }
 }

@@ -83,7 +83,7 @@ public class Create extends InstallAbstract {
    public static final String ETC_BOOTSTRAP_XML = "bootstrap.xml";
    public static final String ETC_MANAGEMENT_XML = "management.xml";
    public static final String ETC_BROKER_XML = "broker.xml";
-
+   public static final String ETC_OIDC_PROPERTIES = "hawtio-oidc.properties";
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "artemis-roles.properties";
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "artemis-users.properties";
    private static final String ETC_LOGIN_CONFIG = "login.config";
@@ -839,6 +839,7 @@ public class Create extends InstallAbstract {
       }
       writeEtc(ETC_BOOTSTRAP_XML, etcFolder, filters, false);
       writeEtc(ETC_MANAGEMENT_XML, etcFolder, filters, false);
+      writeEtc(ETC_OIDC_PROPERTIES, etcFolder, filters, false);
 
       if (relaxJolokia) {
          filters.put("${jolokia.options}", "<!-- option relax-jolokia used, so strict-checking will be removed here -->");

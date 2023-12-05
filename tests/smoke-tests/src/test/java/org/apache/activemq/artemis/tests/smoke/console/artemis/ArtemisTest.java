@@ -14,15 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.component;
+package org.apache.activemq.artemis.tests.smoke.console.artemis;
 
-import java.nio.file.Path;
+import org.apache.activemq.artemis.tests.smoke.console.ConsoleTest;
+import org.openqa.selenium.MutableCapabilities;
 
-import org.eclipse.jetty.ee9.webapp.WebAppContext;
+public abstract class ArtemisTest  extends ConsoleTest {
+   public ArtemisTest(MutableCapabilities browserOptions) {
+      super(browserOptions);
+   }
 
-public class WebServerComponentTestAccessor {
 
-   public static WebAppContext createWebAppContext(WebServerComponent webServerComponent, String url, String warFile, Path warDirectory, String virtualHost) {
-      return webServerComponent.createWebAppContext(url, warFile, warDirectory, virtualHost);
+   public void loadLandingPage() {
+      driver.get(webServerUrl + "/console/artemis");
    }
 }
