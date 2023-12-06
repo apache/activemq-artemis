@@ -344,6 +344,22 @@ public class StompTest extends StompTestBase {
 
    }
 
+   @Test
+   public void sendEmptyCoreMessage() throws Exception {
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+
+      // send core JMS message
+      MessageProducer mp = session.createProducer(session.createQueue(getQueuePrefix() + getQueueName()));
+      Message m = session.createMessage();
+      mp.send(m);
+
+      // Receive STOMP Message
+      ClientStompFrame frame = conn.receiveFrame();
+      assertNotNull(frame);
+      assertNull(frame.getBody());
+   }
+
    public void sendMessageToNonExistentQueue(String queuePrefix,
                                              String queue,
                                              RoutingType routingType) throws Exception {

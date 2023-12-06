@@ -153,29 +153,22 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref,
-                          Message serverMessage,
-                          final ServerConsumer consumer,
-                          int deliveryCount) {
-
-      ICoreMessage  coreMessage = serverMessage.toCore();
-
-      ICoreMessage newServerMessage = serverMessage.toCore();
+   public int sendMessage(MessageReference ref, Message serverMessage, final ServerConsumer consumer, int deliveryCount) {
+      ICoreMessage message = ref.getMessage().toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
          // subscription might be null if the consumer was closed
          if (subscription == null)
             return 0;
          StompFrame frame;
-         ActiveMQBuffer buffer = coreMessage.getDataBuffer();
 
-         frame = connection.createStompMessage(newServerMessage, buffer, subscription, deliveryCount);
+         frame = connection.createStompMessage(message, subscription, deliveryCount);
 
          int length = frame.getEncodedSize();
 
          if (subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
             if (manager.send(connection, frame)) {
-               final long messageID = newServerMessage.getMessageID();
+               final long messageID = message.getMessageID();
                final long consumerID = consumer.getID();
 
                // this will be called after the delivery is complete
@@ -191,14 +184,14 @@ public class StompSession implements SessionCallback {
                });
             }
          } else {
-            messagesToAck.put(newServerMessage.getMessageID(), new Pair<>(consumer.getID(), length));
+            messagesToAck.put(message.getMessageID(), new Pair<>(consumer.getID(), length));
             // Must send AFTER adding to messagesToAck - or could get acked from client BEFORE it's been added!
             manager.send(connection, frame);
          }
 
          return length;
       } catch (Exception e) {
-         ActiveMQStompProtocolLogger.LOGGER.unableToSendMessageToClient(coreMessage, e);
+         ActiveMQStompProtocolLogger.LOGGER.unableToSendMessageToClient(message, e);
          return 0;
       }
    }
