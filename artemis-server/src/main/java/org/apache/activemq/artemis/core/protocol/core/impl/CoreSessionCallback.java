@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -88,11 +87,10 @@ public final class CoreSessionCallback implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference ref,
-                               Message message,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
-      Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
+      Packet packet = new SessionReceiveLargeMessage(consumer.getID(), ref.getMessage(), bodySize, deliveryCount);
 
       channel.send(packet);
 
@@ -114,13 +112,13 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount)  {
+   public int sendMessage(MessageReference ref, ServerConsumer consumer, int deliveryCount)  {
 
       Packet packet;
       if (channel.getConnection().isVersionBeforeAddressChange()) {
-         packet = new SessionReceiveMessage_1X(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
+         packet = new SessionReceiveMessage_1X(consumer.getID(), ref.getMessage().toCore(coreMessageObjectPools), deliveryCount);
       } else {
-         packet = new SessionReceiveMessage(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
+         packet = new SessionReceiveMessage(consumer.getID(), ref.getMessage().toCore(coreMessageObjectPools), deliveryCount);
       }
 
       int size = 0;

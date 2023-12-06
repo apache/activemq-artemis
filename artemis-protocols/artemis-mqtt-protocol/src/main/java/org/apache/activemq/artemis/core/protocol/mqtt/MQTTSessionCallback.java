@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -44,14 +43,13 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference reference,
-                          Message message,
+   public int sendMessage(MessageReference ref,
                           ServerConsumer consumer,
                           int deliveryCount) {
       try {
-         session.getMqttPublishManager().sendMessage(message.toCore(), consumer, deliveryCount);
+         session.getMqttPublishManager().sendMessage(ref.getMessage().toCore(), consumer, deliveryCount);
       } catch (Exception e) {
-         MQTTLogger.LOGGER.unableToSendMessage(reference, e);
+         MQTTLogger.LOGGER.unableToSendMessage(ref, e);
       }
       return 1;
    }
@@ -70,12 +68,11 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference reference,
-                               Message message,
+   public int sendLargeMessage(MessageReference ref,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
-      return sendMessage(reference, message, consumer, deliveryCount);
+      return sendMessage(ref, consumer, deliveryCount);
    }
 
    @Override

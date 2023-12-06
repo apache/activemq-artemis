@@ -487,7 +487,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             // The deliverer will increase the usageUp, so the preAck has to be done after this is created
             // otherwise we may have a removed message early on
             if (message instanceof CoreLargeServerMessage && this.supportLargeMessage) {
-               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, ref);
+               largeMessageDeliverer = new CoreLargeMessageDeliverer(ref);
             }
 
             if (preAcknowledge) {
@@ -507,8 +507,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void proceedDeliver(MessageReference reference) throws Exception {
       try {
-         Message message = reference.getMessage();
-
          if (AuditLogger.isMessageLoggingEnabled()) {
             AuditLogger.coreConsumeMessage(session.getRemotingConnection().getSubject(), session.getRemotingConnection().getRemoteAddress(), getQueueName().toString(), reference.toString());
          }
@@ -516,18 +514,18 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));
          }
 
-         if (message instanceof CoreLargeServerMessage && supportLargeMessage) {
+         if (reference.getMessage() instanceof CoreLargeServerMessage && supportLargeMessage) {
             if (largeMessageDeliverer == null) {
-               // This can't really happen as handle had already crated the deliverer
+               // This can't really happen as handle had already created the deliverer
                // instead of throwing an exception in weird cases there is no problem on just go ahead and create it
                // again here
-               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, reference);
+               largeMessageDeliverer = new CoreLargeMessageDeliverer(reference);
             }
             // The deliverer was prepared during handle, as we can't have more than one pending large message
             // as it would return busy if there is anything pending
             largeMessageDeliverer.deliver();
          } else {
-            deliverStandardMessage(reference, message);
+            deliverStandardMessage(reference);
          }
       } finally {
          pendingDelivery.countDown();
@@ -681,15 +679,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void forceDelivery(final long sequence)  {
       forceDelivery(sequence, () -> {
-         Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
+         Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50)
+            .putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence)
+            .setAddress(messageQueue.getName());
+
          MessageReference reference = MessageReference.Factory.createReference(forcedDeliveryMessage, messageQueue);
          reference.setDeliveryCount(0);
 
-         forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
-         forcedDeliveryMessage.setAddress(messageQueue.getName());
-
          applyPrefixForLegacyConsumer(forcedDeliveryMessage);
-         callback.sendMessage(reference, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+         callback.sendMessage(reference, ServerConsumerImpl.this, 0);
       });
    }
 
@@ -1220,13 +1218,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       messageQueue.getExecutor().execute(resumeLargeMessageRunnable);
    }
 
-   /**
-    * @param ref
-    * @param message
-    */
-   private void deliverStandardMessage(final MessageReference ref, Message message) throws ActiveMQException {
-      applyPrefixForLegacyConsumer(message);
-      int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
+   private void deliverStandardMessage(final MessageReference ref) {
+      applyPrefixForLegacyConsumer(ref.getMessage());
+      int packetSize = callback.sendMessage(ref, ServerConsumerImpl.this, ref.getDeliveryCount());
 
       if (availableCredits != null) {
          availableCredits.addAndGet(-packetSize);
@@ -1301,12 +1295,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       private ByteBuffer chunkBytes;
 
-      private CoreLargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
-         largeMessage = message;
+      private CoreLargeMessageDeliverer(final MessageReference ref) {
+         this.ref = ref;
+
+         largeMessage = (LargeServerMessage) ref.getMessage();
 
          largeMessage.toMessage().usageUp();
-
-         this.ref = ref;
 
          this.chunkBytes = null;
       }
@@ -1357,7 +1351,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                sentInitialPacket = true;
 
-               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage.toMessage(), ServerConsumerImpl.this, context.getSize(), ref.getDeliveryCount());
+               int packetSize = callback.sendLargeMessage(ref, ServerConsumerImpl.this, context.getSize(), ref.getDeliveryCount());
 
                if (availableCredits != null) {
                   final int credits = availableCredits.addAndGet(-packetSize);

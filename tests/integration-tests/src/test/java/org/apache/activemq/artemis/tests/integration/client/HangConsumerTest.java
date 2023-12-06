@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -518,7 +517,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
        * @see SessionCallback#sendJmsMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, int)
        */
       @Override
-      public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
+      public int sendMessage(MessageReference ref, ServerConsumer consumer, int deliveryCount) {
          inCall.countDown();
          try {
             callbackSemaphore.acquire();
@@ -528,7 +527,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
 
          try {
-            return targetCallback.sendMessage(ref, message, consumer, deliveryCount);
+            return targetCallback.sendMessage(ref, consumer, deliveryCount);
          } finally {
             callbackSemaphore.release();
             inCall.countUp();
@@ -539,12 +538,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
        * @see SessionCallback#sendLargeMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, long, int)
        */
       @Override
-      public int sendLargeMessage(MessageReference reference,
-                                  Message message,
+      public int sendLargeMessage(MessageReference ref,
                                   ServerConsumer consumer,
                                   long bodySize,
                                   int deliveryCount) {
-         return targetCallback.sendLargeMessage(reference, message, consumer, bodySize, deliveryCount);
+         return targetCallback.sendLargeMessage(ref, consumer, bodySize, deliveryCount);
       }
 
       /* (non-Javadoc)

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -30,9 +31,9 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -76,7 +77,6 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class AMQPSessionCallback implements SessionCallback {
 
@@ -649,7 +649,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, ServerConsumer consumer, int deliveryCount) {
 
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 
@@ -667,7 +667,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference ref,
-                               Message message,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
