@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt5;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.Message;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +51,15 @@ import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * General tests for things not covered directly in the specification.
  */
 public class MQTT5Test extends MQTT5TestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public MQTT5Test(String protocol) {
       super(protocol);
@@ -70,7 +75,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       subscriber.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) {
-            System.out.println("Message received from " + topic + ": " + message);
+            logger.info("Message received from topic {}, message={}", topic, message);
             latch.countDown();
          }
       });
