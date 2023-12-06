@@ -622,11 +622,10 @@ public final class StompConnection extends AbstractRemotingConnection {
       return SERVER_NAME;
    }
 
-   public StompFrame createStompMessage(ICoreMessage serverMessage,
-                                        ActiveMQBuffer bodyBuffer,
+   public StompFrame createStompMessage(ICoreMessage message,
                                         StompSubscription subscription,
-                                        int deliveryCount) throws Exception {
-      return frameHandler.createMessageFrame(serverMessage, bodyBuffer, subscription, deliveryCount);
+                                        int deliveryCount) {
+      return frameHandler.createMessageFrame(message, subscription, deliveryCount);
    }
 
    public void addStompEventListener(FrameEventListener listener) {
