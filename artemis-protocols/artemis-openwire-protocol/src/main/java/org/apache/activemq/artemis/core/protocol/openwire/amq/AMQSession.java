@@ -291,19 +291,17 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference reference,
-                          org.apache.activemq.artemis.api.core.Message message,
+   public int sendMessage(MessageReference ref,
                           ServerConsumer consumer,
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
       //clear up possible rolledback ids.
-      theConsumer.removeRolledback(reference);
-      return theConsumer.handleDeliver(reference, message.toCore());
+      theConsumer.removeRolledback(ref);
+      return theConsumer.handleDeliver(ref, ref.getMessage().toCore());
    }
 
    @Override
-   public int sendLargeMessage(MessageReference reference,
-                               org.apache.activemq.artemis.api.core.Message message,
+   public int sendLargeMessage(MessageReference ref,
                                ServerConsumer consumerID,
                                long bodySize,
                                int deliveryCount) {

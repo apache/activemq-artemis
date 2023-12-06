@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,6 @@ import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 import static org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
@@ -153,7 +153,7 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, Message serverMessage, final ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, final ServerConsumer consumer, int deliveryCount) {
       ICoreMessage message = ref.getMessage().toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
@@ -206,7 +206,6 @@ public class StompSession implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference ref,
-                               Message msg,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
