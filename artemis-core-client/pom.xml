@@ -124,6 +124,19 @@
          <groupId>io.netty</groupId>
          <artifactId>netty-resolver</artifactId>
       </dependency>
+      <dependency>
+         <groupId>de.dentrassi.crypto</groupId>
+         <artifactId>pem-keystore</artifactId>
+      </dependency>
+      <!-- bcprov-jdk18on replaces bcprov-jdk15on excluded pem-keystore -->
+      <dependency>
+         <groupId>org.bouncycastle</groupId>
+         <artifactId>bcprov-jdk18on</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.bouncycastle</groupId>
+         <artifactId>bcpkix-jdk18on</artifactId>
+      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
            However maven can still need them during tests, which run against

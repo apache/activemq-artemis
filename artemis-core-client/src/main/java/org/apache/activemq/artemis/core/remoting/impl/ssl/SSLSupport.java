@@ -47,6 +47,7 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
+import de.dentrassi.crypto.pem.PemKeyStoreProvider;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
@@ -332,6 +333,7 @@ public class SSLSupport {
                                         final String keystoreType,
                                         final String keystorePath,
                                         final String keystorePassword) throws Exception {
+      checkPemProviderLoaded(keystoreType);
       KeyStore ks = keystoreProvider == null ? KeyStore.getInstance(keystoreType) : KeyStore.getInstance(keystoreType, keystoreProvider);
       InputStream in = null;
       try {
@@ -349,6 +351,14 @@ public class SSLSupport {
          }
       }
       return ks;
+   }
+
+   private static void checkPemProviderLoaded(String keystoreType) {
+      if (keystoreType != null && keystoreType.startsWith("PEM")) {
+         if (Security.getProvider("PEM") == null) {
+            Security.insertProviderAt(new PemKeyStoreProvider(), Integer.parseInt(System.getProperty("artemis.pemProvider.insertAt", "0")));
+         }
+      }
    }
 
    private KeyManager[] loadKeyManagers() throws Exception {

@@ -316,7 +316,7 @@ The ActiveMQ-specific system property is useful if another component on the clie
 
 keyStoreType::
 The type of keystore being used.
-For example, `JKS`, `JCEKS`, `PKCS12`, etc.
+For example, `JKS`, `JCEKS`, `PKCS12`, `PEM` etc.
 This value can also be set via the "javax.net.ssl.keyStoreType" system property or the ActiveMQ-specific "org.apache.activemq.ssl.keyStoreType" system property.
 The ActiveMQ-specific system property is useful if another component on the  client is already making use of the standard Java system property.
 Default is `JKS`.
@@ -356,7 +356,7 @@ The ActiveMQ-specific system property is useful if another component on the clie
 
 trustStoreType::
 The type of truststore being used.
-For example, `JKS`, `JCEKS`, `PKCS12`, etc.
+For example, `JKS`, `JCEKS`, `PKCS12`, `PEM` etc.
 This value can also be set via the "javax.net.ssl.trustStoreType" system property or the ActiveMQ-specific "org.apache.activemq.ssl.trustStoreType" system property.
 The ActiveMQ-specific system property is useful if another component on the client is already making use of the standard Java system property.
 Default is `JKS`.
