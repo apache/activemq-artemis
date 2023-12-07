@@ -175,12 +175,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    final int reconnectAttempts,
                                    final Executor threadPool,
                                    final ScheduledExecutorService scheduledThreadPool,
-                                   final Executor flowControlPool,
+                                   final Executor flowControlThreadPool,
                                    final List<Interceptor> incomingInterceptors,
                                    final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, new Pair<>(connectorConfig, null),
                locatorConfig, reconnectAttempts, threadPool,
-               scheduledThreadPool,flowControlPool, incomingInterceptors, outgoingInterceptors);
+               scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
    }
 
 
@@ -190,12 +190,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                             final int reconnectAttempts,
                             final Executor threadPool,
                             final ScheduledExecutorService scheduledThreadPool,
-                            final Executor flowControlPool,
+                            final Executor flowControlThreadPool,
                             final List<Interceptor> incomingInterceptors,
                             final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, connectorConfig,
            locatorConfig, reconnectAttempts, threadPool,
-           scheduledThreadPool, flowControlPool,incomingInterceptors, outgoingInterceptors, null);
+           scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors, null);
    }
 
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
@@ -204,7 +204,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                           final int reconnectAttempts,
                           final Executor threadPool,
                           final ScheduledExecutorService scheduledThreadPool,
-                          final Executor flowControlPoll,
+                          final Executor flowControlThreadPool,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
                           final TransportConfiguration[] connectorConfigs) {
@@ -256,7 +256,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       orderedExecutorFactory = new OrderedExecutorFactory(threadPool);
 
-      flowControlExecutor = new OrderedExecutorFactory(flowControlPoll).getExecutor();
+      flowControlExecutor = new OrderedExecutorFactory(flowControlThreadPool).getExecutor();
 
       closeExecutor = orderedExecutorFactory.getExecutor();
 

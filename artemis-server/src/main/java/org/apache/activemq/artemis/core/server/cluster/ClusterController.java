@@ -237,7 +237,7 @@ public class ClusterController implements ActiveMQComponent {
       serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
       //this is used for replication so need to use the server packet decoder
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, server.getStorageManager()));
-      serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool());
+      serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool(), server.getThreadPool());
       if (connector != null) {
          serverLocator.setClusterTransportConfiguration(connector);
       }
