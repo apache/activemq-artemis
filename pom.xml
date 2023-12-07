@@ -117,6 +117,7 @@
       <curator.version>5.5.0</curator.version>
       <zookeeper.version>3.8.3</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
+      <pem-keystore.version>2.2.2</pem-keystore.version>
 
       <!-- docs -->
       <asciidoctor.maven.plugin.version>2.2.4</asciidoctor.maven.plugin.version>
@@ -412,7 +413,23 @@
                </exclusion>
             </exclusions>
          </dependency>
-
+         <dependency>
+            <groupId>de.dentrassi.crypto</groupId>
+            <artifactId>pem-keystore</artifactId>
+            <version>${pem-keystore.version}</version>
+            <!-- Eclipse Public License - v 1.0 -->
+            <exclusions>
+               <!-- exclude bcprov-jdk15on to avoid conflicts with bcprov-jdk18on -->
+               <exclusion>
+                  <groupId>org.bouncycastle</groupId>
+                  <artifactId>bcprov-jdk15on</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.bouncycastle</groupId>
+                  <artifactId>bcpkix-jdk15on</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
          <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>

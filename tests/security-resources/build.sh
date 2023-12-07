@@ -153,6 +153,20 @@ keytool -storetype pkcs12 -keystore unknown-client-keystore.p12 -storepass $STOR
 keytool -importkeystore -srckeystore unknown-client-keystore.p12 -destkeystore unknown-client-keystore.jceks -srcstoretype pkcs12 -deststoretype jceks -srcstorepass securepass -deststorepass securepass
 keytool -importkeystore -srckeystore unknown-client-keystore.p12 -destkeystore unknown-client-keystore.jks -srcstoretype pkcs12 -deststoretype jks -srcstorepass securepass -deststorepass securepass
 
+# PEM versions
+## separate private and public cred pem files combined for the keystore via prop
+openssl pkcs12 -in server-keystore.p12 -out server-cert.pem -clcerts -nokeys -password pass:$STORE_PASS
+openssl pkcs12 -in server-keystore.p12 -out server-key.pem -nocerts -nodes -password pass:$STORE_PASS
+
+## PEMCFG properties format
+echo source.key=classpath:server-key.pem > server-pem-props-config.txt
+echo source.cert=classpath:server-cert.pem >> server-pem-props-config.txt
+
+## combined pem file for client
+openssl pkcs12 -in client-keystore.p12 -out client-key-cert.pem -nodes -password pass:$STORE_PASS
+keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -exportcert -rfc > server-ca-cert.pem
+keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -exportcert -rfc > client-ca-cert.pem
+
 # Clean up working files
 # -----------------------
 rm -f *.crt *.csr openssl-*
