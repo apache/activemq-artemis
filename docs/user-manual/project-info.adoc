@@ -8,4 +8,4 @@ For a description of MoMs and other messaging concepts please see the xref:messa
 * If you have any questions related to the use or development of Apache ActiveMQ Artemis please use one of our https://activemq.apache.org/contact[mailing lists].
 * *Official project page*: https://activemq.apache.org/components/artemis/.
 * *Download*: https://activemq.apache.org/components/artemis/download/
-* *Git repository*: https://github.com/apache/activemq-artemis
+* *Git repository*: https://github.com/apache/activemq-artemis[https://github.com/apache/activemq-artemis^]
