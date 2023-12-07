@@ -157,7 +157,7 @@ public class BackupActivationNoReconnectTest {
          final ServerLocatorConfig locatorConfig = Mockito.mock(ServerLocatorConfig.class);
          final int reconnectAttempts = 1;
          final Executor threadPool = Mockito.mock(Executor.class);
-         final Executor flowControlPool = Mockito.mock(Executor.class);
+         final Executor flowControlThreadPool = Mockito.mock(Executor.class);
          final ScheduledExecutorService scheduledThreadPool = Mockito.mock(ScheduledExecutorService.class);
          final ClientProtocolManager clientProtocolManager = Mockito.mock(ClientProtocolManager.class);
          when(serverLocator.newProtocolManager()).thenReturn(clientProtocolManager);
@@ -165,7 +165,7 @@ public class BackupActivationNoReconnectTest {
          Map<String, Object> urlParams = new HashMap<>();
          urlParams.put("port", serverSocket.getLocalPort());
          when(connectorConfig.getCombinedParams()).thenReturn(urlParams);
-         ClientSessionFactoryImpl sessionFactory = new ClientSessionFactoryImpl(serverLocator, connectorConfig, locatorConfig, reconnectAttempts, threadPool, scheduledThreadPool, flowControlPool,null, null);
+         ClientSessionFactoryImpl sessionFactory = new ClientSessionFactoryImpl(serverLocator, connectorConfig, locatorConfig, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool,null, null);
          when(clusterControl.getSessionFactory()).thenReturn(sessionFactory);
          when(clientProtocolManager.isAlive()).thenReturn(true);
 

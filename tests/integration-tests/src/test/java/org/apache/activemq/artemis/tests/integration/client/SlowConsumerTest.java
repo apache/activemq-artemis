@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +53,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
@@ -96,6 +96,43 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST)).getPageSubscription().getPagingStore().startPaging();
 
       locator = createFactory(isNetty);
+   }
+
+   @Test
+   public void testSlowConsumerWithSmallThreadPool() throws Exception {
+      final int MESSAGE_COUNT = 2;
+      CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
+      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      /*
+       * Even though the threadPoolMaxSize is 1 the client shouldn't stall on flow control due to the independent flow
+       * control thread pool.
+       */
+      ServerLocator locator = createInVMNonHALocator()
+         .setConsumerWindowSize(0)
+         .setUseGlobalPools(false)
+         .setThreadPoolMaxSize(1);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      try (ClientSession session = cf.createSession(true, true);
+           ClientProducer producer = session.createProducer(getName())) {
+         for (int i = 0; i < MESSAGE_COUNT; i++) {
+            producer.send(session.createMessage(true));
+         }
+      }
+      try (ClientSession session = cf.createSession(true, true);
+           ClientConsumer consumer = session.createConsumer(getName())) {
+         consumer.setMessageHandler((m) -> {
+            latch.countDown();
+            try {
+               m.acknowledge();
+            } catch (ActiveMQException e) {
+               throw new RuntimeException(e);
+            }
+         });
+         session.start();
+         assertTrue("All messages should be received within the timeout", latch.await(1, TimeUnit.SECONDS));
+      }
+      assertEquals(0, server.locateQueue(getName()).getMessageCount());
    }
 
    @Test

@@ -39,6 +39,7 @@ public class ServerLocatorConfig {
    public boolean useGlobalPools = ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS;
    public int threadPoolMaxSize = ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
    public int scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
+   public int flowControlThreadPoolMaxSize = ActiveMQClient.DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE;
    public long retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
    public double retryIntervalMultiplier = ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
    public long maxRetryInterval = ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL;
@@ -76,6 +77,7 @@ public class ServerLocatorConfig {
       ackBatchSize = locator.ackBatchSize;
       useGlobalPools = locator.useGlobalPools;
       scheduledThreadPoolMaxSize = locator.scheduledThreadPoolMaxSize;
+      flowControlThreadPoolMaxSize = locator.flowControlThreadPoolMaxSize;
       threadPoolMaxSize = locator.threadPoolMaxSize;
       retryInterval = locator.retryInterval;
       retryIntervalMultiplier = locator.retryIntervalMultiplier;

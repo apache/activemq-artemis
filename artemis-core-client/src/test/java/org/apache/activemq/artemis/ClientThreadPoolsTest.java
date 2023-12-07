@@ -62,18 +62,20 @@ public class ClientThreadPoolsTest {
    public void testSystemPropertyThreadPoolSettings() throws Exception {
       int threadPoolMaxSize = 100;
       int scheduledThreadPoolSize = 10;
+      int flowControlThreadPoolMaxSize = 99;
 
       System.setProperty(ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY, "" + threadPoolMaxSize);
       System.setProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY, "" + scheduledThreadPoolSize);
+      System.setProperty(ActiveMQClient.FLOW_CONTROL_THREAD_POOL_SIZE_PROPERTY_KEY, "" + flowControlThreadPoolMaxSize);
       ActiveMQClient.initializeGlobalThreadPoolProperties();
       ActiveMQClient.clearThreadPools();
 
-      testSystemPropertiesThreadPoolSettings(threadPoolMaxSize, scheduledThreadPoolSize);
+      testSystemPropertiesThreadPoolSettings(threadPoolMaxSize, scheduledThreadPoolSize, flowControlThreadPoolMaxSize);
    }
 
    @Test
    public void testShutdownPoolInUse() throws Exception {
-      ActiveMQClient.setGlobalThreadPoolProperties(10, 1);
+      ActiveMQClient.setGlobalThreadPoolProperties(10, 1, 2);
       ActiveMQClient.clearThreadPools();
 
       final CountDownLatch inUse = new CountDownLatch(1);
@@ -103,9 +105,11 @@ public class ClientThreadPoolsTest {
 
       ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
+      ThreadPoolExecutor flowControlPoolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+
       ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
-      ActiveMQClient.injectPools(poolExecutor, scheduledThreadPoolExecutor);
+      ActiveMQClient.injectPools(poolExecutor, scheduledThreadPoolExecutor, flowControlPoolExecutor);
 
       final CountDownLatch inUse = new CountDownLatch(1);
       final CountDownLatch neverLeave = new CountDownLatch(1);
@@ -126,6 +130,7 @@ public class ClientThreadPoolsTest {
       Assert.assertTrue(inUse.await(10, TimeUnit.SECONDS));
       poolExecutor.shutdownNow();
       scheduledThreadPoolExecutor.shutdownNow();
+      flowControlPoolExecutor.shutdownNow();
       Assert.assertTrue(neverLeave.await(10, TimeUnit.SECONDS));
 
       Assert.assertTrue(inUse.await(10, TimeUnit.SECONDS));
@@ -139,10 +144,11 @@ public class ClientThreadPoolsTest {
 
       int testMaxSize = 999;
       int testScheduleSize = 9;
+      int testFlowControlMaxSize = 888;
 
-      ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize);
+      ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize, testFlowControlMaxSize);
       ActiveMQClient.clearThreadPools();
-      testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize);
+      testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize, testFlowControlMaxSize);
    }
 
    @Test
@@ -150,13 +156,14 @@ public class ClientThreadPoolsTest {
 
       int testMaxSize = 2;
       int testScheduleSize = 9;
+      int testFlowControlMaxSize = 8;
 
-      ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize);
+      ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize, testFlowControlMaxSize);
       ActiveMQClient.clearThreadPools();
-      testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize);
+      testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize, testFlowControlMaxSize);
    }
 
-   private void testSystemPropertiesThreadPoolSettings(int expectedMax, int expectedScheduled) throws Exception {
+   private void testSystemPropertiesThreadPoolSettings(int expectedMax, int expectedScheduled, int expectedFlowControl) throws Exception {
       ServerLocatorImpl serverLocator = new ServerLocatorImpl(false);
       serverLocator.isUseGlobalPools();
 
@@ -167,9 +174,11 @@ public class ClientThreadPoolsTest {
       // TODO: I would get this from the ActiveMQClient
       Field threadPoolField = ServerLocatorImpl.class.getDeclaredField("threadPool");
       Field scheduledThreadPoolField = ServerLocatorImpl.class.getDeclaredField("scheduledThreadPool");
+      Field flowControlThreadPoolField = ServerLocatorImpl.class.getDeclaredField("flowControlThreadPool");
 
       threadPoolField.setAccessible(true);
       scheduledThreadPoolField.setAccessible(true);
+      flowControlThreadPoolField.setAccessible(true);
 
       ThreadPoolExecutor threadPool = (ThreadPoolExecutor) ActiveMQClient.getGlobalThreadPool();
 
@@ -210,9 +219,11 @@ public class ClientThreadPoolsTest {
       Assert.assertTrue(latchTotal.await(5, TimeUnit.SECONDS));
 
       ScheduledThreadPoolExecutor scheduledThreadPool = (ScheduledThreadPoolExecutor) scheduledThreadPoolField.get(serverLocator);
+      ThreadPoolExecutor flowControlThreadPool = (ThreadPoolExecutor) flowControlThreadPoolField.get(serverLocator);
 
       assertEquals(expectedMax, threadPool.getMaximumPoolSize());
       assertEquals(expectedScheduled, scheduledThreadPool.getCorePoolSize());
+      assertEquals(expectedFlowControl, flowControlThreadPool.getMaximumPoolSize());
    }
 
    @Test
@@ -222,21 +233,26 @@ public class ClientThreadPoolsTest {
 
       ThreadPoolExecutor threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
       ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(1);
-      serverLocator.setThreadPools(threadPool, scheduledThreadPool);
+      ThreadPoolExecutor flowControlThreadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      serverLocator.setThreadPools(threadPool, scheduledThreadPool, flowControlThreadPool);
 
       Field threadPoolField = ServerLocatorImpl.class.getDeclaredField("threadPool");
       Field scheduledThreadPoolField = ServerLocatorImpl.class.getDeclaredField("scheduledThreadPool");
+      Field flowControlThreadPoolField = ServerLocatorImpl.class.getDeclaredField("flowControlThreadPool");
 
       serverLocator.initialize();
 
       threadPoolField.setAccessible(true);
       scheduledThreadPoolField.setAccessible(true);
+      flowControlThreadPoolField.setAccessible(true);
 
       ThreadPoolExecutor tpe = (ThreadPoolExecutor) threadPoolField.get(serverLocator);
       ScheduledThreadPoolExecutor stpe = (ScheduledThreadPoolExecutor) scheduledThreadPoolField.get(serverLocator);
+      ThreadPoolExecutor fctpe = (ThreadPoolExecutor) flowControlThreadPoolField.get(serverLocator);
 
       assertEquals(threadPool, tpe);
       assertEquals(scheduledThreadPool, stpe);
+      assertEquals(flowControlThreadPool, fctpe);
    }
 
    @After

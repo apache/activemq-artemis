@@ -71,18 +71,21 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(10);
+      ExecutorService flowControlThreadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       ServerLocator locator = createNonHALocator(false);
-      boolean setThreadPools = locator.setThreadPools(threadPool, scheduledThreadPool);
+      boolean setThreadPools = locator.setThreadPools(threadPool, scheduledThreadPool, flowControlThreadPool);
 
       assertTrue(setThreadPools);
       testCoreClient(true, locator);
 
       threadPool.shutdown();
       scheduledThreadPool.shutdown();
+      flowControlThreadPool.shutdown();
 
       threadPool.awaitTermination(60, TimeUnit.SECONDS);
       scheduledThreadPool.awaitTermination(60, TimeUnit.SECONDS);
+      flowControlThreadPool.awaitTermination(60, TimeUnit.SECONDS);
    }
 
    @Test
@@ -90,15 +93,16 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       int originalScheduled = ActiveMQClient.getGlobalScheduledThreadPoolSize();
       int originalGlobal = ActiveMQClient.getGlobalThreadPoolSize();
+      int originalFlowControl = ActiveMQClient.getGlobalFlowControlThreadPoolSize();
 
       try {
-         ActiveMQClient.setGlobalThreadPoolProperties(2, 1);
+         ActiveMQClient.setGlobalThreadPoolProperties(2, 1, 3);
          ActiveMQClient.clearThreadPools();
          ServerLocator locator = createNonHALocator(false);
          testCoreClient(true, locator);
       } finally {
          // restoring original value otherwise future tests would be screwed up
-         ActiveMQClient.setGlobalThreadPoolProperties(originalGlobal, originalScheduled);
+         ActiveMQClient.setGlobalThreadPoolProperties(originalGlobal, originalScheduled, originalFlowControl);
          ActiveMQClient.clearThreadPools();
       }
    }

@@ -562,6 +562,26 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setThreadPoolMaxSize(int threadPoolMaxSize);
 
    /**
+    * Returns the maximum size of the flow-control thread pool.
+    * <p>
+    * Default value is {@link ActiveMQClient#DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE}.
+    *
+    * @return the maximum size of the flow-control thread pool.
+    */
+   int getFlowControlThreadPoolMaxSize();
+
+   /**
+    * Sets the maximum size of the flow-control thread pool.
+    * <p>
+    * This setting is relevant only if this factory does not use global pools.
+    * Value must be -1 (for unlimited thread pool) or greater than 0.
+    *
+    * @param flowControlThreadPoolMaxSize maximum size of the flow-control thread pool.
+    * @return this ServerLocator
+    */
+   ServerLocator setFlowControlThreadPoolMaxSize(int flowControlThreadPoolMaxSize);
+
+   /**
     * Returns the time to retry connections created by this factory after failure.
     * <p>
     * Value is in milliseconds, default is {@link ActiveMQClient#DEFAULT_RETRY_INTERVAL}.
@@ -847,7 +867,7 @@ public interface ServerLocator extends AutoCloseable {
 
    String getOutgoingInterceptorList();
 
-   boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPoolExecutor);
+   boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPoolExecutor, Executor flowControlThreadPool);
 
    /** This will only instantiate internal objects such as the topology */
    void initialize() throws ActiveMQException;

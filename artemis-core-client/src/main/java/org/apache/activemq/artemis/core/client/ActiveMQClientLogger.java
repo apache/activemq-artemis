@@ -347,4 +347,7 @@ public interface ActiveMQClientLogger {
 
    @LogMessage(id = 214034, value = "{} has negative counts {}\n{}", level = LogMessage.Level.ERROR)
    void negativeRefCount(String message, String count, String debugString);
+
+   @LogMessage(id = 214035, value = "Couldn't finish the client globalFlowControlThreadPool in less than 10 seconds, interrupting it now", level = LogMessage.Level.WARN)
+   void unableToProcessGlobalFlowControlThreadPoolIn10Sec();
 }

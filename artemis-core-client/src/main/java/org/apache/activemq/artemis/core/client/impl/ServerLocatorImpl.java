@@ -137,7 +137,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private transient Executor threadPool;
 
-   private transient Executor flowControlPool;
+   private transient Executor flowControlThreadPool;
    private transient ScheduledExecutorService scheduledThreadPool;
 
    private transient DiscoveryGroup discoveryGroup;
@@ -196,51 +196,53 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       } else if (config.useGlobalPools) {
          threadPool = ActiveMQClient.getGlobalThreadPool();
 
-         flowControlPool = ActiveMQClient.getFlowControlThreadPool(); //TODO  add option for config
+         flowControlThreadPool = ActiveMQClient.getGlobalFlowControlThreadPool();
 
          scheduledThreadPool = ActiveMQClient.getGlobalScheduledThreadPool();
       } else {
          this.shutdownPool = true;
 
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true,
-                                                ServerLocatorImpl.class.getClassLoader());
-            }
-         });
-
+         ThreadFactory factory = getThreadFactory("ActiveMQ-client-factory-threads-");
          if (config.threadPoolMaxSize == -1) {
             threadPool = Executors.newCachedThreadPool(factory);
          } else {
             threadPool = new ActiveMQThreadPoolExecutor(0, config.threadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
          }
 
-         factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-factory-pinger-threads-" + System.identityHashCode(this), true,
-                                                ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         factory = getThreadFactory("ActiveMQ-client-factory-flow-control-threads-");
+         if (config.flowControlThreadPoolMaxSize == -1) {
+            flowControlThreadPool = Executors.newCachedThreadPool(factory);
+         } else {
+            flowControlThreadPool = new ActiveMQThreadPoolExecutor(0, config.flowControlThreadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
+         }
 
-         flowControlPool = ActiveMQClient.getFlowControlThreadPool(); //TODO  add option for config;
+         factory = getThreadFactory("ActiveMQ-client-factory-pinger-threads-");
          scheduledThreadPool = Executors.newScheduledThreadPool(config.scheduledThreadPoolMaxSize, factory);
       }
       this.updateArrayActor = new Actor<>(threadPool, this::internalUpdateArray);
    }
 
+   private ThreadFactory getThreadFactory(String groupName) {
+      return AccessController.doPrivileged(new PrivilegedAction<>() {
+         @Override
+         public ThreadFactory run() {
+            return new ActiveMQThreadFactory(groupName + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
+         }
+      });
+   }
+
    @Override
-   public synchronized boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPool) {
+   public synchronized boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPool, Executor flowControlThreadPool) {
 
       if (threadPool == null || scheduledThreadPool == null)
          return false;
 
-      if (this.threadPool == null && this.scheduledThreadPool == null) {
+      if (this.threadPool == null && this.scheduledThreadPool == null && this.flowControlThreadPool == null) {
          config.useGlobalPools = false;
          shutdownPool = false;
          this.threadPool = threadPool;
          this.scheduledThreadPool = scheduledThreadPool;
+         this.flowControlThreadPool = flowControlThreadPool;
          return true;
       } else {
          return false;
@@ -632,7 +634,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       initialize();
 
-      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, flowControlPool,incomingInterceptors, outgoingInterceptors);
+      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool,incomingInterceptors, outgoingInterceptors);
 
       addToConnecting(factory);
       try {
@@ -708,7 +710,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             // try each factory in the list until we find one which works
 
             try {
-               factory = new ClientSessionFactoryImpl(this, tc, config, config.reconnectAttempts, threadPool, scheduledThreadPool, flowControlPool, incomingInterceptors, outgoingInterceptors, initialConnectors);
+               factory = new ClientSessionFactoryImpl(this, tc, config, config.reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors, initialConnectors);
                try {
                   addToConnecting(factory);
                   // We always try to connect here with only one attempt,
@@ -1135,6 +1137,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
+   public int getFlowControlThreadPoolMaxSize() {
+      return config.flowControlThreadPoolMaxSize;
+   }
+
+   @Override
+   public ServerLocatorImpl setFlowControlThreadPoolMaxSize(final int flowControlThreadPoolMaxSize) {
+      checkWrite();
+      this.config.flowControlThreadPoolMaxSize = flowControlThreadPoolMaxSize;
+      return this;
+   }
+
+   @Override
    public long getRetryInterval() {
       return config.retryInterval;
    }
@@ -1456,6 +1470,19 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             try {
                if (!scheduledThreadPool.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
                   ActiveMQClientLogger.LOGGER.timedOutWaitingForScheduledPoolTermination();
+               }
+            } catch (InterruptedException e) {
+               throw new ActiveMQInterruptedException(e);
+            }
+         }
+
+         if (flowControlThreadPool != null) {
+            ExecutorService executorService = (ExecutorService) flowControlThreadPool;
+            executorService.shutdown();
+
+            try {
+               if (!executorService.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
+                  ActiveMQClientLogger.LOGGER.timedOutWaitingForTermination();
                }
             } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
@@ -1811,7 +1838,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          connectors = new ArrayList<>();
          if (initialConnectors != null) {
             for (TransportConfiguration initialConnector : initialConnectors) {
-               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool,flowControlPool, incomingInterceptors, outgoingInterceptors);
+               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool,flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
 
                connectors.add(new Connector(initialConnector, factory));
             }
