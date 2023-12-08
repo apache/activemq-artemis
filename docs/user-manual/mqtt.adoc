@@ -82,7 +82,7 @@ This feature can be useful in an IoT style scenario to detect errors across a po
 == Debug Logging
 
 Detailed protocol logging (e.g. packets in/out) can be activated by turning on `TRACE` logging for `org.apache.activemq.artemis.core.protocol.mqtt`.
-Follow xref:logging.adoc#activating-trace-for-a-specific-logger[these steps] to configure logging appropriately.
+Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.
 
 The MQTT specification doesn't dictate the format of the payloads which clients publish.
 As far as the broker is concerned a payload is just an array of bytes.

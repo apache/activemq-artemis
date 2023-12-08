@@ -41,7 +41,7 @@ Disabled by default
 Disabled by default
 |===
 
-== Activating TRACE for a specific logger
+== Configuring a Specific Level for a Logger
 
 Sometimes it is necessary to get more detailed logs from a particular logger.
 For example, when you're trying to troublshoot an issue.

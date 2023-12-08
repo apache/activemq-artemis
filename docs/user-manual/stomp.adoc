@@ -37,6 +37,8 @@ Incoming and outgoing STOMP frames can be logged by enabling `DEBUG` for `org.ap
 This can be extremely useful for debugging or simply monitoring client activity.
 Along with the STOMP frame itself the remote IP address of the client is logged as well as the internal connection ID so that frames from the same client can be correlated.
 
+Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.
+
 == Routing Semantics
 
 The STOMP specification is intentionally ambiguous about message routing semantics.
