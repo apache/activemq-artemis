@@ -53,6 +53,7 @@ import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -123,7 +124,7 @@ public class MQTTUtil {
 
    public static final int TWO_BYTE_INT_MAX = Integer.decode("0xFFFF"); // 65_535
 
-    // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
+   // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
    public static final int VARIABLE_BYTE_INT_MAX = 268_435_455;
 
    public static final int MAX_PACKET_SIZE = VARIABLE_BYTE_INT_MAX;
@@ -138,26 +139,70 @@ public class MQTTUtil {
 
    public static final int DEFAULT_MAXIMUM_PACKET_SIZE = MAX_PACKET_SIZE;
 
-   public static String convertMqttTopicFilterToCore(String filter, WildcardConfiguration wildcardConfiguration) {
-      return convertMqttTopicFilterToCore(null, filter, wildcardConfiguration);
+   public static final WildcardConfiguration MQTT_WILDCARD = new WildcardConfiguration().setDelimiter(SLASH).setAnyWords(HASH).setSingleWord(PLUS);
+
+   /**
+    * This method takes the MQTT-related input and translates it into the proper name for a core subscription queue. The
+    * {@code topicFilter} may be either for a shared subscription in the format {@code $share/<shareName>/<topicFilter>}
+    * or a normal MQTT topic filter (e.g. {@code a/b/#}, {@code a/+/c}, {@code a/b/c}, etc.).
+    *
+    * @param topicFilter the MQTT topic filter
+    * @param clientId the MQTT client ID, used for normal (i.e. non-shared) subscriptions
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core subscription queue based on the input
+    */
+   public static String getCoreQueueFromMqttTopic(String topicFilter, String clientId, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(topicFilter, "MQTT topic filter must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
+
+      if (isSharedSubscription(topicFilter)) {
+         Pair<String, String> decomposed = decomposeSharedSubscriptionTopicFilter(topicFilter);
+         return new StringBuilder().append(decomposed.getA()).append(".").append(getCoreAddressFromMqttTopic(decomposed.getB(), wildcardConfiguration)).toString();
+      } else {
+         Objects.requireNonNull(clientId, "MQTT client ID must not be null");
+         return new StringBuilder().append(clientId).append(".").append(getCoreAddressFromMqttTopic(topicFilter, wildcardConfiguration)).toString();
+      }
    }
 
-   public static String convertMqttTopicFilterToCore(String prefixToAdd, String filter, WildcardConfiguration wildcardConfiguration) {
-      if (filter == null) {
-         return "";
-      }
+   /**
+    * This method takes the MQTT-related input and translates it into the proper name for a core address. The
+    * {@code topicFilter} must be normal (i.e. non-shared). It should not be in the format
+    * {@code $share/<shareName>/<topicFilter>}.
+    *
+    * @param topicFilter the MQTT topic filter
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core addres based on the input
+    */
+   public static String getCoreAddressFromMqttTopic(String topicFilter, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(topicFilter, "MQTT topic filter must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
 
-      String converted = MQTT_WILDCARD.convert(filter, wildcardConfiguration);
-      if (prefixToAdd != null) {
-         converted = prefixToAdd + converted;
-      }
-      return converted;
+      return MQTT_WILDCARD.convert(topicFilter, wildcardConfiguration);
    }
 
-   public static String convertCoreAddressToMqttTopicFilter(String address, WildcardConfiguration wildcardConfiguration) {
-      if (address == null) {
-         return "";
-      }
+   /**
+    * This is exactly the same as {@link #getCoreAddressFromMqttTopic(String, WildcardConfiguration)} except that it
+    * also prefixes the return with
+    * {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX}
+    *
+    * @param topicFilter the MQTT topic filter
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core address based on the input, stripping
+    *         {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX} if it exists
+    */
+   public static String getCoreRetainAddressFromMqttTopic(String topicFilter, WildcardConfiguration wildcardConfiguration) {
+      return MQTT_RETAIN_ADDRESS_PREFIX + getCoreAddressFromMqttTopic(topicFilter, wildcardConfiguration);
+   }
+
+   /**
+    *
+    * @param address the core address
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the MQTT topic based on the input
+    */
+   public static String getMqttTopicFromCoreAddress(String address, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(address, "Address must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
 
       if (address.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          address = address.substring(MQTT_RETAIN_ADDRESS_PREFIX.length());
@@ -165,16 +210,6 @@ public class MQTTUtil {
 
       return wildcardConfiguration.convert(address, MQTT_WILDCARD);
    }
-
-   public static class MQTTWildcardConfiguration extends WildcardConfiguration {
-      public MQTTWildcardConfiguration() {
-         setDelimiter(SLASH);
-         setSingleWord(PLUS);
-         setAnyWords(HASH);
-      }
-   }
-
-   public static final WildcardConfiguration MQTT_WILDCARD = new MQTTWildcardConfiguration();
 
    private static ICoreMessage createServerMessage(MQTTSession session, SimpleString address, MqttPublishMessage mqttPublishMessage) {
       long id = session.getServer().getStorageManager().generateID();
@@ -530,25 +565,30 @@ public class MQTTUtil {
       return defaultReturnValue == null ? null : defaultReturnValue;
    }
 
-
-
-   /*
-    * MQTT shared subscriptions are specified with the syntax from
-    * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901250:
-    *   $share/<shareName>/<topicFilter>
-    * This method takes this syntax and returns the shareName and the topicFilter.
+   /**
+    * MQTT shared subscriptions are specified with
+    * <a href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901250">this syntax</a>.
+    *
+    * @param topicFilter String in the format {@code $share/<shareName>/<topicFilter>}
+    * @return {@code Pair<String, String>} with {@code shareName} and {@code topicFilter} respectively or {@code null}
+    *         and {@code topicFilter} if not in the shared-subscription format.
     */
    public static Pair<String, String> decomposeSharedSubscriptionTopicFilter(String topicFilter) {
       if (isSharedSubscription(topicFilter)) {
          int prefix = SHARED_SUBSCRIPTION_PREFIX.length();
          String shareName = topicFilter.substring(prefix, topicFilter.indexOf(SLASH, prefix));
          String parsedTopicName = topicFilter.substring(topicFilter.indexOf(SLASH, prefix) + 1);
-         return new Pair(shareName, parsedTopicName);
+         return new Pair<>(shareName, parsedTopicName);
       } else {
-         return new Pair(null, topicFilter);
+         return new Pair<>(null, topicFilter);
       }
    }
 
+   /**
+    *
+    * @param topicFilter the topic filter
+    * @return {@code true} if the input starts with {@code $share/}, {@code false} otherwise
+    */
    public static boolean isSharedSubscription(String topicFilter) {
       if (topicFilter.startsWith(SHARED_SUBSCRIPTION_PREFIX)) {
          return true;

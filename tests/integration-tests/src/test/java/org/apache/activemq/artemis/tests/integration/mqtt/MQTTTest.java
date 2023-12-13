@@ -1903,10 +1903,10 @@ public class MQTTTest extends MQTTTestSupport {
       Exception peerDisconnectedException = null;
       try {
          String clientId = "test.client";
-         String coreAddress = MQTTUtil.convertMqttTopicFilterToCore("foo/bar", server.getConfiguration().getWildcardConfiguration());
+         String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic("foo/bar", server.getConfiguration().getWildcardConfiguration());
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
-         getServer().createQueue(new QueueConfiguration(new SimpleString(clientId + "." + coreAddress)).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
+         getServer().createQueue(new QueueConfiguration(MQTTUtil.getCoreQueueFromMqttTopic("foo/bar", clientId, server.getConfiguration().getWildcardConfiguration())).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -2151,11 +2151,11 @@ public class MQTTTest extends MQTTTestSupport {
    @Test(timeout = 60 * 1000)
    public void testAutoDeleteRetainedQueue() throws Exception {
       final String TOPIC = "/abc/123";
-      final String RETAINED_QUEUE = MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration());
+      final String RETAINED_QUEUE = MQTTUtil.getCoreRetainAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration());
       final MQTTClientProvider publisher = getMQTTClientProvider();
       final MQTTClientProvider subscriber = getMQTTClientProvider();
 
-      server.getAddressSettingsRepository().addMatch(MQTTUtil.convertMqttTopicFilterToCore("#", server.getConfiguration().getWildcardConfiguration()), new AddressSettings().setExpiryDelay(500L).setAutoDeleteQueues(true).setAutoDeleteAddresses(true));
+      server.getAddressSettingsRepository().addMatch(MQTTUtil.getCoreAddressFromMqttTopic("#", server.getConfiguration().getWildcardConfiguration()), new AddressSettings().setExpiryDelay(500L).setAutoDeleteQueues(true).setAutoDeleteAddresses(true));
 
       initializeConnection(publisher);
       initializeConnection(subscriber);

@@ -216,7 +216,7 @@ public class MQTTPublishManager {
                }
             }
          }
-         String coreAddress = MQTTUtil.convertMqttTopicFilterToCore(topic, session.getWildcardConfiguration());
+         String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic(topic, session.getWildcardConfiguration());
          SimpleString address = SimpleString.toSimpleString(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
          Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, address, message);
          int qos = message.fixedHeader().qosLevel().value();
@@ -392,7 +392,7 @@ public class MQTTPublishManager {
    }
 
    private boolean publishToClient(int messageId, ICoreMessage message, int deliveryCount, int qos, long consumerId) throws Exception {
-      String address = MQTTUtil.convertCoreAddressToMqttTopicFilter(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
+      String topic = MQTTUtil.getMqttTopicFromCoreAddress(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
 
       ByteBuf payload;
       switch (message.getType()) {
@@ -418,29 +418,29 @@ public class MQTTPublishManager {
 
       if (session.getVersion() == MQTTVersion.MQTT_5) {
          if (!isRetain && message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY)) {
-            MqttTopicSubscription sub = session.getState().getSubscription(message.getAddress());
+            MqttTopicSubscription sub = session.getState().getSubscription(topic);
             if (sub != null && sub.option().isRetainAsPublished()) {
                isRetain = true;
             }
          }
 
          if (session.getState().getClientTopicAliasMaximum() != null) {
-            Integer alias = session.getState().getServerTopicAlias(address);
+            Integer alias = session.getState().getServerTopicAlias(topic);
             if (alias == null) {
-               alias = session.getState().addServerTopicAlias(address);
+               alias = session.getState().addServerTopicAlias(topic);
                if (alias != null) {
                   mqttProperties.add(new MqttProperties.IntegerProperty(TOPIC_ALIAS.value(), alias));
                }
             } else {
                mqttProperties.add(new MqttProperties.IntegerProperty(TOPIC_ALIAS.value(), alias));
-               address = "";
+               topic = "";
             }
          }
       }
 
-      int remainingLength = MQTTUtil.calculateRemainingLength(address, mqttProperties, payload);
+      int remainingLength = MQTTUtil.calculateRemainingLength(topic, mqttProperties, payload);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qos), isRetain, remainingLength);
-      MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(address, messageId, mqttProperties);
+      MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topic, messageId, mqttProperties);
       MqttPublishMessage publish = new MqttPublishMessage(header, varHeader, payload);
 
       int maxSize = session.getState().getClientMaxPacketSize();

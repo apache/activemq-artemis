@@ -199,7 +199,7 @@ public class MQTTSessionState {
    public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.convertMqttTopicFilterToCore(subscription.topicName(), wildcardConfiguration).toString(), new ConcurrentHashMap<>());
+         addressMessageMap.putIfAbsent(MQTTUtil.getCoreAddressFromMqttTopic(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
 
          Pair<MqttTopicSubscription, Integer> existingSubscription = subscriptions.get(subscription.topicName());
          if (existingSubscription != null) {
@@ -237,7 +237,7 @@ public class MQTTSessionState {
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {
-      address = MQTTUtil.convertCoreAddressToMqttTopicFilter(address, session.getServer().getConfiguration().getWildcardConfiguration());
+      address = MQTTUtil.getMqttTopicFromCoreAddress(address, session.getServer().getConfiguration().getWildcardConfiguration());
       List<Integer> result = null;
       for (Pair<MqttTopicSubscription, Integer> pair : subscriptions.values()) {
          Pattern pattern = Match.createPattern(pair.getA().topicName(), MQTTUtil.MQTT_WILDCARD, true);

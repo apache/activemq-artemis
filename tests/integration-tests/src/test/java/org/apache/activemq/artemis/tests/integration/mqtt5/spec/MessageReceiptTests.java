@@ -46,12 +46,13 @@ public class MessageReceiptTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testMessageReceipt() throws Exception {
       final String TOPIC = RandomUtil.randomString();
+      final String CONSUMER_ID = "consumer";
       final int CONSUMER_COUNT = 25;
       final MqttClient[] consumers = new MqttClient[CONSUMER_COUNT];
 
       final CountDownLatch latch = new CountDownLatch(CONSUMER_COUNT);
       for (int i = 0; i < CONSUMER_COUNT; i++) {
-         MqttClient consumer = createPahoClient(RandomUtil.randomString());
+         MqttClient consumer = createPahoClient(CONSUMER_ID + i);
          consumers[i] = consumer;
          consumer.connect();
          int finalI = i;
@@ -75,7 +76,7 @@ public class MessageReceiptTests extends MQTT5TestSupport {
       Wait.assertEquals((long) CONSUMER_COUNT, () -> {
          int totalMessagesAdded = 0;
          for (int i = 0; i < CONSUMER_COUNT; i++) {
-            totalMessagesAdded += getSubscriptionQueue(TOPIC + i).getMessagesAdded();
+            totalMessagesAdded += getSubscriptionQueue(TOPIC + i, CONSUMER_ID + i).getMessagesAdded();
          }
          return totalMessagesAdded;
       }, 2000, 100);

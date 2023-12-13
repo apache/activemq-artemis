@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -81,6 +82,27 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.connect();
       producer.publish(topic, "myMessage".getBytes(StandardCharsets.UTF_8), 1, false);
       assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testTopicNameEscape() throws Exception {
+      final String topic = "foo1.0/bar/baz";
+      AtomicReference<String> receivedTopic = new AtomicReference<>();
+
+      MqttClient subscriber = createPahoClient("subscriber");
+      subscriber.connect();
+      subscriber.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String t, MqttMessage message) {
+            receivedTopic.set(t);
+         }
+      });
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(topic, "myMessage".getBytes(StandardCharsets.UTF_8), 1, false);
+      Wait.assertEquals(topic, receivedTopic::get, 500, 50);
    }
 
    /*
@@ -333,7 +355,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer1.subscribe(SHARED_SUB1, 1);
 
       assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
-      Queue q1 = getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME);
+      Queue q1 = getSharedSubscriptionQueue(SHARED_SUB1);
       assertNotNull(q1);
       assertEquals(TOPIC1, q1.getAddress().toString());
       assertEquals(1, q1.getConsumerCount());
@@ -344,7 +366,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer2.subscribe(SHARED_SUB2, 1);
 
       assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
-      Queue q2 = getSubscriptionQueue(TOPIC2, "consumer2", SUB_NAME);
+      Queue q2 = getSharedSubscriptionQueue(SHARED_SUB2);
       assertNotNull(q2);
       assertEquals(TOPIC2, q2.getAddress().toString());
       assertEquals(1, q2.getConsumerCount());
@@ -360,10 +382,10 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(ackLatch2.await(2, TimeUnit.SECONDS));
 
       consumer1.unsubscribe(SHARED_SUB1);
-      assertNull(getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME));
+      assertNull(getSharedSubscriptionQueue(SHARED_SUB1));
 
       consumer2.unsubscribe(SHARED_SUB2);
-      assertNull(getSubscriptionQueue(TOPIC2, "consumer2", SUB_NAME));
+      assertNull(getSharedSubscriptionQueue(SHARED_SUB2));
 
       consumer1.disconnect();
       consumer1.close();
@@ -388,13 +410,13 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer.subscribe(SHARED_SUBS, new int[]{1, 1});
 
       assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
-      Queue q1 = getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME);
+      Queue q1 = getSharedSubscriptionQueue(SHARED_SUBS[0]);
       assertNotNull(q1);
       assertEquals(TOPIC1, q1.getAddress().toString());
       assertEquals(1, q1.getConsumerCount());
 
       assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
-      Queue q2 = getSubscriptionQueue(TOPIC2, "consumer1", SUB_NAME);
+      Queue q2 = getSharedSubscriptionQueue(SHARED_SUBS[1]);
       assertNotNull(q2);
       assertEquals(TOPIC2, q2.getAddress().toString());
       assertEquals(1, q2.getConsumerCount());
@@ -409,8 +431,8 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
 
       consumer.unsubscribe(SHARED_SUBS);
-      assertNull(getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME));
-      assertNull(getSubscriptionQueue(TOPIC2, "consumer1", SUB_NAME));
+      assertNull(getSharedSubscriptionQueue(SHARED_SUBS[0]));
+      assertNull(getSharedSubscriptionQueue(SHARED_SUBS[1]));
 
       consumer.disconnect();
       consumer.close();
@@ -644,7 +666,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       MqttClient client = createPahoClient(clientID);
       client.connect();
       client.subscribe(topic, 1);
-      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString(clientID.concat(".").concat(topic.replace('/', '.')))) != null, 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(topic, clientID) != null, 2000, 100);
       client.disconnect();
       client.close();
    }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,6 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -48,7 +48,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -260,12 +259,14 @@ public class PublishTests extends MQTT5TestSupport {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       // send first retained message
       producer.publish(TOPIC, "retain1".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
 
       // send second retained message; should *remove* the first
       producer.publish(TOPIC, new byte[0], 2, true);
@@ -273,7 +274,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 0, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 0, 2000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -302,12 +303,14 @@ public class PublishTests extends MQTT5TestSupport {
       final String RETAINED_PAYLOAD = RandomUtil.randomString();
       final String UNRETAINED_PAYLOAD = RandomUtil.randomString();
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       MqttClient producer = createPahoClient("producer");
       producer.connect();
 
       // send retained message
       producer.publish(TOPIC, RETAINED_PAYLOAD.getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 1000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 1000, 100);
 
       // send an unretained message; should *not* remove the existing retained message
       producer.publish(TOPIC, UNRETAINED_PAYLOAD.getBytes(), 2, false);
@@ -315,7 +318,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertFalse(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() > 1, 1000, 100);
+      Wait.assertFalse(() -> getRetainedMessageQueue(TOPIC).getMessageCount() > 1, 1000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -395,13 +398,17 @@ public class PublishTests extends MQTT5TestSupport {
          retainedPayloads[i] = RandomUtil.randomString();
       }
 
+      for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
+         assertNull(getRetainedMessageQueue(topicNames[i]));
+      }
+
       // send retained messages
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          final String topicName = topicNames[i];
          producer.publish(topicName, retainedPayloads[i].getBytes(), 2, true);
-         Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, topicName, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> getRetainedMessageQueue(topicName).getMessageCount() == 1, 2000, 100);
       }
       producer.disconnect();
       producer.close();
@@ -458,12 +465,14 @@ public class PublishTests extends MQTT5TestSupport {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send retained messages
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -491,7 +500,7 @@ public class PublishTests extends MQTT5TestSupport {
       assertTrue(latch.await(2, TimeUnit.SECONDS));
 
       // ensure the retained message has been successfully acknowledge and removed from the subscription queue
-      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC).getMessageCount() == 0, 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount() == 0, 2000, 100);
 
       consumer.disconnect();
 
@@ -522,11 +531,13 @@ public class PublishTests extends MQTT5TestSupport {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send first retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -578,11 +589,13 @@ public class PublishTests extends MQTT5TestSupport {
       subscription.setRetainAsPublished(false);
       consumer.subscribe(new MqttSubscription[]{subscription});
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -627,11 +640,13 @@ public class PublishTests extends MQTT5TestSupport {
       subscription.setRetainAsPublished(true);
       consumer.subscribe(new MqttSubscription[]{subscription});
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCore(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -821,9 +836,9 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 1000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 1000, 100);
       Wait.assertEquals(1L, () -> server.locateQueue("EXPIRY").getMessageCount(), 3000, 100);
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 1000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 1000, 100);
 
       consumer.connect(options);
       assertFalse(latch.await(1, TimeUnit.SECONDS));
@@ -874,7 +889,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 500, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 500, 100);
 
       Thread.sleep(SLEEP);
 
@@ -1571,7 +1586,8 @@ public class PublishTests extends MQTT5TestSupport {
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      final String CONSUMER_ID = "consumer";
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setReceiveMaximum(RECEIVE_MAXIMUM);
       consumer.connect(options).waitForCompletion();
@@ -1589,11 +1605,11 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), (RandomUtil.randomPositiveInt() % 2) + 1, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 15000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       assertFalse(failed.get());
       consumer.disconnect();
@@ -1633,7 +1649,8 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      final String CONSUMER_ID = "consumer";
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setReceiveMaximum(RECEIVE_MAXIMUM);
       consumer.connect(options).waitForCompletion();
@@ -1651,11 +1668,11 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(StandardCharsets.UTF_8), 0, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 8000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 8000, 100);
       assertTrue(latch.await(8, TimeUnit.SECONDS));
       assertTrue(succeeded.get());
       consumer.disconnect();
@@ -1675,6 +1692,7 @@ public class PublishTests extends MQTT5TestSupport {
       final int MESSAGE_COUNT = 2;
       final int RECEIVE_MAXIMUM = 1;
       final String TOPIC = this.getTopicName();
+      final String CONSUMER_ID = "consumer";
       final AtomicBoolean messageArrived = new AtomicBoolean(false);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
@@ -1686,7 +1704,7 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setReceiveMaximum(RECEIVE_MAXIMUM);
       options.setKeepAliveInterval(2);
@@ -1705,7 +1723,7 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 2, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 

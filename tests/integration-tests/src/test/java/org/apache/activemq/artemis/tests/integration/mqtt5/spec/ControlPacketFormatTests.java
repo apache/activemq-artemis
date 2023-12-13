@@ -55,10 +55,11 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testPacketIdQoSZero() throws Exception {
       final String TOPIC = this.getTopicName();
+      final String CONSUMER_CLIENT_ID = "consumer";
       final int MESSAGE_COUNT = 100;
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_CLIENT_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -75,7 +76,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(), 0, false);
       }
-      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded());
+      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_CLIENT_ID).getMessagesAdded());
       producer.disconnect();
       producer.close();
 
@@ -111,15 +112,15 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       });
       consumer.connect();
       consumer.subscribe(TOPIC, 2);
-      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC) != null);
-      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC).getConsumerCount());
+      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID) != null);
+      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getConsumerCount());
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(), (RandomUtil.randomPositiveInt() % 2) + 1, false);
       }
-      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded());
+      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded());
       producer.disconnect();
       producer.close();
 
@@ -173,7 +174,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      final String CONSUMER_ID = "consumer";
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -186,11 +188,11 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 2, false);
-      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAcknowledged(), 15000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAcknowledged(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       Wait.assertFalse(() -> failed.get(), 2000, 100);
       Wait.assertEquals(8, () -> packetCount.get());
@@ -243,7 +245,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      final String CONSUMER_ID = "consumer";
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -256,11 +259,11 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 1, false);
-      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAcknowledged(), 15000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAcknowledged(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       Wait.assertFalse(() -> failed.get(), 2000, 100);
       Wait.assertEquals(4, () -> packetCount.get());
