@@ -101,14 +101,15 @@ public class QoSTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testQoS1PubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
+      final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBACK) {
             // ensure the message is still in the queue before we get the ack from the client
-            assertEquals(1, getSubscriptionQueue(TOPIC).getMessageCount());
-            assertEquals(1, getSubscriptionQueue(TOPIC).getDeliveringCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
 
             // ensure the ids match so we know this is the "corresponding" PUBACK for the previous PUBLISH
             assertEquals(packetId.get(), ((MqttPubReplyMessageVariableHeader)packet.variableHeader()).messageId());
@@ -129,7 +130,7 @@ public class QoSTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.connect();
       consumer.setCallback(new LatchedMqttCallback(latch));
       consumer.subscribe(TOPIC, 1);
@@ -142,8 +143,8 @@ public class QoSTests extends MQTT5TestSupport {
 
       assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
       assertTrue(latch.await(2, TimeUnit.SECONDS));
-      assertEquals(0, getSubscriptionQueue(TOPIC).getMessageCount());
-      assertEquals(0, getSubscriptionQueue(TOPIC).getDeliveringCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
       consumer.disconnect();
       consumer.close();
    }
@@ -241,14 +242,15 @@ public class QoSTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testQoS2PubRec() throws Exception {
       final String TOPIC = RandomUtil.randomString();
+      final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBREC) {
             // ensure the message is still in the queue before we get the ack from the client
-            assertEquals(1, getSubscriptionQueue(TOPIC).getMessageCount());
-            assertEquals(1, getSubscriptionQueue(TOPIC).getDeliveringCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
 
             // ensure the ids match so we know this is the "corresponding" PUBREC for the previous PUBLISH
             assertEquals(packetId.get(), ((MqttPubReplyMessageVariableHeader)packet.variableHeader()).messageId());
@@ -269,7 +271,7 @@ public class QoSTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.connect();
       consumer.setCallback(new LatchedMqttCallback(latch));
       consumer.subscribe(TOPIC, 2);
@@ -282,8 +284,8 @@ public class QoSTests extends MQTT5TestSupport {
 
       assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
       assertTrue(latch.await(2, TimeUnit.SECONDS));
-      assertEquals(0, getSubscriptionQueue(TOPIC).getMessageCount());
-      assertEquals(0, getSubscriptionQueue(TOPIC).getDeliveringCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
       consumer.disconnect();
       consumer.close();
    }
@@ -348,7 +350,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testQoS2PubRel() throws Exception {
       final String TOPIC = RandomUtil.randomString();
-      final String CONSUMER_CLIENT_ID = "consumer";
+      final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
@@ -356,8 +358,8 @@ public class QoSTests extends MQTT5TestSupport {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBCOMP) {
             try {
                // ensure the message is still in the management queue before we get the PUBCOMP from the client
-               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_CLIENT_ID).getMessageCount(), 2000, 100);
-               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_CLIENT_ID).getDeliveringCount(), 2000, 100);
+               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getMessageCount(), 2000, 100);
+               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getDeliveringCount(), 2000, 100);
             } catch (Exception e) {
                return false;
             }
@@ -381,7 +383,7 @@ public class QoSTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient(CONSUMER_CLIENT_ID);
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.connect();
       consumer.setCallback(new LatchedMqttCallback(latch));
       consumer.subscribe(TOPIC, 2);
@@ -394,8 +396,8 @@ public class QoSTests extends MQTT5TestSupport {
 
       assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
       assertTrue(latch.await(2, TimeUnit.SECONDS));
-      assertEquals(0, getSubscriptionQueue(TOPIC).getMessageCount());
-      assertEquals(0, getSubscriptionQueue(TOPIC).getDeliveringCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+      assertEquals(0, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
       consumer.disconnect();
       consumer.close();
    }
@@ -412,6 +414,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testQoS2WithExpiration() throws Exception {
       final String TOPIC = "myTopic";
+      final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final CountDownLatch expireRefsLatch = new CountDownLatch(1);
       final long messageExpiryInterval = 2;
@@ -419,12 +422,12 @@ public class QoSTests extends MQTT5TestSupport {
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBREC) {
             // ensure the message is still in the queue before we get the PUBREC from the client
-            assertEquals(1, getSubscriptionQueue(TOPIC).getMessageCount());
-            assertEquals(1, getSubscriptionQueue(TOPIC).getDeliveringCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+            assertEquals(1, getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
             try {
                // ensure enough time has passed for the message to expire
                Thread.sleep(messageExpiryInterval * 1500);
-               getSubscriptionQueue(TOPIC).expireReferences(expireRefsLatch::countDown);
+               getSubscriptionQueue(TOPIC, CONSUMER_ID).expireReferences(expireRefsLatch::countDown);
                assertTrue(expireRefsLatch.await(2, TimeUnit.SECONDS));
             } catch (InterruptedException e) {
                e.printStackTrace();
@@ -438,7 +441,7 @@ public class QoSTests extends MQTT5TestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.connect();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -462,9 +465,9 @@ public class QoSTests extends MQTT5TestSupport {
 
       assertTrue(ackLatch.await(messageExpiryInterval * 2, TimeUnit.SECONDS));
       assertTrue(latch.await(messageExpiryInterval * 2, TimeUnit.SECONDS));
-      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC).getMessageCount());
-      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC).getDeliveringCount());
-      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC).getMessagesExpired());
+      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount());
+      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getDeliveringCount());
+      Wait.assertEquals(0, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesExpired());
       consumer.disconnect();
       consumer.close();
    }
@@ -628,7 +631,10 @@ public class QoSTests extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testQoS2WithExpiration2() throws Exception {
       final String TOPIC = "myTopic";
-      server.createQueue(new QueueConfiguration(RandomUtil.randomString()).setAddress(TOPIC).setRoutingType(RoutingType.MULTICAST));
+      final String CONSUMER_ID = "consumer";
+      server.createQueue(new QueueConfiguration(MQTTUtil.getCoreQueueFromMqttTopic(TOPIC, CONSUMER_ID, server.getConfiguration().getWildcardConfiguration()))
+                            .setAddress(MQTTUtil.getCoreAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration()))
+                            .setRoutingType(RoutingType.MULTICAST));
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final CountDownLatch expireRefsLatch = new CountDownLatch(1);
       final long messageExpiryInterval = 1;
@@ -636,11 +642,11 @@ public class QoSTests extends MQTT5TestSupport {
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBREC) {
             // ensure the message is in the queue before trying to expire
-            Wait.assertTrue(() -> getSubscriptionQueue(TOPIC).getMessageCount() == 1, 2000, 100);
+            Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount() == 1, 2000, 100);
             try {
                // ensure enough time has passed for the message to expire
                Thread.sleep(messageExpiryInterval * 1500);
-               getSubscriptionQueue(TOPIC).expireReferences(expireRefsLatch::countDown);
+               getSubscriptionQueue(TOPIC, CONSUMER_ID).expireReferences(expireRefsLatch::countDown);
                assertTrue(expireRefsLatch.await(2, TimeUnit.SECONDS));
             } catch (InterruptedException e) {
                e.printStackTrace();
@@ -666,6 +672,6 @@ public class QoSTests extends MQTT5TestSupport {
       producer.close();
 
       assertTrue(ackLatch.await(messageExpiryInterval * 2, TimeUnit.SECONDS));
-      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC).getMessagesExpired());
+      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesExpired());
    }
 }

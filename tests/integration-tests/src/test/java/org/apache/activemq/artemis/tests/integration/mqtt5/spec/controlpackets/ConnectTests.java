@@ -480,13 +480,13 @@ public class ConnectTests extends MQTT5TestSupport {
       producer.publish(TOPIC, bytes, 2, false);
       producer.disconnect();
       producer.close();
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
 
       // the client should *not* receive the message
       assertFalse(latch.await(2, TimeUnit.SECONDS));
 
       // the broker should acknowledge the message since it exceeded the client's max packet size
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAcknowledged(), 2000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAcknowledged(), 2000, 100);
       consumer.disconnect();
       consumer.close();
    }

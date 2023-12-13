@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
@@ -76,6 +77,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testSendAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "publisher";
+      final String TOPIC = "/foo";
       final CountDownLatch latch = new CountDownLatch(1);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .username(createAddressUser)
@@ -91,7 +93,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
       });
 
       try {
-         client.publish("/foo", new byte[0], 2, false);
+         client.publish(TOPIC, new byte[0], 2, false);
          fail("Publishing should have failed with a security problem");
       } catch (MqttException e) {
          assertEquals(MQTTReasonCodes.NOT_AUTHORIZED, (byte) e.getReasonCode());
@@ -103,7 +105,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
 
       assertFalse(client.isConnected());
 
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(".foo")) != null, 2000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(MQTTUtil.getCoreAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration()))) != null, 2000, 100);
    }
 
    @Test(timeout = DEFAULT_TIMEOUT)

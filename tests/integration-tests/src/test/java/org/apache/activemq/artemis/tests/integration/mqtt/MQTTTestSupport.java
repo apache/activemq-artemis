@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -201,7 +202,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
          value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
          value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
-         securityRepository.addMatch(getQueueName(), value);
+         securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);
 
          server.getConfiguration().setSecurityEnabled(true);
       } else {

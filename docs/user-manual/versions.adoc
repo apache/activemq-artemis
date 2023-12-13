@@ -12,6 +12,28 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.33.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=...[Full release notes]
+
+=== Highlights
+
+* highlight 1
+* highlight 2
+
+=== Upgrading from 2.32.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4532[ARTEMIS-4532] the names of addresses and queues related to MQTT topics and subscriptions respectively may change.
+This will only impact you if *both* of the following are true:
++
+. The broker is configured to use a xref:wildcard-syntax.adoc[wildcard syntax] which _doesn't match_ the xref:mqtt.adoc#wildcard-syntax[MQTT wildcard syntax] (e.g. the default wildcard syntax).
+. You are using characters from the broker's wildcard syntax in your MQTT topic name or filter.
+For example, if you were using the default wildcard syntax and an MQTT topic named `1.0/group/device`.
+The dot (`.`) character here is part of the broker's wildcard syntax, and it is being used in the name of an MQTT topic.
++
+In this case the characters from the broker's wildcard syntax that do not match the characters in the MQTT wildcard syntax will be escaped with a backslash (i.e. `\`).
+To avoid this conversion you can configure the broker to use the MQTT wildcard syntax or change the name of the MQTT topic name or filter.
+
 == 2.32.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353769[Full release notes]

@@ -92,17 +92,17 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
 
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testSubscriptionQueueRemoved() throws Exception {
-      final String CLIENT_ID = "consumer";
+      final String CONSUMER_ID = "consumer";
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .username(noDeleteUser)
          .password(noDeletePass.getBytes(StandardCharsets.UTF_8))
          .build();
-      MqttClient client = createPahoClient(CLIENT_ID);
+      MqttClient client = createPahoClient(CONSUMER_ID);
       client.connect(options);
 
       client.subscribe(getTopicName(), 0).waitForCompletion();
       client.disconnect();
 
-      Wait.assertTrue(() -> getSubscriptionQueue(getTopicName()) == null, 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(getTopicName(), CONSUMER_ID) == null, 2000, 100);
    }
 }

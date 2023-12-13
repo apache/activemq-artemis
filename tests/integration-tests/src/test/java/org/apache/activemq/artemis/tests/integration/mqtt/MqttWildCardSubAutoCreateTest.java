@@ -81,8 +81,8 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
       String subscriberId = UUID.randomUUID().toString();
       String senderId = UUID.randomUUID().toString();
-      String subscribeTo = "A.*";
-      String publishTo = "A.a";
+      String subscribeTo = "A/+";
+      String publishTo = "A/a";
 
       subscriber = createMqttClient(subscriberId);
       subscriber.subscribe(subscribeTo, 2);
@@ -93,7 +93,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
       sender.publish(publishTo, UUID.randomUUID().toString().getBytes(), 2, false);
       sender.publish(publishTo, UUID.randomUUID().toString().getBytes(), 2, false);
 
-      assertTrue(server.getPagingManager().getPageStore(new SimpleString(subscribeTo)).isPaging());
+      assertTrue(server.getPagingManager().getPageStore(new SimpleString(MQTTUtil.getCoreAddressFromMqttTopic(subscribeTo, server.getConfiguration().getWildcardConfiguration()))).isPaging());
 
       subscriber = createMqttClient(subscriberId);
       subscriber.subscribe(subscribeTo, 2);

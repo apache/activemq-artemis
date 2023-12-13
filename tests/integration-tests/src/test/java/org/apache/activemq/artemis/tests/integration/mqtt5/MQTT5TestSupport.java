@@ -37,11 +37,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -107,7 +106,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return new MqttAsyncClient(TCP + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected static final long DEFAULT_TIMEOUT = 300000;
    protected ActiveMQServer server;
 
@@ -345,40 +344,16 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return null;
    }
 
-   protected Queue getSubscriptionQueue(String TOPIC) {
-      try {
-         Object[] array = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(TOPIC)).getBindings().toArray();
-         if (array.length == 0) {
-            return null;
-         } else {
-            return ((LocalQueueBinding)array[0]).getQueue();
-         }
-      } catch (Exception e) {
-         e.printStackTrace();
-         return null;
-      }
+   protected Queue getSharedSubscriptionQueue(String mqttTopicFilter) {
+      return getSubscriptionQueue(mqttTopicFilter, null);
    }
 
-   protected Queue getSubscriptionQueue(String TOPIC, String clientId) {
-      return getSubscriptionQueue(TOPIC, clientId, null);
+   protected Queue getSubscriptionQueue(String mqttTopicFilter, String clientId) {
+      return server.locateQueue(MQTTUtil.getCoreQueueFromMqttTopic(mqttTopicFilter, clientId, server.getConfiguration().getWildcardConfiguration()));
    }
 
-   protected Queue getSubscriptionQueue(String TOPIC, String clientId, String sharedSubscriptionName) {
-      try {
-         for (Binding b : server.getPostOffice().getMatchingBindings(SimpleString.toSimpleString(TOPIC))) {
-            if (sharedSubscriptionName != null) {
-               if (((LocalQueueBinding)b).getQueue().getName().startsWith(SimpleString.toSimpleString(sharedSubscriptionName))) {
-                  return ((LocalQueueBinding)b).getQueue();
-               }
-            } else if (((LocalQueueBinding)b).getQueue().getName().startsWith(SimpleString.toSimpleString(clientId))) {
-               return ((LocalQueueBinding)b).getQueue();
-            }
-         }
-         return null;
-      } catch (Exception e) {
-         e.printStackTrace();
-         return null;
-      }
+   protected Queue getRetainedMessageQueue(String mqttTopicFilter) {
+      return server.locateQueue(MQTTUtil.getCoreRetainAddressFromMqttTopic(mqttTopicFilter, server.getConfiguration().getWildcardConfiguration()));
    }
 
    protected void setAcceptorProperty(String property) throws Exception {

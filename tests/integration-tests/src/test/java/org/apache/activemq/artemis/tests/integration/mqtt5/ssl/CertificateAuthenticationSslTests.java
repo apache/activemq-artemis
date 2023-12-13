@@ -92,11 +92,12 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testSimpleSendReceive() throws Exception {
-      String topic = RandomUtil.randomString();
+      final String topic = RandomUtil.randomString();
+      final String clientId = "subscriber";
       byte[] body = RandomUtil.randomBytes(32);
 
       CountDownLatch latch = new CountDownLatch(1);
-      MqttClient subscriber = createPahoClient(protocol,"subscriber");
+      MqttClient subscriber = createPahoClient(protocol, clientId);
       subscriber.connect(getSslMqttConnectOptions());
       subscriber.setCallback(new DefaultMqttCallback() {
          @Override
@@ -107,8 +108,8 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       });
       subscriber.subscribe(topic, AT_LEAST_ONCE);
 
-      Wait.assertTrue(() -> getSubscriptionQueue(topic) != null, 2000, 100);
-      Wait.assertEquals(1, () -> getSubscriptionQueue(topic).getConsumerCount(), 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 2000, 100);
+      Wait.assertEquals(1, () -> getSubscriptionQueue(topic, clientId).getConsumerCount(), 2000, 100);
 
       MqttClient producer = createPahoClient(protocol,"producer");
       producer.connect(getSslMqttConnectOptions());

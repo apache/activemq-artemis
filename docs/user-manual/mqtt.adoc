@@ -129,7 +129,8 @@ If you perform some custom validation of the client ID you can reject the client
 
 == Wildcard subscriptions
 
-MQTT addresses are hierarchical much like a file system, and they use a special character (i.e. `/` by default) to separate hierarchical levels.
+MQTT defines a special wildcard syntax for topic filters. This definition is found in section 4.7.1 of both the http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718107[3.1.1] and https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901242[5] specs.
+MQTT topics are hierarchical much like a file system, and they use a special character (i.e. `/` by default) to separate hierarchical levels.
 Subscribers are able to subscribe to specific topics or to whole branches of a hierarchy.
 
 To subscribe to branches of an address hierarchy a subscriber can use wild cards.
@@ -147,9 +148,20 @@ This can be useful, but should be done so with care since it has significant per
 Matches a single level in the address hierarchy.
 For example `/uk/+/stores` would match `/uk/newcastle/stores` but not `/uk/cities/newcastle/stores`.
 
-These MQTT-specific wildcards are automatically _translated_ into the wildcard syntax used by ActiveMQ Artemis.
-These wildcards are configurable.
-See the xref:wildcard-syntax.adoc#customizing-the-syntax[Wildcard Syntax] chapter for details about how to configure custom wildcards.
+This is _close_ to the default  xref:wildcard-syntax.adoc#wildcard-syntax[wildcard syntax], but not exactly the same.
+Therefore, some conversion is necessary.
+This conversion isn't free so *if you want the best MQTT performance* use `broker.xml` to configure the wildcard syntax to match MQTT's, e.g.:
+
+[,xml]
+----
+<wildcard-addresses>
+   <delimiter>/</delimiter>
+   <any-words>#</any-words>
+   <single-word>*</single-word>
+</wildcard-addresses>
+----
+
+Of course, changing the default syntax also means other clients on other protocols will need to follow this same syntax as well as the `match` values of your `address-setting` configuration elements.
 
 == Web Sockets
 

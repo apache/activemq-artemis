@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -53,7 +54,7 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       HashSet<Role> value = new HashSet<>();
       value.add(new Role("addressOnly", true, true, true, true, false, false, false, false, true, true));
 
-      securityRepository.addMatch(getQueueName(), value);
+      securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);
    }
 
    @Override
