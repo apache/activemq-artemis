@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -30,10 +28,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
@@ -68,17 +62,6 @@ public class JournalCrashTest extends SpawnedTestBase {
       factory = createSessionFactory(locator);
    }
 
-   protected void stopServer() throws Exception {
-      locator.close();
-      closeSessionFactory(factory);
-
-      factory = null;
-
-      stopComponent(server);
-
-      server = null;
-   }
-
    /**
     * The test needs another VM, that will be "killed" right after commit. This main will do this job.
     */
@@ -96,10 +79,6 @@ public class JournalCrashTest extends SpawnedTestBase {
          restart.startServer();
 
          restart.sendMessages(start, end);
-
-         // System.out.println("....end");
-         // System.out.flush();
-
          Runtime.getRuntime().halt(100);
       } catch (Exception e) {
          e.printStackTrace(System.out);
@@ -125,8 +104,6 @@ public class JournalCrashTest extends SpawnedTestBase {
          }
 
          session.commit();
-         session.close();
-         // server.stop(); -- this test was not supposed to stop the server, it should crash
       }
    }
 
@@ -136,8 +113,6 @@ public class JournalCrashTest extends SpawnedTestBase {
       runExternalProcess(getTestDir(), JournalCrashTest.FIRST_RUN, JournalCrashTest.SECOND_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.SECOND_RUN, JournalCrashTest.THIRD_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.THIRD_RUN, JournalCrashTest.FOURTH_RUN);
-
-      printJournal();
 
       startServer();
 
@@ -155,7 +130,6 @@ public class JournalCrashTest extends SpawnedTestBase {
 
             Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
          }
-         session.close();
       }
    }
 
@@ -164,32 +138,9 @@ public class JournalCrashTest extends SpawnedTestBase {
     * @throws InterruptedException
     */
    private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception {
-      System.err.println("running external process...");
       Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, tempDir, Integer.toString(start), Integer.toString(end));
 
       Assert.assertEquals(100, process.waitFor());
    }
 
-   /**
-    * @throws Exception
-    */
-   private void printJournal() throws Exception {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 100);
-      JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), 2, 2, 0, 0, factory, "activemq-data", "amq", 100);
-
-      ArrayList<RecordInfo> records = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> transactions = new ArrayList<>();
-
-      journal.start();
-      journal.load(records, transactions, null);
-
-      //      System.out.println("===============================================");
-      //      System.out.println("Journal records at the end:");
-      //
-      //      for (RecordInfo record : records)
-      //      {
-      //         System.out.println(record.id + ", update = " + record.isUpdate);
-      //      }
-      journal.stop();
-   }
 }
