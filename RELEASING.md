@@ -322,6 +322,31 @@ Once the mirrors are up-to-date then update the following:
 Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
 
+## Update Examples Repo
+
+The [examples repo](https://github.com/apache/activemq-artemis-examples) should be updated to reflect the new release and development versions.
+
+Take a fresh clone of the repo and run the provided script, then check the results and push.
+
+```
+git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
+
+cd activemq-artemis-examples
+./scripts/release/update-branch-versions.sh <release-version> <new-main-snapshot-version>"
+```
+
+Example from the 2.32.0 release:
+```
+git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
+
+cd activemq-artemis-examples
+./scripts/release/update-branch-versions.sh 2.32.0 2.33.0-SNAPSHOT"
+```
+
+Check things over and then push the `development` and `main` branches (optionally use your fork, to test things out before pushing to the main examples repo or even to raise PRs).
+
+NOTE: The `main` branch CI build does not build Artemis, so the release must be available on Maven Central before pushing main or the build will fail. The `development` branch will check out the Artemis main branch and build against that, or it can be manually triggered and pointed to e.g a release tag.
+
 ## Upload Docker Images
 
 1. If you don't have an account on https://hub.docker.com/ then create one.
