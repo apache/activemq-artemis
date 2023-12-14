@@ -1279,7 +1279,6 @@
          <id>release</id>
          <modules>
             <module>artemis-website</module>
-            <module>examples</module>
          </modules>
          <build>
             <plugins>
@@ -1396,15 +1395,6 @@
             <!-- Only a portion of the smoke-tests are run. See the filter
                  applied in the fast-tests profile under ./tests/smoke-tests -->
             <skipSmokeTests>false</skipSmokeTests>
-         </properties>
-      </profile>
-      <profile>
-         <id>examples</id>
-         <modules>
-            <module>examples</module>
-         </modules>
-         <properties>
-            <skipTests>true</skipTests>
          </properties>
       </profile>
       <!-- This profile generates jacoco coverage files. To generate html report use "-Pjacoco-generate-report" -->

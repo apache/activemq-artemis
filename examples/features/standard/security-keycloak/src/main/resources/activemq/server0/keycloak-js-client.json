@@ -1,5 +1,0 @@
-{
-  "realm"    : "artemis-keycloak-demo",
-  "clientId" : "artemis-console",
-  "url"      : "http://localhost:8080"
-}
