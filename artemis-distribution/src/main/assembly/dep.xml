@@ -151,41 +151,6 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0755</fileMode>
       </fileSet>
-      <!-- examples -->
-      <fileSet>
-         <directory>${activemq.basedir}/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <excludes>
-            <exclude>**/target/**</exclude>
-            <exclude>**/**/*.iml</exclude>
-            <exclude>**/**/*.dat</exclude>
-            <exclude>**/**/*.md</exclude>
-            <exclude>**/**/*.sh</exclude>
-         </excludes>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </fileSet>
-      <fileSet>
-         <directory>${activemq.basedir}/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <includes>
-            <include>**/**/*.sh</include>
-         </includes>
-         <excludes>
-            <exclude>**/target/**</exclude>
-         </excludes>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0755</fileMode>
-      </fileSet>
-      <fileSet>
-         <directory>${project.build.directory}/markdown-pages/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </fileSet>
       <!-- Include license and notice files -->
       <fileSet>
          <directory>${activemq.basedir}/artemis-distribution/src/main/resources/licenses/bin</directory>

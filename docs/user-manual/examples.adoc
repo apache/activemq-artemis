@@ -2,10 +2,11 @@
 :idprefix:
 :idseparator: -
 
-The Apache ActiveMQ Artemis distribution comes with over 90 run out-of-the-box examples demonstrating many of the features.
+The Apache ActiveMQ Artemis Examples repository contains over 90 examples demonstrating many of the client and broker features.
 
-The examples are available in both the binary and source distribution under the `examples` directory.
-Examples are split by the following source tree:
+The examples can be found at: [https://github.com/apache/activemq-artemis-examples](https://github.com/apache/activemq-artemis-examples)
+
+The individual examples are available under the `examples` directory, and are grouped within the following sub tree:
 
 * `features` - Examples containing broker specific features.
  ** `clustered` - examples showing load balancing and distribution capabilities.
@@ -21,7 +22,9 @@ Examples are split by the following source tree:
 
 == Running the Examples
 
-To run any example, simply `cd` into the appropriate example directory and type `mvn verify` or `mvn install` (For details please read the readme.html in each example directory).
+First, run `mvn package` in the repository root to prepare a broker distribution in the artemis-distribution/target directory for use by the examples.
+
+To run any example, simply `cd` into the appropriate example directory and type `mvn verify` or `mvn install` (For details please read the readme.md in each example directory).
 
 You can use the profile `-Pexamples` to run multiple examples under any example tree.
 
@@ -69,161 +72,101 @@ On this case taken from the `Queue` example:
 
 [,sh]
 ----
-[INFO] Scanning for projects...
+[INFO] -------------< org.apache.activemq.examples.broker:queue >--------------
+[INFO] Building ActiveMQ Artemis JMS Queue Example 2.32.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
 [INFO]
-[INFO] ------------------------------------------------------------------------
-[INFO] Building ActiveMQ Artemis JMS Queue Example 2.5.0
-[INFO] ------------------------------------------------------------------------
+[INFO] --- enforcer:3.3.0:enforce (enforce-maven-version) @ queue ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
 [INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-maven) @ queue ---
+[INFO] --- enforcer:3.3.0:enforce (enforce-java-version) @ queue ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
 [INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
+[INFO] --- remote-resources:3.1.0:process (process-resource-bundles) @ queue ---
+[INFO] Preparing remote bundle org.apache.apache.resources:apache-jar-resource-bundle:1.5
+[INFO] Copying 3 resources from 1 bundle.
 [INFO]
-[INFO] --- maven-remote-resources-plugin:1.5:process (process-resource-bundles) @ queue ---
+[INFO] --- resources:3.3.1:resources (default-resources) @ queue ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 3 resources from target/maven-shared-archive-resources to target/classes
 [INFO]
-[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ queue ---
-[INFO] Using 'UTF-8' encoding to copy filtered resources.
-[INFO] Copying 1 resource
-[INFO] Copying 3 resources
+[INFO] --- compiler:3.11.0:compile (default-compile) @ queue ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 1 source file with javac [debug target 11] to target/classes
 [INFO]
-[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ queue ---
-[INFO] Nothing to compile - all classes are up to date
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ queue ---
+[INFO] skip non existing resourceDirectory /home/user/activemq-artemis-examples/examples/features/standard/queue/src/test/resources
+[INFO] Copying 3 resources from target/maven-shared-archive-resources to target/test-classes
 [INFO]
-[INFO] --- maven-checkstyle-plugin:2.17:check (default) @ queue ---
-[INFO]
-[INFO] --- apache-rat-plugin:0.12:check (default) @ queue ---
-[INFO] RAT will not execute since it is configured to be skipped via system property 'rat.skip'.
-[INFO]
-[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ queue ---
-[INFO] Using 'UTF-8' encoding to copy filtered resources.
-[INFO] skip non existing resourceDirectory /home/user/activemq-artemis/examples/features/standard/queue/src/test/resources
-[INFO] Copying 3 resources
-[INFO]
-[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ queue ---
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ queue ---
 [INFO] No sources to compile
 [INFO]
-[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ queue ---
+[INFO] --- surefire:2.22.2:test (default-test) @ queue ---
 [INFO]
-[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ queue ---
-[INFO] Building jar: /home/user/activemq-artemis/examples/features/standard/queue/target/queue-2.5.0.jar
+[INFO] --- jar:3.3.0:jar (default-jar) @ queue ---
+[INFO] Building jar: /home/user/activemq-artemis-examples/examples/features/standard/queue/target/queue-2.32.0.jar
 [INFO]
-[INFO] --- maven-site-plugin:3.3:attach-descriptor (attach-descriptor) @ queue ---
+[INFO] --- site:3.12.1:attach-descriptor (attach-descriptor) @ queue ---
+[INFO] Skipping because packaging 'jar' is not pom.
 [INFO]
-[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ queue >>>
+[INFO] --- source:3.3.0:jar-no-fork (attach-sources) @ queue ---
+[INFO] Building jar: /home/user/activemq-artemis-examples/examples/features/standard/queue/target/queue-2.32.0-sources.jar
 [INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-maven) @ queue ---
+[INFO] --- artemis:2.32.0:create (create) @ queue ---
 [INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
-[INFO]
-[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ queue <<<
-[INFO]
-[INFO]
-[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ queue ---
-[INFO] Building jar: /home/user/activemq-artemis/examples/features/standard/queue/target/queue-2.5.0-sources.jar
-[INFO]
-[INFO] >>> maven-source-plugin:2.2.1:jar (default) > generate-sources @ queue >>>
-[INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-maven) @ queue ---
-[INFO]
-[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
-[INFO]
-[INFO] <<< maven-source-plugin:2.2.1:jar (default) < generate-sources @ queue <<<
-[INFO]
-[INFO]
-[INFO] --- maven-source-plugin:2.2.1:jar (default) @ queue ---
-[INFO]
-[INFO] --- dependency-check-maven:1.4.3:check (default) @ queue ---
-[INFO] Skipping dependency-check
-[INFO]
-[INFO] --- artemis-maven-plugin:2.5.0:create (create) @ queue ---
-[INFO] Local       id: local
-      url: file:///home/user/.m2/repository/
-   layout: default
-snapshots: [enabled => true, update => always]
- releases: [enabled => true, update => always]
-
-[INFO] Entries.size 2
-[INFO] ... key=project = MavenProject: org.apache.activemq.examples.broker:queue:2.5.0 @ /home/user/activemq-artemis/examples/features/standard/queue/pom.xml
-[INFO] ... key=pluginDescriptor = Component Descriptor: role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisCLIPlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:2.5.0:cli'
-role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisCreatePlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:2.5.0:create'
-role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisDependencyScanPlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:2.5.0:dependency-scan'
-role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisClientPlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:2.5.0:runClient'
----
-Executing org.apache.activemq.artemis.cli.commands.Create create --allow-anonymous --silent --force --user guest --password guest --role guest --port-offset 0 --data ./data --allow-anonymous --no-web --no-autotune --verbose --aio /home/user/activemq-artemis/examples/features/standard/queue/target/server0
-Home::/home/user/activemq-artemis/examples/features/standard/queue/../../../../artemis-distribution/target/apache-artemis-2.5.0-bin/apache-artemis-2.5.0, Instance::null
-Creating ActiveMQ Artemis instance at: /home/user/activemq-artemis/examples/features/standard/queue/target/server0
-
-You can now start the broker by executing:
-
-   "/home/user/activemq-artemis/examples/features/standard/queue/target/server0/bin/artemis" run
-
-Or you can run the broker in the background using:
-
-   "/home/user/activemq-artemis/examples/features/standard/queue/target/server0/bin/artemis-service" start
-
-[INFO] ###################################################################################################
-[INFO] create-server0.sh created with commands to reproduce server0
-[INFO] under /home/user/activemq-artemis/examples/features/standard/queue/target
-[INFO] ###################################################################################################
-[INFO]
-[INFO] --- artemis-maven-plugin:2.5.0:cli (start) @ queue ---
+[INFO] --- artemis:2.32.0:cli (start) @ queue ---
 [INFO] awaiting server to start
 server-out:     _        _               _
 server-out:    / \  ____| |_  ___ __  __(_) _____
 server-out:   / _ \|  _ \ __|/ _ \  \/  | |/  __/
 server-out:  / ___ \ | \/ |_/  __/ |\/| | |\___ \
 server-out: /_/   \_\|   \__\____|_|  |_|_|/___ /
-server-out: Apache ActiveMQ Artemis 2.5.0
+server-out: Apache ActiveMQ Artemis 2.32.0
 server-out:
 server-out:
-server-out:2018-03-13 09:06:37,980 WARN  [org.apache.activemq.artemis.core.server] AMQ222018: AIO was not located on this platform, it will fall back to using pure Java NIO. If your platform is Linux, install LibAIO to enable the AIO journal
-server-out:2018-03-13 09:06:38,052 INFO  [org.apache.activemq.artemis.integration.bootstrap] AMQ101000: Starting ActiveMQ Artemis Server
 [INFO] awaiting server to start
-server-out:2018-03-13 09:06:38,123 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=./data/journal,bindingsDirectory=./data/bindings,largeMessagesDirectory=./data/large-messages,pagingDirectory=./data/paging)
-server-out:2018-03-13 09:06:38,146 INFO  [org.apache.activemq.artemis.core.server] AMQ221013: Using NIO Journal
-server-out:2018-03-13 09:06:38,178 INFO  [org.apache.activemq.artemis.core.server] AMQ221057: Global Max Size is being adjusted to 1/2 of the JVM max size (-Xmx). being defined as 1,073,741,824
-server-out:2018-03-13 09:06:38,197 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
-server-out:2018-03-13 09:06:38,198 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-amqp-protocol]. Adding protocol support for: AMQP
-server-out:2018-03-13 09:06:38,198 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-hornetq-protocol]. Adding protocol support for: HORNETQ
-server-out:2018-03-13 09:06:38,198 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-mqtt-protocol]. Adding protocol support for: MQTT
-server-out:2018-03-13 09:06:38,199 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-openwire-protocol]. Adding protocol support for: OPENWIRE
-server-out:2018-03-13 09:06:38,199 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-stomp-protocol]. Adding protocol support for: STOMP
-server-out:2018-03-13 09:06:38,261 INFO  [org.apache.activemq.artemis.core.server] AMQ221034: Waiting indefinitely to obtain live lock
-server-out:2018-03-13 09:06:38,262 INFO  [org.apache.activemq.artemis.core.server] AMQ221035: Live Server Obtained live lock
-server-out:2018-03-13 09:06:38,386 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: Deploying queue DLQ on address DLQ
-server-out:2018-03-13 09:06:38,445 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: Deploying queue ExpiryQueue on address ExpiryQueue
-[INFO] awaiting server to start
-server-out:2018-03-13 09:06:38,739 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:61616 for protocols [CORE,MQTT,AMQP,STOMP,HORNETQ,OPENWIRE]
-server-out:2018-03-13 09:06:38,741 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:5445 for protocols [HORNETQ,STOMP]
-server-out:2018-03-13 09:06:38,742 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:5672 for protocols [AMQP]
-server-out:2018-03-13 09:06:38,744 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:1883 for protocols [MQTT]
-server-out:2018-03-13 09:06:38,746 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:61613 for protocols [STOMP]
-server-out:2018-03-13 09:06:38,752 INFO  [org.apache.activemq.artemis.core.server] AMQ221007: Server is now live
-server-out:2018-03-13 09:06:38,752 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 2.5.0 [0.0.0.0, nodeID=bf1853a1-26c7-11e8-9378-d96702a756ed]
+server-out:2023-12-14 14:33:06,314 INFO  [org.apache.activemq.artemis.integration.bootstrap] AMQ101000: Starting ActiveMQ Artemis Server version 2.32.0
+server-out:2023-12-14 14:33:06,339 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=./data/journal,bindingsDirectory=./data/bindings,largeMessagesDirectory=./data/large-messages,pagingDirectory=./data/paging)
+server-out:2023-12-14 14:33:06,354 INFO  [org.apache.activemq.artemis.core.server] AMQ221012: Using AIO Journal
+server-out:2023-12-14 14:33:06,380 INFO  [org.apache.activemq.artemis.core.server] AMQ221057: Global Max Size is being adjusted to 1/2 of the JVM max size (-Xmx). being defined as 1073741824
+server-out:2023-12-14 14:33:06,391 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
+server-out:2023-12-14 14:33:06,391 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-amqp-protocol]. Adding protocol support for: AMQP
+server-out:2023-12-14 14:33:06,391 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-hornetq-protocol]. Adding protocol support for: HORNETQ
+server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-mqtt-protocol]. Adding protocol support for: MQTT
+server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-openwire-protocol]. Adding protocol support for: OPENWIRE
+server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-stomp-protocol]. Adding protocol support for: STOMP
+server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221034: Waiting indefinitely to obtain live lock
+server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221035: Live Server Obtained live lock
+server-out:2023-12-14 14:33:06,450 INFO  [org.apache.activemq.artemis.core.server] AMQ221080: Deploying address DLQ supporting [ANYCAST]
+server-out:2023-12-14 14:33:06,454 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: Deploying ANYCAST queue DLQ on address DLQ
+server-out:2023-12-14 14:33:06,476 INFO  [org.apache.activemq.artemis.core.server] AMQ221080: Deploying address ExpiryQueue supporting [ANYCAST]
+server-out:2023-12-14 14:33:06,476 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: Deploying ANYCAST queue ExpiryQueue on address ExpiryQueue
+server-out:2023-12-14 14:33:06,681 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:61616 for protocols [CORE,MQTT,AMQP,STOMP,HORNETQ,OPENWIRE]
+server-out:2023-12-14 14:33:06,683 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:5445 for protocols [HORNETQ,STOMP]
+server-out:2023-12-14 14:33:06,685 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:5672 for protocols [AMQP]
+server-out:2023-12-14 14:33:06,687 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:1883 for protocols [MQTT]
+server-out:2023-12-14 14:33:06,689 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started EPOLL Acceptor at 0.0.0.0:61613 for protocols [STOMP]
+server-out:2023-12-14 14:33:06,690 INFO  [org.apache.activemq.artemis.core.server] AMQ221007: Server is now live
+server-out:2023-12-14 14:33:06,690 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 2.32.0 [0.0.0.0, nodeID=b20d82dd-9a8d-11ee-a56d-000c2997e711]
 [INFO] Server started
 [INFO]
-[INFO] --- artemis-maven-plugin:2.5.0:runClient (runClient) @ queue ---
+[INFO] --- artemis:2.32.0:runClient (runClient) @ queue ---
 Sent message: This is a text message
 Received message: This is a text message
 [INFO]
-[INFO] --- artemis-maven-plugin:2.5.0:cli (stop) @ queue ---
-server-out:2018-03-13 09:06:40,888 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 2.5.0 [bf1853a1-26c7-11e8-9378-d96702a756ed] stopped, uptime 2.786 seconds
+[INFO] --- artemis:2.32.0:stop (stop) @ queue ---
+server-out:2023-12-14 14:33:08,295 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 2.32.0 [b20d82dd-9a8d-11ee-a56d-000c2997e711] stopped, uptime 1.969 seconds
 server-out:Server stopped!
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 6.641 s
-[INFO] Finished at: 2018-03-13T09:06:40-05:00
-[INFO] Final Memory: 43M/600M
+[INFO] Total time:  4.845 s
+[INFO] Finished at: 2023-12-14T14:33:08Z
 [INFO] ------------------------------------------------------------------------
 ----
 
-This includes a preview list of a few examples that we distribute with Artemis.
-Please refer to the distribution for a more accurate list.
-
-== Applet
-
-This example shows you how to send and receive JMS messages from an Applet.
+This list includes a preview of some examples that exist for Artemis in the [Examples Repository](https://github.com/apache/activemq-artemis-examples), see the repository for more.
 
 == Application-Layer Failover
 

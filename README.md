@@ -6,7 +6,7 @@ ActiveMQ Artemis is the next generation message broker from Apache ActiveMQ.
 
 See the [User Manual](https://activemq.apache.org/components/artemis/documentation/latest/) for an in-depth explanation of all aspects of broker configuration and behavior.
 
-The broker ships with many [examples](https://activemq.apache.org/components/artemis/documentation/latest/examples.html) which you can run, inspect, & modify.
+The [ActiveMQ Artemis Examples](https://github.com/apache/activemq-artemis-examples) repository contains over 90 examples demonstrating many of the client and broker features.
 
 ## How to Build, etc.
 

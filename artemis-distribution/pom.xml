@@ -208,27 +208,6 @@
                </execution>
             </executions>
          </plugin>
-         <plugin>
-            <groupId>com.ruleoftech</groupId>
-            <artifactId>markdown-page-generator-plugin</artifactId>
-            <version>2.4.0</version>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>generate</goal>
-                  </goals>
-               </execution>
-            </executions>
-            <configuration>
-               <headerHtmlFile>${activemq.basedir}/examples/common/header.html</headerHtmlFile>
-               <footerHtmlFile>${activemq.basedir}/examples/common/footer.html</footerHtmlFile>
-               <inputDirectory>${activemq.basedir}/examples</inputDirectory>
-               <outputDirectory>${project.build.directory}/markdown-pages/examples</outputDirectory>
-               <recursiveInput>true</recursiveInput>
-               <pegdownExtensions>FENCED_CODE_BLOCKS</pegdownExtensions>
-            </configuration>
-         </plugin>
       </plugins>
    </build>
 
