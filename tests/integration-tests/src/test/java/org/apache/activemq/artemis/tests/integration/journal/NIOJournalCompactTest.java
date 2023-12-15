@@ -2144,7 +2144,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    @Test
    public void testLargeCompacting() throws Exception {
-      setup(2, 4 * 1024, false);
+      setup(2, 8 * 1024, false);
 
       createJournal();
 
