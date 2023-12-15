@@ -1466,16 +1466,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    private void setErrorCondition(IOCallback otherCallback, JournalTransaction jt, Throwable t) {
-      TransactionCallback callback = null;
       if (jt != null) {
-         callback = jt.getCurrentCallback();
-         if (callback != null && callback.getErrorMessage() != null) {
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
-         }
-
+         jt.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
       }
 
-      if (otherCallback != null && otherCallback != callback) {
+      if (otherCallback != null) {
          otherCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
       }
    }
@@ -3250,11 +3245,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          // since we individualize the callback per file
          if (fileFactory.isSupportsCallbacks()) {
             // Set the delegated callback as a parameter
-            TransactionCallback txcallback = tx.getCallback(currentFile);
+            tx.countUp();
             if (parameterCallback != null) {
-               txcallback.setDelegateCompletion(parameterCallback);
+               tx.setDelegateCompletion(parameterCallback);
             }
-            callback = txcallback;
+            callback = tx;
          } else {
             callback = parameterCallback;
          }
@@ -3515,7 +3510,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       // We take into account the fileID used on the Header
       if (size > fileSize - currentFile.getFile().calculateBlockStart(JournalImpl.SIZE_HEADER)) {
-         throw new IllegalArgumentException("Record is too large to store " + size);
+         throw new IllegalArgumentException("Record is too large to store " + size + " bytes");
       }
 
       try {
