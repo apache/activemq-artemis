@@ -62,6 +62,15 @@ public class AddressSettingsTest extends ActiveMQTestBase {
 
    @Test
    public void testSingleMerge() {
+      testSingleMerge(false);
+   }
+
+   @Test
+   public void testSingleMergeCopy() {
+      testSingleMerge(true);
+   }
+
+   private void testSingleMerge(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");
@@ -82,7 +91,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setMaxExpiryDelay(777L);
       addressSettingsToMerge.setIDCacheSize(5);
 
-      addressSettings.merge(addressSettingsToMerge);
+      if (copy) {
+         addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
+      } else {
+         addressSettings.merge(addressSettingsToMerge);
+      }
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
       Assert.assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
@@ -102,6 +115,15 @@ public class AddressSettingsTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleMerge() {
+      testMultipleMerge(false);
+   }
+
+   @Test
+   public void testMultipleMergeCopy() {
+      testSingleMerge(true);
+   }
+
+   private void testMultipleMerge(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");
@@ -113,7 +135,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setMessageCounterHistoryDayLimit(1002);
       addressSettingsToMerge.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
       addressSettingsToMerge.setMaxSizeBytesRejectThreshold(10 * 1024);
-      addressSettings.merge(addressSettingsToMerge);
+      if (copy) {
+         addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
+      } else {
+         addressSettings.merge(addressSettingsToMerge);
+      }
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
       SimpleString exp2 = new SimpleString("testExpiryQueue2");
@@ -121,7 +147,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge2.setMaxSizeBytes(2001);
       addressSettingsToMerge2.setRedeliveryDelay(2003);
       addressSettingsToMerge2.setRedeliveryMultiplier(2.5);
-      addressSettings.merge(addressSettingsToMerge2);
+      if (copy) {
+         addressSettings = addressSettings.mergeCopy(addressSettingsToMerge2);
+      } else {
+         addressSettings.merge(addressSettingsToMerge2);
+      }
 
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
@@ -136,6 +166,15 @@ public class AddressSettingsTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleMergeAll() {
+      testMultipleMergeAll(false);
+   }
+
+   @Test
+   public void testMultipleMergeAllCopy() {
+      testMultipleMergeAll(true);
+   }
+
+   private void testMultipleMergeAll(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");
@@ -146,7 +185,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setRedeliveryDelay(1003);
       addressSettingsToMerge.setRedeliveryMultiplier(1.0);
       addressSettingsToMerge.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
-      addressSettings.merge(addressSettingsToMerge);
+      if (copy) {
+         addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
+      } else {
+         addressSettings.merge(addressSettingsToMerge);
+      }
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
       SimpleString exp2 = new SimpleString("testExpiryQueue2");
@@ -160,7 +203,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge2.setRedeliveryMultiplier(2.0);
       addressSettingsToMerge2.setMaxRedeliveryDelay(5000);
       addressSettingsToMerge.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      addressSettings.merge(addressSettingsToMerge2);
+      if (copy) {
+         addressSettings = addressSettings.mergeCopy(addressSettingsToMerge2);
+      } else {
+         addressSettings.merge(addressSettingsToMerge2);
+      }
 
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       Assert.assertEquals(addressSettings.getExpiryAddress(), exp);

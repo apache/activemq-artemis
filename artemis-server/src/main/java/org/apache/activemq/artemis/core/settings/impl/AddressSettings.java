@@ -531,6 +531,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
    private Integer idCacheSize = null;
 
+   static {
+      metaBean.add(Integer.class, "queuePrefetch", (t, p) -> t.queuePrefetch = p, t -> t.queuePrefetch);
+   }
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -1279,243 +1282,38 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    /**
-    * merge 2 objects in to 1
+    * Merge two AddressSettings instances in one instance
     *
     * @param merged
     */
    @Override
    public void merge(final AddressSettings merged) {
-      if (maxDeliveryAttempts == null) {
-         maxDeliveryAttempts = merged.maxDeliveryAttempts;
-      }
-      if (dropMessagesWhenFull == null) {
-         dropMessagesWhenFull = merged.dropMessagesWhenFull;
-      }
-      if (maxSizeBytes == null) {
-         maxSizeBytes = merged.maxSizeBytes;
-      }
-      if (maxSizeMessages == null) {
-         maxSizeMessages = merged.maxSizeMessages;
-      }
-      if (maxReadPageBytes == null) {
-         maxReadPageBytes = merged.maxReadPageBytes;
-      }
-      if (maxReadPageMessages == null) {
-         maxReadPageMessages = merged.maxReadPageMessages;
-      }
-      if (pageCacheMaxSize == null) {
-         pageCacheMaxSize = merged.pageCacheMaxSize;
-      }
-      if (pageSizeBytes == null) {
-         pageSizeBytes = merged.pageSizeBytes;
-      }
-      if (messageCounterHistoryDayLimit == null) {
-         messageCounterHistoryDayLimit = merged.messageCounterHistoryDayLimit;
-      }
-      if (redeliveryDelay == null) {
-         redeliveryDelay = merged.redeliveryDelay;
-      }
-      if (redeliveryMultiplier == null) {
-         redeliveryMultiplier = merged.redeliveryMultiplier;
-      }
-      if (redeliveryCollisionAvoidanceFactor == null) {
-         redeliveryCollisionAvoidanceFactor = merged.redeliveryCollisionAvoidanceFactor;
-      }
-      if (maxRedeliveryDelay == null) {
-         maxRedeliveryDelay = merged.maxRedeliveryDelay;
-      }
-      if (deadLetterAddress == null) {
-         deadLetterAddress = merged.deadLetterAddress;
-      }
-      if (expiryAddress == null) {
-         expiryAddress = merged.expiryAddress;
-      }
-      if (expiryDelay == null) {
-         expiryDelay = merged.expiryDelay;
-      }
-      if (minExpiryDelay == null) {
-         minExpiryDelay = merged.minExpiryDelay;
-      }
-      if (maxExpiryDelay == null) {
-         maxExpiryDelay = merged.maxExpiryDelay;
-      }
-      if (redistributionDelay == null) {
-         redistributionDelay = merged.redistributionDelay;
-      }
-      if (sendToDLAOnNoRoute == null) {
-         sendToDLAOnNoRoute = merged.sendToDLAOnNoRoute;
-      }
-      if (addressFullMessagePolicy == null) {
-         addressFullMessagePolicy = merged.addressFullMessagePolicy;
-      }
-      if (slowConsumerThreshold == null) {
-         slowConsumerThreshold = merged.slowConsumerThreshold;
-      }
-      if (slowConsumerThresholdMeasurementUnit == null) {
-         slowConsumerThresholdMeasurementUnit = merged.slowConsumerThresholdMeasurementUnit;
-      }
-      if (slowConsumerCheckPeriod == null) {
-         slowConsumerCheckPeriod = merged.slowConsumerCheckPeriod;
-      }
-      if (slowConsumerPolicy == null) {
-         slowConsumerPolicy = merged.slowConsumerPolicy;
-      }
-      if (autoCreateJmsQueues == null) {
-         autoCreateJmsQueues = merged.autoCreateJmsQueues;
-      }
-      if (autoDeleteJmsQueues == null) {
-         autoDeleteJmsQueues = merged.autoDeleteJmsQueues;
-      }
-      if (autoCreateJmsTopics == null) {
-         autoCreateJmsTopics = merged.autoCreateJmsTopics;
-      }
-      if (autoDeleteJmsTopics == null) {
-         autoDeleteJmsTopics = merged.autoDeleteJmsTopics;
-      }
-      if (autoCreateQueues == null) {
-         autoCreateQueues = merged.autoCreateQueues;
-      }
-      if (autoDeleteQueues == null) {
-         autoDeleteQueues = merged.autoDeleteQueues;
-      }
-      if (autoDeleteCreatedQueues == null) {
-         autoDeleteCreatedQueues = merged.autoDeleteCreatedQueues;
-      }
-      if (autoDeleteQueuesDelay == null) {
-         autoDeleteQueuesDelay = merged.autoDeleteQueuesDelay;
-      }
-      if (autoDeleteQueuesSkipUsageCheck == null) {
-         autoDeleteQueuesSkipUsageCheck = merged.autoDeleteQueuesSkipUsageCheck;
-      }
-      if (autoDeleteQueuesMessageCount == null) {
-         autoDeleteQueuesMessageCount = merged.autoDeleteQueuesMessageCount;
-      }
-      if (configDeleteQueues == null) {
-         configDeleteQueues = merged.configDeleteQueues;
-      }
-      if (autoCreateAddresses == null) {
-         autoCreateAddresses = merged.autoCreateAddresses;
-      }
-      if (autoDeleteAddresses == null) {
-         autoDeleteAddresses = merged.autoDeleteAddresses;
-      }
-      if (autoDeleteAddressesDelay == null) {
-         autoDeleteAddressesDelay = merged.autoDeleteAddressesDelay;
-      }
-      if (autoDeleteAddressesSkipUsageCheck == null) {
-         autoDeleteAddressesSkipUsageCheck = merged.autoDeleteAddressesSkipUsageCheck;
-      }
-      if (configDeleteAddresses == null) {
-         configDeleteAddresses = merged.configDeleteAddresses;
-      }
-      if (configDeleteDiverts == null) {
-         configDeleteDiverts = merged.configDeleteDiverts;
-      }
-      if (managementBrowsePageSize == null) {
-         managementBrowsePageSize = merged.managementBrowsePageSize;
-      }
-      if (managementMessageAttributeSizeLimit == null) {
-         managementMessageAttributeSizeLimit = merged.managementMessageAttributeSizeLimit;
-      }
-      if (queuePrefetch == null) {
-         queuePrefetch = merged.queuePrefetch;
-      }
-      if (maxSizeBytesRejectThreshold == null) {
-         maxSizeBytesRejectThreshold = merged.maxSizeBytesRejectThreshold;
-      }
-      if (defaultMaxConsumers == null) {
-         defaultMaxConsumers = merged.defaultMaxConsumers;
-      }
-      if (defaultPurgeOnNoConsumers == null) {
-         defaultPurgeOnNoConsumers = merged.defaultPurgeOnNoConsumers;
-      }
-      if (defaultQueueRoutingType == null) {
-         defaultQueueRoutingType = merged.defaultQueueRoutingType;
-      }
-      if (defaultAddressRoutingType == null) {
-         defaultAddressRoutingType = merged.defaultAddressRoutingType;
-      }
-      if (defaultExclusiveQueue == null) {
-         defaultExclusiveQueue = merged.defaultExclusiveQueue;
-      }
-      if (defaultConsumerWindowSize == null) {
-         defaultConsumerWindowSize = merged.defaultConsumerWindowSize;
-      }
-      if (defaultLastValueQueue == null) {
-         defaultLastValueQueue = merged.defaultLastValueQueue;
-      }
-      if (defaultLastValueKey == null) {
-         defaultLastValueKey = merged.defaultLastValueKey;
-      }
-      if (defaultNonDestructive == null) {
-         defaultNonDestructive = merged.defaultNonDestructive;
-      }
-      if (defaultConsumersBeforeDispatch == null) {
-         defaultConsumersBeforeDispatch = merged.defaultConsumersBeforeDispatch;
-      }
-      if (defaultDelayBeforeDispatch == null) {
-         defaultDelayBeforeDispatch = merged.defaultDelayBeforeDispatch;
-      }
-      if (defaultGroupRebalance == null) {
-         defaultGroupRebalance = merged.defaultGroupRebalance;
-      }
-      if (defaultGroupRebalancePauseDispatch == null) {
-         defaultGroupRebalancePauseDispatch = merged.defaultGroupRebalancePauseDispatch;
-      }
-      if (defaultGroupBuckets == null) {
-         defaultGroupBuckets = merged.defaultGroupBuckets;
-      }
-      if (defaultGroupFirstKey == null) {
-         defaultGroupFirstKey = merged.defaultGroupFirstKey;
-      }
-      if (defaultRingSize == null) {
-         defaultRingSize = merged.defaultRingSize;
-      }
-      if (retroactiveMessageCount == null) {
-         retroactiveMessageCount = merged.retroactiveMessageCount;
-      }
-      if (autoCreateDeadLetterResources == null) {
-         autoCreateDeadLetterResources = merged.autoCreateDeadLetterResources;
-      }
-      if (deadLetterQueuePrefix == null) {
-         deadLetterQueuePrefix = merged.deadLetterQueuePrefix;
-      }
-      if (deadLetterQueueSuffix == null) {
-         deadLetterQueueSuffix = merged.deadLetterQueueSuffix;
-      }
-      if (autoCreateExpiryResources == null) {
-         autoCreateExpiryResources = merged.autoCreateExpiryResources;
-      }
-      if (expiryQueuePrefix == null) {
-         expiryQueuePrefix = merged.expiryQueuePrefix;
-      }
-      if (expiryQueueSuffix == null) {
-         expiryQueueSuffix = merged.expiryQueueSuffix;
-      }
-      if (enableMetrics == null) {
-         enableMetrics = merged.enableMetrics;
-      }
-      if (enableIngressTimestamp == null) {
-         enableIngressTimestamp = merged.enableIngressTimestamp;
-      }
-      if (pageFullMessagePolicy == null) {
-         pageFullMessagePolicy = merged.pageFullMessagePolicy;
-      }
-      if (pageLimitBytes == null) {
-         pageLimitBytes = merged.pageLimitBytes;
-      }
-      if (pageLimitMessages == null) {
-         pageLimitMessages = merged.pageLimitMessages;
-      }
-      if (idCacheSize == null) {
-         idCacheSize = merged.idCacheSize;
-      }
-      if (prefetchPageMessages == null) {
-         prefetchPageMessages = merged.prefetchPageMessages;
-      }
-      if (prefetchPageBytes == null) {
-         prefetchPageBytes = merged.prefetchPageBytes;
-      }
+      metaBean.forEach((type, name, setter, getter, gate) -> {
+         if (getter.apply(AddressSettings.this) == null) {
+            setter.accept(this, getter.apply(merged));
+         }
+      });
+   }
+
+   /**
+    * Merge two AddressSettings instances in a new instance
+    *
+    * @param merged
+    */
+   @Override
+   public AddressSettings mergeCopy(final AddressSettings merged) {
+      AddressSettings target = new AddressSettings();
+
+      metaBean.forEach((type, name, setter, getter, gate) -> {
+         Object sourceValue = getter.apply(AddressSettings.this);
+         if (sourceValue != null) {
+            setter.accept(target, sourceValue);
+         } else {
+            setter.accept(target, getter.apply(merged));
+         }
+      });
+
+      return target;
    }
 
    @Override

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -288,21 +289,23 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * @return
     */
    private T merge(final Collection<Match<T>> orderedMatches) {
-      T actualMatch = null;
-      for (Match<T> match : orderedMatches) {
-         if (actualMatch == null || !Mergeable.class.isAssignableFrom(actualMatch.getClass())) {
-            actualMatch = match.getValue();
-            if (!Mergeable.class.isAssignableFrom(actualMatch.getClass())) {
-               break;
-            }
-         } else {
-            ((Mergeable) actualMatch).merge(match.getValue());
+      Iterator<Match<T>> matchIterator = orderedMatches.iterator();
+
+      T result = null;
+      if (matchIterator.hasNext()) {
+         Match<T> match = matchIterator.next();
+         result = match.getValue();
+
+         while (matchIterator.hasNext() && Mergeable.class.isAssignableFrom(result.getClass())) {
+            match = matchIterator.next();
+            result = ((Mergeable<T>)result).mergeCopy(match.getValue());
             if (match.isLiteral()) {
                break;
             }
          }
       }
-      return actualMatch;
+
+      return result;
    }
 
    /**

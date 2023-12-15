@@ -242,14 +242,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       final SimpleString expiryAddress = RandomUtil.randomSimpleString();
       SimpleString expiryQueue = RandomUtil.randomSimpleString();
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings() {
-         private static final long serialVersionUID = -6476053400596299130L;
-
-         @Override
-         public SimpleString getExpiryAddress() {
-            return expiryAddress;
-         }
-      });
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setExpiryAddress(expiryAddress));
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
       session.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(false));

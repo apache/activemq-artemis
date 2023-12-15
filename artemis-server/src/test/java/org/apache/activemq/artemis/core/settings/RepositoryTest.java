@@ -17,14 +17,17 @@
 package org.apache.activemq.artemis.core.settings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +42,6 @@ public class RepositoryTest extends ActiveMQTestBase {
       super.setUp();
 
       securityRepository = new HierarchicalObjectRepository<>();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      super.tearDown();
-
-      DummyMergeable.reset();
    }
 
    @Test
@@ -86,18 +81,16 @@ public class RepositoryTest extends ActiveMQTestBase {
       repo.addMatch("a.#", new DummyMergeable(2));
       repo.addMatch("a.b", new DummyMergeable(3));
 
-      repo.getMatch("a.b");
-      assertTrue(DummyMergeable.contains(0));
-      assertFalse(DummyMergeable.contains(1));
-      assertTrue(DummyMergeable.contains(2));
-      assertTrue(DummyMergeable.contains(3));
+      DummyMergeable abDummyMatch = repo.getMatch("a.b");
+      Assert.assertEquals(2, abDummyMatch.getMergedItems().size());
+      Assert.assertEquals(3, abDummyMatch.getId());
+      Assert.assertEquals(2, abDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(0, abDummyMatch.getMergedItems().get(1).getId());
 
-      DummyMergeable.reset();
-      repo.getMatch("a.#");
-      assertTrue(DummyMergeable.contains(0));
-      assertTrue(DummyMergeable.contains(1));
-      assertFalse(DummyMergeable.contains(2));
-      assertFalse(DummyMergeable.contains(3));
+      DummyMergeable aDummyMatch = repo.getMatch("a.#");
+      Assert.assertEquals(1, aDummyMatch.getMergedItems().size());
+      Assert.assertEquals(1, aDummyMatch.getId());
+      Assert.assertEquals(0, aDummyMatch.getMergedItems().get(0).getId());
    }
 
    @Test
@@ -263,23 +256,23 @@ public class RepositoryTest extends ActiveMQTestBase {
       repository.addMatch("a.b.c.#", new DummyMergeable(6));
       repository.addMatch("a.b.*.d", new DummyMergeable(7));
       repository.addMatch("a.b.c.*", new DummyMergeable(8));
-      repository.getMatch("a.b.c.d");
-      Assert.assertEquals(5, DummyMergeable.timesMerged);
-      Assert.assertTrue(DummyMergeable.contains(1));
-      Assert.assertTrue(DummyMergeable.contains(2));
-      Assert.assertTrue(DummyMergeable.contains(4));
-      Assert.assertTrue(DummyMergeable.contains(7));
-      Assert.assertTrue(DummyMergeable.contains(8));
-      DummyMergeable.reset();
-      repository.getMatch("a.b.c");
-      Assert.assertEquals(3, DummyMergeable.timesMerged);
-      Assert.assertTrue(DummyMergeable.contains(1));
-      Assert.assertTrue(DummyMergeable.contains(2));
-      Assert.assertTrue(DummyMergeable.contains(4));
-      DummyMergeable.reset();
-      repository.getMatch("z");
-      Assert.assertEquals(0, DummyMergeable.timesMerged);
-      DummyMergeable.reset();
+      DummyMergeable abcdDummyMatch = repository.getMatch("a.b.c.d");
+      Assert.assertEquals(5, abcdDummyMatch.getMergedItems().size());
+      Assert.assertEquals(8, abcdDummyMatch.getId());
+      Assert.assertEquals(7, abcdDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(6, abcdDummyMatch.getMergedItems().get(1).getId());
+      Assert.assertEquals(4, abcdDummyMatch.getMergedItems().get(2).getId());
+      Assert.assertEquals(2, abcdDummyMatch.getMergedItems().get(3).getId());
+      Assert.assertEquals(1, abcdDummyMatch.getMergedItems().get(4).getId());
+      DummyMergeable abcDummyMatch = repository.getMatch("a.b.c");
+      Assert.assertEquals(3, abcDummyMatch.getMergedItems().size());
+      Assert.assertEquals(6, abcDummyMatch.getId());
+      Assert.assertEquals(4, abcDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(2, abcDummyMatch.getMergedItems().get(1).getId());
+      Assert.assertEquals(1, abcDummyMatch.getMergedItems().get(2).getId());
+      DummyMergeable zDummyMatch = repository.getMatch("z");
+      Assert.assertEquals(0, zDummyMatch.getMergedItems().size());
+      Assert.assertEquals(1, zDummyMatch.getId());
    }
 
    @Test
@@ -340,32 +333,137 @@ public class RepositoryTest extends ActiveMQTestBase {
       }
    }
 
-   static class DummyMergeable implements Mergeable {
+   @Test
+   public void testMatchMergeIdempotence() {
+      HierarchicalRepository<DummyMergeable> repository = new HierarchicalObjectRepository<>();
+      repository.addMatch("foo.*", new DummyMergeable(0, Map.of("s0", "x")));
+      repository.addMatch("foo.0.#", new DummyMergeable(1, Map.of("so", "a", "s1", "a")));
+      repository.addMatch("foo.1.#", new DummyMergeable(2, Map.of("so", "b", "s1", "b")));
 
-      static int timesMerged = 0;
+      DummyMergeable fooxMatch = repository.getMatch("foo.x");
+      Assert.assertEquals(0, fooxMatch.getId());
+      Assert.assertEquals(0, fooxMatch.getMergedItems().size());
+      Assert.assertEquals("x", fooxMatch.getSettings().get("s0"));
+      Assert.assertNull(fooxMatch.getSettings().get("s1"));
 
-      static ArrayList<Integer> merged = new ArrayList<>();
+      DummyMergeable foo1Match = repository.getMatch("foo.0");
+      Assert.assertEquals(0, foo1Match.getId());
+      Assert.assertEquals(1, foo1Match.getMergedItems().size());
+      Assert.assertEquals("x", fooxMatch.getSettings().get("s0"));
+      Assert.assertEquals("a", foo1Match.getSettings().get("s1"));
 
-      private final Integer id;
+      DummyMergeable foo2Match = repository.getMatch("foo.1");
+      Assert.assertEquals(0, foo2Match.getId());
+      Assert.assertEquals(1, foo2Match.getMergedItems().size());
+      Assert.assertEquals("x", fooxMatch.getSettings().get("s0"));
+      Assert.assertEquals("b", foo2Match.getSettings().get("s1"));
 
-      static void reset() {
-         DummyMergeable.timesMerged = 0;
-         DummyMergeable.merged = new ArrayList<>();
+      DummyMergeable fooxBisMatch = repository.getMatch("foo.x");
+      Assert.assertEquals(0, fooxBisMatch.getId());
+      Assert.assertEquals(0, fooxBisMatch.getMergedItems().size());
+      Assert.assertEquals("x", fooxBisMatch.getSettings().get("s0"));
+      Assert.assertNull(fooxBisMatch.getSettings().get("s1"));
+
+      DummyMergeable foo1BisMatch = repository.getMatch("foo.0");
+      Assert.assertEquals(0, foo1BisMatch.getId());
+      Assert.assertEquals(1, foo1BisMatch.getMergedItems().size());
+      Assert.assertEquals("x", foo1BisMatch.getSettings().get("s0"));
+      Assert.assertEquals("a", foo1BisMatch.getSettings().get("s1"));
+
+      DummyMergeable foo2BisMatch = repository.getMatch("foo.1");
+      Assert.assertEquals(0, foo2BisMatch.getId());
+      Assert.assertEquals(1, foo2BisMatch.getMergedItems().size());
+      Assert.assertEquals("x", foo2BisMatch.getSettings().get("s0"));
+      Assert.assertEquals("b", foo2BisMatch.getSettings().get("s1"));
+   }
+
+   @Test
+   public void testAddressSettingsMergeIdempotence() {
+      AddressSettings foox = new AddressSettings().setMaxRedeliveryDelay(10000);
+      AddressSettings foo0 = new AddressSettings().setMaxRedeliveryDelay(20000).setMaxExpiryDelay(20000L);
+      AddressSettings foo1 = new AddressSettings().setMaxRedeliveryDelay(30000).setMaxExpiryDelay(30000L);
+
+      HierarchicalRepository<AddressSettings> repository = new HierarchicalObjectRepository<>();
+      repository.addMatch("foo.*", foox);
+      repository.addMatch("foo.0.#", foo0);
+      repository.addMatch("foo.1.#", foo1);
+
+      AddressSettings fooxMatch = repository.getMatch("foo.x");
+      Assert.assertEquals(10000, fooxMatch.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(AddressSettings.DEFAULT_MAX_EXPIRY_DELAY), fooxMatch.getMaxExpiryDelay());
+
+      AddressSettings foo0Match = repository.getMatch("foo.0");
+      Assert.assertEquals(10000, foo0Match.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(20000), foo0Match.getMaxExpiryDelay());
+
+      AddressSettings foo1Match = repository.getMatch("foo.1");
+      Assert.assertEquals(10000, foo1Match.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(30000), foo1Match.getMaxExpiryDelay());
+
+      AddressSettings fooxBisMatch = repository.getMatch("foo.x");
+      Assert.assertEquals(10000, fooxBisMatch.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(AddressSettings.DEFAULT_MAX_EXPIRY_DELAY), fooxBisMatch.getMaxExpiryDelay());
+
+      AddressSettings foo0BisMatch = repository.getMatch("foo.0");
+      Assert.assertEquals(10000, foo0BisMatch.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(20000), foo0BisMatch.getMaxExpiryDelay());
+
+      AddressSettings foo1BisMatch = repository.getMatch("foo.1");
+      Assert.assertEquals(10000, foo1BisMatch.getMaxRedeliveryDelay());
+      Assert.assertEquals(Long.valueOf(30000), foo1BisMatch.getMaxExpiryDelay());
+   }
+
+   static class DummyMergeable implements Mergeable<DummyMergeable> {
+      private final int id;
+      private final Map<String,String> settings;
+      private final List<DummyMergeable> mergedItems;
+
+      public int getId() {
+         return id;
       }
 
-      static boolean contains(final Integer i) {
-         return DummyMergeable.merged.contains(i);
+      public Map<String, String> getSettings() {
+         return settings;
       }
 
-      DummyMergeable(final Integer id) {
+      public List<DummyMergeable> getMergedItems() {
+         return mergedItems;
+      }
+
+      DummyMergeable(final int id) {
          this.id = id;
+         this.settings = new HashMap<>();
+         this.mergedItems = new ArrayList<>();
+      }
+
+      DummyMergeable(final int id, final Map<String,String> settings) {
+         this.id = id;
+         this.settings = settings;
+         this.mergedItems = new ArrayList<>();
+      }
+
+      DummyMergeable(DummyMergeable item) {
+         this.id = item.id;
+         this.settings = new HashMap<>(item.settings);
+         this.mergedItems = new ArrayList<>(item.mergedItems);
       }
 
       @Override
-      public void merge(final Object merged) {
-         DummyMergeable.timesMerged++;
-         DummyMergeable.merged.add(id);
-         DummyMergeable.merged.add(((DummyMergeable) merged).id);
+      public void merge(final DummyMergeable merged) {
+         for (Map.Entry<String, String> entry : merged.settings.entrySet()) {
+            this.settings.putIfAbsent(entry.getKey(), entry.getValue());
+         }
+         this.mergedItems.add(merged);
+      }
+
+      @Override
+      public DummyMergeable mergeCopy(DummyMergeable merged) {
+         DummyMergeable target = new DummyMergeable(this);
+         for (Map.Entry<String, String> entry : merged.settings.entrySet()) {
+            target.settings.putIfAbsent(entry.getKey(), entry.getValue());
+         }
+         target.mergedItems.add(merged);
+         return target;
       }
    }
 }
