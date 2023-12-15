@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -1639,7 +1640,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                return rc;
             }
          } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            if (!(e instanceof ActiveMQInvalidFilterExpressionException)) {
+               // only log when not caused by user input
+               logger.warn(e.getMessage(), e);
+            }
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.browseMessagesFailure(queue.getName().toString());
             }
