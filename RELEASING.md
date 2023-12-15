@@ -156,25 +156,22 @@ Old staged releases can be cleaned out periodically.
 
 Please, include the git-commit-report as part of the release process. To generate it, follow these steps:
 
-- Download [jira-git-report](https://github.com/rh-messaging/jira-git-report)
-- Execute the following command:
+- Check out the [activemq-website](https://gitbox.apache.org/repos/asf/activemq-website.git) repository.
+- Execute the following commands:
 ```bash
-$ git clone https://github.com/rh-messaging/jira-git-report.git
-$ cd jira-git-report
-$ mvn compile assembly:single
-$ cd target
-# Make sure you use artemis-web as the project name, as this has the proper file references to the website (https://activemq.apache.org)
-$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web <path.to.checkout>/activemq-artemis <path.to.checkout>/activemq-website/src/components/artemis/download/commit-report-<version>.html <previous-version> <version> true
+$ cd activemq-website
+$ ./scripts/release/create-artemis-git-report.sh <path.to/activemq-artemis> <previous-version> <version>
 ```
 
-
-real example used on [2.31.0](https://activemq.apache.org/components/artemis/download/commit-report-2.31.0.html):
+For example the command used for 2.31.0, which followed 2.30.0, could have been:
 ```bash
-$ java -jar 
-java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis-web release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.31.0.html 2.30.0 2.31.0 true
+$ cd activemq-website
+$ ./scripts/release/create-artemis-git-report.sh ../path.to/activemq-artemis 2.30.0 2.31.0
 ```
-- This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
 
+This will parse all the git commits between the previous and current release tag while looking at current JIRA status.
+
+The report page should have been created in the website repo at: `src/components/artemis/download/commit-report-<version>.html`. Check it over and commit + push when satisfied.
 
 ## Cleanup JIRA
 
