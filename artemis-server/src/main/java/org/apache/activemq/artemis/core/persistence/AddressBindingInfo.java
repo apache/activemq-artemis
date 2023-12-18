@@ -35,4 +35,6 @@ public interface AddressBindingInfo {
    AddressStatusEncoding getAddressStatusEncoding();
 
    boolean isInternal();
+
+   boolean isManageable();
 }

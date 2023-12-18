@@ -35,11 +35,13 @@ public class AddressBindingEncodingTest extends Assert {
       final boolean autoCreated = RandomUtil.randomBoolean();
       final EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       final boolean internal = RandomUtil.randomBoolean();
+      final boolean manageable = RandomUtil.randomBoolean();
 
       PersistentAddressBindingEncoding encoding = new PersistentAddressBindingEncoding(name,
                                                                                        routingTypes,
                                                                                        autoCreated,
-                                                                                       internal);
+                                                                                       internal,
+                                                                                       manageable);
       int size = encoding.getEncodeSize();
       ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(size);
       encoding.encode(encodedBuffer);
@@ -51,5 +53,6 @@ public class AddressBindingEncodingTest extends Assert {
       assertEquals(autoCreated, decoding.isAutoCreated());
       assertEquals(routingTypes, decoding.getRoutingTypes());
       assertEquals(internal, decoding.isInternal());
+      assertEquals(manageable, decoding.isManageable());
    }
 }

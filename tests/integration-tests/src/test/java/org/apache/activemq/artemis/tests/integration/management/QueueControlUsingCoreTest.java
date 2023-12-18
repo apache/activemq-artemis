@@ -253,6 +253,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isInternalQueue() {
+            return (boolean) proxy.retrieveAttributeValue("internalQueue");
+         }
+
+         @Override
          public int getConsumersBeforeDispatch() {
             return (Integer) proxy.retrieveAttributeValue("consumersBeforeDispatch");
          }

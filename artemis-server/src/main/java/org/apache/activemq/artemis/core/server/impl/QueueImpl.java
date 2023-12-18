@@ -2917,7 +2917,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * @return the internalQueue
+    * @return if queue is internal
     */
    @Override
    public boolean isInternalQueue() {
@@ -2930,6 +2930,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void setInternalQueue(boolean internalQueue) {
       this.internalQueue = internalQueue;
+   }
+
+   @Override
+   public boolean isManageable() {
+      return addressInfo == null ? true : addressInfo.isManageable();
    }
 
    // Public

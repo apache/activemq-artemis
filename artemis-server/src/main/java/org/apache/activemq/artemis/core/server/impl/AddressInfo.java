@@ -70,6 +70,8 @@ public class AddressInfo {
 
    private boolean internal = false;
 
+   private boolean manageable = true;
+
    private volatile long routedMessageCount = 0;
 
    private static final AtomicLongFieldUpdater<AddressInfo> routedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "routedMessageCount");
@@ -337,9 +339,19 @@ public class AddressInfo {
       return this;
    }
 
+   public boolean isManageable() {
+      return this.manageable;
+   }
+
+   public AddressInfo setManageable(boolean manageable) {
+      this.manageable = manageable;
+      return this;
+   }
+
    public AddressInfo create(SimpleString name, RoutingType routingType) {
       AddressInfo info = new AddressInfo(name, routingType);
       info.setInternal(this.internal);
+      info.setManageable(this.manageable);
       if (paused) {
          info.pause(this.pauseStatusRecord > 0);
       }
@@ -389,6 +401,7 @@ public class AddressInfo {
       builder.add("auto-created", autoCreated);
       builder.add("temporary", temporary);
       builder.add("internal", internal);
+      builder.add("manageable", manageable);
       if (firstSeen != null) {
          builder.add("firstSeen", firstSeen.getType());
       }
@@ -427,6 +440,10 @@ public class AddressInfo {
       } else if (key.equals("created-timestamp")) {
          JsonNumber jsonLong = (JsonNumber) value;
          this.createdTimestamp = jsonLong.longValue();
+      } else if (key.equals("internal")) {
+         this.internal = Boolean.valueOf(value.toString());
+      } else if (key.equals("manageable")) {
+         this.manageable = Boolean.valueOf(value.toString());
       }
    }
 

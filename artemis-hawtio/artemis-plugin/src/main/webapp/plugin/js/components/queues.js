@@ -104,7 +104,8 @@ var Artemis;
                   {name: "Ring Size", visible: false},
                   {name: "Consumers Before Dispatch", visible: false},
                   {name: "Delay Before Dispatch", visible: false},
-                  {name: "Auto Delete", visible: false}
+                  {name: "Auto Delete", visible: false},
+                  {name: "Internal", visible: false}
              ]
         };
 
@@ -142,7 +143,8 @@ var Artemis;
                 {id: 'paused', name: 'Paused'},
                 {id: 'temporary', name: 'Temporary'},
                 {id: 'autoCreated', name: 'Auto Created'},
-                {id: 'autoDelete', name: 'Auto Delete'}
+                {id: 'autoDelete', name: 'Auto Delete'},
+                {id: 'internalQueue', name: 'Internal'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -218,7 +220,8 @@ var Artemis;
             { header: 'Ring Size', itemField: 'ringSize'},
             { header: 'Consumers Before Dispatch', itemField: 'consumersBeforeDispatch'},
             { header: 'Delay Before Dispatch', itemField: 'delayBeforeDispatch'},
-            { header: 'Auto Delete', itemField: 'autoDelete'}
+            { header: 'Auto Delete', itemField: 'autoDelete'},
+            { header: 'Internal', itemField: 'internalQueue'}
         ];
 
         ctrl.refresh = function () {
@@ -312,7 +315,7 @@ var Artemis;
         }
         ctrl.loadOperation = function () {
             if (mbean) {
-                var method = 'listQueues(java.lang.String, int, int)';
+                var method = 'listQueues(java.lang.String, int, int, boolean)';
                 var queuesFilter = {
                     field: ctrl.filter.values.field,
                     operation: ctrl.filter.values.operation,
@@ -325,7 +328,7 @@ var Artemis;
                     ctrl.pagination.reset();
                     ctrl.refreshed = false;
                 }
-                jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [JSON.stringify(queuesFilter), ctrl.pagination.pageNumber, ctrl.pagination.pageSize] }, Core.onSuccess(populateTable, { error: onError }));
+                jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [JSON.stringify(queuesFilter), ctrl.pagination.pageNumber, ctrl.pagination.pageSize, true] }, Core.onSuccess(populateTable, { error: onError }));
             }
         };
 

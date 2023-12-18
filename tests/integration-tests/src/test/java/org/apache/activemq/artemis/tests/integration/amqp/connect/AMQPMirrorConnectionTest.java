@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,15 +31,20 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,6 +201,56 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testBrokerConnectionQueueIsManageable() throws Exception {
+      final Map<String, Object> brokerProperties = new HashMap<>();
+      brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+            .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+            .withDesiredCapabilities("amq.mirror")
+            .respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser("user");
+         amqpConnection.setPassword("pass");
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setQueueCreation(true)
+                                      .setAddressFilter("sometest"));
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         SimpleString mirrorQueueName = SimpleString.toSimpleString(
+            Arrays.stream(server.getActiveMQServerControl().getQueueNames()).filter(
+                  queueName -> queueName.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+               .findFirst()
+               .orElse(null));
+
+         Assert.assertNotNull(mirrorQueueName);
+
+         QueueControl queueControl = ManagementControlHelper.createQueueControl(mirrorQueueName, mirrorQueueName, RoutingType.ANYCAST, server.getMBeanServer());
+
+         //check that mirror queue can be managed
+         queueControl.pause();
+         Assert.assertTrue(queueControl.isPaused());
+
+         queueControl.resume();
+         Assert.assertFalse(queueControl.isPaused());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          server.stop();
       }
    }

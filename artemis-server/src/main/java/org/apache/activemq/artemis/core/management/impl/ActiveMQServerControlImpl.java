@@ -2592,6 +2592,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listQueues(String options, int page, int pageSize) throws Exception {
+      return listQueues(options, page, pageSize, false);
+   }
+
+   @Override
+   public String listQueues(String options, int page, int pageSize, boolean showInternal) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listQueues(this.server, options, page, pageSize);
       }
@@ -2601,8 +2606,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          List<QueueControl> queues = new ArrayList<>();
          Object[] qs = server.getManagementService().getResources(QueueControl.class);
-         for (int i = 0; i < qs.length; i++) {
-            queues.add((QueueControl) qs[i]);
+         for (Object q : qs) {
+            if (showInternal || !((QueueControl) q).isInternalQueue()) {
+               queues.add((QueueControl) q);
+            }
          }
          QueueView view = new QueueView(server);
          view.setCollection(queues);

@@ -76,7 +76,7 @@ public class MQTTStateManager {
 
    private MQTTStateManager(ActiveMQServer server) throws Exception {
       this.server = server;
-      sessionStore = server.createQueue(new QueueConfiguration(MQTTUtil.MQTT_SESSION_STORE).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setDurable(true).setInternal(true).setAutoCreateAddress(true), true);
+      sessionStore = server.createQueue(new QueueConfiguration(MQTTUtil.MQTT_SESSION_STORE).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setDurable(true).setInternal(true).setAutoCreateAddress(true).setManageable(false), true);
 
       // load session data from queue
       try (LinkedListIterator<MessageReference> iterator = sessionStore.browserIterator()) {

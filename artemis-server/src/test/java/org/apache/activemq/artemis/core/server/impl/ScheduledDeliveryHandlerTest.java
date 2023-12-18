@@ -1601,6 +1601,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isManageable() {
+         return true;
+      }
+
+      @Override
       public void resetMessagesAdded() {
 
       }

@@ -77,6 +77,7 @@ public class QueueConfiguration implements Serializable {
    public static final String TRANSIENT = "transient";
    public static final String AUTO_CREATED = "auto-created";
    public static final String FQQN = "fqqn";
+   public static final String MANAGEABLE = "manageable";
 
    private Long id; // internal use
    private SimpleString name;
@@ -110,6 +111,7 @@ public class QueueConfiguration implements Serializable {
    private Boolean _transient;
    private Boolean autoCreated;
    private Boolean fqqn;
+   private Boolean manageable;
 
    public QueueConfiguration() {
    }
@@ -147,6 +149,7 @@ public class QueueConfiguration implements Serializable {
       _transient = o._transient;
       autoCreated = o.autoCreated;
       fqqn = o.fqqn;
+      manageable = o.manageable;
    }
 
    /**
@@ -199,7 +202,7 @@ public class QueueConfiguration implements Serializable {
     * <li>auto-delete-delay: {@link #AUTO_DELETE_DELAY}
     * <li>auto-delete-message-count: {@link #AUTO_DELETE_MESSAGE_COUNT}
     * <li>ring-size: {@link #RING_SIZE}
-    * <li>configuration-managed: {@link #ID}
+    * <li>configuration-managed: {@link #CONFIGURATION_MANAGED}
     * <li>temporary: {@link #TEMPORARY}
     * <li>auto-create-address: {@link #AUTO_CREATE_ADDRESS}
     * <li>internal: {@link #INTERNAL}
@@ -657,6 +660,19 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * defaults to {@code true}
+    * @return
+    */
+   public Boolean isManageable() {
+      return manageable == null ? Boolean.TRUE : manageable;
+   }
+
+   public QueueConfiguration setManageable(Boolean manageable) {
+      this.manageable = manageable;
+      return this;
+   }
+
+   /**
     * This method returns a JSON-formatted {@code String} representation of this {@code QueueConfiguration}. It is a
     * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
     *
@@ -761,6 +777,9 @@ public class QueueConfiguration implements Serializable {
       if (isFqqn() != null) {
          builder.add(FQQN, isFqqn());
       }
+      if (isManageable() != null) {
+         builder.add(MANAGEABLE, isManageable());
+      }
 
       return builder.build().toString();
    }
@@ -861,6 +880,8 @@ public class QueueConfiguration implements Serializable {
          return false;
       if (!Objects.equals(fqqn, that.fqqn))
          return false;
+      if (!Objects.equals(manageable, that.manageable))
+         return false;
 
       return true;
    }
@@ -899,6 +920,7 @@ public class QueueConfiguration implements Serializable {
       result = 31 * result + Objects.hashCode(_transient);
       result = 31 * result + Objects.hashCode(autoCreated);
       result = 31 * result + Objects.hashCode(fqqn);
+      result = 31 * result + Objects.hashCode(manageable);
       return result;
    }
 
@@ -936,6 +958,7 @@ public class QueueConfiguration implements Serializable {
          + ", internal=" + internal
          + ", transient=" + _transient
          + ", autoCreated=" + autoCreated
-         + ", fqqn=" + fqqn + ']';
+         + ", fqqn=" + fqqn
+         + ", manageable=" + manageable + ']';
    }
 }

@@ -870,6 +870,11 @@ public class RoutingContextTest {
       }
 
       @Override
+      public boolean isManageable() {
+         return true;
+      }
+
+      @Override
       public void resetMessagesAdded() {
 
       }

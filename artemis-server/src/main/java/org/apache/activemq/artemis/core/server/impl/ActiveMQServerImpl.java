@@ -4015,7 +4015,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          AddressInfo info = postOfficeInUse.getAddressInfo(queueConfiguration.getAddress());
          if (queueConfiguration.isAutoCreateAddress() || queueConfiguration.isTemporary()) {
             if (info == null) {
-               addAddressInfo(new AddressInfo(queueConfiguration.getAddress(), queueConfiguration.getRoutingType()).setAutoCreated(true).setTemporary(queueConfiguration.isTemporary()).setInternal(queueConfiguration.isInternal()));
+               addAddressInfo(new AddressInfo(queueConfiguration.getAddress(), queueConfiguration.getRoutingType())
+                                 .setAutoCreated(true)
+                                 .setTemporary(queueConfiguration.isTemporary())
+                                 .setInternal(queueConfiguration.isInternal())
+                                 .setManageable(queueConfiguration.isManageable()));
+
             } else if (!info.getRoutingTypes().contains(queueConfiguration.getRoutingType())) {
                EnumSet<RoutingType> routingTypes = EnumSet.copyOf(info.getRoutingTypes());
                routingTypes.add(queueConfiguration.getRoutingType());
@@ -4073,9 +4078,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             throw e;
          }
 
-         if (!queueConfiguration.isInternal()) {
-            managementService.registerQueue(queue, queue.getAddress(), storageManager);
-         }
+         managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
          copyRetroactiveMessages(queue);
 

@@ -107,4 +107,6 @@ public interface QueueBindingInfo {
    long getRingSize();
 
    boolean isInternal();
+
+   boolean isManageable();
 }

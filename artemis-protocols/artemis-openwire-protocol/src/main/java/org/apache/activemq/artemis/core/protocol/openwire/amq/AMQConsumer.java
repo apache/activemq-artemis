@@ -227,10 +227,10 @@ public class AMQConsumer {
                session.getCoreSession().deleteQueue(queueName);
 
                // Create the new one
-               session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
+               session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress).setManageable(!internalAddress));
             }
          } else {
-            session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
+            session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress).setManageable(!internalAddress));
          }
       } else {
          /*
@@ -245,7 +245,7 @@ public class AMQConsumer {
             queueName = new SimpleString(UUID.randomUUID().toString());
          }
 
-         session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress));
+         session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress).setManageable(!internalAddress));
       }
 
       return queueName;

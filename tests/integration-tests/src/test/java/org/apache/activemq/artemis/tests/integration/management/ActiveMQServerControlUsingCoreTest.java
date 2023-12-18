@@ -1722,6 +1722,14 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String listQueues(@Parameter(name = "Options") String options,
+                                  @Parameter(name = "Page Number") int page,
+                                  @Parameter(name = "Page Size") int pageSize,
+                                  @Parameter(name = "Show Internal") boolean showInternal) throws Exception {
+            return (String) proxy.invokeOperation("listQueues", options, page, pageSize, showInternal);
+         }
+
+         @Override
          public void replay(String address, String target, String filter) throws Exception {
             proxy.invokeOperation("replay", address, target, filter);
          }

@@ -47,4 +47,48 @@ public class AddressInfoRestartTest extends ActiveMQTestBase {
       AddressInfo addressInfo2 = server.getPostOffice().getAddressInfo(address);
       Assert.assertTrue(addressInfo2.isAutoCreated());
    }
+
+   @Test
+   public void testAddressInfoManageableRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setManageable(false));
+
+      AddressInfo addressInfo1 = server.getPostOffice().getAddressInfo(address);
+      Assert.assertFalse(addressInfo1.isManageable());
+
+      server.stop();
+
+      server.start();
+
+      AddressInfo addressInfo2 = server.getPostOffice().getAddressInfo(address);
+      Assert.assertFalse(addressInfo2.isManageable());
+   }
+
+   @Test
+   public void testAddressInfoInternalRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setInternal(true));
+
+      AddressInfo addressInfo1 = server.getPostOffice().getAddressInfo(address);
+      Assert.assertTrue(addressInfo1.isInternal());
+
+      server.stop();
+
+      server.start();
+
+      AddressInfo addressInfo2 = server.getPostOffice().getAddressInfo(address);
+      Assert.assertTrue(addressInfo2.isInternal());
+   }
 }

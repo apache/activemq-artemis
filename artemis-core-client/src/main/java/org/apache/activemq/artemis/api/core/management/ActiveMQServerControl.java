@@ -1912,6 +1912,12 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "pageNumber", desc = "Page Number") int page,
                      @Parameter(name = "pageSize", desc = "Page Size") int pageSize) throws Exception;
 
+   @Operation(desc = "Search for Queues", impact = MBeanOperationInfo.INFO)
+   String listQueues(@Parameter(name = "options", desc = "Options") String options,
+                     @Parameter(name = "pageNumber", desc = "Page Number") int page,
+                     @Parameter(name = "pageSize", desc = "Page Size") int pageSize,
+                     @Parameter(name = "showInternal", desc = "Show Internal Queues") boolean showInternal) throws Exception;
+
    /**
     * Returns the names of the queues created on this server with the given routing-type.
     */

@@ -42,6 +42,8 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    private boolean internal;
 
+   private boolean manageable;
+
    public PersistentAddressBindingEncoding() {
       routingTypes = EnumSet.noneOf(RoutingType.class);
    }
@@ -59,14 +61,16 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       }
       sb.append("}");
       sb.append(", autoCreated=" + autoCreated);
-      sb.append(", internal=" + internal + "]");
+      sb.append(", internal=" + internal);
+      sb.append(", manageable=" + manageable + "]");
       return sb.toString();
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
                                            final EnumSet<RoutingType> routingTypes,
                                            final boolean autoCreated,
-                                           final boolean internal) {
+                                           final boolean internal,
+                                           final boolean manageable) {
       checkNotNull(name);
       checkNotNull(routingTypes);
 
@@ -74,6 +78,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       this.routingTypes = routingTypes;
       this.autoCreated = autoCreated;
       this.internal = internal;
+      this.manageable = manageable;
    }
 
    @Override
@@ -115,6 +120,11 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
+   public boolean isManageable() {
+      return manageable;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       int size = buffer.readInt();
@@ -128,6 +138,12 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       } else {
          internal = ActiveMQDefaultConfiguration.getDefaultInternal();
       }
+
+      if (buffer.readableBytes() > 0) {
+         manageable = buffer.readBoolean();
+      } else {
+         manageable = ActiveMQDefaultConfiguration.getDefaultManageable();
+      }
    }
 
    @Override
@@ -139,6 +155,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       }
       buffer.writeBoolean(autoCreated);
       buffer.writeBoolean(internal);
+      buffer.writeBoolean(manageable);
    }
 
    @Override
@@ -146,6 +163,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       return SimpleString.sizeofString(name) +
          DataConstants.SIZE_INT +
          (DataConstants.SIZE_BYTE * routingTypes.size()) +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN;
    }

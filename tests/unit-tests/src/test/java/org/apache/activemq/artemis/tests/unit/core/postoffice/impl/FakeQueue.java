@@ -235,6 +235,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isManageable() {
+      return true;
+   }
+
+   @Override
    public boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
       return false;
    }

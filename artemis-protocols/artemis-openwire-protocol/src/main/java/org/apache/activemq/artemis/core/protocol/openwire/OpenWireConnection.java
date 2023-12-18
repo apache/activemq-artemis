@@ -932,7 +932,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (autoCreateResult == AutoCreateResult.CREATED) {
          created = true;
          if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
-            internalSession.getAddress(qName).setInternal(true);
+            internalSession.getAddress(qName).setInternal(true).setManageable(false);
          }
       } else if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
          throw new InvalidDestinationException(dest.getDestinationTypeAsString() + " " + dest.getPhysicalName() + " does not exist.");

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,12 +27,14 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -355,6 +358,55 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
       waitForBindings(0, "queues.testaddress", 1, 1, false);
       waitForBindings(1, "queues.testaddress", 1, 1, false);
+
+      closeAllConsumers();
+
+   }
+
+   @Test
+   public void testSimpleSnFManagement() throws Exception {
+      final String address = "queues.testaddress";
+      final String queue = "queue0";
+
+      setupServer(0, false, isNetty());
+      setupServer(1, false, isNetty());
+
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, address, queue, null, false);
+      createQueue(1, address, queue, null, false);
+
+      addConsumer(0, 0, queue, null);
+      addConsumer(1, 1, queue, null);
+
+      waitForBindings(0, address, 1, 1, true);
+      waitForBindings(1, address, 1, 1, true);
+
+      waitForBindings(0, address, 1, 1, false);
+      waitForBindings(1, address, 1, 1, false);
+
+      SimpleString SnFQueueName = SimpleString.toSimpleString(
+         Arrays.stream(servers[0].getActiveMQServerControl().getQueueNames()).filter(
+            queueName -> queueName.contains(servers[0].getInternalNamingPrefix()))
+            .findFirst()
+            .orElse(null));
+
+      Assert.assertNotNull(SnFQueueName);
+
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(SnFQueueName, SnFQueueName, RoutingType.MULTICAST, servers[0].getMBeanServer());
+
+      //check that internal queue can be managed
+      queueControl.pause();
+      Assert.assertTrue(queueControl.isPaused());
+
+      queueControl.resume();
+      Assert.assertFalse(queueControl.isPaused());
 
       closeAllConsumers();
 

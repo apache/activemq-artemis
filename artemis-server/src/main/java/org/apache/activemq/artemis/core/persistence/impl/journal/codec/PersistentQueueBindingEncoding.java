@@ -82,6 +82,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    private boolean internal;
 
+   private boolean manageable;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -112,6 +114,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          ", autoDeleteDelay=" + autoDeleteDelay +
          ", autoDeleteMessageCount=" + autoDeleteMessageCount +
          ", internal=" + internal +
+         ", manageable=" + manageable +
          "]";
    }
 
@@ -139,7 +142,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final byte routingType,
                                          final boolean configurationManaged,
                                          final long ringSize,
-                                         final boolean internal) {
+                                         final boolean internal,
+                                         final boolean manageable) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -165,6 +169,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.configurationManaged = configurationManaged;
       this.ringSize = ringSize;
       this.internal = internal;
+      this.manageable = manageable;
    }
 
    @Override
@@ -372,6 +377,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    @Override
    public boolean isInternal() {
       return internal;
+   }
+
+   @Override
+   public boolean isManageable() {
+      return manageable;
    }
 
    @Override
