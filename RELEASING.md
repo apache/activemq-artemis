@@ -6,13 +6,14 @@ Things to do before issuing a new release:
   entries for guidance.
 
 * Build the release locally: mvn clean install -Prelease
+1. Check the manuals have been created properly
+2. Check the javadocs are created correctly (including the diagrams)
 
 * Test the standalone release (this should be done on windows as well as linux):
 1. Unpack the distribution zip or tar.gz
 2. Start and stop the server
-3. Run the examples (follow the instructions under examples/index.html)
-5. Check the manuals have been created properly
-6. Check the javadocs are created correctly (including the diagrams)
+
+*  Run the examples, from the [development branch](https://github.com/apache/activemq-artemis-examples/tree/development).
 
 If everything is successful follow these next steps to build and publish artifacts to Nexus and send out a release vote.
 

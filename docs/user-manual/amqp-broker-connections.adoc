@@ -53,7 +53,7 @@ If false it is necessary to call a management operation to start it.
 
 Note that the connection URI options for transport settings such as enabling and configuring TLS are common with other Artemis connector URIs.
 See xref:configuring-transports.adoc#configuring-netty-ssl[the transport doc] for more.
-An example configuration for a TLS AMQP broker-connection can be found in the broker examples at ./examples/features/broker-connection/amqp-sending-overssl.
+An example configuration for a TLS AMQP broker-connection can be found in the broker xref:examples.adoc[examples] at ./examples/features/broker-connection/amqp-sending-overssl.
 
 NOTE: If auto-start is disabled on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
 

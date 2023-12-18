@@ -11,7 +11,7 @@ By default there are `acceptor` elements configured to accept STOMP connections 
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for STOMP.
 
-Refer to the STOMP examples for a look at some of this functionality in action.
+Refer to the STOMP xref:examples.adoc[examples] for a look at some of this functionality in action.
 
 == Limitations
 
@@ -274,7 +274,7 @@ By default the broker encodes them as binary.
 However, this can be changed by using the `webSocketEncoderType` acceptor URL parameter.
 Valid values are `binary` and `text`.
 
-The `stomp-websockets` example shows how to configure an Apache ActiveMQ Artemis broker to have web browsers and Java applications exchanges messages.
+The `stomp-websockets` xref:examples.adoc[example] shows how to configure an Apache ActiveMQ Artemis broker to have web browsers and Java applications exchanges messages.
 
 == Flow Control
 

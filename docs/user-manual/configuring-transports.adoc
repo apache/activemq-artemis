@@ -278,7 +278,7 @@ Default is `true`
 
 Netty SSL is similar to the Netty TCP transport but it provides additional security by encrypting TCP connections using the Secure Sockets Layer SSL
 
-Please see the examples for a full working example of using Netty SSL.
+Please see the xref:examples.adoc[examples] for a full working example of using Netty SSL.
 
 Netty SSL uses all the same properties as Netty TCP but adds the following additional properties:
 

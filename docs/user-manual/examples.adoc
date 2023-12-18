@@ -4,7 +4,7 @@
 
 The Apache ActiveMQ Artemis Examples repository contains over 90 examples demonstrating many of the client and broker features.
 
-The examples can be found at: [https://github.com/apache/activemq-artemis-examples](https://github.com/apache/activemq-artemis-examples)
+The examples can be found at: https://github.com/apache/activemq-artemis-examples[https://github.com/apache/activemq-artemis-examples^]
 
 The individual examples are available under the `examples` directory, and are grouped within the following sub tree:
 
@@ -22,7 +22,7 @@ The individual examples are available under the `examples` directory, and are gr
 
 == Running the Examples
 
-First, run `mvn package` in the repository root to prepare a broker distribution in the artemis-distribution/target directory for use by the examples.
+First, run `mvn clean package` in the repository root to prepare a broker distribution in the artemis-distribution/target directory for use by the examples.
 
 To run any example, simply `cd` into the appropriate example directory and type `mvn verify` or `mvn install` (For details please read the readme.md in each example directory).
 
@@ -166,7 +166,7 @@ server-out:Server stopped!
 [INFO] ------------------------------------------------------------------------
 ----
 
-This list includes a preview of some examples that exist for Artemis in the [Examples Repository](https://github.com/apache/activemq-artemis-examples), see the repository for more.
+This list includes a preview of some examples that exist for Artemis in the https://github.com/apache/activemq-artemis-examples[Examples Repository^], see the repository for more.
 
 == Application-Layer Failover
 

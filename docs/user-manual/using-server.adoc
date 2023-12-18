@@ -17,14 +17,7 @@ The following highlights some important folders on the distribution:
 ----
 |___ bin
 |
-|___ examples
-|      |___ common
-|      |___ features
-|      |___ perf
-|      |___ protocols
-|
 |___ lib
-|      |___ client
 |
 |___ schema
 |
@@ -33,10 +26,6 @@ The following highlights some important folders on the distribution:
 
 bin::
 binaries and scripts needed to run ActiveMQ Artemis.
-
-examples::
-All manner of examples.
-Please refer to the xref:examples.adoc#examples[examples] chapter for details on how to run them.
 
 lib::
 jars and libraries needed to run ActiveMQ Artemis
@@ -399,8 +388,6 @@ Assuming you created the broker instance under `/var/lib/mybroker` all you need 
 ----
 /var/lib/mybroker/bin/artemis run
 ----
-
-Now that the broker is running, you can optionally run some of the included examples to verify the broker is running properly.
 
 To stop the Apache ActiveMQ Artemis instance you will use the same `artemis` script, but with the `stop` argument.
 Example:

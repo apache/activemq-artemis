@@ -44,7 +44,7 @@ Pick the right version of the resource adapter depending on your environment.
 == Building the RA
 
 To use the RA you have to build it.
-The simplest way to do this is with the examples is shipped with the distribution.
+The simplest way to do this is with the xref:examples.adoc[examples].
 
 [,shell]
 ----

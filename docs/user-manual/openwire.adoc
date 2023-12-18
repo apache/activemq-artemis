@@ -7,7 +7,7 @@ By default there is an `acceptor` configured to accept OpenWire connections on p
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for OpenWire.
 
-Refer to the OpenWire examples for a look at this functionality in action.
+Refer to the OpenWire xref:examples.adoc[examples] for a look at this functionality in action.
 
 == Connection Monitoring
 

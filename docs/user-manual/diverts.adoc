@@ -40,7 +40,7 @@ There can be zero or more diverts in the file.
 
 Diverted messages get xref:copied-message-properties.adoc#properties-for-copied-messages[special properties].
 
-Please see the examples for a full working example showing you how to configure and use diverts.
+Please see the xref:examples.adoc[examples] for a full working example at ./examples/features/standard/divert/ showing you how to configure and use diverts.
 
 Let's take a look at some divert examples:
 

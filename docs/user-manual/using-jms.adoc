@@ -249,7 +249,7 @@ System.out.println("Got order: " + receivedMessage.getText());
 ----
 
 It is as simple as that.
-For a wide range of working JMS examples please see the examples directory in the distribution.
+For a wide range of working JMS examples please see the xref:examples.adoc[examples].
 
 ____
 *Warning*

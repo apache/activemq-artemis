@@ -16,7 +16,7 @@ By default there are `acceptor` elements configured to accept MQTT connections  
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for MQTT.
 
-Refer to the MQTT examples for a look at some of this functionality in action.
+Refer to the MQTT xref:examples.adoc[examples] for a look at some of this functionality in action.
 
 == MQTT Quality of Service
 
@@ -99,7 +99,7 @@ When brokers are configured for high availability this information will be avail
 
 The client ID used by an MQTT application is very important as it uniquely identifies the application.
 In some situations broker administrators may want to perform extra validation or even modify incoming client IDs to support specific use-cases.
-This is possible by implementing a custom security manager as demonstrated in the `security-manager` example shipped with the broker.
+This is possible by implementing a custom security manager as demonstrated in the `security-manager` xref:examples.adoc[example].
 
 The simplest implementation is a "wrapper" just like the `security-manager` example uses.
 In the `authenticate` method you can modify the client ID using `setClientId()` on the `org.apache.activemq.artemis.spi.core.protocol.RemotingConnection` that is passed in.

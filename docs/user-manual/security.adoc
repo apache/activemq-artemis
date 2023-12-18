@@ -1011,7 +1011,7 @@ The secure encoded form of the password must be generated using the main method 
 java -cp "<distro-lib-dir>/*" org.apache.activemq.artemis.spi.core.security.jaas.SCRAMPropertiesLoginModule <username> <password> [<iterations>]
 ----
 
-An sample of the output can be found in the amqp examples, examples/protocols/amqp/sasl-scram/src/main/resources/activemq/server0/artemis-users.properties
+An sample of the output can be found in the amqp xref:examples.adoc[examples], examples/protocols/amqp/sasl-scram/src/main/resources/activemq/server0/artemis-users.properties
 
 === Kerberos Authentication
 
@@ -1419,7 +1419,7 @@ By default, the broker uses `org.apache.activemq.artemis.spi.core.security.Activ
 </broker>
 ----
 
-The `security-manager` example demonstrates how to do this is more detail.
+The `security-manager` xref:examples.adoc[example] demonstrates how to do this is more detail.
 
 == Per-Acceptor Security Domains
 

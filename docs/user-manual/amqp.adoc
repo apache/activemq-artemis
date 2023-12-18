@@ -20,7 +20,7 @@ and many others.
 
 == Examples
 
-We have a few examples as part of the Artemis distribution:
+We have a few examples as part of the xref:examples.adoc[Artemis examples]:
 
 * .NET:
  ** ./examples/protocols/amqp/dotnet
