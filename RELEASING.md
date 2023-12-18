@@ -311,7 +311,10 @@ Once the mirrors are up-to-date then update the following:
 ```
 ./scripts/release/create-artemis-release-notes <new-version>
 ```
-2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
+2. Generate the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md` by running the following command, then open the file and update shortDescription as appropriate:
+```
+./scripts/release/create-artemis-release-file <new-version, e.g. 2.32.0>
+```
 3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
 4. Rename `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
 5. Build the `artemis-website` module from the new-version release sources with `mvn clean package -Prelease`.
