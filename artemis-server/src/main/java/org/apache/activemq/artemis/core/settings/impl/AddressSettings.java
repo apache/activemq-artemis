@@ -147,386 +147,386 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_ENABLE_INGRESS_TIMESTAMP = false;
 
-   {
+   static {
       metaBean.add(AddressFullMessagePolicy.class, "addressFullMessagePolicy", (t, p) -> t.addressFullMessagePolicy = p, t -> t.addressFullMessagePolicy);
    }
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
-   {
+   static {
       metaBean.add(Long.class, "maxSizeBytes", (t, p) -> t.maxSizeBytes = p, t -> t.maxSizeBytes);
    }
    private Long maxSizeBytes = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "maxReadPageBytes", (t, p) -> t.maxReadPageBytes = p, t -> t.maxReadPageBytes);
    }
    private Integer maxReadPageBytes = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "maxReadPageMessages", (t, p) -> t.maxReadPageMessages = p, t -> t.maxReadPageMessages);
    }
    private Integer maxReadPageMessages = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "prefetchPageBytes", (t, p) -> t.prefetchPageBytes = p, t -> t.prefetchPageBytes);
    }
    private Integer prefetchPageBytes = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "prefetchPageMessages", (t, p) -> t.prefetchPageMessages = p, t -> t.prefetchPageMessages);
    }
    private Integer prefetchPageMessages = null;
 
-   {
+   static {
       metaBean.add(Long.class, "pageLimitBytes", (t, p) -> t.pageLimitBytes = p, t -> t.pageLimitBytes);
    }
    private Long pageLimitBytes = null;
 
-   {
+   static {
       metaBean.add(Long.class, "pageLimitMessages", (t, p) -> t.pageLimitMessages = p, t -> t.pageLimitMessages);
    }
    private Long pageLimitMessages = null;
 
-   {
+   static {
       metaBean.add(PageFullMessagePolicy.class, "pageFullMessagePolicy", (t, p) -> t.pageFullMessagePolicy = p, t -> t.pageFullMessagePolicy);
    }
    private PageFullMessagePolicy pageFullMessagePolicy = null;
 
-   {
+   static {
       metaBean.add(Long.class, "maxSizeMessages", (t, p) -> t.maxSizeMessages = p, t -> t.maxSizeMessages);
    }
    private Long maxSizeMessages = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "pageSizeBytes", (t, p) -> t.pageSizeBytes = p, t -> t.pageSizeBytes);
    }
    private Integer pageSizeBytes = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "pageCacheMaxSize", (t, p) -> t.pageCacheMaxSize = p, t -> t.pageCacheMaxSize);
    }
    private Integer pageCacheMaxSize = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "dropMessagesWhenFull", (t, p) -> t.dropMessagesWhenFull = p, t -> t.dropMessagesWhenFull);
    }
    private Boolean dropMessagesWhenFull = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "maxDeliveryAttempts", (t, p) -> t.maxDeliveryAttempts = p, t -> t.maxDeliveryAttempts);
    }
    private Integer maxDeliveryAttempts = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "messageCounterHistoryDayLimit", (t, p) -> t.messageCounterHistoryDayLimit = p, t -> t.messageCounterHistoryDayLimit);
    }
    private Integer messageCounterHistoryDayLimit = null;
 
-   {
+   static {
       metaBean.add(Long.class, "redeliveryDelay", (t, p) -> t.redeliveryDelay = p, t -> t.redeliveryDelay);
    }
    private Long redeliveryDelay = null;
 
-   {
+   static {
       metaBean.add(Double.class, "redeliveryMultiplier", (t, p) -> t.redeliveryMultiplier = p, t -> t.redeliveryMultiplier);
    }
    private Double redeliveryMultiplier = null;
 
-   {
+   static {
       metaBean.add(Double.class, "redeliveryCollisionAvoidanceFactor", (t, p) -> t.redeliveryCollisionAvoidanceFactor = p, t -> t.redeliveryCollisionAvoidanceFactor);
    }
    private Double redeliveryCollisionAvoidanceFactor = null;
 
-   {
+   static {
       metaBean.add(Long.class, "maxRedeliveryDelay", (t, p) -> t.maxRedeliveryDelay = p, t -> t.maxRedeliveryDelay);
    }
    private Long maxRedeliveryDelay = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "deadLetterAddress", (t, p) -> t.deadLetterAddress = p, t -> t.deadLetterAddress);
    }
    private SimpleString deadLetterAddress = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "expiryAddress", (t, p) -> t.expiryAddress = p, t -> t.expiryAddress);
    }
    private SimpleString expiryAddress = null;
 
-   {
+   static {
       metaBean.add(Long.class, "expiryDelay", (t, p) -> t.expiryDelay = p, t -> t.expiryDelay);
    }
    private Long expiryDelay = null;
 
-   {
+   static {
       metaBean.add(Long.class, "minExpiryDelay", (t, p) -> t.minExpiryDelay = p, t -> t.minExpiryDelay);
    }
    private Long minExpiryDelay = null;
 
-   {
+   static {
       metaBean.add(Long.class, "maxExpiryDelay", (t, p) -> t.maxExpiryDelay = p, t -> t.maxExpiryDelay);
    }
    private Long maxExpiryDelay = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultLastValueQueue", (t, p) -> t.defaultLastValueQueue = p, t -> t.defaultLastValueQueue);
    }
    private Boolean defaultLastValueQueue = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "defaultLastValueKey", (t, p) -> t.defaultLastValueKey = p, t -> t.defaultLastValueKey);
    }
    private SimpleString defaultLastValueKey = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultNonDestructive", (t, p) -> t.defaultNonDestructive = p, t -> t.defaultNonDestructive);
    }
    private Boolean defaultNonDestructive = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultExclusiveQueue", (t, p) -> t.defaultExclusiveQueue = p, t -> t.defaultExclusiveQueue);
    }
    private Boolean defaultExclusiveQueue = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultGroupRebalance", (t, p) -> t.defaultGroupRebalance = p, t -> t.defaultGroupRebalance);
    }
    private Boolean defaultGroupRebalance = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultGroupRebalancePauseDispatch", (t, p) -> t.defaultGroupRebalancePauseDispatch = p, t -> t.defaultGroupRebalancePauseDispatch);
    }
    private Boolean defaultGroupRebalancePauseDispatch = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "defaultGroupBuckets", (t, p) -> t.defaultGroupBuckets = p, t -> t.defaultGroupBuckets);
    }
    private Integer defaultGroupBuckets = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "defaultGroupFirstKey", (t, p) -> t.defaultGroupFirstKey = p, t -> t.defaultGroupFirstKey);
    }
    private SimpleString defaultGroupFirstKey = null;
 
-   {
+   static {
       metaBean.add(Long.class, "redistributionDelay", (t, p) -> t.redistributionDelay = p, t -> t.redistributionDelay);
    }
    private Long redistributionDelay = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "sendToDLAOnNoRoute", (t, p) -> t.sendToDLAOnNoRoute = p, t -> t.sendToDLAOnNoRoute);
    }
    private Boolean sendToDLAOnNoRoute = null;
 
-   {
+   static {
       metaBean.add(Long.class, "slowConsumerThreshold", (t, p) -> t.slowConsumerThreshold = p, t -> t.slowConsumerThreshold);
    }
    private Long slowConsumerThreshold = null;
 
-   {
+   static {
       metaBean.add(SlowConsumerThresholdMeasurementUnit.class, "slowConsumerThresholdMeasurementUnit", (t, p) -> t.slowConsumerThresholdMeasurementUnit = p, t -> t.slowConsumerThresholdMeasurementUnit);
    }
    private SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
 
-   {
+   static {
       metaBean.add(Long.class, "slowConsumerCheckPeriod", (t, p) -> t.slowConsumerCheckPeriod = p, t -> t.slowConsumerCheckPeriod);
    }
    private Long slowConsumerCheckPeriod = null;
 
-   {
+   static {
       metaBean.add(SlowConsumerPolicy.class, "slowConsumerPolicy", (t, p) -> t.slowConsumerPolicy = p, t -> t.slowConsumerPolicy);
    }
    private SlowConsumerPolicy slowConsumerPolicy = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateJmsQueues", (t, p) -> t.autoCreateJmsQueues = (Boolean) p, t -> t.autoCreateJmsQueues, t -> t.autoCreateJmsQueues != null);
    }
    @Deprecated
    private Boolean autoCreateJmsQueues = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteJmsQueues", (t, p) -> t.autoDeleteJmsQueues = (Boolean) p, t -> t.autoDeleteJmsQueues, t -> t.autoDeleteJmsQueues != null);
    }
    @Deprecated
    private Boolean autoDeleteJmsQueues = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateJmsTopics", (t, p) -> t.autoCreateJmsTopics = (Boolean) p, t -> t.autoCreateJmsTopics, t -> t.autoCreateJmsTopics != null);
    }
    @Deprecated
    private Boolean autoCreateJmsTopics = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteJmsTopics", (t, p) -> t.autoDeleteJmsTopics = (Boolean) p, t -> t.autoDeleteJmsTopics, t -> t.autoDeleteJmsTopics != null);
    }
    @Deprecated
    private Boolean autoDeleteJmsTopics = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateQueues", (t, p) -> t.autoCreateQueues = p, t -> t.autoCreateQueues);
    }
    private Boolean autoCreateQueues = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteQueues", (t, p) -> t.autoDeleteQueues = p, t -> t.autoDeleteQueues);
    }
    private Boolean autoDeleteQueues = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteCreatedQueues", (t, p) -> t.autoDeleteCreatedQueues = p, t -> t.autoDeleteCreatedQueues);
    }
    private Boolean autoDeleteCreatedQueues = null;
 
-   {
+   static {
       metaBean.add(Long.class, "autoDeleteQueuesDelay", (t, p) -> t.autoDeleteQueuesDelay = p, t -> t.autoDeleteQueuesDelay);
    }
    private Long autoDeleteQueuesDelay = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteQueuesSkipUsageCheck", (t, p) -> t.autoDeleteQueuesSkipUsageCheck = p, t -> t.autoDeleteQueuesSkipUsageCheck);
    }
    private Boolean autoDeleteQueuesSkipUsageCheck = null;
 
-   {
+   static {
       metaBean.add(Long.class, "autoDeleteQueuesMessageCount", (t, p) -> t.autoDeleteQueuesMessageCount = p, t -> t.autoDeleteQueuesMessageCount);
    }
    private Long autoDeleteQueuesMessageCount = null;
 
-   {
+   static {
       metaBean.add(Long.class, "defaultRingSize", (t, p) -> t.defaultRingSize = p, t -> t.defaultRingSize);
    }
    private Long defaultRingSize = null;
 
-   {
+   static {
       metaBean.add(Long.class, "retroactiveMessageCount", (t, p) -> t.retroactiveMessageCount = p, t -> t.retroactiveMessageCount);
    }
    private Long retroactiveMessageCount = null;
 
-   {
+   static {
       metaBean.add(DeletionPolicy.class, "configDeleteQueues", (t, p) -> t.configDeleteQueues = p, t -> t.configDeleteQueues);
    }
    private DeletionPolicy configDeleteQueues = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateAddresses", (t, p) -> t.autoCreateAddresses = p, t -> t.autoCreateAddresses);
    }
    private Boolean autoCreateAddresses = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteAddresses", (t, p) -> t.autoDeleteAddresses = p, t -> t.autoDeleteAddresses);
    }
    private Boolean autoDeleteAddresses = null;
 
-   {
+   static {
       metaBean.add(Long.class, "autoDeleteAddressesDelay", (t, p) -> t.autoDeleteAddressesDelay = p, t -> t.autoDeleteAddressesDelay);
    }
    private Long autoDeleteAddressesDelay = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoDeleteAddressesSkipUsageCheck", (t, p) -> t.autoDeleteAddressesSkipUsageCheck = p, t -> t.autoDeleteAddressesSkipUsageCheck);
    }
    private Boolean autoDeleteAddressesSkipUsageCheck = null;
 
-   {
+   static {
       metaBean.add(DeletionPolicy.class, "configDeleteAddresses", (t, p) -> t.configDeleteAddresses = p, t -> t.configDeleteAddresses);
    }
    private DeletionPolicy configDeleteAddresses = null;
 
-   {
+   static {
       metaBean.add(DeletionPolicy.class, "configDeleteDiverts", (t, p) -> t.configDeleteDiverts = p, t -> t.configDeleteDiverts);
    }
    private DeletionPolicy configDeleteDiverts = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "managementBrowsePageSize", (t, p) -> t.managementBrowsePageSize = p, t -> t.managementBrowsePageSize);
    }
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
-   {
+   static {
       metaBean.add(Long.class, "maxSizeBytesRejectThreshold", (t, p) -> t.maxSizeBytesRejectThreshold = p, t -> t.maxSizeBytesRejectThreshold);
    }
    private Long maxSizeBytesRejectThreshold = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "defaultMaxConsumers", (t, p) -> t.defaultMaxConsumers = p, t -> t.defaultMaxConsumers);
    }
    private Integer defaultMaxConsumers = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "defaultPurgeOnNoConsumers", (t, p) -> t.defaultPurgeOnNoConsumers = p, t -> t.defaultPurgeOnNoConsumers);
    }
    private Boolean defaultPurgeOnNoConsumers = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "defaultConsumersBeforeDispatch", (t, p) -> t.defaultConsumersBeforeDispatch = p, t -> t.defaultConsumersBeforeDispatch);
    }
    private Integer defaultConsumersBeforeDispatch = null;
 
-   {
+   static {
       metaBean.add(Long.class, "defaultDelayBeforeDispatch", (t, p) -> t.defaultDelayBeforeDispatch = p, t -> t.defaultDelayBeforeDispatch);
    }
    private Long defaultDelayBeforeDispatch = null;
 
-   {
+   static {
       metaBean.add(RoutingType.class, "defaultQueueRoutingType", (t, p) -> t.defaultQueueRoutingType = p, t -> t.defaultQueueRoutingType);
    }
    private RoutingType defaultQueueRoutingType = null;
 
-   {
+   static {
       metaBean.add(RoutingType.class, "defaultAddressRoutingType", (t, p) -> t.defaultAddressRoutingType = p, t -> t.defaultAddressRoutingType);
    }
    private RoutingType defaultAddressRoutingType = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "defaultConsumerWindowSize", (t, p) -> t.defaultConsumerWindowSize = p, t -> t.defaultConsumerWindowSize);
    }
    private Integer defaultConsumerWindowSize = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateDeadLetterResources", (t, p) -> t.autoCreateDeadLetterResources = p, t -> t.autoCreateDeadLetterResources);
    }
    private Boolean autoCreateDeadLetterResources = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "deadLetterQueuePrefix", (t, p) -> t.deadLetterQueuePrefix = p, t -> t.deadLetterQueuePrefix);
    }
    private SimpleString deadLetterQueuePrefix = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "deadLetterQueueSuffix", (t, p) -> t.deadLetterQueueSuffix = p, t -> t.deadLetterQueueSuffix);
    }
    private SimpleString deadLetterQueueSuffix = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "autoCreateExpiryResources", (t, p) -> t.autoCreateExpiryResources = p, t -> t.autoCreateExpiryResources);
    }
    private Boolean autoCreateExpiryResources = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "expiryQueuePrefix", (t, p) -> t.expiryQueuePrefix = p, t -> t.expiryQueuePrefix);
    }
    private SimpleString expiryQueuePrefix = null;
 
-   {
+   static {
       metaBean.add(SimpleString.class, "expiryQueueSuffix", (t, p) -> t.expiryQueueSuffix = p, t -> t.expiryQueueSuffix);
    }
    private SimpleString expiryQueueSuffix = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "enableMetrics", (t, p) -> t.enableMetrics = p, t -> t.enableMetrics);
    }
    private Boolean enableMetrics = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "managementMessageAttributeSizeLimit", (t, p) -> t.managementMessageAttributeSizeLimit = p, t -> t.managementMessageAttributeSizeLimit);
    }
    private Integer managementMessageAttributeSizeLimit = null;
 
-   {
+   static {
       metaBean.add(Boolean.class, "enableIngressTimestamp", (t, p) -> t.enableIngressTimestamp = p, t -> t.enableIngressTimestamp);
    }
    private Boolean enableIngressTimestamp = null;
 
-   {
+   static {
       metaBean.add(Integer.class, "idCacheSize", (t, p) -> t.idCacheSize = p, t -> t.idCacheSize);
    }
    private Integer idCacheSize = null;

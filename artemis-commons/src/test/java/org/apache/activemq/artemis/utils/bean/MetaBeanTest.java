@@ -93,61 +93,61 @@ public class MetaBeanTest {
 
       public static MetaBean<MYClass> metaBean = new MetaBean<>();
 
-      {
+      static {
          metaBean.add(String.class, "a", (theInstance, parameter) -> theInstance.a = parameter, theInstance -> theInstance.a);
       }
       String a;
 
-      {
+      static {
          metaBean.add(Integer.class, "b", (theInstance, parameter) -> theInstance.b = parameter, theInstance -> theInstance.b);
       }
       int b;
 
-      {
+      static {
          metaBean.add(Integer.class, "c", (theInstance, parameter) -> theInstance.c = parameter, theInstance -> theInstance.c);
       }
       Integer c;
 
-      {
+      static {
          metaBean.add(String.class, "d", (theInstance, parameter) -> theInstance.d = parameter, theInstance -> theInstance.d);
       }
       String d = "defaultString";
 
-      {
+      static {
          metaBean.add(Integer.class, "IdCacheSize", (obj, value) -> obj.setIdCacheSize(value), obj -> obj.getIdCacheSize());
       }
       Integer idCacheSize;
 
-      {
+      static {
          metaBean.add(SimpleString.class, "simpleString", (obj, value) -> obj.setSimpleString(value), obj -> obj.getSimpleString());
       }
       SimpleString simpleString;
 
-      {
+      static {
          metaBean.add(SimpleString.class, "gated", (obj, value) -> obj.setGated((SimpleString) value), obj -> obj.getGated(), obj -> obj.gated != null);
       }
       SimpleString gated;
 
-      {
+      static {
          metaBean.add(Long.class, "longValue", (obj, value) -> obj.setLongValue(value), obj -> obj.getLongValue());
       }
       Long longValue;
-      {
+      static {
          metaBean.add(Double.class, "doubleValue", (obj, value) -> obj.setDoubleValue(value), obj -> obj.getDoubleValue());
       }
       Double doubleValue;
 
-      {
+      static {
          metaBean.add(Float.class, "floatValue", (obj, value) -> obj.setFloatValue(value), obj -> obj.getFloatValue());
       }
       Float floatValue;
 
-      {
+      static {
          metaBean.add(Boolean.class, "boolValue", (obj, value) -> obj.boolValue = value, obj -> obj.boolValue);
       }
       boolean boolValue;
 
-      {
+      static {
          metaBean.add(MyEnum.class, "myEnum", (o, v) -> o.myEnum = v, o -> o.myEnum);
       }
       MyEnum myEnum;
