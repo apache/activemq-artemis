@@ -299,16 +299,18 @@ The CDN content can be viewed [here](https://dlcdn.apache.org/activemq/activemq-
 The Maven Central content can be viewed [here](https://repo1.maven.org/maven2/org/apache/activemq/).
 
 
-Clone the website repository from:
+Clone the activemq-website repository:
 
 ```sh
 git clone https://gitbox.apache.org/repos/asf/activemq-website.git
+cd activemq-website
 ```
 
 Once the mirrors are up-to-date then update the following:
-1. Copy `src/components/artemis/download/release-notes-<old-version>.md` to `src/components/artemis/download/release-notes-<new-version>.md`
-   and update it deleting the existing list of bugs, features, improvements, etc. and replacing it
-   with the HTML from the bottom of the release notes url you sent out with your VOTE email (appending `&styleName=Text`).
+1. Generate the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md` by running the command:
+```
+./scripts/release/create-artemis-release-notes <new-version>
+```
 2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
 3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
 4. Rename `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
