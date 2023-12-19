@@ -93,7 +93,7 @@ public class PerfJournal extends OptionalLocking {
 
       String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
 
-      context.out.println("Your system can execute " + writesPerMillisecondStr + " syncs per millisecond");
+      context.out.println("Your system can execute " + writesPerMillisecondStr + " writes per millisecond");
       context.out.println("Your journal-buffer-timeout should be:" + nanosecondsWait);
       context.out.println("You should use this following configuration:");
       context.out.println();
