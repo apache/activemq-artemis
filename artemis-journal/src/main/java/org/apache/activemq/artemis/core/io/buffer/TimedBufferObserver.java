@@ -29,6 +29,13 @@ public interface TimedBufferObserver {
     */
    void flushBuffer(ByteBuf buffer, boolean syncRequested, List<IOCallback> callbacks);
 
+   default void checkSync(boolean syncRequested, List<IOCallback> callbacks) {
+   }
+
+   default boolean supportSync() {
+      return false;
+   }
+
    /**
     * Return the number of remaining bytes that still fit on the observer (file)
     */

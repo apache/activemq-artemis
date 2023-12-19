@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
@@ -272,6 +273,11 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    protected class LocalBufferObserver implements TimedBufferObserver {
 
       @Override
+      public boolean supportSync() {
+         return factory.isSyncSupported();
+      }
+
+      @Override
       public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
          final int bytes = byteBuf.readableBytes();
          if (bytes > 0) {
@@ -285,9 +291,26 @@ public abstract class AbstractSequentialFile implements SequentialFile {
                ByteUtil.zeros(buffer, bytes, missingNonZeroedBytes);
             }
             buffer.flip();
-            writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
+            writeDirect(buffer, requestedSync, DelegateCallback.wrap(callbacks));
          } else {
             IOCallback.done(callbacks);
+         }
+      }
+
+      @Override
+      public void checkSync(boolean syncRequested, List<IOCallback> callbacks) {
+         if (syncRequested) {
+            try {
+               sync();
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+               if (callbacks != null) {
+                  callbacks.forEach(c -> c.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage()));
+               }
+            }
+         }
+         if (callbacks != null) {
+            callbacks.forEach(c -> c.done());
          }
       }
 

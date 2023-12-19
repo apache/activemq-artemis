@@ -383,11 +383,11 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
-   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
       internalWrite(bytes, sync, null, releaseBuffer);
    }
 
-   private void internalWrite(final ByteBuffer bytes,
+   private synchronized void internalWrite(final ByteBuffer bytes,
                               final boolean sync,
                               final IOCallback callback,
                               boolean releaseBuffer) throws IOException, ActiveMQIOErrorException, InterruptedException {
@@ -474,12 +474,14 @@ public class NIOSequentialFile extends AbstractSequentialFile {
             //enable zero copy case
             if (byteBuf.nioBufferCount() == 1 && byteBuf.isDirect()) {
                final ByteBuffer buffer = byteBuf.internalNioBuffer(byteBuf.readerIndex(), bytes);
-               final IOCallback callback = new DelegateCallback(callbacks);
+               final IOCallback callback = DelegateCallback.wrap(callbacks);
                try {
                   //no need to pool the buffer and don't care if the NIO buffer got modified
                   internalWrite(buffer, requestedSync, callback, false);
                } catch (Exception e) {
-                  callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
+                  if (callbacks != null) {
+                     callbacks.forEach(c -> c.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage()));
+                  }
                }
             } else {
                super.flushBuffer(byteBuf, requestedSync, callbacks);
