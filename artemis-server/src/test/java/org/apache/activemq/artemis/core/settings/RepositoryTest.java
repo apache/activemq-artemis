@@ -80,17 +80,21 @@ public class RepositoryTest extends ActiveMQTestBase {
       repo.addMatch("(a.#)", new DummyMergeable(1));
       repo.addMatch("a.#", new DummyMergeable(2));
       repo.addMatch("a.b", new DummyMergeable(3));
+      repo.addMatch("a.*", new DummyMergeable(4));
 
       DummyMergeable abDummyMatch = repo.getMatch("a.b");
-      Assert.assertEquals(2, abDummyMatch.getMergedItems().size());
+      Assert.assertEquals(3, abDummyMatch.getMergedItems().size());
       Assert.assertEquals(3, abDummyMatch.getId());
-      Assert.assertEquals(2, abDummyMatch.getMergedItems().get(0).getId());
-      Assert.assertEquals(0, abDummyMatch.getMergedItems().get(1).getId());
+      Assert.assertEquals(4, abDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(2, abDummyMatch.getMergedItems().get(1).getId());
+      Assert.assertEquals(0, abDummyMatch.getMergedItems().get(2).getId());
 
       DummyMergeable aDummyMatch = repo.getMatch("a.#");
-      Assert.assertEquals(1, aDummyMatch.getMergedItems().size());
+      Assert.assertEquals(3, aDummyMatch.getMergedItems().size());
       Assert.assertEquals(1, aDummyMatch.getId());
-      Assert.assertEquals(0, aDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(4, aDummyMatch.getMergedItems().get(0).getId());
+      Assert.assertEquals(2, aDummyMatch.getMergedItems().get(1).getId());
+      Assert.assertEquals(0, aDummyMatch.getMergedItems().get(2).getId());
    }
 
    @Test

@@ -13,7 +13,7 @@ A match on the any-words delimiter (`#` by default) is considered less specific 
 A match with a single word delimiter (`*` by default) is considered less specific than a match on an exact queue name.
 In this way settings can be "layered" so that configuration details don't need to be repeated.
 
-Address setting matches can also be "literal" which can be used to interrupt the hierarchy in useful ways.
+Address setting matches can also be "literal" which can be used to match wildcards literally, for further details see <<literal-matches,literal matches>>.
 
 The meaning of the specific settings are explained fully throughout the user manual, however here is a brief description with a link to the appropriate chapter if available.
 
