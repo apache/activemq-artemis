@@ -3,12 +3,17 @@
 :idseparator: -
 
 Apache ActiveMQ Artemis allows you to configure objects called _diverts_ with some simple server configuration.
-
 Diverts allow you to transparently divert messages routed to one address to one or more other addresses, without making any changes to any client application logic.
 
-Diverts can be _exclusive_, meaning that the message is diverted to the new address(es), and does not go to the old address at all, or they can be _non-exclusive_ which means the message continues to go the old address, and a _copy_ of it is also sent to the new address(es).
-Non-exclusive diverts can therefore be used for _splitting_ message flows, e.g. there may be a requirement to monitor every order sent to an order queue.
+Diverts can be _exclusive_ or _non-exclusive_.
 
+An xref:#exclusive-divert[_exclusive_] divert routes messages the new address(es) only.
+Messages are not routed to the old address at all.
+
+A xref:#non-exclusive-divert[_non-exclusive_] divert routes messags to the old address and a _copy_ of the messages are also sent to the new address(es).
+Think of non-exclusive divert as _splitting_ message flow, e.g. there may be a requirement to monitor every order sent to an order queue.
+
+Multiple diverts can be configured for a single address.
 When an address has both exclusive and non-exclusive diverts configured, the exclusive ones are processed first.
 If any of the exclusive diverts diverted the message, the non-exclusive ones are not processed.
 
@@ -26,12 +31,12 @@ Diverts can also be configured to apply a xref:transformers.adoc#transformers[`T
 If specified, all diverted messages will have the opportunity of being transformed by the `Transformer`.
 When an address has multiple diverts configured, all of them receive the same, original message.
 This means that the results of a transformer on a message are not directly available for other diverts or their filters on the same address.
-
 See the documentation on xref:using-server.adoc#adding-runtime-dependencies[adding runtime dependencies] to  understand how to make your transformer available to the broker.
 
-A divert will only divert a message to an address on the _same server_, however, if you want to divert to an address on a different server, a common pattern would be to divert to a local store-and-forward queue, then set up a bridge which consumes from that queue and forwards to an address on a different server.
+A divert will only divert a message to an address on the _same server_.
+If you want to divert to an address on a different server a common pattern would be to divert to a local "store-and-forward" queue and then set up a xref:core-bridges#core-bridges[bridge] which consumes from that queue and forwards to an address on a different server.
 
-Diverts are therefore a very sophisticated concept, which when combined with bridges can be used to create interesting and complex routings.
+Diverts are therefore a very sophisticated concept which when combined with bridges can be used to create interesting and complex routings.
 The set of diverts on a server can be thought of as a type of routing table for messages.
 Combining diverts with bridges allows you to create a distributed network of reliable routing connections between multiple geographically distributed servers, creating your global messaging mesh.
 
@@ -42,7 +47,7 @@ Diverted messages get xref:copied-message-properties.adoc#properties-for-copied-
 
 Please see the xref:examples.adoc[examples] for a full working example at ./examples/features/standard/divert/ showing you how to configure and use diverts.
 
-Let's take a look at some divert examples:
+Let's take a look at some divert examples...
 
 == Exclusive Divert
 
@@ -98,7 +103,7 @@ Non exclusive diverts can be configured in the same way as exclusive diverts wit
 </divert>
 ----
 
-The above divert example takes a copy of every message sent to the address '[.code]``orders``' and sends it to a local address called '[.code]``spyTopic``'.
+The above divert example takes a copy of every message sent to the address `orders` and sends it to a local address called `spyTopic`.
 
 == Composite Divert
 
