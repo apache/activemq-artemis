@@ -110,6 +110,8 @@ If the upload fails or is interrupted, remove the incomplete repository
 using the "Drop" button on [Nexus website](https://repository.apache.org/#stagingRepositories).
 Before starting the upload again, check the release.properties at the root of the project.
 
+**_Keep the checkout used to run the release process for later, the website update scripts will reference it for documentation output._**
+
 ### Resuming release upload
 
 If something happened during the release upload to nexus, you may need to eventually redo the upload.
@@ -307,22 +309,21 @@ cd activemq-website
 ```
 
 Once the mirrors are up-to-date then update the following:
-1. Generate the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md` by running the command:
-```
-./scripts/release/create-artemis-release-notes <new-version>
-```
-2. Generate the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md` by running the following command, then open the file and update shortDescription as appropriate:
+1. Generate the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md` by running the following command, then open the file and update shortDescription as appropriate:
 ```
 ./scripts/release/create-artemis-release-file <new-version, e.g. 2.32.0>
 ```
-3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
-4. Rename `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
-5. Build the `artemis-website` module from the new-version release sources with `mvn clean package -Prelease`.
-6. Create `src/components/artemis/documentation/latest` and copy into it the contents of `target/classes/user-manual` from the `artemis-website` module which you just built.
-7. Delete `src/components/artemis/documentation/javadocs/javadoc-latest` to clear the old/existing content (in case any files are being moved/removed by the new version).
-8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` again and copy into it the contents of `target/apidocs` from the `artemis-website` module which you just built.
-   
-Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
+2. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
+3. Generate the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md` by running the command:
+```
+./scripts/release/create-artemis-release-notes <new-version,e.g. 2.32.0>
+```
+3. Make the documentation updates, taking output from the artemis checkout used to run the maven release process originally, by running the command:
+```
+./scripts/release/update-artemis-docs.sh <path.to/activemq-artemis> <prev-version, e.g. 2.31.2> <new-version, e.g. 2.32.0>
+```
+
+Check over `git status` etc. Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
 
 ## Update Examples Repo
