@@ -74,6 +74,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
    @Mock
    AMQPSessionCallback sessionSPI;
 
+   @Mock
+   AMQPConnectionContext connectionContext;
+
    @Spy
    NullStorageManager nullStoreManager = new NullStorageManager();
 
@@ -81,6 +84,8 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
    public void setUp() {
       MockitoAnnotations.openMocks(this);
 
+      when(serverReceiver.getConnection()).thenReturn(connectionContext);
+      when(connectionContext.isLargeMessageSync()).thenReturn(true);
       when(serverReceiver.getSessionContext()).thenReturn(sessionContext);
       when(sessionContext.getSessionSPI()).thenReturn(sessionSPI);
       when(sessionSPI.getStorageManager()).thenReturn(nullStoreManager);

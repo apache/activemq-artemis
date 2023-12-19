@@ -183,6 +183,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
+   public boolean isLargeMessageSync() {
+      return connectionCallback.isLargeMessageSync();
+   }
+
    @Override
    public void initialize() throws Exception {
       initialized = true;

@@ -1461,4 +1461,8 @@ public interface Configuration {
    String getLiteralMatchMarkers();
 
    Configuration setLiteralMatchMarkers(String literalMatchMarkers);
+
+   Configuration setLargeMessageSync(boolean largeMessageSync);
+
+   boolean isLargeMessageSync();
 }

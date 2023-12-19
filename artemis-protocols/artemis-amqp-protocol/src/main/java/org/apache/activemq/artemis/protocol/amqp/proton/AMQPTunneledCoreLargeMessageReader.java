@@ -204,7 +204,7 @@ public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
             final Message result = coreLargeMessage.toMessage();
 
             // We don't want a close to delete the file now, so we release these resources.
-            coreLargeMessage.releaseResources(true, true);
+            coreLargeMessage.releaseResources(serverReceiver.getConnection().isLargeMessageSync(), true);
             coreLargeMessage = null;
 
             state = State.DONE;

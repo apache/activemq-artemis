@@ -101,7 +101,7 @@ public class AMQPLargeMessageReader implements MessageReader {
       final AMQPLargeMessage result;
 
       if (!delivery.isPartial()) {
-         currentMessage.releaseResources(true, true);
+         currentMessage.releaseResources(serverReceiver.getConnection().isLargeMessageSync(), true);
          result = currentMessage;
          // We don't want a close to delete the file now, we've released the resources.
          currentMessage = null;

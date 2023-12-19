@@ -709,12 +709,21 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       }
 
       Assert.assertTrue(exception);
-
-
-
    }
 
+   @Test
+   public void testSyncLargeMessage() throws Throwable {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
 
+      stream.println("<configuration><core>");
+      stream.println("<large-message-sync>false</large-message-sync>");
+      stream.println("</core></configuration>");
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      Configuration configuration = parser.parseMainConfig(inputStream);
+      Assert.assertFalse(configuration.isLargeMessageSync());
+   }
 
    private static String firstPart = "<core xmlns=\"urn:activemq:core\">" + "\n" +
       "<name>ActiveMQ.main.config</name>" + "\n" +
