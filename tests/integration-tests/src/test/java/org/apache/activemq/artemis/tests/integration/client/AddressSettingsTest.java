@@ -117,22 +117,29 @@ public class AddressSettingsTest extends ActiveMQTestBase {
 
    @Test
    public void testLiteralMatch() throws Exception {
-      final SimpleString literal = RandomUtil.randomSimpleString();
-      final SimpleString nonLiteral = RandomUtil.randomSimpleString();
+      final SimpleString defaultDLA = RandomUtil.randomSimpleString();
+      final SimpleString defaultEA = RandomUtil.randomSimpleString();
+      final SimpleString fooDefaultDLA = RandomUtil.randomSimpleString();
+      final SimpleString fooChildrenDLA = RandomUtil.randomSimpleString();
+      final SimpleString fooLiteralDLA = RandomUtil.randomSimpleString();
 
       Configuration configuration = createDefaultConfig(false);
       configuration.setLiteralMatchMarkers("()");
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<AddressSettings> repo = server.getAddressSettingsRepository();
-      repo.addMatch("(foo.#)", new AddressSettings().setDeadLetterAddress(literal));
-      repo.addMatch("foo.#", new AddressSettings().setDeadLetterAddress(nonLiteral));
+      repo.addMatch("#", new AddressSettings().setDeadLetterAddress(defaultDLA).setExpiryAddress(defaultEA));
+      repo.addMatch("foo.#", new AddressSettings().setDeadLetterAddress(fooDefaultDLA));
+      repo.addMatch("foo.*", new AddressSettings().setDeadLetterAddress(fooChildrenDLA));
+      repo.addMatch("(foo.#)", new AddressSettings().setDeadLetterAddress(fooLiteralDLA));
 
       // should be the DLA from foo.# - the literal match
-      Assert.assertEquals(literal, repo.getMatch("foo.#").getDeadLetterAddress());
+      Assert.assertEquals(fooLiteralDLA, repo.getMatch("foo.#").getDeadLetterAddress());
+      Assert.assertEquals(defaultEA, repo.getMatch("foo.#").getExpiryAddress());
 
-      Assert.assertEquals(nonLiteral, repo.getMatch("foo.bar").getDeadLetterAddress());
-
+      Assert.assertEquals(fooChildrenDLA, repo.getMatch("foo.bar").getDeadLetterAddress());
+      Assert.assertEquals(fooDefaultDLA, repo.getMatch("foo.bar.too").getDeadLetterAddress());
+      Assert.assertEquals(defaultDLA, repo.getMatch("too.#").getDeadLetterAddress());
    }
 
    @Test
