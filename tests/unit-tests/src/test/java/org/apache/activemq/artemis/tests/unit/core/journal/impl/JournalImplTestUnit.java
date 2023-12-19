@@ -906,8 +906,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       testReclaimTransactionalAdd(false);
    }
 
-   // TODO commit and rollback, also transactional deletes
-
    private void testReclaimTransactionalAdd(final boolean commit) throws Exception {
       setup(10, 10 * 1024, true);
       createJournal();

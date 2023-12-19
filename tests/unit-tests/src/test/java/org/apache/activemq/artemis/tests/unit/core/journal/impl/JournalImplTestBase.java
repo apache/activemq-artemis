@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -199,7 +200,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
       if (suportsRetention()) {
          // FakeSequentialFile won't support retention
-         File fileBackup = new File(getTestDir(), "backupFoler");
+         File fileBackup = new File(getTestDir(), "backupFolder");
          fileBackup.mkdirs();
          ((JournalImpl) journal).setHistoryFolder(fileBackup, -1, -1);
       }
@@ -691,38 +692,54 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          Assert.assertArrayEquals(expectedArray, actualArray);
       } catch (AssertionError e) {
 
+         logger.warn(e.getMessage(), e);
+
          HashSet<RecordInfo> hashActual = new HashSet<>();
          hashActual.addAll(actual);
 
          HashSet<RecordInfo> hashExpected = new HashSet<>();
          hashExpected.addAll(expected);
 
-         logger.debug("#Summary **********************************************************************************************************************");
+         logger.warn("#Summary **********************************************************************************************************************");
          for (RecordInfo r : hashActual) {
             if (!hashExpected.contains(r)) {
-               logger.debug("Record {} was supposed to be removed and it exists", r);
+               logger.warn("Record {} was supposed to be removed and it exists", r);
             }
          }
 
          for (RecordInfo r : hashExpected) {
             if (!hashActual.contains(r)) {
-               logger.debug("Record {} was not found on actual list", r);
+               logger.warn("Record {} was not found on actual list", r);
             }
          }
 
-         logger.debug("#expected **********************************************************************************************************************");
+         logger.warn("#expected **********************************************************************************************************************");
          for (RecordInfo recordInfo : expected) {
-            logger.debug("Record::{}", recordInfo);
+            logger.warn("Record::{}", recordInfo);
          }
-         logger.debug("#actual ************************************************************************************************************************");
+         logger.warn("#actual ************************************************************************************************************************");
          for (RecordInfo recordInfo : actual) {
-            logger.debug("Record::{}", recordInfo);
+            logger.warn("Record::{}", recordInfo);
          }
 
-         logger.debug("#records ***********************************************************************************************************************");
+         logger.warn("#records ***********************************************************************************************************************");
 
          try {
             describeJournal(journal.getFileFactory(), (JournalImpl) journal, journal.getFileFactory().getDirectory(), System.out);
+         } catch (Exception e2) {
+            e2.printStackTrace();
+         }
+
+         logger.warn("#records on retention (history) folder ***********************************************************************************************************************");
+
+         try {
+            NIOSequentialFileFactory nioSequentialFileFactory = new NIOSequentialFileFactory(journal.getHistoryFolder(), 1);
+
+
+            JournalImpl backupJournal  = new JournalImpl(journal.getFileSize(), journal.getMinFiles(), 10, 0, 0, nioSequentialFileFactory, "amq", "amq", 1);
+
+            describeJournal(nioSequentialFileFactory, backupJournal, journal.getHistoryFolder(), System.out);
+
          } catch (Exception e2) {
             e2.printStackTrace();
          }

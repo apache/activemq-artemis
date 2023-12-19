@@ -76,6 +76,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private static final String AIO_TEST_FILE = ".aio-test";
 
+   @Override
+   public boolean isSyncSupported() {
+      return false;
+   }
+
    public void beforeClose() {
    }
 

@@ -25,11 +25,6 @@ import org.junit.Test;
 
 public class DelegateCallbackTest {
 
-   @Test(expected = NullPointerException.class)
-   public void shouldFailWithNullDelegates() {
-      new DelegateCallback(null);
-   }
-
    private static final class CountingIOCallback implements IOCallback {
 
       long done = 0;
@@ -60,7 +55,7 @@ public class DelegateCallbackTest {
    @Test
    public void shouldCallDoneOnEachCallback() {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(false);
-      final DelegateCallback callback = new DelegateCallback(Arrays.asList(countingIOCallback, countingIOCallback));
+      final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.done();
       Assert.assertEquals(2, countingIOCallback.done);
       Assert.assertEquals(0, countingIOCallback.onError);
@@ -69,7 +64,7 @@ public class DelegateCallbackTest {
    @Test
    public void shouldCallOnErrorOnEachCallback() {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(false);
-      final DelegateCallback callback = new DelegateCallback(Arrays.asList(countingIOCallback, countingIOCallback));
+      final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.onError(0, "not a real error");
       Assert.assertEquals(0, countingIOCallback.done);
       Assert.assertEquals(2, countingIOCallback.onError);
@@ -78,7 +73,7 @@ public class DelegateCallbackTest {
    @Test
    public void shouldCallDoneOnEachCallbackWithExceptions() {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
-      final DelegateCallback callback = new DelegateCallback(Arrays.asList(countingIOCallback, countingIOCallback));
+      final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.done();
       Assert.assertEquals(2, countingIOCallback.done);
       Assert.assertEquals(0, countingIOCallback.onError);
@@ -87,7 +82,7 @@ public class DelegateCallbackTest {
    @Test
    public void shouldCallOnErrorOnEachCallbackWithExceptions() {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
-      final DelegateCallback callback = new DelegateCallback(Arrays.asList(countingIOCallback, countingIOCallback));
+      final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.onError(0, "not a real error");
       Assert.assertEquals(0, countingIOCallback.done);
       Assert.assertEquals(2, countingIOCallback.onError);
@@ -97,7 +92,7 @@ public class DelegateCallbackTest {
    public void shouldLogOnDoneForEachExceptions() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
-         final DelegateCallback callback = new DelegateCallback(Collections.singleton(countingIOCallback));
+         final DelegateCallback callback = DelegateCallback.wrap(Collections.singleton(countingIOCallback));
          callback.done();
          Assert.assertTrue(loggerHandler.findText("AMQ142024"));
       }
@@ -107,7 +102,7 @@ public class DelegateCallbackTest {
    public void shouldLogOnErrorForEachExceptions() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
-         final DelegateCallback callback = new DelegateCallback(Collections.singleton(countingIOCallback));
+         final DelegateCallback callback = DelegateCallback.wrap(Collections.singleton(countingIOCallback));
          callback.onError(0, "not a real error");
          Assert.assertTrue(loggerHandler.findText("AMQ142025"));
       }

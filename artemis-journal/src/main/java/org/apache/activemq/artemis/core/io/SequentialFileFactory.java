@@ -46,6 +46,10 @@ public interface SequentialFileFactory {
 
    int getMaxIO();
 
+   default boolean isSyncSupported() {
+      return true;
+   }
+
    /**
     * Lists files that end with the given extension.
     * <p>

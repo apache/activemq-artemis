@@ -240,6 +240,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
+   public File getHistoryFolder() {
+      return journalRetentionFolder;
+   }
+
+   @Override
    public JournalImpl setHistoryFolder(File historyFolder, long maxBytes, long period) throws Exception {
 
       if (this.state != JournalState.STOPPED) {

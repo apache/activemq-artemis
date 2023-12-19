@@ -312,6 +312,9 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * @return {@code true} when are flushed any bytes, {@code false} otherwise
     */
    public boolean flushBatch() {
+      List<IOCallback> syncCallbackList = null;
+      boolean localUseSync = false;
+      TimedBufferObserver syncBufferObserver = null;
       try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_FLUSH)) {
          synchronized (this) {
             if (!started) {
@@ -325,7 +328,16 @@ public final class TimedBuffer extends CriticalComponentImpl {
                   bytesFlushed.addAndGet(pos);
                }
 
-               bufferObserver.flushBuffer(buffer.byteBuf(), pendingSync, callbacks);
+               if (bufferObserver.supportSync()) {
+                  // performing the sync away from the lock
+                  // so other writes can be performed while that flush is happening
+                  syncCallbackList = callbacks;
+                  localUseSync = pendingSync;
+                  syncBufferObserver = bufferObserver;
+                  bufferObserver.flushBuffer(buffer.byteBuf(), false, null);
+               } else {
+                  bufferObserver.flushBuffer(buffer.byteBuf(), pendingSync, callbacks);
+               }
 
                stopSpin();
 
@@ -344,6 +356,10 @@ public final class TimedBuffer extends CriticalComponentImpl {
             } else {
                return false;
             }
+         }
+      } finally {
+         if (syncBufferObserver != null) {
+            syncBufferObserver.checkSync(localUseSync, syncCallbackList);
          }
       }
    }

@@ -81,6 +81,10 @@ public interface Journal extends ActiveMQComponent {
       return this;
    }
 
+   default File getHistoryFolder() {
+      return null;
+   }
+
    void appendAddRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception;
 
    void appendAddRecord(long id,
