@@ -278,6 +278,8 @@ public final class ActiveMQDefaultConfiguration {
    // if true wait for transaction data to be synchronized to the journal before returning response to client
    private static boolean DEFAULT_JOURNAL_SYNC_TRANSACTIONAL = true;
 
+   private static boolean DEFAULT_LARGE_MESSAGE_SYNC = true;
+
    // if true wait for non transaction data to be synced to the journal before returning response to client.
    private static boolean DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL = true;
 
@@ -1017,6 +1019,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultJournalSyncTransactional() {
       return DEFAULT_JOURNAL_SYNC_TRANSACTIONAL;
+   }
+
+   public static boolean isDefaultLargeMessageSync() {
+      return DEFAULT_LARGE_MESSAGE_SYNC;
    }
 
    /**

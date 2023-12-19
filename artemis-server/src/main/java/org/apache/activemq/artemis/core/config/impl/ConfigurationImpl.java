@@ -256,6 +256,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public JournalType journalType = ConfigurationImpl.DEFAULT_JOURNAL_TYPE;
 
+   protected boolean largeMessageSync = ActiveMQDefaultConfiguration.isDefaultLargeMessageSync();
+
    protected boolean journalSyncTransactional = ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional();
 
    protected boolean journalSyncNonTransactional = ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional();
@@ -3205,6 +3207,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public Configuration setLiteralMatchMarkers(String literalMatchMarkers) {
       this.literalMatchMarkers = literalMatchMarkers;
       return this;
+   }
+
+
+   @Override
+   public Configuration setLargeMessageSync(boolean largeMessageSync) {
+      this.largeMessageSync = largeMessageSync;
+      return this;
+   }
+
+   @Override
+   public boolean isLargeMessageSync() {
+      return largeMessageSync;
    }
 
    // extend property utils with ability to auto-fill and locate from collections

@@ -812,6 +812,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setLiteralMatchMarkers(getString(e, "literal-match-markers", config.getLiteralMatchMarkers(), Validators.NULL_OR_TWO_CHARACTERS));
 
+      config.setLargeMessageSync(getBoolean(e, "large-message-sync", config.isLargeMessageSync()));
+
       parseAddressSettings(e, config);
 
       parseResourceLimits(e, config);

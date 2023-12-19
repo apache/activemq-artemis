@@ -161,6 +161,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private static final String PRODUCER_ID_PREFIX = "artemis:sender:ID:";
 
+   private final ActiveMQServer server;
+
    private final ServerSession session;
 
    private final StorageManager storageManager;
@@ -190,6 +192,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                      final ServerSession session,
                                      final Channel channel) {
       this.session = session;
+
+      this.server = server;
 
       session.addCloseable((boolean failed) -> clearLargeMessage());
 
@@ -1121,7 +1125,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          currentLargeMessage.addBytes(body);
 
          if (!continues) {
-            currentLargeMessage.releaseResources(true, true);
+            currentLargeMessage.releaseResources(server.getConfiguration().isLargeMessageSync(), true);
 
             if (messageBodySize >= 0) {
                currentLargeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
