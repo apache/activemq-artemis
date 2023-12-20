@@ -38,13 +38,15 @@ public interface IOCallback {
    void onError(int errorCode, String errorMessage);
 
    static void done(Collection<? extends IOCallback> delegates) {
-      delegates.forEach(callback -> {
-         try {
-            callback.done();
-         } catch (Throwable e) {
-            ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
-         }
-      });
+      if (delegates != null) {
+         delegates.forEach(callback -> {
+            try {
+               callback.done();
+            } catch (Throwable e) {
+               ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
+            }
+         });
+      }
    }
 
    static void onError(Collection<? extends IOCallback> delegates, int errorCode, final String errorMessage) {

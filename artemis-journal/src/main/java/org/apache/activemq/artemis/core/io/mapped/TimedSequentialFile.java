@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -35,13 +34,8 @@ import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class TimedSequentialFile implements SequentialFile {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 
    private final SequentialFileFactory factory;
    private final SequentialFile sequentialFile;
@@ -255,7 +249,7 @@ final class TimedSequentialFile implements SequentialFile {
 
       @Override
       public boolean supportSync() {
-         return true;
+         return false;
       }
 
       @Override
@@ -277,7 +271,8 @@ final class TimedSequentialFile implements SequentialFile {
                buffer.flip();
             }
             try {
-               blockingWriteDirect(buffer, false, releaseBuffer);
+               blockingWriteDirect(buffer, requestedSync, releaseBuffer);
+               IOCallback.done(callbacks);
             } catch (Throwable t) {
                final int code;
                if (t instanceof IOException) {
@@ -288,20 +283,14 @@ final class TimedSequentialFile implements SequentialFile {
                }
                IOCallback.onError(callbacks, code, t.getMessage());
             }
+         } else {
+            IOCallback.done(callbacks);
          }
       }
 
       @Override
       public void checkSync(boolean syncRequested, List<IOCallback> callbacks) {
-         try {
-            sync();
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-         } finally {
-            if (callbacks != null) {
-               callbacks.forEach(c -> c.done());
-            }
-         }
+         throw new UnsupportedOperationException("This method is not supported on mapped");
       }
 
       @Override
