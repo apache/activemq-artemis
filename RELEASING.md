@@ -308,20 +308,29 @@ git clone https://gitbox.apache.org/repos/asf/activemq-website.git
 cd activemq-website
 ```
 
-Once the mirrors are up-to-date then update the following:
-1. Generate the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md` by running the following command, then open the file and update shortDescription as appropriate:
+**NOTE**: Some of the release scripts use [Python](https://www.python.org/), ensure you have it installed before proceeding.
+
+Once the CDN and Maven Central are up-to-date then update the site as follows:
+
+1. Run the release addition script to generate/perform most of the updates by running command of form:
 ```
-./scripts/release/create-artemis-release-file <new-version, e.g. 2.32.0>
+./scripts/release/add-artemis-release.sh <path.to/activemq-artemis> <previous-version> <new-version>
 ```
-2. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
-3. Generate the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md` by running the command:
+
+This does the following:
+- Creates the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md`.
+- Creates the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md`.
+- Creates the git-report if it wasnt already present (as it should be, at `src/components/artemis/download/commit-report-<new-version>.html`).
+- Moves the prior latest documentation content to `src/components/artemis/documentation/<previous-version>`.
+- Replaces the latest documentation at `src/components/artemis/documentation/latest` with those from the new release.
+- Replaces the javadaoc at `src/components/artemis/documentation/javadocs/javadoc-latest` with those from the new release.
+
+Example from the 2.32.0 release:
 ```
-./scripts/release/create-artemis-release-notes <new-version,e.g. 2.32.0>
+./scripts/release/add-artemis-release.sh ../activemq-artemis 2.31.2 2.32.0
 ```
-3. Make the documentation updates, taking output from the artemis checkout used to run the maven release process originally, by running the command:
-```
-./scripts/release/update-artemis-docs.sh <path.to/activemq-artemis> <prev-version, e.g. 2.31.2> <new-version, e.g. 2.32.0>
-```
+2. Open the release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md` and update _shortDescription_ as appropriate to the release content.
+3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed to set the new version stream as current.
 
 Check over `git status` etc. Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
