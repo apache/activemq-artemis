@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.artemis.core.config.impl.Validators;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static org.apache.activemq.artemis.core.config.impl.Validators.Validator;
 
 public class XMLConfigurationUtil {
 
@@ -43,12 +44,10 @@ public class XMLConfigurationUtil {
    public static final Double getDouble(final Element e,
                                         final String name,
                                         final double def,
-                                        final Validators.Validator validator) {
+                                        final Validator<Number> validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
-         double val = XMLUtil.parseDouble(nl.item(0));
-         validator.validate(name, val);
-         return val;
+         return (Double) validator.validate(name, XMLUtil.parseDouble(nl.item(0)));
       } else {
          return def;
       }
@@ -57,12 +56,10 @@ public class XMLConfigurationUtil {
    public static final String getString(final Element e,
                                         final String name,
                                         final String def,
-                                        final Validators.Validator validator) {
+                                        final Validator<String> validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
-         String val = nl.item(0).getTextContent().trim();
-         validator.validate(name, val);
-         return val;
+         return validator.validate(name, nl.item(0).getTextContent().trim());
       } else {
          return def;
       }
@@ -71,12 +68,10 @@ public class XMLConfigurationUtil {
    public static final Long getLong(final Element e,
                                     final String name,
                                     final long def,
-                                    final Validators.Validator validator) {
+                                    final Validator<Number> validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
-         long val = XMLUtil.parseLong(nl.item(0));
-         validator.validate(name, val);
-         return val;
+         return (Long) validator.validate(name, XMLUtil.parseLong(nl.item(0)));
       } else {
          return def;
       }
@@ -85,12 +80,10 @@ public class XMLConfigurationUtil {
    public static final Long getTextBytesAsLongBytes(final Element e,
                                     final String name,
                                     final long def,
-                                    final Validators.Validator validator) {
+                                    final Validator<Number> validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
-         long val = ByteUtil.convertTextBytes(nl.item(0).getTextContent().trim());
-         validator.validate(name, val);
-         return val;
+         return (Long) validator.validate(name, ByteUtil.convertTextBytes(nl.item(0).getTextContent().trim()));
       } else {
          return def;
       }
@@ -99,12 +92,10 @@ public class XMLConfigurationUtil {
    public static final Integer getAttributeInteger(final Element e,
                                           final String name,
                                           final Integer def,
-                                          final Validators.Validator validator) {
+                                          final Validator<Number> validator) {
       String attribute = e.getAttribute(name);
       if (attribute != null && !attribute.equals("")) {
-         int val = XMLUtil.parseInt(e, attribute);
-         validator.validate(name, val);
-         return val;
+         return (Integer) validator.validate(name, XMLUtil.parseInt(e, attribute));
       } else {
          return def;
       }
@@ -113,12 +104,10 @@ public class XMLConfigurationUtil {
    public static final Integer getInteger(final Element e,
                                           final String name,
                                           final Integer def,
-                                          final Validators.Validator validator) {
+                                          final Validator<Number> validator) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
-         int val = XMLUtil.parseInt(nl.item(0));
-         validator.validate(name, val);
-         return val;
+         return (Integer) validator.validate(name, XMLUtil.parseInt(nl.item(0)));
       } else {
          return def;
       }
@@ -127,7 +116,7 @@ public class XMLConfigurationUtil {
    public static final Integer getTextBytesAsIntBytes(final Element e,
                                           final String name,
                                           final int def,
-                                          final Validators.Validator validator) {
+                                          final Validator<Number> validator) {
       return getTextBytesAsLongBytes(e, name, def, validator).intValue();
    }
 

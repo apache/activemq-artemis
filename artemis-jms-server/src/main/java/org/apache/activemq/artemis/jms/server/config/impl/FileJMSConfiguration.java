@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.impl.Validators;
 import org.apache.activemq.artemis.core.deployers.Deployable;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -37,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static org.apache.activemq.artemis.core.config.impl.Validators.NO_CHECK;
 
 public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable {
 
@@ -116,7 +117,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
          }
       }
 
-      String domain = XMLConfigurationUtil.getString(e, JMX_DOMAIN_NAME, ActiveMQDefaultConfiguration.getDefaultJmxDomain(), Validators.NO_CHECK);
+      String domain = XMLConfigurationUtil.getString(e, JMX_DOMAIN_NAME, ActiveMQDefaultConfiguration.getDefaultJmxDomain(), NO_CHECK);
 
       newConfig(queues, topics, domain);
    }

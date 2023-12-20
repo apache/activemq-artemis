@@ -30,281 +30,196 @@ import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 
-/**
- * A Validators.
- */
 public final class Validators {
 
-   public interface Validator {
-
-      void validate(String name, Object value);
+   public interface Validator<T> {
+      T validate(String name, T value);
    }
 
-   public static final Validator NO_CHECK = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         return;
+   public static final Validator NO_CHECK = (name, value) -> value;
+
+   public static final Validator<String> NOT_NULL_OR_EMPTY = (name, value) -> {
+      if (value == null || value.length() == 0) {
+         throw ActiveMQMessageBundle.BUNDLE.emptyOrNull(name);
+      }
+      return value;
+   };
+
+   public static final Validator<Number> GT_ZERO = (name, value) -> {
+      if (value.doubleValue() > 0) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, value);
       }
    };
 
-   public static final Validator NOT_NULL_OR_EMPTY = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String str = (String) value;
-         if (str == null || str.length() == 0) {
-            throw ActiveMQMessageBundle.BUNDLE.emptyOrNull(name);
-         }
+   public static final Validator<Number> PERCENTAGE = (name, value) -> {
+      if (value == null || (value.intValue() < 0 || value.intValue() > 100)) {
+         throw ActiveMQMessageBundle.BUNDLE.notPercent(name, value);
+      }
+      return value;
+   };
+
+   public static final Validator<Number> PERCENTAGE_OR_MINUS_ONE = (name, value) -> {
+      if (value == null || ((value.intValue() < 0 || value.intValue() > 100) && value.intValue() != -1)) {
+         throw ActiveMQMessageBundle.BUNDLE.notPercentOrMinusOne(name, value);
+      }
+      return value;
+   };
+
+   public static final Validator<Number> GE_ZERO = (name, value) -> {
+      if (value.doubleValue() >= 0) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, value);
       }
    };
 
-   public static final Validator GT_ZERO = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.doubleValue() > 0) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
-         }
+   public static final Validator<Number> LE_ONE = (name, value) -> {
+      if (value.doubleValue() <= 1) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.lessThanOrEqualToOne(name, value);
       }
    };
 
-   public static final Validator PERCENTAGE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val == null || (val.intValue() < 0 || val.intValue() > 100)) {
-            throw ActiveMQMessageBundle.BUNDLE.notPercent(name, val);
-         }
+   public static final Validator<Number> MINUS_ONE_OR_GT_ZERO =  (name, value) -> {
+      if (value.doubleValue() == -1 || value.doubleValue() > 0) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.greaterThanMinusOne(name, value);
       }
    };
 
-   public static final Validator PERCENTAGE_OR_MINUS_ONE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val == null || ((val.intValue() < 0 || val.intValue() > 100) && val.intValue() != -1)) {
-            throw ActiveMQMessageBundle.BUNDLE.notPercentOrMinusOne(name, val);
-         }
+   public static final Validator<Number> MINUS_ONE_OR_GE_ZERO = (name, value) -> {
+      if (value.doubleValue() == -1 || value.doubleValue() >= 0) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, value);
       }
    };
 
-   public static final Validator GE_ZERO = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.doubleValue() >= 0) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
-         }
+   public static final Validator<Number> POSITIVE_INT = (name, value) -> {
+      if (value.longValue() > 0 && value.longValue() <= Integer.MAX_VALUE) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveInt(name, value);
       }
    };
 
-   public static final Validator LE_ONE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.doubleValue() <= 1) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.lessThanOrEqualToOne(name, val);
-         }
+   public static final Validator<Number> MINUS_ONE_OR_POSITIVE_INT = (name, value) -> {
+      if (value.longValue() == -1 || (value.longValue() > 0 && value.longValue() <= Integer.MAX_VALUE)) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveIntThanMinusOne(name, value);
       }
    };
 
-   public static final Validator MINUS_ONE_OR_GT_ZERO = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.doubleValue() == -1 || val.doubleValue() > 0) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.greaterThanMinusOne(name, val);
-         }
+   public static final Validator<Number> THREAD_PRIORITY_RANGE = (name, value) -> {
+      if (value.intValue() >= Thread.MIN_PRIORITY && value.intValue() <= Thread.MAX_PRIORITY) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.mustbeBetween(name, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, value);
       }
    };
 
-   public static final Validator MINUS_ONE_OR_GE_ZERO = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.doubleValue() == -1 || val.doubleValue() >= 0) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, val);
-         }
+   public static final Validator<String> JOURNAL_TYPE = (name, value) -> {
+      if (value == null || !EnumSet.allOf(JournalType.class).contains(JournalType.valueOf(value))) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidJournalType(value);
       }
+      return value;
    };
 
-   public static final Validator POSITIVE_INT = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveInt(name, val);
-         }
+   public static final Validator<String> ADDRESS_FULL_MESSAGE_POLICY_TYPE = (name, value) -> {
+      if (value == null || !value.equals(AddressFullMessagePolicy.PAGE.toString()) &&
+         !value.equals(AddressFullMessagePolicy.DROP.toString()) &&
+         !value.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
+         !value.equals(AddressFullMessagePolicy.FAIL.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(value);
       }
+      return value;
    };
 
-   public static final Validator MINUS_ONE_OR_POSITIVE_INT = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.longValue() == -1 || (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE)) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveIntThanMinusOne(name, val);
-         }
+   public static final Validator<String> PAGE_FULL_MESSAGE_POLICY_TYPE = (name, value) -> {
+      if (value == null ||
+         !value.equals(PageFullMessagePolicy.DROP.toString()) &&
+         !value.equals(PageFullMessagePolicy.FAIL.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(value);
       }
+      return value;
    };
 
-   public static final Validator THREAD_PRIORITY_RANGE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         Number val = (Number) value;
-         if (val.intValue() >= Thread.MIN_PRIORITY && val.intValue() <= Thread.MAX_PRIORITY) {
-            // OK
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.mustbeBetween(name, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, value);
-         }
+   public static final Validator<String> SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = (name, value) -> {
+      if (value == null ||
+         !value.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND.toString()) &&
+         !value.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE.toString()) &&
+         !value.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR.toString()) &&
+         !value.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerThresholdMeasurementUnit(value);
       }
+      return value;
    };
 
-   public static final Validator JOURNAL_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !EnumSet.allOf(JournalType.class).contains(JournalType.valueOf(val))) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidJournalType(val);
-         }
+   public static final Validator<String> SLOW_CONSUMER_POLICY_TYPE = (name, value) -> {
+      if (value == null || !value.equals(SlowConsumerPolicy.KILL.toString()) && !value.equals(SlowConsumerPolicy.NOTIFY.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(value);
       }
+      return value;
    };
 
-   public static final Validator ADDRESS_FULL_MESSAGE_POLICY_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(AddressFullMessagePolicy.PAGE.toString()) &&
-            !val.equals(AddressFullMessagePolicy.DROP.toString()) &&
-            !val.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
-            !val.equals(AddressFullMessagePolicy.FAIL.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
-         }
+   public static final Validator<String> DELETION_POLICY_TYPE = (name, value) -> {
+      if (value == null || !value.equals(DeletionPolicy.OFF.toString()) && !value.equals(DeletionPolicy.FORCE.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidDeletionPolicyType(value);
       }
+      return value;
    };
 
-   public static final Validator PAGE_FULL_MESSAGE_POLICY_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null ||
-            !val.equals(PageFullMessagePolicy.DROP.toString()) &&
-            !val.equals(PageFullMessagePolicy.FAIL.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
-         }
+   public static final Validator<String> MESSAGE_LOAD_BALANCING_TYPE = (name, value) -> {
+      if (value == null || !value.equals(MessageLoadBalancingType.OFF.toString()) &&
+         !value.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION.toString()) &&
+         !value.equals(MessageLoadBalancingType.STRICT.toString()) &&
+         !value.equals(MessageLoadBalancingType.ON_DEMAND.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidMessageLoadBalancingType(value);
       }
+      return value;
    };
 
-   public static final Validator SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND.toString()) &&
-                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE.toString()) &&
-                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR.toString()) &&
-                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerThresholdMeasurementUnit(val);
-         }
+   public static final Validator<String> ROUTING_TYPE = (name, value) -> {
+      if (value == null || !value.equals(RoutingType.ANYCAST.toString()) &&
+         !value.equals(RoutingType.MULTICAST.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(value);
       }
+      return value;
    };
 
-   public static final Validator SLOW_CONSUMER_POLICY_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) && !val.equals(SlowConsumerPolicy.NOTIFY.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
-         }
+   public static final Validator<String> COMPONENT_ROUTING_TYPE = (name, value) -> {
+      if (value == null || !value.equals(ComponentConfigurationRoutingType.ANYCAST.toString()) &&
+         !value.equals(ComponentConfigurationRoutingType.MULTICAST.toString()) &&
+         !value.equals(ComponentConfigurationRoutingType.PASS.toString()) &&
+         !value.equals(ComponentConfigurationRoutingType.STRIP.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(value);
       }
+      return value;
    };
 
-   public static final Validator DELETION_POLICY_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(DeletionPolicy.OFF.toString()) && !val.equals(DeletionPolicy.FORCE.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidDeletionPolicyType(val);
-         }
+   public static final Validator<Integer> MAX_QUEUE_CONSUMERS = (name, value) -> {
+      if (value.intValue() < -1) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumers(name, value);
       }
+      return value;
    };
 
-   public static final Validator MESSAGE_LOAD_BALANCING_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(MessageLoadBalancingType.OFF.toString()) &&
-            !val.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION.toString()) &&
-            !val.equals(MessageLoadBalancingType.STRICT.toString()) &&
-            !val.equals(MessageLoadBalancingType.ON_DEMAND.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidMessageLoadBalancingType(val);
-         }
+   public static final Validator<String> KEY_TYPE = (name, value) -> {
+      if (value == null || !EnumSet.allOf(KeyType.class).contains(KeyType.valueOf(value))) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidConnectionRouterKey(value);
       }
+      return value;
    };
 
-   public static final Validator ROUTING_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(RoutingType.ANYCAST.toString()) &&
-            !val.equals(RoutingType.MULTICAST.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
-         }
+   public static final Validator<String> NULL_OR_TWO_CHARACTERS = (name, value) -> {
+      if (value != null && value.length() != 2) {
+         throw ActiveMQMessageBundle.BUNDLE.wrongLength(name, value, value.length(), 2);
       }
-   };
-
-   public static final Validator COMPONENT_ROUTING_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !val.equals(ComponentConfigurationRoutingType.ANYCAST.toString()) &&
-            !val.equals(ComponentConfigurationRoutingType.MULTICAST.toString()) &&
-            !val.equals(ComponentConfigurationRoutingType.PASS.toString()) &&
-            !val.equals(ComponentConfigurationRoutingType.STRIP.toString())) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
-         }
-      }
-   };
-
-   public static final Validator MAX_QUEUE_CONSUMERS = new Validator() {
-      @Override
-      public void validate(String name, Object value) {
-         int val = (Integer) value;
-         if (val < -1) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumers(name, val);
-         }
-      }
-   };
-
-   public static final Validator KEY_TYPE = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val == null || !EnumSet.allOf(KeyType.class).contains(KeyType.valueOf(val))) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidConnectionRouterKey(val);
-         }
-      }
-   };
-
-   public static final Validator NULL_OR_TWO_CHARACTERS = new Validator() {
-      @Override
-      public void validate(final String name, final Object value) {
-         String val = (String) value;
-         if (val != null && val.length() != 2) {
-            throw ActiveMQMessageBundle.BUNDLE.wrongLength(name, val, val.length(), 2);
-         }
-      }
+      return value;
    };
 }
