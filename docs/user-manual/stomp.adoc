@@ -15,12 +15,14 @@ Refer to the STOMP xref:examples.adoc[examples] for a look at some of this funct
 
 == Limitations
 
+=== Transactional Acknowledgements
+
 The STOMP specification identifies *transactional acknowledgements* as an optional feature.
 Support for transactional acknowledgements is not implemented in Apache ActiveMQ Artemis.
 The `ACK` frame can not be part of a transaction.
 It will be ignored if its `transaction` header is set.
 
-== Virtual Hosting
+=== Virtual Hosting
 
 Apache ActiveMQ Artemis currently doesn't support virtual hosting, which means the `host` header in `CONNECT` frame will be ignored.
 
