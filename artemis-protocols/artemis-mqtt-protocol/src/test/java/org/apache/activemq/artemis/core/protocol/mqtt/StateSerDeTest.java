@@ -34,7 +34,7 @@ public class StateSerDeTest {
    public void testSerDe() throws Exception {
       for (int i = 0; i < 500; i++) {
          String clientId = RandomUtil.randomString();
-         MQTTSessionState unserialized = new MQTTSessionState(clientId, null);
+         MQTTSessionState unserialized = new MQTTSessionState(clientId);
          Integer subscriptionIdentifier = RandomUtil.randomPositiveIntOrNull();
          for (int j = 0; j < RandomUtil.randomInterval(1, 50); j++) {
             MqttTopicSubscription sub = new MqttTopicSubscription(RandomUtil.randomString(),
@@ -46,7 +46,7 @@ public class StateSerDeTest {
          }
 
          CoreMessage serializedState = MQTTStateManager.serializeState(unserialized, 0);
-         MQTTSessionState deserialized = new MQTTSessionState(serializedState, null);
+         MQTTSessionState deserialized = new MQTTSessionState(serializedState);
 
          assertEquals(unserialized.getClientId(), deserialized.getClientId());
          for (Pair<MqttTopicSubscription, Integer> unserializedEntry : unserialized.getSubscriptionsPlusID()) {

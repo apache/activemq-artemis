@@ -679,6 +679,9 @@ public final class ActiveMQDefaultConfiguration {
    // How often (in ms) to scan for expired MQTT sessions
    private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
 
+   // How long (in ms) to wait to persist MQTT session state
+   private static long DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT = 5000;
+
    // If SESSION-notifications should be suppressed or not
    public static boolean DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS = false;
 
@@ -1867,6 +1870,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getMqttSessionScanInterval() {
       return DEFAULT_MQTT_SESSION_SCAN_INTERVAL;
+   }
+
+   /**
+    * How long (in ms) to wait to persist MQTT session state
+    */
+   public static long getMqttSessionStatePersistenceTimeout() {
+      return DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT;
    }
 
    public static boolean getDefaultSuppressSessionNotifications() {

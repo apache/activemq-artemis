@@ -423,6 +423,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long mqttSessionScanInterval = ActiveMQDefaultConfiguration.getMqttSessionScanInterval();
 
+   private long mqttSessionStatePersistenceTimeout = ActiveMQDefaultConfiguration.getMqttSessionStatePersistenceTimeout();
+
    private boolean suppressSessionNotifications = ActiveMQDefaultConfiguration.getDefaultSuppressSessionNotifications();
 
    private String literalMatchMarkers = ActiveMQDefaultConfiguration.getLiteralMatchMarkers();
@@ -3213,6 +3215,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setMqttSessionScanInterval(long mqttSessionScanInterval) {
       this.mqttSessionScanInterval = mqttSessionScanInterval;
+      return this;
+   }
+
+   @Override
+   public long getMqttSessionStatePersistenceTimeout() {
+      return mqttSessionStatePersistenceTimeout;
+   }
+
+   @Override
+   public Configuration setMqttSessionStatePersistenceTimeout(long mqttSessionStatePersistenceTimeout) {
+      this.mqttSessionStatePersistenceTimeout = mqttSessionStatePersistenceTimeout;
       return this;
    }
 

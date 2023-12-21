@@ -64,4 +64,7 @@ public interface MQTTLogger {
 
    @LogMessage(id = 834009, value = "Ignoring duplicate MQTT QoS2 PUBLISH packet for packet ID {} from client with ID {}.", level = LogMessage.Level.WARN)
    void ignoringQoS2Publish(String clientId, long packetId);
+
+   @LogMessage(id = 834010, value = "Unable to scan MQTT sessions", level = LogMessage.Level.ERROR)
+   void unableToScanSessions(Exception e);
 }
