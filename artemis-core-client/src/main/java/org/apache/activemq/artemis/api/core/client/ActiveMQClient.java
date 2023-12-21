@@ -179,7 +179,6 @@ public final class ActiveMQClient {
       }
 
       if (globalThreadPool != null) {
-         System.out.println("Shutting down main pool...");
          globalThreadPool.shutdownNow();
          try {
             if (!globalThreadPool.awaitTermination(time, unit)) {
@@ -194,7 +193,6 @@ public final class ActiveMQClient {
       }
 
       if (globalScheduledThreadPool != null) {
-         System.out.println("Shutting down scheduled pool...");
          globalScheduledThreadPool.shutdownNow();
          try {
             if (!globalScheduledThreadPool.awaitTermination(time, unit)) {
@@ -209,7 +207,6 @@ public final class ActiveMQClient {
       }
 
       if (globalFlowControlThreadPool != null) {
-         System.out.println("Shutting down flow-control pool...");
          globalFlowControlThreadPool.shutdownNow();
          try {
             if (!globalFlowControlThreadPool.awaitTermination(time, unit)) {
