@@ -757,7 +757,7 @@ var Artemis;
         */
         function createBodyText(message) {
             Artemis.log.debug("loading message:" + message);
-            if (message.text) {
+            if (message.text !== undefined) {
                 var body = message.text;
                 var lenTxt = "" + body.length;
                 message.textMode = "text (" + lenTxt + " chars)";
