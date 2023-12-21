@@ -32,7 +32,7 @@ var Artemis;
                     <div class="col-sm-20">
                         <form class="toolbar-pf-actions">
                             <div class="form-group toolbar-pf-filter">
-                                <div class="input-group">
+                                <div class="input-group" style="padding-left: 10px">
                                     <input type="text" class="form-control" ng-model="$ctrl.filter" placeholder="Filter..." autocomplete="off" id="filterInput">
                                     <div class="input-group-btn">
                                         <button class="btn btn-link btn-find" ng-click="$ctrl.refresh()" type="button">
@@ -688,7 +688,7 @@ var Artemis;
                 ctrl.dlq = ctrl.dlq || (message['StringProperties'] ? (message['StringProperties']['_AMQ_ORIG_QUEUE'] ? true : (message['StringProperties']['extraProperties._AMQ_ORIG_QUEUE'] ? true : false)) : false);
                 message.bodyText = createBodyText(message);
                 if (idx == 0 && !ctrl.loadPrevousPage) {
-                //always load n the first message for paination when viewing message details
+                //always load n the first message for pagination when viewing message details
                     ctrl.currentMessage = message;
                     ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
                     ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
@@ -893,12 +893,12 @@ var Artemis;
             if (ctrl.objName) {
                 //make sure to count only filtered messages
                 if (ctrl.filter) {
-                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages(java.lang.String)', arguments: [ctrl.filter] }, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages(java.lang.String)', arguments: [ctrl.filter] }, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }, { error: onError }));
                 } else {
-                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }, { error: onError }));
                 }
 
-                jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'browse(int, int, java.lang.String)', arguments: [ctrl.pagination.pageNumber, ctrl.pagination.pageSize, ctrl.filter] }, Core.onSuccess(populateTable));
+                jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'browse(int, int, java.lang.String)', arguments: [ctrl.pagination.pageNumber, ctrl.pagination.pageSize, ctrl.filter] }, Core.onSuccess(populateTable, { error: onError }));
             }
         }
 
