@@ -22,7 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -79,16 +78,11 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
       }
       @Override
       public void run() {
-         server.getRemotingService().getAcceptors().forEach((key, acceptor) -> {
-            ProtocolHandler protocolHandler = acceptor.getProtocolHandler();
-            if (protocolHandler != null) {
-               protocolHandler.getProtocolMap().values().forEach(m -> {
-                  if (m instanceof MQTTProtocolManager) {
-                     ((MQTTProtocolManager)m).getStateManager().scanSessions();
-                  }
-               });
-            }
-         });
+         try {
+            MQTTStateManager.getInstance(server).scanSessions();
+         } catch (Exception e) {
+            MQTTLogger.LOGGER.unableToScanSessions(e);
+         }
       }
    }
 }

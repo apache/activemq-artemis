@@ -91,9 +91,31 @@ Payload logging is limited to avoid filling the logs with potentially hundreds o
 
 == Persistent Subscriptions
 
-The subscription information for MQTT sessions is stored in an internal queue named `$sys.mqtt.sessions` and persisted to disk (assuming persistence is enabled).
+The subscription information for MQTT sessions is stored in an internal queue named `$sys.mqtt.sessions` and persisted to storage (assuming persistence is enabled).
 The information is durable so that MQTT subscribers can reconnect and resume their subscriptions seamlessly after a broker restart, failure, etc.
 When brokers are configured for high availability this information will be available on the backup so even in the case of a broker fail-over subscribers will be able to resume their subscriptions.
+
+While persistent subscriptions can be convenient they impose a performance penalty since data must be written to storage.
+If you don't need the convenience (e.g. you always use clean sessions) and you don't want the performance penalty then you can disable it by disabling durability for the `$sys.mqtt.sessions` queue in `broker.xml`, e.g.:
+
+[,xml]
+----
+<addresses>
+   ...
+   <address name="$sys.mqtt.sessions">
+      <anycast>
+         <queue name="$sys.mqtt.sessions">
+            <durable>false</durable>
+         </queue>
+      </anycast>
+   </address>
+   ...
+</addresses>
+----
+
+The setting `mqtt-session-state-persistence-timeout` controls how long the broker will wait for the data to be written to storage before throwing an error.
+It is measured in milliseconds.
+The default is `5000`.
 
 == Custom Client ID Handling
 

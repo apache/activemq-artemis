@@ -1445,8 +1445,8 @@ public interface Configuration {
    Configuration setTemporaryQueueNamespace(String temporaryQueueNamespace);
 
    /**
-    * This is specific to MQTT, and it's necessary because the session scan interval is a broker-wide setting and can't
-    * be set on a per-connector basis like the rest of the MQTT-specific settings.
+    * This is necessary because the MQTT session scan interval is a broker-wide setting and can't be set on a
+    * per-connector basis like most of the other MQTT-specific settings.
     */
    Configuration setMqttSessionScanInterval(long mqttSessionScanInterval);
 
@@ -1456,6 +1456,19 @@ public interface Configuration {
     * @return
     */
    long getMqttSessionScanInterval();
+
+   /**
+    * This is necessary because MQTT sessions and handled on a broker-wide basis so this can't be set on a per-connector
+    * basis like most of the other MQTT-specific settings.
+    */
+   Configuration setMqttSessionStatePersistenceTimeout(long mqttSessionStatePersistenceTimeout);
+
+   /**
+    * @see Configuration#setMqttSessionStatePersistenceTimeout(long)
+    *
+    * @return
+    */
+   long getMqttSessionStatePersistenceTimeout();
 
    /**
     * Returns whether suppression of session-notifications is enabled for this server. <br>
