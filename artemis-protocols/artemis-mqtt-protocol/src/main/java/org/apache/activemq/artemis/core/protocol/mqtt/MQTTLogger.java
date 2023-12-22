@@ -67,4 +67,13 @@ public interface MQTTLogger {
 
    @LogMessage(id = 834010, value = "Unable to scan MQTT sessions", level = LogMessage.Level.ERROR)
    void unableToScanSessions(Exception e);
+
+   @LogMessage(id = 834011, value = "Invalid MQTT session state message. Type is incorrect: {}. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void sessionStateMessageIncorrectType(String type);
+
+   @LogMessage(id = 834012, value = "Invalid MQTT session state message. Client ID is empty or null. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void sessionStateMessageBadClientId();
+
+   @LogMessage(id = 834013, value = "Invalid MQTT session state message. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void errorDeserializingStateMessage(Exception e);
 }

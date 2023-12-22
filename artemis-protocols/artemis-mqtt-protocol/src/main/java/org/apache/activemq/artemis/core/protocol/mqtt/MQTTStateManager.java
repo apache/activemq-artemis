@@ -83,9 +83,23 @@ public class MQTTStateManager {
       // load session data from queue
       try (LinkedListIterator<MessageReference> iterator = sessionStore.browserIterator()) {
          while (iterator.hasNext()) {
-            MessageReference ref = iterator.next();
-            String clientId = ref.getMessage().getStringProperty(Message.HDR_LAST_VALUE_NAME);
-            MQTTSessionState sessionState = new MQTTSessionState((CoreMessage) ref.getMessage());
+            Message message = iterator.next().getMessage();
+            if (!(message instanceof CoreMessage)) {
+               MQTTLogger.LOGGER.sessionStateMessageIncorrectType(message.getClass().getName().toString());
+               continue;
+            }
+            String clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);
+            if (clientId == null || clientId.length() == 0) {
+               MQTTLogger.LOGGER.sessionStateMessageBadClientId();
+               continue;
+            }
+            MQTTSessionState sessionState;
+            try {
+               sessionState = new MQTTSessionState((CoreMessage) message);
+            } catch (Exception e) {
+               MQTTLogger.LOGGER.errorDeserializingStateMessage(e);
+               continue;
+            }
             sessionStates.put(clientId, sessionState);
          }
       } catch (NoSuchElementException ignored) {
