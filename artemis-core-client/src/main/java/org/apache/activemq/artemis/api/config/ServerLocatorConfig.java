@@ -46,6 +46,7 @@ public class ServerLocatorConfig {
    public int reconnectAttempts = ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS;
    public int initialConnectAttempts = ActiveMQClient.INITIAL_CONNECT_ATTEMPTS;
    public int failoverAttempts = ActiveMQClient.DEFAULT_FAILOVER_ATTEMPTS;
+   public int failbackAttempts = ActiveMQClient.DEFAULT_FAILBACK_ATTEMPTS;
    public int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
    public boolean cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
    public int compressionLevel = ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
@@ -85,6 +86,7 @@ public class ServerLocatorConfig {
       reconnectAttempts = locator.reconnectAttempts;
       initialConnectAttempts = locator.initialConnectAttempts;
       failoverAttempts = locator.failoverAttempts;
+      failbackAttempts = locator.failbackAttempts;
       initialMessagePacketSize = locator.initialMessagePacketSize;
       useTopologyForLoadBalancing = locator.useTopologyForLoadBalancing;
       compressionLevel = locator.compressionLevel;

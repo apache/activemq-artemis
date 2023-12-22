@@ -77,6 +77,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.function.BiPredicate;
 
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.DISCONNECTED;
+
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -92,6 +94,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private volatile TransportConfiguration currentConnectorConfig;
 
    private volatile TransportConfiguration backupConnectorConfig;
+
+   private TransportConfiguration failbackConnectorConfig;
 
    private ConnectorFactory connectorFactory;
 
@@ -137,6 +141,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private int failoverAttempts;
 
+   private int failbackAttempts;
+
    private final Set<SessionFailureListener> listeners = new ConcurrentHashSet<>();
 
    private final Set<FailoverEventListener> failoverListeners = new ConcurrentHashSet<>();
@@ -145,6 +151,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private Future<?> pingerFuture;
    private PingRunnable pingRunnable;
+
+   private FailbackRunnable failbackRunnable;
 
    private final List<Interceptor> incomingInterceptors;
 
@@ -249,6 +257,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.reconnectAttempts = reconnectAttempts;
 
       this.failoverAttempts = locatorConfig.failoverAttempts;
+
+      this.failbackAttempts = locatorConfig.failbackAttempts;
 
       this.scheduledThreadPool = scheduledThreadPool;
 
@@ -730,6 +740,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                int connectorsCount = 0;
                int failoverRetries = 0;
                long failoverRetryInterval = retryInterval;
+
+               //Save current connector config for failback purposes
+               if (failbackAttempts != 0 && failbackConnectorConfig == null) {
+                  failbackConnectorConfig = connectorConfig;
+               }
+
                Pair<TransportConfiguration, TransportConfiguration> connectorPair;
                BiPredicate<Boolean, Integer> failoverRetryPredicate =
                   (reconnected, retries) -> clientProtocolManager.isAlive() &&
@@ -821,6 +837,128 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             }
          }
       }
+   }
+
+   private void failback(final ActiveMQException me,
+                         final TransportConfiguration previousConnectorConfig) {
+
+      logger.debug("Original node has come back online, performing failback now");
+
+      for (ClientSessionInternal session : sessions) {
+         SessionContext context = session.getSessionContext();
+         if (context instanceof ActiveMQSessionContext) {
+            ActiveMQSessionContext sessionContext = (ActiveMQSessionContext) context;
+            if (sessionContext.isKilled()) {
+               setReconnectAttempts(0);
+            }
+         }
+      }
+
+      Set<ClientSessionInternal> sessionsToClose = null;
+      if (!clientProtocolManager.isAlive()) {
+         return;
+      }
+
+      Lock localFailoverLock = lockFailover();
+
+      try {
+
+         callFailoverListeners(FailoverEventType.FAILURE_DETECTED);
+         callSessionFailureListeners(me, false, false, null);
+
+         if (clientProtocolManager.cleanupBeforeFailover(me)) {
+
+            RemotingConnection oldConnection = connection;
+
+            connection = null;
+
+            Connector localConnector = connector;
+            if (localConnector != null) {
+               try {
+                  localConnector.close();
+               } catch (Exception ignore) {
+                  // no-op
+               }
+            }
+
+            cancelScheduledTasks();
+
+            connector = null;
+
+            HashSet<ClientSessionInternal> sessionsToFailover;
+            synchronized (sessions) {
+               sessionsToFailover = new HashSet<>(sessions);
+            }
+
+            // Notify sessions before failover.
+            for (ClientSessionInternal session : sessionsToFailover) {
+               session.preHandleFailover(connection);
+            }
+
+            boolean sessionsReconnected = false;
+
+            connectorConfig = previousConnectorConfig;
+            currentConnectorConfig = previousConnectorConfig;
+
+            getConnection();
+
+            if (connection != null) {
+               sessionsReconnected = reconnectSessions(sessionsToFailover, oldConnection, me);
+
+               if (!sessionsReconnected) {
+                  if (oldConnection != null) {
+                     oldConnection.destroy();
+                  }
+
+                  oldConnection = connection;
+                  connection = null;
+               }
+            }
+
+            // Notify sessions after failover.
+            for (ClientSessionInternal session : sessionsToFailover) {
+               session.postHandleFailover(connection, sessionsReconnected);
+            }
+
+            if (oldConnection != null) {
+               oldConnection.destroy();
+            }
+
+            if (connection != null) {
+               callFailoverListeners(FailoverEventType.FAILOVER_COMPLETED);
+
+            }
+         }
+
+         if (connection == null) {
+            synchronized (sessions) {
+               sessionsToClose = new HashSet<>(sessions);
+            }
+            callFailoverListeners(FailoverEventType.FAILOVER_FAILED);
+            callSessionFailureListeners(me, true, false, null);
+         }
+      } finally {
+         localFailoverLock.unlock();
+      }
+
+      // This needs to be outside the failover lock to prevent deadlock
+      if (connection != null) {
+         callSessionFailureListeners(me, true, true);
+      }
+
+      if (sessionsToClose != null) {
+         // If connection is null it means we didn't succeed in failing over or reconnecting
+         // so we close all the sessions, so they will throw exceptions when attempted to be used
+
+         for (ClientSessionInternal session : sessionsToClose) {
+            try {
+               session.cleanUp(true);
+            } catch (Exception cause) {
+               ActiveMQClientLogger.LOGGER.failedToCleanupSession(cause);
+            }
+         }
+      }
+
    }
 
    private ClientSession createSessionInternal(final String rawUsername,
@@ -1026,6 +1164,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return false;
    }
 
+   private long getRetryInterval() {
+      return retryInterval;
+   }
+
    private void cancelScheduledTasks() {
       Future<?> pingerFutureLocal = pingerFuture;
       if (pingerFutureLocal != null) {
@@ -1035,8 +1177,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (pingRunnableLocal != null) {
          pingRunnableLocal.cancel();
       }
+      FailbackRunnable failbackRunnableLocal = failbackRunnable;
+      if (failbackRunnableLocal != null) {
+         failbackRunnableLocal.cancel();
+      }
       pingerFuture = null;
       pingRunnable = null;
+      failbackRunnable = null;
    }
 
    private void checkCloseConnection() {
@@ -1500,6 +1647,68 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   private void attemptFailback() {
+      if (failbackRunnable == null) {
+         failbackRunnable = new FailbackRunnable();
+      }
+      threadPool.execute(failbackRunnable);
+   }
+
+   private class FailbackRunnable implements Runnable {
+      private boolean first = true;
+      private boolean cancelled;
+
+      @Override
+      public synchronized void run() {
+
+         if (!first) {
+            return;
+         }
+
+         first = false;
+
+         logger.debug("Attempting failback. Trying to reach {} for failback", failbackConnectorConfig.toString());
+
+         int attempts = 0;
+         long failbackRetryInterval = getRetryInterval();
+
+         ConnectorFactory transportConnectorFactory;
+         Connector transportConnector;
+         Connection transportConnection;
+
+         while (!cancelled && (failbackAttempts == -1 || attempts++ < failbackAttempts)) {
+
+            waitForRetry(failbackRetryInterval);
+            failbackRetryInterval = getNextRetryInterval(failbackRetryInterval);
+
+            transportConnectorFactory = instantiateConnectorFactory(failbackConnectorConfig.getFactoryClassName());
+            transportConnector = createConnector(transportConnectorFactory, failbackConnectorConfig);
+            transportConnection = openTransportConnection(transportConnector);
+
+            if (transportConnection != null) {
+               transportConnector.close();
+               transportConnection.close();
+               ActiveMQException exception = new ActiveMQException("Failing back to original broker: " + failbackConnectorConfig.toString(), DISCONNECTED);
+               failback(exception, failbackConnectorConfig);
+               break;
+            }
+
+         }
+
+         if (failbackConnectorConfig.equals(currentConnectorConfig)) {
+            failbackConnectorConfig = null;
+         }
+
+         first = true;
+
+      }
+
+      public synchronized void cancel() {
+         cancelled = true;
+      }
+
+   }
+
    protected RemotingConnection establishNewConnection() {
       Connection transportConnection = createTransportConnection();
 
@@ -1580,6 +1789,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                boolean isLast) {
 
          try {
+
+            if (failbackConnectorConfig != null && connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), failbackConnectorConfig)) {
+               if (!currentConnectorConfig.equals(failbackConnectorConfig) && failbackRunnable == null) {
+                  attemptFailback();
+               }
+            }
+
             // if it is our connector then set the live id used for failover
             if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), currentConnectorConfig)) {
                liveNodeID = nodeID;

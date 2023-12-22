@@ -1220,6 +1220,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return config.failoverAttempts;
    }
 
+   @Override
+   public ServerLocatorImpl setFailbackAttempts(int attempts) {
+      checkWrite();
+      this.config.failbackAttempts = attempts;
+      return this;
+   }
+
+   @Override
+   public int getFailbackAttempts() {
+      return config.failbackAttempts;
+   }
+
    @Deprecated
    @Override
    public boolean isFailoverOnInitialConnection() {

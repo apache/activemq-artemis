@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -206,6 +207,117 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                   Assert.assertNotNull(clientConsumer.receive());
                }
 
+               clientSession.stop();
+            }
+         }
+      }
+   }
+
+   @Test
+   public void testConsumerAfterFailoverAndFailbackWithRedistribution() throws Exception {
+      setupCluster();
+
+      AddressSettings testAddressSettings = new AddressSettings().setRedistributionDelay(0);
+      for (int i : getServerIDs()) {
+         getServer(i).getAddressSettingsRepository().addMatch(QUEUES_TESTADDRESS, testAddressSettings);
+      }
+
+      startServers(getLiveServerIDs());
+      startServers(getBackupServerIDs());
+
+      for (int i : getLiveServerIDs()) {
+         waitForTopology(servers[i], 3, 3);
+      }
+
+      for (int i : getBackupServerIDs()) {
+         waitForFailoverTopology(i, 0, 1, 2);
+      }
+
+      for (int i : getLiveServerIDs()) {
+         setupSessionFactory(i, i + 3, isNetty(), false);
+         createQueue(i, QUEUES_TESTADDRESS, QUEUE_NAME, null, true);
+      }
+
+      List<TransportConfiguration> transportConfigList = new ArrayList<>();
+      for (int i : getLiveServerIDs()) {
+         Map<String, Object> params = generateParams(i, isNetty());
+         TransportConfiguration serverToTC = createTransportConfiguration("node" + i, isNetty(), false, params);
+         serverToTC.getExtraParams().put(TEST_PARAM, TEST_PARAM);
+         transportConfigList.add(serverToTC);
+      }
+      TransportConfiguration[] transportConfigs = transportConfigList.toArray(new TransportConfiguration[transportConfigList.size()]);
+
+      try (ServerLocator serverLocator = new ServerLocatorImpl(false, transportConfigs)) {
+         serverLocator.setFailoverAttempts(3);
+         serverLocator.setFailbackAttempts(10);
+         serverLocator.setReconnectAttempts(0);
+         serverLocator.setUseTopologyForLoadBalancing(false);
+
+         try (ClientSessionFactory sessionFactory = serverLocator.createSessionFactory()) {
+            try (ClientSession clientSession = sessionFactory.createSession()) {
+               clientSession.start();
+
+               int serverIdBeforeCrash = Integer.parseInt(sessionFactory.
+                  getConnectorConfiguration().getName().substring(4));
+
+               QueueControl testQueueControlBeforeCrash = (QueueControl)getServer(serverIdBeforeCrash).
+                  getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
+
+               Assert.assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
+
+               try (ClientProducer clientProducer = clientSession.createProducer(QUEUES_TESTADDRESS)) {
+                  clientProducer.send(clientSession.createMessage(true));
+                  clientProducer.send(clientSession.createMessage(true));
+                  clientProducer.send(clientSession.createMessage(true));
+               }
+
+               Assert.assertEquals(3, testQueueControlBeforeCrash.getMessageCount());
+
+               try (ClientConsumer clientConsumer = clientSession.createConsumer(QUEUE_NAME)) {
+                  ClientMessage messageBeforeCrash = clientConsumer.receive(3000);
+                  Assert.assertNotNull(messageBeforeCrash);
+                  messageBeforeCrash.acknowledge();
+                  clientSession.commit();
+
+                  Assert.assertEquals(2, testQueueControlBeforeCrash.getMessageCount());
+
+                  ActiveMQServer serv = getServer(serverIdBeforeCrash);
+                  serv.stop();
+                  waitForServerToStop(serv);
+
+                  Assert.assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
+
+                  int serverIdAfterCrash = Integer.parseInt(sessionFactory.
+                     getConnectorConfiguration().getName().substring(4));
+                  Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
+
+                  Assert.assertTrue(isLiveServerID(serverIdAfterCrash));
+
+                  QueueControl testQueueControlAfterCrash = (QueueControl)getServer(serverIdAfterCrash).
+                     getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
+
+                  Wait.waitFor(() -> testQueueControlAfterCrash.getMessageCount() == 2, 3000);
+
+                  ClientMessage messageAfterCrash = clientConsumer.receive(3000);
+                  Assert.assertNotNull(messageAfterCrash);
+                  messageAfterCrash.acknowledge();
+                  clientSession.commit();
+
+                  serv.start();
+                  waitForServerToStart(serv);
+
+                  QueueControl testQueueControlAfterFailback = (QueueControl)getServer(serverIdBeforeCrash).
+                     getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
+                  Wait.waitFor(() -> testQueueControlAfterFailback.getMessageCount() == 1, 3000);
+
+                  int serverIdAfterFailback = Integer.parseInt(sessionFactory.
+                     getConnectorConfiguration().getName().substring(4));
+
+                  Assert.assertEquals(serverIdBeforeCrash, serverIdAfterFailback);
+                  Assert.assertTrue(isLiveServerID(serverIdAfterFailback));
+                  Assert.assertNotNull(clientConsumer.receive());
+
+               }
                clientSession.stop();
             }
          }
