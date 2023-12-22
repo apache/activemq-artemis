@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,9 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
-import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -103,10 +102,6 @@ import java.lang.invoke.MethodHandles;
 public class ConnectTests extends MQTT5TestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   public ConnectTests(String protocol) {
-      super(protocol);
-   }
 
    /*
     * [MQTT-3.1.2-7] If the Will Flag is set to 1 this indicates that, a Will Message MUST be stored on the Server and
@@ -632,9 +627,6 @@ public class ConnectTests extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testEmptyClientID() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
-
       // no session should exist
       assertEquals(0, getSessionStates().size());
 
@@ -658,9 +650,6 @@ public class ConnectTests extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testEmptyClientIDWithoutCleanStart() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
-
       // no session should exist
       assertEquals(0, getSessionStates().size());
 

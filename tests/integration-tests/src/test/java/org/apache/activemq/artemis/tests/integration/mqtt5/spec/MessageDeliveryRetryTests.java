@@ -29,10 +29,6 @@ import org.junit.Test;
 
 public class MessageDeliveryRetryTests extends MQTT5TestSupport {
 
-   public MessageDeliveryRetryTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.4.0-1] When a Client reconnects with Clean Start set to 0 and a session is present, both the Client and
     * Server MUST resend any unacknowledged PUBLISH packets (where QoS > 0) and PUBREL packets using their original

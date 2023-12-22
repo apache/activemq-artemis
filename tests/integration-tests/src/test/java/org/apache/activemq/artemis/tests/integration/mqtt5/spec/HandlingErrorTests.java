@@ -22,7 +22,6 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -33,10 +32,6 @@ import org.junit.Test;
 
 public class HandlingErrorTests extends MQTT5TestSupport {
 
-   public HandlingErrorTests(String protocol) {
-      this.protocol = protocol;
-   }
-
    /*
     * [MQTT-4.13.2-1] The CONNACK and DISCONNECT packets allow a Reason Code of 0x80 or greater to indicate that the
     * Network Connection will be closed. If a Reason Code of 0x80 or greater is specified, then the Network Connection
@@ -46,9 +41,6 @@ public class HandlingErrorTests extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testEmptyClientIDWithoutCleanStart() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
-
       MqttClient client = createPahoClient("");
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .cleanStart(false)

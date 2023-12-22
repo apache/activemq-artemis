@@ -39,8 +39,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class WebSocketTests extends MQTT5TestSupport {
-
-   public WebSocketTests(String protocol) {
-      super(protocol);
-   }
 }

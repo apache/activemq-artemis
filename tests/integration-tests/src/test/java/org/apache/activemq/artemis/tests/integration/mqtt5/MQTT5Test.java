@@ -61,10 +61,6 @@ public class MQTT5Test extends MQTT5TestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public MQTT5Test(String protocol) {
-      super(protocol);
-   }
-
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testSimpleSendReceive() throws Exception {
       String topic = RandomUtil.randomString();

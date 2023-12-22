@@ -53,10 +53,6 @@ import org.junit.Test;
 
 public class DisconnectTests  extends MQTT5TestSupport {
 
-   public DisconnectTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.14.2-1] The Client or Server sending the DISCONNECT packet MUST use one of the DISCONNECT Reason Codes.
     *

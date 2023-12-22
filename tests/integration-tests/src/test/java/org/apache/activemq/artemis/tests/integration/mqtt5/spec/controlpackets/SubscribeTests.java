@@ -50,10 +50,6 @@ import org.junit.Test;
 
 public class SubscribeTests extends MQTT5TestSupport {
 
-   public SubscribeTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.8.3-3] Bit 2 of the Subscription Options represents the No Local option. If the value is 1, Application
     * Messages MUST NOT be forwarded to a connection with a ClientID equal to the ClientID of the publishing connection.

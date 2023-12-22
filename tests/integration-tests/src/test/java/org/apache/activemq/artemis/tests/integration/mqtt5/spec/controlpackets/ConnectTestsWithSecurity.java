@@ -29,10 +29,6 @@ import org.junit.Test;
 
 public class ConnectTestsWithSecurity extends MQTT5TestSupport {
 
-   public ConnectTestsWithSecurity(String protocol) {
-      super(protocol);
-   }
-
    @Override
    public boolean isSecurityEnabled() {
       return true;

@@ -49,10 +49,6 @@ import org.junit.Test;
 
 public class ControlPacketFormatTests extends MQTT5TestSupport {
 
-   public ControlPacketFormatTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-2.2.1-2] A PUBLISH packet MUST NOT contain a Packet Identifier if its QoS value is set to 0.
     */

@@ -31,8 +31,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class DataFormatTests extends MQTT5TestSupport {
-
-   public DataFormatTests(String protocol) {
-      super(protocol);
-   }
 }

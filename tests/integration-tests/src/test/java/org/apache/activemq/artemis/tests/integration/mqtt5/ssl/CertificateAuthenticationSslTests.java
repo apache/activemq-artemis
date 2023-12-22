@@ -14,18 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.mqtt5;
+package org.apache.activemq.artemis.tests.integration.mqtt5.ssl;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
 
    static {
@@ -39,8 +49,10 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       }
    }
 
+   protected String protocol;
+
    public CertificateAuthenticationSslTests(String protocol) {
-      super(protocol);
+      this.protocol = protocol;
    }
 
    @Parameterized.Parameters(name = "protocol={0}")
@@ -70,14 +82,37 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
    protected void configureBrokerSecurity(ActiveMQServer server) {
       server.setSecurityManager(new ActiveMQJAASSecurityManager("CertLogin"));
       server.getConfiguration().setSecurityEnabled(true);
+      HashSet<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", true, true, true, false, false, false, false, false, true, true));
+      server.getConfiguration().putSecurityRoles("#", roles);
    }
 
    /*
     * Basic mutual SSL test with certificate-based authentication
     */
    @Test(timeout = DEFAULT_TIMEOUT)
-   public void testMutualSsl() throws Exception {
-      MqttClient client = createPahoClient("client");
-      client.connect(getSslMqttConnectOptions());
+   public void testSimpleSendReceive() throws Exception {
+      String topic = RandomUtil.randomString();
+      byte[] body = RandomUtil.randomBytes(32);
+
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient subscriber = createPahoClient(protocol,"subscriber");
+      subscriber.connect(getSslMqttConnectOptions());
+      subscriber.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            assertEqualsByteArrays(body, message.getPayload());
+            latch.countDown();
+         }
+      });
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
+
+      Wait.assertTrue(() -> getSubscriptionQueue(topic) != null, 2000, 100);
+      Wait.assertEquals(1, () -> getSubscriptionQueue(topic).getConsumerCount(), 2000, 100);
+
+      MqttClient producer = createPahoClient(protocol,"producer");
+      producer.connect(getSslMqttConnectOptions());
+      producer.publish(topic, body, 1, false);
+      assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
    }
 }

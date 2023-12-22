@@ -34,10 +34,6 @@ import org.junit.Test;
 
 public class SubAckTests extends MQTT5TestSupport {
 
-   public SubAckTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.9.3-1] The order of Reason Codes in the SUBACK packet MUST match the order of Topic Filters in the
     * SUBSCRIBE packet.

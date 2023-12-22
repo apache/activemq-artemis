@@ -41,7 +41,6 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -82,10 +81,6 @@ import org.junit.Test;
 
 public class ConnAckTests  extends MQTT5TestSupport {
 
-   public ConnAckTests(String protocol) {
-      this.protocol = protocol;
-   }
-
    /*
     * [MQTT-3.1.3-6] A Server MAY allow a Client to supply a ClientID that has a length of zero bytes, however if it
     * does so the Server MUST treat this as a special case and assign a unique ClientID to that Client.
@@ -99,8 +94,6 @@ public class ConnAckTests  extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testEmptyClientID() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -268,8 +261,6 @@ public class ConnAckTests  extends MQTT5TestSupport {
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testSessionPresentWithNonZeroConnackReasonCode() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
       CountDownLatch latch = new CountDownLatch(1);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {

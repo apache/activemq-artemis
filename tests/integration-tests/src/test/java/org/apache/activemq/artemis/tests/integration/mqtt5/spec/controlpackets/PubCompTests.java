@@ -37,10 +37,6 @@ import org.junit.Test;
 
 public class PubCompTests extends MQTT5TestSupport {
 
-   public PubCompTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.7.2-1] The Client or Server sending the PUBCOMP packets MUST use one of the PUBCOMP Reason Codes.
     */
