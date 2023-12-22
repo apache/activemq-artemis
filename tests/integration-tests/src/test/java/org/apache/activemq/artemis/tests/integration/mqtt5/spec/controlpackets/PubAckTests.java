@@ -37,10 +37,6 @@ import org.junit.Test;
 
 public class PubAckTests extends MQTT5TestSupport {
 
-   public PubAckTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.4.2-1] The Client or Server sending the PUBACK packet MUST use one of the PUBACK Reason Codes.
     */

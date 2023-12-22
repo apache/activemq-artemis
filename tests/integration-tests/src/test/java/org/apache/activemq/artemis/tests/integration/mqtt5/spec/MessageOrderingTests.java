@@ -36,8 +36,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class MessageOrderingTests extends MQTT5TestSupport {
-
-   public MessageOrderingTests(String protocol) {
-      super(protocol);
-   }
 }

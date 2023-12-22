@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,15 +69,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.singletonList;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
 
-@RunWith(Parameterized.class)
 public class MQTT5TestSupport extends ActiveMQTestBase {
    protected static final String TCP = "tcp";
    protected static final String WS = "ws";
@@ -88,34 +83,28 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    protected static final SimpleString DEAD_LETTER_ADDRESS = new SimpleString("DLA");
    protected static final SimpleString EXPIRY_ADDRESS = new SimpleString("EXPIRY");
 
-   @Parameterized.Parameters(name = "protocol={0}")
-   public static Collection<Object[]> getParams() {
-      return Arrays.asList(new Object[][] {
-         {TCP},
-         {WS}
-      });
-   }
-
-   protected String protocol;
-
-   public MQTT5TestSupport(String protocol) {
-      this.protocol = protocol;
-   }
-
    protected MqttClient createPahoClient(String clientId) throws MqttException {
-      return new MqttClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
+      return createPahoClient(TCP, clientId);
+   }
+
+   protected MqttClient createPahoClient(String protocol, String clientId) throws MqttException {
+      return createPahoClient(protocol, clientId, (isUseSsl() ? getSslPort() : getPort()));
    }
 
    protected MqttClient createPahoClient(String clientId, int port) throws MqttException {
+      return createPahoClient(TCP, clientId, port);
+   }
+
+   protected MqttClient createPahoClient(String protocol, String clientId, int port) throws MqttException {
       return new MqttClient(protocol + "://localhost:" + port, clientId, new MemoryPersistence());
    }
 
    protected org.eclipse.paho.client.mqttv3.MqttClient createPaho3_1_1Client(String clientId) throws org.eclipse.paho.client.mqttv3.MqttException {
-      return new org.eclipse.paho.client.mqttv3.MqttClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new org.eclipse.paho.client.mqttv3.persist.MemoryPersistence());
+      return new org.eclipse.paho.client.mqttv3.MqttClient(TCP + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new org.eclipse.paho.client.mqttv3.persist.MemoryPersistence());
    }
 
    protected MqttAsyncClient createAsyncPahoClient(String clientId) throws MqttException {
-      return new MqttAsyncClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
+      return new MqttAsyncClient(TCP + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
    }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

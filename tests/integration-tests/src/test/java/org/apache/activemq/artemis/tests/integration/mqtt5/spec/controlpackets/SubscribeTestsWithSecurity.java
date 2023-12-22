@@ -31,10 +31,6 @@ import org.junit.Test;
 
 public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
 
-   public SubscribeTestsWithSecurity(String protocol) {
-      super(protocol);
-   }
-
    @Override
    public boolean isSecurityEnabled() {
       return true;

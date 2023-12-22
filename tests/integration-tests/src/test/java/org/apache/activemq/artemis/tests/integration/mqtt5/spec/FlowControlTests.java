@@ -33,8 +33,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class FlowControlTests extends MQTT5TestSupport {
-
-   public FlowControlTests(String protocol) {
-      super(protocol);
-   }
 }

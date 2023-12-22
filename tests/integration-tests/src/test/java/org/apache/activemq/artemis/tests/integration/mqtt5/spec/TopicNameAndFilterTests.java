@@ -49,10 +49,6 @@ import org.junit.Test;
 
 public class TopicNameAndFilterTests extends MQTT5TestSupport {
 
-   public TopicNameAndFilterTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.7.2-1] The Server MUST NOT match Topic Filters starting with a wildcard character (# or +) with Topic
     * Names beginning with a $ character.

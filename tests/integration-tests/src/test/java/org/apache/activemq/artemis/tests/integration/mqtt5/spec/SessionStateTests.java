@@ -27,8 +27,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class SessionStateTests extends MQTT5TestSupport {
-
-   public SessionStateTests(String protocol) {
-      super(protocol);
-   }
 }

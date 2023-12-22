@@ -43,10 +43,6 @@ import org.junit.Test;
 
 public class SubscriptionTests extends MQTT5TestSupport {
 
-   public SubscriptionTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.8.2-3] The Server MUST respect the granted QoS for the Client's subscription.
     */

@@ -37,10 +37,6 @@ import org.junit.Test;
 
 public class PublishTestsWithSecurity extends MQTT5TestSupport {
 
-   public PublishTestsWithSecurity(String protocol) {
-      super(protocol);
-   }
-
    @Override
    public boolean isSecurityEnabled() {
       return true;

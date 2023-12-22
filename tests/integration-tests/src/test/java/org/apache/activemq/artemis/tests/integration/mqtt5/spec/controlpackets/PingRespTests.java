@@ -26,8 +26,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class PingRespTests  extends MQTT5TestSupport {
-
-   public PingRespTests(String protocol) {
-      super(protocol);
-   }
 }

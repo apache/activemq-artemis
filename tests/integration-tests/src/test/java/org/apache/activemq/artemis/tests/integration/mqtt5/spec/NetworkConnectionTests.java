@@ -27,8 +27,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class NetworkConnectionTests extends MQTT5TestSupport {
-
-   public NetworkConnectionTests(String protocol) {
-      super(protocol);
-   }
 }

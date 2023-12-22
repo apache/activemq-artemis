@@ -37,10 +37,6 @@ import org.junit.Test;
 
 public class PubRecTests extends MQTT5TestSupport {
 
-   public PubRecTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.5.2-1] The Client or Server sending the PUBREC packet MUST use one of the PUBREC Reason Codes.
     */

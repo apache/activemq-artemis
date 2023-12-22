@@ -79,10 +79,6 @@ public class PublishTests extends MQTT5TestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public PublishTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.3.1-1] The DUP flag MUST be set to 1 by the Client or Server when it attempts to re-deliver a PUBLISH
     * packet.

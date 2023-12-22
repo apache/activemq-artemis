@@ -50,10 +50,6 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
    private final int numberOfMessages = 1000;
    private final int numberOfTests = 10;
 
-   public MQTTRetainMessageManagerTest(String protocol) {
-      super(protocol);
-   }
-
    @Before
    public void beforeEach() throws MqttException {
       mqttPublisher = createPahoClient("publisher");

@@ -43,10 +43,6 @@ import org.junit.Test;
 
 public class EnhancedAuthenticationTests extends MQTT5TestSupport {
 
-   public EnhancedAuthenticationTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.12.0-1] If the Server does not support the Authentication Method supplied by the Client, it MAY send a
     * CONNACK with a Reason Code of 0x8C (Bad authentication method) or 0x87 (Not Authorized) as described in section

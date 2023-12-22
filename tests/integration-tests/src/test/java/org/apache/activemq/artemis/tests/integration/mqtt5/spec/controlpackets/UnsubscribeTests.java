@@ -48,10 +48,6 @@ import org.junit.Test;
 
 public class UnsubscribeTests extends MQTT5TestSupport {
 
-   public UnsubscribeTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.10.4-1] The Topic Filters (whether they contain wildcards or not) supplied in an UNSUBSCRIBE packet MUST
     * be compared character-by-character with the current set of Topic Filters held by the Server for the Client. If any

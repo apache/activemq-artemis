@@ -42,10 +42,6 @@ import org.junit.Test;
 
 public class PubRelTests extends MQTT5TestSupport {
 
-   public PubRelTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.6.2-1] The Client or Server sending the PUBREL packet MUST use one of the PUBREL Reason Codes.
     */

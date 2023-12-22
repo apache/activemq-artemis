@@ -60,10 +60,6 @@ import org.junit.Test;
 
 public class QoSTests extends MQTT5TestSupport {
 
-   public QoSTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.3.2-2] In the QoS 1 delivery protocol, the sender MUST send a PUBLISH packet containing this Packet
     * Identifier with QoS 1 and DUP flag set to 0.

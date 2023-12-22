@@ -14,43 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
+package org.apache.activemq.artemis.tests.integration.mqtt5.websocket;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.handler.codec.mqtt.MqttMessageType;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.Test;
 
-public class PingReqTests  extends MQTT5TestSupport {
+public class BasicWebSocketTests extends MQTT5TestSupport {
 
-   /*
-    * [MQTT-3.12.4-1] The Server MUST send a PINGRESP packet in response to a PINGREQ packet.
-    */
    @Test(timeout = DEFAULT_TIMEOUT)
-   public void testPingResp() throws Exception {
-      final CountDownLatch latch = new CountDownLatch(4);
+   public void testSimpleSendReceive() throws Exception {
+      String topic = RandomUtil.randomString();
+      byte[] body = RandomUtil.randomBytes(32);
 
-      MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
-         if (packet.fixedHeader().messageType() == MqttMessageType.PINGRESP) {
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient subscriber = createPahoClient(WS,"subscriber");
+      subscriber.connect();
+      subscriber.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            assertEqualsByteArrays(body, message.getPayload());
             latch.countDown();
          }
-         return true;
-      };
-      server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
+      });
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
-      MqttConnectionOptions options = new MqttConnectionOptions();
-      options.setKeepAliveInterval(1);
-      client.connect(options);
-
-      assertTrue(latch.await(5, TimeUnit.SECONDS));
-
-      client.disconnect();
+      MqttClient producer = createPahoClient(WS,"producer");
+      producer.connect();
+      producer.publish(topic, body, 1, false);
+      assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
    }
 }

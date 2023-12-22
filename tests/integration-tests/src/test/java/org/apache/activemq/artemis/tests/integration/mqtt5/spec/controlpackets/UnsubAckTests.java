@@ -35,10 +35,6 @@ import org.junit.Test;
 
 public class UnsubAckTests extends MQTT5TestSupport {
 
-   public UnsubAckTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.11.3-1] The order of Reason Codes in the UNSUBACK packet MUST match the order of Topic Filters in the
     * UNSUBSCRIBE packet.

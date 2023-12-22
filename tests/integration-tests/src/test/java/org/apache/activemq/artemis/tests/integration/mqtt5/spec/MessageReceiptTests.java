@@ -34,10 +34,6 @@ import org.junit.Test;
 
 public class MessageReceiptTests extends MQTT5TestSupport {
 
-   public MessageReceiptTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.5.0-1] When a Server takes ownership of an incoming Application Message it MUST add it to the Session
     * State for those Clients that have matching Subscriptions.

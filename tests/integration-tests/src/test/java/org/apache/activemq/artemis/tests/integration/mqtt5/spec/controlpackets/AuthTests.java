@@ -39,8 +39,4 @@ import org.junit.Ignore;
 
 @Ignore
 public class AuthTests  extends MQTT5TestSupport {
-
-   public AuthTests(String protocol) {
-      this.protocol = protocol;
-   }
 }
