@@ -553,8 +553,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222079, value = "The following keys are invalid for configuring the acceptor: {} the acceptor will not be started.", level = LogMessage.Level.WARN)
    void invalidAcceptorKeys(String s);
 
-   @LogMessage(id = 222080, value = "Error instantiating remoting acceptor {}", level = LogMessage.Level.WARN)
-   void errorCreatingAcceptor(String factoryClassName, Exception e);
+   @LogMessage(id = 222080, value = "Error creating acceptor: {}", level = LogMessage.Level.WARN)
+   void errorCreatingAcceptor(String name, Exception e);
 
    @LogMessage(id = 222081, value = "Timed out waiting for remoting thread pool to terminate", level = LogMessage.Level.WARN)
    void timeoutRemotingThreadPool();
