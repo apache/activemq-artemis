@@ -49,7 +49,7 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    @Override
    public TYPE getType() {
-      return TYPE.REPLICATED;
+      return TYPE.REPLICATION_PRIMARY_QUORUM_VOTING;
    }
 
    public boolean isCheckForActiveServer() {

@@ -80,7 +80,7 @@
 		<!--bundle dependency="true">mvn:io.micrometer/micrometer-core/${version.micrometer}</bundle-->
 
 		<bundle>mvn:org.apache.activemq/activemq-artemis-native/${activemq-artemis-native-version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-quorum-api/${pom.version}</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-lockmanager-api/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
 	</feature>
 

@@ -29,7 +29,7 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    private Long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
-   private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
+   private DistributedLockManagerConfiguration distributedManagerConfiguration = null;
 
    private String coordinationId = null;
 
@@ -44,7 +44,7 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    @Override
    public TYPE getType() {
-      return TYPE.REPLICATION_PRIMARY;
+      return TYPE.REPLICATION_PRIMARY_LOCK_MANAGER;
    }
 
    public String getGroupName() {
@@ -82,12 +82,12 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
       return retryReplicationWait;
    }
 
-   public ReplicationPrimaryPolicyConfiguration setDistributedManagerConfiguration(DistributedPrimitiveManagerConfiguration configuration) {
+   public ReplicationPrimaryPolicyConfiguration setDistributedManagerConfiguration(DistributedLockManagerConfiguration configuration) {
       this.distributedManagerConfiguration = configuration;
       return this;
    }
 
-   public DistributedPrimitiveManagerConfiguration getDistributedManagerConfiguration() {
+   public DistributedLockManagerConfiguration getDistributedManagerConfiguration() {
       return distributedManagerConfiguration;
    }
 

@@ -54,11 +54,11 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.version.Version;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
@@ -86,7 +86,7 @@ public class BackupActivationNoReconnectTest {
       when(policy.getPrimaryPolicy()).thenReturn(replicationPrimaryPolicy);
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
 
-      DistributedPrimitiveManager distributedManager = Mockito.mock(DistributedPrimitiveManager.class);
+      DistributedLockManager distributedManager = Mockito.mock(DistributedLockManager.class);
       ReplicationBackupActivation replicationBackupActivation = new ReplicationBackupActivation(server, distributedManager, policy);
 
       verifySingleAttemptToLocatePrimary(server, replicationBackupActivation);

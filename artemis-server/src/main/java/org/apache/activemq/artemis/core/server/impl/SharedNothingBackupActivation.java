@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -53,9 +53,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING;
-import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
-import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
+import static org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING;
+import static org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
+import static org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
 
 public final class SharedNothingBackupActivation extends Activation implements ReplicationEndpointEventListener {
 

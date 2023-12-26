@@ -20,10 +20,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
-import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
-import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteServerConnect;
+import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.Vote;
 
 public class ServerConnectVoteHandler implements QuorumVoteHandler {
    private final ActiveMQServerImpl server;

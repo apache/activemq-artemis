@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -68,7 +68,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 223001, value = "Ignored quorum vote due to quorum reached or vote casted: {}", level = LogMessage.Level.DEBUG)
    void ignoredQuorumVote(ServerConnectVote vote);
 
-   @LogMessage(id = 221000, value = "{} Message Broker is starting with configuration {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221000, value = "{} message broker is starting with configuration {}", level = LogMessage.Level.INFO)
    void serverStarting(String type, Configuration configuration);
 
    @LogMessage(id = 221001, value = "Apache ActiveMQ Artemis Message Broker version {} [{}, nodeID={}] {}", level = LogMessage.Level.INFO)

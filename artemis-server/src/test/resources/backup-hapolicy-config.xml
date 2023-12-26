@@ -33,7 +33,7 @@
                <allow-failback>false</allow-failback>
                <manager>
                   <class-name>
-                     org.apache.activemq.artemis.core.config.impl.HAPolicyConfigurationTest$FakeDistributedPrimitiveManager
+                     org.apache.activemq.artemis.core.config.impl.HAPolicyConfigurationTest$FakeDistributedLockManager
                   </class-name>
                   <properties>
                      <property key="connect-string" value="127.0.0.1:6666"/>

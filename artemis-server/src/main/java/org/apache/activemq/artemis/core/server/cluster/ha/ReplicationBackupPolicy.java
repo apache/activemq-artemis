@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 
 public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActivation> {
 
@@ -33,7 +33,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
    private final String clusterName;
    private final int maxSavedReplicatedJournalsSize;
    private final long retryReplicationWait;
-   private final DistributedPrimitiveManagerConfiguration managerConfiguration;
+   private final DistributedLockManagerConfiguration managerConfiguration;
    private final boolean tryFailback;
 
    private ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration configuration,
@@ -83,7 +83,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
                                            String clusterName,
                                            String groupName,
                                            ReplicationPrimaryPolicy primaryPolicy,
-                                           DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
+                                           DistributedLockManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration.withDefault()
                                             .setRetryReplicationWait(retryReplicationWait)
                                             .setMaxSavedReplicatedJournalsSize(maxSavedReplicatedJournalsSize)
@@ -98,7 +98,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
                                                        boolean wasPrimary,
                                                        Map<String, Object> activationParams,
                                                        IOCriticalErrorListener shutdownOnCriticalIO) throws Exception {
-      return new ReplicationBackupActivation(server, DistributedPrimitiveManager.newInstanceOf(
+      return new ReplicationBackupActivation(server, DistributedLockManager.newInstanceOf(
          managerConfiguration.getClassName(), managerConfiguration.getProperties()), this);
    }
 

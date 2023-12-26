@@ -1135,7 +1135,7 @@ public class ConfigurationImplTest extends ServerTestBase {
    @Test
    public void testReplicatedPolicyConfiguration() throws Throwable {
       Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
-      properties.put("HAPolicyConfiguration", "REPLICATED");
+      properties.put("HAPolicyConfiguration", "REPLICATION_PRIMARY_QUORUM_VOTING");
       properties.put("HAPolicyConfiguration.checkForActiveServer", "true");
       properties.put("HAPolicyConfiguration.groupName", "g0");
       properties.put("HAPolicyConfiguration.clusterName", "c0");
@@ -1170,7 +1170,7 @@ public class ConfigurationImplTest extends ServerTestBase {
    @Test
    public void testReplicaPolicyConfiguration() throws Throwable {
       Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
-      properties.put("HAPolicyConfiguration", "REPLICA");
+      properties.put("HAPolicyConfiguration", "REPLICATION_BACKUP_QUORUM_VOTING");
       properties.put("HAPolicyConfiguration.clusterName", "c0");
       properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
       properties.put("HAPolicyConfiguration.groupName", "g0");
@@ -1288,7 +1288,7 @@ public class ConfigurationImplTest extends ServerTestBase {
    @Test
    public void testReplicationPrimaryPolicyConfiguration() throws Throwable {
       Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
-      properties.put("HAPolicyConfiguration", "REPLICATION_PRIMARY");
+      properties.put("HAPolicyConfiguration", "REPLICATION_PRIMARY_LOCK_MANAGER");
       properties.put("HAPolicyConfiguration.groupName", "g0");
       properties.put("HAPolicyConfiguration.clusterName", "c0");
       properties.put("HAPolicyConfiguration.initialReplicationSyncTimeout", "5");
@@ -1319,7 +1319,7 @@ public class ConfigurationImplTest extends ServerTestBase {
    @Test
    public void testReplicationBackupPolicyConfiguration() throws Throwable {
       Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
-      properties.put("HAPolicyConfiguration", "REPLICATION_BACKUP");
+      properties.put("HAPolicyConfiguration", "REPLICATION_BACKUP_LOCK_MANAGER");
       properties.put("HAPolicyConfiguration.clusterName", "c0");
       properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
       properties.put("HAPolicyConfiguration.groupName", "g0");

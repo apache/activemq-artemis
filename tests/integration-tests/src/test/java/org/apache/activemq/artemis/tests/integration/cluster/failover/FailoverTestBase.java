@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -83,7 +83,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    protected NodeManager backupNodeManager;
 
-   protected DistributedPrimitiveManagerConfiguration managerConfiguration;
+   protected DistributedLockManagerConfiguration managerConfiguration;
 
    protected boolean startBackupServer = true;
 
@@ -236,8 +236,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       primaryConfig = createDefaultInVMConfig();
 
       managerConfiguration =
-         new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                      Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(),
+                                                 Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null, managerConfiguration, managerConfiguration);
 

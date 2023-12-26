@@ -130,11 +130,11 @@
       <!-- quorum -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-api</artifactId>
+         <artifactId>artemis-lockmanager-api</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-ri</artifactId>
+         <artifactId>artemis-lockmanager-ri</artifactId>
       </dependency>
 
       <!--TODO: no other modules seem to use this, is it equivalent to something else they do use ? -->

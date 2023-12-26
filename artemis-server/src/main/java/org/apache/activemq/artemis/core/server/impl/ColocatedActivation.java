@@ -39,9 +39,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedHAManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVote;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.quorum.Vote;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 public class ColocatedActivation extends PrimaryActivation {

@@ -24,14 +24,14 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
-import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
+import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.slf4j.Logger;
 
 /**
- * This class contains the activation sequence logic of the pluggable quorum vote:
+ * This class contains the activation sequence logic of the pluggable lock manager:
  * it should be used by {@link org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation}
  * and {@link org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation} to coordinate
  * for replication.
@@ -60,7 +60,7 @@ public final class ActivationSequenceStateMachine {
     * the activation and guarantee the initial not-replicated ownership of data.
     */
    public static DistributedLock tryActivate(final NodeManager nodeManager,
-                                             final DistributedPrimitiveManager distributedManager,
+                                             final DistributedLockManager distributedManager,
                                              final Logger logger) throws InterruptedException, ExecutionException, TimeoutException, UnavailableStateException {
       Objects.requireNonNull(nodeManager);
       Objects.requireNonNull(distributedManager);
@@ -199,7 +199,7 @@ public final class ActivationSequenceStateMachine {
    /**
     * It wait until {@code timeoutMillis ms} has passed or the coordinated activation sequence has progressed enough
     */
-   public static boolean awaitNextCommittedActivationSequence(final DistributedPrimitiveManager distributedManager,
+   public static boolean awaitNextCommittedActivationSequence(final DistributedLockManager distributedManager,
                                                               final String coordinatedLockAndNodeId,
                                                               final long activationSequence,
                                                               final long timeoutMills,
@@ -262,7 +262,7 @@ public final class ActivationSequenceStateMachine {
     */
    public static void ensureSequentialAccessToNodeData(final String serverDescription,
                                                        final NodeManager nodeManager,
-                                                       final DistributedPrimitiveManager distributedManager,
+                                                       final DistributedLockManager distributedManager,
                                                        final Logger logger) throws ActiveMQException, InterruptedException, UnavailableStateException, ExecutionException, TimeoutException {
 
       Objects.requireNonNull(serverDescription);

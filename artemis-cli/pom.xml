@@ -60,7 +60,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-api</artifactId>
+         <artifactId>artemis-lockmanager-api</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>

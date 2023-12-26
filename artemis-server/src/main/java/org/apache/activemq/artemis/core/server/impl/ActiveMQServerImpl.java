@@ -718,7 +718,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             throw e;
          }
 
-         ActiveMQServerLogger.LOGGER.serverStarting((haPolicy.isBackup() ? "backup" : "primary"), configuration);
+         ActiveMQServerLogger.LOGGER.serverStarting((haPolicy.isBackup() ? "Backup" : "Primary"), configuration);
 
          final boolean wasPrimary = !haPolicy.isBackup();
          if (!haPolicy.isBackup()) {

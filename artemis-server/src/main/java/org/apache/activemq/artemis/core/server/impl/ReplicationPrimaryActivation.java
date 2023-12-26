@@ -43,9 +43,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +77,12 @@ public class ReplicationPrimaryActivation extends PrimaryActivation implements D
 
    private final Object replicationLock;
 
-   private final DistributedPrimitiveManager distributedManager;
+   private final DistributedLockManager distributedManager;
 
    private final AtomicBoolean stoppingServer;
 
    public ReplicationPrimaryActivation(final ActiveMQServerImpl activeMQServer,
-                                       final DistributedPrimitiveManager distributedManager,
+                                       final DistributedLockManager distributedManager,
                                        final ReplicationPrimaryPolicy policy) {
       this.activeMQServer = activeMQServer;
       this.policy = policy;
@@ -94,7 +94,7 @@ public class ReplicationPrimaryActivation extends PrimaryActivation implements D
    /**
     * used for testing purposes.
     */
-   public DistributedPrimitiveManager getDistributedManager() {
+   public DistributedLockManager getDistributedManager() {
       return distributedManager;
    }
 

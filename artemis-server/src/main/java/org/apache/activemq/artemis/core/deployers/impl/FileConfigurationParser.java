@@ -71,7 +71,7 @@ import org.apache.activemq.artemis.core.config.federation.FederationStreamConfig
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
@@ -1823,7 +1823,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode));
+      configuration.setDistributedManagerConfiguration(createDistributedLockManagerConfiguration(policyNode));
       configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), NOT_NULL_OR_EMPTY));
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
       return configuration;
@@ -1837,14 +1837,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode));
+      configuration.setDistributedManagerConfiguration(createDistributedLockManagerConfiguration(policyNode));
       return configuration;
    }
 
-   private DistributedPrimitiveManagerConfiguration createDistributedPrimitiveManagerConfiguration(Element policyNode) {
+   private DistributedLockManagerConfiguration createDistributedLockManagerConfiguration(Element policyNode) {
       final Element managerNode = (Element) policyNode.getElementsByTagName("manager").item(0);
       final String className = getString(managerNode, "class-name",
-                                         ActiveMQDefaultConfiguration.getDefaultDistributedPrimitiveManagerClassName(),
+                                         ActiveMQDefaultConfiguration.getDefaultDistributedLockManagerClassName(),
                                          NO_CHECK);
       final Map<String, String> properties;
       if (parameterExists(managerNode, "properties")) {
@@ -1860,7 +1860,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       } else {
          properties = new HashMap<>(1);
       }
-      return new DistributedPrimitiveManagerConfiguration(className, properties);
+      return new DistributedLockManagerConfiguration(className, properties);
    }
 
    private SharedStorePrimaryPolicyConfiguration createSharedStorePrimaryHaPolicy(Element policyNode) {

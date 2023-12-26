@@ -26,17 +26,17 @@ import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceSet
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
@@ -46,19 +46,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import static org.apache.activemq.artemis.lockmanager.DistributedLockManager.newInstanceOf;
+
 public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
 
    @Rule
    public TemporaryFolder brokersFolder = new TemporaryFolder();
 
-   protected DistributedPrimitiveManagerConfiguration managerConfiguration;
+   protected DistributedLockManagerConfiguration managerConfiguration;
 
    @Before
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                                          Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+      managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(),
+                                                                     Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
    }
 
    @After
@@ -209,11 +211,10 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
       ActivationSequenceList.ListResult list = ActivationSequenceList.execute(sequenceList, primaryConfiguration, null);
       Assert.assertEquals(expectedStartCoordinatedSequence, list.coordinatedActivationSequence.longValue());
       Assert.assertEquals(expectedStartCoordinatedSequence, list.localActivationSequence.longValue());
-      try (DistributedPrimitiveManager distributedPrimitiveManager = DistributedPrimitiveManager
-         .newInstanceOf(managerConfiguration.getClassName(), managerConfiguration.getProperties())) {
-         distributedPrimitiveManager.start();
-         try (DistributedLock lock = distributedPrimitiveManager.getDistributedLock(nodeID);
-              MutableLong coordinatedActivationSequence = distributedPrimitiveManager.getMutableLong(nodeID)) {
+      try (DistributedLockManager DistributedLockManager = newInstanceOf(managerConfiguration.getClassName(), managerConfiguration.getProperties())) {
+         DistributedLockManager.start();
+         try (DistributedLock lock = DistributedLockManager.getDistributedLock(nodeID);
+              MutableLong coordinatedActivationSequence = DistributedLockManager.getMutableLong(nodeID)) {
             Assert.assertTrue(lock.tryLock());
             final long activationSequence = coordinatedActivationSequence.get();
             Assert.assertEquals(expectedStartCoordinatedSequence, activationSequence);
