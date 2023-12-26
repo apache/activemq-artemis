@@ -185,12 +185,12 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-quorum-api</artifactId>
+            <artifactId>artemis-lockmanager-api</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-quorum-ri</artifactId>
+            <artifactId>artemis-lockmanager-ri</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>

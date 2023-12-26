@@ -57,7 +57,7 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
@@ -84,12 +84,12 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.junit.After;
@@ -141,14 +141,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return true;
    }
 
-   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+   private DistributedLockManagerConfiguration pluggableQuorumConfiguration = null;
 
-   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+   private DistributedLockManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
       if (pluggableQuorumConfiguration != null) {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
       } catch (IOException ioException) {
          logger.error(ioException.getMessage(), ioException);
          return null;

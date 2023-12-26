@@ -33,6 +33,7 @@ The dot (`.`) character here is part of the broker's wildcard syntax, and it is 
 +
 In this case the characters from the broker's wildcard syntax that do not match the characters in the MQTT wildcard syntax will be escaped with a backslash (i.e. `\`).
 To avoid this conversion you can configure the broker to use the MQTT wildcard syntax or change the name of the MQTT topic name or filter.
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4559[ARTEMIS-4559] folks embedding the broker and also depending on the `artemis-quorum-ri` and/or `artemis-quorum-api` modules and/or using `org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration` will need to use `artemis-lockmanager-ri`, `artemis-lockmanager-api`, and `org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration` respectively. Previously these were marked as "experimental" in the documentation and were changed strictly in name to clarify their use conceptually. Furthermore, the documentation around high availability and network isolation (i.e. split brain) was refactored significantly to be more clear and comprehensive.
 
 == 2.32.0
 

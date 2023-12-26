@@ -75,18 +75,18 @@ public final class ConfigurationUtils {
             PrimaryOnlyPolicyConfiguration pc = (PrimaryOnlyPolicyConfiguration) conf;
             return new PrimaryOnlyPolicy(getScaleDownPolicy(pc.getScaleDownConfiguration()));
          }
-         case REPLICATED: {
+         case REPLICATION_PRIMARY_QUORUM_VOTING: {
             ReplicatedPolicyConfiguration pc = (ReplicatedPolicyConfiguration) conf;
             return new ReplicatedPolicy(pc.isCheckForActiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
-         case REPLICA: {
+         case REPLICATION_BACKUP_QUORUM_VOTING: {
             ReplicaPolicyConfiguration pc = (ReplicaPolicyConfiguration) conf;
             return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
-         case REPLICATION_PRIMARY: {
+         case REPLICATION_PRIMARY_LOCK_MANAGER: {
             return ReplicationPrimaryPolicy.with((ReplicationPrimaryPolicyConfiguration) conf);
          }
-         case REPLICATION_BACKUP: {
+         case REPLICATION_BACKUP_LOCK_MANAGER: {
             return ReplicationBackupPolicy.with((ReplicationBackupPolicyConfiguration) conf);
          }
          case SHARED_STORE_PRIMARY: {

@@ -24,14 +24,14 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -78,7 +78,7 @@ public class ActivationSequenceSet extends LockAbstract {
          throw new IllegalArgumentException("--to must be >= 0");
       }
       final HAPolicyConfiguration policyConfig = config.getHAPolicyConfiguration();
-      final DistributedPrimitiveManagerConfiguration managerConfiguration;
+      final DistributedLockManagerConfiguration managerConfiguration;
       String coordinationId = nodeId;
       if (policyConfig instanceof ReplicationBackupPolicyConfiguration) {
          ReplicationBackupPolicyConfiguration backupPolicyConfig = (ReplicationBackupPolicyConfiguration) policyConfig;
@@ -118,7 +118,7 @@ public class ActivationSequenceSet extends LockAbstract {
             }
          }
          if (!local) {
-            try (DistributedPrimitiveManager manager = DistributedPrimitiveManager.newInstanceOf(
+            try (DistributedLockManager manager = DistributedLockManager.newInstanceOf(
                managerConfiguration.getClassName(), managerConfiguration.getProperties())) {
                if (!manager.start(MANAGER_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                   throw new IllegalStateException("distributed manager isn't started in " + MANAGER_START_TIMEOUT_SECONDS + " seconds");

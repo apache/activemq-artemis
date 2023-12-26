@@ -58,7 +58,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -49,7 +49,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -87,7 +87,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
@@ -161,9 +161,9 @@ public final class ReplicationTest extends ActiveMQTestBase {
       if (!pluggableQuorum) {
          ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor);
       } else {
-         DistributedPrimitiveManagerConfiguration managerConfiguration =
-            new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                         Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         DistributedLockManagerConfiguration managerConfiguration =
+            new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(),
+                                                    Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
          ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor, managerConfiguration, managerConfiguration);
       }

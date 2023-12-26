@@ -26,8 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
-import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteServerConnect;
+import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.hamcrest.Matchers;
 import org.junit.Assert;

@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfigu
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
@@ -54,14 +54,14 @@ import java.lang.invoke.MethodHandles;
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+   private DistributedLockManagerConfiguration pluggableQuorumConfiguration = null;
 
-   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+   private DistributedLockManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
       if (pluggableQuorumConfiguration != null) {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
       } catch (IOException ioException) {
          return null;
       }

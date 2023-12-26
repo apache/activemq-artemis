@@ -34,7 +34,7 @@ under the License.
          <replication>
             <primary>
                <manager>
-                  <class-name>org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager</class-name>
+                  <class-name>org.apache.activemq.artemis.lockmanager.zookeeper.CuratorDistributedLockManager</class-name>
                   <properties>
                      <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
                   </properties>

@@ -36,9 +36,9 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -52,7 +52,7 @@ import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequ
  * This activation can be used by a primary while trying to fail-back ie {@code failback == true} or
  * by a natural-born backup ie {@code failback == false}.<br>
  */
-public final class ReplicationBackupActivation extends Activation implements DistributedPrimitiveManager.UnavailableManagerListener {
+public final class ReplicationBackupActivation extends Activation implements DistributedLockManager.UnavailableManagerListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -62,7 +62,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    private final String expectedNodeID;
    @GuardedBy("this")
    private boolean closed;
-   private final DistributedPrimitiveManager distributedManager;
+   private final DistributedLockManager distributedManager;
    // Used for monitoring purposes
    private volatile ReplicationObserver replicationObserver;
    // Used for testing purposes
@@ -73,7 +73,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    private final AtomicBoolean stopping;
 
    public ReplicationBackupActivation(final ActiveMQServerImpl activeMQServer,
-                                      final DistributedPrimitiveManager distributedManager,
+                                      final DistributedLockManager distributedManager,
                                       final ReplicationBackupPolicy policy) {
       this.activeMQServer = activeMQServer;
       if (policy.isTryFailback()) {
@@ -101,7 +101,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    /**
     * used for testing purposes.
     */
-   public DistributedPrimitiveManager getDistributedManager() {
+   public DistributedLockManager getDistributedManager() {
       return distributedManager;
    }
 

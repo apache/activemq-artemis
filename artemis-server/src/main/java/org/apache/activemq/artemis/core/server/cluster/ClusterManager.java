@@ -57,7 +57,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;

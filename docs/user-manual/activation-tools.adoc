@@ -2,7 +2,7 @@
 :idprefix:
 :idseparator: -
 
-You can use the Artemis CLI to execute activation sequence maintenance/recovery tools for xref:ha.adoc#high-availability-and-failover[Pluggable Quorum Replication].
+You can use the Artemis CLI to execute activation sequence maintenance/recovery tools for xref:ha.adoc#replication[Replication] with Pluggable Lock Manager.
 
 The 2 main commands are `activation list` and `activation set`, that can be used together to recover some disaster happened to local/coordinated activation sequences.
 

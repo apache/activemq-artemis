@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.util;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
@@ -59,8 +59,8 @@ public final class ReplicatedBackupUtils {
                                                Configuration primaryConfig,
                                                TransportConfiguration primaryConnector,
                                                TransportConfiguration primaryAcceptor,
-                                               DistributedPrimitiveManagerConfiguration primaryManagerConfiguration,
-                                               DistributedPrimitiveManagerConfiguration backupManagerConfiguration) {
+                                               DistributedLockManagerConfiguration primaryManagerConfiguration,
+                                               DistributedLockManagerConfiguration backupManagerConfiguration) {
       if (backupAcceptor != null) {
          backupConfig.clearAcceptorConfigurations().addAcceptorConfiguration(backupAcceptor);
       }

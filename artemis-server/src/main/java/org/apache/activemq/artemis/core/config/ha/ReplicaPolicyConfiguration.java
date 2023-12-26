@@ -57,7 +57,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
 
    @Override
    public TYPE getType() {
-      return TYPE.REPLICA;
+      return TYPE.REPLICATION_BACKUP_QUORUM_VOTING;
    }
 
    public ScaleDownConfiguration getScaleDownConfiguration() {
