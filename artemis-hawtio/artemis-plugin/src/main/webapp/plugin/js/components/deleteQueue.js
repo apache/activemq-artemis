@@ -39,7 +39,7 @@ var Artemis;
              </button>
 
              <div hawtio-confirm-dialog="$ctrl.deleteDialog"
-                  title="Confirm delete address"
+                  title="Confirm delete queue"
                   ok-button-text="Delete"
                   cancel-button-text="Cancel"
                   on-ok="$ctrl.deleteQueue()">
@@ -62,7 +62,7 @@ var Artemis;
             </button>
 
             <div hawtio-confirm-dialog="$ctrl.purgeDialog"
-               title="Confirm purge address"
+               title="Confirm purge queue"
                ok-button-text="Purge"
                cancel-button-text="Cancel"
                on-ok="$ctrl.purgeQueue()">
@@ -112,7 +112,7 @@ var Artemis;
         }
 
         function onError(response) {
-           Core.notification("error", "Could not delete address: " + response.error);
+           Core.notification("error", "Could not delete queue: " + response.error);
         }
 
        function operationPurgeSuccess() {
@@ -123,7 +123,7 @@ var Artemis;
        }
 
       function onPurgeError(response) {
-          Core.notification("error", "Could not purge address: " + response.error);
+          Core.notification("error", "Could not purge queue: " + response.error);
       }
 
        this.deleteQueue = function () {
