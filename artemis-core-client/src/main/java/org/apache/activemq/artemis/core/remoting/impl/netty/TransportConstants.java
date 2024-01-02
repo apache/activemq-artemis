@@ -46,6 +46,8 @@ public class TransportConstants {
 
    public static final String HTTP_CLIENT_IDLE_SCAN_PERIOD = "httpClientIdleScanPeriod";
 
+   public static final String NETTY_HTTP_HEADER_PREFIX = "nettyHttpHeader.";
+
    public static final String HTTP_RESPONSE_TIME_PROP_NAME = "httpResponseTime";
 
    public static final String HTTP_SERVER_SCAN_PERIOD_PROP_NAME = "httpServerScanPeriod";

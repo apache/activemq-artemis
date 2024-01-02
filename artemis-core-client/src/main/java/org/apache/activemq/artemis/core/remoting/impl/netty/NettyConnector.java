@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NETTY_HTTP_HEADER_PREFIX;
+
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -309,6 +311,8 @@ public class NettyConnector extends AbstractConnector {
 
    private final ClientProtocolManager protocolManager;
 
+   private final Map<String, String> httpHeaders;
+
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
@@ -361,10 +365,17 @@ public class NettyConnector extends AbstractConnector {
          httpMaxClientIdleTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME, TransportConstants.DEFAULT_HTTP_CLIENT_IDLE_TIME, configuration);
          httpClientIdleScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD, TransportConstants.DEFAULT_HTTP_CLIENT_SCAN_PERIOD, configuration);
          httpRequiresSessionId = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_REQUIRES_SESSION_ID, TransportConstants.DEFAULT_HTTP_REQUIRES_SESSION_ID, configuration);
+         httpHeaders = new HashMap<>();
+         for (Map.Entry<String, Object> header : configuration.entrySet()) {
+            if (header.getKey().startsWith(NETTY_HTTP_HEADER_PREFIX)) {
+               httpHeaders.put(header.getKey().substring(NETTY_HTTP_HEADER_PREFIX.length()), header.getValue().toString());
+            }
+         }
       } else {
          httpMaxClientIdleTime = 0;
          httpClientIdleScanPeriod = -1;
          httpRequiresSessionId = false;
+         httpHeaders = Collections.emptyMap();
       }
 
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
@@ -743,7 +754,7 @@ public class NettyConnector extends AbstractConnector {
 
                pipeline.addLast(new HttpObjectAggregator(Integer.MAX_VALUE));
 
-               pipeline.addLast(new HttpHandler());
+               pipeline.addLast(new HttpHandler(httpHeaders));
             }
 
             if (httpUpgradeEnabled) {
@@ -1110,9 +1121,15 @@ public class NettyConnector extends AbstractConnector {
       private boolean handshaking = false;
 
       private String cookie;
+      private Map<String, String> headers;
 
-      HttpHandler() throws Exception {
+      HttpHandler(Map<String, String> headers) throws Exception {
          url = new URI("http", null, host, port, servletPath, null, null).toString();
+         this.headers = headers;
+      }
+
+      public Map<String, String> getHeaders() {
+         return headers;
       }
 
       @Override
@@ -1170,6 +1187,9 @@ public class NettyConnector extends AbstractConnector {
             ByteBuf buf = (ByteBuf) msg;
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf);
             httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+               httpRequest.headers().add(header.getKey(), header.getValue());
+            }
             if (cookie != null) {
                httpRequest.headers().add(HttpHeaderNames.COOKIE, cookie);
             }
@@ -1197,6 +1217,9 @@ public class NettyConnector extends AbstractConnector {
             if (!waitingGet && System.currentTimeMillis() > lastSendTime + httpMaxClientIdleTime) {
                FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url);
                httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
+               for (Map.Entry<String, String> header : headers.entrySet()) {
+                  httpRequest.headers().add(header.getKey(), header.getValue());
+               }
                waitingGet = true;
                channel.writeAndFlush(httpRequest);
             }
