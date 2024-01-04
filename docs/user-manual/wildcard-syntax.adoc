@@ -31,9 +31,9 @@ But `news.europe.#` would _not_ match:
 * `news.usa.sport`
 * `entertainment`
 
-== Matching a Single Word
+== Matching a Single or Partial Word
 
-The character `*` means "match a single word".
+The character `*` means "match a single or partial word".
 
 The wildcard `news.*` would match:
 
@@ -44,7 +44,16 @@ But `news.*` would _not_ match:
 
 * `news.europe.sport`
 * `news.usa.sport`
-* `news.europe.politics.regional`
+
+The wildcard `news.eu*` would match:
+
+* `news.europe`
+
+But `news.*` would _not_ match:
+
+* `news.europe.sport`
+* `news.usa`
+* `news.usa.sport`
 
 The wildcard `news.*.sport` would match:
 

@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -477,50 +476,91 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
    /**
     * Compares to matches to see which one is more specific.
+    * A match on the any-words delimiter (#) is considered less specific than a match without it, i.e. abc.def.# is less specific than abc.def and abc.def and abc.d*
+    * A match with a single word delimiter * is considered less specific than a match with a partial word delimiter *, i.e. abc.* is less specific than abc.d*
+    * A match with a partial word delimiter * is considered less specific than a match on an exact queue name, i.e. abc.d* is less specific than abc.def
+    *
+    * abc.def
+    * abc.de*
+    * abc.d*
+    * abc.*
+    * ab*.def
+    * ab*.de*
+    * ab*.d*
+    * ab*.*
+    * a*.def
+    * a*.de*
+    * a*.d*
+    * a*.*
+    * *.def
+    * *.de*
+    * *.d*
+    * *.*
+    * abc.def.#
+    * abc.de*.#
+    * abc.d*.#
+    * abc.*.#
+    * abc.#
+    * ab*.def.#
+    * ab*.de*.#
+    * ab*.d*.#
+    * ab*.*.#
+    * ab*.#
+    * a*.def.#
+    * a*.de*.#
+    * a*.d*.#
+    * a*.*.#
+    * a*.#
+    * *.def.#
+    * *.de*.#
+    * *.d*.#
+    * *.*.#
+    * *.#
+    * #
     */
    private static final class MatchComparator implements Comparator<String>, Serializable {
 
       private static final long serialVersionUID = -6182535107518999740L;
 
-      private final String quotedDelimiter;
       private final String anyWords;
       private final String singleWord;
 
       MatchComparator(final WildcardConfiguration wildcardConfiguration) {
-         this.quotedDelimiter = Pattern.quote(wildcardConfiguration.getDelimiterString());
          this.singleWord = wildcardConfiguration.getSingleWordString();
          this.anyWords = wildcardConfiguration.getAnyWordsString();
       }
 
       @Override
       public int compare(final String o1, final String o2) {
-         if (o1.contains(anyWords) && !o2.contains(anyWords)) {
+         int o1AnyWordsIndex = o1.indexOf(anyWords);
+         int o2AnyWordsIndex = o2.indexOf(anyWords);
+
+         if (o1AnyWordsIndex != -1 && o2AnyWordsIndex == -1) {
             return +1;
-         } else if (!o1.contains(anyWords) && o2.contains(anyWords)) {
+         } else if (o1AnyWordsIndex == -1 && o2AnyWordsIndex != -1) {
             return -1;
-         } else if (o1.contains(anyWords) && o2.contains(anyWords)) {
-            return o2.length() - o1.length();
-         } else if (o1.contains(singleWord) && !o2.contains(singleWord)) {
-            return +1;
-         } else if (!o1.contains(singleWord) && o2.contains(singleWord)) {
-            return -1;
-         } else if (o1.contains(singleWord) && o2.contains(singleWord)) {
-            String[] leftSplits = o1.split(quotedDelimiter);
-            String[] rightSplits = o2.split(quotedDelimiter);
-            for (int i = 0; i < leftSplits.length; i++) {
-               if (i >= rightSplits.length) {
-                  return -1;
-               }
-               String left = leftSplits[i];
-               String right = rightSplits[i];
-               if (left.equals(singleWord) && !right.equals(singleWord)) {
-                  return +1;
-               } else if (!left.equals(singleWord) && right.equals(singleWord)) {
-                  return -1;
-               }
+         }
+
+         int o1Length = o1AnyWordsIndex != -1 ? o1AnyWordsIndex : o1.length();
+         int o2Length = o2AnyWordsIndex != -1 ? o2AnyWordsIndex : o2.length();
+
+         int o1Index = 0;
+         int o2Index = 0;
+         int o1SingleWordIndex = -1;
+         int o2SingleWordIndex = -1;
+         while (o1Index < o1Length && o2Index < o2Length) {
+            o1SingleWordIndex = o1.indexOf(singleWord, o1SingleWordIndex + 1);
+            o2SingleWordIndex = o2.indexOf(singleWord, o2SingleWordIndex + 1);
+
+            o1Index = o1SingleWordIndex != -1 ? o1SingleWordIndex : o1Length;
+            o2Index = o2SingleWordIndex != -1 ? o2SingleWordIndex : o2Length;
+
+            if (o1Index != o2Index) {
+               return o2Index - o1Index;
             }
          }
-         return o1.length() - o2.length();
+
+         return o2Length - o1Length;
       }
    }
 }

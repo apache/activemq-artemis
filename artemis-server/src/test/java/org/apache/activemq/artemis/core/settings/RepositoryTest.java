@@ -417,6 +417,55 @@ public class RepositoryTest extends ActiveMQTestBase {
       Assert.assertEquals(Long.valueOf(30000), foo1BisMatch.getMaxExpiryDelay());
    }
 
+   @Test
+   public void testRepositoryOrder() {
+      HierarchicalRepository<DummyMergeable> repository = new HierarchicalObjectRepository<>();
+      repository.addMatch("abc.def", new DummyMergeable(0));
+      repository.addMatch("abc.de*", new DummyMergeable(1));
+      repository.addMatch("abc.d*", new DummyMergeable(2));
+      repository.addMatch("abc.*", new DummyMergeable(3));
+      repository.addMatch("ab*.def", new DummyMergeable(4));
+      repository.addMatch("ab*.de*", new DummyMergeable(5));
+      repository.addMatch("ab*.d*", new DummyMergeable(6));
+      repository.addMatch("ab*.*", new DummyMergeable(7));
+      repository.addMatch("a*.def", new DummyMergeable(8));
+      repository.addMatch("a*.de*", new DummyMergeable(9));
+      repository.addMatch("a*.d*", new DummyMergeable(10));
+      repository.addMatch("a*.*", new DummyMergeable(11));
+      repository.addMatch("*.def", new DummyMergeable(12));
+      repository.addMatch("*.de*", new DummyMergeable(13));
+      repository.addMatch("*.d*", new DummyMergeable(14));
+      repository.addMatch("*.*", new DummyMergeable(15));
+      repository.addMatch("abc.def.#", new DummyMergeable(16));
+      repository.addMatch("abc.de*.#", new DummyMergeable(17));
+      repository.addMatch("abc.d*.#", new DummyMergeable(18));
+      repository.addMatch("abc.*.#", new DummyMergeable(19));
+      repository.addMatch("abc.#", new DummyMergeable(20));
+      repository.addMatch("ab*.def.#", new DummyMergeable(21));
+      repository.addMatch("ab*.de*.#", new DummyMergeable(22));
+      repository.addMatch("ab*.d*.#", new DummyMergeable(23));
+      repository.addMatch("ab*.*.#", new DummyMergeable(24));
+      repository.addMatch("ab*.#", new DummyMergeable(25));
+      repository.addMatch("a*.def.#", new DummyMergeable(26));
+      repository.addMatch("a*.de*.#", new DummyMergeable(27));
+      repository.addMatch("a*.d*.#", new DummyMergeable(28));
+      repository.addMatch("a*.*.#", new DummyMergeable(29));
+      repository.addMatch("a*.#", new DummyMergeable(30));
+      repository.addMatch("*.def.#", new DummyMergeable(31));
+      repository.addMatch("*.de*.#", new DummyMergeable(32));
+      repository.addMatch("*.d*.#", new DummyMergeable(33));
+      repository.addMatch("*.*.#", new DummyMergeable(34));
+      repository.addMatch("*.#", new DummyMergeable(35));
+      repository.addMatch("#", new DummyMergeable(36));
+
+      DummyMergeable dummyMatch = repository.getMatch("abc.def");
+      Assert.assertEquals(0, dummyMatch.getId());
+      Assert.assertEquals(36, dummyMatch.getMergedItems().size());
+      for (int i = 0; i < 36; i++) {
+         Assert.assertEquals(i + 1, dummyMatch.getMergedItems().get(i).getId());
+      }
+   }
+
    static class DummyMergeable implements Mergeable<DummyMergeable> {
       private final int id;
       private final Map<String,String> settings;
