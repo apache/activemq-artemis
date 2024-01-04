@@ -187,7 +187,6 @@ if [ ! -d "${ARTEMIS_DIST_DIR}/docker" ]; then
   mkdir "${ARTEMIS_DIST_DIR}/docker"
 fi
 
-cp ./Dockerfile-* "$ARTEMIS_DIST_DIR/docker"
 cp ./docker-run.sh "$ARTEMIS_DIST_DIR/docker"
 
 next_step

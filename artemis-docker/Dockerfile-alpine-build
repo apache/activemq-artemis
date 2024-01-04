@@ -17,27 +17,11 @@
 
 # ActiveMQ Artemis
 
-ARG CURRENT_VERSION=2.17.0
+FROM alpine:latest
 
-FROM eclipse-temurin:11-jdk as builder
-ARG CURRENT_VERSION
 
-ENV VERSION=$CURRENT_VERSION
-
-RUN apt update -y && apt upgrade -y && apt install curl -y
-
-ADD ./prepare-docker.sh /bin/prepareDocker
-WORKDIR /root/artemis-build
-COPY docker-run.sh .
-RUN bash prepareDocker --from-release --artemis-version ${VERSION}
-
-FROM eclipse-temurin:11-jre
-LABEL maintainer="Apache ActiveMQ Team"
-
-ARG CURRENT_VERSION
-
-ENV VERSION=$CURRENT_VERSION
-
+RUN apk --no-cache add openjdk17-jre-headless bash libaio\
+        --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 
 LABEL maintainer="Apache ActiveMQ Team"
@@ -51,15 +35,11 @@ ENV ANONYMOUS_LOGIN false
 ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 
 # add user and group for artemis
-RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
- && apt-get -qq -o=Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1 && \
-    rm -rf /var/lib/apt/lists/*
+RUN addgroup  -g 1001 artemis && adduser -u 1002 --ingroup artemis --disabled-password  artemis
 
 USER artemis
 
-COPY --from=builder /root/artemis-build/_TMP_/artemis/${VERSION}/ /opt/activemq-artemis
-
+COPY --chown=artemis:artemis  ./artemis-docker/target/apache-artemis*-bin/*SNAPSHOT /opt/activemq-artemis/
 
 # Web Server
 EXPOSE 8161 \
@@ -80,8 +60,7 @@ USER root
 
 RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
 
-COPY --from=builder /root/artemis-build/_TMP_/artemis/${VERSION}/docker/docker-run.sh /
-
+COPY --chown=artemis:artemis  ./artemis-docker/docker-run.sh /var/lib/artemis-instance/docker-run.sh
 
 USER artemis
 
@@ -89,5 +68,5 @@ USER artemis
 VOLUME ["/var/lib/artemis-instance"]
 WORKDIR /var/lib/artemis-instance
 
-ENTRYPOINT ["/docker-run.sh"]
+ENTRYPOINT ["./docker-run.sh"]
 CMD ["run"]
