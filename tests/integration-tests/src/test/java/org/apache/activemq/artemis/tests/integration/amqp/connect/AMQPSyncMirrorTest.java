@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
@@ -385,6 +386,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
    }
 
    private interface StorageCallback {
+
       void storage(boolean isUpdate,
                    boolean isCommit,
                    long txID,
@@ -424,7 +426,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                                            Object record,
                                            boolean sync,
                                            IOCompletion callback) throws Exception {
-                  storageCallback.storage(false, false,  -1, id, recordType, persister, record);
+                  storageCallback.storage(false, false, -1, id, recordType, persister, record);
                   super.appendAddRecord(id, recordType, persister, record, sync, callback);
                }
 
@@ -451,7 +453,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                                               boolean sync,
                                               IOCompletion callback,
                                               boolean lineUpContext) throws Exception {
-                  storageCallback.storage(false, true, txID, txID, (byte)0, null, null);
+                  storageCallback.storage(false, true, txID, txID, (byte) 0, null, null);
                   super.appendCommitRecord(txID, sync, callback, lineUpContext);
                }
 
@@ -471,4 +473,130 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          }
       };
    }
+
+
+   @Test
+   public void testSimpleACK_TX_AMQP() throws Exception {
+      testSimpleAckSync("AMQP", true, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_TX_CORE() throws Exception {
+      testSimpleAckSync("CORE", true, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_AMQP() throws Exception {
+      testSimpleAckSync("AMQP", false, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_CORE() throws Exception {
+      testSimpleAckSync("CORE", false, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_CORE_Large() throws Exception {
+      testSimpleAckSync("CORE", false, false, 255 * 1024);
+   }
+
+   @Test
+   public void testSimpleACK_TX_CORE_Large() throws Exception {
+      testSimpleAckSync("CORE", true, false, 255 * 1024);
+   }
+
+   @Test
+   public void testSimple_Core_Individual_Large() throws Exception {
+      testSimpleAckSync("CORE", false, true, 255 * 1024);
+   }
+
+   @Test
+   public void testSimple_Core_Individual() throws Exception {
+      testSimpleAckSync("CORE", false, true, 1024);
+   }
+
+   public void testSimpleAckSync(final String protocol, final boolean tx, final boolean individualAck, int messageSize) throws Exception {
+      AtomicInteger errors = new AtomicInteger(0);
+
+      final int NUMBER_OF_MESSAGES = 10;
+
+      slowServer = createServerWithCallbackStorage(SLOW_SERVER_PORT, SLOW_SERVER_NAME, (isUpdate, isTX, txId, id, recordType, persister, record) -> {
+      });
+      slowServer.setIdentity("slowServer");
+      server.setIdentity("server");
+
+      ExecutorService pool = Executors.newFixedThreadPool(5);
+      runAfter(pool::shutdown);
+
+      configureMirrorTowardsSlow(server);
+
+      slowServer.getConfiguration().setName("slow");
+      server.getConfiguration().setName("fast");
+      slowServer.start();
+      server.start();
+
+      waitForServerToStart(slowServer);
+      waitForServerToStart(server);
+
+      server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+
+      Wait.waitFor(() -> slowServer.locateQueue(getQueueName()) != null);
+      Queue replicatedQueue = slowServer.locateQueue(getQueueName());
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
+
+      if (factory instanceof ActiveMQConnectionFactory) {
+         ((ActiveMQConnectionFactory) factory).getServerLocator().setBlockOnAcknowledge(true);
+      }
+
+      Connection connection = factory.createConnection();
+      runAfter(connection::close);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+
+      connection.start();
+
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+      final String bodyMessage;
+      {
+         StringBuffer buffer = new StringBuffer();
+         for (int i = 0; i < messageSize; i++) {
+            buffer.append("large Buffer...");
+         }
+         bodyMessage = buffer.toString();
+      }
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         int theI = i;
+         TextMessage message = session.createTextMessage(bodyMessage);
+         message.setStringProperty("strProperty", "" + theI);
+         producer.send(message);
+         Wait.assertEquals(i + 1, replicatedQueue::getMessageCount, 5000);
+      }
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, replicatedQueue::getMessageCount);
+
+      connection.start();
+
+      Session clientSession = connection.createSession(tx, tx ? Session.SESSION_TRANSACTED : (individualAck ? ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE : Session.CLIENT_ACKNOWLEDGE));
+      MessageConsumer consumer = clientSession.createConsumer(clientSession.createQueue(getQueueName()));
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         Message message = consumer.receive(5000);
+         Assert.assertNotNull(message);
+
+         message.acknowledge();
+
+         if (tx) {
+            clientSession.commit();
+         }
+
+         Wait.assertEquals(NUMBER_OF_MESSAGES - i - 1, replicatedQueue::getMessageCount, 5000);
+      }
+
+      Assert.assertEquals(0, errors.get());
+   }
+
 }
