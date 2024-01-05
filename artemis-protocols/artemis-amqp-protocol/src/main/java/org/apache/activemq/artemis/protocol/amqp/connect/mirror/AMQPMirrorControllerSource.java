@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.RoutingContext.MirrorOption;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -65,6 +66,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol ADDRESS = Symbol.getSymbol("x-opt-amq-mr-adr");
    public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
    public static final Symbol BROKER_ID = Symbol.getSymbol("x-opt-amq-bkr-id");
+   public static final SimpleString BROKER_ID_SIMPLE_STRING = SimpleString.toSimpleString(BROKER_ID.toString());
 
    // Events:
    public static final Symbol ADD_ADDRESS = Symbol.getSymbol("addAddress");
@@ -154,7 +156,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
       if (addQueues) {
          Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, null, addressInfo.toJSON());
-         route(server, message);
+         routeMirrorCommand(server, message);
       }
    }
 
@@ -170,7 +172,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
       if (deleteQueues) {
          Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, null, addressInfo.toJSON());
-         route(server, message);
+         routeMirrorCommand(server, message);
       }
    }
 
@@ -193,7 +195,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
       if (addQueues) {
          Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, null, queueConfiguration.toJSON());
-         route(server, message);
+         routeMirrorCommand(server, message);
       }
    }
 
@@ -213,8 +215,24 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
       if (deleteQueues) {
          Message message = createMessage(address, queue, DELETE_QUEUE, null, queue.toString());
-         route(server, message);
+         routeMirrorCommand(server, message);
       }
+   }
+
+   private boolean invalidTarget(MirrorController controller, Message message) {
+      if (controller == null) {
+         return false;
+      }
+      String remoteID = getRemoteMirrorId();
+      if (remoteID == null) {
+         // This is to avoid a reflection (Miror sendin messages back to itself) from a small period of time one node reconnects but not the opposite direction.
+         Object localRemoteID = message.getAnnotation(BROKER_ID_SIMPLE_STRING);
+         if (localRemoteID != null) {
+            remoteID = String.valueOf(localRemoteID);
+            logger.debug("Remote link is not initialized yet, setting remoteID from message as {}", remoteID);
+         }
+      }
+      return sameNode(remoteID, controller.getRemoteMirrorId());
    }
 
    private boolean invalidTarget(MirrorController controller) {
@@ -222,6 +240,9 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    }
 
    private boolean ignoreAddress(SimpleString address) {
+      if (address.startsWith(server.getConfiguration().getManagementAddress())) {
+         return true;
+      }
       return !addressFilter.match(address);
    }
 
@@ -238,7 +259,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
-      if (invalidTarget(context.getMirrorSource())) {
+      if (invalidTarget(context.getMirrorSource(), message)) {
          logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
          return;
       }
@@ -444,13 +465,14 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          MirrorACKOperation operation = getAckOperation(tx);
          // notice the operationContext.replicationLineUp is done on beforeCommit as part of the TX
          operation.addMessage(messageCommand, ref);
+         routeMirrorCommand(server, messageCommand, tx);
       } else {
          server.getStorageManager().afterStoreOperations(new IOCallback() {
             @Override
             public void done() {
                try {
                   logger.debug("preAcknowledge::afterStoreOperation for messageReference {}", ref);
-                  route(server, messageCommand);
+                  routeMirrorCommand(server, messageCommand);
                } catch (Exception e) {
                   logger.warn(e.getMessage(), e);
                }
@@ -469,7 +491,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace("getAckOperation::setting operation on transaction {}", tx);
          ackOperation = new MirrorACKOperation(server);
          tx.putProperty(TransactionPropertyIndexes.MIRROR_ACK_OPERATION, ackOperation);
-         tx.afterStore(ackOperation);
+         tx.afterWired(ackOperation);
       }
 
       return ackOperation;
@@ -490,7 +512,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return sendOperation;
    }
 
-   private static class MirrorACKOperation extends TransactionOperationAbstract {
+   private static class MirrorACKOperation implements Runnable {
 
       final ActiveMQServer server;
 
@@ -511,47 +533,19 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
 
       @Override
-      public void beforeCommit(Transaction tx) {
-         logger.debug("MirrorACKOperation::beforeCommit processing {}", acks);
-         acks.forEach(this::doBeforeCommit);
+      public void run() {
+         logger.debug("MirrorACKOperation::wired processing {}", acks);
+         acks.forEach(this::doWired);
       }
 
       // callback to be used on forEach
-      private void doBeforeCommit(Message ack, MessageReference ref) {
+      private void doWired(Message ack, MessageReference ref) {
          OperationContext context = (OperationContext) ack.getUserContext(OperationContext.class);
          if (context != null) {
             context.replicationLineUp();
          }
       }
 
-      @Override
-      public void afterCommit(Transaction tx) {
-         logger.debug("MirrorACKOperation::afterCommit processing {}", acks);
-         acks.forEach(this::doAfterCommit);
-      }
-
-      // callback to be used on forEach
-      private void doAfterCommit(Message ack, MessageReference ref) {
-         try {
-            route(server, ack);
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-         }
-         ref.getMessage().usageDown();
-      }
-
-      @Override
-      public void afterRollback(Transaction tx) {
-         acks.forEach(this::doAfterRollback);
-      }
-
-      // callback to be used on forEach
-      private void doAfterRollback(Message ack, MessageReference ref) {
-         OperationContext context = (OperationContext) ack.getUserContext(OperationContext.class);
-         if (context != null) {
-            context.replicationDone();
-         }
-      }
 
    }
 
@@ -609,10 +603,17 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, brokerID, body, ackReason);
    }
 
-   public static void route(ActiveMQServer server, Message message) throws Exception {
+   public static void routeMirrorCommand(ActiveMQServer server, Message message) throws Exception {
+      routeMirrorCommand(server, message, null);
+   }
+
+   public static void routeMirrorCommand(ActiveMQServer server, Message message, Transaction tx) throws Exception {
       message.setMessageID(server.getStorageManager().generateID());
       RoutingContext ctx = mirrorControlRouting.get();
-      ctx.clear().setMirrorOption(MirrorOption.disabled);
+      // it is important to use local only at the source to avoid having the message strictly load balancing
+      // to other nodes if the SNF queue has the same name as the one on this node.
+      ctx.clear().setMirrorOption(MirrorOption.disabled).setLoadBalancingType(MessageLoadBalancingType.LOCAL_ONLY).setTransaction(tx);
+      logger.debug("SetTX {}", tx);
       server.getPostOffice().route(message, ctx, false);
    }
 
