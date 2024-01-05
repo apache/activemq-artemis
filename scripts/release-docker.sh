@@ -31,11 +31,11 @@ cd ../artemis-docker
 rm -Rf _TMP_/
 ./prepare-docker.sh --from-release --artemis-version ${VERSION}
 cd _TMP_/artemis/${VERSION}
-docker pull eclipse-temurin:11-jre-alpine
-docker pull eclipse-temurin:11-jre
-docker build -f ./docker/Dockerfile-alpine-11-jre -t ${REPO}/activemq-artemis:${VERSION}-alpine .
+docker pull eclipse-temurin:21-jre-alpine
+docker pull eclipse-temurin:21-jre
+docker build -f ./docker/Dockerfile-alpine-21-jre -t ${REPO}/activemq-artemis:${VERSION}-alpine .
 docker tag ${REPO}/activemq-artemis:${VERSION}-alpine ${REPO}/activemq-artemis:latest-alpine
-docker build -f ./docker/Dockerfile-ubuntu-11-jre -t ${REPO}/activemq-artemis:${VERSION} .
+docker build -f ./docker/Dockerfile-ubuntu-21-jre -t ${REPO}/activemq-artemis:${VERSION} .
 docker tag ${REPO}/activemq-artemis:${VERSION} ${REPO}/activemq-artemis:latest
 docker login
 docker push ${REPO}/activemq-artemis:${VERSION}-alpine

@@ -17,8 +17,15 @@
 
 # ActiveMQ Artemis
 
-FROM eclipse-temurin:11-centos7
+FROM eclipse-temurin:21-jdk-alpine
 LABEL maintainer="Apache ActiveMQ Team"
+
+# add user and group for artemis
+RUN addgroup --gid 1001 --system artemis && adduser --uid 1001 --ingroup artemis --disabled-password --no-create-home artemis
+
+# alpine doesn't come with bash
+RUN /bin/sh -c "apk update && apk upgrade --no-cache && apk add --no-cache bash libaio"
+
 # Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /opt
@@ -27,12 +34,6 @@ ENV ARTEMIS_USER artemis
 ENV ARTEMIS_PASSWORD artemis
 ENV ANONYMOUS_LOGIN false
 ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
-
-USER root
-
-# add user and group for artemis
-RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
- && yum install -y libaio && yum -y clean all
 
 USER artemis
 
@@ -67,3 +68,4 @@ WORKDIR /var/lib/artemis-instance
 
 ENTRYPOINT ["/docker-run.sh"]
 CMD ["run"]
+

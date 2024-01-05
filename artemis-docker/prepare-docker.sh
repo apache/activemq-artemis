@@ -53,23 +53,23 @@ Well done! Now you can continue with building the Docker image:
   # Go to $ARTEMIS_DIST_DIR
   $ cd $ARTEMIS_DIST_DIR
 
-  # For CentOS with full JDK 11
-  $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
+  # For CentOS with full JDK 17
+  $ docker build -f ./docker/Dockerfile-centos7-17 -t artemis-centos .
 
-  # For Ubuntu with full JDK 11
-  $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
+  # For Ubuntu with full JDK 21
+  $ docker build -f ./docker/Dockerfile-ubuntu-21 -t artemis-ubuntu .
 
-  # For Ubuntu with just JRE 11
-  $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu-jre .
+  # For Ubuntu with just JRE 21
+  $ docker build -f ./docker/Dockerfile-ubuntu-21-jre -t artemis-ubuntu-jre .
 
-  # For Alpine with full JDK 17
-  $ docker build -f ./docker/Dockerfile-alpine-17 -t artemis-alpine .
+  # For Alpine with full JDK 21
+  $ docker build -f ./docker/Dockerfile-alpine-21 -t artemis-alpine .
 
-  # For Alpine with just JRE 11
-  $ docker build -f ./docker/Dockerfile-alpine-11-jre -t artemis-alpine-jre .
+  # For Alpine with just JRE 21
+  $ docker build -f ./docker/Dockerfile-alpine-21-jre -t artemis-alpine-jre .
 
-  # For Ubuntu on Linux ARMv7/ARM64 with full JDK
-  $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
+  # Multi-platform for Ubuntu on Linux AMD64 & ARM64 with full JDK
+  $ docker buildx build --platform linux/amd64,linux/arm64 --push -t {your-repository}/apache-artemis:{your-version} -f ./docker/Dockerfile-ubuntu-21 .
 
 Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
