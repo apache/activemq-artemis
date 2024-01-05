@@ -74,6 +74,8 @@ public interface Transaction {
 
    void addOperation(TransactionOperation sync);
 
+   void afterWired(Runnable runnable);
+
    /**
     * This is an operation that will be called right after the storage is completed.
     * addOperation could only happen after paging and replication, while these operations will just be
@@ -102,4 +104,9 @@ public interface Transaction {
    void setTimeout(int timeout);
 
    RefsOperation createRefsOperation(Queue queue, AckReason reason);
+
+   boolean isAsync();
+
+   /** To be used on control transactions that are meant as internal and don't really require a hard sync. */
+   Transaction setAsync(boolean async);
 }

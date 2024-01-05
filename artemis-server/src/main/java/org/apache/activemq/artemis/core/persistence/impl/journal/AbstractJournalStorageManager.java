@@ -665,6 +665,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public void asyncCommit(final long txID) throws Exception {
+      try (ArtemisCloseable lock = closeableReadLock()) {
+         messageJournal.appendCommitRecord(txID, false, getContext(true), true);
+      }
+   }
+
+   @Override
    public void rollback(final long txID) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
          messageJournal.appendRollbackRecord(txID, syncTransactional, getContext(syncTransactional));

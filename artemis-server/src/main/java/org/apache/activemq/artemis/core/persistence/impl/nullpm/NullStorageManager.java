@@ -209,6 +209,10 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
+   public void asyncCommit(final long txID) {
+   }
+
+   @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos,
                                                     final List<AddressBindingInfo> addressBindingInfos) throws Exception {

@@ -54,11 +54,11 @@ public class TransactionImpl implements Transaction {
 
    protected final StorageManager storageManager;
 
-   private final Xid xid;
+   protected final Xid xid;
 
-   private final long id;
+   protected final long id;
 
-   private volatile State state = State.ACTIVE;
+   protected volatile State state = State.ACTIVE;
 
    private ActiveMQException exception;
 
@@ -66,11 +66,26 @@ public class TransactionImpl implements Transaction {
 
    private final long createTime;
 
-   private volatile boolean containsPersistent;
+   protected volatile boolean containsPersistent;
 
    private int timeoutSeconds = -1;
 
    private Object protocolData;
+
+   private boolean async;
+
+   private Runnable afterWired;
+
+   @Override
+   public boolean isAsync() {
+      return async;
+   }
+
+   @Override
+   public TransactionImpl setAsync(boolean async) {
+      this.async = async;
+      return this;
+   }
 
    @Override
    public Object getProtocolData() {
@@ -231,6 +246,18 @@ public class TransactionImpl implements Transaction {
    }
 
    @Override
+   public void afterWired(Runnable callback) {
+      this.afterWired = callback;
+   }
+
+   private void wired() {
+      if (afterWired != null) {
+         afterWired.run();
+         afterWired = null;
+      }
+   }
+
+   @Override
    public void commit(final boolean onePhase) throws Exception {
       logger.trace("TransactionImpl::commit::{}", this);
 
@@ -306,6 +333,7 @@ public class TransactionImpl implements Transaction {
             });
          }
 
+         wired();
       }
    }
 
@@ -316,7 +344,11 @@ public class TransactionImpl implements Transaction {
       if (containsPersistent || xid != null && state == State.PREPARED) {
          // ^^ These are the scenarios where we require a storage.commit
          // for anything else we won't use the journal
-         storageManager.commit(id);
+         if (async) {
+            storageManager.asyncCommit(id);
+         } else {
+            storageManager.commit(id);
+         }
       }
 
       state = State.COMMITTED;
