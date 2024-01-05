@@ -275,6 +275,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void commit(long txID, boolean lineUpContext) throws Exception;
 
+   void asyncCommit(long txID) throws Exception;
+
    void rollback(long txID) throws Exception;
 
    void rollbackBindings(long txID) throws Exception;

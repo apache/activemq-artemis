@@ -308,6 +308,11 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
+      public void asyncCommit(long txID) throws Exception {
+
+      }
+
+      @Override
       public void updateQueueBinding(long tx, Binding binding) throws Exception {
          manager.updateQueueBinding(tx, binding);
       }
