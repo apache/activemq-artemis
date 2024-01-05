@@ -17,7 +17,7 @@
 
 # ActiveMQ Artemis
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 LABEL maintainer="Apache ActiveMQ Team"
 
 # add user and group for artemis
