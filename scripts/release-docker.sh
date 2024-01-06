@@ -28,17 +28,11 @@ VERSION=$1
 REPO=$2
 
 cd ../artemis-docker
-rm -Rf _TMP_/
+rm -Rf target/
 ./prepare-docker.sh --from-release --artemis-version ${VERSION}
-cd _TMP_/artemis/${VERSION}
+cd target/artemis/${VERSION}
 docker pull eclipse-temurin:21-jre-alpine
 docker pull eclipse-temurin:21-jre
-docker build -f ./docker/Dockerfile-alpine-21-jre -t ${REPO}/activemq-artemis:${VERSION}-alpine .
-docker tag ${REPO}/activemq-artemis:${VERSION}-alpine ${REPO}/activemq-artemis:latest-alpine
-docker build -f ./docker/Dockerfile-ubuntu-21-jre -t ${REPO}/activemq-artemis:${VERSION} .
-docker tag ${REPO}/activemq-artemis:${VERSION} ${REPO}/activemq-artemis:latest
 docker login
-docker push ${REPO}/activemq-artemis:${VERSION}-alpine
-docker push ${REPO}/activemq-artemis:${VERSION}
-docker push ${REPO}/activemq-artemis:latest-alpine
-docker push ${REPO}/activemq-artemis:latest
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile-alpine-21-jre -t ${REPO}/activemq-artemis:${VERSION}-alpine -t ${REPO}/activemq-artemis:latest-alpine --push .
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile-ubuntu-21-jre -t ${REPO}/activemq-artemis:${VERSION} -t ${REPO}/activemq-artemis:latest --push .
