@@ -108,9 +108,9 @@ key="$1"
   shift
 done
 
-# TMPDIR must be contained within the working directory so it is part of the
+# BASE_TMPDIR must be contained within the working directory so it is part of the
 # Docker context. (i.e. it can't be in /tmp)
-BASE_TMPDIR="_TMP_/artemis"
+BASE_TMPDIR="target/artemis"
 
 if [ -n "${FROM_RELEASE}" ] && [ -z "${ARTEMIS_VERSION}" ]; then
   usage "You must specify the release version (e.g. --artemis-version 2.16.0)"

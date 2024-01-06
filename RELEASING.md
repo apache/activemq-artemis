@@ -364,15 +364,15 @@ NOTE: The `main` branch CI build does not build Artemis, so the release must be 
 
 1. If you don't have an account on https://hub.docker.com/ then create one.
 2. [Install `docker`](https://docs.docker.com/engine/install/) in your environment.
-3. Ensure you have access to push images to `apache/activemq-artemis`. If you don't have access you can request it by
-   creating an INFRA Jira ticket (e.g. https://issues.apache.org/jira/browse/INFRA-24831).
-4. Go to the `scripts` directory and run `release-docker.sh` with the proper parameters, e.g.:
+3. If you don't already have it, then install the [`buildx` Docker plugin](https://github.com/docker/buildx#installing) to support multi-platform builds because `release-docker.sh` will create images for both `linux/amd64` and `linux/arm64`. This, of course, requires the base images from Eclipse Temurin to support these platforms as well (which they do).
+4. Ensure you have access to push images to `apache/activemq-artemis`. If you don't have access you can request it by creating an INFRA Jira ticket (e.g. https://issues.apache.org/jira/browse/INFRA-24831).
+5. Go to the `scripts` directory and run `release-docker.sh` with the proper parameters, e.g.:
    ```shell
    $ ./release-docker.sh 2.31.0 apache
    ```
    You can easily perform a test run by using your personal account, e.g.:
    ```shell
-   $ ./release-docker.sh 2.31.0 jbertram
+   $ ./release-docker.sh 2.31.0 myUsername
    ```
 
 ## Send announcement to user list
