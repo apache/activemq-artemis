@@ -631,6 +631,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    @Override
+   public long getProducerWindowSize() {
+      return producerWindowSize;
+   }
+
+   @Override
    public Bridge[] getBridges() {
       synchronized (recordsGuard) {
          return records.values().stream().map(MessageFlowRecord::getBridge).toArray(Bridge[]::new);

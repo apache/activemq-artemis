@@ -321,5 +321,18 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    }
 
+   @Override
+   public long getProducerWindowSize() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getTopology(this.clusterConnection);
+      }
+      clearIO();
+      try {
+         return clusterConnection.getProducerWindowSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
 
 }
