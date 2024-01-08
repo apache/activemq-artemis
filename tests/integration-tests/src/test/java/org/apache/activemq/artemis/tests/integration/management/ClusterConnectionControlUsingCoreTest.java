@@ -127,6 +127,10 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
             proxy.invokeOperation("stop");
          }
 
+         @Override
+         public long getProducerWindowSize()  {
+            return  (Long) proxy.retrieveAttributeValue("producerWindowSize", Long.class);
+         }
       };
    }
 

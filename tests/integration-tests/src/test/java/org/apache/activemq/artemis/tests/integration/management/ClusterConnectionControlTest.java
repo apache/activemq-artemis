@@ -76,6 +76,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       Assert.assertEquals(clusterConnectionConfig1.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
       Assert.assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig1.getMaxHops(), clusterConnectionControl.getMaxHops());
+      Assert.assertEquals(clusterConnectionConfig1.getProducerWindowSize(), clusterConnectionControl.getProducerWindowSize());
       Assert.assertEquals(0L, clusterConnectionControl.getMessagesPendingAcknowledgement());
       Assert.assertEquals(0L, clusterConnectionControl.getMessagesAcknowledged());
       Map<String, Object> clusterMetrics = clusterConnectionControl.getMetrics();
@@ -112,6 +113,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       Assert.assertEquals(clusterConnectionConfig2.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
       Assert.assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig2.getMaxHops(), clusterConnectionControl.getMaxHops());
+      Assert.assertEquals(clusterConnectionConfig2.getProducerWindowSize(), clusterConnectionControl.getProducerWindowSize());
 
       Object[] connectorPairs = clusterConnectionControl.getStaticConnectors();
       Assert.assertEquals(0, connectorPairs.length);
@@ -199,9 +201,9 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       Configuration conf_1 = createBasicConfig().addAcceptorConfiguration(acceptorConfig).addQueueConfiguration(queueConfig);
 
-      clusterConnectionConfig1 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectors).setCallTimeout(500).setCallFailoverTimeout(500);
+      clusterConnectionConfig1 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectors).setCallTimeout(500).setCallFailoverTimeout(500).setProducerWindowSize(1234);
 
-      clusterConnectionConfig2 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.OFF).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setDiscoveryGroupName(discoveryGroupName).setCallTimeout(500).setCallFailoverTimeout(500);
+      clusterConnectionConfig2 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.OFF).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setDiscoveryGroupName(discoveryGroupName).setCallTimeout(500).setCallFailoverTimeout(500).setProducerWindowSize(1234);
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addClusterConfiguration(clusterConnectionConfig1).addClusterConfiguration(clusterConnectionConfig2).addDiscoveryGroupConfiguration(discoveryGroupName, discoveryGroupConfig);
 
