@@ -100,6 +100,8 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void registerQueue(Queue queue, SimpleString address, StorageManager storageManager) throws Exception;
 
+   void registerQueue(Queue queue, SimpleString address, StorageManager storageManager, boolean forceInternal) throws Exception;
+
    void unregisterQueue(SimpleString name, SimpleString address, RoutingType routingType) throws Exception;
 
    void registerAcceptor(Acceptor acceptor, TransportConfiguration configuration) throws Exception;

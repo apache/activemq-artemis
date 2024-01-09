@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
@@ -92,6 +93,11 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       } finally {
          loggerHandler.close();
       }
+   }
+
+   @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,OPENWIRE,CORE";
    }
 
    @Override
@@ -578,6 +584,9 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          // Check some messages were sent to SnF queue
          Assert.assertTrue(server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded() > 0);
       }
+
+      SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:" + AMQP_PORT_2, null, null);
+      Wait.assertEquals(0, () -> simpleManagement.getMessageCountOnQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror-source"), 5000);
 
       try (Connection connection = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT).createConnection()) {
          connection.start();

@@ -3944,6 +3944,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       removeAddressInfo(address, auth);
    }
 
+   /** Register a queue on the management registry */
+   @Override
+   public void registerQueueOnManagement(Queue queue, boolean registerInternal) throws Exception {
+      managementService.registerQueue(queue, queue.getAddress(), storageManager, registerInternal);
+   }
+
    @Override
    public void removeAddressInfo(final SimpleString address, final SecurityAuth auth, boolean force) throws Exception {
       if (auth != null) {

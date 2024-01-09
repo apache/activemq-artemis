@@ -287,8 +287,15 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerQueue(final Queue queue,
                                           final AddressInfo addressInfo,
                                           final StorageManager storageManager) throws Exception {
+      registerQueue(queue, addressInfo, storageManager, false);
+   }
 
-      if (addressInfo.isInternal() || queue.isInternalQueue()) {
+   private synchronized void registerQueue(final Queue queue,
+                                          final AddressInfo addressInfo,
+                                          final StorageManager storageManager,
+                                          boolean forceInternal) throws Exception {
+
+      if (!forceInternal && (addressInfo.isInternal() || queue.isInternalQueue())) {
          logger.debug("won't register internal queue: {}", queue);
          return;
       }
@@ -312,6 +319,14 @@ public class ManagementServiceImpl implements ManagementService {
                                           final SimpleString address,
                                           final StorageManager storageManager) throws Exception {
       registerQueue(queue, new AddressInfo(address), storageManager);
+   }
+
+   @Override
+   public synchronized void registerQueue(final Queue queue,
+                                          final SimpleString address,
+                                          final StorageManager storageManager,
+                                          final boolean forceInternal) throws Exception {
+      registerQueue(queue, new AddressInfo(address), storageManager, forceInternal);
    }
 
    @Override

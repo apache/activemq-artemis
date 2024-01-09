@@ -76,5 +76,18 @@ public class HelperBase {
       return this;
    }
 
+   public HelperBase addArgs(String... args) {
+      int initialLength = this.args == null ? 0 : this.args.length;
+      String[] newArgs = new String[initialLength + args.length];
+      for (int i = 0; i < initialLength; i++) {
+         newArgs[i] = this.args[i];
+      }
+      for (int i = 0; i < args.length; i++) {
+         newArgs[i + initialLength] = args[i];
+      }
+      this.args = newArgs;
+      return this;
+   }
+
    String[] args = new String[0];
 }
