@@ -55,7 +55,7 @@ public class ServerUtil {
       final Process process = internalStartServer(artemisInstance, serverName, brokerProperties);
 
       // wait for start
-      if (timeout != 0) {
+      if (timeout > 0) {
          waitForServerToStart(id, timeout);
       }
 

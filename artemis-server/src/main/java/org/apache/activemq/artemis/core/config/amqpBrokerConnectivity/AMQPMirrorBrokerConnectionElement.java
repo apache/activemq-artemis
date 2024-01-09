@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionElement {
 
-   boolean durable;
+   boolean durable = true;
 
    boolean queueCreation = true;
 

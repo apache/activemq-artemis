@@ -691,7 +691,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
-      Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
+      Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null, 5000);
 
       ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       Connection connection1 = cf1.createConnection();
