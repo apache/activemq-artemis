@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,7 +81,8 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          Bootstrap bootstrap = connector.getBootStrap();
          ChannelPipeline pipeline = bootstrap.register().channel().pipeline();
          pipeline.flush();
-         Object httpHandler = pipeline.get("NettyConnector$HttpHandler#0");
+         Wait.assertTrue("HttpHandler is null!", () -> pipeline.get(NettyConnector.HttpHandler.class) != null, 500, 25);
+         Object httpHandler = pipeline.get(NettyConnector.HttpHandler.class);
          Method getHeadersMethod = httpHandler.getClass().getMethod("getHeaders", (Class<?>[]) null);
          getHeadersMethod.setAccessible(true);
          Map<String, String> headers = (Map<String, String>) getHeadersMethod.invoke(httpHandler, (Object[]) null);

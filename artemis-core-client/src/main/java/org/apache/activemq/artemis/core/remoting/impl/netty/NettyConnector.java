@@ -1102,7 +1102,7 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
-   class HttpHandler extends ChannelDuplexHandler {
+   public class HttpHandler extends ChannelDuplexHandler {
 
       private Channel channel;
 
