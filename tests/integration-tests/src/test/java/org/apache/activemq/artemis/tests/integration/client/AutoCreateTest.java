@@ -353,7 +353,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
 
       server.getConfiguration().setAddressQueueScanPeriod(-1); // disabling scanner, we will perform it manually
       server.start();
-      String QUEUE_NAME = getName();
+      String QUEUE_NAME = "QUEUE_" + getName();
+      String TOPIC_NAME = "TOPIC_" + getName();
 
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       try (Connection connection = cf.createConnection()) {
@@ -381,11 +382,17 @@ public class AutoCreateTest extends ActiveMQTestBase {
       try (Connection connection = cf.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(QUEUE_NAME);
-         MessageProducer producer = session.createProducer(queue);
-         producer.send(session.createTextMessage(randomString));
+         Topic topic = session.createTopic(TOPIC_NAME);
+         MessageProducer producer = session.createProducer(null);
+         producer.send(queue, session.createTextMessage(randomString));
+         producer.send(topic, session.createTextMessage(randomString));
       }
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      Assert.assertNotNull(info);
+      Assert.assertTrue(info.isAutoCreated());
+
+      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
       Assert.assertNotNull(info);
       Assert.assertTrue(info.isAutoCreated());
 
@@ -393,13 +400,19 @@ public class AutoCreateTest extends ActiveMQTestBase {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
 
-         Assert.assertFalse(loggerHandler.findText("AMQ224113")); // this time around the queue had messages, it has to exist
+         // this time around the address QUEUE_NAME had a queue with messages, it has to exist
+         Assert.assertFalse(loggerHandler.matchText("AMQ224113.*" + QUEUE_NAME));
          Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         // the address TOPIC_NAME had no queues, it has to be removed
+         Assert.assertTrue(loggerHandler.matchText("AMQ224113.*" + TOPIC_NAME));
       }
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
       Assert.assertNotNull(info);
       Assert.assertTrue(info.isAutoCreated());
+
+      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
+      Assert.assertNull(info);
 
       { // just a namespace
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(QUEUE_NAME);
