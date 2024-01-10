@@ -2675,4 +2675,11 @@ public interface AuditLogger {
    @LogMessage(id = 601771, value = "User {} is getting name on target resource: {}", level = LogMessage.Level.INFO)
    void getCurrentTimeMillis(Object source);
 
+   static void getProducerWindowSize(Object source) {
+      BASE_LOGGER.getProducerWindowSize(getCaller(), source);
+   }
+
+   @LogMessage(id = 601772, value = "User {} is getting producerWindowSize on target resource: {}", level = LogMessage.Level.INFO)
+   void getProducerWindowSize(String user, Object source);
+
 }
