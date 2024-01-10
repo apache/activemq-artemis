@@ -35,13 +35,13 @@
       <module>artemis-dto</module>
       <module>artemis-cdi-client</module>
       <module>artemis-boot</module>
-      <module>artemis-web</module>
       <module>artemis-cli</module>
       <module>artemis-commons</module>
       <module>artemis-selector</module>
       <module>artemis-core-client</module>
       <module>artemis-core-client-all</module>
       <module>artemis-core-client-osgi</module>
+      <module>artemis-web</module>
       <module>artemis-server</module>
       <module>artemis-junit</module>
       <module>artemis-jms-client</module>

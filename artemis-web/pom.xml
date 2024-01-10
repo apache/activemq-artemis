@@ -98,7 +98,6 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
-         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -187,6 +186,9 @@
                            <directory>../tests/security-resources</directory>
                            <includes>
                               <include>server-keystore.p12</include>
+                              <include>server-cert.pem</include>
+                              <include>server-key.pem</include>
+                              <include>server-pem-props-config.txt</include>
                            </includes>
                         </resource>
                      </resources>

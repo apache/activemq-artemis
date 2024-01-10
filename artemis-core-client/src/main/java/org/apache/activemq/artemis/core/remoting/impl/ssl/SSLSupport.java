@@ -353,7 +353,7 @@ public class SSLSupport {
       return ks;
    }
 
-   private static void checkPemProviderLoaded(String keystoreType) {
+   public static void checkPemProviderLoaded(String keystoreType) {
       if (keystoreType != null && keystoreType.startsWith("PEM")) {
          if (Security.getProvider("PEM") == null) {
             Security.insertProviderAt(new PemKeyStoreProvider(), Integer.parseInt(System.getProperty("artemis.pemProvider.insertAt", "0")));
