@@ -92,6 +92,8 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".passwordCodec", "test-passwordCodec");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".keyStorePath", "test-keyStorePath");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStorePath", "test-trustStorePath");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".keyStoreType", "test-keyStoreType");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStoreType", "test-trustStoreType");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".includedTLSProtocols", "test-includedTLSProtocols,0");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".excludedTLSProtocols", "test-excludedTLSProtocols,1");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".includedCipherSuites", "test-includedCipherSuites,2");
@@ -111,6 +113,8 @@ public class WebServerDTOConfigTest {
       Assert.assertEquals("test-passwordCodec", testBinding.getPasswordCodec());
       Assert.assertEquals("test-keyStorePath", testBinding.getKeyStorePath());
       Assert.assertEquals("test-trustStorePath", testBinding.getTrustStorePath());
+      Assert.assertEquals("test-keyStoreType", testBinding.getKeyStoreType());
+      Assert.assertEquals("test-trustStoreType", testBinding.getTrustStoreType());
       Assert.assertEquals("test-includedTLSProtocols,0", String.join(",", testBinding.getIncludedTLSProtocols()));
       Assert.assertEquals("test-excludedTLSProtocols,1", String.join(",", testBinding.getExcludedTLSProtocols()));
       Assert.assertEquals("test-includedCipherSuites,2", String.join(",", testBinding.getIncludedCipherSuites()));

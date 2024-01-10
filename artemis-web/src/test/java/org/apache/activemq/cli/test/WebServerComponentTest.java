@@ -107,6 +107,9 @@ public class WebServerComponentTest extends Assert {
    static final String SECURE_URL = System.getProperty("url", "https://localhost:8448/WebServerComponentTest.txt");
 
    static final String KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-keystore.p12").getFile();
+
+   static final String PEM_KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-pem-props-config.txt").getFile();
+
    static final String KEY_STORE_PASSWORD = "securepass";
 
    private List<ActiveMQComponent> testedComponents;
@@ -260,7 +263,6 @@ public class WebServerComponentTest extends Assert {
 
    private WebServerComponent startSimpleSecureServer(Boolean sniHostCheck, Boolean sniRequired) throws Exception {
       BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.setUri("https://localhost:0");
       bindingDTO.setKeyStorePath(KEY_STORE_PATH);
       bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
       if (sniHostCheck != null) {
@@ -269,6 +271,11 @@ public class WebServerComponentTest extends Assert {
       if (sniRequired != null) {
          bindingDTO.setSniRequired(sniRequired);
       }
+      return startSimpleSecureServer(bindingDTO);
+   }
+
+   private WebServerComponent startSimpleSecureServer(BindingDTO bindingDTO) throws Exception {
+      bindingDTO.setUri("https://localhost:0");
       if (System.getProperty("java.vendor").contains("IBM")) {
          //By default on IBM Java 8 JVM, org.eclipse.jetty.util.ssl.SslContextFactory doesn't include TLSv1.2
          // while it excludes all TLSv1 and TLSv1.1 cipher suites.
@@ -338,6 +345,21 @@ public class WebServerComponentTest extends Assert {
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
+   @Test
+   public void testStoreTypeConfigAndProviderRegistration() throws Exception {
+
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.setKeyStorePath(PEM_KEY_STORE_PATH);
+      bindingDTO.setKeyStoreType("PEMCFG");
+
+      WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
+      try {
+         int port = webServerComponent.getPort(0);
+         Assert.assertEquals(200, testSimpleSecureServer("localhost", port, null, null));
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
 
    @Test
    public void testSimpleSecureServerWithSniHostCheckEnabled() throws Exception {

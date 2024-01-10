@@ -57,6 +57,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport.checkPemProviderLoaded;
+
 public class WebServerComponent implements ExternalComponent, WebServerComponentMarker {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -227,6 +229,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       if ("https".equals(scheme)) {
          SslContextFactory.Server sslFactory = new SslContextFactory.Server();
          sslFactory.setKeyStorePath(binding.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : binding.keyStorePath);
+         if (binding.keyStoreType != null) {
+            sslFactory.setKeyStoreType(binding.keyStoreType);
+            checkPemProviderLoaded(binding.keyStoreType);
+         }
          sslFactory.setKeyStorePassword(binding.getKeyStorePassword() == null ? "password" : binding.getKeyStorePassword());
 
          if (binding.getIncludedTLSProtocols() != null) {
@@ -246,6 +252,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
             if (binding.clientAuth) {
                sslFactory.setTrustStorePath(binding.trustStorePath);
                sslFactory.setTrustStorePassword(binding.getTrustStorePassword());
+               if (binding.trustStoreType != null) {
+                  sslFactory.setTrustStoreType(binding.trustStoreType);
+                  checkPemProviderLoaded(binding.trustStoreType);
+               }
             }
          }
 
