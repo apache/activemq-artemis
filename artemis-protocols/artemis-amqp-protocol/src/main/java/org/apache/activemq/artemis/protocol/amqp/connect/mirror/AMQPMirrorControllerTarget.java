@@ -504,6 +504,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       byte[] duplicateIDBytes = ByteUtil.longToBytes(internalIDLong);
 
       if (duplicateIDCache.contains(duplicateIDBytes)) {
+         message.usageDown(); // large messages would be removed here
          flow();
          return false;
       }
