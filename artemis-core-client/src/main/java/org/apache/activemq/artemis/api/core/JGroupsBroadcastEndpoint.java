@@ -96,6 +96,9 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       if (clientOpened) {
          return;
       }
+      if (channel.getChannel() == null || channel.getChannel().isClosed()) {
+         initChannel();
+      }
       internalOpen();
       receiver = new JGroupsReceiver();
       channel.addReceiver(receiver);
