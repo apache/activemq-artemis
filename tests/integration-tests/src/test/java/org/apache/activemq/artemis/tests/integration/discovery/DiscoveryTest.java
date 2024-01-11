@@ -140,6 +140,15 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
    }
 
+   @Test
+   public void testJGroupsOpenClientInitializesChannel() throws Exception {
+      JGroupsFileBroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory().setFile(TEST_JGROUPS_CONF_FILE).setChannelName("tst");
+      BroadcastEndpoint endpoint = factory.createBroadcastEndpoint();
+      endpoint.close(false);
+      endpoint.openClient();
+      endpoint.close(false);
+   }
+
    /**
     * Create one broadcaster and 100 receivers. Make sure broadcasting works.
     * Then stop 99 of the receivers, the last one could still be working.
