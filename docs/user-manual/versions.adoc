@@ -446,7 +446,8 @@ This is done to avoid adverse conditions with large volumes of message data whic
 The `management-message-attribute-size-limit` address-setting controls this behavior.
 If you wish to restore the previous (and potentially dangerous behavior) then you can specify `-1` for this.
 It is `256` by default.
-[discrete]== 2.17.0
+
+== 2.17.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349326[Full release notes].
 
