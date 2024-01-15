@@ -515,6 +515,10 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void setFilter(Filter filter) {
+      }
+
+      @Override
       public MessageLoadBalancingType getMessageLoadBalancingType() {
          return messageLoadBalancingType;
       }

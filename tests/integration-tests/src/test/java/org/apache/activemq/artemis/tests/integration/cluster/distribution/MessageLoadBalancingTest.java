@@ -16,9 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +92,53 @@ public class MessageLoadBalancingTest extends ClusterTestBase {
 
       ClientMessage clientMessage = getConsumer(0).receiveImmediate();
       Assert.assertNull(clientMessage);
+   }
+
+   @Test
+   public void testMessageLoadBalancingWithFiltersUpdate() throws Exception {
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(0, "queues.testaddress", 1, 0, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      Binding[] bindings = new Binding[2];
+      PostOffice[] po = new PostOffice[2];
+      for (int i = 0; i < 2; i++) {
+         po[i] = servers[i].getPostOffice();
+         bindings[i] = po[i].getBinding(new SimpleString("queue0"));
+         Assert.assertNotNull(bindings[i]);
+
+         Queue queue0 = (Queue)bindings[i].getBindable();
+         Assert.assertNotNull(queue0);
+
+         QueueConfiguration qconfig = queue0.getQueueConfiguration();
+         Assert.assertNotNull(qconfig);
+
+         qconfig.setFilterString("color = 'red'");
+         po[i].updateQueue(qconfig, true);
+      }
+
+      SimpleString clusterName0 = bindings[1].getClusterName();
+      RemoteQueueBinding remoteBinding = (RemoteQueueBinding) po[0].getBinding(clusterName0);
+      Assert.assertNotNull(remoteBinding);
+
+      Wait.assertEquals("color = 'red'", () -> {
+         Filter filter = remoteBinding.getFilter();
+         if (filter == null) {
+            return filter;
+         }
+         return filter.getFilterString().toString();
+      });
    }
 
    protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {

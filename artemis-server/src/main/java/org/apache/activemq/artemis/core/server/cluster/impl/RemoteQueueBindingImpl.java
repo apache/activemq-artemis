@@ -50,11 +50,11 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    private final long remoteQueueID;
 
-   private final Filter queueFilter;
-
    private final Set<Filter> filters = new HashSet<>();
 
    private final Map<SimpleString, Integer> filterCounts = new HashMap<>();
+
+   private Filter queueFilter;
 
    private int consumerCount;
 
@@ -349,6 +349,11 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    @Override
    public long getRemoteQueueID() {
       return remoteQueueID;
+   }
+
+   @Override
+   public void setFilter(Filter filter) {
+      this.queueFilter = filter;
    }
 
    @Override

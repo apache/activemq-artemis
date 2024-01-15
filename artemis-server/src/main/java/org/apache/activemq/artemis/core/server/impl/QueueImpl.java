@@ -4322,7 +4322,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          .setTemporary(temporary)
          .setInternal(internalQueue)
          .setTransient(refCountForConsumers instanceof TransientQueueManagerImpl)
-         .setAutoCreated(autoCreated);
+         .setAutoCreated(autoCreated)
+         .setEnabled(enabled)
+         .setGroupRebalancePauseDispatch(groupRebalancePauseDispatch);
    }
 
    protected static class ConsumerHolder<T extends Consumer> implements PriorityAware {
