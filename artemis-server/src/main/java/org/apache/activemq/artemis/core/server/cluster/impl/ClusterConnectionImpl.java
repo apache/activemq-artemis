@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyManager;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
@@ -1134,6 +1135,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                break;
             }
+            case BINDING_UPDATED: {
+               doBindingUpdated(message);
+               break;
+            }
             case CONSUMER_CREATED: {
                doConsumerCreated(message);
 
@@ -1266,6 +1271,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          reset = false;
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             disconnectBinding(binding.getClusterName());
+         }
+      }
+
+      private synchronized void doBindingUpdated(final ClientMessage message) throws Exception {
+         logger.trace("{} Update binding {}", ClusterConnectionImpl.this, message);
+         if (!message.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
+            throw new IllegalStateException("clusterName is null");
+         }
+
+         SimpleString clusterName = message.getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+         SimpleString filterString = message.getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING);
+
+         RemoteQueueBinding existingBinding = (RemoteQueueBinding) postOffice.getBinding(clusterName);
+
+         if (existingBinding != null) {
+            existingBinding.setFilter(FilterImpl.createFilter(filterString));
          }
       }
 

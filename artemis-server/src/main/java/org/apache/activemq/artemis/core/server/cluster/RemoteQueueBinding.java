@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.cluster;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
@@ -33,6 +34,8 @@ public interface RemoteQueueBinding extends QueueBinding {
    void connect();
 
    long getRemoteQueueID();
+
+   void setFilter(Filter filter);
 
    MessageLoadBalancingType getMessageLoadBalancingType();
 }

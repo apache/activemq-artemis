@@ -258,6 +258,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    "', '" +
                                                    CoreNotificationType.BINDING_REMOVED +
                                                    "', '" +
+                                                   CoreNotificationType.BINDING_UPDATED +
+                                                   "', '" +
                                                    CoreNotificationType.CONSUMER_CREATED +
                                                    "', '" +
                                                    CoreNotificationType.CONSUMER_CLOSED +

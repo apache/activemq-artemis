@@ -38,6 +38,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ConfigurationTest extends ActiveMQTestBase {
+
    @Test
    public void testStartWithDuplicateQueues() throws Exception {
       ActiveMQServer server = getActiveMQServer("duplicate-queues.xml");
