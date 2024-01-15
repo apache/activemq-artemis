@@ -36,6 +36,7 @@
       <module>artemis-amqp-protocol</module>
       <module>artemis-stomp-protocol</module>
       <module>artemis-openwire-protocol</module>
+      <module>artemis-jakarta-openwire-protocol</module>
       <module>artemis-hornetq-protocol</module>
       <module>artemis-hqclient-protocol</module>
       <module>artemis-mqtt-protocol</module>
