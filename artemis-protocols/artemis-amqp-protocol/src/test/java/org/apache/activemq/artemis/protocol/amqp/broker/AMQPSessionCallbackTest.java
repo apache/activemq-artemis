@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -157,7 +158,7 @@ public class AMQPSessionCallbackTest {
       session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
-      Mockito.verify(pagingStore).checkMemory(argument.capture());
+      Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
       assertNotNull(argument.getValue());
       argument.getValue().run();
 
@@ -188,7 +189,7 @@ public class AMQPSessionCallbackTest {
       session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
-      Mockito.verify(pagingStore).checkMemory(argument.capture());
+      Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
       assertNotNull(argument.getValue());
       argument.getValue().run();
 
@@ -249,7 +250,7 @@ public class AMQPSessionCallbackTest {
       session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
-      Mockito.verify(pagingStore).checkMemory(argument.capture());
+      Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
       assertNotNull(argument.getValue());
       argument.getValue().run();
 

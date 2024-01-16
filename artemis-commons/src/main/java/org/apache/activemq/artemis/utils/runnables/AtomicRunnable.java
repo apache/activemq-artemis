@@ -18,9 +18,13 @@
 package org.apache.activemq.artemis.utils.runnables;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.function.Consumer;
 
 public abstract class AtomicRunnable implements Runnable {
 
+   public static AtomicRunnable delegate(Runnable runnable) {
+      return new AtomicRunnableWithDelegate(runnable);
+   }
 
    public static AtomicRunnable checkAtomic(Runnable run) {
       if (run instanceof AtomicRunnable) {
@@ -28,6 +32,27 @@ public abstract class AtomicRunnable implements Runnable {
       } else {
          return new AtomicRunnableWithDelegate(run);
       }
+   }
+
+   private RunnableList acceptedList;
+   private Consumer<AtomicRunnable> cancelTask;
+
+   public RunnableList getAcceptedList() {
+      return acceptedList;
+   }
+
+   public AtomicRunnable setAcceptedList(RunnableList acceptedList) {
+      this.acceptedList = acceptedList;
+      return this;
+   }
+
+   public Consumer<AtomicRunnable> getCancel() {
+      return cancelTask;
+   }
+
+   public AtomicRunnable setCancel(Consumer<AtomicRunnable> cancelTask) {
+      this.cancelTask = cancelTask;
+      return this;
    }
 
    private volatile int ran;
@@ -52,7 +77,21 @@ public abstract class AtomicRunnable implements Runnable {
    @Override
    public void run() {
       if (RAN_UPDATE.compareAndSet(this, 0, 1)) {
-         atomicRun();
+         try {
+            atomicRun();
+         } finally {
+            if (acceptedList != null) {
+               acceptedList.remove(AtomicRunnable.this);
+            }
+         }
+      }
+   }
+
+   public void cancel() {
+      if (RAN_UPDATE.compareAndSet(this, 0, 1)) {
+         if (cancelTask != null) {
+            cancelTask.accept(AtomicRunnable.this);
+         }
       }
    }
 

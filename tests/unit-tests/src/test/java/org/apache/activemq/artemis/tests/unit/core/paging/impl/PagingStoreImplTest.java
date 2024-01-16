@@ -1252,11 +1252,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          };
          store.applySetting(new AddressSettings().setMaxSizeBytes(1000).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK));
          store.addSize(100);
-         store.checkMemory(trackMemoryChecks);
+         store.checkMemory(trackMemoryChecks, null);
          assertEquals(1, calls.get());
 
          store.block();
-         store.checkMemory(trackMemoryChecks);
+         store.checkMemory(trackMemoryChecks, null);
          assertEquals(1, calls.get());
 
          store.unblock();
@@ -1272,7 +1272,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          assertEquals(100, store.getAddressLimitPercent());
 
          // address full blocks
-         store.checkMemory(trackMemoryChecks);
+         store.checkMemory(trackMemoryChecks, null);
          assertEquals(2, calls.get());
 
          store.block();
@@ -1300,7 +1300,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          store.addSize(900);
          assertEquals(100, store.getAddressLimitPercent());
 
-         store.checkMemory(trackMemoryChecks);
+         store.checkMemory(trackMemoryChecks, null);
          assertEquals("no change", 3, calls.get());
          assertEquals("no change to be sure to be sure!", 3, calls.get());
 
@@ -1493,7 +1493,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          // Do an initial check
          final CountingRunnable trackMemoryCheck1 = new CountingRunnable();
          assertEquals(0, trackMemoryCheck1.getCount());
-         store.checkMemory(trackMemoryCheck1);
+         store.checkMemory(trackMemoryCheck1, null);
          assertEquals(1, trackMemoryCheck1.getCount());
 
          // Do another check, this time indicate the disk is full during the first couple
@@ -1501,7 +1501,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          final CountingRunnable trackMemoryCheck2 = new CountingRunnable();
          Mockito.when(mockManager.isDiskFull()).thenReturn(true, true, false);
          assertEquals(0, trackMemoryCheck2.getCount());
-         store.checkMemory(trackMemoryCheck2);
+         store.checkMemory(trackMemoryCheck2, null);
          assertEquals(1, trackMemoryCheck2.getCount());
 
          // Now run the released memory checks. The task should NOT execute again, verify it doesnt.

@@ -39,8 +39,12 @@ public class MemoryAssertions {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /** most tests should have these as 0 after execution. */
    public static void basicMemoryAsserts() throws Exception {
+      basicMemoryAsserts(true);
+   }
+
+   /** most tests should have these as 0 after execution. */
+   public static void basicMemoryAsserts(boolean validateMessages) throws Exception {
       CheckLeak checkLeak = new CheckLeak();
       assertMemory(checkLeak, 0, OpenWireConnection.class.getName());
       assertMemory(checkLeak, 0, ProtonServerSenderContext.class.getName());
@@ -53,7 +57,9 @@ public class MemoryAssertions {
       assertMemory(checkLeak, 0, AMQPSessionContext.class.getName());
       assertMemory(checkLeak, 0, ServerConsumerImpl.class.getName());
       assertMemory(checkLeak, 0, RoutingContextImpl.class.getName());
-      assertMemory(checkLeak, 0, MessageReferenceImpl.class.getName());
+      if (validateMessages) {
+         assertMemory(checkLeak, 0, MessageReferenceImpl.class.getName());
+      }
    }
 
    public static void assertMemory(CheckLeak checkLeak, int maxExpected, String clazz) throws Exception {

@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
@@ -111,6 +112,8 @@ public class AMQPSessionCallback implements SessionCallback {
    private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
 
    private ProtonTransactionHandler transactionHandler;
+
+   private final RunnableList blockedRunnables = new RunnableList();
 
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
@@ -384,6 +387,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public void close() throws Exception {
+      blockedRunnables.cancel();
       //need to check here as this can be called if init fails
       if (serverSession != null) {
          // we cannot hold the nettyExecutor on this rollback here, otherwise other connections will be waiting
@@ -610,7 +614,7 @@ public class AMQPSessionCallback implements SessionCallback {
          } else {
             final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
             if (store != null) {
-               store.checkMemory(runnable);
+               store.checkMemory(runnable, blockedRunnables::add);
             } else {
                runnable.run();
             }

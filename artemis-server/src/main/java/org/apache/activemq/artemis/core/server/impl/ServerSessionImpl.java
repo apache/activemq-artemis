@@ -106,6 +106,8 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
+import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +141,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    protected RemotingConnection remotingConnection;
 
    protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
+
+   private final RunnableList blockedRunnables = new RunnableList();
 
    protected final ServerProducers serverProducers;
 
@@ -391,6 +395,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void doClose(final boolean failed) throws Exception {
+      blockedRunnables.cancel();
+
       if (callback != null) {
          callback.close(failed);
       }
@@ -2007,12 +2013,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       if (store == null) {
          callback.sendProducerCreditsMessage(credits, address);
-      } else if (!store.checkMemory(new Runnable() {
+      } else if (!store.checkMemory(new AtomicRunnable() {
          @Override
-         public void run() {
+         public void atomicRun() {
             callback.sendProducerCreditsMessage(credits, address);
          }
-      })) {
+      }, blockedRunnables::add)) {
          callback.sendProducerCreditsFailMessage(credits, address);
       }
    }
