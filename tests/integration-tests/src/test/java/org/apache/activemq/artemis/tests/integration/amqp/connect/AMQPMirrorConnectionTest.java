@@ -22,6 +22,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TUNNE
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +42,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
@@ -521,6 +523,170 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          }
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testMirrorConnectionRemainsUnchangedAfterConfigurationUpdate() throws Exception {
+      final Map<String, Object> brokerProperties = new HashMap<>();
+      brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+                            .withDesiredCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .respond()
+                            .withOfferedCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .withPropertiesMap(brokerProperties);
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectTransfer().accept(); // Notification address create
+         peer.expectTransfer().accept(); // Address create
+         peer.expectTransfer().accept(); // Queue create
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPMirrorBrokerConnectionElement mirror = new AMQPMirrorBrokerConnectionElement();
+         mirror.setQueueCreation(true);
+         mirror.setDurable(true);
+         mirror.setName("test");
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser("user");
+         amqpConnection.setPassword("pass");
+         amqpConnection.addElement(mirror);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + BROKER_PORT_NUM);
+
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            Queue queue = session.createQueue("myQueue");
+            MessageConsumer consumer = session.createConsumer(queue);
+            MessageProducer producer = session.createProducer(queue);
+            TextMessage message = session.createTextMessage("test");
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            AMQPMirrorBrokerConnectionElement mirrorUpdated = new AMQPMirrorBrokerConnectionElement();
+            mirrorUpdated.setQueueCreation(true);
+            mirrorUpdated.setDurable(false);
+            mirrorUpdated.setName("test");
+
+            AMQPBrokerConnectConfiguration amqpConnectionUpdated =
+               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            amqpConnectionUpdated.setReconnectAttempts(0);// No reconnects
+            amqpConnectionUpdated.setUser("user1");
+            amqpConnectionUpdated.setPassword("pass1");
+            amqpConnectionUpdated.addElement(mirrorUpdated);
+
+            final ProtonProtocolManagerFactory protocolFactory = (ProtonProtocolManagerFactory)
+               server.getRemotingService().getProtocolFactoryMap().get("AMQP");
+            assertNotNull(protocolFactory);
+
+            server.getConfiguration().clearAMQPConnectionConfigurations();
+            server.getConfiguration().addAMQPConnection(amqpConnectionUpdated);
+
+            protocolFactory.updateProtocolServices(server, Collections.emptyList());
+
+            // Should be ignored as mirror connections cannot be updated.
+
+            peer.waitForScriptToComplete();
+            peer.expectTransfer().withMessageFormat(0).accept(); // Producer Message
+
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            producer.send(message);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete();
+         }
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testMirrorConnectionRemainsUnchangedAfterConfigurationRemoved() throws Exception {
+      final Map<String, Object> brokerProperties = new HashMap<>();
+      brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+                            .withDesiredCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .respond()
+                            .withOfferedCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .withPropertiesMap(brokerProperties);
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectTransfer().accept(); // Notification address create
+         peer.expectTransfer().accept(); // Address create
+         peer.expectTransfer().accept(); // Queue create
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPMirrorBrokerConnectionElement mirror = new AMQPMirrorBrokerConnectionElement();
+         mirror.setQueueCreation(true);
+         mirror.setDurable(true);
+         mirror.setName("test");
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser("user");
+         amqpConnection.setPassword("pass");
+         amqpConnection.addElement(mirror);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + BROKER_PORT_NUM);
+
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            Queue queue = session.createQueue("myQueue");
+            MessageConsumer consumer = session.createConsumer(queue);
+            MessageProducer producer = session.createProducer(queue);
+            TextMessage message = session.createTextMessage("test");
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            final ProtonProtocolManagerFactory protocolFactory = (ProtonProtocolManagerFactory)
+               server.getRemotingService().getProtocolFactoryMap().get("AMQP");
+            assertNotNull(protocolFactory);
+
+            // Clear and update is essentially a remove of old configuration
+            server.getConfiguration().clearAMQPConnectionConfigurations();
+
+            protocolFactory.updateProtocolServices(server, Collections.emptyList());
+
+            // Should be ignored as mirror connections cannot be updated.
+
+            peer.waitForScriptToComplete();
+            peer.expectTransfer().withMessageFormat(0).accept(); // Producer Message
+
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            producer.send(message);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete();
+         }
 
          server.stop();
       }

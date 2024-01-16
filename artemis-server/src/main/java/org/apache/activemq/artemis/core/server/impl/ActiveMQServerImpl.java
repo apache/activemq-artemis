@@ -1194,10 +1194,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void unregisterBrokerConnection(BrokerConnection brokerConnection) {
+      brokerConnectionMap.remove(brokerConnection.getName());
+   }
+
+   @Override
    public void startBrokerConnection(String name) throws Exception {
       BrokerConnection connection = getBrokerConnection(name);
       connection.start();
-
    }
 
    protected BrokerConnection getBrokerConnection(String name) {
@@ -3604,6 +3608,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   private void updateProtocolServices() throws Exception {
+      remotingService.updateProtocolServices(protocolServices);
+
+      for (ProtocolManagerFactory protocolManagerFactory : protocolManagerFactories) {
+         protocolManagerFactory.updateProtocolServices(this, protocolServices);
+      }
+   }
+
    /**
     * This method exists for a possibility of test cases replacing the FileStoreMonitor for an extension that would for instance pretend a disk full on certain tests.
     */
@@ -4630,6 +4642,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configuration.setQueueConfigs(config.getQueueConfigs());
       configuration.setBridgeConfigurations(config.getBridgeConfigurations());
       configuration.setConnectorConfigurations(config.getConnectorConfigurations());
+      configuration.setAMQPConnectionConfigurations(config.getAMQPConnection());
       configurationReloadDeployed.set(false);
       if (isActive()) {
          configuration.parseProperties(propertiesFileUrl);
@@ -4756,12 +4769,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                   destroyBridge(existingBridgeName);
                }
             }
-
          }
 
          recoverStoredBridges();
          recoverStoredConnectors();
 
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("protocol services");
+         updateProtocolServices();
       }
    }
 

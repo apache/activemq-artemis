@@ -18,10 +18,13 @@ package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionElement {
+
+   private static final long serialVersionUID = -6171198691682381614L;
 
    boolean durable = true;
 
@@ -149,5 +152,40 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
     */
    public Map<String, Object> getProperties() {
       return properties;
+   }
+
+   @Override
+   public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result +
+         Objects.hash(addressFilter, durable, messageAcknowledgements, mirrorSNF, queueCreation, queueRemoval, sync);
+
+      return result;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (!super.equals(obj)) {
+         return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+
+      final AMQPMirrorBrokerConnectionElement other = (AMQPMirrorBrokerConnectionElement) obj;
+
+      return Objects.equals(addressFilter, other.addressFilter) &&
+             durable == other.durable &&
+             messageAcknowledgements == other.messageAcknowledgements &&
+             Objects.equals(mirrorSNF, other.mirrorSNF) &&
+             queueCreation == other.queueCreation &&
+             queueRemoval == other.queueRemoval &&
+             sync == other.sync;
    }
 }

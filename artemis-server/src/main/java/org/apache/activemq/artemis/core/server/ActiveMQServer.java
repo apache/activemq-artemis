@@ -750,6 +750,16 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void registerBrokerConnection(BrokerConnection brokerConnection);
 
+   /**
+    * Removes the given broker connection from the tracked set of active broker
+    * connection entries. Unregistering the connection results in it being forgotten
+    * and the caller is responsible for stopping the connection.
+    *
+    * @param brokerConnection
+    *       The broker connection that should be forgotten.
+    */
+   void unregisterBrokerConnection(BrokerConnection brokerConnection);
+
    void startBrokerConnection(String name) throws Exception;
 
    void stopBrokerConnection(String name) throws Exception;

@@ -16,8 +16,23 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+
 public interface BrokerConnection extends ActiveMQComponent {
+
+   /**
+    * @return the unique name of the broker connection
+    */
    String getName();
 
+   /**
+    * @return the protocol that underlies the broker connection implementation.
+    */
    String getProtocol();
+
+   /**
+    * @return the configuration that was used to create this broker connection.
+    */
+   BrokerConnectConfiguration getConfiguration();
+
 }

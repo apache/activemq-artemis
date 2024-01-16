@@ -60,4 +60,19 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor> {
    String getModuleName();
 
    void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services);
+
+   /**
+    * Provides an entry point for the server to trigger the protocol manager factory to
+    * update its protocol services based on updates to server configuration.
+    *
+    * @param server
+    *    The service instance that has triggered this update
+    * @param services
+    *    The protocol services that were previously registered (mutable).
+    *
+    * @throws Exception can throw an exception if an error occurs while updating or adding
+    *                   protocol services from configuration updates.
+    */
+   void updateProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception;
+
 }
