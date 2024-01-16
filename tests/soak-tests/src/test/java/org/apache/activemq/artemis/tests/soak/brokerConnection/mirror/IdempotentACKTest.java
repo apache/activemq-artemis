@@ -295,6 +295,8 @@ public class IdempotentACKTest extends SoakTestBase {
       // after all flushed messages, we should have 0 messages on both nodes
 
       Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, snfQueue));
+      Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, snfQueue));
+      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, QUEUE_NAME));
       Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, QUEUE_NAME));
    }
 
