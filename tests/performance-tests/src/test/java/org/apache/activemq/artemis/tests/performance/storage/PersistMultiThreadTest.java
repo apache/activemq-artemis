@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
@@ -44,6 +45,7 @@ import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -493,12 +495,12 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable ignoredRunnable) {
+      public boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable ignoredRunnable, Consumer<AtomicRunnable> accepted) {
          return false;
       }
 
       @Override
-      public boolean checkMemory(Runnable runnable) {
+      public boolean checkMemory(Runnable runnable, Consumer<AtomicRunnable> accepted) {
          return false;
       }
 

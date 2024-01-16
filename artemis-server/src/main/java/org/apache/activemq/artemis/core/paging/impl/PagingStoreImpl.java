@@ -1030,16 +1030,25 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public boolean checkMemory(final Runnable runWhenAvailable) {
-      return checkMemory(true, runWhenAvailable, null);
+   public boolean checkMemory(final Runnable runWhenAvailable, Consumer<AtomicRunnable> blockedCallback) {
+      return checkMemory(true, runWhenAvailable, null, blockedCallback);
+   }
+
+   private void addToBlockList(AtomicRunnable atomicRunnable, Consumer<AtomicRunnable> accepted) {
+      onMemoryFreedRunnables.add(atomicRunnable);
+      atomicRunnable.setCancel(onMemoryFreedRunnables::remove);
+      if (accepted != null) {
+         accepted.accept(atomicRunnable);
+      }
    }
 
    @Override
-   public boolean checkMemory(boolean runOnFailure, final Runnable runWhenAvailable, Runnable runWhenBlocking) {
+   public boolean checkMemory(boolean runOnFailure, Runnable runWhenAvailableParameter, Runnable runWhenBlocking, Consumer<AtomicRunnable> blockedCallback) {
+      AtomicRunnable runWhenAvailable = AtomicRunnable.checkAtomic(runWhenAvailableParameter);
 
       if (blockedViaAddressControl) {
          if (runWhenAvailable != null) {
-            onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+            addToBlockList(runWhenAvailable, blockedCallback);
          }
          return false;
       }
@@ -1047,7 +1056,7 @@ public class PagingStoreImpl implements PagingStore {
       if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || maxMessages != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
          if (isFull()) {
             if (runOnFailure && runWhenAvailable != null) {
-               onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+               addToBlockList(runWhenAvailable, blockedCallback);
             }
             return false;
          }
@@ -1057,8 +1066,7 @@ public class PagingStoreImpl implements PagingStore {
                runWhenBlocking.run();
             }
 
-            AtomicRunnable atomicRunWhenAvailable = AtomicRunnable.checkAtomic(runWhenAvailable);
-            onMemoryFreedRunnables.add(atomicRunWhenAvailable);
+            addToBlockList(runWhenAvailable, blockedCallback);
 
             // We check again to avoid a race condition where the size can come down just after the element
             // has been added, but the check to execute was done before the element was added
@@ -1066,7 +1074,8 @@ public class PagingStoreImpl implements PagingStore {
             // MUCH better performance in a highly concurrent environment
             if (!pagingManager.isGlobalFull() && !full) {
                // run it now
-               atomicRunWhenAvailable.run();
+               runWhenAvailable.run();
+               onMemoryFreedRunnables.remove(runWhenAvailable);
             } else {
                if (usingGlobalMaxSize || pagingManager.isDiskFull()) {
                   pagingManager.addBlockedStore(this);
@@ -1122,13 +1131,11 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public boolean checkReleasedMemory() {
       if (!blockedViaAddressControl && !pagingManager.isGlobalFull() && !full) {
-         if (!onMemoryFreedRunnables.isEmpty()) {
-            executor.execute(this::memoryReleased);
-            if (blocking) {
-               ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, getPageInfo());
-               blocking = false;
-               return true;
-            }
+         executor.execute(this::memoryReleased);
+         if (blocking) {
+            ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, getPageInfo());
+            blocking = false;
+            return true;
          }
       }
 

@@ -51,6 +51,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
+import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerInfo;
@@ -77,6 +79,8 @@ public class AMQSession implements SessionCallback {
    private final SessionInfo sessInfo;
    private final ActiveMQServer server;
    private final OpenWireConnection connection;
+
+   private final RunnableList blockedRunnables = new RunnableList();
 
    private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -320,8 +324,7 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void closed() {
-      // TODO Auto-generated method stub
-
+      blockedRunnables.cancel();
    }
 
    @Override
@@ -338,6 +341,7 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void disconnect(ServerConsumer serverConsumer, String errorMessage) {
+      blockedRunnables.cancel();
       // for an openwire consumer this is fatal because unlike with activemq5 sending
       // to the address will not auto create the consumer binding and it will be in limbo.
       // forcing disconnect allows it to failover and recreate its binding.
@@ -412,7 +416,7 @@ public class AMQSession implements SessionCallback {
             sendShouldBlockProducer(producerInfo, messageSend, sendProducerAck, store, dest, count, coreMsg, address);
          } else {
             if (store != null) {
-               if (!store.checkMemory(true, this::restoreAutoRead, this::blockConnection)) {
+               if (!store.checkMemory(true, AtomicRunnable.delegate(this::restoreAutoRead), AtomicRunnable.delegate(this::blockConnection), this.blockedRunnables::add)) {
                   restoreAutoRead();
                   throw new ResourceAllocationException("Queue is full " + address);
                }
@@ -440,62 +444,65 @@ public class AMQSession implements SessionCallback {
                                         final AtomicInteger count,
                                         final org.apache.activemq.artemis.api.core.Message coreMsg,
                                         final SimpleString address) throws ResourceAllocationException {
-      final Runnable task = () -> {
-         Exception exceptionToSend = null;
 
-         try {
-            getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
-         } catch (Exception e) {
-            logger.debug("Sending exception to the client", e);
-            exceptionToSend = e;
-         }
-         connection.enableTtl();
-         if (count == null || count.decrementAndGet() == 0) {
-            if (exceptionToSend != null) {
-               this.connection.getContext().setDontSendReponse(false);
-               connection.sendException(exceptionToSend);
-            } else {
-               server.getStorageManager().afterCompleteOperations(new IOCallback() {
-                  @Override
-                  public void done() {
-                     if (sendProducerAck) {
-                        try {
-                           ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
-                           connection.dispatchAsync(ack);
-                        } catch (Exception e) {
+      final AtomicRunnable task = new AtomicRunnable() {
+         @Override
+         public void atomicRun() {
+            Exception exceptionToSend = null;
+            try {
+               getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
+            } catch (Exception e) {
+               logger.debug("Sending exception to the client", e);
+               exceptionToSend = e;
+            }
+            connection.enableTtl();
+            if (count == null || count.decrementAndGet() == 0) {
+               if (exceptionToSend != null) {
+                  connection.getContext().setDontSendReponse(false);
+                  connection.sendException(exceptionToSend);
+               } else {
+                  server.getStorageManager().afterCompleteOperations(new IOCallback() {
+                     @Override
+                     public void done() {
+                        if (sendProducerAck) {
+                           try {
+                              ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                              connection.dispatchAsync(ack);
+                           } catch (Exception e) {
+                              connection.getContext().setDontSendReponse(false);
+                              logger.warn(e.getMessage(), e);
+                              connection.sendException(e);
+                           }
+                        } else {
                            connection.getContext().setDontSendReponse(false);
-                           logger.warn(e.getMessage(), e);
-                           connection.sendException(e);
-                        }
-                     } else {
-                        connection.getContext().setDontSendReponse(false);
-                        try {
-                           Response response = new Response();
-                           response.setCorrelationId(messageSend.getCommandId());
-                           connection.dispatchAsync(response);
-                        } catch (Exception e) {
-                           logger.warn(e.getMessage(), e);
-                           connection.sendException(e);
+                           try {
+                              Response response = new Response();
+                              response.setCorrelationId(messageSend.getCommandId());
+                              connection.dispatchAsync(response);
+                           } catch (Exception e) {
+                              logger.warn(e.getMessage(), e);
+                              connection.sendException(e);
+                           }
                         }
                      }
-                  }
 
-                  @Override
-                  public void onError(int errorCode, String errorMessage) {
-                     try {
-                        final IOException e = new IOException(errorMessage);
-                        logger.warn(errorMessage);
-                        connection.serviceException(e);
-                     } catch (Exception ex) {
-                        logger.debug(ex.getMessage(), ex);
+                     @Override
+                     public void onError(int errorCode, String errorMessage) {
+                        try {
+                           final IOException e = new IOException(errorMessage);
+                           logger.warn(errorMessage);
+                           connection.serviceException(e);
+                        } catch (Exception ex) {
+                           logger.debug(ex.getMessage(), ex);
+                        }
                      }
-                  }
-               });
+                  });
+               }
             }
          }
       };
       if (store != null) {
-         if (!store.checkMemory(false, task, null)) {
+         if (!store.checkMemory(false, task, null, blockedRunnables::add)) {
             this.connection.getContext().setDontSendReponse(false);
             connection.enableTtl();
             throw new ResourceAllocationException("Queue is full " + address);
@@ -542,11 +549,12 @@ public class AMQSession implements SessionCallback {
    }
 
    public void close() throws Exception {
-      this.coreSession.close(false);
+      this.close(false);
    }
 
    @Override
    public void close(boolean failed) {
+      blockedRunnables.cancel();
       try {
          this.coreSession.close(failed);
       } catch (Exception bestEffort) {

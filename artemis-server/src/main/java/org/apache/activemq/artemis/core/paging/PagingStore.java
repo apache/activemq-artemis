@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
@@ -35,6 +36,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 
 /**
  * <p>
@@ -175,9 +177,9 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
       addSize(size, false);
    }
 
-   boolean checkMemory(Runnable runnable);
+   boolean checkMemory(Runnable runnable, Consumer<AtomicRunnable> blockedCallback);
 
-   boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable runWhenBlocking);
+   boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable runWhenBlocking, Consumer<AtomicRunnable> blockedCallback);
 
    boolean isFull();
 
