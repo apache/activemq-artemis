@@ -17,12 +17,16 @@
 package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
 public class AMQPBrokerConnectionElement implements Serializable {
+
+   private static final long serialVersionUID = 3653295602796835937L;
+
    String name;
    SimpleString matchAddress;
    SimpleString queueName;
@@ -86,7 +90,6 @@ public class AMQPBrokerConnectionElement implements Serializable {
       return this;
    }
 
-
    public String getName() {
       return name;
    }
@@ -95,4 +98,31 @@ public class AMQPBrokerConnectionElement implements Serializable {
       this.name = name;
    }
 
+   @Override
+   public int hashCode() {
+      // Don't pass the parent into hash or you will get a loop of hash code computations.
+      return Objects.hash(matchAddress, name, queueName, type);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (obj == null) {
+         return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+
+      final AMQPBrokerConnectionElement other = (AMQPBrokerConnectionElement) obj;
+
+      return type == other.type &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(matchAddress, other.matchAddress) &&
+             Objects.equals(queueName, other.queueName);
+   }
 }

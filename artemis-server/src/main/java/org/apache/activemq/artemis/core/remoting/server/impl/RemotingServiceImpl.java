@@ -547,6 +547,13 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       }
    }
 
+   @Override
+   public void updateProtocolServices(List<ActiveMQComponent> protocolServices) throws Exception {
+      for (ProtocolManagerFactory protocolManagerFactory : protocolMap.values()) {
+         protocolManagerFactory.updateProtocolServices(this.server, protocolServices);
+      }
+   }
+
    // ServerConnectionLifeCycleListener implementation -----------------------------------
 
    private ProtocolManagerFactory getProtocolManager(String protocol) {

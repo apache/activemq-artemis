@@ -1294,6 +1294,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public Configuration setAMQPConnectionConfigurations(List<AMQPBrokerConnectConfiguration> amqpConnectionConfiugrations) {
+      this.amqpBrokerConnectConfigurations.clear();
+      this.amqpBrokerConnectConfigurations.addAll(amqpConnectionConfiugrations);
+      return this;
+   }
+
+   @Override
+   public Configuration clearAMQPConnectionConfigurations() {
+      this.amqpBrokerConnectConfigurations.clear();
+      return this;
+   }
+
+   @Override
    public ConfigurationImpl clearClusterConfigurations() {
       clusterConfigurations.clear();
       return this;

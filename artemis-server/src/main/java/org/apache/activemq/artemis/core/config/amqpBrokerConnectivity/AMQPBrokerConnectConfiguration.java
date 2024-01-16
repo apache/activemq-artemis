@@ -19,14 +19,18 @@ package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 
 /**
  * This is a specific AMQP Broker Connection Configuration
- * */
+ */
 public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
+
+   private static final long serialVersionUID = 8827214279279810938L;
 
    List<TransportConfiguration> transportConfigurations;
 
@@ -125,5 +129,34 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
    public AMQPBrokerConnectConfiguration setAutostart(boolean autostart) {
       super.setAutostart(autostart);
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + Objects.hash(connectionElements, transportConfigurations);
+
+      return result;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (!super.equals(obj)) {
+         return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+
+      final AMQPBrokerConnectConfiguration other = (AMQPBrokerConnectConfiguration) obj;
+
+      return Objects.equals(connectionElements, other.connectionElements) &&
+             Objects.equals(transportConfigurations, other.transportConfigurations);
    }
 }

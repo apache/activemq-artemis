@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
@@ -40,6 +39,8 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    private static final String MODULE_NAME = "artemis-amqp-protocol";
 
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
+
+   private AMQPBrokerConnectionManager brokerConnectionManager;
 
    @Override
    public Persister<Message>[] getPersister() {
@@ -72,14 +73,56 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
       return MODULE_NAME;
    }
 
-   /** AMQP integration with the broker on this case needs to be soft.
-    *  As the broker may choose to not load the AMQP Protocol */
+   /**
+    * AMQP integration with the broker on this case needs to be soft as the
+    * broker may choose to not load the AMQP Protocol module.
+    */
    @Override
    public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
-      List<AMQPBrokerConnectConfiguration> amqpServicesConfiguration = server.getConfiguration().getAMQPConnection();
-      if (amqpServicesConfiguration != null && amqpServicesConfiguration.size() > 0) {
-         AMQPBrokerConnectionManager bridgeService = new AMQPBrokerConnectionManager(this, amqpServicesConfiguration, server);
-         services.add(bridgeService);
+      final List<AMQPBrokerConnectConfiguration> amqpServicesConfigurations = server.getConfiguration().getAMQPConnection();
+
+      if (amqpServicesConfigurations != null && amqpServicesConfigurations.size() > 0) {
+         brokerConnectionManager = new AMQPBrokerConnectionManager(this, amqpServicesConfigurations, server);
+         services.add(brokerConnectionManager);
+      }
+   }
+
+   /*
+    * Check if broker configuration of AMQP broker connections or other broker
+    * configuration related to protocol services has been updated and update the
+    * protocol services accordingly.
+    */
+   @Override
+   public void updateProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception {
+      if (brokerConnectionManager == null) {
+         checkAddNewBrokerConnectionManager(server, services);
+      } else {
+         updateBrokerConnectionManager(server, services);
+      }
+   }
+
+   private void updateBrokerConnectionManager(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception {
+      final List<AMQPBrokerConnectConfiguration> amqpServicesConfigurations = server.getConfiguration().getAMQPConnection();
+
+      brokerConnectionManager.updateConfiguration(amqpServicesConfigurations);
+
+      if (brokerConnectionManager.getConfiguredConnectionsCount() == 0) {
+         try {
+            brokerConnectionManager.stop();
+         } finally {
+            services.remove(brokerConnectionManager);
+            brokerConnectionManager = null;
+         }
+      }
+   }
+
+   private void checkAddNewBrokerConnectionManager(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception {
+      final List<AMQPBrokerConnectConfiguration> amqpServicesConfigurations = server.getConfiguration().getAMQPConnection();
+
+      if (amqpServicesConfigurations != null && !amqpServicesConfigurations.isEmpty()) {
+         brokerConnectionManager = new AMQPBrokerConnectionManager(this, amqpServicesConfigurations, server);
+         services.add(brokerConnectionManager);
+         brokerConnectionManager.start();
       }
    }
 }

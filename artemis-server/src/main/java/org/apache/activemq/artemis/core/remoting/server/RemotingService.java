@@ -130,5 +130,19 @@ public interface RemotingService {
 
    void loadProtocolServices(List<ActiveMQComponent> protocolServices);
 
+   /**
+    * Provides an entry point for protocol services offered by this service instance
+    * to react to configuration updates. If the service implementation does not have any
+    * managed services or its services do not respond to updates it can ignore this call.
+    * services added should be added to the provided protocolServices list, and any removed
+    * should be found and removed from the list.
+    *
+    * @param protocolServices
+    *    The list of protocol services known to the broker.
+    *
+    * @throws Exception if an error is thrown during the services updates.
+    */
+   void updateProtocolServices(List<ActiveMQComponent> protocolServices) throws Exception;
+
    void addConnectionEntry(Connection connection, ConnectionEntry entry);
 }

@@ -512,6 +512,24 @@ public interface Configuration {
    List<AMQPBrokerConnectConfiguration> getAMQPConnection();
 
    /**
+    * Quick set of all AMQP connection configurations in one call which will clear all
+    * previously set or added broker configurations.
+    *
+    * @param amqpConnectionConfiugrations
+    *    A list of AMQP broker connection configurations to assign to the broker.
+    *
+    * @return this configuration object.
+    */
+   Configuration setAMQPConnectionConfigurations(List<AMQPBrokerConnectConfiguration> amqpConnectionConfiugrations);
+
+   /**
+    * Clears the current configuration object of all set or added AMQP connection configuration elements.
+    *
+    * @return this configuration object.
+    */
+   Configuration clearAMQPConnectionConfigurations();
+
+   /**
     * Returns the queues configured for this server.
     */
    @Deprecated
