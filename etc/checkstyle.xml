@@ -100,14 +100,14 @@ under the License.
          <property name="severity" value="ignore"/>
       </module>
 
-      <!-- Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
+      <module name="UnnecessarySemicolonInTryWithResources"/>
+
+      <!-- begin Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
       <module name="DiamondOperatorForVariableDefinition"/>
       <module name="RequiredParameterForAnnotation">
          <property name="annotationName" value="Parameterized.Parameters"/>
          <property name="requiredParameters" value="name"/>
       </module>
-
-      <module name="UnnecessarySemicolonInTryWithResources"/>
-
+      <!-- end Sevntu checks -->
    </module>
 </module>
