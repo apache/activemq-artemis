@@ -47,10 +47,10 @@ var Artemis;
                     <input type="checkbox" ng-model="$ctrl.showInternalQueues">
                 </label>
 
-                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Primary Brokers:
-                    <input type="checkbox" ng-model="$ctrl.showLiveBrokers">
+                <label style="margin-right: 1em" ng-show="$ctrl.cntPrimaryBrokers && $ctrl.cntBackupBrokers">Show Primary Brokers:
+                    <input type="checkbox" ng-model="$ctrl.showPrimaryBrokers">
                 </label>
-                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Backup Brokers:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntPrimaryBrokers && $ctrl.cntBackupBrokers">Show Backup Brokers:
                     <input type="checkbox" ng-model="$ctrl.showBackupBrokers">
                 </label>
                 <label style="margin-right: 1em" ng-show="$ctrl.relations.length">Show Connectors:
@@ -94,10 +94,10 @@ var Artemis;
         ctrl.showQueues = true;
         ctrl.showInternalAddresses = false;
         ctrl.showInternalQueues = false;
-        ctrl.showLiveBrokers = true;
+        ctrl.showPrimaryBrokers = true;
         ctrl.showBackupBrokers = true;
         ctrl.showConnectors = true;
-        ctrl.cntLiveBrokers = 0;
+        ctrl.cntPrimaryBrokers = 0;
         ctrl.cntBackupBrokers = 0;
         ctrl.cntAddresses = 0;
         ctrl.cntInternalAddresses = 0;
@@ -145,18 +145,18 @@ var Artemis;
             updateInternalQueueKind();
         });
         function updateLiveBrokerKind() {
-            if(ctrl.kinds.ThisPrimaryBroker && !ctrl.showLiveBrokers) {
+            if(ctrl.kinds.ThisPrimaryBroker && !ctrl.showPrimaryBrokers) {
                delete ctrl.kinds.ThisPrimaryBroker;
-            } else if (!ctrl.kinds.ThisPrimaryBroker && ctrl.showLiveBrokers) {
+            } else if (!ctrl.kinds.ThisPrimaryBroker && ctrl.showPrimaryBrokers) {
                 ctrl.kinds.ThisPrimaryBroker = true;
             }
-            if(ctrl.kinds.PrimaryBroker && !ctrl.showLiveBrokers) {
+            if(ctrl.kinds.PrimaryBroker && !ctrl.showPrimaryBrokers) {
                delete ctrl.kinds.PrimaryBroker;
-            } else if (!ctrl.kinds.PrimaryBroker && ctrl.showLiveBrokers) {
+            } else if (!ctrl.kinds.PrimaryBroker && ctrl.showPrimaryBrokers) {
                 ctrl.kinds.PrimaryBroker = true;
             }
         }
-        $scope.$watch('$ctrl.showLiveBrokers', function () {
+        $scope.$watch('$ctrl.showPrimaryBrokers', function () {
             updateLiveBrokerKind();
         });
         function updateBackupBrokerKind() {
@@ -418,7 +418,7 @@ var Artemis;
             var val = atts.value;
             var details = Core.parseMBean(mBean);
 
-            var cntLiveBrokers = 0;
+            var cntPrimaryBrokers = 0;
             var cntBackupBrokers = 0;
 
             if (details) {
@@ -439,13 +439,13 @@ var Artemis;
                         // use the broker-name when nothing else is available
                         thisBroker = {
                             backup: isBackup ? properties.broker.replace(/["]+/g, "") : undefined,
-                            live: isBackup ? undefined : properties.broker.replace(/["]+/g, "")
+                            primary: isBackup ? undefined : properties.broker.replace(/["]+/g, "")
                         };
                         // prevent confusion between this thisBroker and one of the brokers
                         // listed in the connectors-list that we expand below
                         val.Connectors = [];
                     }
-                    if (thisBroker.live) {
+                    if (thisBroker.primary) {
                         ctrl.items[thisBroker.primary] = {
                             "name": thisBroker.primary.replace(/:6161[67]$/, ""),
                             "kind": isBackup ? "PrimaryBroker" : "ThisPrimaryBroker",
@@ -454,7 +454,7 @@ var Artemis;
                             "display_kind": "Server",
                             "mbean": isBackup ? undefined : mBean
                         }
-                        cntLiveBrokers += 1;
+                        cntPrimaryBrokers += 1;
                     }
                     if (thisBroker.backup) {
                         ctrl.items[thisBroker.backup] = {
@@ -478,7 +478,7 @@ var Artemis;
 
                 angular.forEach(remoteBrokers, function (remoteBroker) {
                     if (nodeId != remoteBroker.nodeID) {
-                       if (remoteBroker.live) {
+                       if (remoteBroker.primary) {
                           ctrl.items[remoteBroker.primary] = {
                               "name": remoteBroker.primary.replace(/:6161[67]$/, ""),
                               "kind": "PrimaryBroker",
@@ -486,7 +486,7 @@ var Artemis;
                               "status": "broker",
                               "display_kind": "Server"
                           };
-                          cntLiveBrokers += 1;
+                          cntPrimaryBrokers += 1;
                           //if we arent a backup then connect to it as we are in the cluster
                           if(!isBackup) {}
                               ctrl.relations.push({
@@ -530,7 +530,7 @@ var Artemis;
             }
 
             // reduce the checkbox-list by updating their visibility
-            ctrl.cntLiveBrokers = cntLiveBrokers;
+            ctrl.cntPrimaryBrokers = cntPrimaryBrokers;
             ctrl.cntBackupBrokers = cntBackupBrokers;
             ctrl.cntAddresses = val.AddressNames.filter(name => !isInternalName(name, 0)).length;
             ctrl.cntInternalAddresses = val.AddressNames.filter(name => isInternalName(name, 0)).length;
