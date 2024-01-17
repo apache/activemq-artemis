@@ -44,22 +44,22 @@ svg text {
    font-family: PatternFlyIcons-webfont;
 }
 
-.pf-topology-svg g.ThisMasterBroker circle {
+.pf-topology-svg g.ThisPrimaryBroker circle {
    stroke: black;
    fill: #c12766;
 }
 
-.pf-topology-svg g.MasterBroker circle {
+.pf-topology-svg g.PrimaryBroker circle {
    stroke: #801944;
    fill: #c12766;
 }
 
-.pf-topology-svg g.ThisSlaveBroker circle {
+.pf-topology-svg g.ThisBackupBroker circle {
    stroke: black;
    fill: #cf242a;
 }
 
-.pf-topology-svg g.SlaveBroker circle {
+.pf-topology-svg g.BackupBroker circle {
    stroke: #82171b;
    fill: #cf242a;
 }
