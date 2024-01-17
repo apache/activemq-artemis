@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeC
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -146,7 +147,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
 
       channel1.setHandler(handler);
 
-      long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
+      long ttl = connection instanceof InVMConnection ? ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM : ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
       if (config.getConnectionTTLOverride() != -1) {
          ttl = config.getConnectionTTLOverride();
