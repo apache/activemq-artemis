@@ -416,7 +416,7 @@ public class AMQSession implements SessionCallback {
             sendShouldBlockProducer(producerInfo, messageSend, sendProducerAck, store, dest, count, coreMsg, address);
          } else {
             if (store != null) {
-               if (!store.checkMemory(true, AtomicRunnable.delegate(this::restoreAutoRead), AtomicRunnable.delegate(this::blockConnection), this.blockedRunnables::add)) {
+               if (!store.checkMemory(true, this::restoreAutoRead, this::blockConnection, this.blockedRunnables::add)) {
                   restoreAutoRead();
                   throw new ResourceAllocationException("Queue is full " + address);
                }

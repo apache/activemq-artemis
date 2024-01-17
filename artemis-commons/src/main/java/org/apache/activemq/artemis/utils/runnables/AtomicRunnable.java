@@ -22,10 +22,6 @@ import java.util.function.Consumer;
 
 public abstract class AtomicRunnable implements Runnable {
 
-   public static AtomicRunnable delegate(Runnable runnable) {
-      return new AtomicRunnableWithDelegate(runnable);
-   }
-
    public static AtomicRunnable checkAtomic(Runnable run) {
       if (run instanceof AtomicRunnable) {
          return (AtomicRunnable)run;
