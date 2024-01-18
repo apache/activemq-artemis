@@ -248,13 +248,16 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352297&projectI
 
 === Upgrading from 2.25.0
 
-. We removed the *-all clients from ./lib/client in the assembly as part of https://issues.apache.org/jira/browse/ARTEMIS-4006[ARTEMIS-4006].
-If you use these libraries they can be found at Maven Central, please refer to the xref:client-classpath.adoc#the-client-classpath[client class path documentation] for more information.
-. We removed ActiveMQ-Artemis rest as part of 2.26.0.
-If you still require activemq rest you can still have access to its latest version at https://mvnrepository.com/artifact/org.apache.activemq.rest/artemis-rest/2.25.0[Maven central].
-You can still follow the steps on Rest from any https://activemq.apache.org/components/artemis/documentation/2.25.0/rest.html[previous documentation], however you should stop using the module as it will not be maintained any more.
-. We removed web content from distribution and redirected to the console web requests with the root target as part of https://issues.apache.org/jira/browse/ARTEMIS-3980[ARTEMIS-3980].
-To enable new redirect behaviour on current instances you have to update `bootstrap.xml`.
+. Due to https://issues.apache.org/jira/browse/ARTEMIS-4006[ARTEMIS-4006] the `artemis-jms-client-all` and `artemis-jakarta-client-all` clients were removed from the `lib/client` directory in the binary distribution.
+If you use these libraries they can be found at Maven Central (e.g. https://repo1.maven.org/maven2/org/apache/activemq/artemis-jms-client-all/[here]).
+Please refer to the xref:client-classpath.adoc#the-client-classpath[client class path documentation] for more information.
+. We removed the REST interface from the code-base and documentation.
+If you still require the REST interface you can access the https://mvnrepository.com/artifact/org.apache.activemq.rest/artemis-rest/2.25.0[latest version] which is still viable.
+You can still follow the steps from the https://activemq.apache.org/components/artemis/documentation/2.25.0/rest.html[previous documentation] to build and deploy the interface.
+However, you should stop using it as it will not be maintained any more.
+. Due to https://issues.apache.org/jira/browse/ARTEMIS-3980[ARTEMIS-3980] the web content was removed from the binary distribution.
+We now redirect web requests with the root target to the administration console.
+To enable this new redirect behavior on current instances you have to update `bootstrap.xml`.
 Change:
 +
 [,xml]
@@ -269,7 +272,7 @@ to:
 <web path="web" rootRedirectLocation="console">
 ----
 +
-If you used to customize the index page or to add custom content in the web folder please refer to the xref:web-server.adoc#embedded-web-server[web-server documentation] for more information on disabling the redirect and enabling the web content.
+If you used to customize the index page or to add custom content in the `web` folder please refer to the xref:web-server.adoc#embedded-web-server[web-server documentation] for more information on disabling the redirect and enabling the web content.
 
 == 2.25.0
 
