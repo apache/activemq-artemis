@@ -1035,8 +1035,8 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    private void addToBlockList(AtomicRunnable atomicRunnable, Consumer<AtomicRunnable> accepted) {
-      onMemoryFreedRunnables.add(atomicRunnable);
       atomicRunnable.setCancel(onMemoryFreedRunnables::remove);
+      onMemoryFreedRunnables.add(atomicRunnable);
       if (accepted != null) {
          accepted.accept(atomicRunnable);
       }
