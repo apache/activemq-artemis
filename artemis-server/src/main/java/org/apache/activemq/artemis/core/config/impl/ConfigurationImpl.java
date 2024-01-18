@@ -614,6 +614,31 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public void populateWithProperties(final Object target, final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
       CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil(getBrokerPropertiesRemoveValue(beanProperties));
       BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
+
+         // initialize the given property of the given bean with a new instance of the property class
+         private Object initProperty(Object bean, String name) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+            PropertyDescriptor descriptor = getPropertyUtils().getPropertyDescriptor(bean, name);
+            if (descriptor == null) {
+               throw new InvocationTargetException(null, "No accessor method descriptor for: " + name + " on: " + bean.getClass());
+            }
+
+            Method writeMethod = descriptor.getWriteMethod();
+            if (writeMethod == null) {
+               throw new InvocationTargetException(null, "No Write method for: " + name + " on: " + bean.getClass());
+            }
+
+            Object propertyInstance;
+            try {
+               propertyInstance = descriptor.getPropertyType().getDeclaredConstructor().newInstance();
+            } catch (InstantiationException e) {
+               throw new InvocationTargetException(e);
+            }
+
+            writeMethod.invoke(bean, propertyInstance);
+
+            return propertyInstance;
+         }
+
          // override to treat missing properties as errors, not skip as the default impl does
          @Override
          public void setProperty(final Object bean, String name, final Object value) throws InvocationTargetException, IllegalAccessException {
@@ -626,10 +651,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
                final Resolver resolver = getPropertyUtils().getResolver();
                while (resolver.hasNested(name)) {
                   try {
-                     target = getPropertyUtils().getProperty(target, resolver.next(name));
-                     if (target == null) {
-                        throw new InvocationTargetException(null, "Resolved nested property for:" + name + ", on: " + bean + " was null");
+                     String nextName = resolver.next(name);
+                     Object nextTarget = getPropertyUtils().getProperty(target, nextName);
+                     if (nextTarget == null) {
+                        nextTarget = initProperty(target, nextName);
                      }
+                     target = nextTarget;
                      name = resolver.remove(name);
                   } catch (final NoSuchMethodException e) {
                      throw new InvocationTargetException(e, "No getter for property:" + name + ", on: " + bean);
