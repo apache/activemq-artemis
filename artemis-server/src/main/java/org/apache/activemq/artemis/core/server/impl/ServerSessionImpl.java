@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -166,7 +167,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final ManagementService managementService;
 
-   protected volatile boolean started = false;
+   protected final AtomicBoolean started = new AtomicBoolean(false);
 
    protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
 
@@ -584,7 +585,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (closed) {
             throw ActiveMQMessageBundle.BUNDLE.cannotCreateConsumerOnClosedSession(queueName);
          }
-         consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+         consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started.get(), browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
          consumers.put(consumer.getID(), consumer);
       }
 
@@ -2190,13 +2191,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void setStarted(final boolean s) {
+      boolean wasStarted = started.getAndSet(s);
+      if (wasStarted == s) {
+        return;
+      }
+
       Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
          consumer.setStarted(s);
       }
-
-      started = s;
    }
 
    private RoutingStatus handleManagementMessage(final Transaction tx,
@@ -2235,7 +2239,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private void doRollback(final boolean clientFailed,
                            final boolean lastMessageAsDelived,
                            final Transaction theTx) throws Exception {
-      boolean wasStarted = started;
+      boolean wasStarted = started.get();
 
       List<MessageReference> toCancel = new ArrayList<>();
 
