@@ -1746,6 +1746,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public MessageReference peekFirstScheduledMessage() {
+      synchronized (this) {
+         if (scheduledDeliveryHandler != null) {
+            return scheduledDeliveryHandler.peekFirstScheduledMessage();
+         }
+      }
+
+      return null;
+   }
+
+   @Override
    public synchronized MessageReference removeReferenceWithID(final long id1) throws Exception {
       try (LinkedListIterator<MessageReference> iterator = iterator()) {
 

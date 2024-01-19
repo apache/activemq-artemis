@@ -34,6 +34,8 @@ public interface ScheduledDeliveryHandler {
 
    long getDurableScheduledSize();
 
+   MessageReference peekFirstScheduledMessage();
+
    List<MessageReference> getScheduledReferences();
 
    List<MessageReference> cancel(Predicate<MessageReference> predicate) throws ActiveMQException;

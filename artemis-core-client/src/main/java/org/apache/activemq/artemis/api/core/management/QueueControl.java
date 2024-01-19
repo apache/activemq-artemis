@@ -788,4 +788,17 @@ public interface QueueControl {
     */
    @Attribute(desc = "whether this queue is available for auto deletion")
    boolean isAutoDelete();
+
+   /**
+    * Returns the first message on the queue as JSON
+    */
+   @Operation(desc = "Returns first message on the queue as JSON", impact = MBeanOperationInfo.INFO)
+   String peekFirstMessageAsJSON() throws Exception;
+
+   /**
+    * Returns the first scheduled message on the queue as JSON
+    */
+   @Operation(desc = "Returns first scheduled message on the queue as JSON", impact = MBeanOperationInfo.INFO)
+   String peekFirstScheduledMessageAsJSON() throws Exception;
+
 }

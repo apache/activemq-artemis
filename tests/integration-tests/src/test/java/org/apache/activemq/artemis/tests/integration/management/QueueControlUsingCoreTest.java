@@ -416,6 +416,22 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          /**
+          * Returns the first message on the queue as JSON
+          */
+         @Override
+         public String peekFirstMessageAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("peekFirstMessageAsJSON");
+         }
+
+         /**
+          * Returns the first scheduled message on the queue as JSON
+          */
+         @Override
+         public String peekFirstScheduledMessageAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("peekFirstScheduledMessageAsJSON");
+         }
+
+         /**
           * Returns the timestamp of the first message in milliseconds.
           */
          @Override
