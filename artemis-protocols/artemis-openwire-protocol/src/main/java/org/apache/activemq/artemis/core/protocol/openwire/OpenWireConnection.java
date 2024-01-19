@@ -982,7 +982,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             return;
          }
 
-         amqSession.start();
+         consumersList.forEach((c) -> c.start());
 
          if (AdvisorySupport.isAdvisoryTopic(info.getDestination())) {
             //advisory for temp destinations
@@ -1122,6 +1122,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public AMQSession addSession(SessionInfo ss) {
       AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager, coreMessageObjectPools);
       amqSession.initialize();
+      amqSession.start();
 
       sessions.put(ss.getSessionId(), amqSession);
       sessionIdMap.put(amqSession.getCoreSession().getName(), ss.getSessionId());

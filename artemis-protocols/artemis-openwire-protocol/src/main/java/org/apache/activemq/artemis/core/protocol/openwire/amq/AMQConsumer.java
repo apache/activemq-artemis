@@ -137,6 +137,14 @@ public class AMQConsumer {
       return filterString;
    }
 
+   public void start() {
+      if (serverConsumer == null) {
+         throw new IllegalStateException("Cannot start the AMQConsumer until it has been initialized");
+      }
+
+      serverConsumer.setStarted(true);
+   }
+
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
       SimpleString selector = info.getSelector() == null ? null : new SimpleString(convertOpenWireToActiveMQFilterString(info.getSelector()));
