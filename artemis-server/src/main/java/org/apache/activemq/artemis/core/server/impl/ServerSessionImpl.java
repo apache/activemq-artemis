@@ -2324,9 +2324,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          msg.setAddress(art.getName());
       }
 
-      // check the user has write access to this address.
+      // check the user has write access to this address (and potentially queue).
       try {
-         securityCheck(CompositeAddress.extractAddressName(art.getName()), CompositeAddress.isFullyQualified(art.getName()) ? CompositeAddress.extractQueueName(art.getName()) : null, CheckType.SEND, this);
+         securityCheck(CompositeAddress.extractAddressName(msg.getAddressSimpleString()), CompositeAddress.isFullyQualified(msg.getAddressSimpleString()) ? CompositeAddress.extractQueueName(msg.getAddressSimpleString()) : null, CheckType.SEND, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);
