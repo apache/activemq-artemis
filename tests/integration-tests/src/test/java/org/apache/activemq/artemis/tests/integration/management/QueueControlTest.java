@@ -976,6 +976,77 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testPeekFirstMessage() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      assertEquals("null", queueControl.peekFirstMessageAsJSON());
+
+      String fooValue = RandomUtil.randomString();
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(false).putStringProperty("foo", fooValue));
+      Wait.assertEquals(1, queueControl::getMessageCount);
+
+      JsonObject messageAsJson = JsonUtil.readJsonObject(queueControl.peekFirstMessageAsJSON());
+      assertEquals(fooValue, messageAsJson.getString("foo"));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testPeekFirstScheduledMessage() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      // It's empty, so it's supposed to be like this
+      assertEquals("null", queueControl.peekFirstScheduledMessageAsJSON());
+
+      long timestampBeforeSend = System.currentTimeMillis();
+
+      ClientProducer producer = addClientProducer(session.createProducer(address));
+      ClientMessage message = session.createMessage(durable)
+              .putStringProperty("x", "valueX")
+              .putStringProperty("y", "valueY")
+              .putBooleanProperty("durable", durable)
+              .putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timestampBeforeSend + 5000);
+      producer.send(message);
+
+      consumeMessages(0, session, queue);
+      assertScheduledMetrics(queueControl, 1, durable);
+
+      long timestampAfterSend = System.currentTimeMillis();
+
+      JsonObject messageAsJson = JsonUtil.readJsonObject(queueControl.peekFirstScheduledMessageAsJSON());
+      assertEquals("valueX", messageAsJson.getString("x"));
+      assertEquals("valueY", messageAsJson.getString("y"));
+      assertEquals(durable, messageAsJson.getBoolean("durable"));
+
+      long messageTimestamp = messageAsJson.getJsonNumber("timestamp").longValue();
+      assertTrue(messageTimestamp >= timestampBeforeSend);
+      assertTrue(messageTimestamp <= timestampAfterSend);
+
+      // Make sure that the message is no longer available the "not scheduled" way
+      assertEquals("[{}]", queueControl.getFirstMessageAsJSON());
+
+      queueControl.deliverScheduledMessage(messageAsJson.getInt("messageID"));
+      queueControl.flushExecutor();
+      assertScheduledMetrics(queueControl, 0, durable);
+
+      consumeMessages(1, session, queue);
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testMessageAttributeLimits() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();

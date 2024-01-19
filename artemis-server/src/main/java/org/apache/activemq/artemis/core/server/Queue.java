@@ -436,6 +436,10 @@ public interface Queue extends Bindable,CriticalComponent {
       return null;
    }
 
+   default MessageReference peekFirstScheduledMessage() {
+      return null;
+   }
+
    LinkedListIterator<MessageReference> browserIterator();
 
    SimpleString getExpiryAddress();

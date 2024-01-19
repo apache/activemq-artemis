@@ -2682,4 +2682,32 @@ public interface AuditLogger {
    @LogMessage(id = 601772, value = "User {} is getting producerWindowSize on target resource: {}", level = LogMessage.Level.INFO)
    void getProducerWindowSize(String user, Object source);
 
+   static void peekFirstScheduledMessage(Object source) {
+      BASE_LOGGER.peekFirstScheduledMessage(getCaller(), source);
+   }
+
+   @LogMessage(id = 601773, value = "User {} is getting first scheduled message on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstScheduledMessage(String user, Object source);
+
+   static void peekFirstScheduledMessageAsJSON(Object source) {
+      BASE_LOGGER.peekFirstScheduledMessageAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(id = 601774, value = "User {} is getting first scheduled message as json on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstScheduledMessageAsJSON(String user, Object source);
+
+   static void peekFirstMessage(Object source) {
+      BASE_LOGGER.peekFirstMessage(getCaller(), source);
+   }
+
+   @LogMessage(id = 601775, value = "User {} is getting first message on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstMessage(String user, Object source);
+
+   static void peekFirstMessageAsJSON(Object source) {
+      BASE_LOGGER.peekFirstMessageAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(id = 601776, value = "User {} is getting first message as json on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstMessageAsJSON(String user, Object source);
+
 }

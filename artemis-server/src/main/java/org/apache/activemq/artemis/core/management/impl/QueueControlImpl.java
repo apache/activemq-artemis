@@ -888,6 +888,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
     * or null if there's no first message.
     * @return
     * @throws Exception
+    * @deprecated Use {@link #peekFirstMessage()} instead.
     */
    protected Map<String, Object> getFirstMessage() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
@@ -910,6 +911,59 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   /**
+    * this method returns a Map representing the first message.
+    * or null if there's no first message.
+    * @return A result of {@link Message#toMap()}
+    */
+   protected Map<String, Object> peekFirstMessage() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.peekFirstMessage(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         MessageReference firstMessage = queue.peekFirstMessage();
+         if (firstMessage != null) {
+            return firstMessage.getMessage().toMap();
+         } else {
+            return null;
+         }
+      } finally {
+         blockOnIO();
+      }
+
+   }
+
+   /**
+    * this method returns a Map representing the first scheduled message.
+    * or null if there's no first message.
+    * @return A result of {@link Message#toMap()}
+    */
+   protected Map<String, Object> peekFirstScheduledMessage() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.peekFirstScheduledMessage(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         MessageReference firstScheduledMessage = queue.peekFirstScheduledMessage();
+         if (firstScheduledMessage != null) {
+            return firstScheduledMessage.getMessage().toMap();
+         } else {
+            return null;
+         }
+      } finally {
+         blockOnIO();
+      }
+
+   }
+
+   /**
+    * @deprecated Use {@link #peekFirstMessageAsJSON()} instead.
+    */
    @Override
    public String getFirstMessageAsJSON() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
@@ -919,6 +973,38 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       // I"m returning a new Map[1] in case of no first message, because older versions used to return that when null
       // and I'm playing safe with the compatibility here.
       return toJSON(message == null ? new Map[1] : new Map[]{message});
+   }
+
+   /**
+    * Uses {@link #peekFirstMessage()} and returns the result as JSON.
+    * @return A {@link Message} instance as a JSON object, or <code>"null"</code> if there's no such message.
+    */
+   @Override
+   public String peekFirstMessageAsJSON() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.peekFirstMessageAsJSON(queue);
+      }
+      Map<String, Object> message = peekFirstMessage();
+      if (message == null) {
+         return "null";
+      }
+      return JsonUtil.toJsonObject(message).toString();
+   }
+
+   /**
+    * Uses {@link #peekFirstScheduledMessage()} and returns the result as JSON.
+    * @return A {@link Message} instance as a JSON object, or <code>"null"</code> if there's no such message.
+    */
+   @Override
+   public String peekFirstScheduledMessageAsJSON() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.peekFirstScheduledMessageAsJSON(queue);
+      }
+      Map<String, Object> message = peekFirstScheduledMessage();
+      if (message == null) {
+         return "null";
+      }
+      return JsonUtil.toJsonObject(message).toString();
    }
 
    @Override
