@@ -1252,6 +1252,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          };
          store.applySetting(new AddressSettings().setMaxSizeBytes(1000).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK));
          store.addSize(100);
+         store.flushExecutors();
          store.checkMemory(trackMemoryChecks, null);
          assertEquals(1, calls.get());
 
@@ -1270,6 +1271,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          store.addSize(900);
          assertEquals(100, store.getAddressLimitPercent());
+         store.flushExecutors();
 
          // address full blocks
          store.checkMemory(trackMemoryChecks, null);
@@ -1285,6 +1287,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          assertEquals(2, calls.get());
 
          store.unblock();
+         store.flushExecutors();
 
          // now released
          assertTrue(Wait.waitFor(new Wait.Condition() {
