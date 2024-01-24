@@ -14,12 +14,13 @@ NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#u
 
 == 2.32.0
 
-https://issues.apache.org/jira/secure/ReleaseNote.jspa...
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353769[Full release notes]
 
 === Highlights
 
-* highlight 1
-* highlight 2
+* Mirrored Core Messages can now be sent on their native format without conversions
+* Mirror bug fixes and improvements
+* https://issues.apache.org/jira/browse/ARTEMIS-3474[ActiveMQ Artemis has now adopted] more inclusive language definitions.
 
 === Upgrading from 2.31.x
 

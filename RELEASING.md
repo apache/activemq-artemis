@@ -2,7 +2,7 @@
 
 Things to do before issuing a new release:
 
-* Update docs/user-manual/en/versions.md to include appropriate release notes and upgrade instructions. See previous
+* Update docs/user-manual/en/versions.adoc to include appropriate release notes and upgrade instructions. See previous
   entries for guidance.
 
 * Build the release locally: mvn clean install -Prelease
