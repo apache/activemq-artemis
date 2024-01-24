@@ -21,6 +21,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * Mirrored Core Messages can now be sent on their native format without conversions
 * Mirror bug fixes and improvements
 * https://issues.apache.org/jira/browse/ARTEMIS-3474[ActiveMQ Artemis has now adopted] more inclusive language definitions.
+* The examples are now part of its own repository:  https://github.com/apache/activemq-artemis-examples/
 
 === Upgrading from 2.31.x
 
