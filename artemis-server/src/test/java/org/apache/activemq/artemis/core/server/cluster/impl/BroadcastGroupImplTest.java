@@ -22,13 +22,13 @@ import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Test;
 
 /**
  * Test the {@link BroadcastGroupImpl}.<br>
  */
-public class BroadcastGroupImplTest extends ActiveMQTestBase {
+public class BroadcastGroupImplTest extends ServerTestBase {
 
    static class BroadcastEndpointFactoryImpl implements BroadcastEndpointFactory {
 

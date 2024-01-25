@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.util;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -383,7 +384,7 @@ public class SimpleStringTest extends Assert {
             x[i].start();
          }
 
-         ActiveMQTestBase.waitForLatch(latch);
+         assertTrue("Latch has got to return within a minute", latch.await(1, TimeUnit.MINUTES));
          start.countDown();
 
          for (T t : x) {

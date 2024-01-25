@@ -35,17 +35,7 @@
    </properties>
 
    <dependencies>
-      <!-- this is needed for ActivemqTestBase.
-           TODO: We should eventually move ActiveMQTestBase into artemis-unit-test-support -->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-
-      <!-- this is needed for Wait -->
+      <!-- Test support modules -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
@@ -53,11 +43,11 @@
          <scope>test</scope>
       </dependency>
 
-      <!-- this is needed for CFUtil -->
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
 
       <!-- Dependencies for the ActiveMQ Artemis Server and its protocols -->

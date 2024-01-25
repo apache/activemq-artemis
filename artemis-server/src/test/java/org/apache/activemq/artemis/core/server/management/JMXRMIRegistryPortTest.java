@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.server.management;
 
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
-public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
+public class JMXRMIRegistryPortTest extends ServerTestBase {
 
    @Test
    public void explicitLocalhostRegistry() throws IOException {

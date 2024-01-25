@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.util;
+package org.apache.activemq.artemis.tests.rules;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -26,37 +26,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.management.UnixOperatingSystemMXBean;
-import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * This is useful to make sure you won't have leaking threads between tests
+ * This is useful to make sure you won't have leaking process files between tests
  */
 public class NoProcessFilesBehind extends TestWatcher {
 
+   private long maxFiles;
+
    public NoProcessFilesBehind(long maxFiles) {
-      this(-1, maxFiles);
-   }
-
-   /**
-    * -1 on maxVariance means no check
-    */
-   public NoProcessFilesBehind(long variance, long maxFiles) {
-
       this.maxFiles = maxFiles;
-      if (variance < 0) {
-         maxvariance = null;
-      } else {
-         this.maxvariance = variance;
-      }
    }
-
-   long fdBefore;
-   long maxFiles;
-   Long maxvariance;
 
    static OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
@@ -65,14 +49,6 @@ public class NoProcessFilesBehind extends TestWatcher {
          return ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
       } else {
          return 0;
-      }
-   }
-
-   @Override
-   protected void starting(Description description) {
-      LibaioContext.isLoaded();
-      if (maxvariance != null) {
-         fdBefore = getOpenFD();
       }
    }
 
@@ -97,6 +73,7 @@ public class NoProcessFilesBehind extends TestWatcher {
 
       return openFiles;
    }
+
    private static int getProcessId() throws ReflectiveOperationException {
       java.lang.management.RuntimeMXBean runtime = java.lang.management.ManagementFactory.getRuntimeMXBean();
       java.lang.reflect.Field jvmField = runtime.getClass().getDeclaredField("jvm");
@@ -107,37 +84,12 @@ public class NoProcessFilesBehind extends TestWatcher {
       return (Integer) getProcessIdMethod.invoke(jvm);
    }
 
-
-   @Override
-   protected void failed(Throwable e, Description description) {
-   }
-
-   @Override
-   protected void succeeded(Description description) {
-   }
-
-   /**
-    * Override to tear down your specific external resource.
-    */
    @Override
    protected void finished(Description description) {
-
-      Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0);
-
-      if (maxvariance != null) {
-         long currentVariance  = getOpenFD() - fdBefore;
-
-         if (currentVariance > 0 && currentVariance > maxvariance) {
-            Assert.fail("too many files were opened files on this test::" + getOpenList());
-         }
-
-      }
-
-      if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 5000, 0)) {
+      if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 10000, 0)) {
          String fileList = getOpenList();
          Assert.fail("Too many files open (" + getOpenFD()  + ">" + maxFiles + "). A possible list: " + fileList);
       }
-
    }
 
    private String getOpenList() {
@@ -152,5 +104,4 @@ public class NoProcessFilesBehind extends TestWatcher {
       }
       return stringWriter.toString();
    }
-
 }

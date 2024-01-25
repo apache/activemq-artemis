@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +33,7 @@ import org.junit.Test;
 import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader.LOGIN_CONFIG_SYS_PROP_NAME;
 
-public class StatusTest extends ActiveMQTestBase {
+public class StatusTest extends ServerTestBase {
 
    private String existingPath = null;
 

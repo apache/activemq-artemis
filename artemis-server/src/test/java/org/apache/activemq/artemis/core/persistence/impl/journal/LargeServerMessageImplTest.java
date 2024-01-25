@@ -21,11 +21,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LargeServerMessageImplTest extends ActiveMQTestBase {
+public class LargeServerMessageImplTest extends ServerTestBase {
 
    @Test
    public void testDeleteNoRecreateFile() throws Exception {

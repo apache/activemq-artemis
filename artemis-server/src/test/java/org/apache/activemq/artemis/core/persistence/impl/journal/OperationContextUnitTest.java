@@ -25,14 +25,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OperationContextUnitTest extends ActiveMQTestBase {
+public class OperationContextUnitTest extends ServerTestBase {
 
    @Test
    public void testCompleteTaskAfterPaging() throws Exception {

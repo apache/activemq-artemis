@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -50,7 +50,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 
 @RunWith(Parameterized.class)
-public class JdbcLeaseLockTest extends ActiveMQTestBase {
+public class JdbcLeaseLockTest extends ServerTestBase {
 
    private JdbcSharedStateManager jdbcSharedStateManager;
    private DatabaseStorageConfiguration dbConf;

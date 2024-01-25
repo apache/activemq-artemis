@@ -58,7 +58,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.junit.Assert;
@@ -69,7 +69,7 @@ import org.junit.Test;
  * There is a small window where you could receive notifications wrongly
  * this test will make sure the component would play well with that notification
  */
-public class ClusteredResetMockTest extends ActiveMQTestBase {
+public class ClusteredResetMockTest extends ServerTestBase {
 
    public static final SimpleString ANYCLUSTER = SimpleString.toSimpleString("anycluster");
 

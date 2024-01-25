@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.Enclosin
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.junit.Assert;
 import org.junit.Test;
@@ -92,8 +93,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
          //Class.isAnonymousClass() call used in ObjectInputStreamWithClassLoader
          //need to access the enclosing class and its parent class of the obj
-         //i.e. ActiveMQTestBase and Assert.
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(obj.getClass(), ActiveMQTestBase.class, Assert.class);
+         //i.e. ActiveMQTestBase, ArtemisTestCase, and Assert.
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(obj.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class, Assert.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
 
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -120,7 +121,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          originalProxy.setMyInt(100);
          byte[] bytes = ObjectInputStreamWithClassLoaderTest.toBytes(originalProxy);
 
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(), ActiveMQTestBase.class, Assert.class);
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class, Assert.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);

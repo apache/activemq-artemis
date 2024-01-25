@@ -83,8 +83,8 @@ import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderAccessor;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderTestAccessor;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryDatabase;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
@@ -872,7 +872,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Assert.assertEquals(10, queue.getPagingStore().getNumberOfPages());
 
-      PageCursorProviderAccessor.cleanup(queue.getPagingStore().getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
 
       Assert.assertEquals(9, queue.getPagingStore().getNumberOfPages());
 
@@ -1000,7 +1000,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.commit();
 
          consumer.close();
-         PageCursorProviderAccessor.cleanup(queue.getPagingStore().getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
 
          Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
       }
@@ -1998,7 +1998,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Wait.assertEquals(0, queue::getMessageCount);
 
-      PageCursorProviderAccessor.cleanup(queue.getPagingStore().getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
 
       waitForNotPaging(queue);
    }
@@ -2282,7 +2282,7 @@ public class PagingTest extends ParameterDBTestBase {
       q2.getPageSubscription().cleanupEntries(false);
 
       PageCursorProvider provider = q1.getPageSubscription().getPagingStore().getCursorProvider();
-      PageCursorProviderAccessor.cleanup(provider);
+      PageCursorProviderTestAccessor.cleanup(provider);
 
       waitForNotPaging(q1);
 
@@ -2480,7 +2480,7 @@ public class PagingTest extends ParameterDBTestBase {
       session.commit();
 
       PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
-      PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
 
       Wait.assertFalse(server.getPagingManager().getPageStore(ADDRESS)::isPaging, 5000, 100);
    }
@@ -3623,7 +3623,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       queue.getPageSubscription().getPagingStore().disableCleanup();
 
-      PageCursorProviderAccessor.cleanup(queue.getPagingStore().getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
 
       consumerSession.start();
       ClientConsumer consumer = consumerSession.createConsumer(ADDRESS, SimpleString.toSimpleString("id > 0"));
@@ -3636,7 +3636,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          // The only reason I'm calling cleanup directly is that it would be easy to debug in case of bugs
          // if you see an issue with cleanup here, enjoy debugging this method
-         PageCursorProviderAccessor.cleanup(queue.getPagingStore().getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
       }
       queue.getPageSubscription().getPagingStore().enableCleanup();
 
@@ -3780,7 +3780,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       queue = server.locateQueue(ADDRESS);
       queue.getPageSubscription().cleanupEntries(false);
-      PageCursorProviderAccessor.cleanup(queue.getPageSubscription().getPagingStore().getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(queue.getPageSubscription().getPagingStore().getCursorProvider());
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       session.start();
@@ -4458,7 +4458,7 @@ public class PagingTest extends ParameterDBTestBase {
       }
 
       PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
-      PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+      PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
 
       long timeout = System.currentTimeMillis() + 5000;
       while (store.isPaging() && timeout > System.currentTimeMillis()) {
@@ -4533,11 +4533,11 @@ public class PagingTest extends ParameterDBTestBase {
          }
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
-         PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
 
          Wait.waitFor(() -> !store.isPaging(), 5000);
 
-         PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
 
          waitForNotPaging(server.locateQueue(PagingTest.ADDRESS.concat("=1")));
 
@@ -4610,7 +4610,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.commit();
          session.close();
 
-         PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
 
          waitForNotPaging(server.locateQueue(PagingTest.ADDRESS.concat("=1")));
 
@@ -4909,7 +4909,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          pgStoreAddress.getCursorProvider().getSubscription(serverQueue.getID()).cleanupEntries(false);
 
-         PageCursorProviderAccessor.cleanup(pgStoreAddress.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(pgStoreAddress.getCursorProvider());
 
          Wait.assertFalse(pgStoreAddress::isPaging);
          session.commit();
@@ -6265,7 +6265,7 @@ public class PagingTest extends ParameterDBTestBase {
          consumer.close();
          session.close();
 
-         PageCursorProviderAccessor.cleanup(store.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(store.getCursorProvider());
          waitForNotPaging(server.locateQueue(PagingTest.ADDRESS.concat("=1")));
          sf.close();
          locator.close();

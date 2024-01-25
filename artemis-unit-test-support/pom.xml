@@ -37,6 +37,12 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-artemis-native</artifactId>
+         <version>${activemq-artemis-native-version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
          <scope>provided</scope>

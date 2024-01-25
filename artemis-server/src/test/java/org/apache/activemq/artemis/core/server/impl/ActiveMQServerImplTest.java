@@ -22,11 +22,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ActiveMQServerImplTest extends ActiveMQTestBase {
+public class ActiveMQServerImplTest extends ServerTestBase {
 
    @Test
    public void testAddingAndStartingExternalComponent() throws Exception {
