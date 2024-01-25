@@ -334,7 +334,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (distance < 1) {
                   //Binding added locally. If a matching remote binding with consumers exist, add a redistributor
-                  Binding binding = getBinding(routingName);
+                  Binding binding = addressManager.getBinding(routingName);
 
                   if (binding != null) {
 
@@ -435,7 +435,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   }
 
                   SimpleString addressName = props.getSimpleStringProperty(ManagementHelper.HDR_ADDRESS);
-                  Binding binding = getBinding(CompositeAddress.isFullyQualified(addressName) ? addressName : queueName);
+                  Binding binding = addressManager.getBinding(CompositeAddress.isFullyQualified(addressName) ? addressName : queueName);
 
                   if (binding != null) {
                      // We have a local queue
@@ -496,7 +496,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                         return;
                      }
 
-                     Binding binding = getBinding(queueName);
+                     Binding binding = addressManager.getBinding(queueName);
 
                      if (binding == null) {
                         logger.debug("PostOffice notification / CONSUMER_CLOSED: Could not find queue {}", queueName);
@@ -636,7 +636,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
 
       SimpleString internalDivertName = ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, address);
-      if (getBinding(internalDivertName) != null) {
+      if (addressManager.getBinding(internalDivertName) != null) {
          server.destroyDivert(internalDivertName, true);
       }
 
@@ -1064,7 +1064,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public Binding getBinding(final SimpleString name) {
+   public synchronized Binding getBinding(final SimpleString name) {
       return addressManager.getBinding(name);
    }
 
@@ -1603,6 +1603,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       final Transaction tx = context.getTransaction();
 
       final Long deliveryTime;
+
+      boolean containsDurables = false;
+
       if (message.hasScheduledDeliveryTime()) {
          deliveryTime = message.getScheduledDeliveryTime();
       } else {
@@ -1641,6 +1644,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          final List<Queue> durableQueues = entry.getValue().getDurableQueues();
          if (!durableQueues.isEmpty()) {
             processRouteToDurableQueues(message, context, deliveryTime, tx, durableQueues, refs);
+            containsDurables = true;
          }
       }
 
@@ -1652,6 +1656,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       if (tx != null) {
          tx.addOperation(new AddOperation(refs));
+      } else if (!containsDurables) {
+         processReferences(refs, direct);
       } else {
          // This will use the same thread if there are no pending operations
          // avoiding a context switch on this case

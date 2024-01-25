@@ -156,7 +156,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    @Override
    public synchronized boolean isHighAcceptPriority(final Message message) {
-      if (consumerCount == 0 || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
+      if (consumerCount <= 0 || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
          return false;
       }
 
@@ -242,7 +242,10 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
          }
       }
 
-      consumerCount--;
+      if (--consumerCount < 0) {
+         consumerCount = 0;
+      }
+
    }
 
    @Override
