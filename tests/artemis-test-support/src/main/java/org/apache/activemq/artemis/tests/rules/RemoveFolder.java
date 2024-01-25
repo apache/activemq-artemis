@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.paging.cursor.impl;
+package org.apache.activemq.artemis.tests.rules;
 
-import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import java.io.File;
 
-public class PageCursorProviderAccessor {
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.rules.ExternalResource;
 
-   public static void cleanup(PageCursorProvider provider) {
-      ((PageCursorProviderImpl)provider).cleanup();
+/**
+ * This will remove a folder on a tearDown *
+ */
+public class RemoveFolder extends ExternalResource {
+
+   private final String folderName;
+
+   public RemoveFolder(String folderName) {
+      this.folderName = folderName;
+   }
+
+   @Override
+   protected void after() {
+      FileUtil.deleteDirectory(new File(folderName));
    }
 }

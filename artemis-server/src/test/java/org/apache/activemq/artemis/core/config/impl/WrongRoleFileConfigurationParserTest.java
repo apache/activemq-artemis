@@ -21,14 +21,14 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Test;
 
 /**
  * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
  * -Dlog4j2.configurationFile=file:<path_to_source>/tests/config/log4j2-tests-config.properties
  */
-public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
+public class WrongRoleFileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParsingDefaultServerConfig() throws Exception {

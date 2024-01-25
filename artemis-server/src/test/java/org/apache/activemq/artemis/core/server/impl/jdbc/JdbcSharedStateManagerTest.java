@@ -21,11 +21,11 @@ import java.util.UUID;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
+public class JdbcSharedStateManagerTest extends ServerTestBase {
 
    private DatabaseStorageConfiguration dbConf;
    private SQLProvider sqlProvider;

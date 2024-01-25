@@ -27,14 +27,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ReloadManagerTest extends ActiveMQTestBase {
+public class ReloadManagerTest extends ServerTestBase {
 
    private ScheduledExecutorService scheduledExecutorService;
 

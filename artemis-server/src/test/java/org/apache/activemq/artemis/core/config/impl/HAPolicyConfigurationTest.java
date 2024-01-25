@@ -50,11 +50,11 @@ import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.After;
 import org.junit.Test;
 
-public class HAPolicyConfigurationTest extends ActiveMQTestBase {
+public class HAPolicyConfigurationTest extends ServerTestBase {
 
    @Override
    @After

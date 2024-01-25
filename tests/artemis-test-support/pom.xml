@@ -24,7 +24,7 @@
 
    <artifactId>artemis-test-support</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Test Support</name>
+   <name>ActiveMQ Artemis System Test Support</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
@@ -120,7 +120,12 @@
          <artifactId>junit</artifactId>
          <scope>provided</scope>
       </dependency>
-
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
@@ -128,12 +133,11 @@
          <scope>provided</scope>
       </dependency>
 
-      <!-- This should be the only dependency not at 'provided' scope, for now -->
+      <!-- This should be the only dependency not at 'provided' scope -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
+         <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
-         <type>test-jar</type>
       </dependency>
    </dependencies>
 </project>

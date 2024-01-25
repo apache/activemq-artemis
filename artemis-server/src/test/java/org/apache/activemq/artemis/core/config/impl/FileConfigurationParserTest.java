@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfig
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.utils.StringPrintStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FileConfigurationParserTest extends ActiveMQTestBase {
+public class FileConfigurationParserTest extends ServerTestBase {
 
    /**
     * These "InvalidConfigurationTest*.xml" files are modified copies of {@value

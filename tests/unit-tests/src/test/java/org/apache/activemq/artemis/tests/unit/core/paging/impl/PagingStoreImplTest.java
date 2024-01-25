@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderAccessor;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderTestAccessor;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageReadWriter;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
@@ -323,7 +323,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             debugPage(storeImpl, subscription, storeImpl.getFirstPage(), storeImpl.getCurrentWritingPage());
          }
 
-         PageCursorProviderAccessor.cleanup(storeImpl.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
          Assert.assertTrue(storeImpl.isPaging());
 
@@ -350,7 +350,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          Assert.assertEquals(3, storeImpl.getNumberOfPages());
 
-         PageCursorProviderAccessor.cleanup(storeImpl.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
          Assert.assertFalse(storeImpl.isPaging());
 
@@ -441,7 +441,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          Assert.assertEquals(7, messagesRead);
 
-         PageCursorProviderAccessor.cleanup(storeImpl.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
          Assert.assertEquals(10, factory.listFiles("page").size());
 
@@ -451,7 +451,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          Assert.assertEquals(11, factory.listFiles("page").size());
 
-         PageCursorProviderAccessor.cleanup(storeImpl.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
          Assert.assertEquals(10, factory.listFiles("page").size());
 
@@ -476,7 +476,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          Assert.assertEquals(90, messagesRead);
 
-         PageCursorProviderAccessor.cleanup(storeImpl.getCursorProvider());
+         PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
          Assert.assertFalse(storeImpl.isPaging());
       }

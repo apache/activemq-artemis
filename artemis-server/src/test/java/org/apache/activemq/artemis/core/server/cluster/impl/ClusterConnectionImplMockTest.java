@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
-public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
+public class ClusterConnectionImplMockTest extends ServerTestBase {
 
     /**
      * Verification for the fix https://issues.apache.org/jira/browse/ARTEMIS-1946

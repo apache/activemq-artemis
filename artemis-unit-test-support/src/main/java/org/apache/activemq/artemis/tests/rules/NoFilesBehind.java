@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.util;
+package org.apache.activemq.artemis.tests.rules;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * This is useful to make sure you won't have leaking threads between tests
+ * This is useful to make sure you won't have leaking directories between tests
  */
 public class NoFilesBehind extends TestWatcher {
 
@@ -45,52 +44,19 @@ public class NoFilesBehind extends TestWatcher {
       return null;
    }
 
-   /**
-    * Override to set up your specific external resource.
-    *
-    * @throws if setup fails (which will disable {@code after}
-    */
    @Override
    protected void starting(Description description) {
-      // do nothing
-
       File leaked = checkFiles();
-
       if (leaked != null) {
          Assert.fail("A previous test left a folder around:: " + leaked.getAbsolutePath());
       }
-
    }
 
-
-   @Override
-   protected void failed(Throwable e, Description description) {
-   }
-
-   @Override
-   protected void succeeded(Description description) {
-   }
-
-   /**
-    * Override to tear down your specific external resource.
-    */
    @Override
    protected void finished(Description description) {
-
       File leaked = checkFiles();
-
       if (leaked != null) {
-         try {
-            Assert.fail(leaked.getAbsolutePath() + " is being left behind");
-         } finally {
-            try {
-               FileUtil.deleteDirectory(leaked);
-            } catch (Throwable almostIgnored) {
-               // nothing we can do about it.. but we will log a stack trace for debugging
-               almostIgnored.printStackTrace();
-            }
-         }
+         Assert.fail(leaked.getAbsolutePath() + "A directory is being left behind: " + leaked.getAbsolutePath());
       }
    }
-
 }

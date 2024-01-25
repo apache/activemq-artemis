@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.naming.Context;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
@@ -38,7 +36,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,19 +133,17 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.json.JsonObject;
-import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.rules.LibaioContextCheck;
+import org.apache.activemq.artemis.tests.rules.RemoveFolder;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -157,47 +152,22 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 /**
  * Base class with basic utilities on starting up a basic server
  */
-public abstract class ActiveMQTestBase extends Assert {
+public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static {
       Env.setTestEnv(true);
    }
-
-   /** This will make sure threads are not leaking between tests */
-   @ClassRule
-   public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
-
-   @ClassRule
-   public static NoProcessFilesBehind noProcessFilesBehind = new NoProcessFilesBehind(1000);
-
-   /** We should not under any circunstance create data outside of ./target
-    *  if you have a test failing because because of this rule for any reason,
-    *  even if you use afterClass events, move the test to ./target and always cleanup after
-    *  your data even under ./target.
-    *  Do not try to disable this rule! Fix your test! */
-   @Rule
-   public NoFilesBehind noFilesBehind = new NoFilesBehind("data", "null");
-
-   /** This will cleanup any system property changed inside tests */
-   @Rule
-   public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
 
    @ClassRule
    public static PortCheckRule portCheckRule = new PortCheckRule(61616);
@@ -219,70 +189,11 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected static final long WAIT_TIMEOUT = 30000;
 
-   private static String testClassName = "not-yet-set";
-   private static String previouslyFailedTotalMaxIoMessage;
+   @ClassRule
+   public static LibaioContextCheck libaioContextRule = new LibaioContextCheck();
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
-
-   private List<RunnableEx> runAfter;
-
-   /**
-    * Use this method to cleanup your resources by passing lambdas.
-    * Exceptions thrown from your lambdas will just be logged and not passed as failures.
-    * @param lambda A RunnableEX instance that will be passed possibly from a lambda method
-    */
-   protected void runAfter(RunnableEx lambda) {
-      runAfterEx(() -> {
-         try {
-            lambda.run();
-         } catch (Throwable e) {
-            logger.warn("Lambda {} is throwing an exception", lambda.toString(), e);
-         }
-      });
-   }
-
-   /**
-    * Use this method to cleanup your resources and validating exceptional results by passing lambdas.
-    * Exceptions thrown from your lambdas will be sent straight to JUNIT.
-    * If more than one lambda threw an exception they will all be executed, however only the exception of the first one will
-    * sent to the junit runner.
-    * @param lambda A RunnableEX instance that will be passed possibly from a lambda method
-    */
-   protected synchronized void runAfterEx(RunnableEx lambda) {
-      Assert.assertNotNull(lambda);
-      if (runAfter == null) {
-         runAfter = new ArrayList<>();
-      }
-      runAfter.add(lambda);
-   }
-
-   @After
-   public synchronized void runAfter() throws Throwable {
-      ArrayList<Throwable> throwables = new ArrayList<>();
-      List<RunnableEx> localRunAfter = runAfter;
-      runAfter = null;
-      if (localRunAfter != null) {
-         localRunAfter.forEach((r) -> {
-            try {
-               r.run();
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-               throwables.add(e);
-            }
-         });
-      }
-
-      if (!throwables.isEmpty()) {
-         throw throwables.get(0);
-      }
-   }
-
-   public MBeanServer createMBeanServer() {
-      MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
-      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
-      return mBeanServer;
-   }
 
    protected void clearServers() {
       servers.clear();
@@ -301,82 +212,12 @@ public abstract class ActiveMQTestBase extends Assert {
    private int sendMsgCount = 0;
 
    @Rule
-   public TestName name = new TestName();
-
-   @Rule
    public TemporaryFolder temporaryFolder;
 
    @Rule
    // This Custom rule will remove any files under ./target/tmp
    // including anything created previously by TemporaryFolder
    public RemoveFolder folder = new RemoveFolder(TARGET_TMP);
-
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         logger.info("**** start #test {}() ***", description.getMethodName());
-      }
-
-      @Override
-      protected void finished(Description description) {
-         logger.info("**** end #test {}() ***", description.getMethodName());
-      }
-   };
-
-   @ClassRule
-   public static TestRule classWatcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         testClassName = description.getClassName();
-      }
-   };
-
-   // Static variable used by dropDerby
-   private static final String EXPECTED_DERBY_DROP_STATE = "08006";
-
-   // Static variable used by dropDerby
-   private static final String EXPECTED_DERBY_SHUTDOWN_STATE = "XJ015";
-
-   /** This method will be passed as a lambda into runAfter from createDefaultDatabaseStorageConfiguration */
-   protected void dropDerby() throws Exception {
-      String user = getJDBCUser();
-      String password = getJDBCPassword();
-      try {
-         if (user == null) {
-            DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";drop=true");
-         } else {
-            DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";drop=true", user, password);
-         }
-      } catch (SQLException sqlE) {
-         if (!sqlE.getSQLState().equals(EXPECTED_DERBY_DROP_STATE)) {
-            logger.warn("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
-            throw sqlE;
-         } else {
-            logger.info("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
-
-         }
-      }
-   }
-
-   /** Some tests may be using file database as they share the database with a process.
-    *  these tests will call shutdown Derby only */
-   protected void shutdownDerby() throws SQLException {
-      String user = getJDBCUser();
-      String password = getJDBCPassword();
-      try {
-         if (user == null) {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true;deregister=false");
-         } else {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true;deregister=false", user, password);
-         }
-      } catch (SQLException sqlE) {
-         logger.debug("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
-         if (!sqlE.getSQLState().equals(EXPECTED_DERBY_SHUTDOWN_STATE)) {
-            throw sqlE;
-         }
-      }
-   }
 
    static {
       Random random = new Random();
@@ -527,11 +368,6 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   /**
-    * @param str
-    * @param sub
-    * @return
-    */
    public static int countOccurrencesOf(String str, String sub) {
       if (str == null || sub == null || str.length() == 0 || sub.length() == 0) {
          return 0;
@@ -617,11 +453,6 @@ public abstract class ActiveMQTestBase extends Assert {
       return createBasicConfig(-1);
    }
 
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
 
@@ -636,6 +467,14 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    private boolean derbyDropped = false;
+
+   protected void dropDerby() throws Exception {
+      DBSupportUtil.dropDerbyDatabase(getJDBCUser(), getJDBCPassword(), getEmbeddedDataBaseName());
+   }
+
+   protected void shutdownDerby() throws SQLException {
+      DBSupportUtil.shutdownDerby(getJDBCUser(), getJDBCPassword());
+   }
 
    protected DatabaseStorageConfiguration createDefaultDatabaseStorageConfiguration() {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
@@ -747,10 +586,6 @@ public abstract class ActiveMQTestBase extends Assert {
       } else {
          return JournalType.NIO;
       }
-   }
-
-   public static void forceGC() {
-      ThreadLeakCheckRule.forceGC();
    }
 
    /**
@@ -1839,19 +1674,10 @@ public abstract class ActiveMQTestBase extends Assert {
       return message;
    }
 
-   /**
-    * @param i
-    * @param message
-    * @throws Exception
-    */
    protected void setBody(final int i, final ClientMessage message) {
       message.getBodyBuffer().writeString("message" + i);
    }
 
-   /**
-    * @param i
-    * @param message
-    */
    protected void assertMessageBody(final int i, final ClientMessage message) {
       Assert.assertEquals(message.toString(), "message" + i, message.getBodyBuffer().readString());
    }
@@ -1902,12 +1728,8 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    /**
-    * Reads a journal system and returns a Map<Integer,AtomicInteger> of recordTypes and the number of records per type,
+    * Reads a journal system and returns a Pair of List of RecordInfo,
     * independent of being deleted or not
-    *
-    * @param config
-    * @return
-    * @throws Exception
     */
    protected Pair<List<RecordInfo>, List<PreparedTransactionInfo>> loadMessageJournal(Configuration config) throws Exception {
       JournalImpl messagesJournal = null;
@@ -1935,7 +1757,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    /**
-    * Reads a journal system and returns a Map<Integer,AtomicInteger> of recordTypes and the number of records per type,
+    * Reads a journal system and returns a {@literal Map<Integer,AtomicInteger>} of recordTypes and the number of records per type,
     * independent of being deleted or not
     *
     * @param config
@@ -1988,7 +1810,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * This method will load a journal and count the living records
     *
     * @param config
-    * @param messageJournal if true -> MessageJournal, false -> BindingsJournal
+    * @param messageJournal if true counts MessageJournal, if false counts BindingsJournal
     * @return
     * @throws Exception
     */
@@ -2203,10 +2025,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return exceptions;
       }
 
-      return Collections.EMPTY_LIST;
-
-
-
+      return Collections.emptyList();
    }
 
    private void assertAllClientProducersAreClosed() {
@@ -2228,43 +2047,6 @@ public abstract class ActiveMQTestBase extends Assert {
          }
          otherComponents.clear();
       }
-   }
-
-   @BeforeClass
-   public static void checkLibaioBeforeClass() throws Throwable {
-      if (previouslyFailedTotalMaxIoMessage != null) {
-         // Fail immediately if this is already set.
-         fail(previouslyFailedTotalMaxIoMessage);
-      }
-
-      long totalMaxIO = LibaioContext.getTotalMaxIO();
-      if (totalMaxIO != 0) {
-         failDueToLibaioContextCheck("LibaioContext TotalMaxIO > 0 leak detected BEFORE class %s, TotalMaxIO=%s. Check prior test classes for issue (not possible to be sure of which here).", totalMaxIO);
-      }
-   }
-
-   @AfterClass
-   public static void checkLibaioAfterClass() throws Throwable {
-      if (previouslyFailedTotalMaxIoMessage != null) {
-         // Test class was already failed if this is set, nothing to do here.
-         return;
-      }
-
-      if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
-         long totalMaxIO = LibaioContext.getTotalMaxIO();
-
-         failDueToLibaioContextCheck("LibaioContext TotalMaxIO > 0 leak detected AFTER class %s, TotalMaxIO=%s.", totalMaxIO);
-      }
-   }
-
-   private static void failDueToLibaioContextCheck(String currentFailureMessageFormat, long totalMaxIO) {
-      // Set message to immediately-fail subsequent tests with
-      previouslyFailedTotalMaxIoMessage = String.format("Aborting, LibaioContext TotalMaxIO > 0 issue previously detected by test class %s, see its output.", testClassName);
-
-      // Now fail this run
-      String message = String.format(currentFailureMessageFormat, testClassName, totalMaxIO);
-      logger.error(message);
-      Assert.fail(message);
    }
 
    private void checkFilesUsage() throws Exception {
@@ -2482,7 +2264,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * This is because we don't want it closed in certain tests where we are issuing failures
     *
     * @param isNetty
-    * @return
+    * @return the locator
     */
    public ServerLocator internalCreateNonHALocator(boolean isNetty) {
       return isNetty ? ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY)) : ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));

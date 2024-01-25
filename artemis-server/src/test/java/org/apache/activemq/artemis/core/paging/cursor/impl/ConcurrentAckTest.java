@@ -32,13 +32,13 @@ import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ConcurrentAckTest extends ActiveMQTestBase {
+public class ConcurrentAckTest extends ServerTestBase {
 
    @Test
    public void testConcurrentAddAckPaging() throws Throwable {
