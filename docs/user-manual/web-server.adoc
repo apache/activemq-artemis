@@ -43,6 +43,8 @@ The minimum number of threads the embedded web server will hold to service HTTP 
 Default is `8` or the value of `maxThreads` if it is lower.
 idleThreadTimeout::
 The time to wait before terminating an idle thread from the embedded web server. Measured in milliseconds. Default is `60000`.
+scanPeriod::
+How often to scan for changes of the key and trust store files related to a binding when the `sslAutoReload` attribute value of the `binding` element is `true`, for further details see <<Binding>>. Measured in seconds. Default is `5`.
 
 === Binding
 
@@ -105,6 +107,11 @@ sniRequired::
 Whether or not the client request must include an SNI Host name.
 Default is `false`.
 Only applicable when using `https`.
+
+sslAutoReload::
+Whether or not the key and trust store files must be watched for changes and automatically reloaded.
+The watch period is controlled by the `scanPeriod` attribute of the `web` element, for further details see <<Web>>.
+Default is `false`.
 
 === App
 

@@ -81,6 +81,9 @@ public class BindingDTO {
    @XmlAttribute
    private Boolean sniRequired;
 
+   @XmlAttribute
+   private Boolean sslAutoReload;
+
    public String getKeyStorePassword() throws Exception {
       return getPassword(this.keyStorePassword);
    }
@@ -223,6 +226,14 @@ public class BindingDTO {
 
    public void setSniRequired(Boolean sniRequired) {
       this.sniRequired = sniRequired;
+   }
+
+   public Boolean getSslAutoReload() {
+      return sslAutoReload;
+   }
+
+   public void setSslAutoReload(Boolean sslAutoReload) {
+      this.sslAutoReload = sslAutoReload;
    }
 
    public BindingDTO() {
