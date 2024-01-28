@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.cli.test;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,7 +32,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +42,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -75,6 +80,7 @@ import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -97,11 +103,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class WebServerComponentTest extends Assert {
 
    @Rule
    public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
+   @Rule
+   public TemporaryFolder tempFolder = new TemporaryFolder();
+
 
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
    static final String SECURE_URL = System.getProperty("url", "https://localhost:8448/WebServerComponentTest.txt");
@@ -289,6 +300,7 @@ public class WebServerComponentTest extends Assert {
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
       webServerDTO.webContentEnabled = true;
+      webServerDTO.setScanPeriod(1);
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -416,12 +428,67 @@ public class WebServerComponentTest extends Assert {
       }
    }
 
+   @Test
+   public void testSSLAutoReload() throws Exception {
+      File keyStoreFile = tempFolder.newFile();
+
+      Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-keystore.p12"),
+         keyStoreFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.setSslAutoReload(true);
+      bindingDTO.setKeyStorePath(keyStoreFile.getAbsolutePath());
+      bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+      WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
+
+      try {
+         int port = webServerComponent.getPort(0);
+         AtomicReference<SSLSession> sslSessionReference = new AtomicReference<>();
+         HostnameVerifier hostnameVerifier = (s, sslSession) -> {
+            sslSessionReference.set(sslSession);
+            return true;
+         };
+
+         // check server certificate contains ActiveMQ Artemis Server
+         Assert.assertTrue(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("CN=ActiveMQ Artemis Server,"));
+
+         // check server certificate doesn't contain ActiveMQ Artemis Server
+         Assert.assertFalse(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("CN=ActiveMQ Artemis Other Server,"));
+
+         // update server keystore
+         Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("other-server-keystore.p12"),
+            keyStoreFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+         // check server certificate contains ActiveMQ Artemis Other Server
+         Wait.assertTrue(() -> testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("CN=ActiveMQ Artemis Other Server,"));
+
+         // check server certificate doesn't contain ActiveMQ Artemis Server
+         Assert.assertFalse(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("CN=ActiveMQ Artemis Server,"));
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
+
+
    private int testSimpleSecureServer(String webServerHostname, int webServerPort, String requestHostname, String sniHostname) throws Exception {
+      return testSimpleSecureServer(webServerHostname, webServerPort, requestHostname, sniHostname, null);
+   }
+
+   private int testSimpleSecureServer(String webServerHostname, int webServerPort, String requestHostname, String sniHostname, HostnameVerifier hostnameVerifier) throws Exception {
       HttpGet request = new HttpGet("https://" + (requestHostname != null ? requestHostname : webServerHostname) + ":" + webServerPort + "/WebServerComponentTest.txt");
 
       HttpHost webServerHost = HttpHost.create("https://" + webServerHostname + ":" + webServerPort);
       SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build();
-      SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier()) {
+
+      if (hostnameVerifier == null) {
+         hostnameVerifier = new NoopHostnameVerifier();
+      }
+
+      SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier) {
          @Override
          protected void prepareSocket(SSLSocket socket) throws IOException {
             super.prepareSocket(socket);

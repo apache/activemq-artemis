@@ -25,7 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.ActiveMQWebLogger;
@@ -51,8 +53,10 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.util.Scanner;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +75,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
    public static final boolean DEFAULT_SNI_REQUIRED_VALUE = false;
 
+   public static final boolean DEFAULT_SSL_AUTO_RELOAD_VALUE = false;
+
+   public static final int DEFAULT_SCAN_PERIOD_VALUE = 5;
+
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
@@ -83,11 +91,22 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    private String artemisInstance;
    private String artemisHome;
 
+   private int scanPeriod;
+   private Scanner scanner;
+   private ScheduledExecutorScheduler scannerScheduler;
+   private Map<String, List<Runnable>> scannerTasks = new HashMap<>();
+
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
       this.webServerConfig = (WebServerDTO) config;
       this.artemisInstance = artemisInstance;
       this.artemisHome = artemisHome;
+
+      if (webServerConfig.getScanPeriod() != null) {
+         scanPeriod = webServerConfig.getScanPeriod();
+      } else {
+         scanPeriod = DEFAULT_SCAN_PERIOD_VALUE;
+      }
 
       temporaryWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve("tmp").resolve("webapps").toAbsolutePath();
       if (!Files.exists(temporaryWarDir)) {
@@ -258,6 +277,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                }
             }
          }
+         if (Boolean.TRUE.equals(binding.getSslAutoReload())) {
+            addStoreResourceScannerTask(binding.getKeyStorePath(), sslFactory);
+            addStoreResourceScannerTask(binding.getTrustStorePath(), sslFactory);
+         }
 
          SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
 
@@ -269,7 +292,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
          connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
-
       } else {
          httpConfiguration.setSendServerVersion(false);
          ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
@@ -279,6 +301,75 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       connector.setHost(uri.getHost());
       connector.setName("Connector-" + i);
       return connector;
+   }
+
+   private File getStoreFile(String storeFilename) {
+      File storeFile = new File(storeFilename);
+      if (!storeFile.exists())
+         throw new IllegalArgumentException("Store file does not exist: " + storeFilename);
+      if (storeFile.isDirectory())
+         throw new IllegalArgumentException("Expected store file not directory: " + storeFilename);
+
+      return storeFile;
+   }
+
+   private File getParentStoreFile(File storeFile) {
+      File parentFile = storeFile.getParentFile();
+      if (!parentFile.exists() || !parentFile.isDirectory())
+         throw new IllegalArgumentException("Error obtaining store dir for " + storeFile);
+
+      return parentFile;
+   }
+
+   private Scanner getScanner() {
+      if (scannerScheduler == null) {
+         scannerScheduler = new ScheduledExecutorScheduler("WebScannerScheduler", true, 1);
+         server.addBean(scannerScheduler);
+      }
+
+      if (scanner == null) {
+         scanner = new Scanner(scannerScheduler);
+         scanner.setScanInterval(scanPeriod);
+         scanner.setReportDirs(false);
+         scanner.setReportExistingFilesOnStartup(false);
+         scanner.setScanDepth(1);
+         scanner.addListener((Scanner.BulkListener) filenames -> {
+            for (String filename: filenames) {
+               List<Runnable> tasks = scannerTasks.get(filename);
+               if (tasks != null) {
+                  tasks.forEach(t -> t.run());
+               }
+            }
+         });
+         server.addBean(scanner);
+      }
+
+      return scanner;
+   }
+
+   private void addScannerTask(File file, Runnable task) {
+      File parentFile = getParentStoreFile(file);
+      String storeFilename = file.toPath().toString();
+      List<Runnable> tasks = scannerTasks.get(storeFilename);
+      if (tasks == null) {
+         tasks = new ArrayList<>();
+         scannerTasks.put(storeFilename, tasks);
+      }
+      tasks.add(task);
+      getScanner().addDirectory(parentFile.toPath());
+   }
+
+   private void addStoreResourceScannerTask(String storeFilename, SslContextFactory.Server sslFactory) {
+      if (storeFilename != null) {
+         File storeFile = getStoreFile(storeFilename);
+         addScannerTask(storeFile, () -> {
+            try {
+               sslFactory.reload(f -> { });
+            } catch (Exception e) {
+               logger.warn("Failed to reload the ssl factory related to {}", storeFile, e);
+            }
+         });
+      }
    }
 
    private RequestLog getRequestLog() {
@@ -413,6 +504,9 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          ActiveMQWebLogger.LOGGER.stoppingEmbeddedWebServer();
          server.stop();
          server = null;
+         scanner = null;
+         scannerScheduler = null;
+         scannerTasks.clear();
          cleanupWebTemporaryFiles(webContextData);
          webContextData.clear();
          jolokiaUrls.clear();

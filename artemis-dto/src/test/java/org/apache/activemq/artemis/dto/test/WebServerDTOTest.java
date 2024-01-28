@@ -49,6 +49,7 @@ public class WebServerDTOTest {
       Assert.assertNull(defaultBinding.getTrustStorePassword());
       Assert.assertNull(defaultBinding.getSniHostCheck());
       Assert.assertNull(defaultBinding.getSniRequired());
+      Assert.assertNull(defaultBinding.getSslAutoReload());
    }
 
    @Test

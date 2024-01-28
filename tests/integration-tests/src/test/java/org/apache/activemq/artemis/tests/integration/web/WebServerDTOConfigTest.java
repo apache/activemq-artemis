@@ -46,6 +46,7 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "customizer", "customizerTest");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "rootRedirectLocation", "locationTest");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "webContentEnabled", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "scanPeriod", "1234");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + INVALID_ATTRIBUTE_NAME, "true");
       Configuration configuration = new ConfigurationImpl();
       String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
@@ -54,6 +55,7 @@ public class WebServerDTOConfigTest {
       Assert.assertEquals("customizerTest", webServer.getCustomizer());
       Assert.assertEquals("locationTest", webServer.getRootRedirectLocation());
       Assert.assertEquals(true, webServer.getWebContentEnabled());
+      Assert.assertEquals(Integer.valueOf(1234), webServer.getScanPeriod());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "");
    }
@@ -102,6 +104,7 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStorePassword", "test-trustStorePassword");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniHostCheck", !WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE);
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniRequired", !WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE);
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sslAutoReload", !WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE);
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + "." + INVALID_ATTRIBUTE_NAME, "true");
       Configuration configuration = new ConfigurationImpl();
       String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
@@ -123,6 +126,7 @@ public class WebServerDTOConfigTest {
       Assert.assertEquals("test-trustStorePassword", testBinding.getTrustStorePassword());
       Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniHostCheck());
       Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniRequired());
+      Assert.assertEquals(!WebServerComponent.DEFAULT_SSL_AUTO_RELOAD_VALUE, testBinding.getSslAutoReload());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "bindings." + bindingName + ".");
    }

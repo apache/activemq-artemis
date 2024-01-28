@@ -189,6 +189,7 @@
                               <include>server-cert.pem</include>
                               <include>server-key.pem</include>
                               <include>server-pem-props-config.txt</include>
+                              <include>other-server-keystore.p12</include>
                            </includes>
                         </resource>
                      </resources>
