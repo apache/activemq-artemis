@@ -226,7 +226,7 @@ See the xref:examples.adoc#message-group[Message Group Example] which shows how 
 
 == Clustered Grouping
 
-Before looking at the details for configuring clustered grouping support it is worth examing the idea of clustered grouping as a whole.
+Before looking at the details for configuring clustered grouping support it is worth examining the idea of clustered grouping as a whole.
 In general, combining clustering and message grouping is a poor choice because the fundamental ideas of grouped (i.e. ordered) messages and horizontal scaling through clustering are essentially at odds with each other.
 
 Message grouping enforces ordered message consumption.
