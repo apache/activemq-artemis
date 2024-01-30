@@ -360,18 +360,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
    }
 
-   static int loopNumber;
-
-   public void _testLoop() throws Throwable {
-      for (int i = 0; i < 10; i++) {
-         loopNumber = i;
-         logger.debug("#test {}", i);
-         testSimple();
-         tearDown();
-         setUp();
-      }
-   }
-
    @Test
    public void testSimple2() throws Exception {
       setupServer(0, true, isNetty());

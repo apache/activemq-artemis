@@ -55,13 +55,8 @@ public class FloodServerTest extends ActiveMQTestBase {
       server.start();
    }
 
-
-
    @Test
-   public void testFoo() {
-   }
-
-   public void _testFlood() throws Exception {
+   public void testFlood() throws Exception {
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("tcp://127.0.0.1:61616?retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1&callTimeout=30000&clientFailureCheckPeriod=1000&maxRetryInterval=1000&blockOnDurableSend=false&blockOnAcknowledge=false", "cf");
 
       final int numProducers = 20;

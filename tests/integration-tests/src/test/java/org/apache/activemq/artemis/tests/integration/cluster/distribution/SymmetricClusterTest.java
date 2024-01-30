@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -26,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A SymmetricClusterTest
@@ -1389,7 +1390,8 @@ public class SymmetricClusterTest extends ClusterTestBase {
       verifyReceiveRoundRobinInSomeOrder(10, 1, 2, 3, 4);
    }
 
-   public void _testStartStopServers() throws Exception {
+   @Test
+   public void testStartStopServers() throws Exception {
       doTestStartStopServers(1, 3000);
    }
 
