@@ -16,34 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-
-/**
- * A MultiThreadRandomReattachTest
- */
 public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTestBase {
 
    @Override
-   protected void start() throws Exception {
-      Configuration primaryConf = createDefaultInVMConfig();
-      server = createServer(false, primaryConf);
-      server.getConfiguration().getAddressConfigurations().add(new CoreAddressConfiguration().setName(ADDRESS.toString()).addRoutingType(RoutingType.MULTICAST));
-      server.start();
-      waitForServerToStart(server);
+   protected int getNumIterations() {
+      return 2;
    }
-
-   @Override
-   protected void setBody(final ClientMessage message) throws Exception {
-      // Give each msg a body
-      message.getBodyBuffer().writeBytes(new byte[250]);
-   }
-
-   @Override
-   protected boolean checkSize(final ClientMessage message) {
-      return message.getBodyBuffer().readableBytes() == 250;
-   }
-
 }

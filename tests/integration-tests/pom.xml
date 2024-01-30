@@ -46,13 +46,6 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>unit-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
@@ -472,18 +465,6 @@
                         </resource>
                      </resources>
                   </configuration>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>test</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
                </execution>
             </executions>
          </plugin>

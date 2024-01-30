@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
+package org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes;
 
 import java.util.List;
 import java.util.Map;

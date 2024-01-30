@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.soak.failover;
 
-import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
+import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTestBase;
 
 import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
-public class RandomFailoverSoakTest extends RandomReattachTest {
+public class RandomFailoverSoakTest extends RandomReattachTestBase {
 
    private static final String TEST_NAME = "RANDOM";
    public static final int TEST_REPETITION = testProperty(TEST_NAME, "TEST_REPETITION", 10);

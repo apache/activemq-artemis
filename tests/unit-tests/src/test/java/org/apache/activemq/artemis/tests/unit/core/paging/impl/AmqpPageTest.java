@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp.paging;
+package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -23,10 +23,12 @@ import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
-import org.apache.activemq.artemis.tests.integration.amqp.AmqpTestSupport;
-import org.apache.activemq.artemis.tests.unit.core.paging.impl.PageTest;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class AmqpPageTest extends PageTest {
 
@@ -41,7 +43,7 @@ public class AmqpPageTest extends PageTest {
 
    private static AMQPStandardMessage createStandardMessage(SimpleString address, long msgId, byte[] content) {
       MessageImpl protonMessage = createProtonMessage(address.toString(), content);
-      AMQPStandardMessage amqpMessage = AmqpTestSupport.encodeAndDecodeMessage(0, protonMessage, content.length + 1000);
+      AMQPStandardMessage amqpMessage = encodeAndDecodeMessage(0, protonMessage, content.length + 1000);
       amqpMessage.setMessageID(msgId);
       return amqpMessage;
    }
@@ -73,5 +75,15 @@ public class AmqpPageTest extends PageTest {
          page.write(new PagedMessageImpl(message, new long[0]));
          message.releaseResources(false, false);
       }
+   }
+
+   public static AMQPStandardMessage encodeAndDecodeMessage(int messageFormat, MessageImpl message, int expectedSize) {
+      ByteBuf nettyBuffer = Unpooled.buffer(expectedSize);
+
+      message.encode(new NettyWritable(nettyBuffer));
+      byte[] bytes = new byte[nettyBuffer.writerIndex()];
+      nettyBuffer.readBytes(bytes);
+
+      return new AMQPStandardMessage(messageFormat, bytes, null);
    }
 }

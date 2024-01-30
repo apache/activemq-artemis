@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.util;
+package org.apache.activemq.artemis.tests.rules;
 
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.rules.ExternalResource;

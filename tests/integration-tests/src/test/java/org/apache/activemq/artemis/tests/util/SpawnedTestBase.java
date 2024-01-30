@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.util;
 
+import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
 import org.junit.Rule;
 
 public class SpawnedTestBase extends ActiveMQTestBase {

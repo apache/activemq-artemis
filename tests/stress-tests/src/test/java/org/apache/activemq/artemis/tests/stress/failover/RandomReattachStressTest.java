@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.failover;
 
-import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
+import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTestBase;
 
-public class RandomReattachStressTest extends RandomReattachTest {
+public class RandomReattachStressTest extends RandomReattachTestBase {
 
 
 

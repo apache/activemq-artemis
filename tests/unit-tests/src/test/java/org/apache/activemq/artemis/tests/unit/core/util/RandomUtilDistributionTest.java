@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.util;
 
 import java.util.HashSet;
 
-import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
+import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.Assert;

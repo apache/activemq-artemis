@@ -14,26 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.timing.util;
+package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
-import org.apache.activemq.artemis.utils.UUIDGenerator;
-
-public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTest {
-
-
-   public static void main(String[] args) {
-      long start = System.currentTimeMillis();
-      int count = 10000;
-      for (int i = 0; i < count; i++) {
-         // System.out.println(i + " " + UUIDGenerator.asString(UUIDGenerator.getHardwareAddress()));
-         byte[] address = UUIDGenerator.getHardwareAddress();
-      }
-      long end = System.currentTimeMillis();
-      System.out.println("getHardwareAddress() => " + 1.0 * (end - start) / count + " ms");
-   }
+public class RandomReattachIntegrationTest extends RandomReattachTestBase {
 
    @Override
-   protected int getTimes() {
-      return 1000000;
+   protected int getNumIterations() {
+      return 2;
    }
 }
