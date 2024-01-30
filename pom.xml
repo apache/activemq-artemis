@@ -107,6 +107,7 @@
       <errorprone.version>2.20.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <jib.maven.plugin.version>3.3.2</jib.maven.plugin.version>
+      <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
       <checkstyle.version>10.12.7</checkstyle.version>
       <mockito.version>5.4.0</mockito.version>
@@ -1957,6 +1958,84 @@
             <groupId>com.google.cloud.tools</groupId>
             <artifactId>jib-maven-plugin</artifactId>
             <version>${jib.maven.plugin.version}</version>
+         </plugin>
+         <plugin>
+            <!-- run using "mvn versions:display-dependency-updates" -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>versions-maven-plugin</artifactId>
+            <version>${versions.maven.plugin.version}</version>
+            <configuration>
+               <ruleSet>
+                  <ignoreVersions>
+                     <!-- ignore release candidates, alphas, betas, milestones, etc. -->
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>.*-[Rr][Cc]\d$</version>
+                     </ignoreVersion>
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>.*.[Aa]lpha\d*$</version>
+                     </ignoreVersion>
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>.*-beta\d*$</version>
+                     </ignoreVersion>
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>.*[-\.]M\d$</version>
+                     </ignoreVersion>
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>.*[-\.]MR$</version>
+                     </ignoreVersion>
+
+                     <!-- there's some really old Apache deps with weird versions numbers that we should ignore -->
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>20040.*</version>
+                     </ignoreVersion>
+                     <ignoreVersion>
+                        <type>regex</type>
+                        <version>2003[01].*</version>
+                     </ignoreVersion>
+                  </ignoreVersions>
+                  <rules>
+                     <!-- ignore Jetty 11 & 12 until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>1[12]\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                     <!-- ignore Spring 6 until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.springframework</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>6\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                     <!-- ignore Derby >= 10.16 until we move to JDK 17 -->
+                     <rule>
+                        <groupId>org.apache.derby</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>10.1[67]\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                  </rules>
+               </ruleSet>
+            </configuration>
          </plugin>
       </plugins>
    </build>
