@@ -234,7 +234,8 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
    }
 
    @Override
-   public void _testStartStopServers() throws Exception {
+   @Test
+   public void testStartStopServers() throws Exception {
       setupCluster();
 
       startServers();

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Test;
 
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
 
@@ -61,8 +62,8 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
     * This is like testStopStartServers but we make sure we pause longer than discovery group timeout
     * before restarting (5 seconds)
     */
-   public void _testStartStopServersWithPauseBeforeRestarting() throws Exception {
+   @Test
+   public void testStartStopServersWithPauseBeforeRestarting() throws Exception {
       doTestStartStopServers(10000, 3000);
    }
-
 }
