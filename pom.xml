@@ -118,7 +118,7 @@
       <curator.version>5.5.0</curator.version>
       <zookeeper.version>3.8.3</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
-      <pem-keystore.version>2.2.2</pem-keystore.version>
+      <pem-keystore.version>2.3.0</pem-keystore.version>
       <!-- This overrides the Apache parent POM due to https://issues.apache.org/jira/browse/MSHADE-462. Once that issue
            is resolved and a new Apache parent is released then we can get rid of this. -->
       <version.maven-shade-plugin>3.4.1</version.maven-shade-plugin>
