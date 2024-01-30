@@ -125,10 +125,6 @@
       <asciidoctor.maven.plugin.version>2.2.4</asciidoctor.maven.plugin.version>
       <asciidoctorj.pdf.version>2.3.9</asciidoctorj.pdf.version>
 
-      <!-- tracing -->
-      <opentelemetry.version>1.24.0</opentelemetry.version>
-      <opentelemetry-alpha.version>${opentelemetry.version}-alpha</opentelemetry-alpha.version>
-
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.61.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
@@ -585,23 +581,6 @@
             <version>${slf4j.version}</version>
          </dependency>
          <!-- ## End Examples Dependencies ## -->
-
-         <!-- ### START opentelemetry Dependencies ### -->
-         <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-bom</artifactId>
-            <version>${opentelemetry.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-         <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-bom-alpha</artifactId>
-            <version>${opentelemetry-alpha.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-         <!-- ### END opentelemetry Dependencies ### -->
 
          <!--needed to compile the bootstrap jar-->
          <dependency>
