@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;

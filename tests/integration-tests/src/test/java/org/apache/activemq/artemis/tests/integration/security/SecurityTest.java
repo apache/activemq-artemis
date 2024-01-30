@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -72,7 +73,6 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.Wait;
@@ -1749,8 +1749,8 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSession sendingSession = cf.createSession("auser", "pass", false, false, false, false, 0);
       ClientProducer prod = sendingSession.createProducer(SecurityTest.addressA);
-      prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
-      prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
+      prod.send(createClientMessage(sendingSession, "Test", true));
+      prod.send(createClientMessage(sendingSession, "Test", true));
       try {
          sendingSession.commit();
          Assert.fail("Expected exception");
@@ -1766,8 +1766,8 @@ public class SecurityTest extends ActiveMQTestBase {
       sendingSession.start(xid, XAResource.TMNOFLAGS);
 
       prod = sendingSession.createProducer(SecurityTest.addressA);
-      prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
-      prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
+      prod.send(createClientMessage(sendingSession, "Test", true));
+      prod.send(createClientMessage(sendingSession, "Test", true));
       sendingSession.end(xid, XAResource.TMSUCCESS);
 
       try {
@@ -1786,6 +1786,12 @@ public class SecurityTest extends ActiveMQTestBase {
       senSession.close();
 
       sendingSession.close();
+   }
+
+   private static ClientMessage createClientMessage(final ClientSession session, final String s, final boolean durable) {
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, durable, 0, System.currentTimeMillis(), (byte) 1);
+      message.getBodyBuffer().writeString(s);
+      return message;
    }
 
    @Test

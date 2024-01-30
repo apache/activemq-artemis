@@ -34,11 +34,6 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-api</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
@@ -75,13 +70,6 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>unit-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
@@ -112,6 +100,16 @@
       <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
    </dependencies>

@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
+import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.After;
 import org.junit.Assert;

@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;

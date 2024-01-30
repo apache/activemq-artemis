@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.selector.filter.Filterable;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;

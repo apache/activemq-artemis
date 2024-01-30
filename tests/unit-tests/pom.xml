@@ -147,8 +147,6 @@
          <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
-
-      <!-- this is for the log assertion -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
@@ -225,18 +223,6 @@
                         </resource>
                      </resources>
                   </configuration>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>test</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
                </execution>
             </executions>
          </plugin>

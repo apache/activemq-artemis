@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.TcpProxy;
-import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;

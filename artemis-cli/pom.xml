@@ -167,12 +167,6 @@
          <artifactId>junit</artifactId>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-junit</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
            However maven can still need them during tests, which run against

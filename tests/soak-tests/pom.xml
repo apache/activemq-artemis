@@ -109,13 +109,6 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>integration-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-client</artifactId>
          <scope>test</scope>
@@ -176,7 +169,6 @@
          <artifactId>jakarta.json-api</artifactId>
          <scope>test</scope>
       </dependency>
-
    </dependencies>
 
    <build>

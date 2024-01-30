@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.amqpJMS;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
+import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

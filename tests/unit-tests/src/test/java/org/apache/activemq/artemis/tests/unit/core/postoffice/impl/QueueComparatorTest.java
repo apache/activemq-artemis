@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
