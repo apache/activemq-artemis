@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
@@ -2182,6 +2183,34 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       Assert.assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
+   }
+
+   @Test
+   public void testSecuritySettingPluginFromBrokerProperties() throws Exception {
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("securitySettingPlugins.\"org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin.class\".init", "initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory,connectionURL=ldap://localhost:1024");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertEquals(1, configuration.getSecuritySettingPlugins().size());
+      Assert.assertEquals("com.sun.jndi.ldap.LdapCtxFactory", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getInitialContextFactory());
+      Assert.assertEquals("ldap://localhost:1024", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getConnectionURL());
+
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      // verify invalid map errors out
+      insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      // possible to change any attribute, but plugins only registered on start
+      insertionOrderedProperties.put("securitySettingPlugins.\"org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin.class\".init", "initialContextFactory");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertTrue(configuration.getStatus().contains("initialContextFactory"));
    }
 
    /**
