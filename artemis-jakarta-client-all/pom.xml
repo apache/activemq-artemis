@@ -21,6 +21,7 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
       <version>2.33.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-jakarta-client-all</artifactId>
@@ -28,7 +29,6 @@
    <name>ActiveMQ Artemis Jakarta Messaging Client All</name>
 
    <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
    </properties>
 
@@ -36,7 +36,6 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jakarta-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
