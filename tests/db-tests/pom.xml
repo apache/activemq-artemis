@@ -188,6 +188,11 @@
          <artifactId>derby</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derbytools</artifactId>
+         <scope>test</scope>
+      </dependency>
 
 
    </dependencies>
@@ -253,6 +258,8 @@
                   <configuration>
                      <libList>
                         <arg>org.apache.derby:derby:${apache.derby.version}</arg>
+                        <arg>org.apache.derby:derbytools:${apache.derby.version}</arg>
+                        <arg>org.apache.derby:derbyshared:${apache.derby.version}</arg>
                      </libList>
                      <targetFolder>${basedir}/target/derby/jdbc-jars</targetFolder>
                   </configuration>

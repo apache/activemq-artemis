@@ -110,6 +110,11 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derbytools</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
