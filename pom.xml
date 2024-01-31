@@ -88,7 +88,7 @@
       <commons.config.version>2.9.0</commons.config.version>
       <commons.lang.version>3.14.0</commons.lang.version>
       <activemq5-version>5.18.3</activemq5-version>
-      <apache.derby.version>10.14.2.0</apache.derby.version>
+      <apache.derby.version>10.15.2.0</apache.derby.version>
       <commons.beanutils.version>1.9.4</commons.beanutils.version>
       <commons.logging.version>1.3.0</commons.logging.version>
       <commons.dbcp2.version>2.11.0</commons.dbcp2.version>
@@ -363,6 +363,12 @@
          <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+            <version>${apache.derby.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
             <version>${apache.derby.version}</version>
             <scope>test</scope>
          </dependency>
