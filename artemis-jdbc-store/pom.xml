@@ -21,15 +21,12 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
       <version>2.33.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-jdbc-store</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JDBC Store</name>
-
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
 
    <dependencies>
 
@@ -46,17 +43,14 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>commons-beanutils</groupId>

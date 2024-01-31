@@ -22,18 +22,17 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
       <version>2.33.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-jakarta-ra</artifactId>
    <packaging>jar</packaging>
 
    <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
       <jakarta.transaction-api.version>${jakarta.transaction-api.version.alt}</jakarta.transaction-api.version>
       <jakarta.resource-api.version>${jakarta.resource-api.version.alt}</jakarta.resource-api.version>
    </properties>
-
 
    <dependencies>
       <!-- logging -->
@@ -56,13 +55,11 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jakarta-client</artifactId>
-         <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
@@ -83,12 +80,10 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jakarta-service-extensions</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.jgroups</groupId>
