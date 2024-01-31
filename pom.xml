@@ -109,7 +109,7 @@
       <jib.maven.plugin.version>3.3.2</jib.maven.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
       <checkstyle.version>10.12.7</checkstyle.version>
-      <mockito.version>5.4.0</mockito.version>
+      <mockito.version>5.10.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.101.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
