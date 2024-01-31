@@ -51,11 +51,3 @@ One Artemis server is created for each supported database. After building, they 
 - `./target/db2`
 
 Some of the tests on this module are connecting to the database directly, and these tests will use the JDBC jar directly from the `lib folder` from each of these servers.
-
-# Oracle JDBC Driver
-
-All the JDBC drivers using in this module are available as maven central repository and are being downloaded by the artemis-maven-plugin during the compilation phase of the tests.
-
-The exception to this rule is [Oracle database](https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html), for which you must provide the JAR under this location:
-
-- jdbc-drivers/oracle
