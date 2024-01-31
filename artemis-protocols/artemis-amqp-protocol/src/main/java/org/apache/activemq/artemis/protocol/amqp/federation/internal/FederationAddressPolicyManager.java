@@ -61,10 +61,10 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final ActiveMQServer server;
-   protected final FederationReceiveFromAddressPolicy policy;
-   protected final Map<FederationConsumerInfo, FederationConsumerEntry> remoteConsumers = new HashMap<>();
    protected final FederationInternal federation;
-   protected final Map<DivertBinding, Set<SimpleString>> matchingDiverts = new HashMap<>();
+   protected final FederationReceiveFromAddressPolicy policy;
+   protected final Map<String, FederationAddressEntry> remoteConsumers = new HashMap<>();
+   protected final Map<DivertBinding, Set<QueueBinding>> matchingDiverts = new HashMap<>();
 
    private volatile boolean started;
 
@@ -75,7 +75,6 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
       this.federation = federation;
       this.policy = addressPolicy;
       this.server = federation.getServer();
-      this.server.registerBrokerPlugin(this);
    }
 
    /**
@@ -108,84 +107,72 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    }
 
    @Override
-   public synchronized void afterAddAddress(AddressInfo addressInfo, boolean reload) {
-      if (started && policy.isEnableDivertBindings() && policy.test(addressInfo)) {
-         try {
-            // A Divert can exist in configuration prior to the address having been auto created
-            // etc so upon address add this check needs to be run to capture addresses that now
-            // match the divert.
-            server.getPostOffice()
-                  .getDirectBindings(addressInfo.getName())
-                  .stream().filter(binding -> binding instanceof DivertBinding)
-                  .forEach(this::afterAddBinding);
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.federationBindingsLookupError(addressInfo.getName(), e);
-         }
-      }
-   }
-
-   @Override
-   public synchronized void afterAddBinding(Binding binding) {
+   public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
       if (started) {
-         checkBindingForMatch(binding);
-      }
-   }
+         if (binding instanceof QueueBinding) {
+            final FederationAddressEntry entry = remoteConsumers.get(binding.getAddress().toString());
 
-   @Override
-   public synchronized void beforeRemoveBinding(SimpleString bindingName, Transaction tx, boolean deleteData) {
-      final Binding binding = server.getPostOffice().getBinding(bindingName);
-      final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
+            if (entry != null) {
+               // This is QueueBinding that was mapped to a federated address so we can directly remove
+               // demand from the federation consumer and close it if demand is now gone.
+               tryRemoveDemandOnAddress(entry, binding);
+            } else if (policy.isEnableDivertBindings()) {
+               // See if there is any matching diverts that are forwarding to an address where this QueueBinding
+               // is bound and remove the mapping for any matches, diverts can have a composite set of address
+               // forwards so each divert must be checked in turn to see if it contains the address the removed
+               // binding was bound to.
+               matchingDiverts.entrySet().forEach(divertEntry -> {
+                  final String sourceAddress = divertEntry.getKey().getAddress().toString();
+                  final SimpleString forwardAddress = divertEntry.getKey().getDivert().getForwardAddress();
 
-      if (binding instanceof QueueBinding) {
-         tryRemoveDemandOnAddress(addressInfo);
+                  if (isAddressInDivertForwards(binding.getAddress(), forwardAddress)) {
+                     // Try and remove the queue binding from the set of registered bindings
+                     // for the divert and if that removes all mapped bindings then we can
+                     // remove the divert from the federated address entry and check if that
+                     // removed all local demand which means we can close the consumer.
+                     divertEntry.getValue().remove(binding);
 
-         if (policy.isEnableDivertBindings()) {
-            // See if there is any matching diverts that match this queue binding and remove demand now that
-            // the queue is going away. Since a divert can be composite we need to check for a match of the
-            // queue address on each of the forwards if there are any.
-            matchingDiverts.entrySet().forEach(entry -> {
-               final SimpleString forwardAddress = entry.getKey().getDivert().getForwardAddress();
-
-               if (isAddressInDivertForwards(binding.getAddress(), forwardAddress)) {
-                  final AddressInfo srcAddressInfo = server.getPostOffice().getAddressInfo(entry.getKey().getAddress());
-
-                  if (entry.getValue().remove(((QueueBinding) binding).getQueue().getName())) {
-                     tryRemoveDemandOnAddress(srcAddressInfo);
+                     if (divertEntry.getValue().isEmpty()) {
+                        tryRemoveDemandOnAddress(remoteConsumers.get(sourceAddress), divertEntry.getKey());
+                     }
                   }
-               }
-            });
-         }
-      } else if (policy.isEnableDivertBindings() || binding instanceof DivertBinding) {
-         final DivertBinding divertBinding = (DivertBinding) binding;
-         final Set<SimpleString> matchingQueues = matchingDiverts.remove(binding);
+               });
+            }
+         } else if (policy.isEnableDivertBindings() && binding instanceof DivertBinding) {
+            final DivertBinding divert = (DivertBinding) binding;
 
-         // Each entry in the matching queues set is one instance of demand that was
-         // registered on the source address which would have been federated from the
-         // remote so on remove we deduct each and if that removes all demand the remote
-         // consumer will be closed.
-         if (matchingQueues != null) {
-            try {
-               matchingQueues.forEach((queueName) -> tryRemoveDemandOnAddress(addressInfo));
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.federationBindingsLookupError(divertBinding.getDivert().getForwardAddress(), e);
+            if (matchingDiverts.remove(divert) != null) {
+               // The divert binding is treated as one unit of demand on a federated address and
+               // when the divert is removed that unit of demand is removed regardless of existing
+               // bindings still remaining on the divert forwards. If the divert demand was the
+               // only thing keeping the federated address consumer open this will result in it
+               // being closed.
+               try {
+                  tryRemoveDemandOnAddress(remoteConsumers.get(divert.getAddress().toString()), divert);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(divert.getDivert().getForwardAddress(), e);
+               }
             }
          }
       }
    }
 
-   protected final void tryRemoveDemandOnAddress(AddressInfo addressInfo) {
-      final FederationConsumerInfo consumerInfo = createConsumerInfo(addressInfo);
-      final FederationConsumerEntry entry = remoteConsumers.get(consumerInfo);
+   protected final void tryRemoveDemandOnAddress(FederationAddressEntry entry, Binding binding) {
+      if (entry != null) {
+         entry.removeDenamd(binding);
 
-      if (entry != null && entry.reduceDemand()) {
-         final FederationConsumerInternal federationConsuner = entry.getConsumer();
+         logger.trace("Reducing demand on federated address {}, remaining demand? {}", entry.getAddress(), entry.hasDemand());
 
-         try {
-            signalBeforeCloseFederationConsumer(federationConsuner);
-            federationConsuner.close();
-            signalAfterCloseFederationConsumer(federationConsuner);
-         } finally {
-            remoteConsumers.remove(consumerInfo);
+         if (!entry.hasDemand()) {
+            final FederationConsumerInternal federationConsuner = entry.getConsumer();
+
+            try {
+               signalBeforeCloseFederationConsumer(federationConsuner);
+               federationConsuner.close();
+               signalAfterCloseFederationConsumer(federationConsuner);
+            } finally {
+               remoteConsumers.remove(entry.getAddress());
+            }
          }
       }
    }
@@ -199,17 +186,61 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    protected final void scanAllBindings() {
       server.getPostOffice()
             .getAllBindings()
-            .filter(bind -> bind instanceof QueueBinding || (policy.isEnableDivertBindings() && bind instanceof DivertBinding))
-            .forEach(bind -> checkBindingForMatch(bind));
+            .filter(binding -> binding instanceof QueueBinding || (policy.isEnableDivertBindings() && binding instanceof DivertBinding))
+            .forEach(binding -> afterAddBinding(binding));
    }
 
+   @Override
+   public synchronized void afterAddAddress(AddressInfo addressInfo, boolean reload) {
+      if (started && policy.isEnableDivertBindings() && policy.test(addressInfo)) {
+         try {
+            // A Divert can exist in configuration prior to the address having been auto created
+            // etc so upon address add this check needs to be run to capture addresses that now
+            // match the divert.
+            server.getPostOffice()
+                  .getDirectBindings(addressInfo.getName())
+                  .stream().filter(binding -> binding instanceof DivertBinding)
+                  .forEach(this::checkBindingForMatch);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.federationBindingsLookupError(addressInfo.getName(), e);
+         }
+      }
+   }
+
+   @Override
+   public synchronized void afterAddBinding(Binding binding) {
+      if (started) {
+         checkBindingForMatch(binding);
+      }
+   }
+
+   /**
+    * Called under lock this method should check if the given {@link Binding} matches the
+    * configured address federation policy and federate the address if so.  The incoming
+    * {@link Binding} can be either a {@link QueueBinding} or a {@link DivertBinding} so
+    * the code should check both.
+    *
+    * @param binding
+    *       The binding that should be checked against the federated address policy,
+    */
    protected final void checkBindingForMatch(Binding binding) {
       if (binding instanceof QueueBinding) {
          final QueueBinding queueBinding = (QueueBinding) binding;
          final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
 
-         reactIfBindingMatchesPolicy(addressInfo, queueBinding);
-         reactIfQueueBindingMatchesAnyDivertTarget(queueBinding);
+         if (testIfAddressMatchesPolicy(addressInfo)) {
+            // A plugin can block address federation for a given queue and if another queue
+            // binding does trigger address federation we don't want to track the rejected
+            // queue as demand so we always run this check before trying to create the address
+            // consumer.
+            if (isPluginBlockingFederationConsumerCreate(queueBinding.getQueue())) {
+               return;
+            }
+
+            createOrUpdateFederatedAddressConsumerForBinding(addressInfo, queueBinding);
+         } else {
+            reactIfQueueBindingMatchesAnyDivertTarget(queueBinding);
+         }
       } else if (binding instanceof DivertBinding) {
          reactIfAnyQueueBindingMatchesDivertTarget((DivertBinding) binding);
       }
@@ -229,7 +260,7 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
       // We only need to check if we've never seen the divert before, afterwards we will
       // be checking it any time a new QueueBinding is added instead.
       if (matchingDiverts.get(divertBinding) == null) {
-         final Set<SimpleString> matchingQueues = new HashSet<>();
+         final Set<QueueBinding> matchingQueues = new HashSet<>();
          matchingDiverts.put(divertBinding, matchingQueues);
 
          // We must account for the composite divert case by splitting the address and
@@ -240,16 +271,25 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
          try {
             for (SimpleString forward : forwardAddresses) {
                server.getPostOffice().getBindingsForAddress(forward).getBindings()
-                     .stream().filter(b -> b instanceof QueueBinding)
+                     .stream()
+                     .filter(b -> b instanceof QueueBinding)
                      .map(b -> (QueueBinding) b)
                      .forEach(queueBinding -> {
+                        // The plugin can block the demand totally here either based on the divert itself
+                        // or the queue that's attached to the divert.
                         if (isPluginBlockingFederationConsumerCreate(divertBinding.getDivert(), queueBinding.getQueue())) {
                            return;
                         }
 
-                        if (reactIfBindingMatchesPolicy(addressInfo, queueBinding)) {
-                           matchingQueues.add(queueBinding.getQueue().getName());
+                        // The plugin can block the demand selectively based on a single queue attached to
+                        // the divert target(s).
+                        if (isPluginBlockingFederationConsumerCreate(queueBinding.getQueue())) {
+                           return;
                         }
+
+                        matchingQueues.add(queueBinding);
+
+                        createOrUpdateFederatedAddressConsumerForBinding(addressInfo, divertBinding);
                      });
             }
          } catch (Exception e) {
@@ -264,7 +304,6 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
       }
 
       final SimpleString queueAddress = queueBinding.getAddress();
-      final SimpleString queueName = queueBinding.getQueue().getName();
 
       matchingDiverts.entrySet().forEach((e) -> {
          final SimpleString forwardAddress = e.getKey().getDivert().getForwardAddress();
@@ -274,28 +313,35 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
          // addresses (composite diverts) of the Divert and if so then we can check if we need
          // to create demand on the source address on the remote if we haven't done so already.
 
-         if (!e.getValue().contains(queueName) && isAddressInDivertForwards(queueAddress, forwardAddress)) {
+         if (!e.getValue().contains(queueBinding) && isAddressInDivertForwards(queueAddress, forwardAddress)) {
+            // The plugin can block the demand totally here either based on the divert itself
+            // or the queue that's attached to the divert.
             if (isPluginBlockingFederationConsumerCreate(divertBinding.getDivert(), queueBinding.getQueue())) {
                return;
             }
 
+            // The plugin can block the demand selectively based on a single queue attached to
+            // the divert target(s).
+            if (isPluginBlockingFederationConsumerCreate(queueBinding.getQueue())) {
+               return;
+            }
+
+            // Each divert that forwards to the address the queue is bound to we add demand
+            // in the diverts tracker.
+            e.getValue().add(queueBinding);
+
             final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(divertBinding.getAddress());
 
-            // We know it matches address policy at this point but we don't yet know if any other
-            // remote demand exists and we want to check here if the react method did indeed add
-            // demand on the address and if so add this queue into the diverts matching queues set.
-            if (reactIfBindingMatchesPolicy(addressInfo, queueBinding)) {
-               e.getValue().add(queueName);
-            }
+            createOrUpdateFederatedAddressConsumerForBinding(addressInfo, divertBinding);
          }
       });
    }
 
-   private static boolean isAddressInDivertForwards(final SimpleString queueAddress, final SimpleString forwardAddress) {
+   private static boolean isAddressInDivertForwards(final SimpleString targetAddress, final SimpleString forwardAddress) {
       final SimpleString[] forwardAddresses = forwardAddress.split(',');
 
       for (SimpleString forward : forwardAddresses) {
-         if (queueAddress.equals(forward)) {
+         if (targetAddress.equals(forward)) {
             return true;
          }
       }
@@ -303,60 +349,45 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
       return false;
    }
 
-   protected final boolean reactIfBindingMatchesPolicy(AddressInfo address, QueueBinding binding) {
-      if (testIfAddressMatchesPolicy(address)) {
-         logger.trace("Federation Address Policy matched on for demand on address: {} : binding: {}", address, binding);
+   protected final void createOrUpdateFederatedAddressConsumerForBinding(AddressInfo address, Binding binding) {
+      logger.trace("Federation Address Policy matched on for demand on address: {} : binding: {}", address, binding);
+
+      // Check for existing consumer add demand from a additional local consumer to ensure
+      // the remote consumer remains active until all local demand is withdrawn. The federation
+      // plugin can block creation of the federation consumer at this stage.
+      if (remoteConsumers.containsKey(address.getName().toString())) {
+         logger.trace("Federation Address Policy manager found existing demand for address: {}, adding demand", address);
+         remoteConsumers.get(address.getName().toString()).addDemand(binding);
+      } else if (!isPluginBlockingFederationConsumerCreate(address)) {
+         logger.trace("Federation Address Policy manager creating remote consumer for address: {}", address);
 
          final FederationConsumerInfo consumerInfo = createConsumerInfo(address);
+         final FederationConsumerInternal queueConsumer = createFederationConsumer(consumerInfo);
+         final FederationAddressEntry entry = createConsumerEntry(queueConsumer);
 
-         // Check for existing consumer add demand from a additional local consumer
-         // to ensure the remote consumer remains active until all local demand is
-         // withdrawn.
-         if (remoteConsumers.containsKey(consumerInfo)) {
-            logger.trace("Federation Address Policy manager found existing demand for address: {}", address);
-            remoteConsumers.get(consumerInfo).addDemand();
-         } else {
-            if (isPluginBlockingFederationConsumerCreate(address)) {
-               return false;
-            }
+         signalBeforeCreateFederationConsumer(consumerInfo);
 
-            if (isPluginBlockingFederationConsumerCreate(binding.getQueue())) {
-               return false;
-            }
-
-            logger.trace("Federation Address Policy manager creating remote consumer for address: {}", address);
-
-            signalBeforeCreateFederationConsumer(consumerInfo);
-
-            final FederationConsumerInternal queueConsumer = createFederationConsumer(consumerInfo);
-            final FederationConsumerEntry entry = createConsumerEntry(queueConsumer);
-
-            // Handle remote close with remove of consumer which means that future demand will
-            // attempt to create a new consumer for that demand. Ensure that thread safety is
-            // accounted for here as the notification can be asynchronous.
-            queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
-               synchronized (this) {
-                  try {
-                     remoteConsumers.remove(closedConsumer.getConsumerInfo());
-                  } finally {
-                     closedConsumer.close();
-                  }
+         // Handle remote close with remove of consumer which means that future demand will
+         // attempt to create a new consumer for that demand. Ensure that thread safety is
+         // accounted for here as the notification can be asynchronous.
+         queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
+            synchronized (this) {
+               try {
+                  remoteConsumers.remove(closedConsumer.getConsumerInfo().getAddress());
+               } finally {
+                  closedConsumer.close();
                }
-            });
+            }
+         });
 
-            // Called under lock so state should stay in sync
-            remoteConsumers.put(consumerInfo, entry);
+         // Called under lock so state should stay in sync
+         remoteConsumers.put(entry.getAddress(), entry.addDemand(binding));
 
-            // Now that we are tracking it we can start it
-            queueConsumer.start();
+         // Now that we are tracking it we can start it
+         queueConsumer.start();
 
-            signalAfterCreateFederationConsumer(queueConsumer);
-         }
-
-         return true;
+         signalAfterCreateFederationConsumer(queueConsumer);
       }
-
-      return false;
    }
 
    /**
@@ -386,17 +417,18 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    protected abstract FederationConsumerInfo createConsumerInfo(AddressInfo address);
 
    /**
-    * Creates a {@link FederationConsumerEntry} instance that will be used to store a {@link FederationConsumer}
-    * along with other state data needed to manage a federation consumer instance. A subclass can override
-    * this method to return a more customized entry type with additional state data.
+    * Creates a {@link FederationAddressEntry} instance that will be used to store an instance of
+    * an {@link FederationConsumer} along with other state data needed to manage a federation consumer
+    * instance lifetime. A subclass can override this method to return a more customized entry type with
+    * additional state data.
     *
     * @param consumer
     *    The {@link FederationConsumerInternal} instance that will be housed in this entry.
     *
-    * @return a new {@link FederationConsumerEntry} that holds the given federation consumer.
+    * @return a new {@link FederationAddressEntry} that holds the given federation consumer.
     */
-   protected FederationConsumerEntry createConsumerEntry(FederationConsumerInternal consumer) {
-      return new FederationConsumerEntry(consumer);
+   protected FederationAddressEntry createConsumerEntry(FederationConsumerInternal consumer) {
+      return new FederationAddressEntry(consumer);
    }
 
    /**
