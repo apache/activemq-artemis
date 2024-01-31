@@ -18,7 +18,7 @@ image::images/console-login.png[ActiveMQ Artemis Console Login]
 == Security
 
 That Jolokia JMX-HTTP bridge is secured via a policy file in the broker configuration directory: 'etc/jolokia-access.xml'.
-The contents of that file should be modified as described in the https://jolokia.org/reference/html/security.html[Jolokia Security Guide].
+The contents of that file should be modified as described in the https://jolokia.org/features/security.html[Jolokia Security Guide].
 By default the console is locked down to 'localhost', pay particular attention to the 'CORS' restrictions when exposing the console web endpoint over the network.
 
 == Console
