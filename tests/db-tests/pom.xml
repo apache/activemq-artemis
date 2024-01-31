@@ -325,10 +325,9 @@
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/oracle</instance>
                      <noWeb>true</noWeb>
-                     <libFolders>
-                        <!-- you must download the driver here manually before you can use it -->
-                        <arg>${project.basedir}/jdbc-drivers/oracle</arg>
-                     </libFolders>
+                     <libListWithDeps>
+                        <arg>com.oracle.database.jdbc:ojdbc10:19.21.0.0</arg>
+                     </libListWithDeps>
                      <args>
                         <arg>--jdbc</arg>
                         <arg>--jdbc-connection-url</arg>
