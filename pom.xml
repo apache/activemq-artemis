@@ -113,7 +113,7 @@
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.101.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
-      <curator.version>5.5.0</curator.version>
+      <curator.version>5.6.0</curator.version>
       <zookeeper.version>3.8.3</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
       <pem-keystore.version>2.2.2</pem-keystore.version>
