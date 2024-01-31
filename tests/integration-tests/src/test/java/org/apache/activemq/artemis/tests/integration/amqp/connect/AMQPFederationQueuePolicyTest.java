@@ -2600,6 +2600,93 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test(timeout = 20000)
+   public void testFederationCreatesQueueReceiverLinkForQueueAfterBrokerConnectionStarted() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes("test", "test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setAutostart(false);
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         final Connection connection = factory.createConnection();
+         final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Queue queue = session.createQueue("test");
+
+         session.createConsumer(queue);
+         session.createConsumer(queue);
+         session.createConsumer(queue);
+
+         connection.start();
+
+         // Should be no interactions yet, check to be sure
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         server.getBrokerConnections().forEach(c -> {
+            try {
+               c.start();
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
+         });
+
+         // Add another demand consumer immediately after start to add more events
+         // on the federation plugin for broker events.
+         session.createConsumer(queue);
+
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString("sample-federation"),
+                                            containsString("test::test"),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDetach().respond();
+
+         // Add more demand after the broker connection starts
+         session.createConsumer(queue);
+         session.createConsumer(queue);
+
+         // This should remove all demand on the queue and federation should stop
+         connection.close();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
    public static class ApplicationPropertiesTransformer implements Transformer {
 
       private final Map<String, String> properties = new HashMap<>();

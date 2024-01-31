@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.protocol.amqp.federation.internal;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+
 /**
  * Am entry type class used to hold a {@link FederationConsumerInternal} and
  * any other state data needed by the manager that is creating them based on the
@@ -28,19 +33,19 @@ package org.apache.activemq.artemis.protocol.amqp.federation.internal;
  * on a federation resource such that it is not torn down until all demand has been
  * removed from the local resource.
  */
-public class FederationConsumerEntry {
+public class FederationQueueEntry {
 
    private final FederationConsumerInternal consumer;
 
-   private int references = 1;
+   private final Set<String> consumerDemand = new HashSet<>();
 
    /**
-    * Creates a new consumer entry with a single reference
+    * Creates a new queue entry with a single reference
     *
     * @param consumer
     *    The federation consumer that will be carried in this entry.
     */
-   public FederationConsumerEntry(FederationConsumerInternal consumer) {
+   public FederationQueueEntry(FederationConsumerInternal consumer) {
       this.consumer = consumer;
    }
 
@@ -52,10 +57,23 @@ public class FederationConsumerEntry {
    }
 
    /**
-    * Add additional demand on the resource associated with this entries consumer.
+    * @return true if there are bindings that are mapped to this federation entry.
     */
-   public void addDemand() {
-      references++;
+   public boolean hasDemand() {
+      return !consumerDemand.isEmpty();
+   }
+
+   /**
+    * Add additional demand on the resource associated with this entries consumer.
+    *
+    * @param consumer
+    *    The {@link ServerConsumer} that generated the demand on federated resource.
+    *
+    * @return this federation queue entry instance.
+    */
+   public FederationQueueEntry addDemand(ServerConsumer consumer) {
+      consumerDemand.add(identifyConsumer(consumer));
+      return this;
    }
 
    /**
@@ -63,9 +81,19 @@ public class FederationConsumerEntry {
     * and returns true when demand reaches zero which indicates the consumer should be
     * closed and the entry cleaned up.
     *
-    * @return true if demand has fallen to zero on the resource associated with the consumer.
+    * @param consumer
+    *    The {@link ServerConsumer} that generated the demand on federated resource.
+    *
+    * @return this federation queue entry instance.
     */
-   public boolean reduceDemand() {
-      return --references == 0;
+   public FederationQueueEntry reduceDemand(ServerConsumer consumer) {
+      consumerDemand.remove(identifyConsumer(consumer));
+      return this;
+   }
+
+   private static String identifyConsumer(ServerConsumer consumer) {
+      return consumer.getConnectionID().toString() + ":" +
+             consumer.getSessionID() + ":" +
+             consumer.getID();
    }
 }

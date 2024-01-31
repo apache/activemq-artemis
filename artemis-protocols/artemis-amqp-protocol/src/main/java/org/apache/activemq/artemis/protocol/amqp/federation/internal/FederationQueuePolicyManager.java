@@ -53,7 +53,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    protected final ActiveMQServer server;
    protected final Predicate<ServerConsumer> federationConsumerMatcher;
    protected final FederationReceiveFromQueuePolicy policy;
-   protected final Map<FederationConsumerInfo, FederationConsumerEntry> remoteConsumers = new HashMap<>();
+   protected final Map<String, FederationQueueEntry> remoteConsumers = new HashMap<>();
    protected final FederationInternal federation;
 
    private volatile boolean started;
@@ -106,12 +106,20 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    }
 
    @Override
-   public synchronized void beforeCloseConsumer(ServerConsumer consumer, boolean failed) {
+   public synchronized void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
       if (started) {
-         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
-         final FederationConsumerEntry entry = remoteConsumers.get(consumerInfo);
+         final String queueName = consumer.getQueue().getName().toString();
+         final FederationQueueEntry entry = remoteConsumers.get(queueName);
 
-         if (entry != null && entry.reduceDemand()) {
+         if (entry == null) {
+            return;
+         }
+
+         entry.reduceDemand(consumer);
+
+         logger.trace("Reducing demand on federated queue {}, remaining demand? {}", queueName, entry.hasDemand());
+
+         if (!entry.hasDemand()) {
             final FederationConsumerInternal federationConsuner = entry.getConsumer();
 
             try {
@@ -119,7 +127,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
                federationConsuner.close();
                signalAfterCloseFederationConsumer(federationConsuner);
             } finally {
-               remoteConsumers.remove(consumerInfo);
+               remoteConsumers.remove(queueName);
             }
          }
       }
@@ -137,7 +145,8 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
       queue.getConsumers()
            .stream()
            .filter(consumer -> consumer instanceof ServerConsumer)
-           .map(c -> (ServerConsumer) c).forEach(this::reactIfConsumerMatchesPolicy);
+           .map(c -> (ServerConsumer) c)
+           .forEach(this::reactIfConsumerMatchesPolicy);
    }
 
    protected final void reactIfConsumerMatchesPolicy(ServerConsumer consumer) {
@@ -160,13 +169,16 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
          // Check for existing consumer add demand from a additional local consumer
          // to ensure the remote consumer remains active until all local demand is
          // withdrawn.
-         if (remoteConsumers.containsKey(consumerInfo)) {
-            remoteConsumers.get(consumerInfo).addDemand();
+         if (remoteConsumers.containsKey(consumerInfo.getQueueName())) {
+            logger.trace("Federation Queue Policy manager found existing demand for queue: {}, adding demand", consumerInfo.getQueueName());
+            remoteConsumers.get(consumerInfo.getQueueName()).addDemand(consumer);
          } else {
+            logger.trace("Federation Queue Policy manager creating remote consumer for queue: {}", consumerInfo.getQueueName());
+
             signalBeforeCreateFederationConsumer(consumerInfo);
 
             final FederationConsumerInternal queueConsumer = createFederationConsumer(consumerInfo);
-            final FederationConsumerEntry entry = createConsumerEntry(queueConsumer);
+            final FederationQueueEntry entry = createServerConsumerEntry(queueConsumer).addDemand(consumer);
 
             // Handle remote close with remove of consumer which means that future demand will
             // attempt to create a new consumer for that demand. Ensure that thread safety is
@@ -174,7 +186,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
             queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
                synchronized (this) {
                   try {
-                     remoteConsumers.remove(closedConsumer.getConsumerInfo());
+                     remoteConsumers.remove(closedConsumer.getConsumerInfo().getQueueName());
                   } finally {
                      closedConsumer.close();
                   }
@@ -182,7 +194,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
             });
 
             // Called under lock so state should stay in sync
-            remoteConsumers.put(consumerInfo, entry);
+            remoteConsumers.put(consumerInfo.getQueueName(), entry);
 
             // Now that we are tracking it we can start it
             queueConsumer.start();
@@ -224,17 +236,18 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    }
 
    /**
-    * Creates a {@link FederationConsumerEntry} instance that will be used to store a {@link FederationConsumer}
-    * along with other state data needed to manage a federation consumer instance. A subclass can override
-    * this method to return a more customized entry type with additional state data.
+    * Creates a {@link FederationQueueEntry} instance that will be used to store an instance of
+    * a {@link FederationConsumer} along with other state data needed to manage a federation consumer
+    * instance. A subclass can override this method to return a more customized entry type with additional
+    * state data.
     *
     * @param consumer
     *    The {@link FederationConsumerInternal} instance that will be housed in this entry.
     *
-    * @return a new {@link FederationConsumerEntry} that holds the given federation consumer.
+    * @return a new {@link FederationQueueEntry} that holds the given federation consumer.
     */
-   protected FederationConsumerEntry createConsumerEntry(FederationConsumerInternal consumer) {
-      return new FederationConsumerEntry(consumer);
+   protected FederationQueueEntry createServerConsumerEntry(FederationConsumerInternal consumer) {
+      return new FederationQueueEntry(consumer);
    }
 
    /**
