@@ -339,12 +339,13 @@ Once pushed, the changes should be published automatically by the `jekyll_websit
 
 The [examples repo](https://github.com/apache/activemq-artemis-examples) should be updated to reflect the new release and development versions.
 
-Take a fresh clone of the repo and run the provided script, then check the results and push.
+Take a fresh clone of the repo, check out the development branch, and run the provided script, then check the results and push.
 
 ```
 git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
 
 cd activemq-artemis-examples
+git checkout development
 ./scripts/release/update-branch-versions.sh <release-version> <new-main-snapshot-version>"
 ```
 
@@ -353,6 +354,7 @@ Example from the 2.32.0 release:
 git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
 
 cd activemq-artemis-examples
+git checkout development
 ./scripts/release/update-branch-versions.sh 2.32.0 2.33.0-SNAPSHOT"
 ```
 
