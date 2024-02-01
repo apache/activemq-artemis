@@ -86,7 +86,7 @@ public class Shell implements Runnable {
 
          PicocliCommands.PicocliCommandsFactory factory = new PicocliCommands.PicocliCommandsFactory();
 
-         CommandLine commandLine = Artemis.buildCommand(isInstance, !isInstance, true);
+         CommandLine commandLine = Artemis.buildCommand(isInstance, !isInstance, false);
 
          PicocliCommands picocliCommands = new PicocliCommands(commandLine);
 
@@ -119,7 +119,7 @@ public class Shell implements Runnable {
             while (true) {
                try {
                   // We build a new command every time, as they could have state from previous executions
-                  systemRegistry.setCommandRegistries(new PicocliCommands(Artemis.buildCommand(isInstance, !isInstance, true)));
+                  systemRegistry.setCommandRegistries(new PicocliCommands(Artemis.buildCommand(isInstance, !isInstance, false)));
                   systemRegistry.cleanUp();
                   line = reader.readLine(prompt, rightPrompt, (MaskingCallback) null, null);
                   systemRegistry.execute(line);

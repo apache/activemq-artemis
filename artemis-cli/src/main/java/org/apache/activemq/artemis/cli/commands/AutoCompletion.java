@@ -42,7 +42,7 @@ public class AutoCompletion implements Runnable {
    @Override
    public void run() {
       try {
-         CommandLine artemisCommand = Artemis.buildCommand(true, true);
+         CommandLine artemisCommand = Artemis.buildCommand(true, true, true);
          AutoComplete.bash(startScript, autoCompleteFile, null, artemisCommand);
          System.out.println("Type the following commands before you can use auto-complete:");
          System.out.println("*******************************************************************************************************************************");

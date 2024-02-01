@@ -120,7 +120,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                }
             }
          } else {
-            Artemis.execute(home, location, etc, useSystemOutput, args);
+            Artemis.execute(home, location, etc, useSystemOutput, false, args);
          }
 
          Thread.sleep(600);
