@@ -309,6 +309,8 @@ cd activemq-website
 ```
 
 **NOTE**: Some of the release scripts use [Python](https://www.python.org/), ensure you have it installed before proceeding.
+Also, the [PyYAML](https://pyyaml.org/wiki/PyYAMLDocumentation) lib is used. Examples for installing that include
+using `dnf install python3-pyyaml` on Fedora, or installing it using Pip by running `pip install pyyaml`.
 
 Once the CDN and Maven Central are up-to-date then update the site as follows:
 
