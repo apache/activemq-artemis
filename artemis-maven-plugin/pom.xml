@@ -71,6 +71,18 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
+         <exclusions>
+            <exclusion>
+               <!-- see https://github.com/jline/jline3/issues/937 -->
+               <groupId>info.picocli</groupId>
+               <artifactId>picocli-shell-jline3</artifactId>
+            </exclusion>
+            <exclusion>
+               <!-- see https://github.com/jline/jline3/issues/937 -->
+               <groupId>org.jline</groupId>
+               <artifactId>jline</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.maven.plugin-tools</groupId>

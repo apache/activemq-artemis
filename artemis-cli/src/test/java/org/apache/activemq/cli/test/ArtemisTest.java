@@ -1288,14 +1288,14 @@ public class ArtemisTest extends CliTestBase {
           * it will read from the InputStream in the ActionContext. It can't read the password since it's using
           * System.console.readPassword() for that.
           */
-         assertEquals(Long.valueOf(100), Artemis.internalExecute(null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
+         assertEquals(Long.valueOf(100), Artemis.internalExecute(false, null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
 
          /*
           * This is the same as above except it will prompt the user to re-enter both the URL and the username.
           */
          in = new ByteArrayInputStream("tcp://localhost:61616\nadmin\n".getBytes());
          context = new ActionContext(in, System.out, System.err);
-         assertEquals(Long.valueOf(100), Artemis.internalExecute(null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));
+         assertEquals(Long.valueOf(100), Artemis.internalExecute(false, null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));
       } finally {
          stopServer();
       }

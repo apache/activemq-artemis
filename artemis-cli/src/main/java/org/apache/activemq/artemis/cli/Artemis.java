@@ -72,6 +72,7 @@ import picocli.CommandLine.Command;
 @Command(name = "artemis", description = "ActiveMQ Artemis Command Line")
 public class Artemis implements Runnable {
 
+
    CommandLine commandLine;
 
    public CommandLine getCommandLine() {
@@ -108,7 +109,7 @@ public class Artemis implements Runnable {
 
       verifyManagementDTO(fileBrokerETC);
 
-      execute(true, true, fileHome, fileInstance, fileBrokerETC, args);
+      execute(true, true, true, fileHome, fileInstance, fileBrokerETC, args);
    }
 
 
@@ -131,14 +132,14 @@ public class Artemis implements Runnable {
    }
 
    public static Object internalExecute(String... args) throws Exception {
-      return internalExecute(null, null, null, args);
+      return internalExecute(false, null, null, null, args);
    }
 
    public static Object execute(File artemisHome, File artemisInstance, File etcFolder, List<String> args) throws Exception {
-      return execute(false, false, artemisHome, artemisInstance, etcFolder, args.toArray(new String[args.size()]));
+      return execute(false, false, false, artemisHome, artemisInstance, etcFolder, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, File etcFolder, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, boolean useSystemOut, boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String... args) throws Exception {
 
       // using a default etc in case that is not set in the variables
       if (etcFolder == null && artemisInstance != null) {
@@ -162,7 +163,7 @@ public class Artemis implements Runnable {
       ActionContext.setSystem(context);
 
       try {
-         return internalExecute(artemisHome, artemisInstance, etcFolder, args, context);
+         return internalExecute(shellEnabled, artemisHome, artemisInstance, etcFolder, args, context);
       } catch (ConfigurationException configException) {
          context.err.println(configException.getMessage());
          context.out.println();
@@ -180,7 +181,7 @@ public class Artemis implements Runnable {
       } catch (RuntimeException | InvalidOptionsError re) {
          context.err.println(re.getMessage());
          context.out.println();
-         HelpAction.help(buildCommand(true, true), "help");
+         HelpAction.help(buildCommand(true, true, shellEnabled), "help");
          return re;
       } finally {
          ActionContext.setSystem(new ActionContext());
@@ -191,13 +192,13 @@ public class Artemis implements Runnable {
     * This method is used to validate exception returns.
     * Useful on test cases
     */
-   private static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
-      return internalExecute(artemisHome, artemisInstance, etcFolder, args, new ActionContext());
+   private static Object internalExecute(boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
+      return internalExecute(shellEnabled, artemisHome, artemisInstance, etcFolder, args, new ActionContext());
    }
 
-   public static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
+   public static Object internalExecute(boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
       boolean isInstance = artemisInstance != null || System.getProperty("artemis.instance") != null;
-      CommandLine commandLine = buildCommand(isInstance, !isInstance);
+      CommandLine commandLine = buildCommand(isInstance, !isInstance, shellEnabled);
 
       Object userObject = parseAction(commandLine, args);
 
@@ -246,12 +247,7 @@ public class Artemis implements Runnable {
       return parseResult.commandSpec().userObject();
    }
 
-   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands) {
-      return buildCommand(includeInstanceCommands, includeHomeCommands, false);
-
-   }
-
-   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands, boolean fromShell) {
+   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands, boolean shellEnabled) {
       Artemis artemis = new Artemis();
 
       CommandLine commandLine = new CommandLine(artemis);
@@ -264,7 +260,7 @@ public class Artemis implements Runnable {
       commandLine.addSubcommand(new AutoCompletion());
 
       // we don't include the shell in the shell
-      if (!fromShell) {
+      if (shellEnabled) {
          commandLine.addSubcommand(new Shell(commandLine));
       }
 
@@ -275,7 +271,7 @@ public class Artemis implements Runnable {
       commandLine.addSubcommand(new QueueGroup(commandLine));
       commandLine.addSubcommand(new AddressGroup(commandLine));
 
-      if (fromShell) {
+      if (shellEnabled) {
          commandLine.addSubcommand(new Connect());
          commandLine.addSubcommand(new Disconnect());
       }

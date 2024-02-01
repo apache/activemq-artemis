@@ -261,7 +261,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          commandLineStream.println("# These are the commands used to create " + instance.getName());
          commandLineStream.println(getCommandline(listCommands));
 
-         Artemis.execute(home, null, null, useSystemOutput, listCommands);
+         Artemis.execute(home, null, null, useSystemOutput, false, listCommands);
 
          if (configuration != null) {
             String[] list = configuration.list();

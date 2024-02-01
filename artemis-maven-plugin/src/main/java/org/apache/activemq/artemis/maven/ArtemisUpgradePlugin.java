@@ -100,7 +100,7 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
       getLog().debug("***** Server upgrading at " + instance + " with home=" + home + " *****");
 
       try {
-         Artemis.execute(home, null, null, useSystemOutput, listCommands);
+         Artemis.execute(home, null, null, useSystemOutput, false, listCommands);
       } catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
