@@ -30,27 +30,33 @@ To provide the same guarantee using a JMS bridge you would have to use XA which 
 == Configuring Core Bridges
 
 Bridges are configured in `broker.xml`.
-Let's kick off with an example (this is actually from the bridge example):
+Let's kick off with an example:
 
 [,xml]
 ----
 <bridge name="my-bridge">
    <queue-name>sausage-factory</queue-name>
    <forwarding-address>mincing-machine</forwarding-address>
+   <ha>true</ha>
    <filter string="name='aardvark'"/>
    <transformer-class-name>
       org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
    </transformer-class-name>
-   <retry-interval>1000</retry-interval>
-   <ha>true</ha>
+   <min-large-message-size>102400</min-large-message-size>
+   <check-period>30000</check-period>
+   <connection-ttl>60000</connection-ttl>
+   <retry-interval>2000</retry-interval>
    <retry-interval-multiplier>1.0</retry-interval-multiplier>
+   <max-retry-interval>2000</max-retry-interval>
    <initial-connect-attempts>-1</initial-connect-attempts>
    <reconnect-attempts>-1</reconnect-attempts>
    <failover-on-server-shutdown>false</failover-on-server-shutdown>
    <use-duplicate-detection>true</use-duplicate-detection>
    <confirmation-window-size>10000000</confirmation-window-size>
+   <producer-window-size>1048576</producer-window-size>
    <user>foouser</user>
    <password>foopassword</password>
+   <reconnect-attempts-same-node>10</reconnect-attempts-same-node>
    <routing-type>PASS</routing-type>
    <concurrency>1</concurrency>
    <static-connectors>
@@ -79,6 +85,11 @@ forwarding-address::
 This is the address on the target server that the message will be forwarded to.
 If a forwarding address is not specified, then the original address of the message will be retained.
 
+ha::
+This optional parameter determines whether or not this bridge should support high availability.
+True means it will connect to any available server in a cluster and support failover.
+The default value is `false`.
+
 filter-string::
 An optional filter string can be supplied.
 If specified then only messages which match the filter expression specified in the filter string will be forwarded.
@@ -89,10 +100,20 @@ An _optional_ transformer can be specified.
 This gives you the opportunity to transform the message's header or body before forwarding it.
 See the xref:transformers.adoc#transformers[transformer chapter] for more details about transformer-specific configuration.
 
-ha::
-This optional parameter determines whether or not this bridge should support high availability.
-True means it will connect to any available server in a cluster and support failover.
-The default value is `false`.
+min-large-message-size::
+Any message larger than this size (in bytes) is considered a large message (to be sent in chunks).
+Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+Default is `102400` (i.e. 100KiB).
+
+check-period::
+Sets the period (in milliseconds) used to check if the bridge client has failed to receive pings from the server.
+Use `-1` to disable this check.
+Default is `30000`.
+
+connection-ttl::
+How long (in milliseconds) the remote server will keep the connection alive in the absence of any data arriving from the bridge.
+This should be greater than the `check-period`.
+Default is `60000`.
 
 retry-interval::
 This optional parameter determines the period in milliseconds between subsequent reconnection attempts, if the connection to the target server has failed.
@@ -108,6 +129,10 @@ Let's take an example:
 If we set `retry-interval` to `1000` ms and we set `retry-interval-multiplier` to `2.0`, then, if the first reconnect attempt fails, we will wait `1000` ms then `2000` ms then `4000` ms between subsequent reconnection attempts.
 +
 The default value is `1.0` meaning each reconnect attempt is spaced at equal intervals.
+
+max-retry-interval::
+This enforces a limit on `retry-interval` since it can grow due to `retry-interval-multiplier`.
+Default is `2000`.
 
 initial-connect-attempts::
 This optional parameter determines the total number of initial connect attempts the bridge will make before giving up and shutting down.
@@ -133,6 +158,7 @@ The default value for this parameter is `true`.
 
 confirmation-window-size::
 This optional parameter determines the `confirmation-window-size` to use for the connection used to forward messages to the target node.
+Supports byte notation like "K", "Mb", "MiB", "GB", etc.
 This attribute is described in section xref:client-failover.adoc#reconnection-and-failover-attributes[Client failover attributes]
 +
 [WARNING]
@@ -143,7 +169,8 @@ When using the bridge to forward messages to an address which uses the `BLOCK` `
 producer-window-size::
 This optional parameter determines the producer flow control through the bridge.
 Use `-1` to disable.
-Default is `1048576` (i.e. 1MB).
+Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+Default is `1048576` (i.e. 1MiB).
 
 user::
 This optional parameter determines the user name to use when creating the bridge connection to the remote server.
@@ -152,6 +179,10 @@ If it is not specified the default cluster user specified by `cluster-user` in `
 password::
 This optional parameter determines the password to use when creating the bridge connection to the remote server.
 If it is not specified the default cluster password specified by `cluster-password` in `broker.xml` will be used.
+
+reconnect-attempts-same-node::
+This configures the number of times reconnection attempts will be made to the same node on the topology before reverting back to the initial connector(s).
+Default is `10`.
 
 routing-type::
 Bridges can apply a particular routing-type to the messages it forwards, strip the existing routing type, or simply pass the existing routing-type through.
