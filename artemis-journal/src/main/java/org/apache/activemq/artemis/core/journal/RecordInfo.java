@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import io.netty.buffer.Unpooled;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+
 public class RecordInfo {
 
    public RecordInfo(final long id,
@@ -53,6 +57,10 @@ public class RecordInfo {
    public boolean isUpdate;
 
    public boolean replaceableUpdate;
+
+   public ActiveMQBuffer wrapData() {
+      return new ChannelBufferWrapper(Unpooled.wrappedBuffer(data), true);
+   }
 
    public byte getUserRecordType() {
       return userRecordType;

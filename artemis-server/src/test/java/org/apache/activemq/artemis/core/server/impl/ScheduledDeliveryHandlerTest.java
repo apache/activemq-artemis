@@ -309,6 +309,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void setPaged() {
+
+      }
+
+      @Override
+      public boolean isPaged() {
+         return false;
+      }
+
+      @Override
       public String getProtocolName() {
          // should normally not be visible in GUI
          return getClass().getName();

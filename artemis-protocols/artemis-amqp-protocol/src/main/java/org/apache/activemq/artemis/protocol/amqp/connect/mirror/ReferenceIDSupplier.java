@@ -70,15 +70,15 @@ public class ReferenceIDSupplier implements NodeStoreFactory<MessageReference> {
 
    public long getID(MessageReference element) {
       Message message = element.getMessage();
-      Long id = getID(message);
-      if (id == null) {
-         return element.getMessageID();
-      } else {
-         return id;
-      }
+      return getID(message);
    }
 
-   private Long getID(Message message) {
-      return (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+   public Long getID(Message message) {
+      Long messageID = (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+      if (messageID == null) {
+         return message.getMessageID();
+      } else {
+         return messageID;
+      }
    }
 }

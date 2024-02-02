@@ -132,6 +132,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalMeasure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -978,7 +979,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
                                                     final Set<Long> storedLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
-                                                    final JournalLoader journalLoader) throws Exception {
+                                                    final JournalLoader journalLoader,
+                                                    final List<Consumer<RecordInfo>> journalRecordsListener) throws Exception {
       SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
@@ -1324,7 +1326,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   }
 
                   default: {
-                     throw new IllegalStateException("Invalid record type " + recordType);
+                     logger.debug("Extra record type {}", record.userRecordType);
+                     if (journalRecordsListener != null) {
+                        journalRecordsListener.forEach(f -> f.accept(record));
+                     }
                   }
                }
             } catch (RuntimeException e) {

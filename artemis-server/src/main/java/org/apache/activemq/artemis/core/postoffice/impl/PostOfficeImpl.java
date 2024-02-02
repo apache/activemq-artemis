@@ -1081,6 +1081,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
+   public LocalQueueBinding findLocalBinding(final long bindingID) {
+      return addressManager.findLocalBinding(bindingID);
+   }
+
+   @Override
    public synchronized Binding getBinding(final SimpleString name) {
       return addressManager.getBinding(name);
    }

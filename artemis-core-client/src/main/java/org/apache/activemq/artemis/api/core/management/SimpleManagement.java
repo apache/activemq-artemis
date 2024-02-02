@@ -65,6 +65,10 @@ public class SimpleManagement implements AutoCloseable {
       return this;
    }
 
+   public String getUri() {
+      return uri;
+   }
+
    @Override
    public void close() throws Exception {
       if (session != null) {
@@ -81,6 +85,10 @@ public class SimpleManagement implements AutoCloseable {
       return simpleManagementLong("broker", "getCurrentTimeMillis");
    }
 
+   public void rebuildPageCounters() throws Exception {
+      simpleManagementVoid("broker", "rebuildPageCounters");
+   }
+
    /** Simple helper for management returning a string.*/
    public String simpleManagement(String resource, String method, Object... parameters) throws Exception {
       AtomicReference<String> responseString = new AtomicReference<>();
@@ -93,6 +101,11 @@ public class SimpleManagement implements AutoCloseable {
       AtomicLong responseLong = new AtomicLong();
       doManagement((m) -> setupCall(m, resource, method, parameters), m -> setLongResult(m, responseLong), SimpleManagement::failed);
       return responseLong.get();
+   }
+
+   /** Simple helper for management void calls.*/
+   public void simpleManagementVoid(String resource, String method, Object... parameters) throws Exception {
+      doManagement((m) -> setupCall(m, resource, method, parameters), null, SimpleManagement::failed);
    }
 
    public int simpleManagementInt(String resource, String method, Object... parameters) throws Exception {

@@ -23,6 +23,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
@@ -270,6 +271,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Page usePage(long page, boolean createEntry, boolean createFile) {
+         return null;
+      }
+
+      @Override
       public boolean isPageFull() {
          return false;
       }
@@ -437,6 +443,14 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       public boolean page(Message message,
                           Transaction tx,
                           RouteContextList listCtx) throws Exception {
+         return false;
+      }
+
+      @Override
+      public boolean page(Message message,
+                          Transaction tx,
+                          RouteContextList listCtx,
+                          Function<Message, Message> pageDecorator) throws Exception {
          return false;
       }
 

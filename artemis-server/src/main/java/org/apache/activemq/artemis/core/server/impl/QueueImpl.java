@@ -3502,6 +3502,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized MessageReference removeWithSuppliedID(String serverID, long id, NodeStoreFactory<MessageReference> nodeStore) {
       checkIDSupplier(nodeStore);
+      doInternalPoll(); // we need to flush intermediate references first
       MessageReference reference = messageReferences.removeWithID(serverID, id);
       if (reference != null) {
          refRemoved(reference);

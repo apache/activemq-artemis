@@ -42,6 +42,16 @@ public class MessageInternalImpl implements MessageInternal {
       return getClass().getName();
    }
 
+   @Override
+   public void setPaged() {
+      message.setPaged();
+   }
+
+   @Override
+   public boolean isPaged() {
+      return message.isPaged();
+   }
+
    public MessageInternalImpl(ICoreMessage message) {
       this.message = (CoreMessage) message;
    }

@@ -123,9 +123,13 @@ public final class ManagementHelper {
       ClientMessage reply = requestor.request(message);
 
       if (ManagementHelper.hasOperationSucceeded(reply)) {
-         ok.accept(reply);
+         if (ok != null) {
+            ok.accept(reply);
+         }
       } else {
-         failed.accept(reply);
+         if (failed != null) {
+            failed.accept(reply);
+         }
       }
    }
 

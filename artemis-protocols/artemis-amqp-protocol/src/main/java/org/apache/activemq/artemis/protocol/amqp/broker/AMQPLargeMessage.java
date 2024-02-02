@@ -434,6 +434,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public void setPaged() {
+      super.setPaged();
       largeBody.setPaged();
    }
 

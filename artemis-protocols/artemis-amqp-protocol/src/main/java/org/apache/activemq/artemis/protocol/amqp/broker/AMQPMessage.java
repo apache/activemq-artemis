@@ -208,6 +208,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected boolean expirationReload = false;
    protected long scheduledTime = -1;
 
+   protected boolean isPaged;
+
    // The Proton based AMQP message section that are retained in memory, these are the
    // mutable portions of the Message as the broker sees it, although AMQP defines that
    // the Properties and ApplicationProperties are immutable so care should be taken
@@ -287,6 +289,16 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    public final MessageDataScanningStatus getDataScanningStatus() {
       return MessageDataScanningStatus.valueOf(messageDataScanned);
+   }
+
+   @Override
+   public boolean isPaged() {
+      return isPaged;
+   }
+
+   @Override
+   public void setPaged() {
+      isPaged = true;
    }
 
    /** This will return application properties without attempting to decode it.

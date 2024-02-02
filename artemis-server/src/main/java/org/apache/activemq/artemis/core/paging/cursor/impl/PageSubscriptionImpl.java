@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,9 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
 
 import io.netty.util.collection.IntObjectHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -61,7 +60,6 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.server.impl.QueueImpl.DELIVERY_TIMEOUT;
 
@@ -110,164 +108,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
    private final AtomicLong deliveredCount = new AtomicLong(0);
 
    private final AtomicLong deliveredSize = new AtomicLong(0);
-
-   /** this variable governs if we need to schedule another runner to look after the scanList. */
-   private boolean pageScanNeeded = true;
-   private final LinkedList<PageScan> scanList = new LinkedList();
-
-   private static class PageScan {
-      final BooleanSupplier retryBeforeScan;
-      final ToIntFunction<PagedReference> scanFunction;
-      final Runnable found;
-      final Runnable notFound;
-
-      public ToIntFunction<PagedReference> getScanFunction() {
-         return scanFunction;
-      }
-
-      public Runnable getFound() {
-         return found;
-      }
-
-      public Runnable getNotfound() {
-         return notFound;
-      }
-
-      PageScan(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
-         this.retryBeforeScan = retryBeforeScan;
-         this.scanFunction = scanFunction;
-         this.found = found;
-         this.notFound = notFound;
-      }
-   }
-
-   @Override
-   public void scanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
-      PageScan scan = new PageScan(retryBeforeScan, scanFunction, found, notFound);
-      boolean pageScanNeededLocal;
-      synchronized (scanList) {
-         scanList.add(scan);
-         pageScanNeededLocal = this.pageScanNeeded;
-         this.pageScanNeeded = false;
-      }
-
-      if (pageScanNeededLocal) {
-         pageStore.execute(this::performScanAck);
-      }
-   }
-
-   private void performScanAck() {
-      try {
-         PageScan[] localScanList;
-         synchronized (scanList) {
-            this.pageScanNeeded = true;
-            if (scanList.size() == 0) {
-               return;
-            }
-            localScanList = scanList.stream().toArray(i -> new PageScan[i]);
-            scanList.clear();
-         }
-
-         int retriedFound = 0;
-         for (int i = 0; i < localScanList.length; i++) {
-            PageScan scanElemen = localScanList[i];
-            if (scanElemen.retryBeforeScan != null && scanElemen.retryBeforeScan.getAsBoolean()) {
-               localScanList[i] = null;
-               retriedFound++;
-            }
-         }
-
-         if (retriedFound == localScanList.length) {
-            return;
-         }
-
-         if (!isPaging()) {
-            // this would mean that between the submit and now the system left paging mode
-            // at this point we will just return everything as notFound
-            for (int i = 0; i < localScanList.length; i++) {
-               PageScan scanElemen = localScanList[i];
-               if (scanElemen != null && scanElemen.notFound != null) {
-                  scanElemen.notFound.run();
-               }
-            }
-
-            return;
-         }
-
-         LinkedList<Runnable> afterCommitList = new LinkedList<>();
-         TransactionImpl tx = new TransactionImpl(store);
-         tx.addOperation(new TransactionOperationAbstract() {
-            @Override
-            public void afterCommit(Transaction tx) {
-               for (Runnable r : afterCommitList) {
-                  try {
-                     r.run();
-                  } catch (Throwable e) {
-                     logger.warn(e.getMessage(), e);
-                  }
-               }
-            }
-         });
-         PageIterator iterator = this.iterator(true);
-         try {
-            while (iterator.hasNext()) {
-               PagedReference reference = iterator.next();
-               boolean keepMoving = false;
-               for (int i = 0; i < localScanList.length; i++) {
-                  PageScan scanElemen = localScanList[i];
-                  if (scanElemen == null) {
-                     continue;
-                  }
-
-                  int result = scanElemen.scanFunction.applyAsInt(reference);
-
-                  if (result >= 0) {
-                     if (result == 0) {
-                        try {
-                           PageSubscriptionImpl.this.ackTx(tx, reference);
-                           if (scanElemen.found != null) {
-                              afterCommitList.add(scanElemen.found);
-                           }
-                        } catch (Throwable e) {
-                           logger.warn(e.getMessage(), e);
-                        }
-                     } else {
-                        if (scanElemen.notFound != null) {
-                           scanElemen.notFound.run();
-                        }
-                     }
-                     localScanList[i] = null;
-                  } else {
-                     keepMoving = true;
-                  }
-               }
-
-               if (!keepMoving) {
-                  break;
-               }
-            }
-         } finally {
-            iterator.close();
-         }
-
-         for (int i = 0; i < localScanList.length; i++) {
-            if (localScanList[i] != null && localScanList[i].notFound != null) {
-               localScanList[i].notFound.run();
-            }
-            localScanList[i] = null;
-         }
-
-         if (afterCommitList.size() > 0) {
-            try {
-               tx.commit();
-            } catch (Exception e) {
-               logger.warn(e.getMessage(), e);
-            }
-         }
-      } catch (Throwable e) {
-         logger.warn(e.getMessage(), e);
-      }
-   }
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
@@ -588,7 +428,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
       PageTransactionInfo txInfo = getPageTransaction(reference);
       if (txInfo != null) {
          txInfo.storeUpdate(store, pageStore.getPagingManager(), tx);
+         tx.setContainsPersistent();
       }
+
    }
 
    @Override
@@ -616,6 +458,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
          // if it's been routed here, we have to verify if it was acked
          return !getPageInfo(ref.getPagedMessage().getPageNumber()).isAck(ref.getPagedMessage().getMessageNumber());
       }
+   }
+
+   @Override
+   public boolean isAcked(PagedMessage pagedMessage) {
+      return getPageInfo(pagedMessage.getPageNumber()).isAck(pagedMessage.getMessageNumber());
    }
 
    @Override

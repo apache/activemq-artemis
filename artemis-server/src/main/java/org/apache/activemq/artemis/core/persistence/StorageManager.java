@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -300,15 +302,29 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
       return loadMessageJournal(postOffice, pagingManager, resourceManager, queueInfos, duplicateIDMap, pendingLargeMessages, null, pendingNonTXPageCounter, journalLoader);
    }
 
+   default JournalLoadInformation loadMessageJournal(PostOffice postOffice,
+                                                     PagingManager pagingManager,
+                                                     ResourceManager resourceManager,
+                                                     Map<Long, QueueBindingInfo> queueInfos,
+                                                     Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
+                                                     Set<Pair<Long, Long>> pendingLargeMessages,
+                                                     Set<Long> largeMessagesInFolder,
+                                                     List<PageCountPending> pendingNonTXPageCounter,
+                                                     JournalLoader journalLoader) throws Exception {
+      return loadMessageJournal(postOffice, pagingManager, resourceManager, queueInfos, duplicateIDMap, pendingLargeMessages, largeMessagesInFolder, pendingNonTXPageCounter, journalLoader, null);
+
+   }
+
    JournalLoadInformation loadMessageJournal(PostOffice postOffice,
-                                             PagingManager pagingManager,
-                                             ResourceManager resourceManager,
-                                             Map<Long, QueueBindingInfo> queueInfos,
-                                             Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
-                                             Set<Pair<Long, Long>> pendingLargeMessages,
-                                             Set<Long> largeMessagesInFolder,
-                                             List<PageCountPending> pendingNonTXPageCounter,
-                                             JournalLoader journalLoader) throws Exception;
+                                                     PagingManager pagingManager,
+                                                     ResourceManager resourceManager,
+                                                     Map<Long, QueueBindingInfo> queueInfos,
+                                                     Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
+                                                     Set<Pair<Long, Long>> pendingLargeMessages,
+                                                     Set<Long> largeMessagesInFolder,
+                                                     List<PageCountPending> pendingNonTXPageCounter,
+                                                     JournalLoader journalLoader,
+                                                     List<Consumer<RecordInfo>> extraRecordsLoader) throws Exception;
 
    long storeHeuristicCompletion(Xid xid, boolean isCommit) throws Exception;
 
