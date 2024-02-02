@@ -1327,8 +1327,7 @@
          <xsd:element name="min-large-message-size" type="xsd:string" default="102400" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Any message larger than this size (in bytes) is considered a large message (to be sent in
-                  chunks).
+                  Any message larger than this size (in bytes) is considered a large message (to be sent in chunks).
                   Supports byte notation like "K", "Mb", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
@@ -1447,8 +1446,8 @@
          <xsd:element name="reconnect-attempts-same-node" default="10" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Upon reconnection this configures the number of time the same node on the topology will be retried
-                  before resetting the server locator and using the initial connectors
+                  configures the number of times reconnection attempts will be made to the same node on the topology
+                  before reverting back to the initial connector(s)
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
