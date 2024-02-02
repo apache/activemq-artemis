@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -126,6 +127,17 @@ public interface PostOffice extends ActiveMQComponent {
     * @throws Exception
     */
    Bindings lookupBindingsForAddress(SimpleString address) throws Exception;
+
+   LocalQueueBinding findLocalBinding(long bindingID);
+
+   default Queue findQueue(final long bindingID) {
+      LocalQueueBinding binding = findLocalBinding(bindingID);
+      if (binding != null) {
+         return binding.getQueue();
+      } else {
+         return null;
+      }
+   }
 
    /**
     * Differently to lookupBindings, this will always create a new element on the Queue if non-existent

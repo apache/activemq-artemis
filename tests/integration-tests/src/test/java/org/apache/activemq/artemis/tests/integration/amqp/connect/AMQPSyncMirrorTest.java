@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -537,6 +538,12 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
       waitForServerToStart(slowServer);
       waitForServerToStart(server);
+
+      Wait.waitFor(() -> server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror") != null, 5000);
+      Queue snf = server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror");
+      Assert.assertNotNull(snf);
+      // Mirror is configured to block, we cannot allow anything other than block
+      Assert.assertEquals(AddressFullMessagePolicy.BLOCK, snf.getPagingStore().getAddressFullMessagePolicy());
 
       server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));

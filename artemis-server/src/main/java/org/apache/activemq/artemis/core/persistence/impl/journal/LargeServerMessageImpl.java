@@ -187,6 +187,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    @Override
    public void setPaged() {
+      super.setPaged();
       largeBody.setPaged();
    }
 

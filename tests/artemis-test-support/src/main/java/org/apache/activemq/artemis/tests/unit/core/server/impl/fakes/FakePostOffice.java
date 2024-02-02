@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -300,5 +301,10 @@ public class FakePostOffice implements PostOffice {
    @Override
    public RoutingStatus route(Message message, boolean direct) throws Exception {
       return RoutingStatus.OK;
+   }
+
+   @Override
+   public LocalQueueBinding findLocalBinding(long bindingID) {
+      return null;
    }
 }

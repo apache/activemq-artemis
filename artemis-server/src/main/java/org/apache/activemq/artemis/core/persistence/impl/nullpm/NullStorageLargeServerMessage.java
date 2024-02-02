@@ -138,6 +138,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
    @Override
    public void setPaged() {
+      super.setPaged();
    }
 
    @Override

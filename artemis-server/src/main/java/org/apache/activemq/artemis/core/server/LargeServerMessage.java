@@ -42,10 +42,6 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
 
    long getMessageID();
 
-   /**
-    * We have to copy the large message content in case of DLQ and paged messages
-    * For that we need to pre-mark the LargeMessage with a flag when it is paged
-    */
    void setPaged();
 
    /**

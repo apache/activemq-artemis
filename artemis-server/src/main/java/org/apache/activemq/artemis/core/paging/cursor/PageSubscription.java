@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -84,6 +82,8 @@ public interface PageSubscription {
 
    boolean contains(PagedReference ref) throws Exception;
 
+   boolean isAcked(PagedMessage pagedMessage);
+
    // for internal (cursor) classes
    void confirmPosition(PagePosition ref) throws Exception;
 
@@ -91,16 +91,6 @@ public interface PageSubscription {
 
    // for internal (cursor) classes
    void confirmPosition(Transaction tx, PagePosition position) throws Exception;
-
-   /**
-    * This method will schedule scanning over Paging, however a retry should be done before the scanning.
-    * @param retryBeforeScan if this function is called and returns true, the scan for this element will not be called. It would be caller's responsibility to call found.
-    * @param scanFunction
-    * @param found
-    * @param notFound
-    */
-   void scanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound);
-
 
       /**
        * @return the first page in use or MAX_LONG if none is in use

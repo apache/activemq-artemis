@@ -96,6 +96,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    protected boolean durable;
 
+   protected boolean paged;
+
    /**
     * GMT milliseconds at which this message expires. 0 means never expires *
     */
@@ -121,6 +123,16 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public CoreMessage() {
       this.coreMessageObjectPools = null;
+   }
+
+   @Override
+   public void setPaged() {
+      this.paged = true;
+   }
+
+   @Override
+   public boolean isPaged() {
+      return paged;
    }
 
    @Override

@@ -106,4 +106,6 @@ public final class JournalRecordIds {
    public static final byte CONNECTOR_RECORD = 51;
 
    public static final byte ADDRESS_SETTING_RECORD_JSON = 52;
+
+   public static final byte ACK_RETRY = 53;
 }

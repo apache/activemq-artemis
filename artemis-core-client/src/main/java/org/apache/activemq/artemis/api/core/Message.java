@@ -268,6 +268,10 @@ public interface Message {
     *  Return null if not scheduled. */
    Long getScheduledDeliveryTime();
 
+   void setPaged();
+
+   boolean isPaged();
+
    default Message setScheduledDeliveryTime(Long time) {
       return this;
    }

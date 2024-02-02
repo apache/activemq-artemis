@@ -59,6 +59,8 @@ public class SimpleAddressManager implements AddressManager {
 
    private final StorageManager storageManager;
 
+   private final ConcurrentMap<Long, LocalQueueBinding> localBindingsMap = new ConcurrentHashMap<>();
+
    /**
     * {@code HashMap<Address, Binding>}
     */
@@ -85,6 +87,11 @@ public class SimpleAddressManager implements AddressManager {
       this.bindingsFactory = bindingsFactory;
       this.storageManager = storageManager;
       this.metricsManager = metricsManager;
+   }
+
+   @Override
+   public LocalQueueBinding findLocalBinding(long bindingID) {
+      return localBindingsMap.get(bindingID);
    }
 
    @Override
@@ -219,6 +226,10 @@ public class SimpleAddressManager implements AddressManager {
          final Binding binding = bindings.removeBindingByUniqueName(bindableQueueName);
          if (binding == null) {
             throw new IllegalStateException("Cannot find binding " + bindableName);
+         } else {
+            if (binding instanceof LocalQueueBinding) {
+               localBindingsMap.remove(binding.getID());
+            }
          }
          if (bindings.getBindings().isEmpty()) {
             mappings.remove(realAddress);
@@ -271,6 +282,10 @@ public class SimpleAddressManager implements AddressManager {
       }
 
       bindings.addBinding(binding);
+
+      if (binding instanceof LocalQueueBinding) {
+         localBindingsMap.put(binding.getID(), (LocalQueueBinding) binding);
+      }
 
       return addedNewBindings;
    }

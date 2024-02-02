@@ -351,6 +351,16 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void setPaged() {
+
+      }
+
+      @Override
+      public boolean isPaged() {
+         return false;
+      }
+
+      @Override
       public SimpleString getReplyTo() {
          return null;
       }

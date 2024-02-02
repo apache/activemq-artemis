@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -74,6 +75,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -649,7 +652,8 @@ public class TransactionImplTest extends ServerTestBase {
                                                        Set<Pair<Long, Long>> pendingLargeMessages,
                                                        Set<Long> largeMessagesInFolder,
                                                        List<PageCountPending> pendingNonTXPageCounter,
-                                                       JournalLoader journalLoader) throws Exception {
+                                                       JournalLoader journalLoader,
+                                                       List<Consumer<RecordInfo>> extraLoaders) throws Exception {
          return null;
       }
 

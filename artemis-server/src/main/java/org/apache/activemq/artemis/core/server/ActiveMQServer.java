@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -37,6 +38,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -181,6 +183,10 @@ public interface ActiveMQServer extends ServiceComponent {
     * it will hold a lock for the activation. This will prevent the activation from happening.
     */
    void lockActivation();
+
+   /** The server has a default listener that will propagate errors to registered listeners.
+    *  This will return the main listener*/
+   IOCriticalErrorListener getIoCriticalErrorListener();
 
    /**
     * Returns the resource to manage this ActiveMQ Artemis server.
@@ -1011,4 +1017,6 @@ public interface ActiveMQServer extends ServiceComponent {
    default String getStatus() {
       return "";
    }
+
+   void registerRecordsLoader(Consumer<RecordInfo> recordsLoader);
 }

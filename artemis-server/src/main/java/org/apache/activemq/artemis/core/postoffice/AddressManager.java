@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -56,6 +57,8 @@ public interface AddressManager {
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 
    SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
+
+   LocalQueueBinding findLocalBinding(long id);
 
    void clear();
 
