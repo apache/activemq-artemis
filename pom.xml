@@ -158,7 +158,7 @@
       <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
       <weld.version>2.4.8.Final</weld.version>
       <arquillian-weld-embedded.version>2.1.0.Final</arquillian-weld-embedded.version>
-      <owb.version>1.7.0</owb.version>
+      <owb.version>2.0.27</owb.version>
       <arquillian.version>1.8.0.Final</arquillian.version>
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
       <version.org.jacoco>0.8.11</version.org.jacoco>
@@ -2078,6 +2078,17 @@
                            <ignoreVersion>
                               <type>regex</type>
                               <version>[34]\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                     <!-- ignore OpenWebBeans 4.x until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.apache.openwebbeans</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>[4]\..*</version>
                            </ignoreVersion>
                         </ignoreVersions>
                      </rule>
