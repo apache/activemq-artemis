@@ -2010,6 +2010,39 @@
                            </ignoreVersion>
                         </ignoreVersions>
                      </rule>
+                     <!-- ignore ActiveMQ Classic 6.x until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.apache.activemq</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>6\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                     <!-- ignore Apache Qpid 2.x until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.apache.qpid</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>2\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
+                     <!-- ignore Apache Johnzon 2.x until we move to Jakarta -->
+                     <rule>
+                        <groupId>org.apache.johnzon</groupId>
+                        <comparisonMethod>maven</comparisonMethod>
+                        <ignoreVersions>
+                           <ignoreVersion>
+                              <type>regex</type>
+                              <version>2\..*</version>
+                           </ignoreVersion>
+                        </ignoreVersions>
+                     </rule>
                      <!-- ignore Spring 6 until we move to Jakarta -->
                      <rule>
                         <groupId>org.springframework</groupId>
