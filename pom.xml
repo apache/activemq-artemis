@@ -171,7 +171,7 @@
       <selenium.version>4.17.0</selenium.version>
       <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
       <apache.httpcore.version>4.4.13</apache.httpcore.version>
-      <apache.httpclient.version>4.5.13</apache.httpclient.version>
+      <apache.httpclient.version>4.5.14</apache.httpclient.version>
 
       <!-- for JakartaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
