@@ -142,8 +142,6 @@ public final class PagingManagerImpl implements PagingManager {
       this.maxSize = maxSize;
       this.maxMessages = maxMessages;
       this.globalSizeMetric = new SizeAwareMetric(maxSize, maxSize, maxMessages, maxMessages);
-      globalSizeMetric.setSizeEnabled(maxSize >= 0);
-      globalSizeMetric.setElementsEnabled(maxMessages >= 0);
       globalSizeMetric.setOverCallback(() -> setGlobalFull(true));
       globalSizeMetric.setUnderCallback(() -> setGlobalFull(false));
       this.managerExecutor = pagingSPI.newExecutor();
