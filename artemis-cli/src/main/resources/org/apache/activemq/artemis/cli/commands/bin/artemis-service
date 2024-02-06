@@ -59,13 +59,9 @@ fi
 status() {
   if [ -f "${PID_FILE}" ] ; then
     pid=`cat "${PID_FILE}"`
-    pid_workdir=$ARTEMIS_INSTANCE
-    if [ `command -v lsof &> /dev/null` ]; then
-      pid_workdir="`lsof -a -d cwd -p ${pid} | awk '{print $9}' | tail -1`"
-    if
     # check to see if it's gone...
     ps -p ${pid} > /dev/null
-    if [ $? -eq 0 ] && [ "$pid_workdir" = "$ARTEMIS_INSTANCE" ]; then
+    if [ $? -eq 0 ] ; then
       return 0
     else
       rm "${PID_FILE}"
