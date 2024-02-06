@@ -62,7 +62,7 @@ status() {
     pid_workdir=$ARTEMIS_INSTANCE
     if [ `command -v lsof &> /dev/null` ]; then
       pid_workdir="`lsof -a -d cwd -p ${pid} | awk '{print $9}' | tail -1`"
-    if
+    fi
     # check to see if it's gone...
     ps -p ${pid} > /dev/null
     if [ $? -eq 0 ] && [ "$pid_workdir" = "$ARTEMIS_INSTANCE" ]; then
