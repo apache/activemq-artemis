@@ -37,9 +37,9 @@ under the License.
 
       <bridges>
          <bridge name="a">
+            <concurrency>2</concurrency>
             <queue-name>a-from</queue-name>
             <forwarding-address>a-new</forwarding-address>
-            <concurrency>2</concurrency>
             <static-connectors>
                <connector-ref>connector</connector-ref>
             </static-connectors>

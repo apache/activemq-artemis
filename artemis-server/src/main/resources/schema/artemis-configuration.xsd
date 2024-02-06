@@ -1054,6 +1054,37 @@
       </xsd:annotation>
    </xsd:element>
 
+   <xsd:element name="discovery-type" abstract="true"/>
+
+   <xsd:element name="static-connectors" substitutionGroup="discovery-type">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
+         </xsd:sequence>
+         <xsd:attribute name="allow-direct-connections-only" default="false" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+               <xsd:documentation>
+                  restricts a clusters connections to the listed connector-ref's
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="discovery-group-ref" substitutionGroup="discovery-type">
+      <xsd:complexType>
+         <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
+            <xsd:annotation>
+               <xsd:documentation>
+                  name of the discovery group to use for this connection
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
    <!-- BROADCAST GROUP CONFIGURATION -->
    <xsd:element name="broadcast-groups">
       <xsd:annotation>
@@ -1222,13 +1253,6 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:element name="discovery-group-ref">
-      <xsd:complexType>
-         <xsd:attribute name="discovery-group-name" type="xsd:IDREF"/>
-         <xsd:attributeGroup ref="xml:specialAttrs"/>
-      </xsd:complexType>
-   </xsd:element>
-
    <xsd:complexType name="class-name-sequenceType">
       <xsd:annotation>
          <xsd:documentation>
@@ -1281,7 +1305,7 @@
    </xsd:element>
 
    <xsd:complexType name="bridgeType">
-      <xsd:sequence>
+      <xsd:all>
          <xsd:element name="queue-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
@@ -1469,29 +1493,9 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:choice>
-            <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
-               <xsd:complexType>
-                  <xsd:sequence>
-                     <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
-                  </xsd:sequence>
-                  <xsd:attributeGroup ref="xml:specialAttrs"/>
-               </xsd:complexType>
-            </xsd:element>
-            <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="1">
-               <xsd:complexType>
-                  <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           name of discovery group used by this bridge
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:attribute>
-                  <xsd:attributeGroup ref="xml:specialAttrs"/>
-               </xsd:complexType>
-            </xsd:element>
-         </xsd:choice>
-      </xsd:sequence>
+         <xsd:element ref="discovery-type" maxOccurs="1" minOccurs="1"/>
+
+      </xsd:all>
 
       <xsd:attribute name="name" type="xsd:ID" use="required">
          <xsd:annotation>
@@ -2334,7 +2338,7 @@
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionType">
-      <xsd:sequence>
+      <xsd:all>
          <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -2517,36 +2521,10 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:choice>
-            <xsd:element name="static-connectors" maxOccurs="1" minOccurs="0">
-               <xsd:complexType>
-                  <xsd:sequence>
-                     <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
-                  </xsd:sequence>
-                  <xsd:attribute name="allow-direct-connections-only" default="false" type="xsd:boolean" use="optional">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           restricts cluster connections to the listed connector-ref's
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:attribute>
-                  <xsd:attributeGroup ref="xml:specialAttrs"/>
-               </xsd:complexType>
-            </xsd:element>
-            <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="0">
-               <xsd:complexType>
-                  <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           name of discovery group used by this cluster-connection
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:attribute>
-                  <xsd:attributeGroup ref="xml:specialAttrs"/>
-               </xsd:complexType>
-            </xsd:element>
-         </xsd:choice>
-      </xsd:sequence>
+         <xsd:element ref="discovery-type" maxOccurs="1" minOccurs="0"/>
+
+      </xsd:all>
+
       <xsd:attribute name="name" type="xsd:ID" use="required">
          <xsd:annotation>
             <xsd:documentation>

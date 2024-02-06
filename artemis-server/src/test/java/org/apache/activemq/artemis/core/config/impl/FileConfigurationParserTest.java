@@ -311,6 +311,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
          "         <connector-ref>remote-connector</connector-ref>\n" +
          "      </static-connectors>\n" +
          "   </bridge>\n" +
+         "   <bridge name=\"my-other-bridge\">\n" +
+         "      <static-connectors>\n" +
+         "         <connector-ref>remote-connector</connector-ref>\n" +
+         "      </static-connectors>\n" +
+         "      <forwarding-address>mincing-machine</forwarding-address>\n" +
+         "      <queue-name>sausage-factory</queue-name>\n" +
+         "   </bridge>\n" +
          "</bridges>\n"
          + lastPart;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -318,7 +325,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       Configuration config = parser.parseMainConfig(input);
 
       List<BridgeConfiguration> bridgeConfigs = config.getBridgeConfigurations();
-      assertEquals(1, bridgeConfigs.size());
+      assertEquals(2, bridgeConfigs.size());
 
       BridgeConfiguration bconfig = bridgeConfigs.get(0);
 
