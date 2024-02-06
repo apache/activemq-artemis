@@ -406,6 +406,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
             Assert.assertEquals(null, ccc.getDiscoveryGroupName());
             Assert.assertEquals(222, ccc.getProducerWindowSize());
+            Assert.assertEquals(true, ccc.isAllowDirectConnectionsOnly());
          } else {
             Assert.assertEquals("cluster-connection2", ccc.getName());
             Assert.assertEquals("queues2", ccc.getAddress());
@@ -418,6 +419,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(Collections.emptyList(), ccc.getStaticConnectors());
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());
             Assert.assertEquals(333, ccc.getProducerWindowSize());
+            Assert.assertEquals(false, ccc.isAllowDirectConnectionsOnly());
          }
       }
 

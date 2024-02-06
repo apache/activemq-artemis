@@ -31,7 +31,7 @@
       <max-hops>1</max-hops>
       <producer-window-size>222</producer-window-size>
       <call-failover-timeout>123</call-failover-timeout>
-      <static-connectors>
+      <static-connectors allow-direct-connections-only="true">
          <connector-ref>connector1</connector-ref>
          <connector-ref>connector2</connector-ref>
       </static-connectors>
