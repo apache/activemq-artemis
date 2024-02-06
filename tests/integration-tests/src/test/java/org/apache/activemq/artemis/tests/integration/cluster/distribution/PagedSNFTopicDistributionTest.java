@@ -103,7 +103,7 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
          session.commit();
       }
 
-      // verifying if everything is actually paged, nothing should be rounted on the journal
+      // verifying if everything is actually paged, nothing should be routed on the journal
       HashMap<Integer, AtomicInteger> counters =  countJournal(servers[0].getConfiguration());
       Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_REF, counters));
       Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_MESSAGE, counters));
