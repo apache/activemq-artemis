@@ -304,6 +304,15 @@ public class FederatedQueueTest extends FederatedTestBase {
 
    @Test
    public void testWithLargeMessage() throws Exception {
+      internalTestWithLargeMessages(1);
+   }
+
+   @Test
+   public void testWithMultipleLargeMessages() throws Exception {
+      internalTestWithLargeMessages(5);
+   }
+
+   private void internalTestWithLargeMessages(int messageNumber) throws Exception {
       String queueName = getName();
 
       FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
@@ -319,14 +328,18 @@ public class FederatedQueueTest extends FederatedTestBase {
          Session session1 = connection1.createSession();
          Queue queue1 = session1.createQueue(queueName);
          MessageProducer producer = session1.createProducer(queue1);
-         producer.send(session1.createTextMessage(payload));
+         for (int i = 0; i < messageNumber; i++) {
+            producer.send(session1.createTextMessage(payload));
+         }
 
          connection0.start();
          Session session0 = connection0.createSession();
          Queue queue0 = session0.createQueue(queueName);
          MessageConsumer consumer0 = session0.createConsumer(queue0);
 
-         assertNotNull(consumer0.receive(60000));
+         for (int i = 0; i < messageNumber; i++) {
+            assertNotNull(consumer0.receive(1000));
+         }
       }
    }
 
@@ -704,5 +717,4 @@ public class FederatedQueueTest extends FederatedTestBase {
          return message;
       }
    }
-
 }
