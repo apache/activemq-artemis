@@ -48,9 +48,17 @@ Generating the user manual's PDF adds almost a minute to the build so this can b
 
 == Offline
 
+Maven dependency:go-offline can be used to download various things the build needs. This necessitates some properties the build doesnt normally need set, so to make this work a helper profile called `go-offline` exists to have the os-maven-plugin set these properties based on the current environment. To run these together, do:
 [,console]
 ----
-$ mvn dependency:go-offline
+$ mvn dependency:go-offline -Pgo-offline
+$ mvn -o ...
+----
+
+Alternatively you can simply specify the needed properties directly, based on your environment preference. For example, on a Linux x86-64 environment you could run:
+[,console]
+----
+$ mvn dependency:go-offline -Dos.detected.name=linux -Dos.detected.arch=x86_64 -Dos.detected.classifier=linux-x86_64
 $ mvn -o ...
 ----
 
