@@ -17,25 +17,33 @@
 
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import java.util.concurrent.Executors;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.Executors;
-
 public class ClusterConnectionImplMockTest extends ServerTestBase {
 
-    /**
-     * Verification for the fix https://issues.apache.org/jira/browse/ARTEMIS-1946
-     */
+   /**
+    * Verification for the fix https://issues.apache.org/jira/browse/ARTEMIS-1946
+    */
    @Test
    public void testRemvalOfLocalParameters() throws Exception {
       TransportConfiguration tc = new TransportConfiguration();
@@ -85,6 +93,25 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
 
    }
 
+   @Test
+   public void testNullPrimaryOnNodeUp() throws Exception {
+      TransportConfiguration tc = new TransportConfiguration();
+      tc.setFactoryClassName("mock");
+      tc.getParams().put(TransportConstants.LOCAL_ADDRESS_PROP_NAME, "localAddress");
+      tc.getParams().put(TransportConstants.LOCAL_PORT_PROP_NAME, "localPort");
+
+      ArtemisExecutor executor = ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      try {
+         ClusterConnectionImpl cci = new ClusterConnectionImpl(null, new TransportConfiguration[]{tc}, null, null, null, 0, 0L, 0L, 0L, 0, 0L, 0, 0, 0L, 0L, false, null, 0, 0, () -> executor, new MockServer(), null, null, null, 0, new FakeNodeManager(UUIDGenerator.getInstance().generateStringUUID()), null, null, true, 0, 0);
+
+         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomString(), null, null, null, null);
+         cci.nodeUP(topologyMember, false);
+      } finally {
+         executor.shutdownNow();
+      }
+   }
+
    static final class MockServer extends ActiveMQServerImpl {
 
       @Override
@@ -115,6 +142,63 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
 
             }
          };
+      }
+   }
+
+   protected final class FakeNodeManager extends NodeManager {
+
+      public FakeNodeManager(String nodeID) {
+         super(false);
+         this.setNodeID(nodeID);
+      }
+
+      @Override
+      public void awaitPrimaryNode() {
+      }
+
+      @Override
+      public void awaitActiveStatus() {
+      }
+
+      @Override
+      public void startBackup() {
+      }
+
+      @Override
+      public ActivateCallback startPrimaryNode() {
+         return new CleaningActivateCallback() {
+         };
+      }
+
+      @Override
+      public void pausePrimaryServer() {
+      }
+
+      @Override
+      public void crashPrimaryServer() {
+      }
+
+      @Override
+      public void releaseBackup() {
+      }
+
+      @Override
+      public SimpleString readNodeId() {
+         return null;
+      }
+
+      @Override
+      public boolean isAwaitingFailback() {
+         return false;
+      }
+
+      @Override
+      public boolean isBackupActive() {
+         return false;
+      }
+
+      @Override
+      public void interrupt() {
       }
    }
 }
