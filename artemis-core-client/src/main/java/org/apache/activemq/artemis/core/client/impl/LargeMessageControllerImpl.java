@@ -83,6 +83,8 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    private long packetLastPosition = -1;
 
+   private long bytesTaken = 0;
+
    private OutputStream outStream;
 
    // There's no need to wait a synchronization
@@ -315,7 +317,9 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    @Override
    public LargeData take() throws InterruptedException {
-      return largeMessageData.take();
+      LargeData largeData = largeMessageData.take();
+      bytesTaken += largeData.getChunk().length;
+      return largeData;
    }
 
    /**
@@ -1146,6 +1150,10 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    private void checkForPacket(final long index) {
+      if (totalSize == bytesTaken) {
+         return;
+      }
+
       if (outStream != null) {
          throw new IllegalAccessError("Can't read the messageBody after setting outputStream");
       }
