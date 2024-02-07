@@ -761,21 +761,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
 
-      // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
-      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getPrimary().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
-         return;
-      }
-
       // FIXME required to prevent cluster connections w/o discovery group
       // and empty static connectors to create bridges... ulgy!
       if (serverLocator == null) {
          return;
       }
+
       /*we don't create bridges to backups*/
       if (topologyMember.getPrimary() == null) {
          if (logger.isTraceEnabled()) {
             logger.trace("{} ignoring call with nodeID={}, topologyMember={}, last={}", this, nodeID, topologyMember, last);
          }
+         return;
+      }
+
+      // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
+      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getPrimary().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
          return;
       }
 

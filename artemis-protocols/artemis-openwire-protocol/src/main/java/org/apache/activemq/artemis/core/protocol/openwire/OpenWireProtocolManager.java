@@ -232,6 +232,13 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    @Override
    public void nodeUP(TopologyMember member, boolean last) {
+      if (member.getPrimary() == null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("{} ignoring nodeUP call due to null primary; topologyMember={}, last={}", this, member, last);
+         }
+         return;
+      }
+
       if (topologyMap.put(member.getNodeId(), member) == null) {
          updateClientClusterInfo();
       }
