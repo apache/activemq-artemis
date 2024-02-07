@@ -459,7 +459,7 @@ NOTE: the environment variable `JAVA_ARGS_APPEND` can be used to append or overr
 
 === Adding Runtime Dependencies
 
-Runtime dependencies like diverts, transformers, broker plugins, JDBC drivers, password decoders, etc. must be accessible by the broker at runtime.
+Runtime dependencies like transformers, broker plugins, JDBC drivers, password decoders, etc. must be accessible by the broker at runtime.
 Package the dependency in a jar, and put it on the broker's classpath.
 This can be done by placing the jar file in the `lib` directory of the broker distribution itself,
 by placing the jar file in the `lib` directory of the broker instance,
