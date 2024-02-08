@@ -46,15 +46,13 @@ Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] 
 The STOMP specification is intentionally ambiguous about message routing semantics.
 When providing an overview of the protocol the STOMP 1.2 specification https://stomp.github.io/stomp-specification-1.2.html#Protocol_Overview[says]:
 
-----
+____
 A STOMP server is modelled as a set of destinations to which messages can be sent.
-The STOMP protocol treats destinations as opaque string and their syntax is
-server implementation specific. Additionally STOMP does not define what the
-delivery semantics of destinations should be. The delivery, or
-"message exchange", semantics of destinations can vary from server to server and
-even from destination to destination. This allows servers to be creative with the
-semantics that they can support with STOMP.
-----
+The STOMP protocol treats destinations as opaque string and their syntax is server implementation specific.
+Additionally STOMP does not define what the delivery semantics of destinations should be.
+The delivery, or "message exchange", semantics of destinations can vary from server to server and even from destination to destination.
+This allows servers to be creative with the semantics that they can support with STOMP.
+____
 
 Therefore, there are a handful of different ways to specify which semantics are desired both on the client-side and broker-side.
 
