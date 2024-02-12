@@ -22,6 +22,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_RECEIVER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT;
@@ -98,6 +99,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -193,6 +198,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -251,6 +260,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                                    .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                                    .respond()
                                    .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+               peer2.expectAttach().ofReceiver()
+                                   .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                                   .respondInKind();
+               peer2.expectFlow().withLinkCredit(10);
                peer2.start();
 
                final URI remoteURI2 = peer2.getServerURI();
@@ -313,6 +326,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -398,6 +415,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -460,6 +481,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                                .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                                .respond()
                                .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                               .respondInKind();
+            peer.expectFlow().withLinkCredit(10);
             peer.expectAttach().ofReceiver()
                                .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
                                .withName(allOf(containsString("sample-federation"),

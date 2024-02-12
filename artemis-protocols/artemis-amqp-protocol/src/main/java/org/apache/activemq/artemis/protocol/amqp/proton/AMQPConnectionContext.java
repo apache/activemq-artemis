@@ -80,6 +80,7 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
@@ -403,6 +404,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             handleReplicaTargetLinkOpened(protonSession, receiver);
          } else if (isFederationControlLink(receiver)) {
             handleFederationControlLinkOpened(protonSession, receiver);
+         } else if (isFederationEventLink(receiver)) {
+            protonSession.addFederationEventProcessor(receiver);
          } else {
             protonSession.addReceiver(receiver);
          }
@@ -412,6 +415,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             protonSession.addSender(sender, new AMQPFederationAddressSenderController(protonSession));
          } else if (isFederationQueueReceiver(sender)) {
             protonSession.addSender(sender, new AMQPFederationQueueSenderController(protonSession));
+         } else if (isFederationEventLink(sender)) {
+            protonSession.addFederationEventDispatcher(sender);
          } else {
             protonSession.addSender(sender);
          }
@@ -478,6 +483,14 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private static boolean isFederationControlLink(Receiver receiver) {
       return verifyDesiredCapability(receiver, FEDERATION_CONTROL_LINK);
+   }
+
+   private static boolean isFederationEventLink(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_EVENT_LINK);
+   }
+
+   private static boolean isFederationEventLink(Receiver receiver) {
+      return verifyDesiredCapability(receiver, FEDERATION_EVENT_LINK);
    }
 
    private static boolean isFederationQueueReceiver(Sender sender) {

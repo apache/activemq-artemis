@@ -17,12 +17,12 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotImplementedException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -66,7 +67,7 @@ import org.apache.qpid.proton.engine.Sender;
  */
 public final class AMQPFederationAddressSenderController extends AMQPFederationBaseSenderController {
 
-   public AMQPFederationAddressSenderController(AMQPSessionContext session) {
+   public AMQPFederationAddressSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
       super(session);
    }
 
@@ -80,8 +81,14 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       final Connection protonConnection = sender.getSession().getConnection();
       final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
 
-      if (attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class) == null) {
+      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+      if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
+      }
+
+      if (source == null) {
+         throw new ActiveMQAMQPNotImplementedException("Null source lookup not supported on federation links.");
       }
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
@@ -139,6 +146,8 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       }
 
       if (!addressQueryResult.isExists()) {
+         federation.registerMissingAddress(address.toString());
+
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
       }
 
@@ -177,6 +186,11 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
          throw new ActiveMQAMQPIllegalStateException("Requested queue: " + queueName + " for federation of address: " + address +
                                                      ", but it is already mapped to a different address: " + queueQuery.getAddress());
       }
+
+      // Configure an action to register a watcher for this federated address to be created if it is
+      // removed during the lifetime of the federation receiver, if restored an event will be sent
+      // to the remote to prompt it to create a new receiver.
+      resourceDeletedAction = (e) -> federation.registerMissingAddress(address.toString());
 
       return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
    }

@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 
 /**
- * Am entry type class used to hold a {@link FederationConsumerInternal} and
+ * An entry type class used to hold a {@link FederationConsumerInternal} and
  * any other state data needed by the manager that is creating them based on the
  * policy configuration for the federation instance.  The entry can be extended
  * by federation implementation to hold additional state data for the federation
@@ -77,16 +77,14 @@ public class FederationQueueEntry {
    }
 
    /**
-    * Reduce the known demand on the resource this entries consumer is associated with
-    * and returns true when demand reaches zero which indicates the consumer should be
-    * closed and the entry cleaned up.
+    * Remove the known demand on the resource from the given {@link ServerConsumer}.
     *
     * @param consumer
     *    The {@link ServerConsumer} that generated the demand on federated resource.
     *
     * @return this federation queue entry instance.
     */
-   public FederationQueueEntry reduceDemand(ServerConsumer consumer) {
+   public FederationQueueEntry removeDemand(ServerConsumer consumer) {
       consumerDemand.remove(identifyConsumer(consumer));
       return this;
    }

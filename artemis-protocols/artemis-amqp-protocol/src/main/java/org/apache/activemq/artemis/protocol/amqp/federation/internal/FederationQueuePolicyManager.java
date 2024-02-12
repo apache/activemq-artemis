@@ -115,7 +115,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
             return;
          }
 
-         entry.reduceDemand(consumer);
+         entry.removeDemand(consumer);
 
          logger.trace("Reducing demand on federated queue {}, remaining demand? {}", queueName, entry.hasDemand());
 
@@ -205,6 +205,36 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    }
 
    /**
+    * Checks if the remote queue added falls within the set of queues that match the
+    * configured queue policy and if so scans for local demand on that queue to see
+    * if a new attempt to federate the queue is needed.
+    *
+    * @param addressName
+    *    The address that was added on the remote.
+    * @param queueName
+    *    The queue that was added on the remote.
+    *
+    * @throws Exception if an error occurs while processing the queue added event.
+    */
+   public synchronized void afterRemoteQueueAdded(String addressName, String queueName) throws Exception {
+      // We ignore the remote address as locally the policy can be a wild card match and we can
+      // try to federate based on the Queue only, if the remote rejects the federation consumer
+      // binding again the request will once more be recorded and we will get another event if
+      // the queue were recreated such that a match could be made.
+      if (started && testIfQueueMatchesPolicy(queueName)) {
+
+         // Find a matching Queue with the given name and then check for demand based
+         // on the attached consumers and the current policy constraints.
+
+         server.getPostOffice()
+               .getAllBindings()
+               .filter(b -> b instanceof QueueBinding && ((QueueBinding) b).getQueue().getName().toString().equals(queueName))
+               .map(b -> (QueueBinding) b)
+               .forEach(b -> checkQueueForMatch(b.getQueue()));
+      }
+   }
+
+   /**
     * Performs the test against the configured queue policy to check if the target
     * queue and its associated address is a match or not. A subclass can override
     * this method and provide its own match tests in combination with the configured
@@ -219,6 +249,21 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
     */
    protected boolean testIfQueueMatchesPolicy(String address, String queueName) {
       return policy.test(address, queueName);
+   }
+
+   /**
+    * Performs the test against the configured queue policy to check if the target
+    * queue minus its associated address is a match or not. A subclass can override
+    * this method and provide its own match tests in combination with the configured
+    * matching policy.
+    *
+    * @param queueName
+    *    The name of the queue that is being tested for a policy match.
+    *
+    * @return <code>true</code> if the address given is a match against the policy.
+    */
+   protected boolean testIfQueueMatchesPolicy(String queueName) {
+      return policy.testQueue(queueName);
    }
 
    /**

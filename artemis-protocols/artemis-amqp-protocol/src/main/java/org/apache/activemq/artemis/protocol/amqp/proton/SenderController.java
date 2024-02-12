@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
 public interface SenderController {
 
@@ -55,6 +56,18 @@ public interface SenderController {
     * @throws Exception if an error occurs during close.
     */
    void close() throws Exception;
+
+   /**
+    * Called when the sender is being locally closed due to some error or forced
+    * shutdown due to resource deletion etc. The default implementation of this
+    * API does nothing in response to this call.
+    *
+    * @param error
+    *    The error condition that triggered the close.
+    */
+   default void close(ErrorCondition error) {
+
+   }
 
    /**
     * Controller selects a outgoing delivery writer that will handle the encoding and writing

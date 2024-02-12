@@ -17,10 +17,13 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import java.util.function.Consumer;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPLargeMessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPMessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
@@ -29,6 +32,8 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageW
 import org.apache.activemq.artemis.protocol.amqp.proton.MessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
 /**
  * A base class abstract {@link SenderController} implementation for use by federation address and
@@ -46,7 +51,9 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
 
    protected boolean tunnelCoreMessages; // only enabled if remote offers support.
 
-   public AMQPFederationBaseSenderController(AMQPSessionContext session) {
+   protected Consumer<ErrorCondition> resourceDeletedAction;
+
+   public AMQPFederationBaseSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
       this.session = session;
       this.sessionSPI = session.getSessionSPI();
    }
@@ -62,6 +69,15 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
    @Override
    public void close() throws Exception {
       // Currently there isn't anything needed on close of this controller.
+   }
+
+   @Override
+   public void close(ErrorCondition error) {
+      if (error != null && AmqpError.RESOURCE_DELETED.equals(error.getCondition())) {
+         if (resourceDeletedAction != null) {
+            resourceDeletedAction.accept(error);
+         }
+      }
    }
 
    @Override

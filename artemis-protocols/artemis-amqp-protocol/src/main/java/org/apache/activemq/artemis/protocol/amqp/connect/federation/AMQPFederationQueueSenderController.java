@@ -59,7 +59,7 @@ import org.apache.qpid.proton.engine.Sender;
  */
 public final class AMQPFederationQueueSenderController extends AMQPFederationBaseSenderController {
 
-   public AMQPFederationQueueSenderController(AMQPSessionContext session) {
+   public AMQPFederationQueueSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
       super(session);
    }
 
@@ -72,13 +72,25 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       final Connection protonConnection = sender.getSession().getConnection();
       final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
 
-      if (attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class) == null) {
+      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+      if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
       }
 
       if (source == null) {
          throw new ActiveMQAMQPNotImplementedException("Null source lookup not supported on federation links.");
       }
+
+      // Match the settlement mode of the remote instead of relying on the default of MIXED.
+      sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
+      // We don't currently support SECOND so enforce that the answer is always FIRST
+      sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+      // We need to offer back that we support federation for the remote to complete the attach
+      sender.setOfferedCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
+      // We indicate desired to meet specification that we cannot use a capability unless we
+      // indicated it was desired, however unless offered by the remote we cannot use it.
+      sender.setDesiredCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
 
       // An queue receiver may supply a filter if the queue being federated had a filter attached
       // to it at creation, this ensures that we only bring back message that match the original
@@ -110,26 +122,23 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
 
       final QueueQueryResult result = sessionSPI.queueQuery(targetQueue, routingType, false, null);
       if (!result.isExists()) {
+         federation.registerMissingQueue(targetQueue.toString());
          throw new ActiveMQAMQPNotFoundException("Queue: '" + targetQueue + "' does not exist");
       }
 
       if (targetAddress != null && !result.getAddress().equals(targetAddress)) {
+         federation.registerMissingQueue(targetQueue.toString());
          throw new ActiveMQAMQPNotFoundException("Queue: '" + targetQueue + "' is not mapped to specified address: " + targetAddress);
       }
-
-      // Match the settlement mode of the remote instead of relying on the default of MIXED.
-      sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
-      // We don't currently support SECOND so enforce that the answer is always FIRST
-      sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-      // We need to offer back that we support federation for the remote to complete the attach
-      sender.setOfferedCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
-      // We indicate desired to meet specification that we cannot use a capability unless we
-      // indicated it was desired, however unless offered by the remote we cannot use it.
-      sender.setDesiredCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
 
       // We need to check that the remote offers its ability to read tunneled core messages and
       // if not we must not send them but instead convert all messages to AMQP messages first.
       tunnelCoreMessages = verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+
+      // Configure an action to register a watcher for this federated queue to be created if it is
+      // removed during the lifetime of the federation receiver, if restored an event will be sent
+      // to the remote to prompt it to create a new receiver.
+      resourceDeletedAction = (e) -> federation.registerMissingQueue(targetQueue.toString());
 
       return (Consumer) sessionSPI.createSender(senderContext, targetQueue, selector, false);
    }

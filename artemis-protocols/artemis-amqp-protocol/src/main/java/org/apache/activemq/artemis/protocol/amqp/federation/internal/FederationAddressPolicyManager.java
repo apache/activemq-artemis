@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -391,6 +392,37 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    }
 
    /**
+    * Checks if the remote address added falls within the set of addresses that match the
+    * configured address policy and if so scans for local demand on that address to see
+    * if a new attempt to federate the address is needed.
+    *
+    * @param addressName
+    *    The address that was added on the remote.
+    *
+    * @throws Exception if an error occurs while processing the address added event.
+    */
+   public synchronized void afterRemoteAddressAdded(String addressName) throws Exception {
+      // Assume that the remote address that matched a previous federation attempt is MULTICAST
+      // so that we retry if current local state matches the policy and if it isn't we will once
+      // again record the federation attempt with the remote and but updated if the remote removes
+      // and adds the address again (hopefully with the correct routing type).
+
+      if (started && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST) && !remoteConsumers.containsKey(addressName)) {
+         final SimpleString address = SimpleString.toSimpleString(addressName);
+
+         // Need to trigger check for all bindings that match to accumulate demand on the address
+         // if any and ensure an outgoing consumer is attempted.
+
+         server.getPostOffice()
+               .getDirectBindings(address)
+               .stream()
+               .filter(binding -> binding instanceof QueueBinding ||
+                                  (policy.isEnableDivertBindings() && binding instanceof DivertBinding))
+               .forEach(this::checkBindingForMatch);
+      }
+   }
+
+   /**
     * Performs the test against the configured address policy to check if the target
     * address is a match or not. A subclass can override this method and provide its
     * own match tests in combination with the configured matching policy.
@@ -402,6 +434,22 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
     */
    protected boolean testIfAddressMatchesPolicy(AddressInfo addressInfo) {
       return policy.test(addressInfo);
+   }
+
+   /**
+    * Performs the test against the configured address policy to check if the target
+    * address is a match or not. A subclass can override this method and provide its
+    * own match tests in combination with the configured matching policy.
+    *
+    * @param address
+    *    The address that is being tested for a policy match.
+    * @param type
+    *    The routing type of the address to test against the policy.
+    *
+    * @return <code>true</code> if the address given is a match against the policy.
+    */
+   protected boolean testIfAddressMatchesPolicy(String address, RoutingType type) {
+      return policy.test(address, type);
    }
 
    /**
