@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 
 /**
- * Am entry type class used to hold a {@link FederationConsumerInternal} and
+ * An entry type class used to hold a {@link FederationConsumerInternal} and
  * any other state data needed by the manager that is creating them based on the
  * policy configuration for the federation instance.  The entry can be extended
  * by federation implementation to hold additional state data for the federation

@@ -70,6 +70,9 @@ public abstract class AMQPFederation implements FederationInternal {
    protected final String name;
    protected final ActiveMQServer server;
 
+   protected AMQPFederationEventDispatcher eventDispatcher;
+   protected AMQPFederationEventProcessor eventProcessor;
+
    // Connection and Session are updated after each reconnect.
    protected volatile AMQPConnectionContext connection;
    protected volatile AMQPSessionContext session;
@@ -168,6 +171,23 @@ public abstract class AMQPFederation implements FederationInternal {
          handleFederationStopped();
          signalFederationStopped();
          started = false;
+
+         try {
+            if (eventDispatcher != null) {
+               eventDispatcher.close();
+            }
+
+            if (eventProcessor != null) {
+               eventProcessor.close(false);
+            }
+         } catch (ActiveMQException amqEx) {
+            throw amqEx;
+         } catch (Exception ex) {
+            throw (ActiveMQException) new ActiveMQException(ex.getMessage()).initCause(ex);
+         } finally {
+            eventDispatcher = null;
+            eventProcessor = null;
+         }
       }
    }
 
@@ -251,6 +271,109 @@ public abstract class AMQPFederation implements FederationInternal {
       }
 
       return this;
+   }
+
+   /**
+    * Register an event sender instance with this federation for use in sending federation level
+    * events from this federation instance to the remote peer.
+    *
+    * @param dispatcher
+    *    The event sender instance to be registered.
+    */
+   synchronized void registerEventSender(AMQPFederationEventDispatcher dispatcher) {
+      if (eventDispatcher != null) {
+         throw new IllegalStateException("Federation event dipsatcher already registered on this federation instance.");
+      }
+
+      eventDispatcher = dispatcher;
+   }
+
+   /**
+    * Register an event receiver instance with this federation for use in receiving federation level
+    * events sent to this federation instance from the remote peer.
+    *
+    * @param dispatcher
+    *    The event receiver instance to be registered.
+    */
+   synchronized void registerEventReceiver(AMQPFederationEventProcessor processor) {
+      if (eventProcessor != null) {
+         throw new IllegalStateException("Federation event processor already registered on this federation instance.");
+      }
+
+      eventProcessor = processor;
+   }
+
+   /**
+    * Register an address by name that was either not present when an address federation consumer
+    * was initiated or was removed and the active address federation consumer was force closed.
+    * Upon (re)creation of the registered address a one time event will be sent to the remote
+    * federation instance which allows it to check if demand still exists and make another attempt
+    * at creating a consumer to federate messages from that address.
+    *
+    * @param address
+    *     The address that is currently missing which should be watched for creation.
+    */
+   synchronized void registerMissingAddress(String address) {
+      if (eventDispatcher != null) {
+         eventDispatcher.addAddressWatch(address);
+      }
+   }
+
+   /**
+    * Register a queue by name that was either not present when an queue federation consumer was
+    * initiated or was removed and the active queue federation consumer was force closed. Upon
+    * (re)creation of the registered address and queue a one time event will be sent to the remote
+    * federation instance which allows it to check if demand still exists and make another attempt
+    * at creating a consumer to federate messages from that queue.
+    *
+    * @param queue
+    *     The queue that is currently missing which should be watched for creation.
+    */
+   synchronized void registerMissingQueue(String queue) {
+      if (eventDispatcher != null) {
+         eventDispatcher.addQueueWatch(queue);
+      }
+   }
+
+   /**
+    * Triggers scan of federation address policies for local address demand on the given address
+    * that was added on the remote peer which was previously absent and could not be auto created
+    * or was removed while a federation receiver was attached and caused an existing federation
+    * receiver to be closed.
+    *
+    * @param addressName
+    *       The address that has been added on the remote peer.
+    */
+   synchronized void processRemoteAddressAdded(String addressName) {
+      addressMatchPolicies.values().forEach(policy -> {
+         try {
+            policy.afterRemoteAddressAdded(addressName);
+         } catch (Exception e) {
+            logger.warn("Error processing remote address added event: ", e);
+            signalError(e);
+         }
+      });
+   }
+
+   /**
+    * Triggers scan of federation queue policies for local queue demand on the given queue
+    * that was added on the remote peer which was previously absent at the time of a federation
+    * receiver attach or was removed and caused an existing federation receiver to be closed.
+    *
+    * @param addressName
+    *       The address that has been added on the remote peer.
+    * @param queueName
+    *       The queue that has been added on the remote peer.
+    */
+   synchronized void processRemoteQueueAdded(String addressName, String queueName) {
+      queueMatchPolicies.values().forEach(policy -> {
+         try {
+            policy.afterRemoteQueueAdded(addressName, queueName);
+         } catch (Exception e) {
+            logger.warn("Error processing remote queue added event: ", e);
+            signalError(e);
+         }
+      });
    }
 
    /**

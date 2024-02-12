@@ -42,6 +42,12 @@ public final class AMQPFederationConstants {
    public static final Symbol FEDERATION_CONTROL_LINK = Symbol.getSymbol("AMQ_FEDERATION_CONTROL_LINK");
 
    /**
+    * A desired capability added to the federation events links that must be offered
+    * in return for a federation event link to be successfully established.
+    */
+   public static final Symbol FEDERATION_EVENT_LINK = Symbol.getSymbol("AMQ_FEDERATION_EVENT_LINK");
+
+   /**
     * Property name used to embed a nested map of properties meant to be applied if the federation
     * resources created on the remote end of the control link if configured to do so. These properties
     * essentially carry local configuration to the remote side that would otherwise use broker defaults
@@ -196,5 +202,38 @@ public final class AMQPFederationConstants {
     * configuration for the policy.
     */
    public static final String TRANSFORMER_PROPERTIES_MAP = "transformer-properties-map";
+
+   /**
+    * Events sent across the events link will each carry an event type to indicate
+    * the event type which controls how the remote reacts to the given event. The type of
+    * event infers the payload of the structure of the message payload.
+    */
+   public static final Symbol EVENT_TYPE = Symbol.getSymbol("x-opt-amq-federation-ev-type");
+
+   /**
+    * Indicates that the message carries an address and queue name that was previously
+    * requested but did not exist, or that was federated but the remote consumer was closed
+    * due to removal of the queue on the target peer.
+    */
+   public static final String REQUESTED_QUEUE_ADDED = "REQUESTED_QUEUE_ADDED_EVENT";
+
+   /**
+    * Indicates that the message carries an address name that was previously requested
+    * but did not exist, or that was federated but the remote consumer was closed due to
+    * removal of the address on the target peer.
+    */
+   public static final String REQUESTED_ADDRESS_ADDED = "REQUESTED_ADDRESS_ADDED_EVENT";
+
+   /**
+    * Carries the name of a Queue that was either not present when a federation consumer was
+    * initiated and subsequently rejected, or was removed and has been recreated.
+    */
+   public static final String REQUESTED_QUEUE_NAME = "REQUESTED_QUEUE_NAME";
+
+   /**
+    * Carries the name of an Address that was either not present when a federation consumer was
+    * initiated and subsequently rejected, or was removed and has been recreated.
+    */
+   public static final String REQUESTED_ADDRESS_NAME = "REQUESTED_ADDRESS_NAME";
 
 }

@@ -263,6 +263,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          connection.runNow(() -> {
             sender.close();
+            controller.close(condition);
             try {
                sessionSPI.closeSender(brokerConsumer);
             } catch (Exception e) {
@@ -270,7 +271,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             } finally {
                messageWriter.close();
             }
-            sender.close();
             connection.flush();
          });
       }

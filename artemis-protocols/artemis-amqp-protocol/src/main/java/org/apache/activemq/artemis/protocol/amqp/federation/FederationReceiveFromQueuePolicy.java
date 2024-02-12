@@ -104,6 +104,22 @@ public class FederationReceiveFromQueuePolicy implements BiPredicate<String, Str
       return transformerConfig;
    }
 
+   public boolean testQueue(String queue) {
+      for (QueueMatcher matcher : excludeMatchers) {
+         if (matcher.testQueue(queue)) {
+            return false;
+         }
+      }
+
+      for (QueueMatcher matcher : includeMatchers) {
+         if (matcher.testQueue(queue)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    @Override
    public boolean test(String address, String queue) {
       for (QueueMatcher matcher : excludeMatchers) {
@@ -142,7 +158,15 @@ public class FederationReceiveFromQueuePolicy implements BiPredicate<String, Str
 
       @Override
       public boolean test(String address, String queue) {
-         return addressMatch.test(address) && queueMatch.test(queue);
+         return testAddress(address) && testQueue(queue);
+      }
+
+      public boolean testAddress(String address) {
+         return addressMatch.test(address);
+      }
+
+      public boolean testQueue(String queue) {
+         return queueMatch.test(queue);
       }
    }
 }

@@ -25,14 +25,18 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_INCLUDES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_MAX_HOPS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.EVENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_ADDED;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_CLASS_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_PROPERTIES_MAP;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_PROPERTIES_MAP;
@@ -52,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,6 +92,7 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.ActiveMQServerAMQPFederationPlugin;
 import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
@@ -97,7 +103,10 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.LinkError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
+import org.apache.qpid.protonj2.test.driver.ProtonTestPeer;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.HeaderMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.MessageAnnotationsMatcher;
@@ -142,6 +151,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -230,6 +247,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -296,6 +320,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -364,6 +395,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -473,6 +511,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -545,6 +590,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -624,6 +676,13 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -697,6 +756,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectAttach().ofSender()
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -780,6 +843,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -858,6 +925,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -944,6 +1015,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1024,6 +1099,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1109,6 +1188,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1196,6 +1279,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1274,6 +1361,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1362,6 +1453,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectAttach().ofSender()
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -1989,6 +2084,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectAttach().ofSender()
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -2069,6 +2168,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -2335,6 +2438,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
          peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
                             .withName(allOf(containsString("sample-federation"),
                                             containsString("test"),
@@ -2447,6 +2554,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
          peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
                             .withName(allOf(containsString("sample-federation"),
                                             containsString("test"),
@@ -2556,6 +2667,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
          peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
                             .withName(allOf(containsString("sample-federation"),
                                             containsString("test"),
@@ -2609,6 +2724,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .respond()
                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -2692,6 +2811,491 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test(timeout = 20000)
+   public void testFederationCreatesEventSenderAndReceiverWhenLocalAndRemotePoliciesAdded() throws Exception {
+      final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
+      maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
+      final Map<String, Object> policyMap = new LinkedHashMap<>();
+
+      final List<String> includes = new ArrayList<>();
+      includes.add("test");
+
+      policyMap.put(POLICY_NAME, "remote-address-policy");
+      policyMap.put(ADDRESS_AUTO_DELETE, false);
+      policyMap.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+      policyMap.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+      policyMap.put(ADDRESS_MAX_HOPS, 5);
+      policyMap.put(ADDRESS_ENABLE_DIVERT_BINDINGS, false);
+      policyMap.put(ADDRESS_INCLUDES, includes);
+
+      final EncodedAmqpValueMatcher bodyMatcher = new EncodedAmqpValueMatcher(policyMap);
+      final TransferPayloadCompositeMatcher payloadMatcher = new TransferPayloadCompositeMatcher();
+      payloadMatcher.setMessageAnnotationsMatcher(maMatcher);
+      payloadMatcher.addMessageContentMatcher(bodyMatcher);
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withHandle(0)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofSender()
+                            .withTarget().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events-sender");
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectAttach().ofReceiver()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withSource().withAddress("test-dynamic-events-receiver");
+         peer.expectFlow().withLinkCredit(10);
+         peer.remoteFlow().withLinkCredit(10).withHandle(0).queue(); // Give control link credit now to ensure ordering
+         peer.expectTransfer().withPayload(payloadMatcher); // Remote policy
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement localReceiveFromAddress = new AMQPFederationAddressPolicyElement();
+         localReceiveFromAddress.setName("address-policy");
+         localReceiveFromAddress.addToIncludes("test");
+         localReceiveFromAddress.setAutoDelete(false);
+         localReceiveFromAddress.setAutoDeleteDelay(-1L);
+         localReceiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederationAddressPolicyElement remoteReceiveFromAddress = new AMQPFederationAddressPolicyElement();
+         remoteReceiveFromAddress.setName("remote-address-policy");
+         remoteReceiveFromAddress.addToIncludes("test");
+         remoteReceiveFromAddress.setAutoDelete(false);
+         remoteReceiveFromAddress.setAutoDeleteDelay(-1L);
+         remoteReceiveFromAddress.setAutoDeleteMessageCount(-1L);
+         remoteReceiveFromAddress.setMaxHops(5);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalAddressPolicy(localReceiveFromAddress);
+         element.addRemoteAddressPolicy(remoteReceiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationSendsRemotePolicyIfEventsSenderLinkRejected() throws Exception {
+      final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
+      maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
+      final Map<String, Object> policyMap = new LinkedHashMap<>();
+
+      final List<String> includes = new ArrayList<>();
+      includes.add("test");
+
+      policyMap.put(POLICY_NAME, "remote-address-policy");
+      policyMap.put(ADDRESS_AUTO_DELETE, false);
+      policyMap.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+      policyMap.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+      policyMap.put(ADDRESS_MAX_HOPS, 5);
+      policyMap.put(ADDRESS_ENABLE_DIVERT_BINDINGS, false);
+      policyMap.put(ADDRESS_INCLUDES, includes);
+
+      final EncodedAmqpValueMatcher bodyMatcher = new EncodedAmqpValueMatcher(policyMap);
+      final TransferPayloadCompositeMatcher payloadMatcher = new TransferPayloadCompositeMatcher();
+      payloadMatcher.setMessageAnnotationsMatcher(maMatcher);
+      payloadMatcher.addMessageContentMatcher(bodyMatcher);
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withHandle(0)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofSender()
+                            .withTarget().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .reject(true, LinkError.DETACH_FORCED.toString(), "Unknown error");
+         peer.expectDetach();
+         peer.remoteFlow().withLinkCredit(10).withHandle(0).queue(); // Give control link credit now to ensure ordering
+         peer.expectTransfer().withPayload(payloadMatcher); // Remote policy
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement remoteReceiveFromAddress = new AMQPFederationAddressPolicyElement();
+         remoteReceiveFromAddress.setName("remote-address-policy");
+         remoteReceiveFromAddress.addToIncludes("test");
+         remoteReceiveFromAddress.setAutoDelete(false);
+         remoteReceiveFromAddress.setAutoDeleteDelay(-1L);
+         remoteReceiveFromAddress.setAutoDeleteMessageCount(-1L);
+         remoteReceiveFromAddress.setMaxHops(5);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addRemoteAddressPolicy(remoteReceiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testRemoteBrokerSendsAddressAddedEventForInterestedPeer() throws Exception {
+      final AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoCreateQueues(false);
+      addressSettings.setAutoCreateAddresses(false);
+
+      server.getConfiguration().getAddressSettings().put("#", addressSettings);
+      server.start();
+
+      final Map<String, Object> remoteSourceProperties = new HashMap<>();
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE, true);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, 10_000L);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, 1L);
+
+      final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
+      maMatcher.withEntry(EVENT_TYPE.toString(), Matchers.is(REQUESTED_ADDRESS_ADDED));
+      final Map<String, Object> eventMap = new LinkedHashMap<>();
+      eventMap.put(REQUESTED_ADDRESS_NAME, "test");
+
+      final EncodedAmqpValueMatcher bodyMatcher = new EncodedAmqpValueMatcher(eventMap);
+      final TransferPayloadCompositeMatcher payloadMatcher = new TransferPayloadCompositeMatcher();
+      payloadMatcher.setMessageAnnotationsMatcher(maMatcher);
+      payloadMatcher.addMessageContentMatcher(bodyMatcher);
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test", false, true);
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withNullSource();
+         peer.expectDetach().respond();
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName("federation-address-receiver")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), remoteSourceProperties)
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test")
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectTransfer().withPayload(payloadMatcher).accept(); // Address added event
+
+         // Manually add the address and a queue binding to create local demand.
+         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationCreatesAddressReceiverInResponseToAddressAddedEvent() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withHandle(0)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.remoteFlow().withLinkCredit(10);
+         peer.expectAttach().ofReceiver()
+                            .withHandle(1)
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes("test");
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final Map<String, Object> expectedSourceProperties = new HashMap<>();
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+
+         // Reject the initial attempt
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString("sample-federation"),
+                                            containsString("test"),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .respond()
+                            .withNullSource()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.remoteDetach().withClosed(true)
+                            .withErrorCondition(AmqpError.NOT_FOUND.toString(), "Address not found")
+                            .queue();
+         peer.expectFlow();
+         peer.expectDetach();
+
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString("sample-federation"),
+                                            containsString("test"),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         // Should not trigger attach of a federation receiver as the address doesn't match the policy..
+         sendAddressAddedEvent(peer, "target", 1, 0);
+         // Should trigger attach of federation receiver again for the test address.
+         sendAddressAddedEvent(peer, "test", 1, 1);
+         // Should not trigger attach of federation receiver as there already is one on this address
+         sendAddressAddedEvent(peer, "test", 1, 2);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testAddressAddedEventIgnoredIfFederationConsumerAlreadyCreated() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withHandle(0)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.remoteFlow().withLinkCredit(10);
+         peer.expectAttach().ofReceiver()
+                            .withHandle(1)
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes("test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // Reject the initial attempt
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .respond()
+                            .withNullSource()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.remoteDetach().withClosed(true)
+                            .withErrorCondition(AmqpError.NOT_FOUND.toString(), "Address not found")
+                            .queue();
+         peer.expectFlow();
+         peer.expectDetach();
+
+         // Triggers the initial attach based on demand.
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+         final Connection connection = factory.createConnection();
+         final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         // Create demand on the Address to kick off another federation attempt.
+         session.createConsumer(session.createTopic("test"));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // Should not trigger attach of federation receiver as there already is one on this address
+         sendAddressAddedEvent(peer, "test", 1, 0);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testRemoteBrokerClosesFederationReceiverAfterAddressRemoved() throws Exception {
+      server.start();
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test", true, true);
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withSource().withAddress("test");
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName("federation-address-receiver")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test")
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDetach().withError(AmqpError.RESOURCE_DELETED.toString());
+
+         // Force remove consumers from the address should indicate the resource was deleted.
+         server.removeAddressInfo(SimpleString.toSimpleString("test"), null, true);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
+         maMatcher.withEntry(EVENT_TYPE.toString(), Matchers.is(REQUESTED_ADDRESS_ADDED));
+         final Map<String, Object> eventMap = new LinkedHashMap<>();
+         eventMap.put(REQUESTED_ADDRESS_NAME, "test");
+
+         final EncodedAmqpValueMatcher bodyMatcher = new EncodedAmqpValueMatcher(eventMap);
+         final TransferPayloadCompositeMatcher payloadMatcher = new TransferPayloadCompositeMatcher();
+         payloadMatcher.setMessageAnnotationsMatcher(maMatcher);
+         payloadMatcher.addMessageContentMatcher(bodyMatcher);
+
+         // Server alerts the federation event receiver that a previously federated address
+         // has been added once more and it could restore the previous federation state.
+         peer.expectTransfer().withPayload(payloadMatcher).withSettled(true);
+
+         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // This time removing and restoring should generate no traffic as there was not
+         // another federation receiver added.
+         server.removeAddressInfo(SimpleString.toSimpleString("test"), null, true);
+         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+      }
+   }
+
+   private static void sendAddressAddedEvent(ProtonTestPeer peer, String address, int handle, int deliveryId) {
+      final Map<String, Object> eventMap = new LinkedHashMap<>();
+      eventMap.put(REQUESTED_ADDRESS_NAME, address);
+
+      // Should not trigger attach of federation receiver as there already is one on this address
+      peer.remoteTransfer().withHandle(handle)
+                           .withDeliveryId(deliveryId)
+                           .withSettled(true)
+                           .withMessageAnnotations().withAnnotation(EVENT_TYPE.toString(), REQUESTED_ADDRESS_ADDED)
+                           .also()
+                           .withBody().withValue(eventMap)
+                           .also()
+                           .now();
+   }
+
    public static class ApplicationPropertiesTransformer implements Transformer {
 
       private final Map<String, String> properties = new HashMap<>();
@@ -2718,7 +3322,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   private void sendAddresPolicyToRemote(ProtonTestClient peer, FederationReceiveFromAddressPolicy policy) {
+   private static void sendAddresPolicyToRemote(ProtonTestClient peer, FederationReceiveFromAddressPolicy policy) {
       final Map<String, Object> policyMap = new LinkedHashMap<>();
 
       policyMap.put(POLICY_NAME, policy.getPolicyName());
@@ -2758,11 +3362,19 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    // Use this method to script the initial handshake that a broker that is establishing
    // a federation connection with a remote broker instance would perform.
-   private void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName) {
+   private static void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName) {
       scriptFederationConnectToRemote(peer, federationName, AmqpSupport.AMQP_CREDITS_DEFAULT, AmqpSupport.AMQP_LOW_CREDITS_DEFAULT);
    }
 
-   private void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, int amqpCredits, int amqpLowCredits) {
+   private static void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, int amqpCredits, int amqpLowCredits) {
+      scriptFederationConnectToRemote(peer, federationName, amqpCredits, amqpLowCredits, false, false);
+   }
+
+   private static void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, boolean eventsSender, boolean eventsReceiver) {
+      scriptFederationConnectToRemote(peer, federationName, AmqpSupport.AMQP_CREDITS_DEFAULT, AmqpSupport.AMQP_LOW_CREDITS_DEFAULT, eventsSender, eventsReceiver);
+   }
+
+   private static void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, int amqpCredits, int amqpLowCredits, boolean eventsSender, boolean eventsReceiver ) {
       final String federationControlLinkName = "Federation:control:" + UUID.randomUUID().toString();
 
       final Map<String, Object> federationConfiguration = new HashMap<>();
@@ -2798,6 +3410,58 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                          .also()
                          .withOfferedCapability(FEDERATION_CONTROL_LINK.toString());
       peer.expectFlow();
+
+      // Sender created when there are remote policies to send to the target
+      if (eventsSender) {
+         final String federationEventsSenderLinkName = "Federation:events-sender:test:" + UUID.randomUUID().toString();
+
+         peer.remoteAttach().ofSender()
+                            .withName(federationEventsSenderLinkName)
+                            .withDesiredCapabilities(FEDERATION_EVENT_LINK.toString())
+                            .withSenderSettleModeSettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().also()
+                            .withTarget().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                                         .queue();
+         peer.expectAttach().ofReceiver()
+                            .withName(federationEventsSenderLinkName)
+                            .withTarget()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_EVENT_LINK.toString());
+         peer.expectFlow();
+      }
+
+      // Receiver created when there are local policies on the source.
+      if (eventsReceiver) {
+         final String federationEventsSenderLinkName = "Federation:events-receiver:test:" + UUID.randomUUID().toString();
+
+         peer.remoteAttach().ofReceiver()
+                            .withName(federationEventsSenderLinkName)
+                            .withDesiredCapabilities(FEDERATION_EVENT_LINK.toString())
+                            .withSenderSettleModeSettled()
+                            .withReceivervSettlesFirst()
+                            .withTarget().also()
+                            .withSource().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                                         .queue();
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectAttach().ofSender()
+                            .withName(federationEventsSenderLinkName)
+                            .withSource()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_EVENT_LINK.toString());
+      }
    }
 
    private class AMQPTestFederationBrokerPlugin implements ActiveMQServerAMQPFederationPlugin {

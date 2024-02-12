@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 
@@ -26,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,7 +46,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeleteOnClose;
 import org.apache.qpid.proton.amqp.messaging.Source;
@@ -55,6 +56,7 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Link;
+import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.slf4j.Logger;
@@ -76,6 +78,9 @@ public class AMQPFederationSource extends AMQPFederation {
    // Capabilities set on the sender link used to send policies or other control messages to
    // the remote federation target.
    private static final Symbol[] CONTROL_LINK_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK};
+
+   // Capabilities set on the events links used to react to federation resources updates
+   private static final Symbol[] EVENT_LINK_CAPABILITIES = new Symbol[] {FEDERATION_EVENT_LINK};
 
    private final AMQPBrokerConnection brokerConnection;
 
@@ -235,6 +240,22 @@ public class AMQPFederationSource extends AMQPFederation {
          }
       });
 
+      try {
+         eventDispatcher.close();
+      } catch (Exception ex) {
+         errorCaught.compareAndExchange(null, ex);
+      } finally {
+         eventDispatcher = null;
+      }
+
+      try {
+         eventProcessor.close(null);
+      } catch (Exception ex) {
+         errorCaught.compareAndExchange(null, ex);
+      } finally {
+         eventProcessor = null;
+      }
+
       connection = null;
       session = null;
 
@@ -294,14 +315,233 @@ public class AMQPFederationSource extends AMQPFederation {
       return false;
    }
 
+   private void asyncCreateTargetEventsSender(AMQPFederationCommandDispatcher commandLink) {
+      // If no remote policies configured then we don't need an events sender link
+      // currently, if some other use is added for this link this code must be
+      // removed and tests updated to expect this link to always be created.
+      if (remoteAddressMatchPolicies.isEmpty() && remoteQueueMatchPolicies.isEmpty()) {
+         return;
+      }
+
+      // Schedule the outgoing event link creation on the connection event loop thread.
+      //
+      // Eventual establishment of the outgoing events link or refusal informs this side
+      // of the connection as to whether the remote side supports receiving events for
+      // resources that it attempted to federate but they did not exist at the time and
+      // were subsequently added or for resources that might have been later removed via
+      // management and then subsequently re-added.
+      //
+      // Once the outcome of the event link is known then send any remote address or queue
+      // federation policies so that the remote can start federation of local addresses or
+      // queues to itself. This ordering prevents a race on creation of the events link
+      // and any federation consumer creation from the remote.
+      connection.runLater(() -> {
+         if (!isStarted()) {
+            return;
+         }
+
+         try {
+            final Sender sender = session.getSession().sender(
+               "federation-events-sender:" + getName() + ":" + server.getNodeID() + ":" + UUID.randomUUID());
+            final Target target = new Target();
+            final Source source = new Source();
+
+            target.setDynamic(true);
+            target.setCapabilities(new Symbol[] {AmqpSupport.TEMP_TOPIC_CAPABILITY});
+            target.setDurable(TerminusDurability.NONE);
+            target.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+            // Set the dynamic node lifetime-policy to indicate this needs to be destroyed on close
+            // we don't want event links nodes remaining once a federation connection is closed.
+            final Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
+            dynamicNodeProperties.put(AmqpSupport.LIFETIME_POLICY, DeleteOnClose.getInstance());
+            target.setDynamicNodeProperties(dynamicNodeProperties);
+
+            sender.setSenderSettleMode(SenderSettleMode.SETTLED);
+            sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+            sender.setDesiredCapabilities(EVENT_LINK_CAPABILITIES);
+            sender.setTarget(target);
+            sender.setSource(source);
+            sender.open();
+
+            final ScheduledFuture<?> futureTimeout;
+            final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+            if (brokerConnection.getConnectionTimeout() > 0) {
+               futureTimeout = brokerConnection.getServer().getScheduledPool().schedule(() -> {
+                  cancelled.set(true);
+                  brokerConnection.connectError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
+               }, brokerConnection.getConnectionTimeout(), TimeUnit.MILLISECONDS);
+            } else {
+               futureTimeout = null;
+            }
+
+            // Using attachments to set up a Runnable that will be executed inside the remote link opened handler
+            sender.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
+               try {
+                  if (cancelled.get()) {
+                     return;
+                  }
+
+                  if (futureTimeout != null) {
+                     futureTimeout.cancel(false);
+                  }
+
+                  if (sender.getRemoteTarget() == null || !AmqpSupport.verifyOfferedCapabilities(sender)) {
+                     // Sender rejected or not an event link endpoint so close as we will
+                     // not support sending events to the remote but otherwise will operate
+                     // as normal.
+                     sender.close();
+                  } else {
+                     session.addFederationEventDispatcher(sender);
+                  }
+
+                  // Once we know whether the events support is active or not we can send
+                  // the remote federation policies and allow the remote federation links
+                  // to start forming.
+
+                  remoteQueueMatchPolicies.forEach((key, policy) -> {
+                     try {
+                        commandLink.sendPolicy(policy);
+                     } catch (Exception e) {
+                        brokerConnection.error(e);
+                     }
+                  });
+
+                  remoteAddressMatchPolicies.forEach((key, policy) -> {
+                     try {
+                        commandLink.sendPolicy(policy);
+                     } catch (Exception e) {
+                        brokerConnection.error(e);
+                     }
+                  });
+
+               } catch (Exception e) {
+                  brokerConnection.error(e);
+               }
+            });
+         } catch (Exception e) {
+            brokerConnection.error(e);
+         }
+
+         connection.flush();
+      });
+   }
+
+   private void asnycCreateTargetEventsReceiver() {
+      // If no local policies configured then we don't need an events receiver link
+      // currently, if some other use is added for this link this code must be
+      // removed and tests updated to expect this link to always be created.
+      if (addressMatchPolicies.isEmpty() && queueMatchPolicies.isEmpty()) {
+         return;
+      }
+
+      // Schedule the incoming event link creation on the connection event loop thread.
+      //
+      // Eventual establishment of the incoming event link or refusal informs this side
+      // of the connection as to whether the remote will send events for addresses or
+      // queues that were not present when a federation consumer attempt had failed and
+      // were later added or an existing federation consumer was closed due to management
+      // action and those resource are once again available for federation.
+      //
+      // Once the outcome of the event link is known then start all the policy managers
+      // which will start federation from remote addresses and queues to this broker.
+      // This ordering prevents any races around the events receiver creation and creation
+      // of federation consumers on the remote.
+      connection.runLater(() -> {
+         if (!isStarted()) {
+            return;
+         }
+
+         try {
+            final Receiver receiver = session.getSession().receiver(
+               "federation-events-receiver:" + getName() + ":" + server.getNodeID() + ":" + UUID.randomUUID());
+
+            final Target target = new Target();
+            final Source source = new Source();
+
+            source.setDynamic(true);
+            source.setCapabilities(new Symbol[] {AmqpSupport.TEMP_TOPIC_CAPABILITY});
+            source.setDurable(TerminusDurability.NONE);
+            source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+            // Set the dynamic node lifetime-policy to indicate this needs to be destroyed on close
+            // we don't want event links nodes remaining once a federation connection is closed.
+            final Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
+            dynamicNodeProperties.put(AmqpSupport.LIFETIME_POLICY, DeleteOnClose.getInstance());
+            source.setDynamicNodeProperties(dynamicNodeProperties);
+
+            receiver.setSenderSettleMode(SenderSettleMode.SETTLED);
+            receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+            receiver.setDesiredCapabilities(EVENT_LINK_CAPABILITIES);
+            receiver.setTarget(target);
+            receiver.setSource(source);
+            receiver.open();
+
+            final ScheduledFuture<?> futureTimeout;
+            final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+            if (brokerConnection.getConnectionTimeout() > 0) {
+               futureTimeout = brokerConnection.getServer().getScheduledPool().schedule(() -> {
+                  cancelled.set(true);
+                  brokerConnection.connectError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
+               }, brokerConnection.getConnectionTimeout(), TimeUnit.MILLISECONDS);
+            } else {
+               futureTimeout = null;
+            }
+
+            // Using attachments to set up a Runnable that will be executed inside the remote link opened handler
+            receiver.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
+               try {
+                  if (cancelled.get()) {
+                     return;
+                  }
+
+                  if (futureTimeout != null) {
+                     futureTimeout.cancel(false);
+                  }
+
+                  if (receiver.getRemoteSource() == null || !AmqpSupport.verifyOfferedCapabilities(receiver)) {
+                     // Receiver rejected or not an event link endpoint so close as we will
+                     // not be receiving events from the remote but otherwise will operate
+                     // as normal.
+                     receiver.close();
+                  } else {
+                     session.addFederationEventProcessor(receiver);
+                  }
+
+                  // Once we know whether the events support is active or not we can start the
+                  // local federation policies and allow the outgoing federation links to start
+                  // forming.
+                  //
+                  // Attempt to start the policy managers in another thread to avoid blocking the IO thread
+                  scheduler.execute(() -> {
+                     // Sync action with federation start / stop otherwise we could get out of sync
+                     synchronized (AMQPFederationSource.this) {
+                        if (isStarted()) {
+                           queueMatchPolicies.forEach((k, v) -> v.start());
+                           addressMatchPolicies.forEach((k, v) -> v.start());
+                        }
+                     }
+                  });
+               } catch (Exception e) {
+                  brokerConnection.error(e);
+               }
+            });
+         } catch (Exception e) {
+            brokerConnection.error(e);
+         }
+
+         connection.flush();
+      });
+   }
+
    private void asyncCreateControlLink() {
       // Schedule the control link creation on the connection event loop thread
       // Eventual establishment of the control link indicates successful connection
       // to a remote peer that can support AMQP federation requirements.
       connection.runLater(() -> {
          try {
-            final Sender sender = session.getSession().sender("Federation:" + getName() + ":" + UUIDGenerator.getInstance().generateStringUUID());
-            final AMQPFederationCommandDispatcher commandLink = new AMQPFederationCommandDispatcher(sender, getServer(), session.getSessionSPI());
+            final Sender sender = session.getSession().sender(
+               "federation-control-link:" + getName() + ":" + server.getNodeID() + ":" + UUID.randomUUID());
             final Target target = new Target();
 
             // The control link should be dynamic and the node is destroyed if the connection drops
@@ -383,6 +623,7 @@ public class AMQPFederationSource extends AMQPFederation {
                      throw new ActiveMQAMQPInternalErrorException("Error while configuring interal session metadata");
                   }
 
+                  final AMQPFederationCommandDispatcher commandLink = new AMQPFederationCommandDispatcher(sender, getServer(), session.getSessionSPI());
                   final ProtonServerSenderContext senderContext =
                      new ProtonServerSenderContext(connection, sender, session, session.getSessionSPI(), commandLink);
 
@@ -390,33 +631,13 @@ public class AMQPFederationSource extends AMQPFederation {
 
                   connected = true;
 
-                  remoteQueueMatchPolicies.forEach((key, policy) -> {
-                     try {
-                        commandLink.sendPolicy(policy);
-                     } catch (Exception e) {
-                        brokerConnection.error(e);
-                     }
-                  });
+                  // Setup events sender link to the target if there are any remote policies and
+                  // then send those polices to start remote federation.
+                  asyncCreateTargetEventsSender(commandLink);
 
-                  remoteAddressMatchPolicies.forEach((key, policy) -> {
-                     try {
-                        commandLink.sendPolicy(policy);
-                     } catch (Exception e) {
-                        brokerConnection.error(e);
-                     }
-                  });
-
-                  // Attempt to start the policy managers in another thread to avoid blocking the IO thread
-                  scheduler.execute(() -> {
-                     // Sync action with federation start / stop otherwise we could get out of sync
-                     synchronized (AMQPFederationSource.this) {
-                        if (isStarted()) {
-                           queueMatchPolicies.forEach((k, v) -> v.start());
-                           addressMatchPolicies.forEach((k, v) -> v.start());
-                        }
-                     }
-                  });
-
+                  // Setup events receiver link from the target if there are any local policies
+                  // and then start the policy managers to begin tracking local demand.
+                  asnycCreateTargetEventsReceiver();
                } catch (Exception e) {
                   brokerConnection.error(e);
                }

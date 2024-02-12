@@ -32,6 +32,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationCommandProcessor;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationEventDispatcher;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationEventProcessor;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationTarget;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
@@ -197,20 +199,79 @@ public class AMQPSessionContext extends ProtonInitializable {
       });
    }
 
+   public void addFederationEventDispatcher(Sender sender) throws Exception {
+      addSender(sender, (c, s) -> {
+         final Connection protonConnection = sender.getSession().getConnection();
+         final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+         final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+         try {
+            if (federation == null) {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Unexpected federation event processor opened on connection without a federation instance active");
+            }
+
+            final AMQPFederationEventDispatcher senderController =
+               new AMQPFederationEventDispatcher(federation, this.getSessionSPI(), sender);
+
+            return new ProtonServerSenderContext(connection, sender, this, this.getSessionSPI(), senderController);
+         } catch (ActiveMQException e) {
+            final ActiveMQAMQPException cause;
+
+            if (e instanceof ActiveMQAMQPException) {
+               cause = (ActiveMQAMQPException) e;
+            } else {
+               cause = new ActiveMQAMQPInternalErrorException(e.getMessage());
+            }
+
+            throw new RuntimeException(e.getMessage(), cause);
+         }
+      });
+   }
+
    public void addSender(Sender sender) throws Exception {
-      addSender(sender, (SenderController)null);
+      addSender(sender, (c, s) -> {
+         return new ProtonServerSenderContext(connection, sender, this, sessionSPI, null);
+      });
    }
 
    public void addSender(Sender sender, SenderController senderController) throws Exception {
-      // TODO: Remove this check when we have support for global link names
-      boolean outgoing = (sender.getContext() != null && sender.getContext().equals(true));
-      ProtonServerSenderContext protonSender = outgoing ? new ProtonClientSenderContext(connection, sender, this, sessionSPI) : new ProtonServerSenderContext(connection, sender, this, sessionSPI, senderController);
-      addSender(sender, protonSender);
+      addSender(sender, (c, s) -> {
+         final boolean outgoing = (sender.getContext() != null && sender.getContext().equals(true));
+
+         final ProtonServerSenderContext protonSender = outgoing ?
+            new ProtonClientSenderContext(connection, sender, this, sessionSPI) :
+            new ProtonServerSenderContext(connection, sender, this, sessionSPI, senderController);
+
+         return protonSender;
+      });
    }
 
    public void addSender(Sender sender, ProtonServerSenderContext protonSender) throws Exception {
+      addSender(sender, (c, s) -> {
+         return protonSender;
+      });
+   }
+
+   @SuppressWarnings("unchecked")
+   public <T extends ProtonServerSenderContext> T addSender(Sender sender, BiFunction<AMQPSessionContext, Sender, T> senderBuilder) throws Exception {
+      ProtonServerSenderContext protonSender = null;
+
       try {
+         try {
+            protonSender = senderBuilder.apply(this, sender);
+         } catch (RuntimeException e) {
+            if (e.getCause() instanceof ActiveMQAMQPException) {
+               throw (ActiveMQAMQPException) e.getCause();
+            } else if (e.getCause() != null) {
+               throw new ActiveMQAMQPInternalErrorException(e.getCause().getMessage(), e.getCause());
+            } else {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
+         }
+
          protonSender.initialize();
+
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
@@ -223,9 +284,11 @@ public class AMQPSessionContext extends ProtonInitializable {
          }
 
          protonSender.start();
+
+         return (T) protonSender;
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
-         if (protonSender.getBrokerConsumer() != null) {
+         if (protonSender != null && protonSender.getBrokerConsumer() != null) {
             serverSenders.remove(protonSender.getBrokerConsumer());
          }
          sender.setSource(null);
@@ -234,6 +297,8 @@ public class AMQPSessionContext extends ProtonInitializable {
             sender.close();
             connection.flush();
          });
+
+         return null;
       }
    }
 
@@ -254,6 +319,36 @@ public class AMQPSessionContext extends ProtonInitializable {
          receiver.setProperties(brokerIDProperties);
 
          return protonReceiver;
+      });
+   }
+
+   public void addFederationEventProcessor(Receiver receiver) throws Exception {
+      addReceiver(receiver, (r, s) -> {
+         final Connection protonConnection = receiver.getSession().getConnection();
+         final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+         final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+         try {
+            if (federation == null) {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Unexpected federation event processor opened on connection without a federation instance active");
+            }
+
+            final AMQPFederationEventProcessor eventsProcessor =
+               new AMQPFederationEventProcessor(federation, this, receiver);
+
+            return eventsProcessor;
+         } catch (ActiveMQException e) {
+            final ActiveMQAMQPException cause;
+
+            if (e instanceof ActiveMQAMQPException) {
+               cause = (ActiveMQAMQPException) e;
+            } else {
+               cause = new ActiveMQAMQPInternalErrorException(e.getMessage());
+            }
+
+            throw new RuntimeException(e.getMessage(), cause);
+         }
       });
    }
 
