@@ -20,6 +20,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.lang.invoke.MethodHandles;
+import java.security.Principal;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +51,8 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
    private String certificateConfigurationName;
    private SecurityConfiguration configuration;
    private SecurityConfiguration certificateConfiguration;
-   private String rolePrincipalClass = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
+   private Class<? extends Principal> rolePrincipalClass = RolePrincipal.class;
+   private Class<? extends Principal> userPrincipalClass = UserPrincipal.class;
 
    public ActiveMQJAASSecurityManager() {
    }
@@ -122,6 +125,11 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
       return authorized;
    }
 
+   @Override
+   public String getUserFromSubject(Subject subject) {
+      return SecurityManagerUtil.getUserFromSubject(subject, userPrincipalClass);
+   }
+
    private Subject getAuthenticatedSubject(final String user,
                                            final String password,
                                            final RemotingConnection remotingConnection,
@@ -182,10 +190,20 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
    }
 
    public String getRolePrincipalClass() {
-      return rolePrincipalClass;
+      return rolePrincipalClass.getName();
    }
 
-   public void setRolePrincipalClass(String rolePrincipalClass) {
-      this.rolePrincipalClass = rolePrincipalClass;
+   @SuppressWarnings("unchecked")
+   public void setRolePrincipalClass(String principalClass) throws ClassNotFoundException {
+      this.rolePrincipalClass = (Class<? extends Principal>) Class.forName(principalClass);
+   }
+
+   public String getUserPrincipalClass() {
+      return userPrincipalClass.getName();
+   }
+
+   @SuppressWarnings("unchecked")
+   public void setUserPrincipalClass(String principalClass) throws ClassNotFoundException {
+      this.userPrincipalClass = (Class<? extends Principal>) Class.forName(principalClass);
    }
 }

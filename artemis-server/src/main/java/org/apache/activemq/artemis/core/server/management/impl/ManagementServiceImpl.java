@@ -21,6 +21,7 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -48,8 +50,8 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
-import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -63,8 +65,8 @@ import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BaseBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
-import org.apache.activemq.artemis.core.management.impl.ConnectionRouterControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ConnectionRouterControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsChannelBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsFileBroadcastGroupControlImpl;
@@ -77,7 +79,9 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -85,13 +89,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
-import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
-import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -100,6 +103,7 @@ import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.BrokerMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.server.metrics.QueueMetricNames;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -108,7 +112,6 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
@@ -156,6 +159,10 @@ public class ManagementServiceImpl implements ManagementService {
 
    private final ObjectNameBuilder objectNameBuilder;
 
+   private final SimpleString managementMessageRbacResourceNamePrefix;
+
+   private final Pattern viewPermissionMatcher;
+
 
    public ManagementServiceImpl(final MBeanServer mbeanServer, final Configuration configuration) {
       this.mbeanServer = mbeanServer;
@@ -168,6 +175,8 @@ public class ManagementServiceImpl implements ManagementService {
       broadcaster = new NotificationBroadcasterSupport();
       notificationsEnabled = true;
       objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain(), configuration.getName(), configuration.isJMXUseBrokerName());
+      managementMessageRbacResourceNamePrefix = configuration.isManagementMessageRbac() ? SimpleString.toSimpleString(configuration.getManagementRbacPrefix()).concat('.') : null;
+      viewPermissionMatcher = Pattern.compile(configuration.getViewPermissionMethodMatchPattern());
    }
 
 
@@ -448,11 +457,8 @@ public class ManagementServiceImpl implements ManagementService {
       } else {
          control = new BaseBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration);
       }
-      //shouldnt ever be null
-      if (control != null) {
-         registerInJMX(objectName, control);
-         registerInRegistry(ResourceNames.BROADCAST_GROUP + configuration.getName(), control);
-      }
+      registerInJMX(objectName, control);
+      registerInRegistry(ResourceNames.BROADCAST_GROUP + configuration.getName(), control);
    }
 
    @Override
@@ -512,22 +518,22 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public void registerHawtioSecurity(ArtemisMBeanServerGuard mBeanServerGuard) throws Exception {
-      ObjectName objectName = objectNameBuilder.getManagementContextObjectName();
-      HawtioSecurityControl control = new HawtioSecurityControlImpl(mBeanServerGuard, storageManager);
+   public void registerHawtioSecurity(GuardInvocationHandler guard) throws Exception {
+      ObjectName objectName = objectNameBuilder.getSecurityObjectName();
+      HawtioSecurityControl control = new HawtioSecurityControlImpl(guard, storageManager);
       registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.MANAGEMENT_SECURITY, control);
    }
 
    @Override
    public void unregisterHawtioSecurity() throws Exception {
-      ObjectName objectName = objectNameBuilder.getManagementContextObjectName();
+      ObjectName objectName = objectNameBuilder.getSecurityObjectName();
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.MANAGEMENT_SECURITY);
    }
 
    @Override
-   public ICoreMessage handleMessage(Message message) throws Exception {
+   public ICoreMessage handleMessage(SecurityAuth auth, Message message) throws Exception {
       message = message.toCore();
       // a reply message is sent with the result stored in the message body.
       CoreMessage reply = new CoreMessage(storageManager.generateID(), 512);
@@ -553,7 +559,7 @@ public class ManagementServiceImpl implements ManagementService {
          }
 
          try {
-            Object result = invokeOperation(resourceName, operation, params);
+            Object result = invokeOperation(resourceName, operation, params, auth);
 
             ManagementHelper.storeResult(reply, result);
 
@@ -574,7 +580,7 @@ public class ManagementServiceImpl implements ManagementService {
 
          if (attribute != null) {
             try {
-               Object result = getAttribute(resourceName, attribute);
+               Object result = getAttribute(resourceName, attribute, auth);
 
                ManagementHelper.storeResult(reply, result);
 
@@ -594,6 +600,21 @@ public class ManagementServiceImpl implements ManagementService {
       }
 
       return reply;
+   }
+
+   protected void securityCheck(String controlName, CheckType permission, SecurityAuth auth) throws Exception {
+      if (managementMessageRbacResourceNamePrefix == null) {
+         return;
+      }
+      final SimpleString address = managementMessageRbacResourceNamePrefix.concat(controlName);
+      securityStore.check(address, permission, auth);
+   }
+
+   protected CheckType permissionForInvoke(String method) {
+      if (viewPermissionMatcher.matcher(method).matches()) {
+         return CheckType.VIEW;
+      }
+      return CheckType.EDIT;
    }
 
    @Override
@@ -772,8 +793,6 @@ public class ManagementServiceImpl implements ManagementService {
 
       storageManager = null;
 
-      messagingServer = null;
-
       registeredNames.clear();
 
       started = false;
@@ -849,7 +868,7 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public Object getAttribute(final String resourceName, final String attribute) {
+   public Object getAttribute(final String resourceName, final String attribute, SecurityAuth auth) {
       try {
          Object resource = registry.get(resourceName);
 
@@ -869,6 +888,11 @@ public class ManagementServiceImpl implements ManagementService {
                throw ActiveMQMessageBundle.BUNDLE.noGetterMethod(attribute);
             }
          }
+
+         final String methodName = method.getName();
+
+         securityCheck(resourceName + "." + methodName, permissionForInvoke(methodName), auth);
+
          return method.invoke(resource, new Object[0]);
       } catch (Throwable t) {
          throw new IllegalStateException("Problem while retrieving attribute " + attribute, t);
@@ -877,13 +901,15 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public Object invokeOperation(final String resourceName,
-                                  final String operation,
-                                  final Object[] params) throws Exception {
+                                 final String operation,
+                                 final Object[] params,
+                                 SecurityAuth auth) throws Exception {
       Object resource = registry.get(resourceName);
 
       if (resource == null) {
          throw ActiveMQMessageBundle.BUNDLE.cannotFindResource(resourceName);
       }
+
 
       Method method = null;
 
@@ -926,8 +952,10 @@ public class ManagementServiceImpl implements ManagementService {
          throw ActiveMQMessageBundle.BUNDLE.noOperation(operation, params.length);
       }
 
-      Object result = method.invoke(resource, params);
-      return result;
+      final String methodName = method.getName();
+      securityCheck(resourceName + "." + methodName, permissionForInvoke(methodName), auth);
+
+      return method.invoke(resource, params);
    }
 
    /**

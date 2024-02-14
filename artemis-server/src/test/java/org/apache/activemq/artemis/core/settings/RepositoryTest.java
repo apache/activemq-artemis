@@ -181,13 +181,13 @@ public class RepositoryTest extends ServerTestBase {
    public void testSingletwo() {
       securityRepository.addMatch("queues.another.aq.*", new HashSet<Role>());
       HashSet<Role> roles = new HashSet<>(2);
-      roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true));
-      roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.aq", roles);
       HashSet<Role> roles2 = new HashSet<>(2);
-      roles2.add(new Role("test1", true, true, true, true, true, true, true, true, true, true));
-      roles2.add(new Role("test2", true, true, true, true, true, true, true, true, true, true));
-      roles2.add(new Role("test3", true, true, true, true, true, true, true, true, true, true));
+      roles2.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles2.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles2.add(new Role("test3", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.another.andanother", roles2);
 
       HashSet<Role> hashSet = securityRepository.getMatch("queues.another.andanother");
@@ -198,8 +198,8 @@ public class RepositoryTest extends ServerTestBase {
    public void testWithoutWildcard() {
       securityRepository.addMatch("queues.1.*", new HashSet<Role>());
       HashSet<Role> roles = new HashSet<>(2);
-      roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true));
-      roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.2.aq", roles);
       HashSet<Role> hashSet = securityRepository.getMatch("queues.2.aq");
       Assert.assertEquals(hashSet.size(), 2);

@@ -68,6 +68,14 @@ This permission allows the user to browse a queue bound to the matching address.
 manage::
 This permission allows the user to invoke management operations by sending management messages to the management address.
 
+The following two permissions pertain to operations on the xref:management.adoc#management[management apis] of the broker. They split management operations into two sets, read only for `view`, and `edit` for mutating operations. The split is controlled by a regular expression. Methods that match will require the `view` permission, all others require `edit`. The regular expression can be modified through the configuration attribute xref:configuration-index.adoc#view-permission-method-match-pattern[`view-permission-method-match-pattern`]. These permissions are applicable to the xref:management.adoc#fine-grained-rbac-on-management-messages[management address] and to xref:management.adoc#jmx-authorization-in-broker-xml[MBean access]. They are granted to match addresses prefixed with the xref:configuration-index.adoc#management-rbac-prefix[management prefix].
+
+view::
+This permission allows access to a read-only subset of management operations.
+
+update::
+This permission allows access to the mutating management operations, any operation not in the `view` set.
+
 For each permission, a list of roles who are granted that permission is specified.
 If the user has any of those roles, he/she will be granted that permission for that set of addresses.
 
@@ -153,8 +161,17 @@ You can do this using the fully qualified queue name (i.e. FQQN) in the `match` 
 </security-setting>
 ----
 
-NOTE: Wildcard matching doesn't work in conjuction with FQQN.
+NOTE: Wildcard matching doesn't work in conjunction with FQQN.
 The explicit goal of using FQQN here is to be _exact_.
+
+=== Applying `view` and `edit` permissions to the management api
+The `view` and `edit` permissions are optionally applied to the management apis of the broker.
+
+For RBAC on JMX MBean access they can replace the authorization section in management.xml as described at xref:management.adoc#jmx-authorization-in-broker-xml[JMX authorization in broker.xml]
+
+For RBAC on management resources accessed via messages sent to the management address, the additional permissions are enabled by configuring xref:configuration-index.adoc#management-message-rbac[`management-message-rbac`] as described at xref:management.adoc#fine-grained-rbac-on-management-messages[Fine grained RBAC on management messages]
+
+The split between operations that require the `view` and `edit` permissions can be controlled via xref:configuration-index.adoc#view-permission-method-match-pattern[view-permission-method-match-pattern]
 
 == Security Setting Plugin
 

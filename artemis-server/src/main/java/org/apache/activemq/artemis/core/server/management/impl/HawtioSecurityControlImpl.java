@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.server.management.impl;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +70,9 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
     * </ul>
     */
    static final String[] CAN_INVOKE_RESULT_COLUMNS = SecurityMBeanOpenTypeInitializer.COLUMNS;
-   private final ArtemisMBeanServerGuard mBeanServerGuard;
+   private final GuardInvocationHandler mBeanServerGuard;
 
-   public HawtioSecurityControlImpl(ArtemisMBeanServerGuard mBeanServerGuard, StorageManager storageManager) throws NotCompliantMBeanException {
+   public HawtioSecurityControlImpl(GuardInvocationHandler mBeanServerGuard, StorageManager storageManager) throws NotCompliantMBeanException {
       super(HawtioSecurityControl.class, storageManager);
       this.mBeanServerGuard = mBeanServerGuard;
    }

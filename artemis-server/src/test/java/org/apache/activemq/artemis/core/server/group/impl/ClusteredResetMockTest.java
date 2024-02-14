@@ -40,17 +40,18 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -351,12 +352,12 @@ public class ClusteredResetMockTest extends ServerTestBase {
       }
 
       @Override
-      public ICoreMessage handleMessage(Message message) throws Exception {
+      public ICoreMessage handleMessage(SecurityAuth auth, Message message) throws Exception {
          return null;
       }
 
       @Override
-      public void registerHawtioSecurity(ArtemisMBeanServerGuard securityMBean) throws Exception {
+      public void registerHawtioSecurity(GuardInvocationHandler securityMBean) throws Exception {
 
       }
 
@@ -366,12 +367,12 @@ public class ClusteredResetMockTest extends ServerTestBase {
       }
 
       @Override
-      public Object getAttribute(String resourceName, String attribute) {
+      public Object getAttribute(String resourceName, String attribute, SecurityAuth auth) {
          return null;
       }
 
       @Override
-      public Object invokeOperation(String resourceName, String operation, Object[] params) throws Exception {
+      public Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception {
          return null;
       }
 

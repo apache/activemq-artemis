@@ -400,7 +400,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       createArtemisServer(jaasConfigScope);
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role(artemisRoleName, true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role(artemisRoleName, true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles(QUEUE_NAME, roles);
       server.start();
 

@@ -591,6 +591,19 @@ In most cases this should be set to '1'.
 | xref:wildcard-syntax.adoc#wildcard-syntax[wildcard-addresses]
 | parameters to configure wildcard address matching format.
 | n/a
+
+| [[view-permission-method-match-pattern]] view-permission-method-match-pattern
+| parameter to configure the regular expression pattern to match xref:management.adoc#fine-grained-rbac-on-management-messages[management] or xref:management.adoc#jmx-authorization-in-broker-xml[JMX] operations that require the 'view' permission
+in your security-settings.
+| ``^(get\|is\|count\|list\|browse\|query).*$``
+
+| [[management-message-rbac]] management-message-rbac
+| parameter to enable security-settings RBAC on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages] sent to the management address.
+| false
+
+| [[management-rbac-prefix]] management-rbac-prefix
+| parameter to configure the prefix for security-settings match addresses to control RBAC on xref:management.adoc#jmx-authorization-in-broker-xml[JMX MBean operations] and optionally on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages]
+| mops (shorthand for management operations)
 |===
 
 == address-setting type

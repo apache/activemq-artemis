@@ -131,7 +131,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
       ActiveMQServer server = initializeServer();
       server.getConfiguration().setPopulateValidatedUser(true);
       server.start();
-      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
@@ -178,7 +178,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       ActiveMQServer server = initializeServer();
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
@@ -263,7 +263,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       ActiveMQServer server = initializeServer();
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 

@@ -463,7 +463,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                               mapAdminToManage ? admin : false,          // manage - map to admin based on configuration
                               read,                                      // browse
                               admin,                                     // createAddress
-                              admin);                                    // deleteAddress
+                              admin,                                     // deleteAddress
+                              read,                                      // view
+                              write);                                    // edit
          if (existingRole != null) {
             existingRole.merge(newRole);
          } else {

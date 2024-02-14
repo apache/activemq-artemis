@@ -35,6 +35,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 public class ManagementRemotingConnection implements RemotingConnection {
 
+   Subject subject;
+
    @Override
    public Object getID() {
       return "management";
@@ -170,11 +172,12 @@ public class ManagementRemotingConnection implements RemotingConnection {
 
    @Override
    public void setSubject(Subject subject) {
+      this.subject = subject;
    }
 
    @Override
    public Subject getSubject() {
-      return null;
+      return subject;
    }
 
    @Override

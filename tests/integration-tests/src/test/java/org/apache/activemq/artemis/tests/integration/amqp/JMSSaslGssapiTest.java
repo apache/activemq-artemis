@@ -161,7 +161,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       securityManager.setConfiguration(null);
 
       final String roleName = "ALLOW_ALL";
-      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(getQueueName().toString(), roles);

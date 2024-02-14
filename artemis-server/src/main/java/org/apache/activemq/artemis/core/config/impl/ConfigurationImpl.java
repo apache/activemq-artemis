@@ -434,13 +434,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String literalMatchMarkers = ActiveMQDefaultConfiguration.getLiteralMatchMarkers();
 
+   private String viewPermissionMethodMatchPattern = ActiveMQDefaultConfiguration.getViewPermissionMethodMatchPattern();
+
+   private String managementRbacPrefix = ActiveMQDefaultConfiguration.getManagementRbacPrefix();
+
+   private boolean managementMessagesRbac = ActiveMQDefaultConfiguration.getManagementMessagesRbac();
+
    /**
     * Parent folder for all data folders.
     */
    private File artemisInstance;
    private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
    private transient Checksum transientChecksum = null;
-
 
    private JsonObject getJsonStatus() {
       if (jsonStatus == null) {
@@ -3306,6 +3311,36 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public boolean isLargeMessageSync() {
       return largeMessageSync;
+   }
+
+   @Override
+   public String getViewPermissionMethodMatchPattern() {
+      return viewPermissionMethodMatchPattern;
+   }
+
+   @Override
+   public void setViewPermissionMethodMatchPattern(String permissionMatchPattern) {
+      viewPermissionMethodMatchPattern = permissionMatchPattern;
+   }
+
+   @Override
+   public boolean isManagementMessageRbac() {
+      return managementMessagesRbac;
+   }
+
+   @Override
+   public void setManagementMessageRbac(boolean val) {
+      this.managementMessagesRbac = val;
+   }
+
+   @Override
+   public String getManagementRbacPrefix() {
+      return managementRbacPrefix;
+   }
+
+   @Override
+   public void setManagementRbacPrefix(String prefix) {
+      this.managementRbacPrefix = prefix;
    }
 
    // extend property utils with ability to auto-fill and locate from collections

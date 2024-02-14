@@ -2214,7 +2214,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw e;
       }
 
-      Message reply = managementService.handleMessage(message);
+      Message reply = managementService.handleMessage(this, message);
 
       SimpleString replyTo = message.getReplyTo();
 

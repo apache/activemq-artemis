@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
@@ -265,7 +266,7 @@ public class RedeployTest extends ActiveMQTestBase {
          roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("foo");
          found = false;
          for (Role role : roles) {
-            if (role.getName().equals("b")) {
+            if (role.getName().equals("b") && CheckType.VIEW.hasRole(role)) {
                found = true;
             }
          }
@@ -307,7 +308,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
          assertTrue(found);
 
-         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addSecuritySettings("bar", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c");
+         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addSecuritySettings("bar", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "", "");
          roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("bar");
          for (Role role : roles) {
             if (role.getName().equals("c")) {
@@ -1055,9 +1056,9 @@ public class RedeployTest extends ActiveMQTestBase {
    @Test
    public void testRedeployWithFailover() throws Exception {
       Set<Role> original = new HashSet<>();
-      original.add(new Role("a", false, true, false, false, false, false, false, false, false, false));
+      original.add(new Role("a", false, true, false, false, false, false, false, false, false, false, false, false));
       Set<Role> changed = new HashSet<>();
-      changed.add(new Role("b", false, true, false, false, false, false, false, false, false, false));
+      changed.add(new Role("b", false, true, false, false, false, false, false, false, false, false, false, false));
 
 
 

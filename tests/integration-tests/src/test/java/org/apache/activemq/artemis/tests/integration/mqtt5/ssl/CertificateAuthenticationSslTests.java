@@ -83,7 +83,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       server.setSecurityManager(new ActiveMQJAASSecurityManager("CertLogin"));
       server.getConfiguration().setSecurityEnabled(true);
       HashSet<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, false, false, false, false, false, true, true));
+      roles.add(new Role("programmers", true, true, true, false, false, false, false, false, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
    }
 

@@ -175,7 +175,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
@@ -261,7 +261,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("admins", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("admins", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 

@@ -214,19 +214,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
          int i = 0;
          for (Role role : roles) {
-            objRoles[i++] = new Object[]{
-               role.getName(),
-               CheckType.SEND.hasRole(role),
-               CheckType.CONSUME.hasRole(role),
-               CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
-               CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.MANAGE.hasRole(role),
-               CheckType.BROWSE.hasRole(role),
-               CheckType.CREATE_ADDRESS.hasRole(role),
-               CheckType.DELETE_ADDRESS.hasRole(role)
-            };
+            objRoles[i++] = CheckType.asObjectArray(role);
          }
          return objRoles;
       } finally {
@@ -485,7 +473,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          try {
             return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password, createMessageId);
          } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug("Failed to sendMessage", e);
             throw new IllegalStateException(e.getMessage());
          }
       }

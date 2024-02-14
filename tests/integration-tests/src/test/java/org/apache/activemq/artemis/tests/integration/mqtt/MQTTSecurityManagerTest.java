@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -61,7 +62,9 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
                throw new InvalidClientIdException();
             }
             remotingConnection.setClientID(clientID);
-            return new Subject();
+            Subject subject = new Subject();
+            subject.getPrincipals().add(new UserPrincipal(user));
+            return subject;
          }
 
          @Override

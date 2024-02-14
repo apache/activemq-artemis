@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.management.JMX;
+import javax.security.auth.Subject;
+import java.lang.management.ManagementFactory;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,13 +33,16 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -91,7 +98,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
 
       // guest can not create queue
-      Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true, true, true);
+      Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), roles);
@@ -132,11 +139,53 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSubjectSECURITY_PERMISSION_VIOLATION() throws Exception {
+
+      SecurityNotificationTest.flush(notifConsumer);
+
+      Subject guestSubject = new Subject();
+      guestSubject.getPrincipals().add(new UserPrincipal("guest"));
+
+      final AddressControl addressControl = JMX.newMBeanProxy(
+         ManagementFactory.getPlatformMBeanServer(),
+         ObjectNameBuilder.DEFAULT.getAddressObjectName(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()), AddressControl.class, false);
+
+      Exception e = Subject.doAs(guestSubject, new PrivilegedExceptionAction<Exception>() {
+         @Override
+         public Exception run() throws Exception {
+            try {
+               addressControl.sendMessage(null, 1, "hi", false, null, null);
+               fail("need Send permission");
+            } catch (Exception expected) {
+               assertTrue(expected.getMessage().contains("guest"));
+               assertTrue(expected.getMessage().contains("SEND"));
+               return expected;
+            }
+            return null;
+         }
+      });
+      assertNotNull("expect exception", e);
+
+      ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(3, notifConsumer);
+      int i = 0;
+      for (i = 0; i < notifications.length; i++) {
+         if (SECURITY_PERMISSION_VIOLATION.toString().equals(notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString())) {
+            break;
+         }
+      }
+      Assert.assertTrue(i < notifications.length);
+      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals("guest", notifications[i].getObjectProperty(ManagementHelper.HDR_USER).toString());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      Assert.assertEquals(CheckType.SEND.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
+   }
+
+   @Test
    public void testCONSUMER_CREATED() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      Role role = new Role("role", true, true, true, true, false, true, true, true, true, true);
+      Role role = new Role("role", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), roles);
@@ -173,7 +222,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig().setSecurityEnabled(true);
+      Configuration config = createDefaultInVMConfig().setSecurityEnabled(true).setJMXManagementEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
@@ -184,7 +233,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
 
-      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);

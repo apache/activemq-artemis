@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.Assert;
@@ -105,7 +106,9 @@ public class RecursiveNettySecurityTest extends ActiveMQTestBase {
             logger.warn(e.getMessage(), e);
             throw new NoCacheLoginException(e.getMessage());
          }
-         return new Subject();
+         Subject authenticatedSubject = new Subject();
+         authenticatedSubject.getPrincipals().add(new UserPrincipal(user));
+         return authenticatedSubject;
       }
 
       @Override

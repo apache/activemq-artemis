@@ -241,7 +241,7 @@ public class KeyTypeTest extends RoutingTestBase {
 
       // ensure advisory permission is present for openwire connection creation by 'b'
       HierarchicalRepository<Set<Role>> securityRepository = servers[0].getSecurityRepository();
-      Role role = new Role("b", true, true, true, true, true, true, false, false, true, true);
+      Role role = new Role("b", true, true, true, true, true, true, false, false, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch("ActiveMQ.Advisory.#", roles);

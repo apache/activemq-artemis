@@ -948,9 +948,25 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                          String deleteNonDurableQueueRoles,
                                          String manageRoles,
                                          String browseRoles,
+                                         String createAddressRoles,
+                                         String deleteAddressRoles) throws Exception {
+
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
+         }
+
+         @Override
+         public void addSecuritySettings(String addressMatch,
+                                         String sendRoles,
+                                         String consumeRoles,
+                                         String createDurableQueueRoles,
+                                         String deleteDurableQueueRoles,
+                                         String createNonDurableQueueRoles,
+                                         String deleteNonDurableQueueRoles,
+                                         String manageRoles,
+                                         String browseRoles,
                                          String createAddress,
-                                         String deleteAddress) throws Exception {
-            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress);
+                                         String deleteAddress, String viewRoles, String editRoles) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress, viewRoles, editRoles);
          }
 
          @Override

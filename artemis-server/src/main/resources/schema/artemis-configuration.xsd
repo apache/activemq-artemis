@@ -935,6 +935,33 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="view-permission-method-match-pattern" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The regular expression pattern to match management or JMX operations that require the 'view' permission
+                  in your security-settings. Operations that don't match will default to the 'update' permission.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="management-message-rbac" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Whether to apply RBAC based on security-settings for management operations when accessed through messages sent to the management address.
+                  When set, the 'view' and 'update' permissions are applied to individual management operations based on the message contents. The `manage` permissions is still required to send the messages.
+                  The security-settings match addresses will use the management-rbac-prefix prefix.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="management-rbac-prefix" type="xsd:string" default="mops" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The prefix for security-settings match addresses that control RBAC for management operations. Only configure a value if the default causes a clash in your security settings match criteria.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element ref="security-settings" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element ref="broker-plugins" maxOccurs="1" minOccurs="0"/>

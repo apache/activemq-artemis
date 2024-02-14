@@ -57,6 +57,7 @@ public class OsgiBroker {
    private String name;
    private String configurationUrl;
    private String rolePrincipalClass;
+   private String userPrincipalClass;
    private Map<String, ActiveMQComponent> components;
    private Map<String, ServiceRegistration<?>> registrations;
    private ServiceTracker tracker;
@@ -69,10 +70,15 @@ public class OsgiBroker {
       configurationUrl = getMandatory(properties, "config");
       name = getMandatory(properties, "name");
       rolePrincipalClass = (String) properties.get("rolePrincipalClass");
+      userPrincipalClass = (String) properties.get("userPrincipalClass");
+
       String domain = getMandatory(properties, "domain");
       ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
       if (rolePrincipalClass != null) {
          security.setRolePrincipalClass(rolePrincipalClass);
+      }
+      if (userPrincipalClass != null) {
+         security.setUserPrincipalClass(userPrincipalClass);
       }
       String brokerInstance = null;
 

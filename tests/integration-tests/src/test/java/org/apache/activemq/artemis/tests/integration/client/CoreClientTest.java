@@ -214,7 +214,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       server.start();
 
-      Role myRole = new Role("myrole", true, true, true, true, true, true, true, true, true, true);
+      Role myRole = new Role("myrole", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> anySet = new HashSet<>();
       anySet.add(myRole);
       server.getSecurityRepository().addMatch(baseAddress, anySet);

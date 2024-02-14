@@ -32,14 +32,13 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
 import java.util.List;
 
-public class ArtemisMBeanServerGuard implements InvocationHandler {
+public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -124,6 +123,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       return jmxAccessControlList.isInAllowList(objectName);
    }
 
+   @Override
    public boolean canInvoke(String object, String operationName) {
       ObjectName objectName = null;
       try {

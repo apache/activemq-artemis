@@ -40,5 +40,7 @@ public class PersistedSecuritySettingTest {
       persistedSecuritySetting.getDeleteNonDurableQueueRoles();
       persistedSecuritySetting.getManageRoles();
       persistedSecuritySetting.getSendRoles();
+      persistedSecuritySetting.getViewRoles();
+      persistedSecuritySetting.getEditRoles();
    }
 }

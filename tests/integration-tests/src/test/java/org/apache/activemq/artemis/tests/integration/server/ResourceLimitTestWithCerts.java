@@ -81,7 +81,7 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
 
       server.start();

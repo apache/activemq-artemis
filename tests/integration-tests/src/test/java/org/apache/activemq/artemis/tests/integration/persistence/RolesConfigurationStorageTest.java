@@ -50,9 +50,9 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
    public void testStoreSecuritySettings() throws Exception {
       createStorage();
 
-      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
-      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
       journal.stop();
 
@@ -62,9 +62,9 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
       checkSettings();
 
-      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
-      addSetting(new PersistedSecuritySetting("a3", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a3", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
       checkSettings();
 
@@ -92,7 +92,7 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
       checkSettings();
 
-      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
       journal.stop();
 

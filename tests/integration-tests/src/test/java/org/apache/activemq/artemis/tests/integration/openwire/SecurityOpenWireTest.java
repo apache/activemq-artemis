@@ -62,7 +62,7 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
    @Test
    public void testSendNoAuth() throws Exception {
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
 
       server.getSecurityRepository().addMatch("denyQ", roles);
       SimpleString denyQ = new SimpleString("denyQ");

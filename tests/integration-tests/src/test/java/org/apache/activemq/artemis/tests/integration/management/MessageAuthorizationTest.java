@@ -68,9 +68,9 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, true));
       server.getConfiguration().setPopulateValidatedUser(true);
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
-      roles.add(new Role("a", false, true, true, true, true, false, false, false, true, true));
-      roles.add(new Role("b", false, true, true, true, true, false, false, false, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles.add(new Role("a", false, true, true, true, true, false, false, false, true, true, false, false));
+      roles.add(new Role("b", false, true, true, true, true, false, false, false, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
 
       BrokerMessageAuthorizationPlugin plugin = new BrokerMessageAuthorizationPlugin();

@@ -692,6 +692,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final String DEFAULT_LITERAL_MATCH_MARKERS = null;
 
+   private static final String DEFAULT_VIEW_PERMISSION_METHOD_MATCH_PATTERN = "^(get|is|count|list|browse|query).*$";
+
+   private static final String DEFAULT_MANAGEMENT_RBAC_PREFIX = "mops";
+
+   private static final boolean DEFAULT_MANAGEMENT_MESSAGE_RBAC = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1899,5 +1905,17 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getLiteralMatchMarkers() {
       return DEFAULT_LITERAL_MATCH_MARKERS;
+   }
+
+   public static String getViewPermissionMethodMatchPattern() {
+      return DEFAULT_VIEW_PERMISSION_METHOD_MATCH_PATTERN;
+   }
+
+   public static String getManagementRbacPrefix() {
+      return DEFAULT_MANAGEMENT_RBAC_PREFIX;
+   }
+
+   public static boolean getManagementMessagesRbac() {
+      return DEFAULT_MANAGEMENT_MESSAGE_RBAC;
    }
 }

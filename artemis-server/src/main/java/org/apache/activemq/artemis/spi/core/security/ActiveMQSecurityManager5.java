@@ -60,4 +60,5 @@ public interface ActiveMQSecurityManager5 extends ActiveMQSecurityManager {
     * @return true if the user is authorized, else false
     */
    boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address);
+
 }

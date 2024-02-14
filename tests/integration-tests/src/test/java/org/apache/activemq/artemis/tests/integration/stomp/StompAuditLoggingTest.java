@@ -59,7 +59,7 @@ public class StompAuditLoggingTest extends StompTestBase {
 
       securityManager.getConfiguration().addUser(user, pass);
       securityManager.getConfiguration().addRole(user, role);
-      server.getConfiguration().getSecurityRoles().put("#", new HashSet<>(Set.of(new Role(role, false, false, false, false, false, false, false, false, false, false))));
+      server.getConfiguration().getSecurityRoles().put("#", new HashSet<>(Set.of(new Role(role, false, false, false, false, false, false, false, false, false, false, false, false))));
 
       return server;
    }

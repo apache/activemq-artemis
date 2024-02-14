@@ -115,12 +115,12 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setResolveProtocols(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin").setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
 
       // ensure advisory permission is still set for openwire to allow connection to succeed, alternative is url param jms.watchTopicAdvisories=false on the client connection factory
       roles = new HashSet<>();
-      roles.add(new Role("programmers", false, true, false, false, true, true, false, false, true, false));
+      roles.add(new Role("programmers", false, true, false, false, true, true, false, false, true, false, false, false));
       server.getConfiguration().putSecurityRoles("ActiveMQ.Advisory.#", roles);
 
       server.start();
@@ -165,7 +165,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).setResolveProtocols(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(), false));
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 

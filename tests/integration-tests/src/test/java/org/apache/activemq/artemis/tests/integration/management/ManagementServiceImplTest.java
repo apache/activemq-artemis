@@ -57,7 +57,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       CoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
+      Message reply = server.getManagementService().handleMessage(null, message);
 
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
    }
@@ -73,7 +73,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       CoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "thereIsNoSuchOperation");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
@@ -90,7 +90,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       ICoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, "Resouce.Does.Not.Exist", "toString");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
@@ -108,7 +108,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       ManagementHelper.putAttribute(message, ResourceNames.BROKER, "started");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertTrue((Boolean) ManagementHelper.getResult(reply));
@@ -126,7 +126,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       ManagementHelper.putAttribute(message, ResourceNames.BROKER, "attribute.Does.Not.Exist");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
@@ -172,7 +172,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       MessageUtil.setJMSCorrelationID(message, correlationID);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
+      Message reply = server.getManagementService().handleMessage(null, message);
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertEquals(correlationID, MessageUtil.getJMSCorrelationID(reply));
    }
@@ -193,7 +193,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       message.setUserID(messageId);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
+      Message reply = server.getManagementService().handleMessage(null, message);
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertEquals(messageId.toString(), MessageUtil.getJMSCorrelationID(reply));
    }

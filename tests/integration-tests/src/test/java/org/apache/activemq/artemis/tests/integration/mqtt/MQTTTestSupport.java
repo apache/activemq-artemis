@@ -198,10 +198,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          // Configure roles
          HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
          HashSet<Role> value = new HashSet<>();
-         value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false));
-         value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
-         value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
-         value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
+         value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false, false, false));
+         value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
+         value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));
+         value.add(new Role("full", true, true, true, true, true, true, true, true, true, true, false, false));
          securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);
 
          server.getConfiguration().setSecurityEnabled(true);

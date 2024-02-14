@@ -461,6 +461,42 @@ public class FileConfigurationParserTest extends ServerTestBase {
       Assert.assertEquals("()", configuration.getLiteralMatchMarkers());
    }
 
+   @Test
+   public void testViewPermissionMethodMatchPattern() throws Exception {
+      final String pattern = "^(get|list).+$";
+      String configStr = "<configuration><view-permission-method-match-pattern>" + pattern + "</view-permission-method-match-pattern>\n</configuration>\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      Assert.assertEquals(pattern, configuration.getViewPermissionMethodMatchPattern());
+   }
+
+   @Test
+   public void testManagementRbacPrefix() throws Exception {
+      final String pattern = "j.m.x";
+      String configStr = "<configuration><management-rbac-prefix>" + pattern + "</management-rbac-prefix>\n</configuration>\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      Assert.assertEquals(pattern, configuration.getManagementRbacPrefix());
+   }
+
+   @Test
+   public void testManagementRbac() throws Exception {
+      final boolean enabled = true;
+      String configStr = "<configuration><management-message-rbac>" + enabled + "</management-message-rbac>\n</configuration>\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      Assert.assertEquals(enabled, configuration.isManagementMessageRbac());
+   }
+
    // you should not use K, M notations on address settings max-size-messages
    @Test
    public void testExpectedErrorOverMaxMessageNotation() throws Exception {

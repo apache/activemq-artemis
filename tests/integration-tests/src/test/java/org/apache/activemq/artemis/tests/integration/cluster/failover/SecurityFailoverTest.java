@@ -103,7 +103,7 @@ public class SecurityFailoverTest extends FailoverTest {
    protected ActiveMQJAASSecurityManager installSecurity(TestableServer server) {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getServer().getSecurityManager();
       securityManager.getConfiguration().addUser("a", "b");
-      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getServer().getSecurityRepository().addMatch("#", roles);

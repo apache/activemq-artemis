@@ -25,7 +25,8 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
-import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
@@ -34,35 +35,39 @@ import static org.junit.Assert.assertNull;
 
 public class SecurityStoreImplTest {
 
+   final ActiveMQSecurityManager5 securityManager = new ActiveMQSecurityManager5() {
+      @Override
+      public Subject authenticate(String user,
+                                  String password,
+                                  RemotingConnection remotingConnection,
+                                  String securityDomain) {
+         Subject subject = new Subject();
+         subject.getPrincipals().add(new UserPrincipal(user));
+         return subject;
+      }
+
+      @Override
+      public boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address) {
+         return true;
+      }
+
+      @Override
+      public boolean validateUser(String user, String password) {
+         return false;
+      }
+
+      @Override
+      public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
+         return false;
+      }
+   };
+
    @Test
    public void zeroCacheSizeTest() throws Exception {
-      ActiveMQSecurityManager5 securityManager = new ActiveMQSecurityManager5() {
-         @Override
-         public Subject authenticate(String user,
-                                     String password,
-                                     RemotingConnection remotingConnection,
-                                     String securityDomain) throws NoCacheLoginException {
-            return new Subject();
-         }
-
-         @Override
-         public boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address) {
-            return true;
-         }
-
-         @Override
-         public boolean validateUser(String user, String password) {
-            return false;
-         }
-
-         @Override
-         public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
-            return false;
-         }
-      };
+      final String user = RandomUtil.randomString();
       SecurityStoreImpl securityStore = new SecurityStoreImpl(new HierarchicalObjectRepository<>(), securityManager, 999, true, "", null, null, 0, 0);
       assertNull(securityStore.getAuthenticationCache());
-      securityStore.authenticate(RandomUtil.randomString(), RandomUtil.randomString(), null);
+      assertEquals(user, securityStore.authenticate(user, RandomUtil.randomString(), null));
       assertEquals(0, securityStore.getAuthenticationCacheSize());
       securityStore.invalidateAuthenticationCache(); // ensure this doesn't throw an NPE
 
@@ -91,4 +96,21 @@ public class SecurityStoreImplTest {
       assertEquals(0, securityStore.getAuthorizationCacheSize());
       securityStore.invalidateAuthorizationCache(); // ensure this doesn't throw an NPE
    }
+
+   @Test
+   public void getCaller() throws Exception {
+      SecurityStoreImpl securityStore = new SecurityStoreImpl(new HierarchicalObjectRepository<>(), securityManager, 999, true, "", null, null, 0, 0);
+
+      assertNull(securityStore.getCaller(null, null));
+      assertEquals("joe", securityStore.getCaller("joe", null));
+      Subject subject = new Subject();
+      assertEquals("joe", securityStore.getCaller("joe", subject));
+      subject.getPrincipals().add(new RolePrincipal("r"));
+      assertEquals("joe", securityStore.getCaller("joe", subject));
+      assertNull(securityStore.getCaller(null, subject));
+      subject.getPrincipals().add(new UserPrincipal("u"));
+      assertEquals("u", securityStore.getCaller(null, subject));
+      assertEquals("joe", securityStore.getCaller("joe", subject));
+   }
+
 }

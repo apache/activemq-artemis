@@ -33,7 +33,7 @@ public class SecurityManagerUtil {
 
    private static final String WILDCARD = "*";
 
-   public static Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles, final String rolePrincipalClass) {
+   public static Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles, final Class rolePrincipalClass) {
       Set principals = new HashSet<>();
       for (Role role : roles) {
          if (checkType.hasRole(role)) {
@@ -47,7 +47,16 @@ public class SecurityManagerUtil {
       return principals;
    }
 
-   public static Object createGroupPrincipal(String name, String groupClass) throws Exception {
+   public static String getUserFromSubject(Subject subject, Class<? extends Principal> principalClass) {
+      if (subject != null) {
+         for (Principal candidate : subject.getPrincipals(principalClass)) {
+            return candidate.getName();
+         }
+      }
+      return null;
+   }
+
+   public static Object createGroupPrincipal(String name, Class cls) throws Exception {
       if (WILDCARD.equals(name)) {
          // simple match all group principal - match any name and class
          return new Principal() {
@@ -69,8 +78,6 @@ public class SecurityManagerUtil {
       }
       Object[] param = new Object[]{name};
 
-      Class<?> cls = Class.forName(groupClass);
-
       Constructor<?>[] constructors = cls.getConstructors();
       int i;
       Object instance;
@@ -83,7 +90,7 @@ public class SecurityManagerUtil {
       if (i < constructors.length) {
          instance = constructors[i].newInstance(param);
       } else {
-         instance = cls.newInstance();
+         instance = cls.getDeclaredConstructor().newInstance();
          Method[] methods = cls.getMethods();
          i = 0;
          for (i = 0; i < methods.length; i++) {
@@ -106,7 +113,7 @@ public class SecurityManagerUtil {
    /**
     * This method tries to match the RolePrincipals in the Subject with the provided Set of Roles and CheckType
     */
-   public static boolean authorize(final Subject subject, final Set<Role> roles, final CheckType checkType, final String rolePrincipalClass) {
+   public static boolean authorize(final Subject subject, final Set<Role> roles, final CheckType checkType, final Class rolePrincipalClass) {
       boolean authorized = false;
 
       if (subject != null) {
@@ -115,7 +122,7 @@ public class SecurityManagerUtil {
          // Check the caller's roles
          Set<Principal> rolesForSubject = new HashSet<>();
          try {
-            rolesForSubject.addAll(subject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
+            rolesForSubject.addAll(subject.getPrincipals(rolePrincipalClass));
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
          }

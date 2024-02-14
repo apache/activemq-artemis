@@ -81,8 +81,6 @@ public class JmxRBACTest extends SmokeTestBase {
 
    @Test
    public void testManagementRoleAccess() throws Exception {
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
 
       // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
       String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
@@ -159,8 +157,6 @@ public class JmxRBACTest extends SmokeTestBase {
 
    @Test
    public void testSendMessageWithoutUserAndPassword() throws Exception {
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
 
       // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
       String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";

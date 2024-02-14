@@ -204,6 +204,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DELETEADDRESS_NAME = "deleteAddress";
 
+   private static final String VIEW_NAME = "view";
+
+   private static final String EDIT_NAME = "edit";
+
    // Address parsing
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
@@ -839,6 +843,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setLargeMessageSync(getBoolean(e, "large-message-sync", config.isLargeMessageSync()));
 
+      config.setViewPermissionMethodMatchPattern(getString(e, "view-permission-method-match-pattern", config.getViewPermissionMethodMatchPattern(), NO_CHECK));
+
+      config.setManagementMessageRbac(getBoolean(e, "management-message-rbac", config.isManagementMessageRbac()));
+
+      config.setManagementRbacPrefix(getString(e, "management-rbac-prefix", config.getManagementRbacPrefix(), NO_CHECK));
+
       parseAddressSettings(e, config);
 
       parseResourceLimits(e, config);
@@ -1151,6 +1161,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       ArrayList<String> browseRoles = new ArrayList<>();
       ArrayList<String> createAddressRoles = new ArrayList<>();
       ArrayList<String> deleteAddressRoles = new ArrayList<>();
+      ArrayList<String> viewRoles = new ArrayList<>();
+      ArrayList<String> editRoles = new ArrayList<>();
       ArrayList<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
@@ -1187,6 +1199,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                   createAddressRoles.add(role.trim());
                } else if (DELETEADDRESS_NAME.equals(type)) {
                   deleteAddressRoles.add(role.trim());
+               } else if (VIEW_NAME.equals(type)) {
+                  viewRoles.add(role.trim());
+               } else if (EDIT_NAME.equals(type)) {
+                  editRoles.add(role.trim());
                } else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
@@ -1198,7 +1214,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       for (String role : allRoles) {
-         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role)));
+         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role), viewRoles.contains(role), editRoles.contains(role)));
       }
 
       return securityMatch;
