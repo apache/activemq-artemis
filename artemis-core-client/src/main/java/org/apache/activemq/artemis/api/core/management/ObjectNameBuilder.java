@@ -161,7 +161,12 @@ public final class ObjectNameBuilder {
       return String.format("%s:broker=%s", domain, (jmxUseBrokerName && brokerName != null) ? ObjectName.quote(brokerName) : "artemis");
    }
 
+   @Deprecated()
    public ObjectName getManagementContextObjectName() throws Exception {
-      return ObjectName.getInstance(String.format("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity"));
+      return getSecurityObjectName();
+   }
+
+   public ObjectName getSecurityObjectName() throws Exception {
+      return ObjectName.getInstance("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity");
    }
 }

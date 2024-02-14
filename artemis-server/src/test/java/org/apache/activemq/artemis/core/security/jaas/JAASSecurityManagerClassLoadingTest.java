@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,9 +87,9 @@ public class JAASSecurityManagerClassLoadingTest {
          Subject result = securityManager.authenticate("first", "secret", null, null);
 
          assertNotNull(result);
-         assertEquals("first", SecurityStoreImpl.getUserFromSubject(result));
+         assertEquals("first", securityManager.getUserFromSubject(result));
 
-         Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+         Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false);
          Set<Role> roles = new HashSet<>();
          roles.add(role);
          boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND, "someaddress");

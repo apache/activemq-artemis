@@ -214,7 +214,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
          final String role = "testRole";
          securityManager.getConfiguration().addRole(defUser, role);
-         config.getSecurityRoles().put("#", new HashSet<Role>(Set.of(new Role(role, true, true, true, true, true, true, true, true, true, true))));
+         config.getSecurityRoles().put("#", new HashSet<Role>(Set.of(new Role(role, true, true, true, true, true, true, true, true, true, true, false, false))));
       }
 
       return activeMQServer;

@@ -238,7 +238,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Wait.assertEquals(usingCore() ? 1 : 0, serverControl::getAuthenticationCacheSize);
-      Wait.assertEquals(usingCore() ? 7 : 0, serverControl::getAuthorizationCacheSize);
+      Wait.assertEquals(0, serverControl::getAuthorizationCacheSize);
 
       ServerLocator loc = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(loc);
@@ -256,7 +256,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       producer.send(m);
 
       Assert.assertEquals(usingCore() ? 2 : 1, serverControl.getAuthenticationCacheSize());
-      Wait.assertEquals(usingCore() ? 8 : 1, () -> serverControl.getAuthorizationCacheSize());
+      Wait.assertEquals(1, () -> serverControl.getAuthorizationCacheSize());
    }
 
    @Test
@@ -289,7 +289,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.clearAuthorizationCache();
 
       Assert.assertEquals(usingCore() ? 1 : 0, serverControl.getAuthenticationCacheSize());
-      Assert.assertEquals(usingCore() ? 7 : 0, serverControl.getAuthorizationCacheSize());
+      Assert.assertEquals(0, serverControl.getAuthorizationCacheSize());
    }
 
    @Test
@@ -1061,7 +1061,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String exactAddress = "test.whatever";
 
       assertEquals(1, serverControl.getRoles(addressMatch).length);
-      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", null, "bar", "foo, bar", "", "", "bar", "foo", "foo");
+      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", null, "bar", "foo, bar", "", "", "bar", "foo", "foo", "", "");
 
       // Restart the server. Those settings should be persisted
 
@@ -6143,7 +6143,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.start();
 
       HashSet<Role> role = new HashSet<>();
-      role.add(new Role("guest", true, true, true, true, true, true, true, true, true, true));
+      role.add(new Role("guest", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getSecurityRepository().addMatch("#", role);
    }
 

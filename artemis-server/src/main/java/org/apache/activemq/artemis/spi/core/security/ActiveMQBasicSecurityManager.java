@@ -56,7 +56,6 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    public static final String BOOTSTRAP_ROLE_FILE = "bootstrapRoleFile";
 
    private Map<String, String> properties;
-   private String rolePrincipalClass = RolePrincipal.class.getName();
    private StorageManager storageManager;
 
    @Override
@@ -85,7 +84,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                   Subject subject = new Subject();
                   subject.getPrincipals().add(new UserPrincipal(userToAuthenticate));
                   for (String role : getRole(userToAuthenticate).getRoles()) {
-                     subject.getPrincipals().add((Principal) SecurityManagerUtil.createGroupPrincipal(role, rolePrincipalClass));
+                     subject.getPrincipals().add((Principal) SecurityManagerUtil.createGroupPrincipal(role, RolePrincipal.class));
                   }
                   return subject;
                }
@@ -108,7 +107,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                             final Set<Role> roles,
                             final CheckType checkType,
                             final String address) {
-      boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, rolePrincipalClass);
+      boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, RolePrincipal.class);
       if (authorized) {
          logger.trace("user is authorized");
       } else {

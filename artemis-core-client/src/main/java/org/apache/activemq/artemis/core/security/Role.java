@@ -50,8 +50,13 @@ public class Role implements Serializable {
 
    private boolean browse;
 
+   private boolean view;
+
+   private boolean edit;
+
    public JsonObject toJson() {
-      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).add("createAddress", createAddress).add("deleteAddress", deleteAddress).build();
+      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage)
+         .add("browse", browse).add("createAddress", createAddress).add("deleteAddress", deleteAddress).add("view", view).add("edit", edit).build();
    }
 
    public Role() {
@@ -79,7 +84,7 @@ public class Role implements Serializable {
                final boolean deleteNonDurableQueue,
                final boolean manage) {
       // This constructor exists for version compatibility on the API.
-      // it will pass the consume as a browse
+      // it will pass consume as browse
       this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, consume);
    }
 
@@ -95,7 +100,22 @@ public class Role implements Serializable {
                final boolean browse) {
       // This constructor exists for version compatibility on the API. If either createDurableQueue or createNonDurableQueue
       // is true then createAddress will be true. If either deleteDurableQueue or deleteNonDurableQueue is true then deleteAddress will be true.
-      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createDurableQueue || createNonDurableQueue, deleteDurableQueue || deleteNonDurableQueue);
+      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createDurableQueue || createNonDurableQueue, deleteDurableQueue || deleteNonDurableQueue, false, false);
+   }
+
+   @Deprecated
+   public Role(final String name,
+               final boolean send,
+               final boolean consume,
+               final boolean createDurableQueue,
+               final boolean deleteDurableQueue,
+               final boolean createNonDurableQueue,
+               final boolean deleteNonDurableQueue,
+               final boolean manage,
+               final boolean browse,
+               final boolean createAddress,
+               final boolean deleteAddress) {
+      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createAddress, deleteAddress, false, false);
    }
 
    public Role(final String name,
@@ -108,7 +128,9 @@ public class Role implements Serializable {
                final boolean manage,
                final boolean browse,
                final boolean createAddress,
-               final boolean deleteAddress) {
+               final boolean deleteAddress,
+               final boolean view,
+               final boolean edit) {
       if (name == null) {
          throw new NullPointerException("name is null");
       }
@@ -123,6 +145,8 @@ public class Role implements Serializable {
       this.deleteNonDurableQueue = deleteNonDurableQueue;
       this.manage = manage;
       this.browse = browse;
+      this.view = view;
+      this.edit = edit;
    }
 
    public String getName() {
@@ -247,7 +271,12 @@ public class Role implements Serializable {
       if (browse) {
          stringReturn.append(" browse ");
       }
-
+      if (view) {
+         stringReturn.append(" view ");
+      }
+      if (edit) {
+         stringReturn.append(" edit ");
+      }
       stringReturn.append("]}");
 
       return stringReturn.toString();
@@ -297,6 +326,12 @@ public class Role implements Serializable {
       if (!name.equals(role.name)) {
          return false;
       }
+      if (view != role.view) {
+         return false;
+      }
+      if (edit != role.edit) {
+         return false;
+      }
 
       return true;
    }
@@ -315,6 +350,8 @@ public class Role implements Serializable {
       result = 31 * result + (deleteNonDurableQueue ? 1 : 0);
       result = 31 * result + (manage ? 1 : 0);
       result = 31 * result + (browse ? 1 : 0);
+      result = 31 * result + (view ? 1 : 0);
+      result = 31 * result + (edit ? 1 : 0);
       return result;
    }
 
@@ -329,5 +366,23 @@ public class Role implements Serializable {
       deleteNonDurableQueue = deleteNonDurableQueue || other.deleteNonDurableQueue;
       manage = manage || other.manage;
       browse = browse || other.browse;
+      view = view || other.view;
+      edit = edit || other.edit;
+   }
+
+   public boolean isEdit() {
+      return edit;
+   }
+
+   public void setEdit(boolean edit) {
+      this.edit = edit;
+   }
+
+   public boolean isView() {
+      return view;
+   }
+
+   public void setView(boolean view) {
+      this.view = view;
    }
 }

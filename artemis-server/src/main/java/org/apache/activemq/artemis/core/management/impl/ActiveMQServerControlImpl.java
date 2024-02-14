@@ -2921,10 +2921,27 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String browseRoles,
                                    final String createAddressRoles,
                                    final String deleteAddressRoles) throws Exception {
+      addSecuritySettings(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles, "", "");
+   }
+
+   @Override
+   public void addSecuritySettings(final String addressMatch,
+                                   final String sendRoles,
+                                   final String consumeRoles,
+                                   final String createDurableQueueRoles,
+                                   final String deleteDurableQueueRoles,
+                                   final String createNonDurableQueueRoles,
+                                   final String deleteNonDurableQueueRoles,
+                                   final String manageRoles,
+                                   final String browseRoles,
+                                   final String createAddressRoles,
+                                   final String deleteAddressRoles,
+                                   final String viewRoles,
+                                   final String editRoles) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.addSecuritySettings(this.server, addressMatch, sendRoles, consumeRoles, createDurableQueueRoles,
                   deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles,
-                  browseRoles, createAddressRoles, deleteAddressRoles);
+                  browseRoles, createAddressRoles, deleteAddressRoles, viewRoles, editRoles);
       }
       checkStarted();
 
@@ -2934,7 +2951,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          server.getSecurityRepository().addMatch(addressMatch, roles);
 
-         PersistedSecuritySetting persistedRoles = new PersistedSecuritySetting(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
+         PersistedSecuritySetting persistedRoles = new PersistedSecuritySetting(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles, viewRoles, editRoles);
 
          storageManager.storeSecuritySetting(persistedRoles);
       } finally {
@@ -2974,19 +2991,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          int i = 0;
          for (Role role : roles) {
-            objRoles[i++] = new Object[]{
-               role.getName(),
-               CheckType.SEND.hasRole(role),
-               CheckType.CONSUME.hasRole(role),
-               CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
-               CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.MANAGE.hasRole(role),
-               CheckType.BROWSE.hasRole(role),
-               CheckType.CREATE_ADDRESS.hasRole(role),
-               CheckType.DELETE_ADDRESS.hasRole(role)
-            };
+            objRoles[i++] = CheckType.asObjectArray(role);
          }
          return objRoles;
       } finally {
@@ -4667,6 +4672,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          AuditLogger.clearAuthorizationCache(this.server);
       }
       ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
+   }
+
+   public ActiveMQServer getServer() {
+      return server;
    }
 }
 

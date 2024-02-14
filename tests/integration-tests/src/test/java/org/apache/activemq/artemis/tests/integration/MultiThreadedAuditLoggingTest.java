@@ -59,10 +59,10 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
       server.setSecurityManager(new ActiveMQBasicSecurityManager());
       server.start();
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("queue1", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("queue1", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getSecurityRepository().addMatch("queue1", roles);
       roles = new HashSet<>();
-      roles.add(new Role("queue2", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role("queue2", true, true, true, true, true, true, true, true, true, true, false, false));
       server.getSecurityRepository().addMatch("queue2", roles);
       server.getActiveMQServerControl().addUser("queue1", "queue1", "queue1", true);
       server.getActiveMQServerControl().addUser("queue2", "queue2", "queue2", true);

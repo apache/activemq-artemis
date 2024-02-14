@@ -114,7 +114,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
 
       // role mapping via CertLogin - TextFileCertificateLoginModule
       final String roleName = "widgets";
-      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("TEST", roles);

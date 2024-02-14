@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -137,13 +138,13 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    Object[] getResources(Class<?> resourceType);
 
-   ICoreMessage handleMessage(Message message) throws Exception;
+   ICoreMessage handleMessage(SecurityAuth auth, Message message) throws Exception;
 
-   void registerHawtioSecurity(ArtemisMBeanServerGuard securityMBean) throws Exception;
+   void registerHawtioSecurity(GuardInvocationHandler guardInvocationHandler) throws Exception;
 
    void unregisterHawtioSecurity() throws Exception;
 
-   Object getAttribute(String resourceName, String attribute);
+   Object getAttribute(String resourceName, String attribute, SecurityAuth auth);
 
-   Object invokeOperation(String resourceName, String operation, Object[] params) throws Exception;
+   Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception;
 }

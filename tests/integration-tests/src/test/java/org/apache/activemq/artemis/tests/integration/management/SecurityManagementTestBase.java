@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -24,18 +29,24 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.runners.Parameterized;
 
 public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
 
-
    private ActiveMQServer server;
 
+   @Parameterized.Parameter(0)
+   public boolean managementRbac = false;
 
-
+   @Parameterized.Parameters(name = "managementRbac={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
 
 
    @Override
@@ -48,9 +59,31 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
 
    protected abstract ActiveMQServer setupAndStartActiveMQServer() throws Exception;
 
-   protected void doSendManagementMessage(final String user,
-                                          final String password,
-                                          final boolean expectSuccess) throws Exception {
+   @Override
+   protected Configuration createDefaultInVMConfig() throws Exception {
+      Configuration configuration = super.createDefaultInVMConfig();
+      if (managementRbac) {
+         configuration.setManagementMessageRbac(true); // enable rbac view/update perms check
+      }
+      return configuration;
+   }
+
+   protected void doSendBrokerManagementMessage(final String user,
+                                                final String password,
+                                                final boolean expectSuccess) throws Exception {
+      doSendBrokerManagementMessageForAttribute(user, password, expectSuccess);
+   }
+
+   protected void doSendBrokerManagementMessageForAttribute(final String user,
+                                                            final String password,
+                                                            final boolean expectSuccess) throws Exception {
+      doSendBrokerManagementMessageFor(true, user, password, expectSuccess);
+   }
+
+   protected void doSendBrokerManagementMessageFor(final boolean attribute, final String user,
+                                                   final String password,
+                                                   final boolean expectSuccess) throws Exception {
+
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = locator.createSessionFactory();
       try {
@@ -66,26 +99,40 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
          ClientRequestor requestor = new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
 
          ClientMessage mngmntMessage = session.createMessage(false);
-         ManagementHelper.putAttribute(mngmntMessage, ResourceNames.BROKER, "started");
+         if (attribute) {
+            ManagementHelper.putAttribute(mngmntMessage, ResourceNames.BROKER, "started");
+         } else {
+            ManagementHelper.putOperationInvocation(mngmntMessage, ResourceNames.BROKER, "enableMessageCounters");
+         }
          ClientMessage reply = requestor.request(mngmntMessage, 500);
          if (expectSuccess) {
             Assert.assertNotNull(reply);
-            Assert.assertTrue((Boolean) ManagementHelper.getResult(reply));
+            Assert.assertTrue("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.hasOperationSucceeded(reply));
+            if (attribute) {
+               Assert.assertTrue("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.getResult(reply));
+            }
          } else {
-            Assert.assertNull(reply);
+            if (attribute) {
+               Assert.assertNull(reply);
+            } else {
+               Assert.assertNotNull(reply);
+               Assert.assertFalse("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.hasOperationSucceeded(reply));
+            }
          }
 
          requestor.close();
-      } catch (Exception e) {
+      } catch (ActiveMQSecurityException possiblyExpected) {
          if (expectSuccess) {
-            Assert.fail("got unexpected exception " + e.getClass() + ": " + e.getMessage());
-            e.printStackTrace();
+            Assert.fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
          }
+      } catch (ActiveMQClusterSecurityException possiblyExpected) {
+         if (expectSuccess) {
+            Assert.fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
+         }
+      } catch (Exception e) {
+         Assert.fail("got unexpected exception " + e.getClass() + ": " + e.getMessage());
       } finally {
          sf.close();
       }
    }
-
-
-
 }

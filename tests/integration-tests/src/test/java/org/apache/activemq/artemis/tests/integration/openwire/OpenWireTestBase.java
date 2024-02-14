@@ -73,23 +73,23 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireSender", "sender");
          securityManager.getConfiguration().addUser("openwireSender", "SeNdEr");
          //sender cannot receive
-         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true, true);
+         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true, true, false, false);
 
          securityManager.getConfiguration().addRole("openwireReceiver", "receiver");
          securityManager.getConfiguration().addUser("openwireReceiver", "ReCeIvEr");
          //receiver cannot send
-         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false, false);
+         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false, false, false, false);
 
          securityManager.getConfiguration().addRole("openwireGuest", "guest");
          securityManager.getConfiguration().addUser("openwireGuest", "GuEsT");
 
          //guest cannot do anything
-         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false, false);
+         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false, false, false, false);
 
          securityManager.getConfiguration().addRole("openwireDestinationManager", "manager");
          securityManager.getConfiguration().addUser("openwireDestinationManager", "DeStInAtIoN");
 
-         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, true, false);
+         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, true, false, false, false);
 
          Set<Role> roles = new HashSet<>();
          roles.add(senderRole);
@@ -101,7 +101,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          // advisory addresses, anyone can create/consume
          // broker can produce
-         Role advisoryReceiverRole = new Role("advisoryReceiver", false, true, false, false, true, true, false, true, true, false);
+         Role advisoryReceiverRole = new Role("advisoryReceiver", false, true, false, false, true, true, false, true, true, false, false, false);
 
          roles = new HashSet<>();
          roles.add(advisoryReceiverRole);

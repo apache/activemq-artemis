@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -36,10 +38,16 @@ import static org.junit.Assert.fail;
 
 public class HawtioSecurityControlImplTest {
 
+   protected GuardInvocationHandler guard;
+
+   @Before
+   public void initGuard() {
+      guard = Mockito.mock(ArtemisMBeanServerGuard.class);
+   }
+
    @Test
    public void testCanInvokeMBean() throws Exception {
       String objectName = "foo.bar.testing:type=SomeMBean";
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, null)).thenReturn(true);
 
@@ -50,7 +58,6 @@ public class HawtioSecurityControlImplTest {
    @Test
    public void testCanInvokeMBean2() throws Exception {
       String objectName = "foo.bar.testing:type=SomeMBean";
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, null)).thenReturn(false);
 
@@ -61,7 +68,6 @@ public class HawtioSecurityControlImplTest {
    @Test(expected = Exception.class)
    public void testCanInvokeMBeanThrowsException() throws Exception {
       String objectName = "foo.bar.testing:type=SomeMBean";
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, null)).thenThrow(new Exception());
 
@@ -79,7 +85,6 @@ public class HawtioSecurityControlImplTest {
    @Test
    public void testCanInvokeMethod() throws Exception {
       String objectName = "foo.bar.testing:type=SomeMBean";
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, "testMethod")).thenReturn(true);
       Mockito.when(guard.canInvoke(objectName, "otherMethod")).thenReturn(false);
@@ -93,7 +98,6 @@ public class HawtioSecurityControlImplTest {
    @Test(expected = Exception.class)
    public void testCanInvokeMethodException() throws Exception {
       String objectName = "foo.bar.testing:type=SomeMBean";
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, "testMethod")).thenThrow(new Exception());
 
@@ -110,7 +114,6 @@ public class HawtioSecurityControlImplTest {
 
    @Test
    public void testCanInvokeBulk() throws Exception {
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       String objectName = "foo.bar.testing:type=SomeMBean";
       Mockito.when(guard.canInvoke(objectName, "testMethod")).thenReturn(true);
@@ -153,7 +156,6 @@ public class HawtioSecurityControlImplTest {
 
    @Test
    public void testCanInvokeBulkWithDuplicateMethods() throws Exception {
-      ArtemisMBeanServerGuard guard = Mockito.mock(ArtemisMBeanServerGuard.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       String objectName = "foo.bar.testing:type=SomeMBean";
       Mockito.when(guard.canInvoke(objectName, "duplicateMethod1")).thenReturn(true);

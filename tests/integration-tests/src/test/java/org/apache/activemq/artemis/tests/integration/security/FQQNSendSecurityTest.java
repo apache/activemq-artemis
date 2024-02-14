@@ -54,8 +54,8 @@ public class FQQNSendSecurityTest extends ActiveMQTestBase {
       super.setUp();
       Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       RoleSet roles = new RoleSet();
-      roles.add(new Role(ALLOWED_ROLE, true, false, false, false, false, false, false, false, false, false));
-      roles.add(new Role(DENIED_ROLE, false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role(ALLOWED_ROLE, true, false, false, false, false, false, false, false, false, false, false, false));
+      roles.add(new Role(DENIED_ROLE, false, false, false, false, false, false, false, false, false, false, false, false));
       configuration.putSecurityRoles(CompositeAddress.toFullyQualified(ADDRESS, QUEUE), roles);
 
       ActiveMQServer server = createServer(false, configuration);

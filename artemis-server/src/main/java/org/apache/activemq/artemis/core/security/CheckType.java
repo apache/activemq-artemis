@@ -76,7 +76,38 @@ public enum CheckType {
       public boolean hasRole(final Role role) {
          return role.isBrowse();
       }
+   },
+   VIEW {
+      @Override
+      public boolean hasRole(final Role role) {
+         return role.isView();
+      }
+   },
+   EDIT {
+      @Override
+      public boolean hasRole(final Role role) {
+         return role.isEdit();
+      }
    };
+
+   public static Object[] asObjectArray(Role role) {
+      // order is important!
+      return new Object[]{
+         role.getName(),
+         CheckType.SEND.hasRole(role),
+         CheckType.CONSUME.hasRole(role),
+         CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
+         CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
+         CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
+         CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
+         CheckType.MANAGE.hasRole(role),
+         CheckType.BROWSE.hasRole(role),
+         CheckType.CREATE_ADDRESS.hasRole(role),
+         CheckType.DELETE_ADDRESS.hasRole(role),
+         CheckType.VIEW.hasRole(role),
+         CheckType.EDIT.hasRole(role)
+      };
+   }
 
    public abstract boolean hasRole(Role role);
 }

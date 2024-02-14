@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
-import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -221,7 +220,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             connection.setSubject(subject);
          }
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, connection.getRemoteAddress(), connection.getID().toString());
+            if (connection != null) {
+               AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, connection.getRemoteAddress(), connection.getID().toString());
+            } else {
+               AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, null, null);
+            }
          }
 
          return validatedUser;
@@ -303,7 +306,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
                props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, bareAddress);
                props.putSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE, new SimpleString(checkType.toString()));
-               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
+               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(getCaller(user, session.getRemotingConnection().getSubject())));
 
                Notification notification = new Notification(null, CoreNotificationType.SECURITY_PERMISSION_VIOLATION, props);
 
@@ -312,15 +315,23 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
             Exception ex;
             if (bareQueue == null) {
-               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, bareAddress);
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissions(getCaller(user, session.getRemotingConnection().getSubject()), checkType, bareAddress);
             } else {
-               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, bareQueue, bareAddress);
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(getCaller(user, session.getRemotingConnection().getSubject()), checkType, bareQueue, bareAddress);
             }
             AuditLogger.securityFailure(session.getRemotingConnection().getSubject(), session.getRemotingConnection().getRemoteAddress(), ex.getMessage(), ex);
             throw ex;
          }
 
          // if we get here we're granted, add to the cache
+
+         if (user == null) {
+            // should get all user/pass into a subject and only cache subjects
+            // till then when subject is in play, the user may be null and
+            // we cannot cache as we don't have a unique key
+            return;
+         }
+
          ConcurrentHashSet<SimpleString> set;
          String key = createAuthorizationCacheKey(user, checkType);
          ConcurrentHashSet<SimpleString> act = getAuthorizationCacheEntry(key);
@@ -340,19 +351,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       // we don't invalidate the authentication cache here because it's not necessary
    }
 
-   public static String getUserFromSubject(Subject subject) {
-      if (subject == null) {
-         return null;
-      }
+   public String getUserFromSubject(Subject subject) {
+      return securityManager.getUserFromSubject(subject);
+   }
 
-      String validatedUser = "";
-      Set<UserPrincipal> users = subject.getPrincipals(UserPrincipal.class);
-
-      // should only ever be 1 UserPrincipal
-      for (UserPrincipal userPrincipal : users) {
-         validatedUser = userPrincipal.getName();
+   public String getCaller(String user, Subject subject) {
+      if (user != null) {
+         return user;
       }
-      return validatedUser;
+      return getUserFromSubject(subject);
    }
 
    /**
@@ -390,7 +397,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
 
       if (AuditLogger.isResourceLoggingEnabled()) {
-         AuditLogger.userFailedAuthenticationInAudit(null, e.getMessage(), connection.getID().toString());
+         AuditLogger.userFailedAuthenticationInAudit(null, e.getMessage(), connection == null ? "null" : connection.getID().toString());
       }
 
       throw e;

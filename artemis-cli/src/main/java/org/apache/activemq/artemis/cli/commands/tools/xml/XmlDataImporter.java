@@ -321,7 +321,7 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       for (String queue : queues) {
-         long queueID;
+         long queueID = -1;
 
          if (queueIDs.containsKey(queue)) {
             queueID = queueIDs.get(queue);
@@ -337,17 +337,27 @@ public final class XmlDataImporter extends ActionAbstract {
                   logger.debug("Requesting ID for: {}", queue);
                }
                ClientMessage reply = requestor.request(managementMessage);
-               Number idObject = (Number) ManagementHelper.getResult(reply);
-               queueID = idObject.longValue();
+               if (ManagementHelper.hasOperationSucceeded(reply)) {
+                  Number idObject = (Number) ManagementHelper.getResult(reply);
+                  queueID = idObject.longValue();
+               } else {
+                  if (debugLog) {
+                     logger.debug("Failed to get ID for {}, reply: {}", queue, ManagementHelper.getResult(reply, String.class));
+                  }
+               }
             }
 
             if (debugLog) {
                logger.debug("ID for {} is: {}", queue, queueID);
             }
-            queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
+            if (queueID != -1) {
+               queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
+            }
          }
 
-         buffer.putLong(queueID);
+         if (queueID != -1) {
+            buffer.putLong(queueID);
+         }
          if (debugLog) {
             debugLogMessage.append(queue).append(", ");
          }

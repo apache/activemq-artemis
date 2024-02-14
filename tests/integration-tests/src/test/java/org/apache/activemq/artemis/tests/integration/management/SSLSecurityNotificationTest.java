@@ -114,7 +114,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
 
@@ -153,7 +153,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testCONNECTION_CREATED() throws Exception {
-      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
@@ -208,7 +208,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);

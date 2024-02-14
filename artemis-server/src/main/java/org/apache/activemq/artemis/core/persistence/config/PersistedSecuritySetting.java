@@ -50,6 +50,10 @@ public class PersistedSecuritySetting implements EncodingSupport {
 
    private SimpleString deleteAddressRoles;
 
+   private SimpleString viewRoles;
+
+   private SimpleString editRoles;
+
 
    public PersistedSecuritySetting() {
    }
@@ -66,6 +70,8 @@ public class PersistedSecuritySetting implements EncodingSupport {
     * @param browseRoles
     * @param createAddressRoles
     * @param deleteAddressRoles
+    * @param viewRoles
+    * @param editRoles
     */
    public PersistedSecuritySetting(final String addressMatch,
                                    final String sendRoles,
@@ -77,7 +83,9 @@ public class PersistedSecuritySetting implements EncodingSupport {
                                    final String manageRoles,
                                    final String browseRoles,
                                    final String createAddressRoles,
-                                   final String deleteAddressRoles) {
+                                   final String deleteAddressRoles,
+                                   final String viewRoles,
+                                   final String editRoles) {
       super();
       this.addressMatch = SimpleString.toSimpleString(addressMatch);
       this.sendRoles = SimpleString.toSimpleString(sendRoles);
@@ -90,6 +98,8 @@ public class PersistedSecuritySetting implements EncodingSupport {
       this.browseRoles = SimpleString.toSimpleString(browseRoles);
       this.createAddressRoles = SimpleString.toSimpleString(createAddressRoles);
       this.deleteAddressRoles = SimpleString.toSimpleString(deleteAddressRoles);
+      this.viewRoles = SimpleString.toSimpleString(viewRoles);
+      this.editRoles = SimpleString.toSimpleString(editRoles);
    }
 
 
@@ -112,70 +122,83 @@ public class PersistedSecuritySetting implements EncodingSupport {
     * @return the sendRoles
     */
    public String getSendRoles() {
-      return sendRoles != null ? sendRoles.toString() : null;
+      return stringFrom(sendRoles);
    }
 
    /**
     * @return the consumeRoles
     */
    public String getConsumeRoles() {
-      return consumeRoles != null ? consumeRoles.toString() : null;
+      return stringFrom(consumeRoles);
    }
 
    /**
     * @return the createDurableQueueRoles
     */
    public String getCreateDurableQueueRoles() {
-      return createDurableQueueRoles != null ? createDurableQueueRoles.toString() : null;
+      return stringFrom(createDurableQueueRoles);
    }
 
    /**
     * @return the deleteDurableQueueRoles
     */
    public String getDeleteDurableQueueRoles() {
-      return deleteDurableQueueRoles != null ? deleteDurableQueueRoles.toString() : null;
+      return stringFrom(deleteDurableQueueRoles);
    }
 
    /**
     * @return the createNonDurableQueueRoles
     */
    public String getCreateNonDurableQueueRoles() {
-      return createNonDurableQueueRoles != null ? createNonDurableQueueRoles.toString() : null;
+      return stringFrom(createNonDurableQueueRoles);
    }
 
    /**
     * @return the deleteNonDurableQueueRoles
     */
    public String getDeleteNonDurableQueueRoles() {
-      return deleteNonDurableQueueRoles != null ? deleteNonDurableQueueRoles.toString() : null;
+      return stringFrom(deleteNonDurableQueueRoles);
    }
 
    /**
     * @return the manageRoles
     */
    public String getManageRoles() {
-      return manageRoles != null ? manageRoles.toString() : null;
+      return stringFrom(manageRoles);
    }
 
    /**
     * @return the browseRoles
     */
    public String getBrowseRoles() {
-      return browseRoles != null ? browseRoles.toString() : null;
+      return stringFrom(browseRoles);
    }
 
    /**
     * @return the createAddressRoles
     */
    public String getCreateAddressRoles() {
-      return createAddressRoles != null ? createAddressRoles.toString() : null;
+      return stringFrom(createAddressRoles);
    }
 
    /**
     * @return the deleteAddressRoles
     */
    public String getDeleteAddressRoles() {
-      return deleteAddressRoles != null ? deleteAddressRoles.toString() : null;
+      return stringFrom(deleteAddressRoles);
+   }
+
+
+   public String getViewRoles() {
+      return stringFrom(viewRoles);
+   }
+
+   public String getEditRoles() {
+      return stringFrom(editRoles);
+   }
+
+   private String stringFrom(SimpleString possiblyNullSimpleString) {
+      return possiblyNullSimpleString != null ? possiblyNullSimpleString.toString() : null;
    }
 
    @Override
@@ -194,6 +217,8 @@ public class PersistedSecuritySetting implements EncodingSupport {
       buffer.writeNullableSimpleString(browseRoles);
       buffer.writeNullableSimpleString(createAddressRoles);
       buffer.writeNullableSimpleString(deleteAddressRoles);
+      buffer.writeNullableSimpleString(viewRoles);
+      buffer.writeNullableSimpleString(editRoles);
    }
 
    @Override
@@ -209,7 +234,9 @@ public class PersistedSecuritySetting implements EncodingSupport {
          (manageRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(manageRoles)) +
          (browseRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(browseRoles)) +
          (createAddressRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(createAddressRoles)) +
-         (deleteAddressRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(deleteAddressRoles));
+         (deleteAddressRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(deleteAddressRoles)) +
+         (viewRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(viewRoles)) +
+         (editRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(editRoles));
    }
 
    @Override
@@ -225,6 +252,8 @@ public class PersistedSecuritySetting implements EncodingSupport {
       browseRoles = buffer.readNullableSimpleString();
       createAddressRoles = buffer.readNullableSimpleString();
       deleteAddressRoles = buffer.readNullableSimpleString();
+      viewRoles = buffer.readNullableSimpleString();
+      editRoles = buffer.readNullableSimpleString();
    }
 
    /* (non-Javadoc)
@@ -245,6 +274,8 @@ public class PersistedSecuritySetting implements EncodingSupport {
       result = prime * result + ((createAddressRoles == null) ? 0 : createAddressRoles.hashCode());
       result = prime * result + ((deleteAddressRoles == null) ? 0 : deleteAddressRoles.hashCode());
       result = prime * result + ((sendRoles == null) ? 0 : sendRoles.hashCode());
+      result = prime * result + ((viewRoles == null) ? 0 : viewRoles.hashCode());
+      result = prime * result + ((editRoles == null) ? 0 : editRoles.hashCode());
       result = prime * result + (int) (storeId ^ (storeId >>> 32));
       return result;
    }
@@ -316,6 +347,16 @@ public class PersistedSecuritySetting implements EncodingSupport {
             return false;
       } else if (!sendRoles.equals(other.sendRoles))
          return false;
+      if (viewRoles == null) {
+         if (other.viewRoles != null)
+            return false;
+      } else if (!viewRoles.equals(other.viewRoles))
+         return false;
+      if (editRoles == null) {
+         if (other.editRoles != null)
+            return false;
+      } else if (!editRoles.equals(other.editRoles))
+         return false;
       if (storeId != other.storeId)
          return false;
       return true;
@@ -349,6 +390,9 @@ public class PersistedSecuritySetting implements EncodingSupport {
          createAddressRoles +
          ", deleteAddressRoles=" +
          deleteAddressRoles +
+         ", viewRoles=" +
+         viewRoles +
+         ", editRoles=" + editRoles +
          "]";
    }
 

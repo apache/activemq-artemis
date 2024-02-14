@@ -26,7 +26,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase {
 
 
@@ -48,22 +51,22 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
     */
    @Test
    public void testSendManagementMessageWithClusterAdminUser() throws Exception {
-      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
+      doSendBrokerManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
    }
 
    @Test
    public void testSendManagementMessageWithAdminRole() throws Exception {
-      doSendManagementMessage(validAdminUser, validAdminPassword, true);
+      doSendBrokerManagementMessage(validAdminUser, validAdminPassword, true);
    }
 
    @Test
    public void testSendManagementMessageWithoutAdminRole() throws Exception {
-      doSendManagementMessage(invalidAdminUser, invalidAdminPassword, false);
+      doSendBrokerManagementMessage(invalidAdminUser, invalidAdminPassword, false);
    }
 
    @Test
    public void testSendManagementMessageWithoutUserCredentials() throws Exception {
-      doSendManagementMessage(null, null, false);
+      doSendBrokerManagementMessage(null, null, false);
    }
 
 
@@ -83,10 +86,10 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       securityManager.getConfiguration().addRole(invalidAdminUser, "guest");
 
       Set<Role> adminRole = securityRepository.getMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString());
-      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true, true));
+      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true, true, managementRbac, managementRbac));
       securityRepository.addMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString(), adminRole);
       Set<Role> guestRole = securityRepository.getMatch("*");
-      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true, true));
+      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true, true, false, false));
       securityRepository.addMatch("*", guestRole);
 
       return server;

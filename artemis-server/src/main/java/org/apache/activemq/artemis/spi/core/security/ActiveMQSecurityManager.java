@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
+import javax.security.auth.Subject;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 
 /**
  * Use to validate whether a user has is valid to connect to the server and perform certain
@@ -62,5 +65,9 @@ public interface ActiveMQSecurityManager {
     */
    default ActiveMQSecurityManager init(Map<String, String> properties) {
       return this;
+   }
+
+   default String getUserFromSubject(Subject subject) {
+      return SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class);
    }
 }

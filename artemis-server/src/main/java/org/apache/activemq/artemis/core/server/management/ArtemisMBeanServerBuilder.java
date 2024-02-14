@@ -51,7 +51,7 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
    private static final class MBeanInvocationHandler implements InvocationHandler {
 
       private final MBeanServer wrapped;
-      private final List<String> guarded = Collections.unmodifiableList(Arrays.asList("invoke", "getAttribute", "getAttributes", "setAttribute", "setAttributes"));
+      private final List<String> guarded = Collections.unmodifiableList(Arrays.asList("invoke", "getAttribute", "getAttributes", "setAttribute", "setAttributes", "queryMBeans"));
 
       MBeanInvocationHandler(MBeanServer mbeanServer) {
          wrapped = mbeanServer;
@@ -74,9 +74,6 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
                throw new IllegalStateException("ArtemisMBeanServerBuilder not initialized");
             }
             guard.invoke(proxy, method, args);
-         }
-         if (method.getName().equals("queryMBeans")) {
-            guard.invoke(wrapped, method, args);
          }
          if (method.getName().equals("equals")
                && method.getParameterTypes().length == 1

@@ -21,22 +21,25 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class SecurityManagementWithDefaultConfigurationTest extends SecurityManagementTestBase {
 
    @Test
    public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception {
-      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), ActiveMQDefaultConfiguration.getDefaultClusterPassword(), true);
+      doSendBrokerManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), ActiveMQDefaultConfiguration.getDefaultClusterPassword(), true);
    }
 
    @Test
    public void testSendManagementMessageWithGuest() throws Exception {
-      doSendManagementMessage("guest", "guest", false);
+      doSendBrokerManagementMessage("guest", "guest", false);
    }
 
    @Test
    public void testSendManagementMessageWithoutUserCredentials() throws Exception {
-      doSendManagementMessage(null, null, false);
+      doSendBrokerManagementMessage(null, null, false);
    }
 
 

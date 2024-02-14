@@ -1496,4 +1496,17 @@ public interface Configuration {
    Configuration setLargeMessageSync(boolean largeMessageSync);
 
    boolean isLargeMessageSync();
+
+   String getViewPermissionMethodMatchPattern();
+
+   void setViewPermissionMethodMatchPattern(String permissionMatchPattern);
+
+   boolean isManagementMessageRbac();
+
+   void setManagementMessageRbac(boolean val);
+
+   String getManagementRbacPrefix();
+
+   void setManagementRbacPrefix(String prefix);
+
 }
