@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -3278,6 +3279,196 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.close();
 
          server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationAddressDemandTrackedWhenRemoteRejectsInitialAttempts() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes("test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final Topic topic = session.createTopic("test");
+
+            connection.start();
+
+            // First consumer we reject the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .respondInKind()
+                               .withNullSource();
+            peer.expectFlow().withLinkCredit(1000);
+            peer.remoteDetach().withErrorCondition("amqp:not-found", "the requested queue was not found").queue().afterDelay(10);
+            peer.expectDetach();
+
+            final MessageConsumer consumer1 = session.createConsumer(topic);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Second consumer we reject the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .respondInKind()
+                               .withNullSource();
+            peer.expectFlow().withLinkCredit(1000);
+            peer.remoteDetach().withErrorCondition("amqp:not-found", "the requested queue was not found").queue().afterDelay(10);
+            peer.expectDetach();
+
+            final MessageConsumer consumer2 = session.createConsumer(topic);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Third consumer we accept the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .respondInKind();
+            peer.expectFlow().withLinkCredit(1000);
+
+            final MessageConsumer consumer3 = session.createConsumer(topic);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer3.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer2.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            // Demand should be gone now
+            consumer1.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationAddressDemandTrackedWhenPluginBlocksInitialAttempts() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes("test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final AtomicInteger blockUntilZero = new AtomicInteger(2);
+         final AMQPTestFederationBrokerPlugin federationPlugin = new AMQPTestFederationBrokerPlugin();
+         federationPlugin.shouldCreateConsumerForDivert = (d, q) -> true;
+         federationPlugin.shouldCreateConsumerForQueue = (q) -> true;
+         federationPlugin.shouldCreateConsumerForAddress = (a) -> {
+            return blockUntilZero.getAndDecrement() == 0;
+         };
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.registerBrokerPlugin(federationPlugin);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final Topic topic = session.createTopic("test");
+
+            connection.start();
+
+            final MessageConsumer consumer1 = session.createConsumer(topic);
+            final MessageConsumer consumer2 = session.createConsumer(topic);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Third consumer we expect the plugin to allow the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .respondInKind();
+            peer.expectFlow().withLinkCredit(1000);
+
+            final MessageConsumer consumer3 = session.createConsumer(topic);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer3.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer2.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            // Demand should be gone now
+            consumer1.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
       }
    }
 

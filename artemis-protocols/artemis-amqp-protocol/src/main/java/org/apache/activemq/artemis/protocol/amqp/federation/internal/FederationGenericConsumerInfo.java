@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.protocol.amqp.federation.internal;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -48,6 +49,7 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
    private final String filterString;
    private final String fqqn;
    private final int priority;
+   private final String id;
 
    protected FederationGenericConsumerInfo(Role role, String address, String queueName, RoutingType routingType,
                                            String filterString, String fqqn, int priority) {
@@ -58,6 +60,7 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
       this.filterString = filterString;
       this.fqqn = fqqn;
       this.priority = priority;
+      this.id = UUID.randomUUID().toString();
    }
 
    /**
@@ -114,6 +117,11 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
                                                filterString,
                                                CompositeAddress.toFullyQualified(address, queueName),
                                                ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
+   }
+
+   @Override
+   public String getId() {
+      return id;
    }
 
    @Override

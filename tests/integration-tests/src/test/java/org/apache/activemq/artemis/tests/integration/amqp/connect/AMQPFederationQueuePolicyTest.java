@@ -59,6 +59,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -71,6 +78,7 @@ import javax.jms.Message;
 import javax.jms.Queue;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -80,10 +88,15 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.ActiveMQServerAMQPFederationPlugin;
+import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
@@ -3249,6 +3262,200 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test(timeout = 20000)
+   public void testFederationQueueDemandTrackedWhenRemoteRejectsInitialAttempts() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes("test", "test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final Queue queue = session.createQueue("test");
+
+            connection.start();
+
+            // First consumer we reject the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                               .respondInKind()
+                               .withNullSource();
+            peer.expectFlow().withLinkCredit(1000);
+            peer.remoteDetach().withErrorCondition("amqp:not-found", "the requested queue was not found").queue().afterDelay(10);
+            peer.expectDetach();
+
+            final MessageConsumer consumer1 = session.createConsumer(queue);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Second consumer we reject the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                               .respondInKind()
+                               .withNullSource();
+            peer.expectFlow().withLinkCredit(1000);
+            peer.remoteDetach().withErrorCondition("amqp:not-found", "the requested queue was not found").queue().afterDelay(10);
+            peer.expectDetach();
+
+            final MessageConsumer consumer2 = session.createConsumer(queue);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Third consumer we accept the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                               .respond()
+                               .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+            peer.expectFlow().withLinkCredit(1000);
+
+            final MessageConsumer consumer3 = session.createConsumer(queue);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer3.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer2.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            // Demand should be gone now
+            consumer1.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationQueueDemandTrackedWhenPluginBlocksInitialAttempts() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes("test", "test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName("sample-federation");
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final AtomicInteger blockUntilZero = new AtomicInteger(2);
+         final AMQPTestFederationBrokerPlugin federationPlugin = new AMQPTestFederationBrokerPlugin();
+         federationPlugin.shouldCreateConsumerForDivert = (d, q) -> true;
+         federationPlugin.shouldCreateConsumerForQueue = (q) -> {
+            return blockUntilZero.getAndDecrement() == 0;
+         };
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.registerBrokerPlugin(federationPlugin);
+         server.start();
+         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+                                                          .setAddress("test")
+                                                          .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final Queue queue = session.createQueue("test");
+
+            connection.start();
+
+            final MessageConsumer consumer1 = session.createConsumer(queue);
+            final MessageConsumer consumer2 = session.createConsumer(queue);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Third consumer we expect the plugin to allow the federation attempt
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                               .respondInKind();
+            peer.expectFlow().withLinkCredit(1000);
+
+            final MessageConsumer consumer3 = session.createConsumer(queue);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer3.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand should remain
+            consumer2.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            // Demand should be gone now
+            consumer1.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
+      }
+   }
+
    private static void sendQueueAddedEvent(ProtonTestPeer peer, String address, String queue, int handle, int deliveryId) {
       final Map<String, Object> eventMap = new LinkedHashMap<>();
       eventMap.put(REQUESTED_ADDRESS_NAME, address);
@@ -3440,6 +3647,84 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                .withAddress(notNullValue())
                             .also()
                             .withOfferedCapability(FEDERATION_EVENT_LINK.toString());
+      }
+   }
+
+   private class AMQPTestFederationBrokerPlugin implements ActiveMQServerAMQPFederationPlugin {
+
+      public final AtomicBoolean started = new AtomicBoolean();
+      public final AtomicBoolean stopped = new AtomicBoolean();
+
+      public final AtomicReference<FederationConsumerInfo> beforeCreateConsumerCapture = new AtomicReference<>();
+      public final AtomicReference<FederationConsumer> afterCreateConsumerCapture = new AtomicReference<>();
+      public final AtomicReference<FederationConsumer> beforeCloseConsumerCapture = new AtomicReference<>();
+      public final AtomicReference<FederationConsumer> afterCloseConsumerCapture = new AtomicReference<>();
+
+      public Consumer<FederationConsumerInfo> beforeCreateConsumer = (c) -> beforeCreateConsumerCapture.set(c);;
+      public Consumer<FederationConsumer> afterCreateConsumer = (c) -> afterCreateConsumerCapture.set(c);
+      public Consumer<FederationConsumer> beforeCloseConsumer = (c) -> beforeCloseConsumerCapture.set(c);
+      public Consumer<FederationConsumer> afterCloseConsumer = (c) -> afterCloseConsumerCapture.set(c);
+
+      public BiConsumer<FederationConsumer, org.apache.activemq.artemis.api.core.Message> beforeMessageHandled = (c, m) -> { };
+      public BiConsumer<FederationConsumer, org.apache.activemq.artemis.api.core.Message> afterMessageHandled = (c, m) -> { };
+
+      public Function<AddressInfo, Boolean> shouldCreateConsumerForAddress = (a) -> true;
+      public Function<org.apache.activemq.artemis.core.server.Queue, Boolean> shouldCreateConsumerForQueue = (q) -> true;
+      public BiFunction<Divert, org.apache.activemq.artemis.core.server.Queue, Boolean> shouldCreateConsumerForDivert = (d, q) -> true;
+
+      @Override
+      public void federationStarted(final Federation federation) throws ActiveMQException {
+         started.set(true);
+      }
+
+      @Override
+      public void federationStopped(final Federation federation) throws ActiveMQException {
+         stopped.set(true);
+      }
+
+      @Override
+      public void beforeCreateFederationConsumer(final FederationConsumerInfo consumerInfo) throws ActiveMQException {
+         beforeCreateConsumer.accept(consumerInfo);
+      }
+
+      @Override
+      public void afterCreateFederationConsumer(final FederationConsumer consumer) throws ActiveMQException {
+         afterCreateConsumer.accept(consumer);
+      }
+
+      @Override
+      public void beforeCloseFederationConsumer(final FederationConsumer consumer) throws ActiveMQException {
+         beforeCloseConsumer.accept(consumer);
+      }
+
+      @Override
+      public void afterCloseFederationConsumer(final FederationConsumer consumer) throws ActiveMQException {
+         afterCloseConsumer.accept(consumer);
+      }
+
+      @Override
+      public void beforeFederationConsumerMessageHandled(final FederationConsumer consumer, org.apache.activemq.artemis.api.core.Message message) throws ActiveMQException {
+         beforeMessageHandled.accept(consumer, message);
+      }
+
+      @Override
+      public void afterFederationConsumerMessageHandled(final FederationConsumer consumer, org.apache.activemq.artemis.api.core.Message message) throws ActiveMQException {
+         afterMessageHandled.accept(consumer, message);
+      }
+
+      @Override
+      public boolean shouldCreateFederationConsumerForAddress(final AddressInfo address) throws ActiveMQException {
+         return shouldCreateConsumerForAddress.apply(address);
+      }
+
+      @Override
+      public boolean shouldCreateFederationConsumerForQueue(final org.apache.activemq.artemis.core.server.Queue queue) throws ActiveMQException {
+         return shouldCreateConsumerForQueue.apply(queue);
+      }
+
+      @Override
+      public boolean shouldCreateFederationConsumerForDivert(Divert divert, org.apache.activemq.artemis.core.server.Queue queue) throws ActiveMQException {
+         return shouldCreateConsumerForDivert.apply(divert, queue);
       }
    }
 }
