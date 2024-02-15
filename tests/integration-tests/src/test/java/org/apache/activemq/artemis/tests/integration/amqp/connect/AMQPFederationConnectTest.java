@@ -102,7 +102,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
 
          // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
@@ -123,7 +123,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          server.getConfiguration().addAMQPConnection(amqpConnection);
          amqpConnection.setUser("user");
@@ -170,7 +170,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          final AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(
-            "testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() +
+            getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() +
             "?amqpCredits=" + AMQP_CREDITS + "&amqpLowCredits=" + AMQP_CREDITS_LOW +
             "&amqpMinLargeMessageSize=" + AMQP_MIN_LARGE_MESSAGE_SIZE);
          amqpConnection.setReconnectAttempts(0);// No reconnects
@@ -201,9 +201,9 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
-         amqpConnection.addElement(new AMQPFederatedBrokerConnectionElement("test"));
+         amqpConnection.addElement(new AMQPFederatedBrokerConnectionElement(getTestName()));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
@@ -242,10 +242,10 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(1);// One reconnects
          amqpConnection.setRetryInterval(200);
-         amqpConnection.addElement(new AMQPFederatedBrokerConnectionElement("test"));
+         amqpConnection.addElement(new AMQPFederatedBrokerConnectionElement(getTestName()));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
@@ -313,11 +313,11 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          sendToQueue.addToExcludes("g", "h");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("test");
+         element.setName(getTestName());
          element.addRemoteQueuePolicy(sendToQueue);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -388,11 +388,11 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          sendToQueue.addToExcludes("g", "h");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("test");
+         element.setName(getTestName());
          element.addRemoteQueuePolicy(sendToQueue);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -460,11 +460,11 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          sendToAddress.addToExcludes("exclude");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("test");
+         element.setName(getTestName());
          element.addRemoteAddressPolicy(sendToAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-send-policy", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -533,11 +533,11 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          sendToAddress.addToExcludes("exclude");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("test");
+         element.setName(getTestName());
          element.addRemoteAddressPolicy(sendToAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-send-policy", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -554,7 +554,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemote(peer, "test");
+         scriptFederationConnectToRemote(peer, getTestName());
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -575,7 +575,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemote(peer, "test", false, null, null, true, false);
+         scriptFederationConnectToRemote(peer, getTestName(), false, null, null, true, false);
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -596,7 +596,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemote(peer, "test", false, null, null, false, true);
+         scriptFederationConnectToRemote(peer, getTestName(), false, null, null, false, true);
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -617,7 +617,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemote(peer, "test", false, null, null, true, true);
+         scriptFederationConnectToRemote(peer, getTestName(), false, null, null, true, true);
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -639,7 +639,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemote(peer, "test", fullUser, fullPass);
+         scriptFederationConnectToRemote(peer, getTestName(), fullUser, fullPass);
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -661,7 +661,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
-         scriptFederationConnectToRemoteNotAuthorizedForControlAddress(peer, "test", guestUser, guestPass);
+         scriptFederationConnectToRemoteNotAuthorizedForControlAddress(peer, getTestName(), guestUser, guestPass);
          peer.connect("localhost", AMQP_PORT);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);

@@ -173,11 +173,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -193,7 +193,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -268,11 +268,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -288,7 +288,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -343,11 +343,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addProperty(RECEIVER_CREDITS_LOW, "5");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -363,7 +363,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -417,11 +417,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -439,7 +439,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -532,11 +532,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -552,7 +552,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -611,11 +611,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -631,7 +631,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -697,11 +697,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -717,7 +717,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -771,11 +771,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -786,7 +786,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -813,7 +813,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -862,11 +862,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -888,7 +888,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -944,11 +944,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -970,7 +970,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1034,11 +1034,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1060,7 +1060,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1118,11 +1118,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("myFederations");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1149,7 +1149,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("myFederations"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("source"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1207,11 +1207,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("myFederations");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1238,7 +1238,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("myFederations"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("source"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1298,11 +1298,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1324,7 +1324,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("source"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1380,11 +1380,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1407,7 +1407,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -1468,11 +1468,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -1483,7 +1483,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -2108,11 +2108,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -2123,7 +2123,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -2186,12 +2186,12 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(
-               "test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() + "?amqpCredits=0");
+               getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() + "?amqpCredits=0");
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -2395,11 +2395,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setAutostart(false);
          amqpConnection.addElement(element);
@@ -2444,7 +2444,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().withLinkCredit(10);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -2501,11 +2501,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setAutostart(false);
          amqpConnection.addElement(element);
@@ -2560,7 +2560,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().withLinkCredit(10);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -2609,11 +2609,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setAutostart(false);
          amqpConnection.addElement(element);
@@ -2673,7 +2673,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().withLinkCredit(10);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -2740,11 +2740,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setEnableDivertBindings(true);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(5);
          amqpConnection.addElement(element);
 
@@ -2795,7 +2795,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectAttach().ofReceiver()
                                .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                               .withName(allOf(containsString("sample-federation"),
+                               .withName(allOf(containsString(getTestName()),
                                                containsString("test"),
                                                containsString("address-receiver"),
                                                containsString(server.getNodeID().toString())))
@@ -2880,12 +2880,12 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          remoteReceiveFromAddress.setMaxHops(5);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(localReceiveFromAddress);
          element.addRemoteAddressPolicy(remoteReceiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -2950,11 +2950,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          remoteReceiveFromAddress.setMaxHops(5);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addRemoteAddressPolicy(remoteReceiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -3070,11 +3070,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -3091,7 +3091,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          // Reject the initial attempt
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -3112,7 +3112,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString("sample-federation"),
+                            .withName(allOf(containsString(getTestName()),
                                             containsString("test"),
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
@@ -3159,11 +3159,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -3306,11 +3306,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -3407,11 +3407,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.addToIncludes("test");
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-         element.setName("sample-federation");
+         element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 

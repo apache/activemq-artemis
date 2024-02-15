@@ -129,11 +129,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localAddressPolicy.setAutoDeleteMessageCount(-1L);
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalAddressPolicy(localAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -199,11 +199,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localAddressPolicy.setEnableDivertBindings(true);
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalAddressPolicy(localAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -274,11 +274,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localQueuePolicy.addToIncludes("#", "test");
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalQueuePolicy(localQueuePolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-queue-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -345,11 +345,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       remoteAddressPolicy.setAutoDeleteMessageCount(-1L);
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addRemoteAddressPolicy(remoteAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -411,11 +411,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       remoteQueuePolicy.addToIncludes("#", "test");
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addRemoteQueuePolicy(remoteQueuePolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-queue-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -483,11 +483,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       remoteAddressPolicy.setEnableDivertBindings(true);
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addRemoteAddressPolicy(remoteAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -571,11 +571,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localAddressPolicy.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(enableCoreTunneling));
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalAddressPolicy(localAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -662,11 +662,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localQueuePolicy.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(enableCoreTunneling));
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalQueuePolicy(localQueuePolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-queue-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
@@ -761,23 +761,23 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localAddressPolicy.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(enableCoreTunneling));
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("hops-test");
+      element.setName(getTestName());
       element.addLocalAddressPolicy(localAddressPolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection1 =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection1.setReconnectAttempts(10);// Limit reconnects
       amqpConnection1.setRetryInterval(100);
       amqpConnection1.addElement(element);
 
       final AMQPBrokerConnectConfiguration amqpConnection2 =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER2_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER2_PORT_REMOTE);
       amqpConnection2.setReconnectAttempts(10);// Limit reconnects
       amqpConnection1.setRetryInterval(100);
       amqpConnection2.addElement(element);
 
       final AMQPBrokerConnectConfiguration amqpConnection3 =
-         new AMQPBrokerConnectConfiguration("test-address-federation", "tcp://localhost:" + SERVER_PORT);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT);
       amqpConnection3.setReconnectAttempts(10);// Limit reconnects
       amqpConnection1.setRetryInterval(100);
       amqpConnection3.addElement(element);
@@ -941,11 +941,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localQueuePolicy.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(enableCoreTunneling));
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
-      element.setName("test");
+      element.setName(getTestName());
       element.addLocalQueuePolicy(localQueuePolicy);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
-         new AMQPBrokerConnectConfiguration("test-queue-federation", "tcp://localhost:" + SERVER_PORT_REMOTE);
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
       amqpConnection.setReconnectAttempts(10);// Limit reconnects
       amqpConnection.addElement(element);
 
