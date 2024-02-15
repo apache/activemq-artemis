@@ -96,7 +96,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
 
          // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
          server.getConfiguration().addAMQPConnection(amqpConnection);
@@ -129,7 +129,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -160,7 +160,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
 
          // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
          server.getConfiguration().addAMQPConnection(amqpConnection);
@@ -196,7 +196,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -239,7 +239,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          logger.info("Connect test started, peer listening on: {}", remoteURI);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -305,7 +305,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirrorElement.addProperty(TUNNEL_CORE_MESSAGES, Boolean.toString(tunneling));
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -369,7 +369,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirrorElement.setQueueCreation(true);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -432,7 +432,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirrorElement.setQueueCreation(true);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -495,7 +495,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirrorElement.setQueueCreation(true);
 
          AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -558,7 +558,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirror.setName("test");
 
          AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
@@ -584,7 +584,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
             mirrorUpdated.setName("test");
 
             AMQPBrokerConnectConfiguration amqpConnectionUpdated =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
             amqpConnectionUpdated.setReconnectAttempts(0);// No reconnects
             amqpConnectionUpdated.setUser("user1");
             amqpConnectionUpdated.setPassword("pass1");
@@ -646,7 +646,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          mirror.setName("test");
 
          AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser("user");
          amqpConnection.setPassword("pass");
