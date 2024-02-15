@@ -16,26 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static java.util.EnumSet.of;
+import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
+import static org.hamcrest.CoreMatchers.equalTo;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import io.vertx.core.Vertx;
-import io.vertx.proton.ProtonConnection;
-import io.vertx.proton.ProtonServerOptions;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
@@ -49,62 +44,35 @@ import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorContro
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.apache.activemq.transport.amqp.client.AmqpClient;
-import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.apache.activemq.transport.amqp.client.AmqpValidator;
-import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
-import org.apache.qpid.proton.amqp.transport.ErrorCondition;
-import org.apache.qpid.proton.amqp.transport.Target;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
-import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.impl.ConnectionImpl;
-import org.junit.After;
+import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
+import org.apache.qpid.protonj2.test.driver.ProtonTestPeer;
+import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
+import org.apache.qpid.protonj2.test.driver.matchers.messaging.ApplicationPropertiesMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.messaging.DeliveryAnnotationsMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.messaging.HeaderMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.messaging.MessageAnnotationsMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.messaging.PropertiesMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.transport.TransferPayloadCompositeMatcher;
+import org.apache.qpid.protonj2.test.driver.matchers.types.EncodedAmqpValueMatcher;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static java.util.EnumSet.of;
-import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
 
 /**
- * This test will make sure the Broker connection will react accordingly to a few misconfigs and possible errors on the network of brokers and eventually qipd-dispatch.
+ * This test will make sure the Broker Connection will react accordingly to a few
+ * misconfigs and possible errors on either side of the connection.
  */
 public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static final int AMQP_PORT_2 = 5673;
-   protected Vertx vertx;
-
-   protected MockServer mockServer;
-
-   public void startVerx() {
-      vertx = Vertx.vertx();
-   }
-
-   @After
-   public void stop() throws Exception {
-      if (mockServer != null) {
-         mockServer.close();
-         mockServer = null;
-      }
-      if (vertx != null) {
-         try {
-            CountDownLatch latch = new CountDownLatch(1);
-            vertx.close((x) -> latch.countDown());
-            Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-         } finally {
-            vertx = null;
-         }
-      }
-   }
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
@@ -115,11 +83,12 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     * Connecting to itself should issue an error.
     * and the max retry should still be counted, not just keep connecting forever.
     */
-   @Test
+   @Test(timeout = 30_000)
    public void testConnectItself() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(10).setRetryInterval(1);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + AMQP_PORT);
+         amqpConnection.setReconnectAttempts(10).setRetryInterval(1);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
          server.getConfiguration().addAMQPConnection(amqpConnection);
 
@@ -127,23 +96,24 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
          Assert.assertEquals(1, server.getBrokerConnections().size());
          server.getBrokerConnections().forEach((t) -> Wait.assertFalse(t::isStarted));
-         Wait.assertTrue(() -> loggerHandler.findText("AMQ111001")); // max retry
+         Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"), 5000, 25); // max retry
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-         Thread.sleep(100);
+         Thread.sleep(50);
          Assert.assertFalse(loggerHandler.findText("AMQ111002")); // there shouldn't be a retry after the last failure
          Assert.assertFalse(loggerHandler.findText("AMQ111003")); // there shouldn't be a retry after the last failure
       }
    }
 
-   @Test
+   @Test(timeout = 30_000)
    public void testCloseLinkOnMirror() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          ActiveMQServer server2 = createServer(AMQP_PORT_2, false);
 
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(-1).setRetryInterval(10);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + AMQP_PORT_2);
+         amqpConnection.setReconnectAttempts(1000).setRetryInterval(10);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
          server.getConfiguration().addAMQPConnection(amqpConnection);
 
@@ -197,33 +167,33 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                Assert.assertEquals("message " + i, ((TextMessage) consumer.receive(5000)).getText());
             }
          }
-
       }
    }
 
-   @Test
+   @Test(timeout = 30_000)
    public void testCloseLinkOnSender() throws Exception {
-      testCloseLink(true);
+      doCloseLinkTestImpl(true);
    }
 
-   @Test
+   @Test(timeout = 30_000)
    public void testCloseLinkOnReceiver() throws Exception {
-      testCloseLink(false);
+      doCloseLinkTestImpl(false);
    }
 
-   public void testCloseLink(boolean isSender) throws Exception {
-
+   private void doCloseLinkTestImpl(boolean isSender) throws Exception {
       AtomicInteger errors = new AtomicInteger(0);
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          ActiveMQServer server2 = createServer(AMQP_PORT_2, false);
 
          if (isSender) {
-            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(-1).setRetryInterval(10);
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + AMQP_PORT_2);
+            amqpConnection.setReconnectAttempts(1000).setRetryInterval(10);
             amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress(getQueueName()).setType(AMQPBrokerConnectionAddressType.SENDER));
             server.getConfiguration().addAMQPConnection(amqpConnection);
          } else {
-            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(10);
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + AMQP_PORT);
+            amqpConnection.setReconnectAttempts(1000).setRetryInterval(10);
             amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress(getQueueName()).setType(AMQPBrokerConnectionAddressType.RECEIVER));
             server2.getConfiguration().addAMQPConnection(amqpConnection);
          }
@@ -296,176 +266,119 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
       }
 
       Assert.assertEquals(0, errors.get());
-
    }
 
-   @Test
+   @Test(timeout = 30_000)
    public void testTimeoutOnSenderOpen() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         // Initial attempt
+         expectConnectionButDontRespondToSenderAttach(peer);
+         // Second attempt (reconnect)
+         expectConnectionButDontRespondToSenderAttach(peer);
 
-      startVerx();
+         peer.start();
 
-      ProtonServerOptions serverOptions = new ProtonServerOptions();
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-      mockServer = new MockServer(vertx, serverOptions, null, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnection.closeHandler(x -> serverConnection.close());
-            serverConnection.open();
-         });
-         serverConnection.sessionOpenHandler((s) -> {
-            s.open();
-         });
-         serverConnection.senderOpenHandler((x) -> {
-            x.open();
-         });
-         serverConnection.receiverOpenHandler((x) -> {
-            //x.open(); // I'm missing the open, so it won't ever connect
-         });
-      });
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
-      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(),
+                  "tcp://localhost:" + remoteURI.getPort() + "?connect-timeout-millis=100");
+            amqpConnection.setReconnectAttempts(1).setRetryInterval(100);
+            amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress(getQueueName()).setType(AMQPBrokerConnectionAddressType.SENDER));
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
+            server.getConfiguration().addAMQPConnection(amqpConnection);
+            server.start();
 
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + mockServer.actualPort() + "?connect-timeout-millis=20").setReconnectAttempts(5).setRetryInterval(10);
-         amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress(getQueueName()).setType(AMQPBrokerConnectionAddressType.SENDER));
-         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
-         server.getConfiguration().addAMQPConnection(amqpConnection);
-         server.start();
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-         Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"));
-         Wait.assertEquals(6, () -> loggerHandler.countText("AMQ119020")); // 0..5 == 6
-
-      } finally {
-         mockServer.close();
-      }
-   }
-
-   @Test
-   public void testReconnectAfterSenderOpenTimeout() throws Exception {
-
-      startVerx();
-
-      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-
-         ProtonServerOptions serverOptions = new ProtonServerOptions();
-
-         AtomicInteger countOpen = new AtomicInteger(0);
-         CyclicBarrier startFlag = new CyclicBarrier(2);
-         CountDownLatch blockBeforeOpen = new CountDownLatch(1);
-         AtomicInteger disconnects = new AtomicInteger(0);
-         AtomicInteger messagesReceived = new AtomicInteger(0);
-         AtomicInteger errors = new AtomicInteger(0);
-
-         ConcurrentHashSet<ProtonConnection> connections = new ConcurrentHashSet<>();
-
-         mockServer = new MockServer(vertx, serverOptions, null, serverConnection -> {
-            serverConnection.disconnectHandler(c -> {
-               disconnects.incrementAndGet(); // number of retries
-               connections.remove(c);
-            });
-            serverConnection.openHandler(serverSender -> {
-               serverConnection.closeHandler(x -> {
-                  serverConnection.close();
-                  connections.remove(serverConnection);
-               });
-               serverConnection.open();
-               connections.add(serverConnection);
-            });
-            serverConnection.sessionOpenHandler((s) -> {
-               s.open();
-            });
-            serverConnection.senderOpenHandler((x) -> {
-               x.open();
-            });
-            serverConnection.receiverOpenHandler((x) -> {
-               if (countOpen.incrementAndGet() > 2) {
-                  if (countOpen.get() == 3) {
-                     try {
-                        startFlag.await(10, TimeUnit.SECONDS);
-                        blockBeforeOpen.await(10, TimeUnit.SECONDS);
-                        return;
-                     } catch (Throwable ignored) {
-                     }
-                  }
-                  HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
-                  brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, "fake-id");
-                  x.setProperties(brokerIDProperties);
-                  x.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
-                  x.setTarget(x.getRemoteTarget());
-                  x.open();
-                  x.handler((del, msg) -> {
-                     if (msg.getApplicationProperties() != null) {
-                        Map map = msg.getApplicationProperties().getValue();
-                        Object value = map.get("sender");
-                        if (value != null) {
-                           if (messagesReceived.get() != ((Integer) value).intValue()) {
-                              logger.warn("Message out of order. Expected {} but received {}", messagesReceived.get(), value);
-                              errors.incrementAndGet();
-                           }
-                           messagesReceived.incrementAndGet();
-                        }
-                     }
-                  });
-               }
-            });
-         });
-
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + mockServer.actualPort() + "?connect-timeout-millis=1000").setReconnectAttempts(10).setRetryInterval(10);
-         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
-         server.getConfiguration().addAMQPConnection(amqpConnection);
-         server.start();
-
-         startFlag.await(10, TimeUnit.SECONDS);
-         blockBeforeOpen.countDown();
-
-         Wait.assertEquals(2, disconnects::intValue);
-         Wait.assertEquals(1, connections::size);
-
-         Wait.assertEquals(3, () -> loggerHandler.countText("AMQ119020"));
-
-         ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
-         try (Connection connection = factory.createConnection()) {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
-            for (int i = 0; i < 100; i++) {
-               TextMessage message = session.createTextMessage("hello");
-               message.setIntProperty("sender", i);
-               producer.send(message);
-            }
+            assertEquals(2, loggerHandler.countText("AMQ119020")); // Initial + reconnect
+            assertEquals(1, loggerHandler.countText("AMQ111001"));
          }
-
-         Wait.assertEquals(100, messagesReceived::intValue, 5000);
-         Assert.assertEquals(0, errors.get(), 5000);
       }
    }
 
-   @Test
+   @Test(timeout = 30_000)
+   public void testReconnectAfterSenderOpenTimeout() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         // Initial attempt, times out
+         expectConnectionButDontRespondToSenderAttach(peer);
+         // Second attempt, times out (reconnect)
+         expectConnectionButDontRespondToSenderAttach(peer);
+
+         // Third attempt, succeeds (reconnect)
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().respondInKind()
+                            .withProperty(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+         peer.remoteFlow().withLinkCredit(1000).queue();
+         peer.expectTransfer().accept(); // Notification address create
+         peer.expectTransfer().accept(); // Address create for odd MQTT address
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(),
+                  "tcp://localhost:" + remoteURI.getPort() + "?connect-timeout-millis=100");
+            amqpConnection.setReconnectAttempts(10).setRetryInterval(100);
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
+
+            server.getConfiguration().addAMQPConnection(amqpConnection);
+            server.start();
+
+            int msgCount = 10;
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            peer.expectTransfer().accept(); // Address create
+            peer.expectTransfer().accept(); // Queue create
+            for (int i = 0; i < msgCount; ++i) {
+               expectMirroredJMSMessage(peer, i);
+            }
+
+            Wait.assertEquals(2, () -> loggerHandler.countText("AMQ119020"), 2000, 25);
+
+            sendJMSMessage(msgCount, getQueueName());
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+      }
+   }
+
+   @Test(timeout = 30_000)
    public void testNoServerOfferedMirrorCapability() throws Exception {
-      startVerx();
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         for (int i = 0; i < 3; ++i) {
+            peer.expectSASLAnonymousConnect();
+            peer.expectOpen().respond();
+            peer.expectBegin().respond();
+            peer.expectAttach().ofSender().respond(); // Omits mirror capabilities
+            peer.expectConnectionToDrop();
+         }
+         peer.start();
 
-      mockServer = new MockServer(vertx, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnection.open();
-         });
-         serverConnection.sessionOpenHandler((s) -> {
-            s.open();
-         });
-         serverConnection.senderOpenHandler((x) -> {
-            x.open();
-         });
-         serverConnection.receiverOpenHandler((x) -> {
-            x.setTarget(x.getRemoteTarget());
-            x.open();
-         });
-      });
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+            final AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(
+                  getTestName(), "tcp://localhost:" + remoteURI.getPort() + "?connect-timeout-millis=3000");
+            amqpConnection.setReconnectAttempts(2).setRetryInterval(100);
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
 
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + mockServer.actualPort() + "?connect-timeout-millis=100").setReconnectAttempts(5).setRetryInterval(10);
-         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
-         server.getConfiguration().addAMQPConnection(amqpConnection);
-         server.start();
+            server.getConfiguration().addAMQPConnection(amqpConnection);
+            server.start();
 
-         Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"));
-         Assert.assertEquals(6, loggerHandler.countText("AMQ119018")); // 0..5 = 6
+            Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"));
+            Assert.assertEquals(3, loggerHandler.countText("AMQ119018"));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
       }
    }
 
@@ -474,173 +387,130 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     *
     * @throws Exception
     */
-   @Test
+   @Test(timeout = 30_000)
    public void testReconnectAfterMirrorLinkRefusal() throws Exception {
-      startVerx();
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         // First attempt, refuse
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender().respond().withNullTarget();
+         peer.remoteDetach().withErrorCondition(AmqpError.ILLEGAL_STATE.toString(), "Testing refusal of mirror link for $reasons").queue();
+         peer.expectDetach().optional();
+         peer.expectClose().optional();
+         peer.expectConnectionToDrop();
 
-      AtomicInteger errors = new AtomicInteger(0);
+         // Second attempt, succeeds
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().respondInKind()
+                            .withProperty(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+         peer.remoteFlow().withLinkCredit(1000).queue();
+         peer.expectTransfer().accept(); // Notification address create
+         peer.expectTransfer().accept(); // Address create for odd MQTT address
+         peer.start();
 
-      AtomicInteger messagesReceived = new AtomicInteger(0);
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-      List<ProtonConnection> connections = Collections.synchronizedList(new ArrayList<ProtonConnection>());
-      List<ProtonConnection> disconnected = Collections.synchronizedList(new ArrayList<ProtonConnection>());
-      AtomicInteger refusedLinkMessageCount = new AtomicInteger();
-      AtomicInteger linkOpens = new AtomicInteger(0);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(),
+            "tcp://localhost:" + remoteURI.getPort() + "?connect-timeout-millis=3000");
+         amqpConnection.setReconnectAttempts(1).setRetryInterval(100);
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
 
-      mockServer = new MockServer(vertx, serverConnection -> {
-         serverConnection.disconnectHandler(c -> {
-            disconnected.add(serverConnection);
-         });
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
 
-         serverConnection.openHandler(c -> {
-            connections.add(serverConnection);
-            serverConnection.open();
-         });
+         int msgCount = 10;
 
-         serverConnection.closeHandler(c -> {
-            serverConnection.close();
-            connections.remove(serverConnection);
-         });
-
-         serverConnection.sessionOpenHandler(session -> {
-            session.open();
-         });
-
-         serverConnection.receiverOpenHandler(serverReceiver -> {
-            Target remoteTarget = serverReceiver.getRemoteTarget();
-            String remoteAddress = remoteTarget == null ? null : remoteTarget.getAddress();
-            if (remoteAddress == null || !remoteAddress.startsWith(ProtonProtocolManager.MIRROR_ADDRESS)) {
-               errors.incrementAndGet();
-               logger.warn("Receiving address as {}", remoteAddress);
-               return;
-            }
-            if (linkOpens.incrementAndGet() != 2) {
-               logger.debug("Link Opens::{}", linkOpens);
-               logger.debug("ServerReceiver = {}", serverReceiver.getTarget());
-               serverReceiver.setTarget(null);
-
-               serverReceiver.handler((del, msg) -> {
-                  refusedLinkMessageCount.incrementAndGet();
-                  logger.debug("Should not have got message on refused link: {}", msg);
-               });
-
-               serverReceiver.open();
-
-               vertx.setTimer(20, x -> {
-                  serverReceiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, "Testing refusal of mirror link for $reasons"));
-                  serverReceiver.close();
-               });
-            } else {
-               serverReceiver.setTarget(serverReceiver.getRemoteTarget());
-               HashMap<Symbol, Object> linkProperties = new HashMap<>();
-               linkProperties.put(AMQPMirrorControllerSource.BROKER_ID, "fake-id");
-
-               serverReceiver.setProperties(linkProperties);
-               serverReceiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
-
-               serverReceiver.handler((del, msg) -> {
-                  logger.debug("prefetch = {}, Got message: {}", serverReceiver.getPrefetch(), msg);
-                  if (msg.getApplicationProperties() != null) {
-                     Map map = msg.getApplicationProperties().getValue();
-                     Object value = map.get("sender");
-                     if (value != null) {
-                        if (messagesReceived.get() != ((Integer) value).intValue()) {
-                           logger.warn("Message out of order. Expected {} but received {}", messagesReceived.get(), value);
-                           errors.incrementAndGet();
-                        }
-                        messagesReceived.incrementAndGet();
-                     }
-                  }
-                  del.disposition(Accepted.getInstance(), true);
-                  if (serverReceiver.getPrefetch() == 0) {
-                     serverReceiver.flow(1);
-                  }
-               });
-
-               serverReceiver.open();
-            }
-         });
-      });
-
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + mockServer.actualPort()).setReconnectAttempts(3).setRetryInterval(10);
-      amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement());
-      server.getConfiguration().addAMQPConnection(amqpConnection);
-      server.start();
-
-      Wait.assertEquals(1, disconnected::size, 6000);
-      Wait.assertEquals(2, connections::size, 6000);
-
-      assertSame(connections.get(0), disconnected.get(0));
-      assertFalse(connections.get(1).isDisconnected());
-
-      assertEquals("Should not have got any message on refused link", 0, refusedLinkMessageCount.get());
-      assertEquals(0, errors.get());
-
-      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
-      try (Connection connection = factory.createConnection()) {
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
-         for (int i = 0; i < 100; i++) {
-            TextMessage message = session.createTextMessage("hello");
-            message.setIntProperty("sender", i);
-            producer.send(message);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectTransfer().accept(); // Address create
+         peer.expectTransfer().accept(); // Queue create
+         for (int i = 0; i < msgCount; ++i) {
+            expectMirroredJMSMessage(peer, i);
          }
-      }
 
-      Wait.assertEquals(100, messagesReceived::intValue);
-      assertEquals(0, errors.get()); // Meant to check again. the errors check before was because of connection issues. This one is about duplicates on receiving
+         sendJMSMessage(msgCount,  getQueueName());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
    }
 
-   @Test
+   @Test(timeout = 30_000)
    public void testNoClientDesiredMirrorCapability() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
 
-         AmqpClient client = new AmqpClient(new URI("tcp://localhost:" + AMQP_PORT), null, null);
-         client.setValidator(new AmqpValidator() {
+         final String address = ProtonProtocolManager.getMirrorAddress(getTestName());
 
-            @Override
-            public void inspectOpenedResource(Sender sender) {
-               ErrorCondition condition = sender.getRemoteCondition();
+         try (ProtonTestClient receivingPeer = new ProtonTestClient()) {
+            receivingPeer.queueClientSaslAnonymousConnect();
+            receivingPeer.connect("localhost", AMQP_PORT);
+            receivingPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-               if (condition != null && condition.getCondition() != null) {
-                  if (!condition.getCondition().equals(AmqpError.ILLEGAL_STATE)) {
-                     markAsInvalid("Should have been closed with an illegal state error, but error was: " + condition);
-                  }
-
-                  if (!condition.getDescription().contains("AMQ119024")) {
-                     markAsInvalid("should have indicated the error code about missing a desired capability");
-                  }
-
-                  if (!condition.getDescription().contains(AMQPMirrorControllerSource.MIRROR_CAPABILITY)) {
-                     markAsInvalid("should have indicated the error code about missing a desired capability");
-                  }
-               } else {
-                  markAsInvalid("Sender should have been detached with an error");
-               }
-            }
-         });
-
-         String address = ProtonProtocolManager.getMirrorAddress(getTestName());
-
-         AmqpConnection connection = client.connect();
-         try {
-            AmqpSession session = connection.createSession();
-
-            try {
-               session.createSender(address);
-               fail("Link should have been refused.");
-            } catch (Exception ex) {
-               Assert.assertTrue(ex.getMessage().contains("AMQ119024"));
-               logger.debug("Caught expected exception");
-            }
-
-            connection.getStateInspector().assertValid();
-         } finally {
-            connection.close();
+            receivingPeer.expectOpen();
+            receivingPeer.expectBegin();
+            receivingPeer.expectAttach().withNullTarget();
+            receivingPeer.expectDetach().withError(AmqpError.ILLEGAL_STATE.toString(),
+                                                   Matchers.containsString("AMQ119024"))
+                                        .respond();
+            receivingPeer.remoteOpen().withContainerId("test-sender").now();
+            receivingPeer.remoteBegin().now();
+            receivingPeer.remoteAttach().ofSender()
+                                        .withInitialDeliveryCount(0)
+                                        .withName("mirror-test")
+                                        .withTarget().withAddress(address).also()
+                                        .withSource().and()
+                                        .now();
+            receivingPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          }
 
          Wait.assertTrue(() -> loggerHandler.findText("AMQ119024"));
       }
+   }
+
+   private static void expectConnectionButDontRespondToSenderAttach(ProtonTestServer peer) {
+      peer.expectSASLAnonymousConnect();
+      peer.expectOpen().respond();
+      peer.expectBegin().respond();
+      peer.expectAttach().ofSender(); //No response, causes timeout
+      peer.expectConnectionToDrop();
+   }
+
+   private static void sendJMSMessage(int msgCount, String queueName) throws JMSException {
+      final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+      try (Connection connection = factory.createConnection()) {
+         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         final MessageProducer producer = session.createProducer(session.createQueue(queueName));
+
+         for (int i = 0; i < msgCount; i++) {
+            final TextMessage message = session.createTextMessage("hello");
+
+            message.setIntProperty("sender", i);
+
+            producer.send(message);
+         }
+      }
+   }
+
+   private static void expectMirroredJMSMessage(ProtonTestPeer peer, int sequence) {
+      final HeaderMatcher headerMatcher = new HeaderMatcher(true);
+      final PropertiesMatcher properties = new PropertiesMatcher(true);
+      final DeliveryAnnotationsMatcher daMatcher = new DeliveryAnnotationsMatcher(true);
+      final MessageAnnotationsMatcher annotationsMatcher = new MessageAnnotationsMatcher(true);
+      final ApplicationPropertiesMatcher apMatcher = new ApplicationPropertiesMatcher(true);
+      apMatcher.withEntry("sender", equalTo(sequence));
+      final EncodedAmqpValueMatcher bodyMatcher = new EncodedAmqpValueMatcher("hello");
+      final TransferPayloadCompositeMatcher matcher = new TransferPayloadCompositeMatcher();
+      matcher.setHeadersMatcher(headerMatcher);
+      matcher.setPropertiesMatcher(properties);
+      matcher.setDeliveryAnnotationsMatcher(daMatcher);
+      matcher.setMessageAnnotationsMatcher(annotationsMatcher);
+      matcher.setApplicationPropertiesMatcher(apMatcher);
+      matcher.addMessageContentMatcher(bodyMatcher);
+
+      peer.expectTransfer().withPayload(matcher).accept();
    }
 }

@@ -187,7 +187,6 @@
 
       <!-- used on tests -->
       <groovy.version>4.0.13</groovy.version>
-      <vertx.version>4.5.3</vertx.version>
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
       <mockserver.version>5.15.0</mockserver.version>
 
