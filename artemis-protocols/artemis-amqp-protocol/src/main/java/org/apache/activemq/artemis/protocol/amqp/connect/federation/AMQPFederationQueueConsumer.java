@@ -162,7 +162,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
          if (started) {
             started = false;
             connection.runLater(() -> {
-               federation.removeLinkClosedInterceptor(consumerInfo.getFqqn());
+               federation.removeLinkClosedInterceptor(consumerInfo.getId());
 
                if (receiver != null) {
                   try {
@@ -341,7 +341,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
                   // Intercept remote close and check for valid reasons for remote closure such as
                   // the remote peer not having a matching queue for this subscription or from an
                   // operator manually closing the link.
-                  federation.addLinkClosedInterceptor(consumerInfo.getFqqn(), remoteCloseIntercepter);
+                  federation.addLinkClosedInterceptor(consumerInfo.getId(), remoteCloseIntercepter);
 
                   receiver = new AMQPFederatedQueueDeliveryReceiver(localQueue, protonReceiver);
 

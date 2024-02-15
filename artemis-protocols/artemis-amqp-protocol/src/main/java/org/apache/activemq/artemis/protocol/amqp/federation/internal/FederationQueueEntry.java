@@ -18,9 +18,11 @@
 package org.apache.activemq.artemis.protocol.amqp.federation.internal;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 
 /**
  * An entry type class used to hold a {@link FederationConsumerInternal} and
@@ -29,24 +31,46 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
  * by federation implementation to hold additional state data for the federation
  * consumer and the managing of its lifetime.
  *
- * This entry type provides a reference counter that can be used to register demand
+ * This entry type provides reference tracking state for current demand (bindings)
  * on a federation resource such that it is not torn down until all demand has been
  * removed from the local resource.
  */
 public class FederationQueueEntry {
 
-   private final FederationConsumerInternal consumer;
-
+   private final FederationConsumerInfo consumerInfo;
    private final Set<String> consumerDemand = new HashSet<>();
+
+   private FederationConsumerInternal consumer;
 
    /**
     * Creates a new queue entry with a single reference
     *
-    * @param consumer
-    *    The federation consumer that will be carried in this entry.
+    * @param consumerInfo
+    *       Consumer information object used to define the federation queue consumer
     */
-   public FederationQueueEntry(FederationConsumerInternal consumer) {
-      this.consumer = consumer;
+   public FederationQueueEntry(FederationConsumerInfo consumerInfo) {
+      this.consumerInfo = consumerInfo;
+   }
+
+   /**
+    * @return the name of the queue that this entry tracks demand for.
+    */
+   public String getQueueName() {
+      return consumerInfo.getQueueName();
+   }
+
+   /**
+    * @return the consumer information that defines the properties of federation queue consumers
+    */
+   public FederationConsumerInfo getConsumerInfo() {
+      return consumerInfo;
+   }
+
+   /**
+    * @return <code>true</code> if a consumer is currently set on this entry.
+    */
+   public boolean hasConsumer() {
+      return consumer != null;
    }
 
    /**
@@ -54,6 +78,30 @@ public class FederationQueueEntry {
     */
    public FederationConsumerInternal getConsumer() {
       return consumer;
+   }
+
+   /**
+    * Sets the consumer assigned to this entry to the given instance.
+    *
+    * @param consumer
+    *    The federation consumer that is currently active for this entry.
+    *
+    * @return this federation queue consumer entry.
+    */
+   public FederationQueueEntry setConsumer(FederationConsumerInternal consumer) {
+      Objects.requireNonNull(consumer, "Cannot assign a null consumer to this entry, call clear to unset");
+      this.consumer = consumer;
+      return this;
+   }
+
+   /**
+    * Clears the currently assigned consumer from this entry.
+    *
+    * @return this federation queue consumer entry.
+    */
+   public FederationQueueEntry clearConsumer() {
+      this.consumer = null;
+      return this;
    }
 
    /**

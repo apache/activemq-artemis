@@ -18,42 +18,59 @@
 package org.apache.activemq.artemis.protocol.amqp.federation.internal;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 /**
  * An entry type class used to hold a {@link FederationConsumerInternal} and
  * any other state data needed by the manager that is creating them based on the
- * policy configuration for the federation instance.  The entry can be extended
+ * policy configuration for the federation instance. The entry can be extended
  * by federation implementation to hold additional state data for the federation
- * consumer and the managing of its lifetime.
+ * consumer and the managing active demand.
  *
- * This entry type provides a reference counter that can be used to register demand
+ * This entry type provides reference tracking state for current demand (bindings)
  * on a federation resource such that it is not torn down until all demand has been
  * removed from the local resource.
  */
 public class FederationAddressEntry {
 
-   private final FederationConsumerInternal consumer;
-
+   private final AddressInfo addressInfo;
    private final Set<Binding> demandBindings = new HashSet<>();
 
+   private FederationConsumerInternal consumer;
+
    /**
-    * Creates a new address entry with a single reference
+    * Creates a new address entry for tracking demand on a federated address
     *
-    * @param consumer
-    *    The federation consumer that will be carried in this entry.
+    * @param addressInfo
+    *    The address information object that this entry hold demand state for.
     */
-   public FederationAddressEntry(FederationConsumerInternal consumer) {
-      this.consumer = consumer;
+   public FederationAddressEntry(AddressInfo addressInfo) {
+      this.addressInfo = addressInfo;
+   }
+
+   /**
+    * @return the address information that this entry is acting to federate.
+    */
+   public AddressInfo getAddressInfo() {
+      return addressInfo;
    }
 
    /**
     * @return the address that this entry is acting to federate.
     */
    public String getAddress() {
-      return consumer.getConsumerInfo().getAddress();
+      return addressInfo.getName().toString();
+   }
+
+   /**
+    * @return <code>true</code> if a consumer is currently set on this entry.
+    */
+   public boolean hasConsumer() {
+      return consumer != null;
    }
 
    /**
@@ -61,6 +78,30 @@ public class FederationAddressEntry {
     */
    public FederationConsumerInternal getConsumer() {
       return consumer;
+   }
+
+   /**
+    * Sets the consumer assigned to this entry to the given instance.
+    *
+    * @param consumer
+    *    The federation consumer that is currently active for this entry.
+    *
+    * @return this federation address consumer entry.
+    */
+   public FederationAddressEntry setConsumer(FederationConsumerInternal consumer) {
+      Objects.requireNonNull(consumer, "Cannot assign a null consumer to this entry, call clear to unset");
+      this.consumer = consumer;
+      return this;
+   }
+
+   /**
+    * Clears the currently assigned consumer from this entry.
+    *
+    * @return this federation address consumer entry.
+    */
+   public FederationAddressEntry clearConsumer() {
+      this.consumer = null;
+      return this;
    }
 
    /**
@@ -85,7 +126,7 @@ public class FederationAddressEntry {
     *
     * @return this federation address consumer entry.
     */
-   public FederationAddressEntry removeDenamd(Binding binding) {
+   public FederationAddressEntry removeDemand(Binding binding) {
       demandBindings.remove(binding);
       return this;
    }

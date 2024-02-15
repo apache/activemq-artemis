@@ -39,6 +39,11 @@ public interface FederationConsumerInfo {
    }
 
    /**
+    * @return a unique Id for the consumer being represented.
+    */
+   String getId();
+
+   /**
     * @return the type of federation consumer being represented.
     */
    Role getRole();
