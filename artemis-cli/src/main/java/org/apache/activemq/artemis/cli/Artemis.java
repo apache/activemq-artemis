@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
+import org.apache.activemq.artemis.cli.commands.PWD;
 import org.apache.activemq.artemis.cli.commands.PrintVersion;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
@@ -256,6 +257,8 @@ public class Artemis implements Runnable {
       HelpAction help = new HelpAction();
       help.setCommandLine(commandLine);
       commandLine.addSubcommand(help);
+
+      commandLine.addSubcommand(new PWD());
 
       commandLine.addSubcommand(new AutoCompletion());
 
