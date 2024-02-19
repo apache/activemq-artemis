@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompSubscription;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -50,11 +51,12 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
    @Override
    public StompFrame createMessageFrame(ICoreMessage serverMessage,
                                         StompSubscription subscription,
+                                        ServerConsumer consumer,
                                         int deliveryCount) {
-      StompFrame frame = super.createMessageFrame(serverMessage, subscription, deliveryCount);
+      StompFrame frame = super.createMessageFrame(serverMessage, subscription, consumer, deliveryCount);
 
       if (!subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
-         frame.addHeader(Stomp.Headers.Message.ACK, String.valueOf(serverMessage.getMessageID()));
+         frame.addHeader(Stomp.Headers.Message.ACK, frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
       }
 
       return frame;

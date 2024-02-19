@@ -294,7 +294,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals("a-sub", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
       //'auto' ack mode doesn't require 'ack' header
-      Assert.assertNull(frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE));
+      Assert.assertNull(frame.getHeader(Stomp.Headers.Message.ACK));
 
       Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
 
@@ -901,7 +901,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      String messageID = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String messageID = frame.getHeader(Stomp.Headers.Message.ACK);
 
       nack(conn, messageID + "0");
 
@@ -930,7 +930,7 @@ public class StompV12Test extends StompTestBase {
 
       Assert.assertNotNull(frame);
 
-      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE));
+      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.ACK));
 
       nack(conn, "someother");
 
@@ -957,7 +957,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      String messageID = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String messageID = frame.getHeader(Stomp.Headers.Message.ACK);
 
       Assert.assertNotNull(messageID);
 
@@ -983,7 +983,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      String messageID = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String messageID = frame.getHeader(Stomp.Headers.Message.ACK);
 
       Assert.assertNotNull(messageID);
 
@@ -1045,8 +1045,8 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK);
       //give it a wrong sub id
-      ackFrame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, "sub2");
-      ackFrame.addHeader(Stomp.Headers.Message.MESSAGE_ID, messageID);
+      ackFrame.addHeader(Stomp.Headers.Ack.SUBSCRIPTION, "sub2");
+      ackFrame.addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID);
       ackFrame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, "answer-me");
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
@@ -1079,9 +1079,9 @@ public class StompV12Test extends StompTestBase {
       String messageID = frame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
 
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK);
-      //give it a wrong sub id
-      ackFrame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, "sub1");
-      ackFrame.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(Long.valueOf(messageID) + 1));
+      //give it a wrong message id
+      ackFrame.addHeader(Stomp.Headers.Ack.SUBSCRIPTION, "sub1");
+      ackFrame.addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID + '1');
       ackFrame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, "answer-me");
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
@@ -1378,12 +1378,12 @@ public class StompV12Test extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame();
 
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
-      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
+      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.DESTINATION));
       Assert.assertTrue(frame.getBody().equals(getName()));
       Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
-      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE));
+      Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.ACK));
 
-      String messageID = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String messageID = frame.getHeader(Stomp.Headers.Message.ACK);
 
       beginTransaction(conn, "tx1");
 
@@ -2535,12 +2535,39 @@ public class StompV12Test extends StompTestBase {
       Assert.assertNull(message);
    }
 
+   @Test
+   public void testSameMessageHasDifferentAckIdPerConsumer() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribeTopic(conn, "sub1", "client-individual", null);
+      subscribeTopic(conn, "sub2", "client-individual", null);
+
+      sendJmsMessage(getName(), topic);
+
+      ClientStompFrame frame1 = conn.receiveFrame();
+      String firstAckID = frame1.getHeader(Stomp.Headers.Message.ACK);
+      Assert.assertNotNull(firstAckID);
+
+      ClientStompFrame frame2 = conn.receiveFrame();
+      String secondAckID = frame2.getHeader(Stomp.Headers.Message.ACK);
+      Assert.assertNotNull(secondAckID);
+      Assert.assertTrue(firstAckID + " must not equal " + secondAckID, !firstAckID.equals(secondAckID));
+
+      ack(conn, frame1);
+      ack(conn, frame2);
+
+      unsubscribe(conn, "sub1");
+      unsubscribe(conn, "sub2");
+
+      conn.disconnect();
+   }
+
    private void ack(StompClientConnection conn, ClientStompFrame frame) throws IOException, InterruptedException {
-      String messageID = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String messageID = frame.getHeader(Stomp.Headers.Message.ACK);
 
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK);
 
-      ackFrame.addHeader(Stomp.Headers.Subscribe.ID, messageID);
+      ackFrame.addHeader(Stomp.Headers.Ack.ID, messageID);
 
       ClientStompFrame response = conn.sendFrame(ackFrame);
       if (response != null) {
@@ -2552,14 +2579,14 @@ public class StompV12Test extends StompTestBase {
 
    private void ack(StompClientConnection conn, String mid) throws IOException, InterruptedException {
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK);
-      ackFrame.addHeader(Stomp.Headers.Subscribe.ID, mid);
+      ackFrame.addHeader(Stomp.Headers.Ack.ID, mid);
 
       conn.sendFrame(ackFrame);
    }
 
    private void ack(StompClientConnection conn, String mid, String txID) throws IOException, InterruptedException {
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK);
-      ackFrame.addHeader(Stomp.Headers.Subscribe.ID, mid);
+      ackFrame.addHeader(Stomp.Headers.Ack.ID, mid);
       ackFrame.addHeader(Stomp.Headers.TRANSACTION, txID);
 
       conn.sendFrame(ackFrame);
@@ -2567,7 +2594,7 @@ public class StompV12Test extends StompTestBase {
 
    private void nack(StompClientConnection conn, String mid) throws IOException, InterruptedException {
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.NACK);
-      ackFrame.addHeader(Stomp.Headers.Subscribe.ID, mid);
+      ackFrame.addHeader(Stomp.Headers.Ack.ID, mid);
 
       conn.sendFrame(ackFrame);
    }
