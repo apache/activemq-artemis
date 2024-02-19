@@ -12,9 +12,9 @@ The [ActiveMQ Artemis Examples](https://github.com/apache/activemq-artemis-examp
 
 See the [Hacking Guide](https://activemq.apache.org/components/artemis/documentation/hacking-guide/) for details about modifying the code, building the project, running tests, IDE integration, etc.
 
-## Migrate from ActiveMQ "Classic"
+## Migrate from ActiveMQ Classic
 
-See the [Migration Guide](https://activemq.apache.org/components/artemis/migration-documentation/) for information about the architectural and configuration differences between ActiveMQ "Classic" (i.e. 5.x) and ActiveMQ Artemis.
+See the [Migration Guide](https://activemq.apache.org/components/artemis/migration-documentation/) for information about the architectural and configuration differences between ActiveMQ Classic and ActiveMQ Artemis.
 
 ## Report an Issue
 
