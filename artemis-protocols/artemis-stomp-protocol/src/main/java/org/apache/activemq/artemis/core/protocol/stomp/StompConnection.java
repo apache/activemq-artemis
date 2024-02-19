@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -624,8 +625,9 @@ public final class StompConnection extends AbstractRemotingConnection {
 
    public StompFrame createStompMessage(ICoreMessage message,
                                         StompSubscription subscription,
+                                        ServerConsumer consumer,
                                         int deliveryCount) {
-      return frameHandler.createMessageFrame(message, subscription, deliveryCount);
+      return frameHandler.createMessageFrame(message, subscription, consumer, deliveryCount);
    }
 
    public void addStompEventListener(FrameEventListener listener) {

@@ -2087,4 +2087,31 @@ public class StompTest extends StompTestBase {
 
    }
 
+   @Test
+   public void testSameMessageHasDifferentMessageIdPerConsumer() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribeTopic(conn, "sub1", "client", null);
+      subscribeTopic(conn, "sub2", "client", null);
+
+      sendJmsMessage(getName(), topic);
+
+      ClientStompFrame frame1 = conn.receiveFrame();
+      String firstMessageID = frame1.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      Assert.assertNotNull(firstMessageID);
+
+      ClientStompFrame frame2 = conn.receiveFrame();
+      String secondMessageID = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      Assert.assertNotNull(secondMessageID);
+      Assert.assertTrue(firstMessageID + " must not equal " + secondMessageID, !firstMessageID.equals(secondMessageID));
+
+      ack(conn, "sub1", frame1);
+      ack(conn, "sub2", frame2);
+
+      unsubscribe(conn, "sub1");
+      unsubscribe(conn, "sub2");
+
+      conn.disconnect();
+   }
+
 }

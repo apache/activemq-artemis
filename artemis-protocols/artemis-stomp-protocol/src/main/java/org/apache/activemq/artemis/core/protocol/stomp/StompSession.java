@@ -78,8 +78,8 @@ public class StompSession implements SessionCallback {
 
    private final Map<Long, StompSubscription> subscriptions = new ConcurrentHashMap<>();
 
-   // key = message ID, value = consumer ID
-   private final Map<Long, Pair<Long, Integer>> messagesToAck = new ConcurrentHashMap<>();
+   // key = consumer ID and message ID, value = frame length
+   private final Map<Pair<Long, Long>, Integer> messagesToAck = new ConcurrentHashMap<>();
 
    private volatile boolean noLocal = false;
 
@@ -162,7 +162,7 @@ public class StompSession implements SessionCallback {
             return 0;
          StompFrame frame;
 
-         frame = connection.createStompMessage(message, subscription, deliveryCount);
+         frame = connection.createStompMessage(message, subscription, consumer, deliveryCount);
 
          int length = frame.getEncodedSize();
 
@@ -184,7 +184,7 @@ public class StompSession implements SessionCallback {
                });
             }
          } else {
-            messagesToAck.put(message.getMessageID(), new Pair<>(consumer.getID(), length));
+            messagesToAck.put(new Pair<>(consumer.getID(), message.getMessageID()), length);
             // Must send AFTER adding to messagesToAck - or could get acked from client BEFORE it's been added!
             manager.send(connection, frame);
          }
@@ -228,15 +228,27 @@ public class StompSession implements SessionCallback {
       }
    }
 
-   public void acknowledge(String messageID, String subscriptionID) throws Exception {
-      long id = Long.parseLong(messageID);
-      Pair<Long, Integer> pair = messagesToAck.get(id);
+   public static final char MESSAGE_ID_SEPARATOR = ',';
 
-      if (pair == null) {
-         throw BUNDLE.failToAckMissingID(id).setHandler(connection.getFrameHandler());
+   private static Pair<Long, Long> splitAndParse(String stompMessageID) {
+      int separatorPosition = stompMessageID.indexOf(MESSAGE_ID_SEPARATOR);
+      if (separatorPosition == -1)
+         return null;
+      long consumerID = Long.parseLong(stompMessageID, 0, separatorPosition, 10);
+      long messageID = Long.parseLong(stompMessageID, separatorPosition + 1, stompMessageID.length(), 10);
+      return new Pair<>(consumerID, messageID);
+   }
+
+   public void acknowledge(String messageID, String subscriptionID) throws Exception {
+      Pair<Long, Long> pair = splitAndParse(messageID);
+      Integer length = messagesToAck.remove(pair);
+
+      if (length == null) {
+         throw BUNDLE.failToAckMissingID(messageID).setHandler(connection.getFrameHandler());
       }
 
       long consumerID = pair.getA();
+      long id = pair.getB();
 
       StompSubscription sub = subscriptions.get(consumerID);
 
@@ -250,14 +262,26 @@ public class StompSession implements SessionCallback {
          session.individualAcknowledge(consumerID, id);
 
          if (sub.getConsumerWindowSize() != -1) {
-            session.receiveConsumerCredits(consumerID, messagesToAck.remove(id).getB());
+            session.receiveConsumerCredits(consumerID, length);
          }
       } else {
          List<Long> ackedRefs = session.acknowledge(consumerID, id);
 
          if (sub.getConsumerWindowSize() != -1) {
+            session.receiveConsumerCredits(consumerID, length);
             for (Long ackedID : ackedRefs) {
-               session.receiveConsumerCredits(consumerID, messagesToAck.remove(ackedID).getB());
+               if (ackedID != id) {
+                  length = messagesToAck.remove(new Pair<>(consumerID, ackedID));
+                  if (length != null) {
+                     session.receiveConsumerCredits(consumerID, length);
+                  }
+               }
+            }
+         } else {
+            for (Long ackedID : ackedRefs) {
+               if (ackedID != id) {
+                  messagesToAck.remove(new Pair<>(consumerID, ackedID));
+               }
             }
          }
       }

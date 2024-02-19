@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp.Headers;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -320,7 +321,10 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompFrame createMessageFrame(ICoreMessage serverMessage, StompSubscription subscription, int deliveryCount) {
+   public StompFrame createMessageFrame(ICoreMessage serverMessage,
+                                        StompSubscription subscription,
+                                        ServerConsumer consumer,
+                                        int deliveryCount) {
       StompFrame frame = createStompFrame(Stomp.Responses.MESSAGE);
 
       if (subscription.getID() != null) {
@@ -344,7 +348,8 @@ public abstract class VersionedStompFrameHandler {
       }
       frame.setByteBody(data);
 
-      StompUtils.copyStandardHeadersFromMessageToFrame((serverMessage), frame, deliveryCount);
+      frame.addHeader(Stomp.Headers.Message.MESSAGE_ID, new StringBuilder(41).append(consumer.getID()).append(StompSession.MESSAGE_ID_SEPARATOR).append(serverMessage.getMessageID()).toString());
+      StompUtils.copyStandardHeadersFromMessageToFrame(serverMessage, frame, deliveryCount);
 
       return frame;
    }

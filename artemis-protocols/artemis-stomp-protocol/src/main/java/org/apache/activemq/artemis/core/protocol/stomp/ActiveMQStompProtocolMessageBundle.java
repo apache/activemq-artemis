@@ -104,7 +104,7 @@ public interface ActiveMQStompProtocolMessageBundle {
    String invalidFrame(String dumpByteArray);
 
    @Message(id = 339025, value = "failed to ack because no message with id: {}")
-   ActiveMQStompException failToAckMissingID(long id);
+   ActiveMQStompException failToAckMissingID(String id);
 
    @Message(id = 339026, value = "subscription id {} does not match {}")
    ActiveMQStompException subscriptionIDMismatch(String subscriptionID, String actualID);

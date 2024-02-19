@@ -104,7 +104,6 @@ public class StompUtils {
    public static void copyStandardHeadersFromMessageToFrame(Message message,
                                                             StompFrame command,
                                                             int deliveryCount) {
-      command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));
       SimpleString prefix = message.getSimpleStringProperty(Message.HDR_PREFIX);
       command.addHeader(Stomp.Headers.Message.DESTINATION,  (prefix == null ? "" : prefix) + message.getAddress());
 

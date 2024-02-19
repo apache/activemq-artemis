@@ -308,7 +308,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       String messageID = messageIdFrame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.ACK)
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageID);
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID);
 
       if (subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId);
@@ -337,7 +337,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    public static void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.NACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageId);
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageId);
 
       conn.sendFrame(frame);
    }

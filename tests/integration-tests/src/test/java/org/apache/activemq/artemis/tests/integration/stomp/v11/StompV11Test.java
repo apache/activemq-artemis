@@ -1122,7 +1122,7 @@ public class StompV11Test extends StompTestBase {
       //give it a wrong sub id
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, "sub2")
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageID)
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID)
                                       .addHeader(Stomp.Headers.RECEIPT_REQUESTED, "answer-me");
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
@@ -1155,10 +1155,10 @@ public class StompV11Test extends StompTestBase {
 
       String messageID = frame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
 
-      //give it a wrong sub id
+      //give it a wrong message id
       ClientStompFrame ackFrame = conn.createFrame(Stomp.Commands.ACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, "sub1")
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(Long.valueOf(messageID) + 1))
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID + '1')
                                       .addHeader(Stomp.Headers.RECEIPT_REQUESTED, "answer-me");
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
@@ -2388,6 +2388,33 @@ public class StompV11Test extends StompTestBase {
       Assert.assertNotNull(frame);
 
       Assert.assertEquals("text/plain", frame.getHeader(Stomp.Headers.CONTENT_TYPE));
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testSameMessageHasDifferentMessageIdPerConsumer() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribeTopic(conn, "sub1", "client-individual", null);
+      subscribeTopic(conn, "sub2", "client-individual", null);
+
+      sendJmsMessage(getName(), topic);
+
+      ClientStompFrame frame1 = conn.receiveFrame();
+      String firstMessageID = frame1.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      Assert.assertNotNull(firstMessageID);
+
+      ClientStompFrame frame2 = conn.receiveFrame();
+      String secondMessageID = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      Assert.assertNotNull(secondMessageID);
+      Assert.assertTrue(firstMessageID + " must not equal " + secondMessageID, !firstMessageID.equals(secondMessageID));
+
+      ack(conn, "sub1", frame1);
+      ack(conn, "sub2", frame2);
+
+      unsubscribe(conn, "sub1");
+      unsubscribe(conn, "sub2");
 
       conn.disconnect();
    }
