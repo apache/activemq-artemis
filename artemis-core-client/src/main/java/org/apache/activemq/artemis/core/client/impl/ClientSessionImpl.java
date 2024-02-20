@@ -1901,18 +1901,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          workDone = false;
       } catch (XAException xae) {
          throw xae;
-      } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT || e.getType() == ActiveMQExceptionType.SHUTDOWN_ERROR) {
-            // Unblocked on failover
-            throw new XAException(XAException.XA_RETRY);
-         }
-
-         // This should never occur
-         XAException xaException = new XAException(XAException.XAER_RMFAIL);
-         xaException.initCause(e);
-         throw xaException;
       } catch (Throwable t) {
-         // This could occur if the TM interrupts the thread
+         if (logger.isTraceEnabled()) {
+            logger.trace("Rollback failed:: {}", convert(xid), t);
+         }
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
