@@ -423,7 +423,7 @@ public class MQTTTest extends MQTTTestSupport {
    @Ignore
    @Test(timeout = 600 * 1000)
    public void testSendMoreThanUniqueId() throws Exception {
-      int messages = (Short.MAX_VALUE * 2) + 1;
+      int messages = MQTTUtil.TWO_BYTE_INT_MAX;
 
       final MQTTClientProvider publisher = getMQTTClientProvider();
       initializeConnection(publisher);
@@ -444,6 +444,63 @@ public class MQTTTest extends MQTTTestSupport {
 
       assertEquals(messages, count);
       subscriber.disconnect();
+      publisher.disconnect();
+   }
+
+   @Test(timeout = 600 * 1000)
+   public void testNoMessageIdReuseBeforeAcknowledgment() throws Exception {
+      final int messages = MQTTUtil.TWO_BYTE_INT_MAX;
+
+      final MQTTClientProvider publisher = getMQTTClientProvider();
+      initializeConnection(publisher);
+
+      final MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId("foo");
+      final short[] messageId = new short[1];
+      mqtt.setTracer(new Tracer() {
+         @Override
+         public void onReceive(MQTTFrame frame) {
+            if (frame.messageType() == PUBLISH.TYPE) {
+               try {
+                  PUBLISH publish = new PUBLISH();
+                  publish.decode(frame);
+                  messageId[0] = publish.messageId();
+               } catch (ProtocolException e) {
+                  fail("Error decoding publish " + e.getMessage());
+               }
+            }
+         }
+      });
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+      connection.subscribe(new Topic[]{new Topic("foo", QoS.EXACTLY_ONCE)});
+
+      publisher.publish("foo", "First Message".getBytes(), EXACTLY_ONCE);
+      final Message firstMessage = connection.receive(5000, TimeUnit.MILLISECONDS);
+      final short firstMessageId = messageId[0];
+
+      publisher.publish("foo", "Second Message".getBytes(), EXACTLY_ONCE);
+      final Message secondMessage = connection.receive(5000, TimeUnit.MILLISECONDS);
+      final short secondMessageId = messageId[0];
+
+      int count = 0;
+      for (int i = 0; i < messages; i++) {
+         String payload = "Test Message: " + i;
+         publisher.publish("foo", payload.getBytes(), EXACTLY_ONCE);
+         Message message = connection.receive(5000, TimeUnit.MILLISECONDS);
+         assertNotNull("Should get a message + [" + i + "]", message);
+         assertEquals(payload, new String(message.getPayload()));
+         assertFalse("Message ID must not be reused until previous message acknowledgment", firstMessageId == messageId[0] || secondMessageId == messageId[0]);
+         message.ack();
+         count++;
+      }
+
+      firstMessage.ack();
+      secondMessage.ack();
+
+      assertEquals(messages, count);
+      connection.unsubscribe(new String[]{"foo"});
+      connection.disconnect();
       publisher.disconnect();
    }
 
