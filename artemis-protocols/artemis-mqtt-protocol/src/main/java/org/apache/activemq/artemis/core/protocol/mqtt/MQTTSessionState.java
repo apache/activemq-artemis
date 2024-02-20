@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
@@ -444,14 +443,13 @@ public class MQTTSessionState {
    }
 
    public class OutboundStore {
-
       private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 
       private HashMap<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
 
       private final Object dataStoreLock = new Object();
 
-      private final AtomicInteger ids = new AtomicInteger(0);
+      private int currentId = 0;
 
       private Pair<Long, Long> generateKey(long messageId, long consumerID) {
          return new Pair<>(messageId, consumerID);
@@ -461,8 +459,14 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             Integer id = artemisToMqttMessageMap.get(generateKey(messageId, consumerId));
             if (id == null) {
-               ids.compareAndSet(Short.MAX_VALUE, 1);
-               id = ids.addAndGet(1);
+               do {
+                  if (currentId == MQTTUtil.TWO_BYTE_INT_MAX) {
+                     currentId = 0;
+                  }
+                  ++currentId;
+               }
+               while (mqttToServerIds.containsKey(currentId));
+               id = currentId;
             }
             return id;
          }
@@ -478,9 +482,8 @@ public class MQTTSessionState {
 
       public Pair<Long, Long> publishAckd(int mqtt) {
          synchronized (dataStoreLock) {
-            Pair p = mqttToServerIds.remove(mqtt);
+            Pair<Long, Long> p = mqttToServerIds.remove(mqtt);
             if (p != null) {
-               mqttToServerIds.remove(p.getA());
                artemisToMqttMessageMap.remove(p);
             }
             return p;
@@ -511,7 +514,7 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             artemisToMqttMessageMap.clear();
             mqttToServerIds.clear();
-            ids.set(0);
+            currentId = 0;
          }
       }
    }
