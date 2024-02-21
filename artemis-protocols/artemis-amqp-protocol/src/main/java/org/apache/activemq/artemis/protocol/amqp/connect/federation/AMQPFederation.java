@@ -152,6 +152,16 @@ public abstract class AMQPFederation implements FederationInternal {
    public abstract int getLargeMessageThreshold();
 
    /**
+    * @return the true if the federation should ignore filters on queue consumers.
+    */
+   public abstract boolean isIgnoreQueueConsumerFilters();
+
+   /**
+    * @return the true if the federation should ignore priorities on queue consumers.
+    */
+   public abstract boolean isIgnoreQueueConsumerPriorities();
+
+   /**
     * @return the true if the federation should support core message tunneling.
     */
    public abstract boolean isCoreMessageTunnelingEnabled();

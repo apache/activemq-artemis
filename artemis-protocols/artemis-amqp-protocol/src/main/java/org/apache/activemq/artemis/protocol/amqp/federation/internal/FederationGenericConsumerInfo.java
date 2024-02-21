@@ -22,19 +22,14 @@ import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
-import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 
 /**
- * Information and identification class for Federation consumers created to
- * federate queues. Instances of this class should be usable in Collections
+ * Information and identification class for Federation consumers created to federate
+ * queues and addresses. Instances of this class should be usable in Collections
  * classes where equality and hashing support is needed.
  */
 public class FederationGenericConsumerInfo implements FederationConsumerInfo {
@@ -51,8 +46,8 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
    private final int priority;
    private final String id;
 
-   protected FederationGenericConsumerInfo(Role role, String address, String queueName, RoutingType routingType,
-                                           String filterString, String fqqn, int priority) {
+   public FederationGenericConsumerInfo(Role role, String address, String queueName, RoutingType routingType,
+                                        String filterString, String fqqn, int priority) {
       this.role = role;
       this.address = address;
       this.queueName = queueName;
@@ -61,34 +56,6 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
       this.fqqn = fqqn;
       this.priority = priority;
       this.id = UUID.randomUUID().toString();
-   }
-
-   /**
-    * Factory for creating federation queue consumer information objects from server resources.
-    *
-    * @param consumer
-    *       The {@link ServerConsumer} that this federation consumer is created for
-    * @param federation
-    *       The parent {@link Federation} that this federation consumer is created for
-    * @param policy
-    *       The {@link FederationReceiveFromQueuePolicy} that triggered this information object to be created.
-    *
-    * @return a newly created and configured {@link FederationConsumerInfo} instance.
-    */
-   public static FederationGenericConsumerInfo build(ServerConsumer consumer, Federation federation, FederationReceiveFromQueuePolicy policy) {
-      final Queue queue = consumer.getQueue();
-      final String queueName = queue.getName().toString();
-      final String address = queue.getAddress().toString();
-      final int priority = consumer.getPriority() + policy.getPriorityAjustment();
-      final SimpleString filterString = Filter.toFilterString(queue.getFilter());
-
-      return new FederationGenericConsumerInfo(Role.QUEUE_CONSUMER,
-                                               address,
-                                               queueName,
-                                               queue.getRoutingType(),
-                                               filterString != null ? filterString.toString() : null,
-                                               CompositeAddress.toFullyQualified(address, queueName),
-                                               priority);
    }
 
    /**

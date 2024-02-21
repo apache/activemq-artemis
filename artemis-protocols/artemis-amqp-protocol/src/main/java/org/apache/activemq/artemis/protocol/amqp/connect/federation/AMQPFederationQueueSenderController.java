@@ -92,22 +92,6 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       // indicated it was desired, however unless offered by the remote we cannot use it.
       sender.setDesiredCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
 
-      // An queue receiver may supply a filter if the queue being federated had a filter attached
-      // to it at creation, this ensures that we only bring back message that match the original
-      // queue filter and not others that would simply increase traffic for no reason.
-      final Map.Entry<Symbol, DescribedType> filter = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.JMS_SELECTOR_FILTER_IDS);
-
-      if (filter != null) {
-         selector = filter.getValue().getDescribed().toString();
-         try {
-            SelectorParser.parse(selector);
-         } catch (FilterException e) {
-            throw new ActiveMQAMQPException(AmqpError.INVALID_FIELD, "Invalid filter", ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
-         }
-      } else {
-         selector = null;
-      }
-
       final RoutingType routingType = getRoutingType(source);
       final SimpleString targetAddress;
       final SimpleString targetQueue;
@@ -129,6 +113,29 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       if (targetAddress != null && !result.getAddress().equals(targetAddress)) {
          federation.registerMissingQueue(targetQueue.toString());
          throw new ActiveMQAMQPNotFoundException("Queue: '" + targetQueue + "' is not mapped to specified address: " + targetAddress);
+      }
+
+      // An queue receiver may supply a filter if the queue being federated had a filter attached
+      // to it at creation, this ensures that we only bring back message that match the original
+      // queue filter and not others that would simply increase traffic for no reason.
+      final Map.Entry<Symbol, DescribedType> filter = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.JMS_SELECTOR_FILTER_IDS);
+
+      if (filter != null) {
+         final String filterString = filter.getValue().getDescribed().toString();
+         try {
+            SelectorParser.parse(filterString);
+         } catch (FilterException e) {
+            throw new ActiveMQAMQPException(AmqpError.INVALID_FIELD, "Invalid filter", ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
+         }
+
+         // No need to apply another filter if the current one on the Queue already matches that.
+         if (result.getFilterString() == null || !filterString.equals(result.getFilterString().toString())) {
+            selector = filterString;
+         } else {
+            selector = null;
+         }
+      } else {
+         selector = null;
       }
 
       // We need to check that the remote offers its ability to read tunneled core messages and

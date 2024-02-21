@@ -183,6 +183,25 @@ public class AMQPFederationSource extends AMQPFederation {
       return configuration.isCoreMessageTunnelingEnabled();
    }
 
+
+   @Override
+   public boolean isIgnoreQueueConsumerFilters() {
+      if (!connected) {
+         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
+      }
+
+      return configuration.isIgnoreSubscriptionFilters();
+   }
+
+   @Override
+   public boolean isIgnoreQueueConsumerPriorities() {
+      if (!connected) {
+         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
+      }
+
+      return configuration.isIgnoreSubscriptionPriorities();
+   }
+
    /**
     * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that the
     * remote end of this federation will use to create demand on the this server when local
