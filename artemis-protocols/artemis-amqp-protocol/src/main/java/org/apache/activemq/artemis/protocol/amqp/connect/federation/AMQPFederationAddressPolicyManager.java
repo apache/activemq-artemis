@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
@@ -31,9 +32,11 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationAddressPolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationGenericConsumerInfo;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +62,16 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
 
    @Override
    protected FederationGenericConsumerInfo createConsumerInfo(AddressInfo address) {
-      return FederationGenericConsumerInfo.build(address.getName().toString(),
-                                                 generateQueueName(address),
-                                                 address.getRoutingType(),
-                                                 remoteQueueFilter,
-                                                 federation,
-                                                 policy);
+      final String addressName = address.getName().toString();
+      final String generatedQueueName = generateQueueName(address);
+
+      return new FederationGenericConsumerInfo(Role.ADDRESS_CONSUMER,
+         addressName,
+         generatedQueueName,
+         address.getRoutingType(),
+         remoteQueueFilter,
+         CompositeAddress.toFullyQualified(addressName, generatedQueueName),
+         ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
    }
 
    protected String generateQueueName(AddressInfo address) {

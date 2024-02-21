@@ -264,6 +264,16 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                                    .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
                                    .respondInKind();
                peer2.expectFlow().withLinkCredit(10);
+               peer2.expectAttach().ofReceiver()
+                                   .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                                   .withName(allOf(containsString(getTestName() + ":2"),
+                                                   containsString("test"),
+                                                   containsString("address-receiver"),
+                                                   containsString(server.getNodeID().toString())))
+                                   .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                                   .respond()
+                                   .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+               peer2.expectFlow().withLinkCredit(1000);
                peer2.start();
 
                final URI remoteURI2 = peer2.getServerURI();
@@ -292,18 +302,6 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                server.getConfiguration().addAMQPConnection(updatedAmqpConnection);
 
                protocolFactory.updateProtocolServices(server, Collections.emptyList());
-
-               peer2.waitForScriptToComplete(5, TimeUnit.SECONDS);
-               peer2.expectAttach().ofReceiver()
-                                   .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                                   .withName(allOf(containsString(getTestName() + ":2"),
-                                                   containsString("test"),
-                                                   containsString("address-receiver"),
-                                                   containsString(server.getNodeID().toString())))
-                                   .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
-                                   .respond()
-                                   .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
-               peer2.expectFlow().withLinkCredit(1000);
 
                peer2.waitForScriptToComplete(5, TimeUnit.SECONDS);
                peer2.close();

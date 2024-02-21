@@ -56,7 +56,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    protected final ActiveMQServer server;
    protected final Predicate<ServerConsumer> federationConsumerMatcher;
    protected final FederationReceiveFromQueuePolicy policy;
-   protected final Map<String, FederationQueueEntry> demandTracking = new HashMap<>();
+   protected final Map<FederationConsumerInfo, FederationQueueEntry> demandTracking = new HashMap<>();
    protected final FederationInternal federation;
 
    private volatile boolean started;
@@ -116,7 +116,8 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    public synchronized void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
       if (started) {
          final String queueName = consumer.getQueue().getName().toString();
-         final FederationQueueEntry entry = demandTracking.get(queueName);
+         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
+         final FederationQueueEntry entry = demandTracking.get(consumerInfo);
 
          if (entry == null) {
             return;
@@ -134,7 +135,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
                federationConsuner.close();
                signalAfterCloseFederationConsumer(federationConsuner);
             } finally {
-               demandTracking.remove(queueName);
+               demandTracking.remove(consumerInfo);
             }
          }
       }
@@ -144,11 +145,13 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
       if (binding instanceof QueueBinding) {
          final QueueBinding queueBinding = (QueueBinding) binding;
-         final FederationQueueEntry entry = demandTracking.remove(queueBinding.getQueue().getName().toString());
+         final String queueName = queueBinding.getQueue().getName().toString();
 
-         if (entry != null && entry.hasConsumer()) {
-            entry.getConsumer().close();
-         }
+         demandTracking.values().forEach((entry) -> {
+            if (entry.getConsumerInfo().getQueueName().equals(queueName) && entry.hasConsumer()) {
+               entry.getConsumer().close();
+            }
+         });
       }
    }
 
@@ -182,14 +185,15 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
          logger.trace("Federation Policy matched on consumer for binding: {}", consumer.getBinding());
 
          final FederationQueueEntry entry;
+         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
 
          // Check for existing consumer add demand from a additional local consumer to ensure
          // the remote consumer remains active until all local demand is withdrawn.
-         if (demandTracking.containsKey(queueName)) {
+         if (demandTracking.containsKey(consumerInfo)) {
             logger.trace("Federation Queue Policy manager found existing demand for queue: {}, adding demand", queueName);
-            entry = demandTracking.get(queueName);
+            entry = demandTracking.get(consumerInfo);
          } else {
-            demandTracking.put(queueName, entry = createConsumerEntry(createConsumerInfo(consumer)));
+            demandTracking.put(consumerInfo, entry = createConsumerEntry(consumerInfo));
          }
 
          // Demand passed all binding plugin blocking checks so we track it, plugin can still
@@ -215,7 +219,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
          queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
             synchronized (this) {
                try {
-                  final FederationQueueEntry tracked = demandTracking.get(closedConsumer.getConsumerInfo().getQueueName());
+                  final FederationQueueEntry tracked = demandTracking.get(closedConsumer.getConsumerInfo());
 
                   if (tracked != null) {
                      tracked.clearConsumer();
@@ -254,11 +258,15 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
       // the queue were recreated such that a match could be made. We retain all the current
       // demand and don't need to re-check the server state before trying to create the
       // remote queue consumer.
-      if (started && testIfQueueMatchesPolicy(queueName) && demandTracking.containsKey(queueName)) {
+      if (started && testIfQueueMatchesPolicy(queueName)) {
          final Queue queue = server.locateQueue(queueName);
 
          if (queue != null) {
-            tryCreateFederationConsumerForQueue(demandTracking.get(queueName), queue);
+            demandTracking.forEach((k, v) -> {
+               if (k.getQueueName().equals(queueName)) {
+                  tryCreateFederationConsumerForQueue(v, queue);
+               }
+            });
          }
       }
    }
@@ -297,7 +305,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
 
    /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer}
-    * and the configured {@link FederationReceiveFromQueuePolicy}. A subclass can override this
+    * and the configured {@link FederationReceiveFromQueuePolicy}. A subclass must override this
     * method to return a consumer information object with additional data used be that implementation.
     *
     * @param consumer
@@ -305,9 +313,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
     *
     * @return a new {@link FederationConsumerInfo} instance based on the server consumer
     */
-   protected FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
-      return FederationGenericConsumerInfo.build(consumer, federation, policy);
-   }
+   protected abstract FederationConsumerInfo createConsumerInfo(ServerConsumer consumer);
 
    /**
     * Creates a {@link FederationQueueEntry} instance that will be used to store an instance of

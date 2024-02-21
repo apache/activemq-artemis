@@ -21,14 +21,20 @@ import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
+import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationGenericConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationQueuePolicyManager;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +53,28 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
 
       this.federation = federation;
       this.configuration = new AMQPFederationConsumerConfiguration(federation, policy.getProperties());
+   }
+
+   @Override
+   protected FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
+      final Queue queue = consumer.getQueue();
+      final String queueName = queue.getName().toString();
+      final String address = queue.getAddress().toString();
+
+      final int priority = configuration.isIgnoreSubscriptionPriorities() ?
+         ActiveMQDefaultConfiguration.getDefaultConsumerPriority() + policy.getPriorityAjustment() :
+         consumer.getPriority() + policy.getPriorityAjustment();
+
+      final String filterString =
+         selectFilter(queue.getFilter(), configuration.isIgnoreSubscriptionFilters() ? null : consumer.getFilter());
+
+      return new FederationGenericConsumerInfo(Role.QUEUE_CONSUMER,
+                                               address,
+                                               queueName,
+                                               queue.getRoutingType(),
+                                               filterString,
+                                               CompositeAddress.toFullyQualified(address, queueName),
+                                               priority);
    }
 
    @Override
@@ -131,5 +159,13 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
       }
 
       return !canCreate.get();
+   }
+
+   private static String selectFilter(Filter queueFilter, Filter consumerFilter) {
+      if (consumerFilter != null) {
+         return consumerFilter.getFilterString().toString();
+      } else {
+         return queueFilter != null ? queueFilter.getFilterString().toString() : null;
+      }
    }
 }

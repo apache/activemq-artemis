@@ -1007,4 +1007,98 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
       }
    }
+
+   @Test(timeout = 20000)
+   public void testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemoteAMQP() throws Exception {
+      testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemote("AMQP");
+   }
+
+   @Test(timeout = 20000)
+   public void testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemoteCORE() throws Exception {
+      testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemote("CORE");
+   }
+
+   private void testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemote(String clientProtocol) throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationQueuePolicyElement localQueuePolicy = new AMQPFederationQueuePolicyElement();
+      localQueuePolicy.setName("test-policy");
+      localQueuePolicy.addToIncludes("#", "test");
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName(getTestName());
+      element.addLocalQueuePolicy(localQueuePolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+                                                             .setAddress("test")
+                                                             .setFilterString("color='red' OR color='green' OR color='blue'")
+                                                             .setAutoCreated(false));
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Connection connectionR = factoryRemote.createConnection()) {
+
+         final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+         final Queue queue = sessionL.createQueue("test");
+
+         final MessageConsumer consumerL1 = sessionL.createConsumer(queue, "color='red'");
+         final MessageConsumer consumerL2 = sessionL.createConsumer(queue, "color='blue'");
+
+         connectionL.start();
+         connectionR.start();
+
+         // Demand on local queue should trigger receiver on remote.
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+
+         final MessageProducer producerR = sessionR.createProducer(queue);
+
+         final TextMessage message1 = sessionR.createTextMessage("Hello World 1");
+         message1.setStringProperty("color", "green");
+         final TextMessage message2 = sessionR.createTextMessage("Hello World 2");
+         message2.setStringProperty("color", "red");
+         final TextMessage message3 = sessionR.createTextMessage("Hello World 3");
+         message3.setStringProperty("color", "blue");
+
+         producerR.send(message1);
+         producerR.send(message2);
+         producerR.send(message3);
+
+         final Message receivedL1 = consumerL1.receive(5_000);
+         assertNotNull(receivedL1);
+         assertTrue(receivedL1 instanceof TextMessage);
+         assertEquals("Hello World 2", ((TextMessage) receivedL1).getText());
+         assertTrue(receivedL1.propertyExists("color"));
+         assertEquals("red", receivedL1.getStringProperty("color"));
+
+         final Message receivedL2 = consumerL2.receive(5_000);
+         assertNotNull(receivedL2);
+         assertTrue(receivedL2 instanceof TextMessage);
+         assertEquals("Hello World 3", ((TextMessage) receivedL2).getText());
+         assertTrue(receivedL2.propertyExists("color"));
+         assertEquals("blue", receivedL2.getStringProperty("color"));
+
+         // See if the green message is still on the remote where it should be as the
+         // filter should prevent it from moving across the federation link(s)
+         final MessageConsumer consumerR = sessionR.createConsumer(queue, "color='green'");
+
+         final Message receivedR = consumerR.receive(5_000);
+         assertNotNull(receivedR);
+         assertTrue(receivedR instanceof TextMessage);
+         assertEquals("Hello World 1", ((TextMessage) receivedR).getText());
+         assertTrue(receivedR.propertyExists("color"));
+         assertEquals("green", receivedR.getStringProperty("color"));
+      }
+   }
 }

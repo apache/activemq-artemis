@@ -40,6 +40,8 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -141,12 +143,16 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final int AMQP_CREDITS_LOW = 50;
       final int AMQP_LINK_ATTACH_TIMEOUT = 60;
       final boolean AMQP_TUNNEL_CORE_MESSAGES = false;
+      final boolean AMQP_INGNORE_CONSUMER_FILTERS = false;
+      final boolean AMQP_INGNORE_CONSUMER_PRIORITIES = false;
 
       final Map<String, Object> federationConfiguration = new HashMap<>();
       federationConfiguration.put(RECEIVER_CREDITS, AMQP_CREDITS);
       federationConfiguration.put(RECEIVER_CREDITS_LOW, AMQP_CREDITS_LOW);
       federationConfiguration.put(LARGE_MESSAGE_THRESHOLD, AMQP_MIN_LARGE_MESSAGE_SIZE);
       federationConfiguration.put(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
+      federationConfiguration.put(IGNORE_QUEUE_CONSUMER_FILTERS, AMQP_INGNORE_CONSUMER_FILTERS);
+      federationConfiguration.put(IGNORE_QUEUE_CONSUMER_PRIORITIES, AMQP_INGNORE_CONSUMER_PRIORITIES);
       federationConfiguration.put(AmqpSupport.TUNNEL_CORE_MESSAGES, AMQP_TUNNEL_CORE_MESSAGES);
 
       try (ProtonTestServer peer = new ProtonTestServer()) {

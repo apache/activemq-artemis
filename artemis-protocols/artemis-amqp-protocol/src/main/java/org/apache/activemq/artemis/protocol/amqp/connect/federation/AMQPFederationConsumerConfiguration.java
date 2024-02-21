@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
@@ -102,6 +104,28 @@ public final class AMQPFederationConsumerConfiguration {
          return Boolean.parseBoolean((String) property);
       } else {
          return federation.isCoreMessageTunnelingEnabled();
+      }
+   }
+
+   public boolean isIgnoreSubscriptionFilters() {
+      final Object property = properties.get(IGNORE_QUEUE_CONSUMER_FILTERS);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return federation.isIgnoreQueueConsumerFilters();
+      }
+   }
+
+   public boolean isIgnoreSubscriptionPriorities() {
+      final Object property = properties.get(IGNORE_QUEUE_CONSUMER_PRIORITIES);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return federation.isIgnoreQueueConsumerPriorities();
       }
    }
 }

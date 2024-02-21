@@ -85,6 +85,27 @@ public final class AMQPFederationConstants {
    public static final String LARGE_MESSAGE_THRESHOLD = "minLargeMessageSize";
 
    /**
+    * Configuration property used to convey the local side value to use when considering if federation queue
+    * consumers should filter using the filters defined on individual queue subscriptions, this can be sent
+    * to the peer so that dual federation configurations share the same configuration on both sides of the
+    * connection. This can be used to prevent multiple subscriptions on the same queue based on local demand
+    * with differing subscription filters but does imply that message that don't match those filters would
+    * be federated to the local broker.
+    */
+   public static final String IGNORE_QUEUE_CONSUMER_FILTERS = "ignoreQueueConsumerFilters";
+
+   /**
+    * Configuration property used to convey the local side value to use when considering if federation queue
+    * consumers should apply a consumer priority offset based on the subscription priority or should use a
+    * singular priority offset based on policy configuration. This can be sent to the peer so that dual
+    * federation configurations share the same configuration on both sides of the connection. This can be
+    * used to prevent multiple subscriptions on the same queue based on local demand with differing consumer
+    * priorities but does imply that care needs to be taken to ensure remote consumers would normally have
+    * a higher priority value than the configured default priority offset.
+    */
+   public static final String IGNORE_QUEUE_CONSUMER_PRIORITIES = "ignoreQueueConsumerPriorities";
+
+   /**
     * A desired capability added to the federation queue receiver link that must be offered
     * in return for a federation queue receiver to be successfully opened.  On the remote the
     * presence of this capability indicates that the matching queue should be present on the

@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -97,6 +98,11 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
 
    private static final Symbol[] DEFAULT_OUTCOMES = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL,
                                                                  Released.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL};
+
+
+   // Sequence ID value used to keep links that would otherwise have the same name from overlapping
+   // this generally occurs when consumers on the same queue have differing filters.
+   private static final AtomicLong LINK_SEQUENCE_ID = new AtomicLong();
 
    private final AMQPFederation federation;
    private final AMQPFederationConsumerConfiguration configuration;
@@ -250,7 +256,8 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
    private String generateLinkName() {
       return "federation-" + federation.getName() +
              "-queue-receiver-" + consumerInfo.getFqqn() +
-             "-" + federation.getServer().getNodeID();
+             "-" + federation.getServer().getNodeID() + ":" +
+             LINK_SEQUENCE_ID.getAndIncrement();
    }
 
    private void asyncCreateReceiver() {

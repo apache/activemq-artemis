@@ -92,6 +92,16 @@ public class AMQPFederationTarget extends AMQPFederation {
    }
 
    @Override
+   public boolean isIgnoreQueueConsumerFilters() {
+      return configuration.isIgnoreSubscriptionFilters();
+   }
+
+   @Override
+   public boolean isIgnoreQueueConsumerPriorities() {
+      return configuration.isIgnoreSubscriptionPriorities();
+   }
+
+   @Override
    protected void handleFederationStarted() throws ActiveMQException {
       // Tag the session with Federation metadata which will allow local federation policies sent by
       // the remote to apply checks when seeing local demand to determine if a federation consumer
