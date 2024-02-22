@@ -30,6 +30,7 @@ public class MetricsConfiguration implements Serializable {
    private boolean fileDescriptors = ActiveMQDefaultConfiguration.getDefaultFileDescriptorsMetrics();
    private boolean processor = ActiveMQDefaultConfiguration.getDefaultProcessorMetrics();
    private boolean uptime = ActiveMQDefaultConfiguration.getDefaultUptimeMetrics();
+   private boolean logging = ActiveMQDefaultConfiguration.getDefaultLoggingMetrics();
    private ActiveMQMetricsPlugin plugin;
 
    public boolean isJvmMemory() {
@@ -92,6 +93,15 @@ public class MetricsConfiguration implements Serializable {
 
    public MetricsConfiguration setUptime(boolean uptime) {
       this.uptime = uptime;
+      return this;
+   }
+
+   public boolean isLogging() {
+      return logging;
+   }
+
+   public MetricsConfiguration setLogging(boolean logging) {
+      this.logging = logging;
       return this;
    }
 

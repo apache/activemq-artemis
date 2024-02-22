@@ -676,6 +676,9 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report uptime metrics
    private static final boolean DEFAULT_UPTIME_METRICS = false;
 
+   // Whether or not to report logging metrics
+   private static final boolean DEFAULT_LOGGING_METRICS = false;
+
    // How often (in ms) to scan for expired MQTT sessions
    private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
 
@@ -1863,6 +1866,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static Boolean getDefaultUptimeMetrics() {
       return DEFAULT_UPTIME_METRICS;
+   }
+
+   /**
+    * Whether or not to report logging metrics
+    */
+   public static Boolean getDefaultLoggingMetrics() {
+      return DEFAULT_LOGGING_METRICS;
    }
 
    /**

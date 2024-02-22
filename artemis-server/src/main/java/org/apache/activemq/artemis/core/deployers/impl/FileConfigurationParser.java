@@ -1012,6 +1012,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                metricsConfiguration.setProcessor(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("uptime")) {
                metricsConfiguration.setUptime(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("logging")) {
+               metricsConfiguration.setLogging(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("plugin")) {
                metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
             }

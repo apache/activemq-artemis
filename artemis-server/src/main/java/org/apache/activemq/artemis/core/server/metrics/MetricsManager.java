@@ -32,6 +32,7 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
 import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
@@ -85,6 +86,9 @@ public class MetricsManager {
          }
          if (metricsConfiguration.isUptime()) {
             new UptimeMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isLogging()) {
+            new Log4j2Metrics().bindTo(meterRegistry);
          }
       }
    }

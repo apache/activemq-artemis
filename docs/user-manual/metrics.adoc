@@ -118,13 +118,23 @@ Uptime::
 Gauges process start time and uptime.
 +
 Disabled by default.
+Logging::
+Counts the number of logging events per logging category (e.g. `WARN`, `ERROR`, etc.).
++
+Disabled by default.
++
+[WARNING]
+====
+This works _exclusively_ with Log4j2 (i.e the default logging implementation shipped with the broker).
+If you're embedding the broker and using a different logging implementation (e.g. Log4j 1.x, JUL, Logback, etc.) and you enable these metrics then the broker will fail to start with a `java.lang.NoClassDefFoundError` as it attempts to locate Log4j2 classes that don't exist on the classpath.
+====
 
 == Configuration
 
 Metrics for all addresses and queues are enabled by default.
 If you want to disable metrics for a particular address or set of addresses you can do so by setting the `enable-metrics` `address-setting` to `false`.
 
-In `broker.xml` use the `metrics` element to configure which JVM metrics are reported and to configure the plugin itself.
+In `broker.xml` use the `metrics` element to configure which general broker and JVM metrics are reported and to configure the plugin itself.
 Here's a configuration with all optional metrics:
 
 [,xml]
@@ -137,6 +147,7 @@ Here's a configuration with all optional metrics:
    <file-descriptors>true</file-descriptors> <!-- defaults to false -->
    <processor>true</processor> <!-- defaults to false -->
    <uptime>true</uptime> <!-- defaults to false -->
+   <logging>true</logging> <!-- defaults to false -->
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
 </metrics>
 ----
