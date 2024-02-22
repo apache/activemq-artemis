@@ -27,6 +27,7 @@
          <file-descriptors>true</file-descriptors>
          <processor>true</processor>
          <uptime>true</uptime>
+         <logging>true</logging>
          <plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin">
             <property key="key1" value="value1"/>
             <property key="key2" value="value2"/>

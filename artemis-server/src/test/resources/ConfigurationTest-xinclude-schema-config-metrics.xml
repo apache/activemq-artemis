@@ -22,6 +22,7 @@
    <file-descriptors>true</file-descriptors>
    <processor>true</processor>
    <uptime>true</uptime>
+   <logging>true</logging>
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
       <property key="foo" value="x"/>
       <property key="bar" value="y"/>

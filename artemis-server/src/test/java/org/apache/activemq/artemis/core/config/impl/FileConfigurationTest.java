@@ -584,6 +584,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(metricsConfiguration.isFileDescriptors());
       assertTrue(metricsConfiguration.isProcessor());
       assertTrue(metricsConfiguration.isUptime());
+      assertTrue(metricsConfiguration.isLogging());
    }
 
    private void verifyAddresses() {
