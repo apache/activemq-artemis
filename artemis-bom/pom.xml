@@ -220,11 +220,6 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-spring-integration</artifactId>
-            <version>${project.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-stomp-protocol</artifactId>
             <version>${project.version}</version>
          </dependency>

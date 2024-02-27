@@ -55,10 +55,6 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-spring-integration</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-journal</artifactId>
       </dependency>
       <dependency>
