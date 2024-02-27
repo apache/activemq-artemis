@@ -1608,4 +1608,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224135, value = "nodeID {} is closing. Topology update ignored", level = LogMessage.Level.INFO)
    void nodeLeavingCluster(String nodeID);
+
+   @LogMessage(id = 224136, value = "Skipping correlation ID when converting message to OpenWire since byte[] value is not valid UTF-8: {}", level = LogMessage.Level.WARN)
+   void unableToDecodeCorrelationId(String message);
 }

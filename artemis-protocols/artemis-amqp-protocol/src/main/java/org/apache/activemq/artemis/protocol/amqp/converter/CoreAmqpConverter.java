@@ -159,6 +159,8 @@ public class CoreAmqpConverter {
             } catch (ActiveMQAMQPIllegalStateException e) {
                properties.setCorrelationId(correlationID);
             }
+         } else if (correlationID instanceof byte[]) {
+            properties.setCorrelationId(new Binary(((byte[])correlationID)));
          } else {
             properties.setCorrelationId(correlationID);
          }
