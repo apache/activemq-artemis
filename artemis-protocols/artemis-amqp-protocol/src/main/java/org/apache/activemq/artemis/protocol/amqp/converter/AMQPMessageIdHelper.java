@@ -113,7 +113,7 @@ public class AMQPMessageIdHelper {
       }
    }
 
-   public String toCorrelationIdString(Object idObject) {
+   public Object toCorrelationIdStringOrBytes(Object idObject) {
       if (idObject instanceof String) {
          final String stringId = (String) idObject;
 
@@ -130,6 +130,11 @@ public class AMQPMessageIdHelper {
             // It has "ID:" prefix and doesn't have encoding prefix, use it as-is.
             return stringId;
          }
+      } else if (idObject instanceof Binary) {
+         ByteBuffer dup = ((Binary) idObject).asByteBuffer();
+         byte[] bytes = new byte[dup.remaining()];
+         dup.get(bytes);
+         return bytes;
       } else {
          // Not a string, convert it
          return convertToIdString(idObject);

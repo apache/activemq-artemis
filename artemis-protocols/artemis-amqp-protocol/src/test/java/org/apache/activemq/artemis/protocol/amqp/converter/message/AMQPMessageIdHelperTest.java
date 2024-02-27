@@ -18,6 +18,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -320,22 +321,22 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns null if given null
     */
    @Test
    public void testToCorrelationIdStringWithNull() {
-      assertNull("null string should have been returned", messageIdHelper.toCorrelationIdString(null));
+      assertNull("null string should have been returned", messageIdHelper.toCorrelationIdStringOrBytes(null));
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)} throws
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} throws
     * an IAE if given an unexpected object type.
     */
    @Test
    public void testToCorrelationIdStringThrowsIAEWithUnexpectedType() {
       try {
-         messageIdHelper.toCorrelationIdString(new Object());
+         messageIdHelper.toCorrelationIdStringOrBytes(new Object());
          fail("expected exception not thrown");
       } catch (IllegalArgumentException iae) {
          // expected
@@ -343,13 +344,19 @@ public class AMQPMessageIdHelperTest {
    }
 
    private void doToCorrelationIDTestImpl(Object idObject, String expected) {
-      String idString = messageIdHelper.toCorrelationIdString(idObject);
+      String idString = (String) messageIdHelper.toCorrelationIdStringOrBytes(idObject);
       assertNotNull("null string should not have been returned", idString);
       assertEquals("expected id string was not returned", expected, idString);
    }
 
+   private void doToCorrelationIDBytesTestImpl(Object idObject, byte[] expected) {
+      byte[] idBytes = (byte[]) messageIdHelper.toCorrelationIdStringOrBytes(idObject);
+      assertNotNull("null byte[] should not have been returned", idBytes);
+      assertArrayEquals("expected id byte[] was not returned", expected, idBytes);
+   }
+
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns the given basic string unchanged when it has the "ID:" prefix (but
     * no others).
     */
@@ -361,7 +368,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns the given basic string unchanged when it lacks the "ID:" prefix
     * (and any others)
     */
@@ -373,7 +380,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string unchanged when it lacks the "ID:" prefix but happens to
     * already begin with the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
     */
@@ -385,7 +392,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string unchanged when it lacks the "ID:" prefix but happens to
     * already begin with the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
     */
@@ -397,7 +404,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string unchanged when it lacks the "ID:" prefix but happens to
     * already begin with the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
     */
@@ -409,7 +416,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string unchanged when it lacks the "ID:" prefix but happens to
     * already begin with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
     */
@@ -421,7 +428,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string unchanged when it lacks the "ID:" prefix but happens to
     * already begin with the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
     */
@@ -433,7 +440,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an AMQP encoded UUID when given a UUID object.
     */
    @Test
@@ -445,7 +452,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an AMQP encoded ulong when given a
     * UnsignedLong object.
     */
@@ -458,22 +465,27 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
-    * returns a string indicating an AMQP encoded binary when given a Binary
-    * object.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
+    * returns a byte[] when given a Binary object.
     */
    @Test
-   public void testToCorrelationIdStringWithBinary() {
+   public void testToCorrelationIdByteArrayWithBinary() {
       byte[] bytes = new byte[] {(byte) 0x00, (byte) 0xAB, (byte) 0x09, (byte) 0xFF};
       Binary binary = new Binary(bytes);
 
-      String expected = AMQPMessageIdHelper.JMS_ID_PREFIX + AMQPMessageIdHelper.AMQP_BINARY_PREFIX + "00AB09FF";
+      doToCorrelationIDBytesTestImpl(binary, bytes);
+   }
 
-      doToCorrelationIDTestImpl(binary, expected);
+   @Test
+   public void testToCorrelationIdByteArrayWithBinaryWithOffset() {
+      byte[] bytes = new byte[] {(byte) 0x00, (byte) 0xAB, (byte) 0x09, (byte) 0xFF};
+      Binary binary = new Binary(bytes, 2, 2);
+
+      doToCorrelationIDBytesTestImpl(binary, new byte[] {(byte) 0x09, (byte) 0xFF});
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an escaped string, when given an input string
     * that already has the "ID:" prefix, but follows it with an encoding prefix,
     * in this case the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
@@ -487,7 +499,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an escaped string, when given an input string
     * that already has the "ID:" prefix, but follows it with an encoding prefix,
     * in this case the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
@@ -501,7 +513,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an escaped string, when given an input string
     * that already has the "ID:" prefix, but follows it with an encoding prefix,
     * in this case the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
@@ -515,7 +527,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an escaped string, when given an input string
     * that already has the "ID:" prefix, but follows it with an encoding prefix,
     * in this case the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
@@ -529,7 +541,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdString(Object)}
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
     * returns a string indicating an escaped string, when given an input string
     * that already has the "ID:" prefix, but follows it with an encoding prefix,
     * in this case the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.

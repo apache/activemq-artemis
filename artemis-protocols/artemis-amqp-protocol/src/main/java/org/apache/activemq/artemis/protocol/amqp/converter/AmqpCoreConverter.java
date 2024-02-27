@@ -378,7 +378,7 @@ public class AmqpCoreConverter {
 
          if (correlationID != null) {
             try {
-               jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(correlationID));
+               jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdStringOrBytes(correlationID));
             } catch (IllegalArgumentException e) {
                jms.getInnerMessage().setCorrelationID(String.valueOf(correlationID));
             }

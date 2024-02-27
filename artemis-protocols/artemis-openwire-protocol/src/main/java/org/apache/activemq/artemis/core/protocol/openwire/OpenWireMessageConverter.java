@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.ByteBuffer;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -159,7 +162,7 @@ public final class OpenWireMessageConverter {
       coreMessage.putIntProperty(OpenWireConstants.AMQ_MSG_COMMAND_ID, messageSend.getCommandId());
       final String corrId = messageSend.getCorrelationId();
       if (corrId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY, new SimpleString(corrId));
+         coreMessage.setCorrelationID(corrId);
       }
       final DataStructure ds = messageSend.getDataStructure();
       if (ds != null) {
@@ -590,9 +593,15 @@ public final class OpenWireMessageConverter {
       }
       amqMsg.setCommandId(commandId);
 
-      final SimpleString corrId = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.JMS_CORRELATION_ID_PROPERTY);
-      if (corrId != null) {
-         amqMsg.setCorrelationId(corrId.toString());
+      final Object correlationID = coreMessage.getCorrelationID();
+      if (correlationID instanceof String || correlationID instanceof SimpleString) {
+         amqMsg.setCorrelationId(correlationID.toString());
+      } else if (correlationID instanceof byte[]) {
+         try {
+            amqMsg.setCorrelationId(StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap((byte[]) correlationID)).toString());
+         } catch (MalformedInputException e) {
+            ActiveMQServerLogger.LOGGER.unableToDecodeCorrelationId(e.getMessage());
+         }
       }
 
       final byte[] dsBytes = getObjectProperty(coreMessage, byte[].class, OpenWireConstants.AMQ_MSG_DATASTRUCTURE);
@@ -943,6 +952,8 @@ public final class OpenWireMessageConverter {
             continue;
          }
          if (!coreMessage.containsProperty(ManagementHelper.HDR_NOTIFICATION_TYPE) && (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_"))) {
+            continue;
+         } else if (s.equals(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY)) {
             continue;
          }
          final Object prop = coreMessage.getObjectProperty(s);
