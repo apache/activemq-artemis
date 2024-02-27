@@ -187,7 +187,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
       recreateDirectory(homeInstance + "/log");
    }
 
-   protected void checkLogRecord(File logFile, boolean exist, String... values) throws Exception {
+   protected boolean findLogRecord(File logFile, String... values) throws Exception {
       Assert.assertTrue(logFile.exists());
       boolean hasRecord = false;
       try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
@@ -203,17 +203,13 @@ public class RealServerTestBase extends ActiveMQTestBase {
                }
                if (hasAll) {
                   hasRecord = true;
-                  System.out.println("audit has it: " + line);
+                  logger.debug("audit found: {}", line);
                   break;
                }
             }
             line = reader.readLine();
          }
-         if (exist) {
-            Assert.assertTrue(hasRecord);
-         } else {
-            Assert.assertFalse(hasRecord);
-         }
+         return hasRecord;
       }
    }
 

@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class AuditLoggerResourceTest extends AuditLoggerTestBase {
@@ -62,27 +63,27 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
          ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
 
          serverControl.createAddress("auditAddress", "ANYCAST,MULTICAST");
-         checkAuditLogRecord(true, "successfully created address:");
+         Assert.assertTrue(findLogRecord(getAuditLog(), "successfully created address:"));
          serverControl.updateAddress("auditAddress", "ANYCAST");
-         checkAuditLogRecord(true, "successfully updated address:");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"successfully updated address:"));
          serverControl.deleteAddress("auditAddress");
-         checkAuditLogRecord(true, "successfully deleted address:");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"successfully deleted address:"));
          serverControl.createQueue("auditAddress", "auditQueue", "ANYCAST");
-         checkAuditLogRecord(true, "successfully created queue:");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"successfully created queue:"));
          serverControl.updateQueue("auditQueue", "ANYCAST", -1, false);
          final QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection,
                objectNameBuilder.getQueueObjectName(new SimpleString( "auditAddress"), new SimpleString("auditQueue"), RoutingType.ANYCAST),
                QueueControl.class,
                false);
-         checkAuditLogRecord(true, "successfully updated queue:");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"successfully updated queue:"));
          queueControl.removeAllMessages();
-         checkAuditLogRecord(true, "has removed 0 messages");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"has removed 0 messages"));
          queueControl.sendMessage(new HashMap<>(), 0, "foo", true, "admin", "admin");
-         checkAuditLogRecord(true, "sent message to");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"sent message to"));
          CompositeData[] browse = queueControl.browse();
-         checkAuditLogRecord(true, "browsed " + browse.length + " messages");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"browsed " + browse.length + " messages"));
          serverControl.destroyQueue("auditQueue");
-         checkAuditLogRecord(true, "successfully deleted queue:");
+         Assert.assertTrue(findLogRecord(getAuditLog(),"successfully deleted queue:"));
 
          ServerLocator locator = createNettyNonHALocator();
          ClientSessionFactory sessionFactory = locator.createSessionFactory();
@@ -120,10 +121,10 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, url);
       Connection connection = factory.createConnection();
       Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      checkAuditLogRecord(true, "AMQ601767: " + protocol + " connection");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601767: " + protocol + " connection"));
       s.close();
       connection.close();
-      checkAuditLogRecord(true, "AMQ601768: " + protocol + " connection");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601768: " + protocol + " connection"));
    }
 
    @Test
@@ -138,8 +139,8 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
       connection.disconnect();
-      checkAuditLogRecord(true, "AMQ601767: MQTT connection");
-      checkAuditLogRecord(true, "AMQ601768: MQTT connection");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601767: MQTT connection"));
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601768: MQTT connection"));
    }
 
    @Test
@@ -147,7 +148,7 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection(new URI("tcp://localhost:61613"));
       connection.connect();
       connection.disconnect();
-      checkAuditLogRecord(true, "AMQ601767: STOMP connection");
-      checkAuditLogRecord(true, "AMQ601768: STOMP connection");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601767: STOMP connection"));
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601768: STOMP connection"));
    }
 }

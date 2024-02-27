@@ -89,7 +89,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
       Assert.assertEquals(1, addressControl.getMessageCount());
 
-      checkAuditLogRecord(true, "sending a message", uniqueStr);
+      Assert.assertTrue(findLogRecord(getAuditLog(),"sending a message", uniqueStr));
 
       //failure log
       address = RandomUtil.randomSimpleString();
@@ -112,9 +112,9 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          //ignore
       }
 
-      checkAuditLogRecord(true, "AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'"));
       //hot patch not in log
-      checkAuditLogRecord(true, "is sending a message");
+      Assert.assertTrue(findLogRecord(getAuditLog(),"is sending a message"));
    }
 
    @Test
@@ -177,10 +177,10 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          Wait.waitFor(() -> addressControl.getMessageCount() == 2);
          Assert.assertEquals(2, addressControl.getMessageCount());
 
-         checkAuditLogRecord(false, "messageID=0");
-         checkAuditLogRecord(true, "sent a message");
-         checkAuditLogRecord(true, uniqueStr);
-         checkAuditLogRecord(true, "Hello2");
+         Assert.assertFalse(findLogRecord(getAuditLog(), "messageID=0"));
+         Assert.assertTrue(findLogRecord(getAuditLog(), "sent a message"));
+         Assert.assertTrue(findLogRecord(getAuditLog(), uniqueStr));
+         Assert.assertTrue(findLogRecord(getAuditLog(), "Hello2"));
 
          connection.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(address.toString()));
@@ -191,7 +191,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       } finally {
          connection.close();
       }
-      checkAuditLogRecord(true, "is consuming a message from");
-      checkAuditLogRecord(true, "acknowledged message from");
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "is consuming a message from"), 5000);
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "acknowledged message from"), 5000);
    }
 }

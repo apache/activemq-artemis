@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -186,7 +187,7 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
          String serverName = SERVER_NAME_BASE + i;
 
          File artemisLog = new File("target/" + serverName + "/log/artemis.log");
-         checkLogRecord(artemisLog, false, "AMQ224037");
+         Assert.assertFalse(findLogRecord(artemisLog, "AMQ224037"));
       }
 
    }
