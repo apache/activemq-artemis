@@ -26,6 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -73,11 +74,11 @@ public class AuditLoggerAMQPMutualSSLTest extends AuditLoggerTestBase {
          assertNotNull(m);
       }
 
-      checkAuditLogRecord(true, "AMQ601715: User myUser(producers)@", "successfully authenticated");
-      checkAuditLogRecord(true, "AMQ601267: User myUser(producers)@", "is creating a core session");
-      checkAuditLogRecord(true, "AMQ601500: User myUser(producers)@", "sent a message AMQPStandardMessage");
-      checkAuditLogRecord(true, "AMQ601265: User myUser(producers)@", "is creating a core consumer");
-      checkAuditLogRecord(true, "AMQ601501: User myUser(producers)@", "is consuming a message from exampleQueue");
-      checkAuditLogRecord(true, "AMQ601502: User myUser(producers)@", "acknowledged message from exampleQueue: AMQPStandardMessage");
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601715: User myUser(producers)@", "successfully authenticated"));
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601267: User myUser(producers)@", "is creating a core session"));
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601500: User myUser(producers)@", "sent a message AMQPStandardMessage"));
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601265: User myUser(producers)@", "is creating a core consumer"));
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601501: User myUser(producers)@", "is consuming a message from exampleQueue"));
+      Assert.assertTrue(findLogRecord(getAuditLog(), "AMQ601502: User myUser(producers)@", "acknowledged message from exampleQueue: AMQPStandardMessage"));
    }
 }

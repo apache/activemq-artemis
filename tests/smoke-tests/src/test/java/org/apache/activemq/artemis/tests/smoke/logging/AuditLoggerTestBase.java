@@ -64,8 +64,4 @@ public abstract class AuditLoggerTestBase extends SmokeTestBase {
 
    abstract String getServerName();
 
-   //check the audit log has a line that contains all the values
-   protected void checkAuditLogRecord(boolean exist, String... values) throws Exception {
-      checkLogRecord(getAuditLog(), exist, values);
-   }
 }

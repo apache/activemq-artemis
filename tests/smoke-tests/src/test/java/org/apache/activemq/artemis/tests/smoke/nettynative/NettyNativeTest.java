@@ -88,8 +88,8 @@ public class NettyNativeTest extends SmokeTestBase {
       }
 
       File artemisLog = new File("target/" + SERVER_NAME + "/log/artemis.log");
-      checkLogRecord(artemisLog, true, "Acceptor using native");
-      checkLogRecord(artemisLog, false, "Acceptor using nio");
+      Assert.assertTrue(findLogRecord(artemisLog,  "Acceptor using native"));
+      Assert.assertFalse(findLogRecord(artemisLog, "Acceptor using nio"));
    }
 
 }
