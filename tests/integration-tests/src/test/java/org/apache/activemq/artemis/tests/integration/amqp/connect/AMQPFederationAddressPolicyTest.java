@@ -100,6 +100,8 @@ import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpJmsSelectorFilter;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpNoLocalFilter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
@@ -109,6 +111,10 @@ import org.apache.qpid.proton.amqp.transport.LinkError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
 import org.apache.qpid.protonj2.test.driver.ProtonTestPeer;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
+import org.apache.qpid.protonj2.test.driver.codec.messaging.Source;
+import org.apache.qpid.protonj2.test.driver.codec.primitives.DescribedType;
+import org.apache.qpid.protonj2.test.driver.codec.primitives.Symbol;
+import org.apache.qpid.protonj2.test.driver.codec.transport.Attach;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.HeaderMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.MessageAnnotationsMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.PropertiesMatcher;
@@ -388,6 +394,15 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    @Test(timeout = 20000)
    public void testFederationCreatesAddressReceiverLinkForAddressMatchWithMaxHopsFilter() throws Exception {
+      doTestFederationCreatesAddressReceiverLinkForAddressWithCorrectFilters(true);
+   }
+
+   @Test(timeout = 20000)
+   public void testFederationCreatesAddressReceiverLinkForAddressMatchWithoutMaxHopsFilter() throws Exception {
+      doTestFederationCreatesAddressReceiverLinkForAddressWithCorrectFilters(false);
+   }
+
+   private void doTestFederationCreatesAddressReceiverLinkForAddressWithCorrectFilters(boolean maxHops) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -410,7 +425,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
          receiveFromAddress.setName("address-policy");
-         receiveFromAddress.setMaxHops(1);
+         if (maxHops) {
+            receiveFromAddress.setMaxHops(1);
+         } else {
+            receiveFromAddress.setMaxHops(0); // Disabled
+         }
          receiveFromAddress.addToIncludes("test");
          receiveFromAddress.setAutoDelete(true);
          receiveFromAddress.setAutoDeleteDelay(10_000L);
@@ -430,11 +449,23 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
 
          final String expectedJMSFilter = generateAddressFilter(1);
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+         final Symbol noLocalKey = Symbol.valueOf("apache.org:no-local-filter:list");
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong noLocalCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000003L);
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         final Map<String, Object> selectors = new HashMap<>();
+         selectors.put(AmqpSupport.JMS_SELECTOR_KEY.toString(), new AmqpJmsSelectorFilter(expectedJMSFilter));
+         selectors.put(AmqpSupport.NO_LOCAL_NAME.toString(), new AmqpNoLocalFilter());
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, 10_000L);
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
@@ -444,7 +475,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                                             containsString("address-receiver"),
                                             containsString(server.getNodeID().toString())))
                             .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
-                            .withSource().withJMSSelector(expectedJMSFilter).and()
+                            .withCapture(attach -> capturedAttach.set(attach))
                             .respond()
                             .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
@@ -471,6 +502,28 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             receivingPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            assertNotNull(capturedAttach.get());
+
+            final Source remoteSource = capturedAttach.get().getSource();
+            assertNotNull(remoteSource);
+            final Map<Symbol, Object> filtersMap = remoteSource.getFilter();
+            assertNotNull(filtersMap);
+
+            if (maxHops) {
+               assertTrue(filtersMap.containsKey(jmsSelectorKey));
+               final DescribedType jmsSelectorEntry = (DescribedType) filtersMap.get(jmsSelectorKey);
+               assertNotNull(jmsSelectorEntry);
+               assertEquals(jmsSelectorEntry.getDescriptor(), jmsSelectorCode);
+               assertEquals(jmsSelectorEntry.getDescribed().toString(), expectedJMSFilter);
+            } else {
+               assertFalse(filtersMap.containsKey(jmsSelectorKey));
+            }
+
+            assertTrue(filtersMap.containsKey(noLocalKey));
+            final DescribedType noLocalEntry = (DescribedType) filtersMap.get(noLocalKey);
+            assertNotNull(noLocalEntry);
+            assertEquals(noLocalEntry.getDescriptor(), noLocalCode);
 
             // Check that annotation for hops is present in the forwarded message.
             final HeaderMatcher headerMatcher = new HeaderMatcher(true);

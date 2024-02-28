@@ -75,6 +75,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testBrokerContainerId() throws Exception {
+      final String containerId = server.getNodeID().toString();
+
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
 
@@ -82,7 +84,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            if (!BROKER_NAME.equals(connection.getRemoteContainer())) {
+            if (!containerId.equals(connection.getRemoteContainer())) {
                markAsInvalid("Broker did not send the expected container ID");
             }
          }

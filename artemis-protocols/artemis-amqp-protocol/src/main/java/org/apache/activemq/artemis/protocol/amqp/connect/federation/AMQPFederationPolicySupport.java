@@ -105,17 +105,17 @@ public final class AMQPFederationPolicySupport {
     * to indicate no max hops for federated messages on an address.
     *
     * @param maxHops
-    *    The max allowed number of hops before a message should stop cross federation links.
+    *    The max allowed number of hops before a message should stop crossing federation links.
     *
-    * @return the address filter string or null if not needed.
+    * @return the address filter string that should be applied (or null).
     */
    public static String generateAddressFilter(int maxHops) {
       if (maxHops <= 0) {
          return null;
       }
 
-      return "(\"m." + MESSAGE_HOPS_ANNOTATION.toString() +
-             "\" IS NULL OR \"m." + MESSAGE_HOPS_ANNOTATION.toString() +
+      return "(\"m." + MESSAGE_HOPS_ANNOTATION +
+             "\" IS NULL OR \"m." + MESSAGE_HOPS_ANNOTATION +
              "\"<" + maxHops + ")" +
              " AND " +
              "(" + MESSAGE_HOPS_PROPERTY + " IS NULL OR " +

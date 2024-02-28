@@ -238,7 +238,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
          ttl = 0;
       }
 
-      String id = server.getConfiguration().getName();
+      String id = server.getNodeID().toString();
       boolean useCoreSubscriptionNaming = server.getConfiguration().isAmqpUseCoreSubscriptionNaming();
       AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, null, outgoing);
 
