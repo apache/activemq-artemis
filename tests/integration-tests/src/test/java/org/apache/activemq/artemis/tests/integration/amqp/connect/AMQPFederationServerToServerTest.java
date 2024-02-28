@@ -1101,4 +1101,230 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          assertEquals("green", receivedR.getStringProperty("color"));
       }
    }
+
+   @Test(timeout = 20000)
+   public void testAddressFederatedOverSingleConnectionNotReflectedBackToSendingNodeAMQP() throws Exception {
+      doTestAddressFederatedOverSingleConnectionNotReflectedBackToSendingNode("AMQP");
+   }
+
+   @Test(timeout = 20000)
+   public void testAddressFederatedOverSingleConnectionNotReflectedBackToSendingNodeCore() throws Exception {
+      doTestAddressFederatedOverSingleConnectionNotReflectedBackToSendingNode("CORE");
+   }
+
+   private void doTestAddressFederatedOverSingleConnectionNotReflectedBackToSendingNode(String clientProtocol) throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy.setName("local-test-policy");
+      localAddressPolicy.addToIncludes("test");
+      localAddressPolicy.setAutoDelete(false);
+      localAddressPolicy.setAutoDeleteDelay(-1L);
+      localAddressPolicy.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy.setMaxHops(0); // Disable max hops
+
+      final AMQPFederationAddressPolicyElement remoteAddressPolicy = new AMQPFederationAddressPolicyElement();
+      remoteAddressPolicy.setName("remote-test-policy");
+      remoteAddressPolicy.addToIncludes("test");
+      remoteAddressPolicy.setAutoDelete(false);
+      remoteAddressPolicy.setAutoDeleteDelay(-1L);
+      remoteAddressPolicy.setAutoDeleteMessageCount(-1L);
+      remoteAddressPolicy.setMaxHops(0); // Disable max hops
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName(getTestName());
+      element.addLocalAddressPolicy(localAddressPolicy);
+      element.addRemoteAddressPolicy(remoteAddressPolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Connection connectionR = factoryRemote.createConnection()) {
+
+         final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+         final Topic topic = sessionL.createTopic("test");
+
+         final MessageConsumer consumerL = sessionL.createConsumer(topic);
+         final MessageConsumer consumerR = sessionR.createConsumer(topic);
+
+         final MessageProducer producerL = sessionL.createProducer(topic);
+         final MessageProducer producerR = sessionR.createProducer(topic);
+
+         final TextMessage messageFromL = sessionL.createTextMessage("local");
+         final TextMessage messageFromR = sessionR.createTextMessage("remote");
+
+         connectionL.start();
+         connectionR.start();
+
+         final SimpleString addressName = SimpleString.toSimpleString("test");
+
+         Wait.assertTrue(() -> server.addressQuery(addressName).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists());
+
+         assertNull(consumerL.receiveNoWait());
+         assertNull(consumerR.receiveNoWait());
+
+         // Captures state of JMS consumer and federation consumer attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() >= 2);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() >= 2);
+
+         producerL.send(messageFromL);
+
+         final Message messageL1 = consumerL.receive();
+         final Message messageR1 = consumerR.receive();
+
+         assertNotNull(messageL1);
+         assertNotNull(messageR1);
+         assertTrue(messageL1 instanceof TextMessage);
+         assertTrue(messageR1 instanceof TextMessage);
+         assertEquals("local", ((TextMessage) messageL1).getText());
+         assertEquals("local", ((TextMessage) messageR1).getText());
+
+         producerR.send(messageFromR);
+
+         final Message messageL2 = consumerL.receive();
+         final Message messageR2 = consumerR.receive();
+
+         assertNotNull(messageL2);
+         assertNotNull(messageR2);
+         assertTrue(messageL2 instanceof TextMessage);
+         assertTrue(messageR2 instanceof TextMessage);
+         assertEquals("remote", ((TextMessage) messageL2).getText());
+         assertEquals("remote", ((TextMessage) messageR2).getText());
+
+         // Should be no other messages routed
+         assertNull(consumerL.receiveNoWait());
+         assertNull(consumerR.receiveNoWait());
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testAddressFederatedOnTwoConnectionsNotReflectedBackToSendingNodeAMQP() throws Exception {
+      doTestAddressFederatedOverTwoConnectionNotReflectedBackToSendingNode("AMQP");
+   }
+
+   @Test(timeout = 20000)
+   public void testAddressFederatedOnTwoConnectionsNotReflectedBackToSendingNodeCore() throws Exception {
+      doTestAddressFederatedOverTwoConnectionNotReflectedBackToSendingNode("CORE");
+   }
+
+   private void doTestAddressFederatedOverTwoConnectionNotReflectedBackToSendingNode(String clientProtocol) throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy1 = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy1.setName("local-test-policy");
+      localAddressPolicy1.addToIncludes("test");
+      localAddressPolicy1.setAutoDelete(false);
+      localAddressPolicy1.setAutoDeleteDelay(-1L);
+      localAddressPolicy1.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy1.setMaxHops(0); // Disable max hops
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy2 = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy2.setName("remote-test-policy");
+      localAddressPolicy2.addToIncludes("test");
+      localAddressPolicy2.setAutoDelete(false);
+      localAddressPolicy2.setAutoDeleteDelay(-1L);
+      localAddressPolicy2.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy2.setMaxHops(0); // Disable max hops
+
+      final AMQPFederatedBrokerConnectionElement element1 = new AMQPFederatedBrokerConnectionElement();
+      element1.setName(getTestName() + ":1");
+      element1.addLocalAddressPolicy(localAddressPolicy1);
+
+      final AMQPFederatedBrokerConnectionElement element2 = new AMQPFederatedBrokerConnectionElement();
+      element2.setName(getTestName() + "2");
+      element2.addLocalAddressPolicy(localAddressPolicy2);
+
+      final AMQPBrokerConnectConfiguration amqpConnection1 =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection1.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection1.addElement(element1);
+
+      final AMQPBrokerConnectConfiguration amqpConnection2 =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT);
+      amqpConnection2.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection2.addElement(element2);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection1);
+      remoteServer.getConfiguration().addAMQPConnection(amqpConnection2);
+      remoteServer.start();
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Connection connectionR = factoryRemote.createConnection()) {
+
+         final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+         final Topic topic = sessionL.createTopic("test");
+
+         final MessageConsumer consumerL = sessionL.createConsumer(topic);
+         final MessageConsumer consumerR = sessionR.createConsumer(topic);
+
+         final MessageProducer producerL = sessionL.createProducer(topic);
+         final MessageProducer producerR = sessionR.createProducer(topic);
+
+         final TextMessage messageFromL = sessionL.createTextMessage("local");
+         final TextMessage messageFromR = sessionR.createTextMessage("remote");
+
+         connectionL.start();
+         connectionR.start();
+
+         final SimpleString addressName = SimpleString.toSimpleString("test");
+
+         Wait.assertTrue(() -> server.addressQuery(addressName).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists());
+
+         assertNull(consumerL.receiveNoWait());
+         assertNull(consumerR.receiveNoWait());
+
+         // Captures state of JMS consumer and federation consumer attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() >= 2);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() >= 2);
+
+         producerL.send(messageFromL);
+
+         final Message messageL1 = consumerL.receive();
+         final Message messageR1 = consumerR.receive();
+
+         assertNotNull(messageL1);
+         assertNotNull(messageR1);
+         assertTrue(messageL1 instanceof TextMessage);
+         assertTrue(messageR1 instanceof TextMessage);
+         assertEquals("local", ((TextMessage) messageL1).getText());
+         assertEquals("local", ((TextMessage) messageR1).getText());
+
+         producerR.send(messageFromR);
+
+         final Message messageL2 = consumerL.receive();
+         final Message messageR2 = consumerR.receive();
+
+         assertNotNull(messageL2);
+         assertNotNull(messageR2);
+         assertTrue(messageL2 instanceof TextMessage);
+         assertTrue(messageR2 instanceof TextMessage);
+         assertEquals("remote", ((TextMessage) messageL2).getText());
+         assertEquals("remote", ((TextMessage) messageR2).getText());
+
+         // Should be no other messages routed
+         assertNull(consumerL.receiveNoWait());
+         assertNull(consumerR.receiveNoWait());
+      }
+   }
 }
+

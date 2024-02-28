@@ -62,11 +62,13 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpJmsSelectorFilter;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpNoLocalFilter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
@@ -274,18 +276,20 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
                source.setCapabilities(AmqpSupport.TOPIC_CAPABILITY);
             }
 
+            final Map<Symbol, Object> filtersMap = new HashMap<>();
+            filtersMap.put(AmqpSupport.NO_LOCAL_NAME, AmqpNoLocalFilter.NO_LOCAL);
+
+            if (consumerInfo.getFilterString() != null && !consumerInfo.getFilterString().isEmpty()) {
+               final AmqpJmsSelectorFilter jmsFilter = new AmqpJmsSelectorFilter(consumerInfo.getFilterString());
+
+               filtersMap.put(AmqpSupport.JMS_SELECTOR_KEY, jmsFilter);
+            }
+
             source.setOutcomes(Arrays.copyOf(DEFAULT_OUTCOMES, DEFAULT_OUTCOMES.length));
             source.setDurable(TerminusDurability.NONE);
             source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
             source.setAddress(address);
-
-            if (consumerInfo.getFilterString() != null && !consumerInfo.getFilterString().isEmpty()) {
-               final AmqpJmsSelectorFilter jmsFilter = new AmqpJmsSelectorFilter(consumerInfo.getFilterString());
-               final Map<Symbol, Object> filtersMap = new HashMap<>();
-               filtersMap.put(AmqpSupport.JMS_SELECTOR_KEY, jmsFilter);
-
-               source.setFilter(filtersMap);
-            }
+            source.setFilter(filtersMap);
 
             target.setAddress(address);
 
@@ -526,6 +530,11 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
 
             if (message instanceof ICoreMessage) {
                baseMessage = incrementCoreMessageHops((ICoreMessage) message);
+
+               // Add / Update the connection Id value to reflect the remote container Id so that the
+               // no-local filter of a federation address receiver directed back to the source of this
+               // message will exclude it as intended.
+               baseMessage.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING, getConnection().getRemoteContainer());
             } else {
                baseMessage = incrementAMQPMessageHops((AMQPMessage) message);
             }

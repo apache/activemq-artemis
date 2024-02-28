@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.qpid.proton.amqp.DescribedType;
@@ -117,19 +118,22 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       final long autoDeleteDelay = ((Number) addressSourceProperties.getOrDefault(ADDRESS_AUTO_DELETE_DELAY, 0)).longValue();
       final long autoDeleteMsgCount = ((Number) addressSourceProperties.getOrDefault(ADDRESS_AUTO_DELETE_MSG_COUNT, 0)).longValue();
 
-      // An address receiver may opt to filter on things like max message hops so we must
-      // check for a filter here and apply it if it exists.
-      final Map.Entry<Symbol, DescribedType> filter = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.JMS_SELECTOR_FILTER_IDS);
+      // An address receiver may opt to filter on things like max message hops or no local message
+      // reflection so we must check for a filter here and apply it if it exists.
+      final String jmsSelector = getJMSSelectorFromFilters(source);
+      final Map.Entry<Symbol, DescribedType> noLocal = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.NO_LOCAL_FILTER_IDS);
 
-      if (filter != null) {
-         selector = filter.getValue().getDescribed().toString();
-         try {
-            SelectorParser.parse(selector);
-         } catch (FilterException e) {
-            throw new ActiveMQAMQPException(AmqpError.INVALID_FIELD, "Invalid filter", ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
+      if (noLocal != null) {
+         String remoteContainerId = protonConnection.getRemoteContainer();
+         String noLocalFilter = MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING + "<>'" + remoteContainerId + "'";
+
+         if (jmsSelector == null) {
+            selector = noLocalFilter;
+         } else {
+            selector = jmsSelector + " AND " + noLocalFilter;
          }
       } else {
-         selector = null;
+         selector = jmsSelector;
       }
 
       final SimpleString address = SimpleString.toSimpleString(source.getAddress());
@@ -193,6 +197,26 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       resourceDeletedAction = (e) -> federation.registerMissingAddress(address.toString());
 
       return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
+   }
+
+   @SuppressWarnings("unchecked")
+   private String getJMSSelectorFromFilters(Source source) throws ActiveMQAMQPException {
+      final Map.Entry<Symbol, DescribedType> jmsSelector = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.JMS_SELECTOR_FILTER_IDS);
+
+      String selectorString = null;
+
+      // Validate the JMS selector if present.
+      if (jmsSelector != null) {
+         selectorString = jmsSelector.getValue().getDescribed().toString();
+
+         try {
+            SelectorParser.parse(selectorString);
+         } catch (FilterException e) {
+            throw new ActiveMQAMQPException(AmqpError.INVALID_FIELD, "Invalid filter", ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
+         }
+      }
+
+      return selectorString;
    }
 
    private static RoutingType getRoutingType(Source source) {
