@@ -85,13 +85,39 @@ However, these metrics can be deduced by aggregating the lower level metrics (e.
 
 === Optional metrics
 
-* JVM memory metrics (exported by default)
-* JVM GC
-* JVM thread
-* https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html[Netty]
-* File descriptors
-* Processor
-* Uptime
+There are a handful of other useful metrics that are related to the JVM, the underlying operating system, etc.
+
+JVM memory metrics::
+Gauges buffer and memory pool utilization.
+Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/BufferPoolMXBean.html[BufferPoolMXBeans] and https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryPoolMXBean.html[MemoryPoolMXBeans].
++
+Enabled by default.
+JVM GC::
+Gauges max and live data size, promotion and allocation rates, and the number of times the GC pauses (or concurrent phase time in the case of CMS).
+Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryPoolMXBean.html[MemoryPoolMXBeans].
++
+Disabled by default.
+JVM thread::
+Gauges thread peak, the number of daemon threads, and live threads.
+Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/ThreadMXBean.html[ThreadMXBean].
++
+Disabled by default.
+Netty::
+Collects metrics from Netty's https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html[PooledByteBufAllocatorMetric].
++
+Disabled by default.
+File descriptors::
+Gauges current and max-allowed open files.
++
+Disabled by default.
+Processor::
+Gauges system CPU count, CPU usage, and 1-minute load average as well as process CPU usage.
++
+Disabled by default.
+Uptime::
+Gauges process start time and uptime.
++
+Disabled by default.
 
 == Configuration
 
