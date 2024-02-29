@@ -161,6 +161,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
          Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
 
+         // Captures state of JMS consumers and federation consumers attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+
          final MessageProducer producerR = sessionR.createProducer(topic);
          final TextMessage message = sessionR.createTextMessage("Hello World");
 
@@ -239,6 +243,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          // Demand on local address should trigger receiver on remote.
          Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("source")).isExists());
+
+         // Captures state of JMS consumers and federation consumers attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("target"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("source"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerR = sessionR.createProducer(source);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -376,6 +384,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          // Demand on local address should trigger receiver on remote.
          Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
          Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+
+         // Captures state of JMS consumers and federation consumers attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerL = sessionL.createProducer(topic);
          final TextMessage message = sessionL.createTextMessage("Hello World");
@@ -526,6 +538,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          // Demand on local address should trigger receiver on remote.
          Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("source")).isExists());
 
+         // Captures state of JMS consumers and federation consumers attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("source"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("target"), false).getQueueNames().size() >= 1);
+
          final MessageProducer producerL = sessionL.createProducer(source);
          final TextMessage message = sessionL.createTextMessage("Hello World");
 
@@ -609,6 +625,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          // Demand on local address should trigger receiver on remote.
          Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
          Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+
+         // Captures state of JMS consumers and federation consumers attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerR = sessionR.createProducer(topic);
          final BytesMessage message = sessionR.createBytesMessage();
