@@ -273,7 +273,7 @@ public abstract class VersionedStompFrameHandler {
       if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
          noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
       } else if (frame.hasHeader(Stomp.Headers.Subscribe.ACTIVEMQ_NO_LOCAL)) {
-         noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
+         noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.ACTIVEMQ_NO_LOCAL));
       }
       Integer consumerWindowSize = null;
       if (frame.hasHeader(Headers.Subscribe.CONSUMER_WINDOW_SIZE)) {
