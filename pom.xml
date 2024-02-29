@@ -171,7 +171,7 @@
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
-      <postgresql.version>42.7.1</postgresql.version>
+      <postgresql.version>42.7.2</postgresql.version>
       <testcontainers.version>1.19.4</testcontainers.version>
       <selenium.version>4.17.0</selenium.version>
       <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
