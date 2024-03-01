@@ -1304,7 +1304,14 @@ public final class PageSubscriptionImpl implements PageSubscription {
                if (valid && message.getPagedMessage().getTransactionID() >= 0) {
                   PageTransactionInfo tx = pageStore.getPagingManager().getTransaction(message.getPagedMessage().getTransactionID());
                   if (tx == null) {
-                     ActiveMQServerLogger.LOGGER.pageSubscriptionCouldntLoad(message.getPagedMessage().getTransactionID(), message.getPagedMessage().newPositionObject(), pageStore.getAddress(), queue.getName());
+                     if (logger.isDebugEnabled()) {
+                        // this message used to be a warning...
+                        // when this message was first introduced I was being over carefully about eventually hiding a bug. Over the years I am confident
+                        // this could happen between restarts.
+                        // also after adding rebuild counters and retry scans over mirroring this could happen more oftenly.
+                        // It's time to make this a logger.debug now
+                        logger.debug("Could not locate page transaction {}, ignoring message on position {} on address={} queue={}", message.getPagedMessage().getTransactionID(), message.getPagedMessage().newPositionObject(), pageStore.getAddress(), queue.getName());
+                     }
                      valid = false;
                      ignored = true;
                   } else {

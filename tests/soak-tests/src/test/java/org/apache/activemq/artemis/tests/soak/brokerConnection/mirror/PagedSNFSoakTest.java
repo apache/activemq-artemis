@@ -169,8 +169,8 @@ public class PagedSNFSoakTest extends SoakTestBase {
 
       Wait.assertEquals((long) numberOfMessages, () -> simpleManagementDC1A.getMessageCountOnQueue(QUEUE_NAME), 5000, 100);
 
-      Wait.assertEquals((long) 0, () -> getCount("DC1", simpleManagementDC1A, SNF_QUEUE), 50_000, 100);
-      Wait.assertEquals((long) numberOfMessages, () -> getCount("DC2", simpleManagementDC2A, QUEUE_NAME), 30_000, 100);
+      Wait.assertEquals((long) 0, () -> getCount("DC1", simpleManagementDC1A, SNF_QUEUE), 5_000, 100);
+      Wait.assertEquals((long) numberOfMessages, () -> getCount("DC2", simpleManagementDC2A, QUEUE_NAME), 5_000, 100);
 
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
          connection.start();
@@ -207,7 +207,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
          int serverToProduce = ((nbatch & 1) > 0) ? 1 : 0;
          int serverToConsume = ((nbatch & 2) > 0) ? 1 : 0;
 
-         logger.info("Batch {}, sending on server {}. consuming on server {}", nbatch, serverToProduce, serverToConsume);
+         logger.debug("Batch {}, sending on server {}. consuming on server {}", nbatch, serverToProduce, serverToConsume);
 
          try (Connection connection = cfs[serverToProduce].createConnection()) {
             Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -215,7 +215,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
             for (int i = 0; i < numberOfMessages; i++) {
                producer.send(session.createTextMessage("msg " + i));
                if (i > 0 && i % batchSize == 0) {
-                  logger.info("Commit send {}", i);
+                  logger.debug("Commit send {}", i);
                   session.commit();
                }
             }
@@ -223,9 +223,9 @@ public class PagedSNFSoakTest extends SoakTestBase {
          }
 
          for (SimpleManagement s : sm) {
-            logger.info("Checking counts on SNF for {}", s.getUri());
+            logger.debug("Checking counts on SNF for {}", s.getUri());
             Wait.assertEquals((long) 0, () -> s.getMessageCountOnQueue(SNF_QUEUE), 120_000, 100);
-            logger.info("Checking counts on {} on {}", QUEUE_NAME, s.getUri());
+            logger.debug("Checking counts on {} on {}", QUEUE_NAME, s.getUri());
             Wait.assertEquals((long) numberOfMessages, () -> s.getMessageCountOnQueue(QUEUE_NAME), 60_000, 100);
          }
 
@@ -237,7 +237,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
                Message message = consumer.receive(5000);
                Assert.assertNotNull(message);
                if (i > 0 && i % batchSize == 0) {
-                  logger.info("Commit consume {}", i);
+                  logger.debug("Commit consume {}", i);
                   session.commit();
                }
             }
@@ -245,9 +245,9 @@ public class PagedSNFSoakTest extends SoakTestBase {
          }
 
          for (SimpleManagement s : sm) {
-            logger.info("Checking 0 counts on SNF for {}", s.getUri());
+            logger.debug("Checking 0 counts on SNF for {}", s.getUri());
             Wait.assertEquals((long) 0, () -> s.getMessageCountOnQueue(SNF_QUEUE), 120_000, 100);
-            logger.info("Checking for empty queue on {}", s.getUri());
+            logger.debug("Checking for empty queue on {}", s.getUri());
             Wait.assertEquals((long) 0, () -> s.getMessageCountOnQueue(QUEUE_NAME), 60_000, 100);
          }
       }
@@ -261,7 +261,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
             Assert.assertNotNull(message);
             Assert.assertEquals(body, message.getText());
             Assert.assertEquals(i, message.getIntProperty("id"));
-            logger.info("received {}", i);
+            logger.debug("received {}", i);
             if ((i + 1) % 10 == 0) {
                session.commit();
             }
@@ -282,7 +282,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = session.createTextMessage(body);
             message.setIntProperty("id", i);
-            logger.info("send {}", i);
+            logger.debug("send {}", i);
             if (setter != null) {
                try {
                   setter.accept(message);

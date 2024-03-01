@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -110,6 +111,45 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    final AMQPMirrorBrokerConnectionElement replicaConfig;
 
    boolean started;
+
+   TransactionOperation deliveryAsyncTX = new TransactionOperation() {
+      @Override
+      public void beforePrepare(Transaction tx) throws Exception {
+      }
+
+      @Override
+      public void afterPrepare(Transaction tx) {
+      }
+
+      @Override
+      public void beforeCommit(Transaction tx) throws Exception {
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         snfQueue.deliverAsync();
+      }
+
+      @Override
+      public void beforeRollback(Transaction tx) throws Exception {
+      }
+
+      @Override
+      public void afterRollback(Transaction tx) {
+      }
+
+      @Override
+      public List<MessageReference> getRelatedMessageReferences() {
+         return null;
+      }
+
+      @Override
+      public List<MessageReference> getListOnConsumer(long consumerID) {
+         return null;
+      }
+   };
+
+
 
    @Override
    public void start() throws Exception {
@@ -311,6 +351,14 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
          // This will store the message on paging, and the message will be copied into paging.
          if (snfQueue.getPagingStore().page(message, tx, pagedRouteContext, this::copyMessageForPaging)) {
+            if (tx == null) {
+               snfQueue.deliverAsync();
+            } else {
+               if (tx.getProperty(TransactionPropertyIndexes.MIRROR_DELIVERY_ASYNC) == null) {
+                  tx.putProperty(TransactionPropertyIndexes.MIRROR_DELIVERY_ASYNC, deliveryAsyncTX);
+                  tx.addOperation(deliveryAsyncTX);
+               }
+            }
             return;
          }
 
@@ -448,6 +496,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       logger.debug("postACKInternalMessage::server={}, ref={}", server, reference);
       if (sync) {
          syncDone(reference);
+      }
+
+      if (reference != null && reference.getQueue() != null && reference.isPaged()) {
+         reference.getQueue().deliverAsync();
       }
    }
 

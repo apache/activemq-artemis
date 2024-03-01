@@ -406,6 +406,8 @@ public class AckManager implements ActiveMQComponent {
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
+      } finally {
+         targetQueue.deliverAsync();
       }
    }
    /** The ACKManager will perform the retry on each address's pageStore executor.
