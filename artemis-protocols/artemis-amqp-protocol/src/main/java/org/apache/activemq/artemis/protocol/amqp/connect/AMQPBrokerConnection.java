@@ -477,6 +477,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          Queue queue = checkCurrentMirror(this, (AMQPMirrorControllerSource) currentMirrorController);
          // on this case we already had a mirror installed before, we won't duplicate it
          if (queue != null) {
+            queue.deliverAsync();
             return queue;
          }
       } else if (currentMirrorController != null && currentMirrorController instanceof AMQPMirrorControllerAggregation) {
