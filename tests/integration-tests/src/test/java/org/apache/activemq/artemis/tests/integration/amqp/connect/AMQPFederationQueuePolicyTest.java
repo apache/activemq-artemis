@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFro
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.LinkError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
@@ -2718,6 +2719,8 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().withLinkCredit(10);
          peer.start();
 
+         final SimpleString queueName = SimpleString.toSimpleString("test");
+
          final URI remoteURI = peer.getServerURI();
          logger.info("Test started, peer listening on: {}", remoteURI);
 
@@ -2781,6 +2784,8 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                     .withDeliveryId(i)
                                     .now();
             }
+
+            Wait.assertTrue(() -> server.queueQuery(queueName).getMessageCount() == DEFAULT_PULL_CREDIT_BATCH_SIZE, 10_000);
 
             // Consume all the newly received message from the remote except one
             // which should leave the queue with a pending message so no credit
