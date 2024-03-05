@@ -129,7 +129,7 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
    }
 
    @Override
-   public AMQPTunneledCoreLargeMessageWriter open() {
+   public AMQPTunneledCoreLargeMessageWriter open(MessageReference reference) {
       if (state != State.CLOSED) {
          throw new IllegalStateException("Trying to open an AMQP Large Message writer that was not closed");
       }

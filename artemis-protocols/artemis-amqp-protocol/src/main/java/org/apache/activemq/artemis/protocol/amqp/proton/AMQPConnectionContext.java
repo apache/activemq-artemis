@@ -94,6 +94,19 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   public void disableAutoRead() {
+      handler.requireHandler();
+      connectionCallback.getTransportConnection().setAutoRead(false);
+      handler.setReadable(false);
+   }
+
+   public void enableAutoRead() {
+      handler.requireHandler();
+      connectionCallback.getTransportConnection().setAutoRead(true);
+      getHandler().setReadable(true);
+      flush();
+   }
+
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";
    private static final FutureTask<Void> VOID_FUTURE = new FutureTask<>(() -> { }, null);

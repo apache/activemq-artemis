@@ -52,6 +52,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
@@ -110,7 +111,7 @@ public class AMQPTunneledCoreMessageWriterTest {
 
       when(protonSender.getLocalState()).thenReturn(EndpointState.CLOSED);
 
-      writer.open();
+      writer.open(Mockito.mock(MessageReference.class));
 
       try {
          writer.writeBytes(reference);
@@ -171,7 +172,7 @@ public class AMQPTunneledCoreMessageWriterTest {
          return null;
       }).when(message).persist(any(ActiveMQBuffer.class));
 
-      writer.open();
+      writer.open(Mockito.mock(MessageReference.class));
 
       try {
          writer.writeBytes(reference);

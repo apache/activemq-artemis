@@ -34,7 +34,7 @@ public class AMQPLargeMessageReader implements MessageReader {
 
    private final ProtonAbstractReceiver serverReceiver;
 
-   private AMQPLargeMessage currentMessage;
+   private volatile AMQPLargeMessage currentMessage;
    private DeliveryAnnotations deliveryAnnotations;
    private boolean closed = true;
 
@@ -50,14 +50,15 @@ public class AMQPLargeMessageReader implements MessageReader {
    @Override
    public void close() {
       if (!closed) {
-         if (currentMessage != null) {
-            try {
-               currentMessage.deleteFile();
-            } catch (Throwable error) {
-               ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
-            } finally {
-               currentMessage = null;
+         try {
+            AMQPLargeMessage localCurrentMessage = currentMessage;
+            if (localCurrentMessage != null) {
+               localCurrentMessage.deleteFile();
             }
+         } catch (Throwable error) {
+            ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+         } finally {
+            currentMessage = null;
          }
 
          deliveryAnnotations = null;
@@ -82,34 +83,53 @@ public class AMQPLargeMessageReader implements MessageReader {
          throw new IllegalStateException("AMQP Large Message Reader is closed and read cannot proceed");
       }
 
-      final Receiver receiver = ((Receiver) delivery.getLink());
-      final ReadableBuffer dataBuffer = receiver.recv();
+      try {
+         serverReceiver.connection.requireInHandler();
 
-      if (currentMessage == null) {
+         final Receiver receiver = ((Receiver) delivery.getLink());
+         final ReadableBuffer dataBuffer = receiver.recv();
+
          final AMQPSessionCallback sessionSPI = serverReceiver.getSessionContext().getSessionSPI();
-         final long id = sessionSPI.getStorageManager().generateID();
-         currentMessage = new AMQPLargeMessage(id, delivery.getMessageFormat(), null,
-                                               sessionSPI.getCoreMessageObjectPools(),
-                                               sessionSPI.getStorageManager());
-         currentMessage.parseHeader(dataBuffer);
 
-         sessionSPI.getStorageManager().onLargeMessageCreate(id, currentMessage);
+         if (currentMessage == null) {
+            final long id = sessionSPI.getStorageManager().generateID();
+            AMQPLargeMessage localCurrentMessage = new AMQPLargeMessage(id, delivery.getMessageFormat(), null, sessionSPI.getCoreMessageObjectPools(), sessionSPI.getStorageManager());
+            localCurrentMessage.parseHeader(dataBuffer);
+
+            sessionSPI.getStorageManager().onLargeMessageCreate(id, localCurrentMessage);
+            currentMessage = localCurrentMessage;
+         }
+
+         serverReceiver.getConnection().disableAutoRead();
+
+         boolean partial = delivery.isPartial();
+
+         sessionSPI.execute(() -> addBytes(delivery, dataBuffer, partial));
+
+         return null;
+      } catch (Exception e) {
+         // if an exception happened we must enable it back
+         serverReceiver.getConnection().enableAutoRead();
+         throw e;
       }
+   }
 
-      currentMessage.addBytes(dataBuffer);
+   private void addBytes(Delivery delivery, ReadableBuffer dataBuffer, boolean isPartial) {
+      final AMQPLargeMessage localCurrentMessage = currentMessage;
 
-      final AMQPLargeMessage result;
+      try {
+         localCurrentMessage.addBytes(dataBuffer);
 
-      if (!delivery.isPartial()) {
-         currentMessage.releaseResources(serverReceiver.getConnection().isLargeMessageSync(), true);
-         result = currentMessage;
-         // We don't want a close to delete the file now, we've released the resources.
-         currentMessage = null;
-         deliveryAnnotations = result.getDeliveryAnnotations();
-      } else {
-         result = null;
+         if (!isPartial) {
+            localCurrentMessage.releaseResources(serverReceiver.getConnection().isLargeMessageSync(), true);
+            // We don't want a close to delete the file now, we've released the resources.
+            currentMessage = null;
+            serverReceiver.connection.runNow(() -> serverReceiver.onMessageComplete(delivery, localCurrentMessage, localCurrentMessage.getDeliveryAnnotations()));
+         }
+      } catch (Throwable e) {
+         serverReceiver.onExceptionWhileReading(e);
+      } finally {
+         serverReceiver.connection.runNow(serverReceiver.getConnection()::enableAutoRead);
       }
-
-      return result;
    }
 }
