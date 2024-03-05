@@ -172,6 +172,10 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   public void execute(Runnable run) {
+      sessionExecutor.execute(run);
+   }
+
    public void afterIO(IOCallback ioCallback) {
       OperationContext context = recoverContext();
       try {

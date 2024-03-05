@@ -49,6 +49,9 @@ public interface MessageReader {
     * and is no longer partial the readBytes method will return the decoded message
     * for dispatch.
     *
+    * Notice that asynchronous Readers will never return the Message but will rather call a complete operation on the
+    * Server Receiver.
+    *
     * @param delivery
     *    The delivery that has pending incoming bytes.
     */

@@ -59,6 +59,9 @@ public class AMQPLargeMessageWriter implements MessageWriter {
 
    private MessageReference reference;
    private AMQPLargeMessage message;
+
+   private LargeBodyReader largeBodyReader;
+
    private Delivery delivery;
    private long position;
    private boolean initialPacketHandled;
@@ -81,33 +84,59 @@ public class AMQPLargeMessageWriter implements MessageWriter {
    public void close() {
       if (!closed) {
          try {
+            try {
+               if (largeBodyReader != null) {
+                  largeBodyReader.close();
+               }
+            } catch (Exception e) {
+               // if we get an error only at this point, there's nothing else we could do other than log.warn
+               logger.warn("{}", e.getMessage(), e);
+            }
             if (message != null) {
                message.usageDown();
             }
          } finally {
-            reset(true);
+            resetClosed();
          }
       }
    }
 
    @Override
-   public AMQPLargeMessageWriter open() {
+   public AMQPLargeMessageWriter open(MessageReference reference) {
       if (!closed) {
          throw new IllegalStateException("Trying to open an AMQP Large Message writer that was not closed");
       }
 
-      reset(false);
+      this.reference = reference;
+      this.message = (AMQPLargeMessage) reference.getMessage();
+      this.message.usageUp();
+
+      try {
+         largeBodyReader = message.getLargeBodyReader();
+         largeBodyReader.open();
+      } catch (Exception e) {
+         serverSender.reportDeliveryError(this, reference, e);
+      }
+
+      resetOpen();
 
       return this;
    }
 
-   private void reset(boolean closedState) {
+   private void resetClosed() {
       message = null;
       reference = null;
       delivery = null;
+      largeBodyReader = null;
       position = 0;
       initialPacketHandled = false;
-      closed = closedState;
+      closed = true;
+   }
+
+   private void resetOpen() {
+      position = 0;
+      initialPacketHandled = false;
+      closed = false;
    }
 
    @Override
@@ -121,16 +150,14 @@ public class AMQPLargeMessageWriter implements MessageWriter {
          throw new IllegalStateException("Cannot write to an AMQP Large Message Writer that has been closed");
       }
 
-      this.reference = messageReference;
-      this.message = (AMQPLargeMessage) messageReference.getMessage();
-
       if (sessionSPI.invokeOutgoing(message, (ActiveMQProtonRemotingConnection) sessionSPI.getTransportConnection().getProtocolConnection()) != null) {
+         // an interceptor rejected the delivery
+         // since we opened the message as part of the queue executor we must close it now
+         close();
          return;
       }
 
       this.delivery = serverSender.createDelivery(messageReference, (int) this.message.getMessageFormat());
-
-      message.usageUp();
 
       tryDelivering();
    }
@@ -150,15 +177,14 @@ public class AMQPLargeMessageWriter implements MessageWriter {
          final ByteBuf frameBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(frameSize, frameSize);
          final NettyReadable frameView = new NettyReadable(frameBuffer);
 
-         try (LargeBodyReader context = message.getLargeBodyReader()) {
-            context.open();
-            context.position(position);
-            long bodySize = context.getSize();
+         try {
+            largeBodyReader.position(position);
+            long bodySize = largeBodyReader.getSize();
             // materialize it so we can use its internal NIO buffer
             frameBuffer.ensureWritable(frameSize);
 
             if (!initialPacketHandled && protonSender.getLocalState() != EndpointState.CLOSED) {
-               if (!deliverInitialPacket(context, frameBuffer)) {
+               if (!deliverInitialPacket(largeBodyReader, frameBuffer)) {
                   return;
                }
 
@@ -171,7 +197,7 @@ public class AMQPLargeMessageWriter implements MessageWriter {
                }
                frameBuffer.clear();
 
-               final int readSize = context.readInto(frameBuffer.internalNioBuffer(0, frameSize));
+               final int readSize = largeBodyReader.readInto(frameBuffer.internalNioBuffer(0, frameSize));
 
                frameBuffer.writerIndex(readSize);
 

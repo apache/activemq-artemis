@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -26,11 +28,16 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ProtonAbstractReceiver extends ProtonInitializable implements ProtonDeliveryHandler {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final AMQPConnectionContext connection;
 
@@ -302,8 +309,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    public final void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       connection.requireInHandler();
 
-      final Receiver receiver = ((Receiver) delivery.getLink());
-
       if (receiver.current() != delivery) {
          return;
       }
@@ -320,28 +325,41 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
             return;
          }
 
-         final Message message = messageReader.readBytes(delivery);
-
-         if (message != null) {
-            // Fetch this before the close of the reader as that will clear any read message
-            // delivery annotations.
-            final DeliveryAnnotations deliveryAnnotations = messageReader.getDeliveryAnnotations();
-
-            this.messageReader.close();
-            this.messageReader = null;
-
-            receiver.advance();
-
-            Transaction tx = null;
-            if (delivery.getRemoteState() instanceof TransactionalState) {
-               TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-               tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
-            }
-
-            actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
+         Message completeMessage;
+         if ((completeMessage = messageReader.readBytes(delivery)) != null) {
+            // notice the AMQP Large Message Reader will always return null
+            // and call the onMessageComplete directly
+            // since that happens asynchronously
+            onMessageComplete(delivery, completeMessage, messageReader.getDeliveryAnnotations());
          }
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+      }
+   }
+
+   public void onMessageComplete(Delivery delivery,
+                          Message message, DeliveryAnnotations deliveryAnnotations) {
+      connection.requireInHandler();
+
+      try {
+         receiver.advance();
+
+         Transaction tx = null;
+         if (delivery.getRemoteState() instanceof TransactionalState) {
+            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+            try {
+               tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
+            } catch (Exception e) {
+               this.onExceptionWhileReading(e);
+            }
+         }
+
+         actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
+      } finally {
+         // reader is complete, we give it up now
+         this.messageReader.close();
+         this.messageReader = null;
       }
    }
 
@@ -349,6 +367,17 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
       closeCurrentReader();
+   }
+
+   public void onExceptionWhileReading(Throwable e) {
+      logger.warn(e.getMessage(), e);
+      connection.runNow(() -> {
+         // setting it enabled just in case a large message reader disabled it
+         connection.enableAutoRead();
+         ErrorCondition ec = new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage());
+         connection.close(ec);
+         connection.flush();
+      });
    }
 
    @Override
