@@ -277,7 +277,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
          if (message instanceof ClientLargeMessageInternal) {
 
             final StorageManager storageManager = server.getStorageManager();
-            LargeServerMessage lsm = storageManager.createLargeMessage(storageManager.generateID(), message);
+            LargeServerMessage lsm = storageManager.createCoreLargeMessage(storageManager.generateID(), message);
 
             LargeData largeData = null;
             do {

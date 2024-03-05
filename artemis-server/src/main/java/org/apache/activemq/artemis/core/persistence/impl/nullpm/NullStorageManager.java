@@ -315,12 +315,12 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public LargeServerMessage createLargeMessage() {
+   public LargeServerMessage createCoreLargeMessage() {
       return new NullStorageLargeServerMessage();
    }
 
    @Override
-   public LargeServerMessage createLargeMessage(final long id, final Message message) {
+   public LargeServerMessage createCoreLargeMessage(final long id, final Message message) {
       NullStorageLargeServerMessage largeMessage = new NullStorageLargeServerMessage();
 
       largeMessage.moveHeadersAndProperties(message);
@@ -331,7 +331,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+   public LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception {
       return null;
    }
 

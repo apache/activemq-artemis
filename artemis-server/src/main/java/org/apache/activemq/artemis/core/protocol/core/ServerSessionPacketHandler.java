@@ -1083,7 +1083,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       if (logger.isDebugEnabled()) {
          logger.debug("initializing large message {}", id);
       }
-      LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
+      LargeServerMessage largeMsg = storageManager.createCoreLargeMessage(id, message);
 
       logger.trace("sendLarge::{}", largeMsg);
 

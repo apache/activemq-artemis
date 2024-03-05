@@ -574,7 +574,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       waitForComponent(manager);
 
       CoreMessage msg = new CoreMessage().initBuffer(1024).setMessageID(1);
-      LargeServerMessage largeMsg = liveServer.getStorageManager().createLargeMessage(500, msg);
+      LargeServerMessage largeMsg = liveServer.getStorageManager().createCoreLargeMessage(500, msg);
       largeMsg.addBytes(new byte[1024]);
       largeMsg.releaseResources(true, true);
 

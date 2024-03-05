@@ -683,7 +683,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (liveToBackupSync) {
          msg = new LargeServerMessageInSync(storageManager);
       } else {
-         msg = storageManager.createLargeMessage();
+         msg = storageManager.createCoreLargeMessage();
       }
 
       msg.setDurable(true);

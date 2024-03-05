@@ -420,7 +420,7 @@ public class StompSession implements SessionCallback {
 
       StorageManager storageManager = ((ServerSessionImpl) session).getStorageManager();
       long id = storageManager.generateID();
-      LargeServerMessage largeMessage = storageManager.createLargeMessage(id, message);
+      LargeServerMessage largeMessage = storageManager.createCoreLargeMessage(id, message);
 
       ActiveMQBuffer body = message.getReadOnlyBodyBuffer();
       byte[] bytes = new byte[body.readableBytes()];

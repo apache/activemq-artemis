@@ -161,7 +161,7 @@ public class PagedMessageImpl implements PagedMessage {
    @Override
    public void initMessage(StorageManager storage) {
       if (largeMessageLazyData != null) {
-         LargeServerMessage lgMessage = storage.createLargeMessage();
+         LargeServerMessage lgMessage = storage.createCoreLargeMessage();
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(largeMessageLazyData);
          lgMessage = LargeMessagePersister.getInstance().decode(buffer, lgMessage, null);
@@ -213,7 +213,7 @@ public class PagedMessageImpl implements PagedMessage {
             largeMessageLazyData = new byte[largeMessageHeaderSize];
             buffer.readBytes(largeMessageLazyData);
          } else {
-            this.message = storageManager.createLargeMessage().toMessage();
+            this.message = storageManager.createCoreLargeMessage().toMessage();
             LargeMessagePersister.getInstance().decode(buffer, (LargeServerMessage) message, null);
             ((LargeServerMessage) message).setStorageManager(storageManager);
             ((LargeServerMessage) message).toMessage().usageUp();
