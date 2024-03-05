@@ -266,11 +266,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
-   @Override
-   public void validateFile() throws ActiveMQException {
-      largeBody.validateFile();
-   }
-
    public void setFileDurable(boolean value) {
       this.fileDurable = value;
    }

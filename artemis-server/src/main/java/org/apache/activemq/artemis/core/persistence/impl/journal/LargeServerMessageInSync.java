@@ -45,7 +45,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
     * @param storageManager
     */
    public LargeServerMessageInSync(StorageManager storageManager) {
-      mainLM = storageManager.createLargeMessage();
+      mainLM = storageManager.createCoreLargeMessage();
       this.storageManager = storageManager;
    }
 

@@ -158,7 +158,7 @@ public class LargeBody {
       bodySize += readableBytes;
    }
 
-   public synchronized void validateFile() throws ActiveMQException {
+   private void validateFile() throws ActiveMQException {
       this.ensureFileExists(true);
    }
 

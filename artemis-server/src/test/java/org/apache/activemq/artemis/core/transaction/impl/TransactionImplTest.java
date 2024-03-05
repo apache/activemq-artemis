@@ -579,17 +579,17 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
-      public LargeServerMessage createLargeMessage() {
+      public LargeServerMessage createCoreLargeMessage() {
          return null;
       }
 
       @Override
-      public LargeServerMessage createLargeMessage(long id, Message message) throws Exception {
+      public LargeServerMessage createCoreLargeMessage(long id, Message message) throws Exception {
          return null;
       }
 
       @Override
-      public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+      public LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception {
          return null;
       }
 

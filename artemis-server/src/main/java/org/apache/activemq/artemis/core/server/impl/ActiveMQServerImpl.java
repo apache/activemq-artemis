@@ -3879,7 +3879,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       for (Pair<Long, Long> msgToDelete : pendingLargeMessages) {
          ActiveMQServerLogger.LOGGER.deletingPendingMessage(msgToDelete);
-         LargeServerMessage msg = storageManager.createLargeMessage();
+         LargeServerMessage msg = storageManager.createCoreLargeMessage();
          msg.setMessageID(msgToDelete.getB());
          msg.setDurable(true);
          msg.deleteFile();

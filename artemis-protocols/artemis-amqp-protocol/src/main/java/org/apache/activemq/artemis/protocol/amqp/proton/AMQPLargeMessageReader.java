@@ -93,7 +93,7 @@ public class AMQPLargeMessageReader implements MessageReader {
                                                sessionSPI.getStorageManager());
          currentMessage.parseHeader(dataBuffer);
 
-         sessionSPI.getStorageManager().largeMessageCreated(id, currentMessage);
+         sessionSPI.getStorageManager().onLargeMessageCreate(id, currentMessage);
       }
 
       currentMessage.addBytes(dataBuffer);

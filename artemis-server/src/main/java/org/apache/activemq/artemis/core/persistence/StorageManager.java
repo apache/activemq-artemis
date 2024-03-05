@@ -221,10 +221,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void deleteDuplicateIDTransactional(long txID, long recordID) throws Exception;
 
-   LargeServerMessage createLargeMessage();
+   LargeServerMessage createCoreLargeMessage();
 
    /**
-    * Creates a new LargeMessage with the given id.
+    * Creates a new LargeServerMessage for the core Protocol with the given id.
     *
     * @param id
     * @param message This is a temporary message that holds the parsed properties. The remoting
@@ -232,9 +232,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return a large message object
     * @throws Exception
     */
-   LargeServerMessage createLargeMessage(long id, Message message) throws Exception;
+   LargeServerMessage createCoreLargeMessage(long id, Message message) throws Exception;
 
-   LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception;
+   /** Other protocols may inform the storage manager when a large message was created. */
+   LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception;
 
    enum LargeMessageExtension {
       DURABLE(".msg"), TEMPORARY(".tmp"), SYNC(".sync");

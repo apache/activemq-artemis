@@ -353,7 +353,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     * @throws Exception
     */
    protected LargeServerMessage parseLargeMessage(final ActiveMQBuffer buff) throws Exception {
-      LargeServerMessage largeMessage = createLargeMessage();
+      LargeServerMessage largeMessage = createCoreLargeMessage();
 
       LargeMessagePersister.getInstance().decode(buff, largeMessage, null);
 
@@ -501,12 +501,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public LargeServerMessage createLargeMessage() {
+   public LargeServerMessage createCoreLargeMessage() {
       return new LargeServerMessageImpl(this);
    }
 
    @Override
-   public LargeServerMessage createLargeMessage(final long id, final Message message) throws Exception {
+   public LargeServerMessage createCoreLargeMessage(final long id, final Message message) throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("Initializing large message {}", id, new Exception("trace"));
       }
@@ -515,16 +515,16 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             replicator.largeMessageBegin(id);
          }
 
-         LargeServerMessageImpl largeMessage = (LargeServerMessageImpl) createLargeMessage();
+         LargeServerMessageImpl largeMessage = (LargeServerMessageImpl) createCoreLargeMessage();
 
          largeMessage.moveHeadersAndProperties(message);
 
-         return largeMessageCreated(id, largeMessage);
+         return onLargeMessageCreate(id, largeMessage);
       }
    }
 
    @Override
-   public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+   public LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception {
       largeMessage.setMessageID(id);
 
       // Check durable large massage size before to allocate resources if it can't be stored
@@ -544,11 +544,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             }
          }
       }
-
-      // We do this here to avoid a case where the replication gets a list without this file
-      // to avoid a race
-      largeMessage.validateFile();
-
 
       return largeMessage;
    }

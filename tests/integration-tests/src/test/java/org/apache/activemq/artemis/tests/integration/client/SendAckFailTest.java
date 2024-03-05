@@ -300,8 +300,8 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
-         return manager.largeMessageCreated(id, largeMessage);
+      public LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception {
+         return manager.onLargeMessageCreate(id, largeMessage);
       }
 
       @Override
@@ -547,13 +547,13 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public LargeServerMessage createLargeMessage() {
-         return manager.createLargeMessage();
+      public LargeServerMessage createCoreLargeMessage() {
+         return manager.createCoreLargeMessage();
       }
 
       @Override
-      public LargeServerMessage createLargeMessage(long id, Message message) throws Exception {
-         return manager.createLargeMessage(id, message);
+      public LargeServerMessage createCoreLargeMessage(long id, Message message) throws Exception {
+         return manager.createCoreLargeMessage(id, message);
       }
 
       @Override

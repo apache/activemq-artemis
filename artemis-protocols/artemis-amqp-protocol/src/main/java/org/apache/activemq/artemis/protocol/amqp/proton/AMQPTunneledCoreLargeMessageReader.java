@@ -295,7 +295,7 @@ public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
 
          coreMessage.decodeHeadersAndProperties(coreHeadersBuffer);
 
-         coreLargeMessage = sessionSPI.getStorageManager().createLargeMessage(id, coreMessage);
+         coreLargeMessage = sessionSPI.getStorageManager().createCoreLargeMessage(id, coreMessage);
          coreHeadersBuffer = null; // Buffer can be discarded once the decode is done
          state = State.BODY_SECTION_PENDING;
       } catch (ActiveMQException ex) {
