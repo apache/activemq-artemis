@@ -331,10 +331,12 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void writeDirect(ByteBuffer bytes, boolean sync, IOCallback callback) {
       if (callback == null) {
-         SimpleWaitIOCallback waitIOCallback = new SimpleWaitIOCallback();
+         final SimpleWaitIOCallback waitIOCallback = sync ? new SimpleWaitIOCallback() : null;
          try {
             scheduleWrite(bytes, waitIOCallback);
-            waitIOCallback.waitCompletion();
+            if (waitIOCallback != null) {
+               waitIOCallback.waitCompletion();
+            }
          } catch (Exception e) {
             waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error writing to JDBC file.");
             fileFactory.onIOError(e, "Failed to write to file.", this);
