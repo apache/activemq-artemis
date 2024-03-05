@@ -2607,6 +2607,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       for (int i = 0; i < largeMessageSize; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
+      fileMessage.releaseResources(true, false);
 
       Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
 
@@ -2725,7 +2726,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       // The server would be doing this
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
 
-      fileMessage.releaseResources(false, false);
+      fileMessage.releaseResources(true, false);
 
       prod.send(fileMessage);
 
