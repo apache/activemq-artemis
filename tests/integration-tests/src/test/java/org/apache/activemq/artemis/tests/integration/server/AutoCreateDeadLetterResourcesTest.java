@@ -259,7 +259,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testOngingSendToDLAPreventAutoDelete() throws Exception {
+   public void testOngoingSendToDLAPreventAutoDelete() throws Exception {
       final int messageCount = 100;
       SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
 
