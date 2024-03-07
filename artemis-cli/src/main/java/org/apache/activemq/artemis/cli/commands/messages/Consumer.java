@@ -63,14 +63,14 @@ public class Consumer extends DestAbstract {
       if (file != null) {
          serializer = getMessageSerializer();
          if (serializer == null) {
-            System.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
+            context.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
             return null;
          }
 
          try {
             outputStream = new BufferedOutputStream(new FileOutputStream(file));
          } catch (Exception e) {
-            System.err.println("Error: Unable to open file for writing\n" + e.getMessage());
+            context.err.println("Error: Unable to open file for writing\n" + e.getMessage());
             return null;
          }
 
@@ -92,7 +92,7 @@ public class Consumer extends DestAbstract {
             }
 
             Destination dest = getDestination(session);
-            threadsArray[i] = new ConsumerThread(session, dest, i);
+            threadsArray[i] = new ConsumerThread(session, dest, i, context);
 
             threadsArray[i]
                .setVerbose(verbose)

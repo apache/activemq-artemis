@@ -153,7 +153,7 @@ public class Producer extends DestAbstract {
             try {
                MessageSerializer serializer = getMessageSerializer();
                if (serializer == null) {
-                  System.err.println("Error. Unable to instantiate serializer class: " + serializer);
+                  context.err.println("Error. Unable to instantiate serializer class: " + serializer);
                   return null;
                }
 
@@ -161,7 +161,7 @@ public class Producer extends DestAbstract {
                try {
                   in = new FileInputStream(file);
                } catch (Exception e) {
-                  System.err.println("Error: Unable to open file for reading\n" + e.getMessage());
+                  context.err.println("Error: Unable to open file for reading\n" + e.getMessage());
                   return null;
                }
 
@@ -179,12 +179,12 @@ public class Producer extends DestAbstract {
                session.commit();
                serializer.stop();
             } catch (Exception e) {
-               System.err.println("Error occurred during import.  Rolling back.");
+               context.err.println("Error occurred during import.  Rolling back.");
                session.rollback();
                e.printStackTrace();
                return 0;
             }
-            System.out.println("Sent " + messageCount + " Messages.");
+            context.out.println("Sent " + messageCount + " Messages.");
             return messageCount;
          } else {
             ProducerThread[] threadsArray = new ProducerThread[threads];
@@ -196,7 +196,7 @@ public class Producer extends DestAbstract {
                   session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                }
                Destination dest = getDestination(session);
-               threadsArray[i] = new ProducerThread(session, dest, i);
+               threadsArray[i] = new ProducerThread(session, dest, i, context);
 
                threadsArray[i]
                   .setVerbose(verbose)

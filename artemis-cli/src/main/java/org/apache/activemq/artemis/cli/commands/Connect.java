@@ -29,9 +29,9 @@ public class Connect extends ConnectionAbstract {
       try {
          CONNECTION_INFORMATION.remove();
          createConnectionFactory();
-         System.out.println("Connection Successful!");
+         context.out.println("Connection Successful!");
       } catch (Exception e) {
-         System.out.println("Connection Failure!");
+         context.out.println("Connection Failure!");
          e.printStackTrace();
       }
       return null;

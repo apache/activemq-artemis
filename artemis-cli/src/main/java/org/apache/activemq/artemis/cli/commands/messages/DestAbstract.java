@@ -55,13 +55,13 @@ public class DestAbstract extends ConnectionAbstract {
          try {
             return (MessageSerializer) Class.forName(serializer).getConstructor().newInstance();
          } catch (Exception e) {
-            System.err.println("Error: unable to instantiate serializer class: " + serializer);
-            System.err.println("Defaulting to: " + XMLMessageSerializer.class.getName());
+            getActionContext().err.println("Error: unable to instantiate serializer class: " + serializer);
+            getActionContext().err.println("Defaulting to: " + XMLMessageSerializer.class.getName());
          }
       }
 
       if (protocol != ConnectionProtocol.CORE) {
-         System.err.println("Default Serializer does not support: " + protocol + " protocol");
+         getActionContext().err.println("Default Serializer does not support: " + protocol + " protocol");
          return null;
       }
 

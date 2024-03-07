@@ -234,7 +234,7 @@ public class ConnectionAbstract extends InputAbstract {
    void saveConnectionInfo(String brokerURL, String user, String password) {
       if (Shell.inShell() && CONNECTION_INFORMATION.get() == null) {
          CONNECTION_INFORMATION.set(new ConnectionInformation(brokerURL, user, password));
-         System.out.println("CLI connected to broker " + brokerURL + ", user:" + user);
+         getActionContext().out.println("CLI connected to broker " + brokerURL + ", user:" + user);
          this.brokerURL = brokerURL;
          this.user = user;
          this.password = password;

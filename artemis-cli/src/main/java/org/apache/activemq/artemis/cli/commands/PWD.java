@@ -26,16 +26,16 @@ public class PWD extends ActionAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      System.out.println();
-      System.out.println("*******************************************************************************************************************************");
-      System.out.println("* Artemis instance:: " + getBrokerInstance());
-      System.out.println("* Home:: " + getBrokerHome());
-      System.out.println("* etc:: " + getBrokerEtc());
+      context.out.println();
+      context.out.println("*******************************************************************************************************************************");
+      context.out.println("* Artemis instance:: " + getBrokerInstance());
+      context.out.println("* Home:: " + getBrokerHome());
+      context.out.println("* etc:: " + getBrokerEtc());
 
       String canonicalPath = new java.io.File(".").getCanonicalPath();
-      System.out.println("* Current dir:" + canonicalPath);
-      System.out.println("*******************************************************************************************************************************");
-      System.out.println();
+      context.out.println("* Current dir:" + canonicalPath);
+      context.out.println("*******************************************************************************************************************************");
+      context.out.println();
 
       return null;
    }

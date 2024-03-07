@@ -195,7 +195,7 @@ public class Run extends LockAbstract {
          public void run() {
             if (allowKill && fileKill.exists()) {
                try {
-                  System.err.println("Halting by user request");
+                  getActionContext().err.println("Halting by user request");
                   fileKill.delete();
                } catch (Throwable ignored) {
                }
@@ -243,15 +243,15 @@ public class Run extends LockAbstract {
    }
 
 
-   public static void verifyOlderLogging(File etc) throws Exception {
+   public void verifyOlderLogging(File etc) {
       File newLogging = new File(etc, Create.ETC_LOG4J2_PROPERTIES);
       File oldLogging = new File(etc, Upgrade.OLD_LOGGING_PROPERTIES);
 
       if (oldLogging.exists() && !newLogging.exists()) {
-         System.out.println("******************************************************************************************************************************************************************************");
-         System.out.println("Your system has the older logging file " + Upgrade.OLD_LOGGING_PROPERTIES + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
-         System.out.println("It appears you did not complete the migration on this artemis instance properly. Please check all the settings or run the './artemis upgrade' command from the new artemis home");
-         System.out.println("******************************************************************************************************************************************************************************");
+         getActionContext().out.println("******************************************************************************************************************************************************************************");
+         getActionContext().out.println("Your system has the older logging file " + Upgrade.OLD_LOGGING_PROPERTIES + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
+         getActionContext().out.println("It appears you did not complete the migration on this artemis instance properly. Please check all the settings or run the './artemis upgrade' command from the new artemis home");
+         getActionContext().out.println("******************************************************************************************************************************************************************************");
       }
    }
 

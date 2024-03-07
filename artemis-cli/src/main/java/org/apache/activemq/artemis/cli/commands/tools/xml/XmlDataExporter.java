@@ -374,7 +374,7 @@ public final class XmlDataExporter extends DBOption {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_PARENT);
 
       if (logInterval > 0) {
-         System.err.println("Processing journal messages");
+         getActionContext().err.println("Processing journal messages");
       }
 
       long msgs = 0;
@@ -385,7 +385,7 @@ public final class XmlDataExporter extends DBOption {
          msgs++;
          if (logInterval > 0) {
             if (msgs % logInterval == 0) {
-               System.err.println("exported " + msgs + " messages from journal");
+               getActionContext().err.println("exported " + msgs + " messages from journal");
             }
          }
       }
@@ -433,7 +433,7 @@ public final class XmlDataExporter extends DBOption {
                      while (iter.hasNext()) {
                         msgs++;
                         if (logInterval > 0 && msgs % logInterval == 0) {
-                           System.err.println("Exported " + msgs + " messages from paging");
+                           getActionContext().err.println("Exported " + msgs + " messages from paging");
                         }
                         PagedMessage message = iter.next();
                         message.initMessage(storageManager);

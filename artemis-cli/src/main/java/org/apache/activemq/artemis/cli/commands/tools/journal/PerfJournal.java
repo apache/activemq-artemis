@@ -75,10 +75,10 @@ public class PerfJournal extends OptionalLocking {
          fileConfiguration.setJournalType(JournalType.getType(journalType));
       }
 
-      System.out.println("");
-      System.out.println("Auto tuning journal ...");
+      context.out.println("");
+      context.out.println("Auto tuning journal ...");
 
-      System.out.println("Performing " + tries + " tests writing " + writes + " blocks of " + size + " on each test, sync=" + fileConfiguration.isJournalDatasync() + " with journalType = " + fileConfiguration.getJournalType());
+      context.out.println("Performing " + tries + " tests writing " + writes + " blocks of " + size + " on each test, sync=" + fileConfiguration.isJournalDatasync() + " with journalType = " + fileConfiguration.getJournalType());
 
       fileConfiguration.getJournalLocation().mkdirs();
 
@@ -86,9 +86,9 @@ public class PerfJournal extends OptionalLocking {
          maxAIO = fileConfiguration.getJournalMaxIO_AIO();
       }
 
-      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), size, writes, tries, verbose, fileConfiguration.isJournalDatasync(), syncWrites, fileName, maxAIO, fileConfiguration.getJournalType());
+      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), size, writes, tries, verbose, fileConfiguration.isJournalDatasync(), syncWrites, fileName, maxAIO, fileConfiguration.getJournalType(), context);
 
-      long nanosecondsWait = SyncCalculation.toNanos(time, writes, verbose);
+      long nanosecondsWait = SyncCalculation.toNanos(time, writes, verbose, context);
       double writesPerMillisecond = (double) writes / (double) time;
 
       String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);

@@ -169,9 +169,9 @@ public class ArtemisTest extends CliTestBase {
    public void testSync() throws Exception {
       int writes = 2;
       int tries = 5;
-      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true, "file.tmp", 1, JournalType.NIO);
+      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true, "file.tmp", 1, JournalType.NIO, new TestActionContext());
       logger.debug("TotalAvg = {}", totalAvg);
-      long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);
+      long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false, null);
       logger.debug("nanoTime avg = {}", nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
