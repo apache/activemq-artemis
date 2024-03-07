@@ -4090,6 +4090,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
             final QueueBinding queueBinding = (QueueBinding) rawBinding;
             if (ignoreIfExists) {
+               //Reset potentially ongoing auto-delete status of queue
+               queueBinding.getQueue().setSwept(false);
+
                return queueBinding.getQueue();
             } else {
                throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueConfiguration.getName(), queueBinding.getAddress());
