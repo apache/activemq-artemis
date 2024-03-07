@@ -27,8 +27,6 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -105,11 +103,6 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
 
-      Path configPath = new File(getServerLocation(serverName), "./etc/broker.xml").toPath();
-
-      String brokerXML = Files.readString(configPath);
-
-      // the SimpleMetricsPlugin needs to be added throught the XML
       String insert;
       {
          StringWriter insertWriter = new StringWriter();
@@ -130,10 +123,7 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
          insert = insertWriter.toString();
       }
 
-      brokerXML = brokerXML.replace("</core>", insert);
-      Assert.assertTrue(brokerXML.contains("SimpleMetricsPlugin"));
-
-      Files.writeString(configPath, brokerXML);
+      Assert.assertTrue(findReplace(new File(getServerLocation(serverName), "./etc/broker.xml"), "</core>", insert));
    }
 
    @BeforeClass

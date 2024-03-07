@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -29,11 +30,19 @@ import java.io.File;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
@@ -43,7 +52,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MirroredTopicSoakTest extends SoakTestBase {
+public class ClusteredMirrorSoakTest extends SoakTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -98,6 +107,11 @@ public class MirroredTopicSoakTest extends SoakTestBase {
       brokerProperties.put("largeMessageSync", "false");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
+
+      File brokerXml = new File(serverLocation, "/etc/broker.xml");
+      Assert.assertTrue(brokerXml.exists());
+      // Adding redistribution delay to broker configuration
+      Assert.assertTrue(findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
    }
 
    @BeforeClass
@@ -121,7 +135,7 @@ public class MirroredTopicSoakTest extends SoakTestBase {
    }
 
    @Test
-   public void testQueue() throws Exception {
+   public void testSimpleQueue() throws Exception {
       startServers();
 
       final int numberOfMessages = 200;
@@ -195,6 +209,118 @@ public class MirroredTopicSoakTest extends SoakTestBase {
          }
          session.commit();
       }
+   }
+
+
+   private CountDownLatch startConsumer(Executor executor, ConnectionFactory factory, String queue, AtomicBoolean running, AtomicInteger errorCount, AtomicInteger receivedCount) {
+      CountDownLatch done = new CountDownLatch(1);
+
+      executor.execute(() -> {
+         try {
+            try (Connection connection = factory.createConnection()) {
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageConsumer consumer = session.createConsumer(session.createQueue(queue));
+               connection.start();
+               while (running.get()) {
+                  Message message = consumer.receive(100);
+                  if (message != null) {
+                     receivedCount.incrementAndGet();
+                  }
+               }
+            }
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            errorCount.incrementAndGet();
+         } finally {
+            done.countDown();
+         }
+
+      });
+
+      return done;
+   }
+
+   private boolean findQueue(SimpleManagement simpleManagement, String queue) {
+      try {
+         simpleManagement.getMessageCountOnQueue(queue);
+         return true;
+      } catch (Exception e) {
+         return false;
+      }
+   }
+
+   private void sendMessages(ConnectionFactory factory, String queueName, int messages, int commitInterval) throws Exception {
+
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(queueName);
+         MessageProducer producer = session.createProducer(queue);
+
+         for (int i = 0; i < messages; i++) {
+            TextMessage message;
+            boolean large;
+            if (i % 1 == 2) {
+               message = session.createTextMessage(largeBody);
+               large = true;
+            } else {
+               message = session.createTextMessage(smallBody);
+               large = false;
+            }
+            message.setIntProperty("i", i);
+            message.setBooleanProperty("large", large);
+            producer.send(message);
+            if (i > 0 && i % commitInterval == 0) {
+               logger.debug("commit {}", i);
+               session.commit();
+            }
+         }
+         session.commit();
+      }
+   }
+
+   @Test
+   public void testAutoCreateQueue() throws Exception {
+      ExecutorService executorService = Executors.newFixedThreadPool(2);
+      runAfter(executorService::shutdownNow);
+
+      startServers();
+
+      String queueName = "queue" + RandomUtil.randomString();
+
+      final int numberOfMessages = 50;
+
+      ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", DC1_NODEA_URI);
+      ConnectionFactory connectionFactoryDC2B = CFUtil.createConnectionFactory("amqp", DC2_NODEB_URI);
+
+      AtomicBoolean runningConsumers = new AtomicBoolean(true);
+      runAfter(() -> runningConsumers.set(false));
+      AtomicInteger errors = new AtomicInteger(0);
+      AtomicInteger receiverCount = new AtomicInteger(0);
+
+      SimpleManagement simpleManagementDC1A = new SimpleManagement(DC1_NODEA_URI, null, null);
+      SimpleManagement simpleManagementDC1B = new SimpleManagement(DC1_NODEB_URI, null, null);
+      SimpleManagement simpleManagementDC2A = new SimpleManagement(DC2_NODEA_URI, null, null);
+      SimpleManagement simpleManagementDC2B = new SimpleManagement(DC2_NODEB_URI, null, null);
+
+      CountDownLatch doneDC2B = startConsumer(executorService, connectionFactoryDC2B, queueName, runningConsumers, errors, receiverCount);
+
+      sendMessages(connectionFactoryDC1A, queueName, numberOfMessages, 10);
+
+      Wait.assertEquals(numberOfMessages, receiverCount::get, 5000);
+
+      Wait.assertTrue(() -> findQueue(simpleManagementDC1A, queueName));
+      Wait.assertTrue(() -> findQueue(simpleManagementDC1B, queueName));
+      Wait.assertTrue(() -> findQueue(simpleManagementDC2A, queueName));
+      Wait.assertTrue(() -> findQueue(simpleManagementDC2B, queueName));
+
+      Wait.assertEquals(0, () -> simpleManagementDC1A.getDeliveringCountOnQueue(queueName), 5000);
+      Wait.assertEquals(0, () -> simpleManagementDC1B.getDeliveringCountOnQueue(queueName), 5000);
+      Wait.assertEquals(0, () -> simpleManagementDC2A.getDeliveringCountOnQueue(queueName), 5000);
+      Wait.assertEquals(0, () -> simpleManagementDC2B.getDeliveringCountOnQueue(queueName), 5000);
+
+      runningConsumers.set(false);
+
+      Assert.assertTrue(doneDC2B.await(5, TimeUnit.SECONDS));
    }
 
    @Test
