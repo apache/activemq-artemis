@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -60,6 +61,22 @@ public class RealServerTestBase extends ActiveMQTestBase {
    private static final int JMX_SERVER_PORT = 10099;
 
    public static final String basedir = System.getProperty("basedir");
+
+   /**
+    * Search and replace strings on a file
+    *
+    * @param file file to be replaced
+    * @param find string expected to match
+    * @param replace string to be replaced
+    * @return true if the replacement was successful
+    * @throws Exception
+    */
+   public static boolean findReplace(File file, String find, String replace) throws Exception {
+      String original = Files.readString(file.toPath());
+      String newContent = original.replace(find, replace);
+      Files.writeString(file.toPath(), newContent);
+      return !original.equals(newContent);
+   }
 
    @After
    public void after() throws Exception {
