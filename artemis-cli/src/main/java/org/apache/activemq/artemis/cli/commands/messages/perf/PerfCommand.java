@@ -72,7 +72,7 @@ public abstract class PerfCommand extends ConnectionAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
       if (txSize > 0) {
-         System.out.println("--tx-size is deprecated, please use --commit-interval");
+         context.out.println("--tx-size is deprecated, please use --commit-interval");
          commitInterval = txSize;
       }
       final ConnectionFactory factory = createConnectionFactory(brokerURL, user, password, null, protocol);

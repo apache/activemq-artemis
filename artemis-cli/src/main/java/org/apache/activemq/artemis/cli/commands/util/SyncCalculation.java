@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -74,7 +75,8 @@ public class SyncCalculation {
                                boolean syncWrites,
                                String fileName,
                                int maxAIO,
-                               JournalType journalType) throws Exception {
+                               JournalType journalType,
+                               ActionContext context) throws Exception {
       SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks, maxAIO);
 
       if (factory instanceof AIOSequentialFileFactory) {
@@ -83,17 +85,17 @@ public class SyncCalculation {
       //the write latencies could be taken only when writes are effectively synchronous
 
       if (journalType == JournalType.ASYNCIO && syncWrites) {
-         System.out.println();
-         System.out.println("*******************************************************************************************");
-         System.out.println("*** Notice: The recommendation for AsyncIO journal is to not use --sync-writes          ***");
-         System.out.println("***         The measures here will be useful to understand your device                  ***");
-         System.out.println("***         however the result here won't represent the best configuration option       ***");
-         System.out.println("*******************************************************************************************");
-         System.out.println();
+         context.out.println();
+         context.out.println("*******************************************************************************************");
+         context.out.println("*** Notice: The recommendation for AsyncIO journal is to not use --sync-writes          ***");
+         context.out.println("***         The measures here will be useful to understand your device                  ***");
+         context.out.println("***         however the result here won't represent the best configuration option       ***");
+         context.out.println("*******************************************************************************************");
+         context.out.println();
       }
 
       if (verbose) {
-         System.out.println("Using " + factory.getClass().getName() + " to calculate sync times, alignment=" + factory.getAlignment());
+         context.out.println("Using " + factory.getClass().getName() + " to calculate sync times, alignment=" + factory.getAlignment());
       }
       SequentialFile file = factory.createSequentialFile(fileName);
       //to be sure that a process/thread crash won't leave the dataFolder with garbage files
@@ -131,8 +133,8 @@ public class SyncCalculation {
          for (int ntry = 0; ntry < tries; ntry++) {
 
             if (verbose) {
-               System.out.println("**************************************************");
-               System.out.println(ntry + " of " + tries + " calculation");
+               context.out.println("**************************************************");
+               context.out.println(ntry + " of " + tries + " calculation");
             }
             file.open();
             file.position(0);
@@ -156,10 +158,10 @@ public class SyncCalculation {
 
             if (verbose) {
                double writesPerMillisecond = (double) blocks / (double) result[ntry];
-               System.out.println("Time = " + result[ntry] + " milliseconds");
-               System.out.println("Writes / millisecond = " + dcformat.format(writesPerMillisecond));
-               System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks, verbose));
-               System.out.println("**************************************************");
+               context.out.println("Time = " + result[ntry] + " milliseconds");
+               context.out.println("Writes / millisecond = " + dcformat.format(writesPerMillisecond));
+               context.out.println("bufferTimeout = " + toNanos(result[ntry], blocks, verbose, context));
+               context.out.println("**************************************************");
             }
             file.close();
 
@@ -206,12 +208,12 @@ public class SyncCalculation {
       }
    }
 
-   public static long toNanos(long time, long blocks, boolean verbose) {
+   public static long toNanos(long time, long blocks, boolean verbose, ActionContext context) {
 
       double blocksPerMillisecond = (double) blocks / (double) (time);
 
       if (verbose) {
-         System.out.println("Blocks per millisecond::" + blocksPerMillisecond);
+         context.out.println("Blocks per millisecond::" + blocksPerMillisecond);
       }
 
       long nanoSeconds = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS);
@@ -219,7 +221,7 @@ public class SyncCalculation {
       long timeWait = (long) (nanoSeconds / blocksPerMillisecond);
 
       if (verbose) {
-         System.out.println("your system could make a sync every " + timeWait + " nanoseconds, and this will be your timeout");
+         context.out.println("your system could make a sync every " + timeWait + " nanoseconds, and this will be your timeout");
       }
 
       return timeWait;

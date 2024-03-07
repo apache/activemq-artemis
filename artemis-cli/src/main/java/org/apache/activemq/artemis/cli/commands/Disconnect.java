@@ -27,7 +27,7 @@ public class Disconnect extends ConnectionAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
       CONNECTION_INFORMATION.remove();
-      System.out.println("Connection information cleared!");
+      context.out.println("Connection information cleared!");
       return null;
    }
 }

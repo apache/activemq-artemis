@@ -51,8 +51,8 @@ public abstract class LockAbstract extends DataAbstract {
       super.execute(context);
 
       if (getBrokerInstance() == null) {
-         System.err.println("Warning: You are running a data tool outside of any broker instance. Modifying data on a running server might break the server's data");
-         System.err.println();
+         context.err.println("Warning: You are running a data tool outside of any broker instance. Modifying data on a running server might break the server's data");
+         context.err.println();
       } else {
          lockCLI(getLockPlace());
       }

@@ -52,9 +52,9 @@ public abstract class Configurable extends ActionAbstract {
 
    protected void treatError(Exception e, String group, String command) {
       logger.debug(e.getMessage(), e);
-      System.err.println();
-      System.err.println("Error:" + e.getMessage());
-      System.err.println();
+      getActionContext().err.println();
+      getActionContext().err.println("Error:" + e.getMessage());
+      getActionContext().err.println();
 
       if (!(e instanceof ActiveMQException)) {
          e.printStackTrace();

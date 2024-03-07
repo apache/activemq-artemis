@@ -50,7 +50,7 @@ public class Browse extends DestAbstract {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
             Destination dest = getDestination(session);
-            threadsArray[i] = new ConsumerThread(session, dest, i);
+            threadsArray[i] = new ConsumerThread(session, dest, i, context);
 
             threadsArray[i]
                .setVerbose(verbose)

@@ -30,11 +30,13 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class ProducerThread extends Thread {
 
    protected final Session session;
+   protected final ActionContext context;
 
    boolean verbose;
    long messageCount = 1000;
@@ -59,10 +61,11 @@ public class ProducerThread extends Thread {
    final ReusableLatch finished = new ReusableLatch(1);
    final ReusableLatch paused = new ReusableLatch(0);
 
-   public ProducerThread(Session session, Destination destination, int threadNr) {
+   public ProducerThread(Session session, Destination destination, int threadNr, ActionContext context) {
       super("Producer " + destination.toString() + ", thread=" + threadNr);
       this.destination = destination;
       this.session = session;
+      this.context = context;
    }
 
    @Override
@@ -76,7 +79,7 @@ public class ProducerThread extends Thread {
          initPayLoad();
          running = true;
 
-         System.out.println(threadName + " Started to calculate elapsed time ...\n");
+         context.out.println(threadName + " Started to calculate elapsed time ...\n");
          long tStart = System.currentTimeMillis();
 
          if (runIndefinitely) {
@@ -97,11 +100,11 @@ public class ProducerThread extends Thread {
          } catch (Throwable ignored) {
          }
 
-         System.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
+         context.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
          long tEnd = System.currentTimeMillis();
          long elapsed = (tEnd - tStart) / 1000;
-         System.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
-         System.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
+         context.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
+         context.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
 
       } catch (Exception e) {
          e.printStackTrace();
@@ -124,11 +127,11 @@ public class ProducerThread extends Thread {
 
       producer.send(message);
       if (verbose) {
-         System.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
+         context.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
       }
 
       if (transactionBatchSize > 0 && sentCount.get() > 0 && sentCount.get() % transactionBatchSize == 0) {
-         System.out.println(threadName + " Committing transaction: " + transactions++);
+         context.out.println(threadName + " Committing transaction: " + transactions++);
          session.commit();
       }
 

@@ -299,7 +299,7 @@ public final class XmlDataImporter extends ActionAbstract {
       messageNr++;
 
       if (messageNr % commitInterval == 0) {
-         System.err.println("Processed " + messageNr + " messages");
+         getActionContext().err.println("Processed " + messageNr + " messages");
          session.commit();
       }
       XMLMessageImporter.MessageInfo info = messageReader.readMessage(false);

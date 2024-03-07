@@ -994,7 +994,7 @@ public class Create extends InstallAbstract {
             RoutingType.valueOf(routingType.toUpperCase());
          } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Invalid routing type: " + routingType);
+            getActionContext().err.println("Invalid routing type: " + routingType);
          }
          printWriter.println("         <address name=\"" + name + "\">");
          printWriter.println("            <" + routingType + ">");
@@ -1011,7 +1011,7 @@ public class Create extends InstallAbstract {
             RoutingType.valueOf(routingType.toUpperCase());
          } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Invalid routing type: " + routingType);
+            getActionContext().err.println("Invalid routing type: " + routingType);
          }
          printWriter.println("         <address name=\"" + name + "\">");
          printWriter.println("            <" + routingType + "/>");
@@ -1042,8 +1042,8 @@ public class Create extends InstallAbstract {
 
                filters.put("${page-sync.settings}", readTextFile(ETC_PAGE_SYNC_SETTINGS, syncFilter));
             } else {
-               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType);
-               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
+               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType, getActionContext());
+               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose, getActionContext());
                double writesPerMillisecond = (double) writes / (double) time;
 
                String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
@@ -1061,8 +1061,8 @@ public class Create extends InstallAbstract {
                if (noJournalSync) {
                   syncFilter.put("${nanoseconds}", "0");
                } else if (journalType != JournalType.NIO) {
-                  long nioTime = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), JournalType.NIO);
-                  long nioNanoseconds = SyncCalculation.toNanos(nioTime, writes, verbose);
+                  long nioTime = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), JournalType.NIO, getActionContext());
+                  long nioNanoseconds = SyncCalculation.toNanos(nioTime, writes, verbose, getActionContext());
                   syncFilter.put("${nanoseconds}", Long.toString(nioNanoseconds));
                }
 
@@ -1075,7 +1075,7 @@ public class Create extends InstallAbstract {
             filters.put("${journal-buffer.settings}", "");
             filters.put("${page-sync.settings}", "");
             e.printStackTrace();
-            System.err.println("Couldn't perform sync calculation, using default values");
+            getActionContext().err.println("Couldn't perform sync calculation, using default values");
          }
       }
    }
@@ -1096,7 +1096,7 @@ public class Create extends InstallAbstract {
             }
             tmpFile.delete();
             if (!supportsLibaio) {
-               System.err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
+               getActionContext().err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
             }
             return supportsLibaio;
          }

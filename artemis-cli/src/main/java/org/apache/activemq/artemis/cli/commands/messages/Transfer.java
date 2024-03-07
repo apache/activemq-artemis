@@ -335,7 +335,7 @@ public class Transfer extends InputAbstract {
          }
       }
 
-      System.out.println("Connection brokerURL = " + sourceURL);
+      context.out.println("Connection brokerURL = " + sourceURL);
 
       ConnectionFactory sourceConnectionFactory = createConnectionFactory("source", sourceProtocol, sourceURL, sourceUser, sourcePassword, sourceClientID);
       Connection sourceConnection = sourceConnectionFactory.createConnection();
@@ -383,7 +383,7 @@ public class Transfer extends InputAbstract {
       MessageProducer producer = targetSession.createProducer(targetDestination);
 
       if (sourceURL.equals(targetURL) && sourceDestination.equals(targetDestination)) {
-         System.out.println("You cannot transfer between " + sourceURL + "/" + sourceDestination + " and " + targetURL + "/" + targetDestination + ".\n" + "That would create an infinite recursion.");
+         context.out.println("You cannot transfer between " + sourceURL + "/" + sourceDestination + " and " + targetURL + "/" + targetDestination + ".\n" + "That would create an infinite recursion.");
          throw new IllegalArgumentException("cannot use " + sourceDestination + " == " + targetDestination);
       }
 
@@ -402,7 +402,7 @@ public class Transfer extends InputAbstract {
 
          if (receivedMessage == null) {
             if (isVerbose()) {
-               System.out.println("could not receive any more messages");
+               context.out.println("could not receive any more messages");
             }
             break;
          }
@@ -411,10 +411,10 @@ public class Transfer extends InputAbstract {
          total++;
 
          if (isVerbose()) {
-            System.out.println("Received message " + total + " with " + pending + " messages pending to be commited");
+            context.out.println("Received message " + total + " with " + pending + " messages pending to be commited");
          }
          if (pending > commitInterval) {
-            System.out.println("Transferred " + pending + " messages of " + total);
+            context.out.println("Transferred " + pending + " messages of " + total);
             pending = 0;
             targetSession.commit();
             if (!isCopy()) {
@@ -423,7 +423,7 @@ public class Transfer extends InputAbstract {
          }
       }
 
-      System.out.println("Transferred a total of " + total + " messages");
+      context.out.println("Transferred a total of " + total + " messages");
 
       if (pending != 0) {
          targetSession.commit();
@@ -464,12 +464,12 @@ public class Transfer extends InputAbstract {
                                                        String clientID) throws Exception {
       if (protocol.equals("core")) {
          if (isVerbose()) {
-            System.out.println("Creating " + role + " CORE Connection towards " + brokerURL);
+            getActionContext().out.println("Creating " + role + " CORE Connection towards " + brokerURL);
          }
          return createCoreConnectionFactory(brokerURL, user, password, clientID);
       } else if (protocol.equals("amqp")) {
          if (isVerbose()) {
-            System.out.println("Creating " + role + " AMQP Connection towards " + brokerURL);
+            getActionContext().out.println("Creating " + role + " AMQP Connection towards " + brokerURL);
          }
          return createAMQPConnectionFactory(brokerURL, user, password, clientID);
       } else {
@@ -523,7 +523,7 @@ public class Transfer extends InputAbstract {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(brokerURL, user, password);
 
       if (clientID != null) {
-         System.out.println("Consumer:: clientID = " + clientID);
+         getActionContext().out.println("Consumer:: clientID = " + clientID);
          cf.setClientID(clientID);
       }
       try {
@@ -553,7 +553,7 @@ public class Transfer extends InputAbstract {
    }
 
    Pair<String, String> userPassword(String uri) {
-      System.out.println("Type in user/password towards " + uri);
+      getActionContext().out.println("Type in user/password towards " + uri);
       String user, password;
       user = input("--user", "Type the username for a retry", null);
       password = inputPassword("--password", "Type the password for a retry", null);
