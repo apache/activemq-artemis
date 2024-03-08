@@ -61,6 +61,9 @@ public class Producer extends DestAbstract {
    @Option(names = "--data", description = "Messages will be read from the specified file. Other message options will be ignored.")
    String file = null;
 
+   @Option(names = "--properties", description = "The properties to set on the message in JSON, e.g.: [{\"type\":\"string\",\"key\":\"myKey1\",\"value\":\"myValue1\"},{\"type\":\"string\",\"key\":\"myKey2\",\"value\":\"myValue2\"}]. Valid types are boolean, byte, short, int, long, float, double, and string.")
+   String properties = null;
+
    public boolean isNonpersistent() {
       return nonpersistent;
    }
@@ -85,6 +88,15 @@ public class Producer extends DestAbstract {
 
    public Producer setMessage(String message) {
       this.message = message;
+      return this;
+   }
+
+   public String getProperties() {
+      return properties;
+   }
+
+   public Producer setProperties(String properties) {
+      this.properties = properties;
       return this;
    }
 
@@ -205,6 +217,7 @@ public class Producer extends DestAbstract {
                   .setMessageSize(messageSize)
                   .setTextMessageSize(textMessageSize)
                   .setMessage(message)
+                  .setProperties(properties)
                   .setObjectSize(objectSize)
                   .setMsgTTL(msgTTL)
                   .setMsgGroupID(msgGroupID)

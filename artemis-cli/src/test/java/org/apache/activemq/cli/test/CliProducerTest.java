@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import javax.jms.TextMessage;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CliProducerTest extends CliTestBase {
    private Connection connection;
@@ -55,8 +57,13 @@ public class CliProducerTest extends CliTestBase {
    }
 
    private void produceMessages(String address, String message, int msgCount) throws Exception {
+      produceMessages(address, message, msgCount, null);
+   }
+
+   private void produceMessages(String address, String message, int msgCount, String properties) throws Exception {
       new Producer()
          .setMessage(message)
+         .setProperties(properties)
          .setMessageCount(msgCount)
          .setDestination(address)
          .setUser("admin")
@@ -86,6 +93,28 @@ public class CliProducerTest extends CliTestBase {
       produceMessages(address, TEST_MESSAGE_COUNT);
 
       checkSentMessages(session, address, null);
+   }
+
+   @Test
+   public void testSendMessageWithProperties() throws Exception {
+      String address = "test";
+      Session session = createSession(connection);
+
+      String myBooleanKey = "myBooleanKey";
+      String myStringKey = "myStringKey";
+      String myStringValue = RandomUtil.randomString();
+      String propertiesJson = ("[{'type':'boolean','key':'" + myBooleanKey + "','value':'true'},{'type':'string','key':'" + myStringKey + "','value':'" + myStringValue + "'}]").replaceAll("'", "\"");
+
+      produceMessages(address, null, 1, propertiesJson);
+
+      List<Message> consumedMessages = consumeMessages(session, address, 1, false);
+      assertEquals(1, consumedMessages.size());
+
+      Message msg = consumedMessages.get(0);
+      assertTrue(msg.propertyExists(myBooleanKey));
+      assertTrue(msg.getBooleanProperty(myBooleanKey));
+      assertTrue(msg.propertyExists(myStringKey));
+      assertEquals(myStringValue, msg.getStringProperty(myStringKey));
    }
 
    @Test
