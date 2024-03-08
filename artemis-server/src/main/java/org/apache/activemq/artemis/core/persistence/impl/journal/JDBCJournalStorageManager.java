@@ -98,7 +98,11 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
          largeMessagesFactory.start();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         criticalErrorListener.onIOException(e, e.getMessage(), null);
+         if (criticalErrorListener != null) {
+            criticalErrorListener.onIOException(e, e.getMessage(), null);
+         } else {
+            throw new RuntimeException(e.getMessage(), e);
+         }
       }
    }
 

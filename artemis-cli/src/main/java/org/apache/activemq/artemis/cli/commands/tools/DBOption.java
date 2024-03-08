@@ -93,6 +93,12 @@ public class DBOption extends OptionalLocking {
    @Option(names = "--jdbc-driver-class-name", description = "JDBC driver classname.")
    private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
 
+   @Option(names = "--jdbc-user", description = "JDBC username.")
+   private String jdbcUser = null;
+
+   @Option(names = "--jdbc-password", description = "JDBC password.")
+   private String jdbcPassword = null;
+
    public boolean isJDBC() throws Exception {
       parseDBConfig();
       return jdbc;
@@ -177,6 +183,23 @@ public class DBOption extends OptionalLocking {
       return this;
    }
 
+   public String getJdbcUser() {
+      return jdbcUser;
+   }
+
+   public DBOption setJdbcUser(String jdbcUser) {
+      this.jdbcUser = jdbcUser;
+      return this;
+   }
+
+   public String getJdbcPassword() {
+      return jdbcPassword;
+   }
+
+   public DBOption setJdbcPassword(String jdbcPassword) {
+      this.jdbcPassword = jdbcPassword;
+      return this;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -217,8 +240,21 @@ public class DBOption extends OptionalLocking {
             jdbcLargeMessages = storageConfiguration.getLargeMessageTableName();
             jdbcPageStore = storageConfiguration.getPageStoreTableName();
             jdbcNodeManager = storageConfiguration.getNodeManagerStoreTableName();
-            jdbcURL = storageConfiguration.getJdbcConnectionUrl();
-            jdbcClassName = storageConfiguration.getJdbcDriverClassName();
+
+            if (jdbcURL == null || jdbcURL.equals(ActiveMQDefaultConfiguration.getDefaultDatabaseUrl())) {
+               jdbcURL = storageConfiguration.getJdbcConnectionUrl();
+            }
+
+            if (jdbcClassName == null || jdbcClassName.equals(ActiveMQDefaultConfiguration.getDefaultDriverClassName())) {
+               jdbcClassName = storageConfiguration.getJdbcDriverClassName();
+            }
+
+            if (jdbcUser == null) {
+               jdbcUser = storageConfiguration.getJdbcUser();
+            }
+            if (jdbcPassword == null) {
+               jdbcPassword = storageConfiguration.getJdbcPassword();
+            }
          }
       }
    }
@@ -235,6 +271,8 @@ public class DBOption extends OptionalLocking {
          storageConfiguration.setLargeMessageTableName(getJdbcLargeMessages());
          storageConfiguration.setPageStoreTableName(getJdbcPageStore());
          storageConfiguration.setNodeManagerStoreTableName(getJdbcNodeManager());
+         storageConfiguration.setJdbcUser(getJdbcUser());
+         storageConfiguration.setJdbcPassword(getJdbcPassword());
          configuration.setStoreConfiguration(storageConfiguration);
       } else {
          configuration.setBindingsDirectory(getBinding());
