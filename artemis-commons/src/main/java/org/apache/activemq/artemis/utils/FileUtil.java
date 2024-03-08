@@ -100,4 +100,30 @@ public class FileUtil {
          }
       });
    }
+
+
+   /**
+    * Search and replace strings on a file
+    *
+    * @param file file to be replaced
+    * @param find string expected to match
+    * @param replace string to be replaced
+    * @return true if the replacement was successful
+    * @throws Exception
+    */
+   public static boolean findReplace(File file, String find, String replace) throws Exception {
+      if (!file.exists()) {
+         return false;
+      }
+
+      String original = Files.readString(file.toPath());
+      String newContent = original.replace(find, replace);
+      if (!original.equals(newContent)) {
+         Files.writeString(file.toPath(), newContent);
+         return true;
+      } else {
+         return false;
+      }
+   }
+
 }

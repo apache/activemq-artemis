@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
@@ -123,7 +124,7 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
          insert = insertWriter.toString();
       }
 
-      Assert.assertTrue(findReplace(new File(getServerLocation(serverName), "./etc/broker.xml"), "</core>", insert));
+      Assert.assertTrue(FileUtil.findReplace(new File(getServerLocation(serverName), "./etc/broker.xml"), "</core>", insert));
    }
 
    @BeforeClass
