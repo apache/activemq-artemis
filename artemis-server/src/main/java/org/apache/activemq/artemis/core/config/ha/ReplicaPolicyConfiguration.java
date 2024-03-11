@@ -137,7 +137,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
       return voteOnReplicationFailure;
    }
 
-   public void setVoteOnReplicationFailure(Boolean voteOnReplicationFailure) {
+   public void setVoteOnReplicationFailure(boolean voteOnReplicationFailure) {
       this.voteOnReplicationFailure = voteOnReplicationFailure;
    }
 

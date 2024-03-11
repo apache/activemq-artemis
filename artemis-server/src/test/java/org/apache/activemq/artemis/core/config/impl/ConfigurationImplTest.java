@@ -42,6 +42,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
@@ -52,7 +54,15 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirror
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
@@ -1105,6 +1115,253 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
 
       Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
+   }
+
+   @Test
+   public void testLiveOnlyPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "PRIMARY_ONLY");
+      addScaleDownConfigurationProperties(properties);
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(LiveOnlyPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      checkScaleDownConfiguration(((LiveOnlyPolicyConfiguration)haPolicyConfiguration).getScaleDownConfiguration());
+   }
+
+   @Test
+   public void testReplicatedPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "REPLICATED");
+      properties.put("HAPolicyConfiguration.checkForActiveServer", "true");
+      properties.put("HAPolicyConfiguration.groupName", "g0");
+      properties.put("HAPolicyConfiguration.clusterName", "c0");
+      properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
+      properties.put("HAPolicyConfiguration.voteOnReplicationFailure", "true");
+      properties.put("HAPolicyConfiguration.quorumSize", "9");
+      properties.put("HAPolicyConfiguration.voteRetries", "6");
+      properties.put("HAPolicyConfiguration.voteRetryWait", "1");
+      properties.put("HAPolicyConfiguration.quorumVoteWait", "2");
+      properties.put("HAPolicyConfiguration.retryReplicationWait", "4");
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(ReplicatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      ReplicatedPolicyConfiguration replicatedPolicyConfiguration =
+         (ReplicatedPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals(true, replicatedPolicyConfiguration.isCheckForActiveServer());
+      Assert.assertEquals("g0", replicatedPolicyConfiguration.getGroupName());
+      Assert.assertEquals("c0", replicatedPolicyConfiguration.getClusterName());
+      Assert.assertEquals(3, replicatedPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      Assert.assertEquals(true, replicatedPolicyConfiguration.getVoteOnReplicationFailure());
+      Assert.assertEquals(9, replicatedPolicyConfiguration.getQuorumSize());
+      Assert.assertEquals(6, replicatedPolicyConfiguration.getVoteRetries());
+      Assert.assertEquals(1, replicatedPolicyConfiguration.getVoteRetryWait());
+      Assert.assertEquals(2, replicatedPolicyConfiguration.getQuorumVoteWait());
+      Assert.assertEquals(Long.valueOf(4), replicatedPolicyConfiguration.getRetryReplicationWait());
+   }
+
+   @Test
+   public void testReplicaPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "REPLICA");
+      properties.put("HAPolicyConfiguration.clusterName", "c0");
+      properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
+      properties.put("HAPolicyConfiguration.groupName", "g0");
+      properties.put("HAPolicyConfiguration.restartBackup", "false");
+      properties.put("HAPolicyConfiguration.allowFailBack", "true");
+      properties.put("HAPolicyConfiguration.initialReplicationSyncTimeout", "7");
+      properties.put("HAPolicyConfiguration.voteOnReplicationFailure", "true");
+      properties.put("HAPolicyConfiguration.quorumSize", "9");
+      properties.put("HAPolicyConfiguration.voteRetries", "6");
+      properties.put("HAPolicyConfiguration.voteRetryWait", "1");
+      properties.put("HAPolicyConfiguration.quorumVoteWait", "2");
+      properties.put("HAPolicyConfiguration.retryReplicationWait", "4");
+      addScaleDownConfigurationProperties(properties);
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(ReplicaPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      ReplicaPolicyConfiguration replicaPolicyConfiguration =
+         (ReplicaPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals("c0", replicaPolicyConfiguration.getClusterName());
+      Assert.assertEquals(3, replicaPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      Assert.assertEquals("g0", replicaPolicyConfiguration.getGroupName());
+      Assert.assertEquals(false, replicaPolicyConfiguration.isRestartBackup());
+      Assert.assertEquals(true, replicaPolicyConfiguration.isAllowFailBack());
+      Assert.assertEquals(7, replicaPolicyConfiguration.getInitialReplicationSyncTimeout());
+      Assert.assertEquals(true, replicaPolicyConfiguration.getVoteOnReplicationFailure());
+      Assert.assertEquals(9, replicaPolicyConfiguration.getQuorumSize());
+      Assert.assertEquals(6, replicaPolicyConfiguration.getVoteRetries());
+      Assert.assertEquals(1, replicaPolicyConfiguration.getVoteRetryWait());
+      Assert.assertEquals(2, replicaPolicyConfiguration.getQuorumVoteWait());
+      Assert.assertEquals(4, replicaPolicyConfiguration.getRetryReplicationWait());
+
+      checkScaleDownConfiguration(replicaPolicyConfiguration.getScaleDownConfiguration());
+   }
+
+   @Test
+   public void testSharedStorePrimaryConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "SHARED_STORE_PRIMARY");
+      properties.put("HAPolicyConfiguration.failoverOnServerShutdown", "true");
+      properties.put("HAPolicyConfiguration.waitForActivation", "false");
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(SharedStorePrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      SharedStorePrimaryPolicyConfiguration sharedStorePrimaryPolicyConfiguration =
+         (SharedStorePrimaryPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals(true, sharedStorePrimaryPolicyConfiguration.isFailoverOnServerShutdown());
+      Assert.assertEquals(false, sharedStorePrimaryPolicyConfiguration.isWaitForActivation());
+   }
+
+   @Test
+   public void testSharedStoreBackupPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "SHARED_STORE_BACKUP");
+      properties.put("HAPolicyConfiguration.failoverOnServerShutdown", "true");
+      properties.put("HAPolicyConfiguration.restartBackup", "false");
+      properties.put("HAPolicyConfiguration.allowFailBack", "false");
+      addScaleDownConfigurationProperties(properties);
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(SharedStoreBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      SharedStoreBackupPolicyConfiguration sharedStoreBackupPolicyConfiguration =
+         (SharedStoreBackupPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals(true, sharedStoreBackupPolicyConfiguration.isFailoverOnServerShutdown());
+      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isRestartBackup());
+      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isAllowFailBack());
+
+      checkScaleDownConfiguration(sharedStoreBackupPolicyConfiguration.getScaleDownConfiguration());
+   }
+
+   @Test
+   public void testColocatedPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "COLOCATED");
+      properties.put("HAPolicyConfiguration.requestBackup", "true");
+      properties.put("HAPolicyConfiguration.backupRequestRetries", "5");
+      properties.put("HAPolicyConfiguration.backupRequestRetryInterval", "3");
+      properties.put("HAPolicyConfiguration.maxBackups", "9");
+      properties.put("HAPolicyConfiguration.backupPortOffset", "2");
+      properties.put("HAPolicyConfiguration.excludedConnectors", "a,b,c");
+      properties.put("HAPolicyConfiguration.portOffset", "4");
+      properties.put("HAPolicyConfiguration.primaryConfig", "SHARED_STORE_PRIMARY");
+      properties.put("HAPolicyConfiguration.backupConfig", "SHARED_STORE_BACKUP");
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(ColocatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      ColocatedPolicyConfiguration colocatedPolicyConfiguration =
+         (ColocatedPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals(true, colocatedPolicyConfiguration.isRequestBackup());
+      Assert.assertEquals(5, colocatedPolicyConfiguration.getBackupRequestRetries());
+      Assert.assertEquals(3, colocatedPolicyConfiguration.getBackupRequestRetryInterval());
+      Assert.assertEquals(9, colocatedPolicyConfiguration.getMaxBackups());
+      Assert.assertEquals(2, colocatedPolicyConfiguration.getBackupPortOffset());
+      Assert.assertEquals(3, colocatedPolicyConfiguration.getExcludedConnectors().size());
+      Assert.assertEquals(4, colocatedPolicyConfiguration.getPortOffset());
+      Assert.assertEquals(SharedStorePrimaryPolicyConfiguration.class, colocatedPolicyConfiguration.getPrimaryConfig().getClass());
+      Assert.assertEquals(SharedStoreBackupPolicyConfiguration.class, colocatedPolicyConfiguration.getBackupConfig().getClass());
+   }
+
+   @Test
+   public void testReplicationPrimaryPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "REPLICATION_PRIMARY");
+      properties.put("HAPolicyConfiguration.groupName", "g0");
+      properties.put("HAPolicyConfiguration.clusterName", "c0");
+      properties.put("HAPolicyConfiguration.initialReplicationSyncTimeout", "5");
+      properties.put("HAPolicyConfiguration.retryReplicationWait", "2");
+      properties.put("HAPolicyConfiguration.distributedManagerConfiguration.className", "class0");
+      properties.put("HAPolicyConfiguration.distributedManagerConfiguration.properties.k0", "v0");
+      properties.put("HAPolicyConfiguration.coordinationId", "cid0");
+      properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(ReplicationPrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      ReplicationPrimaryPolicyConfiguration replicationPrimaryPolicyConfiguration =
+         (ReplicationPrimaryPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals("g0", replicationPrimaryPolicyConfiguration.getGroupName());
+      Assert.assertEquals("c0", replicationPrimaryPolicyConfiguration.getClusterName());
+      Assert.assertEquals(5, replicationPrimaryPolicyConfiguration.getInitialReplicationSyncTimeout());
+      Assert.assertEquals(Long.valueOf(2), replicationPrimaryPolicyConfiguration.getRetryReplicationWait());
+      Assert.assertEquals("class0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
+      Assert.assertEquals("v0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
+      Assert.assertEquals("cid0", replicationPrimaryPolicyConfiguration.getCoordinationId());
+      Assert.assertEquals(3, replicationPrimaryPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+   }
+
+   @Test
+   public void testReplicationBackupPolicyConfiguration() throws Throwable {
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("HAPolicyConfiguration", "REPLICATION_BACKUP");
+      properties.put("HAPolicyConfiguration.clusterName", "c0");
+      properties.put("HAPolicyConfiguration.maxSavedReplicatedJournalsSize", "3");
+      properties.put("HAPolicyConfiguration.groupName", "g0");
+      properties.put("HAPolicyConfiguration.allowFailBack", "true");
+      properties.put("HAPolicyConfiguration.initialReplicationSyncTimeout", "5");
+      properties.put("HAPolicyConfiguration.retryReplicationWait", "2");
+      properties.put("HAPolicyConfiguration.distributedManagerConfiguration.className", "class0");
+      properties.put("HAPolicyConfiguration.distributedManagerConfiguration.properties.k0", "v0");
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parsePrefixedProperties(properties, null);
+
+      HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
+      Assert.assertEquals(ReplicationBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
+
+      ReplicationBackupPolicyConfiguration replicationBackupPolicyConfiguration =
+         (ReplicationBackupPolicyConfiguration)haPolicyConfiguration;
+      Assert.assertEquals("c0", replicationBackupPolicyConfiguration.getClusterName());
+      Assert.assertEquals(3, replicationBackupPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      Assert.assertEquals("g0", replicationBackupPolicyConfiguration.getGroupName());
+      Assert.assertEquals(true, replicationBackupPolicyConfiguration.isAllowFailBack());
+      Assert.assertEquals(5, replicationBackupPolicyConfiguration.getInitialReplicationSyncTimeout());
+      Assert.assertEquals(2, replicationBackupPolicyConfiguration.getRetryReplicationWait());
+      Assert.assertEquals("class0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
+      Assert.assertEquals("v0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
+   }
+
+   private void addScaleDownConfigurationProperties(Properties properties) {
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.connectors", "a,b,c");
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.discoveryGroup", "dg0");
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.groupName", "g0");
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.clusterName", "c0");
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.enabled", "false");
+   }
+
+   private void checkScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
+      Assert.assertNotNull(scaleDownConfiguration);
+      Assert.assertEquals(3, scaleDownConfiguration.getConnectors().size());
+      Assert.assertEquals("dg0", scaleDownConfiguration.getDiscoveryGroup());
+      Assert.assertEquals("g0", scaleDownConfiguration.getGroupName());
+      Assert.assertEquals("c0", scaleDownConfiguration.getClusterName());
+      Assert.assertEquals(false, scaleDownConfiguration.isEnabled());
    }
 
    @Test

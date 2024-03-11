@@ -17,23 +17,35 @@
 package org.apache.activemq.artemis.core.config.ha;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DistributedPrimitiveManagerConfiguration implements Serializable {
 
-   private final String className;
+   private String className;
    private final Map<String, String> properties;
+
+   public DistributedPrimitiveManagerConfiguration() {
+      properties = new HashMap<>();
+   }
 
    public DistributedPrimitiveManagerConfiguration(String className, Map<String, String> properties) {
       this.className = className;
       this.properties = properties;
    }
 
+   public String getClassName() {
+      return className;
+   }
+
+   public DistributedPrimitiveManagerConfiguration setClassName(String className) {
+      this.className = className;
+      return this;
+   }
+
+
    public Map<String, String> getProperties() {
       return properties;
    }
 
-   public String getClassName() {
-      return className;
-   }
 }
