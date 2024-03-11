@@ -545,4 +545,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229251, value = "{} value '{}' is too long. It is {} characters but must be {} characters.")
    IllegalArgumentException wrongLength(String name, String val, int actualLength, int requiredLength);
+
+   @Message(id = 229252, value = "Invalid HAPolicy property: {}")
+   RuntimeException unsupportedHAPolicyPropertyType(String invalidHAPolicy);
 }

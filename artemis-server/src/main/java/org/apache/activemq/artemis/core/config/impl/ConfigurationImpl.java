@@ -61,6 +61,12 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
@@ -868,6 +874,35 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) (Long) ByteUtil.convertTextBytes(value.toString());
          }
       }, Long.TYPE);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            HAPolicyConfiguration.TYPE haPolicyType =
+               HAPolicyConfiguration.TYPE.valueOf(value.toString());
+
+            switch (haPolicyType) {
+               case PRIMARY_ONLY:
+                  return (T) new LiveOnlyPolicyConfiguration();
+               case REPLICATED:
+                  return (T) new ReplicatedPolicyConfiguration();
+               case REPLICA:
+                  return (T) new ReplicaPolicyConfiguration();
+               case SHARED_STORE_PRIMARY:
+                  return (T) new SharedStorePrimaryPolicyConfiguration();
+               case SHARED_STORE_BACKUP:
+                  return (T) new SharedStoreBackupPolicyConfiguration();
+               case COLOCATED:
+                  return (T) new ColocatedPolicyConfiguration();
+               case REPLICATION_PRIMARY:
+                  return (T) ReplicationPrimaryPolicyConfiguration.withDefault();
+               case REPLICATION_BACKUP:
+                  return (T) ReplicationBackupPolicyConfiguration.withDefault();
+            }
+
+            throw ActiveMQMessageBundle.BUNDLE.unsupportedHAPolicyPropertyType(value.toString());
+         }
+      }, HAPolicyConfiguration.class);
 
       BeanSupport.customise(beanUtils);
 

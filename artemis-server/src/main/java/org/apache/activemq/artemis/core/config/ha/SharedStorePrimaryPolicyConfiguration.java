@@ -55,7 +55,7 @@ public class SharedStorePrimaryPolicyConfiguration implements HAPolicyConfigurat
       return waitForActivation;
    }
 
-   public SharedStorePrimaryPolicyConfiguration setWaitForActivation(Boolean waitForActivation) {
+   public SharedStorePrimaryPolicyConfiguration setWaitForActivation(boolean waitForActivation) {
       this.waitForActivation = waitForActivation;
       return this;
    }
