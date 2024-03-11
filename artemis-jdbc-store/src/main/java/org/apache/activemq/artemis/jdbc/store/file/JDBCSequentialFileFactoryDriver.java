@@ -106,7 +106,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
-      final long fileId = fileExists(file);
+      final long fileId = getFileID(file);
       if (fileId < 0) {
          createFile(file);
       } else {
@@ -126,7 +126,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public long fileExists(JDBCSequentialFile file) throws SQLException {
+   public long getFileID(JDBCSequentialFile file) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
          try (PreparedStatement selectFileByFileName = connection.prepareStatement(this.selectFileByFileName)) {
             connection.setAutoCommit(false);

@@ -67,8 +67,6 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private final JDBCSequentialFileFactory fileFactory;
 
-   private final Object writeLock;
-
    private final JDBCSequentialFileFactoryDriver dbDriver;
 
    MpscUnboundedArrayQueue<ScheduledWrite> writeQueue = new MpscUnboundedArrayQueue<>(8192);
@@ -89,13 +87,11 @@ public class JDBCSequentialFile implements SequentialFile {
                       final Executor executor,
                       final ScheduledExecutorService scheduledExecutorService,
                       final long syncDelay,
-                      final JDBCSequentialFileFactoryDriver driver,
-                      final Object writeLock) throws SQLException {
+                      final JDBCSequentialFileFactoryDriver driver) throws SQLException {
       this.fileFactory = fileFactory;
       this.filename = filename;
       this.extension = filename.contains(".") ? filename.substring(filename.lastIndexOf(".") + 1, filename.length()) : "";
       this.executor = executor;
-      this.writeLock = writeLock;
       this.dbDriver = driver;
       this.scheduledExecutorService = scheduledExecutorService;
       this.syncDelay = syncDelay;
@@ -113,14 +109,10 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean exists() {
-      if (isLoaded.get()) return true;
       try {
-         return fileFactory.listFiles(extension).contains(filename);
-      } catch (Exception e) {
-         logger.debug(e.getMessage(), e);
-         // this shouldn't throw a critical IO Error
-         // as if the destination does not exists (ot table store removed), the table will not exist and
-         // we may get a SQL Exception
+         return dbDriver.getFileID(this) >= 0;
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
          return false;
       }
    }
@@ -178,7 +170,7 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
-         synchronized (writeLock) {
+         synchronized (this) {
             if (load()) {
                dbDriver.deleteFile(this);
             }
@@ -193,7 +185,7 @@ public class JDBCSequentialFile implements SequentialFile {
    private synchronized int jdbcWrite(byte[] data, IOCallback callback, boolean append) {
       try {
          logger.debug("Writing {} bytes into {}", data.length, filename);
-         synchronized (writeLock) {
+         synchronized (this) {
             int noBytes = dbDriver.writeToFile(this, data, append);
             seek(append ? writePosition + noBytes : noBytes);
             if (logger.isTraceEnabled()) {
@@ -360,7 +352,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public synchronized int read(ByteBuffer bytes, final IOCallback callback) throws SQLException {
-      synchronized (writeLock) {
+      synchronized (this) {
          try {
             int read = dbDriver.readFromFile(this, bytes);
             readPosition += read;
@@ -439,7 +431,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void renameTo(String newFileName) throws Exception {
-      synchronized (writeLock) {
+      synchronized (this) {
          try {
             dbDriver.renameFile(this, newFileName);
          } catch (SQLException e) {
@@ -451,7 +443,7 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public SequentialFile cloneFile() {
       try {
-         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, scheduledExecutorService, syncDelay, dbDriver, writeLock);
+         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, scheduledExecutorService, syncDelay, dbDriver);
          clone.setWritePosition(this.writePosition);
          return clone;
       } catch (Exception e) {
@@ -464,7 +456,7 @@ public class JDBCSequentialFile implements SequentialFile {
    public void copyTo(SequentialFile cloneFile) throws Exception {
       JDBCSequentialFile clone = (JDBCSequentialFile) cloneFile;
       try {
-         synchronized (writeLock) {
+         synchronized (this) {
             logger.trace("JDBC Copying File.  From: {} To: {}", this, cloneFile);
             clone.open();
             dbDriver.copyFileData(this, clone);
