@@ -1594,8 +1594,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return supports;
    }
 
+   public synchronized Redistributor getRedistributor() {
+      return redistributor == null ? null : redistributor.consumer;
+   }
+
    @Override
    public synchronized void addRedistributor(final long delay) {
+      if (isInternalQueue()) {
+         logger.debug("Queue {} is internal, can't be redistributed!", this.name);
+         return;
+      }
+
       clearRedistributorFuture();
 
       if (redistributor != null) {

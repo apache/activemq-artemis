@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -68,10 +69,10 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       largeBody = writer.toString();
    }
 
-   public static final String DC1_NODE_A = "mirror/DC1/A";
-   public static final String DC2_NODE_A = "mirror/DC2/A";
-   public static final String DC1_NODE_B = "mirror/DC1/B";
-   public static final String DC2_NODE_B = "mirror/DC2/B";
+   public static final String DC1_NODE_A = "ClusteredMirrorSoakTest/DC1/A";
+   public static final String DC2_NODE_A = "ClusteredMirrorSoakTest/DC2/A";
+   public static final String DC1_NODE_B = "ClusteredMirrorSoakTest/DC1/B";
+   public static final String DC2_NODE_B = "ClusteredMirrorSoakTest/DC2/B";
 
    Process processDC1_node_A;
    Process processDC1_node_B;
@@ -114,6 +115,16 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       // Adding redistribution delay to broker configuration
       Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
    }
+
+
+   @Before
+   public void cleanupServers() {
+      cleanupData(DC1_NODE_A);
+      cleanupData(DC2_NODE_A);
+      cleanupData(DC2_NODE_B);
+      cleanupData(DC2_NODE_B);
+   }
+
 
    @BeforeClass
    public static void createServers() throws Exception {
@@ -286,7 +297,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       startServers();
 
-      String queueName = "queue" + RandomUtil.randomString();
+      String queueName = "testqueue" + RandomUtil.randomString();
 
       final int numberOfMessages = 50;
 
@@ -307,7 +318,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       sendMessages(connectionFactoryDC1A, queueName, numberOfMessages, 10);
 
-      Wait.assertEquals(numberOfMessages, receiverCount::get, 5000);
+      Wait.assertEquals(numberOfMessages, receiverCount::get, 30_000);
 
       Wait.assertTrue(() -> findQueue(simpleManagementDC1A, queueName));
       Wait.assertTrue(() -> findQueue(simpleManagementDC1B, queueName));

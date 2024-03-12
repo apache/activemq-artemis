@@ -170,6 +170,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       assert snfQueue != null;
       this.replicaConfig = replicaConfig;
       this.snfQueue = snfQueue;
+      if (!snfQueue.isInternalQueue()) {
+         logger.debug("marking queue {} as internal to avoid redistribution kicking in", snfQueue.getName());
+         snfQueue.setInternalQueue(true); // to avoid redistribution kicking in
+      }
       this.server = server;
       this.idSupplier = protonProtocolManager.getReferenceIDSupplier();
       this.addQueues = replicaConfig.isQueueCreation();

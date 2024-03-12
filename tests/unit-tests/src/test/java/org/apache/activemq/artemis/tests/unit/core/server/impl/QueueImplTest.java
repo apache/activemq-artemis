@@ -1084,6 +1084,15 @@ public class QueueImplTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testNoRedistributorInternalQueue() throws Exception {
+      QueueImpl queue = getTemporaryQueue();
+      queue.setInternalQueue(true);
+
+      queue.addRedistributor(0);
+      Assert.assertNull(queue.getRedistributor());
+   }
+
    private void testConsumerWithFilters(final boolean direct) throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
