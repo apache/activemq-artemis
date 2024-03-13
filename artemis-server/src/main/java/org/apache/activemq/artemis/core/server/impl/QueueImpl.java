@@ -1605,6 +1605,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return;
       }
 
+      if (address.startsWith(server.getConfiguration().getManagementAddress())) {
+         logger.debug("Queue {} is a management address, ignoring it for redistribution", address);
+         return;
+      }
+
       clearRedistributorFuture();
 
       if (redistributor != null) {
