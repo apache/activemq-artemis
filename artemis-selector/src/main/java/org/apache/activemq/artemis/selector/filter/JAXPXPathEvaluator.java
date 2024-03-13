@@ -21,10 +21,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import org.xml.sax.InputSource;
 
 public class JAXPXPathEvaluator implements XPathExpression.XPathEvaluator {
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // this is not thread-safe https://docs.oracle.com/javase/8/docs/api/javax/xml/xpath/XPathFactory.html
    private static final XPathFactory FACTORY = XPathFactory.newInstance();
@@ -56,8 +60,11 @@ public class JAXPXPathEvaluator implements XPathExpression.XPathEvaluator {
 
    protected boolean evaluate(InputSource inputSource) {
       try {
-         return ((Boolean)xpath.evaluate(xpathExpression, builder.parse(inputSource), XPathConstants.BOOLEAN)).booleanValue();
+         synchronized (builder) {
+            return ((Boolean)xpath.evaluate(xpathExpression, builder.parse(inputSource), XPathConstants.BOOLEAN)).booleanValue();
+         }
       } catch (Exception e) {
+         logger.debug("Failed to evaluate XPath expression {}", xpathExpression, inputSource, e);
          return false;
       }
    }
