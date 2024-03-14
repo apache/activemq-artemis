@@ -48,12 +48,12 @@ public class CliPerfClientTest extends CliTestBase {
 
    @Test
    public void testNonDurableStarts() throws Exception {
-      new PerfClientCommand().setDurableSubscription(false).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
+      new PerfClientCommand().setDurableSubscription(false).setMessageCount(1).setClientID("perfClientTest").setUser("admin").setPassword("admin").execute(new TestActionContext());
    }
 
    @Test
    public void testDurableStarts() throws Exception {
-      new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
+      new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setClientID("perfClientTest").setUser("admin").setPassword("admin").execute(new TestActionContext());
    }
 
    @Test

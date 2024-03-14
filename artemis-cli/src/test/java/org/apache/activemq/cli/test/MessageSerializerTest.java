@@ -157,9 +157,9 @@ public class MessageSerializerTest extends CliTestBase {
          .setDurable(durable)
          .setDestination(address)
          .setMessageCount(messageCount)
+         .setClientID(clientId)
          .setUser("admin")
          .setPassword("admin")
-         .setClientID(clientId)
          .execute(new TestActionContext());
    }
 
