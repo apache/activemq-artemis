@@ -23,8 +23,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 /**
  * This class is only kept for compatibility reasons. The encode method should be dead code at this point and
  * only the decode should be used when versioning is at play.
- * @Deprecated Use PersistedAddressSettingJSON instead
+ * Deprecated Use PersistedAddressSettingJSON instead
  */
+@Deprecated
 public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
 
 
