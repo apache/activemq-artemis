@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -48,8 +49,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.cli.commands.ActionAbstract;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -68,7 +69,7 @@ import picocli.CommandLine.Option;
  * for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataImporter extends ActionAbstract {
+public final class XmlDataImporter extends ConnectionAbstract {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -90,10 +91,12 @@ public final class XmlDataImporter extends ActionAbstract {
    private ClientSession session;
    private ClientProducer producer;
 
-   @Option(names = "--host", description = "The host used to import the data. Default: localhost.")
-   public String host = "localhost";
+   @Deprecated(forRemoval = true)
+   @Option(names = "--host", description = "The host used to import the data. Default: null.", hidden = true)
+   public String host = null;
 
-   @Option(names = "--port", description = "The port used to import the data. Default: 61616.")
+   @Deprecated(forRemoval = true)
+   @Option(names = "--port", description = "The port used to import the data. Default: 61616.", hidden = true)
    public int port = 61616;
 
    @Option(names = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.", hidden = true)
@@ -101,12 +104,6 @@ public final class XmlDataImporter extends ActionAbstract {
 
    @Option(names = "--commit-interval", description = "How often to commit.", hidden = true)
    public int commitInterval = 1000;
-
-   @Option(names = "--user", description = "User name used to import the data. Default: null.")
-   public String user = null;
-
-   @Option(names = "--password", description = "User name used to import the data. Default: null.")
-   public String password = null;
 
    @Option(names = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
@@ -118,22 +115,6 @@ public final class XmlDataImporter extends ActionAbstract {
    public boolean legacyPrefixes = false;
 
    TreeSet<XMLMessageImporter.MessageInfo> messages;
-
-   public String getPassword() {
-      return password;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public String getUser() {
-      return user;
-   }
-
-   public void setUser(String user) {
-      this.user = user;
-   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -174,6 +155,7 @@ public final class XmlDataImporter extends ActionAbstract {
    public void process(InputStream inputStream,
                        ClientSession session,
                        ClientSession managementSession) throws Exception {
+      Objects.requireNonNull(inputStream);
       reader = XmlProvider.createXMLStreamReader(inputStream);
       messageReader = new XMLMessageImporter(reader, session);
       messageReader.setOldPrefixTranslation(oldPrefixTranslation);
@@ -190,10 +172,16 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    public void process(InputStream inputStream, String host, int port) throws Exception {
-      HashMap<String, Object> connectionParams = new HashMap<>();
-      connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
-      connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
-      ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
+      ServerLocator serverLocator;
+      if (host != null) {
+         Map<String, Object> connectionParams = Map.of(
+            TransportConstants.HOST_PROP_NAME, host,
+            TransportConstants.PORT_PROP_NAME, Integer.toString(port)
+         );
+         serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
+      } else {
+         serverLocator = ActiveMQClient.createServerLocator(brokerURL);
+      }
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
       ClientSession session = null;
