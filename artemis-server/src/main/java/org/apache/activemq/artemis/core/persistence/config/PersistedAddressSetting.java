@@ -17,10 +17,14 @@
 package org.apache.activemq.artemis.core.persistence.config;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
+/**
+ * This class is only kept for compatibility reasons. The encode method should be dead code at this point and
+ * only the decode should be used when versioning is at play.
+ * @Deprecated Use PersistedAddressSettingJSON instead
+ */
 public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
 
 
@@ -41,14 +45,6 @@ public class PersistedAddressSetting extends AbstractPersistedAddressSetting imp
          "]";
    }
 
-   /**
-    * @param addressMatch
-    * @param setting
-    */
-   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
-      super(addressMatch, setting);
-   }
-
    @Override
    public void decode(ActiveMQBuffer buffer) {
       addressMatch = buffer.readSimpleString();
@@ -59,9 +55,8 @@ public class PersistedAddressSetting extends AbstractPersistedAddressSetting imp
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      buffer.writeSimpleString(addressMatch);
-
-      setting.encode(buffer);
+      // no encode, this class is supposed to be for compatibility and reading old records only.
+      throw new UnsupportedOperationException("PersistedAddressSetting should not be in use. Use PersistedAddressSettingJSON instead");
    }
 
    @Override

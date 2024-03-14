@@ -731,18 +731,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, true, this::messageUpdateCallback, getContext(syncNonTransactional));
       }
    }
-
-   @Override
-   public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
-      deleteAddressSetting(addressSetting.getAddressMatch());
-      try (ArtemisCloseable lock = closeableReadLock()) {
-         long id = idGenerator.generateID();
-         addressSetting.setStoreId(id);
-         bindingsJournal.appendAddRecord(id, JournalRecordIds.ADDRESS_SETTING_RECORD, addressSetting, true);
-         mapPersistedAddressSettings.put(addressSetting.getAddressMatch(), addressSetting);
-      }
-   }
-
    @Override
    public void storeAddressSetting(PersistedAddressSettingJSON addressSetting) throws Exception {
       deleteAddressSetting(addressSetting.getAddressMatch());

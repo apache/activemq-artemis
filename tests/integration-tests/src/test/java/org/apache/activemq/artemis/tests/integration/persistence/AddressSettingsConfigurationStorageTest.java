@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
@@ -36,7 +36,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase {
 
-   private Map<SimpleString, PersistedAddressSetting> mapExpectedAddresses;
+   private Map<SimpleString, PersistedAddressSettingJSON> mapExpectedAddresses;
 
    public AddressSettingsConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -52,7 +52,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
    protected void addAddress(StorageManager journal1, String address, AddressSettings setting) throws Exception {
       SimpleString str = new SimpleString(address);
-      PersistedAddressSetting persistedSetting = new PersistedAddressSetting(str, setting);
+      PersistedAddressSettingJSON persistedSetting = new PersistedAddressSettingJSON(str, setting, setting.toJSON());
       mapExpectedAddresses.put(str, persistedSetting);
       journal1.storeAddressSetting(persistedSetting);
    }
@@ -123,7 +123,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       assertEquals(mapExpectedAddresses.size(), listSetting.size());
 
       for (AbstractPersistedAddressSetting el : listSetting) {
-         PersistedAddressSetting el2 = mapExpectedAddresses.get(el.getAddressMatch());
+         PersistedAddressSettingJSON el2 = mapExpectedAddresses.get(el.getAddressMatch());
 
          assertEquals(el.getAddressMatch(), el2.getAddressMatch());
          assertEquals(el.getSetting(), el2.getSetting());

@@ -46,6 +46,10 @@ public class PersistedAddressSettingJSON extends AbstractPersistedAddressSetting
       this.jsonSetting = jsonSetting;
    }
 
+   public PersistedAddressSettingJSON(SimpleString addressMatch, AddressSettings setting, String jsonSetting) {
+      this(addressMatch, setting, SimpleString.toSimpleString(jsonSetting));
+   }
+
    @Override
    public void decode(ActiveMQBuffer buffer) {
       addressMatch = buffer.readSimpleString();
