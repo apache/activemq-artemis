@@ -50,9 +50,9 @@ public final class FakeQueueFactory implements QueueFactory {
    }
 
    @Override
-   public Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager) throws Exception {
-      PageSubscription pageSubscription = QueueFactoryImpl.getPageSubscription(config, pagingManager);
-      return new QueueImpl(config, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
+   public Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager, Filter filter) throws Exception {
+      PageSubscription pageSubscription = QueueFactoryImpl.getPageSubscription(config, pagingManager, filter);
+      return new QueueImpl(config, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
    }
 
    @Deprecated

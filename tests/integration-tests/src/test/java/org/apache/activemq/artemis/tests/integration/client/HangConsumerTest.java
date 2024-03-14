@@ -221,6 +221,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
           * @param executor
           */
          MyQueueWithBlocking(final QueueConfiguration queueConfiguration,
+                             final Filter filter,
                              final PagingStore pagingStore,
                              final PageSubscription pageSubscription,
                              final ScheduledExecutorService scheduledExecutor,
@@ -229,6 +230,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                              final ArtemisExecutor executor, final ActiveMQServer server) {
             super(queueConfiguration,
+                  filter,
                   pagingStore,
                   pageSubscription,
                   scheduledExecutor,
@@ -268,9 +270,9 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
 
          @Override
-         public Queue createQueueWith(final QueueConfiguration config, PagingManager pagingManager) {
-            PageSubscription pageSubscription = getPageSubscription(config, pagingManager);
-            queue = new MyQueueWithBlocking(config, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor,
+         public Queue createQueueWith(final QueueConfiguration config, PagingManager pagingManager, Filter filter) {
+            PageSubscription pageSubscription = getPageSubscription(config, pagingManager, filter);
+            queue = new MyQueueWithBlocking(config, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor,
                                             postOffice, storageManager, addressSettingsRepository,
                                             executorFactory.getExecutor(), server);
             return queue;

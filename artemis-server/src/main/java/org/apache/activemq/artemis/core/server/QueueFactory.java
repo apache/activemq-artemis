@@ -34,7 +34,7 @@ public interface QueueFactory {
    @Deprecated
    Queue createQueueWith(QueueConfig config) throws Exception;
 
-   Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager) throws Exception;
+   Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager, Filter filter) throws Exception;
 
    /**
     * @deprecated Replaced by {@link #createQueueWith}
