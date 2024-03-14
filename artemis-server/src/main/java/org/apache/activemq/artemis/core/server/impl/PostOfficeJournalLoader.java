@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.FilterUtils;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -121,10 +122,11 @@ public class PostOfficeJournalLoader implements JournalLoader {
       int duplicateID = 0;
       for (final QueueBindingInfo queueBindingInfo : queueBindingInfos) {
          queueBindingInfosMap.put(queueBindingInfo.getId(), queueBindingInfo);
+         Filter filter = FilterImpl.createFilter(queueBindingInfo.getFilterString());
 
          if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null) {
 
-            if (FilterUtils.isTopicIdentification(FilterImpl.createFilter(queueBindingInfo.getFilterString()))) {
+            if (FilterUtils.isTopicIdentification(filter)) {
                final long tx = storageManager.generateID();
                storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
                storageManager.commitBindings(tx);
@@ -163,7 +165,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
                                                              .setConfigurationManaged(queueBindingInfo.isConfigurationManaged())
                                                              .setRingSize(queueBindingInfo.getRingSize())
                                                              .setInternal(queueBindingInfo.isInternal()),
-                                                          pagingManager);
+                                                          pagingManager,
+                                                          filter);
 
 
          if (queueBindingInfo.getQueueStatusEncodings() != null) {

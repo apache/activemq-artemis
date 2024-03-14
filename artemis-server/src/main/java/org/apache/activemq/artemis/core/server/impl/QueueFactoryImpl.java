@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -89,14 +88,14 @@ public class QueueFactoryImpl implements QueueFactory {
    }
 
    @Override
-   public Queue createQueueWith(final QueueConfiguration config, PagingManager pagingManager) {
+   public Queue createQueueWith(final QueueConfiguration config, PagingManager pagingManager, Filter filter) {
       validateState(config);
       final Queue queue;
-      PageSubscription pageSubscription = getPageSubscription(config, pagingManager);
+      PageSubscription pageSubscription = getPageSubscription(config, pagingManager, filter);
       if (lastValueKey(config) != null) {
-         queue = new LastValueQueue(config.setLastValueKey(lastValueKey(config)), pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor(), server, this);
+         queue = new LastValueQueue(config.setLastValueKey(lastValueKey(config)), filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor(), server, this);
       } else {
-         queue = new QueueImpl(config, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor(), server, this);
+         queue = new QueueImpl(config, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor(), server, this);
       }
       server.getCriticalAnalyzer().add(queue);
       return queue;
@@ -136,13 +135,13 @@ public class QueueFactoryImpl implements QueueFactory {
       server.getCriticalAnalyzer().remove(queue);
    }
 
-   public static PageSubscription getPageSubscription(QueueConfiguration queueConfiguration, PagingManager pagingManager) {
+   public static PageSubscription getPageSubscription(QueueConfiguration queueConfiguration, PagingManager pagingManager, Filter filter) {
       PageSubscription pageSubscription;
 
       try {
          PagingStore pageStore = pagingManager.getPageStore(queueConfiguration.getAddress());
          if (pageStore != null) {
-            pageSubscription = pageStore.getCursorProvider().createSubscription(queueConfiguration.getId(), FilterImpl.createFilter(queueConfiguration.getFilterString()), queueConfiguration.isDurable());
+            pageSubscription = pageStore.getCursorProvider().createSubscription(queueConfiguration.getId(), filter, queueConfiguration.isDurable());
          } else {
             pageSubscription = null;
          }

@@ -112,6 +112,7 @@ public class LastValueQueue extends QueueImpl {
               .setAutoDeleteMessageCount(autoDeleteMessageCount)
               .setConfigurationManaged(configurationManaged)
               .setLastValueKey(lastValueKey),
+           filter,
            pagingStore,
            pageSubscription,
            scheduledExecutor,
@@ -124,6 +125,7 @@ public class LastValueQueue extends QueueImpl {
    }
 
    public LastValueQueue(final QueueConfiguration queueConfiguration,
+                         final Filter filter,
                          final PagingStore pagingStore,
                          final PageSubscription pageSubscription,
                          final ScheduledExecutorService scheduledExecutor,
@@ -133,7 +135,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(queueConfiguration, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      super(queueConfiguration, filter, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
       this.lastValueKey = queueConfiguration.getLastValueKey();
    }
 

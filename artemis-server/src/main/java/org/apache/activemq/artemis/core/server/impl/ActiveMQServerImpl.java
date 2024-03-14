@@ -4127,9 +4127,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          queueConfiguration.setId(storageManager.generateID());
 
          // preemptive check to ensure the filterString is good
-         FilterImpl.createFilter(queueConfiguration.getFilterString());
+         Filter filter = FilterImpl.createFilter(queueConfiguration.getFilterString());
 
-         final Queue queue = queueFactory.createQueueWith(queueConfiguration, pagingManager);
+         final Queue queue = queueFactory.createQueueWith(queueConfiguration, pagingManager, filter);
 
          final QueueBinding localQueueBinding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
 

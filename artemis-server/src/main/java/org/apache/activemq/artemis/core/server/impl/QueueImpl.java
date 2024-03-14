@@ -629,6 +629,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
               .setAutoDeleteMessageCount(autoDeleteMessageCount)
               .setConfigurationManaged(configurationManaged)
               .setRingSize(ringSize),
+           filter,
            pagingStore,
            pageSubscription,
            scheduledExecutor,
@@ -638,10 +639,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
            executor,
            server,
            factory);
-      this.filter = filter;
    }
 
    public QueueImpl(final QueueConfiguration queueConfiguration,
+                    final Filter filter,
                     final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final ScheduledExecutorService scheduledExecutor,
