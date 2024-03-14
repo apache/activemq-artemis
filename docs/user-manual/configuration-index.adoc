@@ -812,6 +812,10 @@ see `auto-create-queues` & `auto-create-addresses`
 | xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[id-cache-size]
 | The duplicate detection circular cache size
 | Inherits from global `id-cache-size`
+
+| xref:diverts.adoc#computing-destinations-at-runtime[auto-create-divert-destinations]
+| Should a `divert` automatically create its destinations
+|`false`
 |===
 
 == bridge type

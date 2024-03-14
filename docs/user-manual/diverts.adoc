@@ -120,3 +120,44 @@ Just use a comma separated list in `forwarding-address`, e.g.:
    <exclusive>false</exclusive>
 </divert>
 ----
+
+== Computing destinations at runtime
+
+Using logic in a diverts transformer, it's possible to perform complex routing
+by altering properties on individual messages.
+
+A simple example of this:
+
+[,java]
+----
+@Override
+public Message transform(Message message) {
+
+   if (message.getBooleanProperty("changeDestination")) {
+      message.setAddress(message.getStringProperty("newDestination"));
+   }
+
+   return message;
+}
+----
+
+Here, the computed destination will get used instead of the diverts `forwarding-address`.
+
+If the new destination does not exist on the broker, automatic creation can be
+configured as an xref:address-settings.adoc[address setting] with the property: `auto-create-divert-destinations`.
+This property defaults to `false`.
+
+[NOTE]
+====
+There are two important things to consider when configuring `auto-create-divert-destinations`.
+
+1. When the divert attempts to auto-create a destination it will use the credentials provided by the original sender.
+This means the sender must have permissions covering both the original destination and the new one.
+
+2. To be able to create a new destination, the divert has to know what `routing-type` to use.
+The default behavior of the divert is to remove this information from a message before handing it over to the `transformer`, according to `routingType = STRIP`.
+
+To make sure the messages end up where they are supposed to, either change the diverts `routingType` or
+make sure to add this information in the `transformer` with the messages `setRoutingType()` method.
+
+====

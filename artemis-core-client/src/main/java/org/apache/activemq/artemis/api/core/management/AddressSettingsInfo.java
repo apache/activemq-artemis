@@ -309,6 +309,10 @@ public final class AddressSettingsInfo {
    }
    private boolean enableMetrics;
 
+   static {
+      META_BEAN.add(Boolean.class, "autoCreateDivertDestination", (o, p) -> o.autoCreateDivertDestination = p, o -> o.autoCreateDivertDestination);
+   }
+   private boolean autoCreateDivertDestination;
 
    public static AddressSettingsInfo fromJSON(final String jsonString) {
       AddressSettingsInfo newInfo = new AddressSettingsInfo();
@@ -553,6 +557,10 @@ public final class AddressSettingsInfo {
 
    public boolean isEnableMetrics() {
       return enableMetrics;
+   }
+
+   public boolean isAutoCreateDivertDestination() {
+      return autoCreateDivertDestination;
    }
 }
 
