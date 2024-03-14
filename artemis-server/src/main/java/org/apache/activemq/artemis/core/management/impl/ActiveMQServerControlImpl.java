@@ -87,7 +87,6 @@ import org.apache.activemq.artemis.core.management.impl.view.SessionView;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
@@ -3530,7 +3529,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
-      storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
+      storageManager.storeAddressSetting(new PersistedAddressSettingJSON(new SimpleString(address), addressSettings, addressSettings.toJSON()));
 
    }
 

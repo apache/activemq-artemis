@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
@@ -701,11 +700,6 @@ public class TransactionImplTest extends ServerTestBase {
 
       @Override
       public void deleteGrouping(long tx, GroupBinding groupBinding) throws Exception {
-
-      }
-
-      @Override
-      public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
 
       }
 

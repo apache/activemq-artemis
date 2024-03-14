@@ -63,7 +63,6 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
@@ -686,11 +685,6 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public void deleteGrouping(long tx, GroupBinding groupBinding) throws Exception {
          manager.deleteGrouping(tx, groupBinding);
-      }
-
-      @Override
-      public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
-         manager.storeAddressSetting(addressSetting);
       }
 
       @Override
