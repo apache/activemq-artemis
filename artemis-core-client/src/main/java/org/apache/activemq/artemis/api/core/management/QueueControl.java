@@ -128,6 +128,12 @@ public interface QueueControl {
    long getDurablePersistentSize();
 
    /**
+    * Returns whether this queue was created for the broker's internal use.
+    */
+   @Attribute(desc = "whether this queue was created for the broker's internal use")
+   boolean isInternalQueue();
+
+   /**
     * Returns the number of scheduled messages in this queue.
     */
    @Attribute(desc = SCHEDULED_MESSAGE_COUNT_DESCRIPTION)
