@@ -104,7 +104,8 @@ var Artemis;
                   {name: "Ring Size", visible: false},
                   {name: "Consumers Before Dispatch", visible: false},
                   {name: "Delay Before Dispatch", visible: false},
-                  {name: "Auto Delete", visible: false}
+                  {name: "Auto Delete", visible: false},
+                  {name: "Internal", visible: false}
              ]
         };
 
@@ -142,7 +143,8 @@ var Artemis;
                 {id: 'paused', name: 'Paused'},
                 {id: 'temporary', name: 'Temporary'},
                 {id: 'autoCreated', name: 'Auto Created'},
-                {id: 'autoDelete', name: 'Auto Delete'}
+                {id: 'autoDelete', name: 'Auto Delete'},
+                {id: 'internalQueue', name: 'Internal'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -218,7 +220,8 @@ var Artemis;
             { header: 'Ring Size', itemField: 'ringSize'},
             { header: 'Consumers Before Dispatch', itemField: 'consumersBeforeDispatch'},
             { header: 'Delay Before Dispatch', itemField: 'delayBeforeDispatch'},
-            { header: 'Auto Delete', itemField: 'autoDelete'}
+            { header: 'Auto Delete', itemField: 'autoDelete'},
+            { header: 'Internal', itemField: 'internalQueue'}
         ];
 
         ctrl.refresh = function () {

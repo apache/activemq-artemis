@@ -2974,7 +2974,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * @return the internalQueue
+    * @return if queue is internal
     */
    @Override
    public boolean isInternalQueue() {

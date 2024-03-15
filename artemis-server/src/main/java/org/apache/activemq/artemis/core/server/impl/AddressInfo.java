@@ -427,6 +427,8 @@ public class AddressInfo {
       } else if (key.equals("created-timestamp")) {
          JsonNumber jsonLong = (JsonNumber) value;
          this.createdTimestamp = jsonLong.longValue();
+      } else if (key.equals("internal")) {
+         this.internal = Boolean.valueOf(value.toString());
       }
    }
 
