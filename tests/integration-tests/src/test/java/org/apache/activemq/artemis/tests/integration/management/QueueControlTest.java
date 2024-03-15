@@ -279,6 +279,26 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testRegisterInternalQueues() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      server.createQueue(new QueueConfiguration(queue).setDurable(durable).setInternal(true));
+
+      QueueControl queueControl = createManagementControl(queue, queue);
+      Assert.assertNotNull(queueControl);
+      Assert.assertTrue(server.locateQueue(queue).isInternalQueue());
+      Assert.assertEquals(queue.toString(), queueControl.getName());
+      Assert.assertEquals(durable, queueControl.isDurable());
+
+      //check that internal queue can be managed
+      queueControl.pause();
+      Assert.assertTrue(queueControl.isPaused());
+
+      queueControl.resume();
+      Assert.assertFalse(queueControl.isPaused());
+   }
+
+   @Test
    public void testAutoDeleteAttribute() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
