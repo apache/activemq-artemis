@@ -198,6 +198,14 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
       }
    }
 
+   public void clear() {
+      messages.clear();
+   }
+
+   public int getNumberOfMessages() {
+      return messages.size();
+   }
+
    private static class LogEntry {
       String message;
       String stackTrace;
