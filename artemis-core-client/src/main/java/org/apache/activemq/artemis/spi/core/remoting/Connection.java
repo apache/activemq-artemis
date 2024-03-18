@@ -131,6 +131,10 @@ public interface Connection {
     */
    void close();
 
+   default void disconnect() {
+      close();
+   }
+
    /**
     * Returns a string representation of the remote address this connection is connected to.
     *
