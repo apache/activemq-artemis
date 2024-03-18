@@ -142,6 +142,10 @@ public class InVMConnection implements Connection {
 
    @Override
    public void close() {
+      internalClose(false);
+   }
+
+   private void internalClose(boolean failed) {
       if (closing) {
          return;
       }
@@ -150,11 +154,16 @@ public class InVMConnection implements Connection {
 
       synchronized (this) {
          if (!closed) {
-            listener.connectionDestroyed(id, false);
+            listener.connectionDestroyed(id, failed);
 
             closed = true;
          }
       }
+   }
+
+   @Override
+   public void disconnect() {
+      internalClose(true);
    }
 
    @Override
