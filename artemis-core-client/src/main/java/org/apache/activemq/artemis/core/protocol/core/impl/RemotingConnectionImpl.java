@@ -205,23 +205,30 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          ActiveMQClientLogger.LOGGER.connectionClosureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 
+      // Then call the listeners
+      callFailureListeners(me, scaleDownTargetNodeID);
+
+      close();
+
+      for (Channel channel : channels.values()) {
+         channel.returnBlocking(me);
+      }
+   }
+
+
+   @Override
+   public void close() {
       try {
          transportConnection.forceClose();
       } catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.failedForceClose(e);
       }
 
-      // Then call the listeners
-      callFailureListeners(me, scaleDownTargetNodeID);
-
       callClosingListeners();
 
       internalClose();
-
-      for (Channel channel : channels.values()) {
-         channel.returnBlocking(me);
-      }
    }
+
 
    @Override
    public void destroy() {
