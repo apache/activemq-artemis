@@ -14,12 +14,20 @@ NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#u
 
 == 2.33.0
 
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=...[Full release notes]
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354184[Full release notes]
 
 === Highlights
 
-* highlight 1
-* highlight 2
+* Support for JSON formatted typed properties on CLI `producer` command
+* New CLI command `pwd` for showing directories related to the current instance
+* Maven Bill of Materials (BOM) `artemis-bom` to simplify integration
+* "FirstMessage" API for scheduled messages
+* New xref:security.adoc#role-based-security-for-addresses["view" and "edit"] permissions for management operations configurable via `security-settings` in `broker.xml`
+* New `sslAutoReload` parameter for the embedded web server configured in `bootstrap.xml` to detect and automatically reload whe SSL stores change on disk
+* Performance improvements on mirroring and paging
+* xref:metrics#optional-metrics[Logging metrics] to mitigate the risk of missing `WARN` or `ERROR` messages in the log.
+* Much improved documentation on xref:network-isolation.adoc[network isolation (aka split brain)]
+* xref:network-isolation.adoc#pluggable-lock-manager[Pluggable lock manager] (aka pluggable quorum voting) out of "experimental" status and ready for general use
 
 === Upgrading from 2.32.0
 
