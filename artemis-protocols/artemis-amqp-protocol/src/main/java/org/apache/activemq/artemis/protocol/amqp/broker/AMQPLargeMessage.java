@@ -322,7 +322,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       decoder.setBuffer(buffer);
 
       try {
-         int constructorPos = buffer.position();
          TypeConstructor<?> constructor = decoder.readConstructor();
          if (Header.class.equals(constructor.getTypeClass())) {
             header = (Header) constructor.readValue();
