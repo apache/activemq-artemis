@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.selector.filter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import org.slf4j.Logger;
@@ -36,12 +37,19 @@ public class JAXPXPathEvaluator implements XPathExpression.XPathEvaluator {
    private final String xpathExpression;
    private final XPath xpath;
    private final DocumentBuilder builder;
+   private final javax.xml.xpath.XPathExpression compiledXPathExpression;
 
    public JAXPXPathEvaluator(String xpathExpression, DocumentBuilder builder) {
       this.xpathExpression = xpathExpression;
       this.builder = builder;
       synchronized (FACTORY) {
          this.xpath = FACTORY.newXPath();
+      }
+
+      try {
+         this.compiledXPathExpression = xpath.compile(xpathExpression);
+      } catch (XPathExpressionException e) {
+         throw new IllegalArgumentException(e);
       }
    }
 
@@ -61,7 +69,7 @@ public class JAXPXPathEvaluator implements XPathExpression.XPathEvaluator {
    protected boolean evaluate(InputSource inputSource) {
       try {
          synchronized (builder) {
-            return ((Boolean)xpath.evaluate(xpathExpression, builder.parse(inputSource), XPathConstants.BOOLEAN)).booleanValue();
+            return ((Boolean)compiledXPathExpression.evaluate(builder.parse(inputSource), XPathConstants.BOOLEAN)).booleanValue();
          }
       } catch (Exception e) {
          logger.debug("Failed to evaluate XPath expression {}", xpathExpression, inputSource, e);
