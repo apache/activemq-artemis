@@ -131,6 +131,10 @@ public final class FileWrapperJournal extends JournalBase {
       return journal.getMaxRecordSize();
    }
 
+   @Override
+   public long getWarningRecordSize() {
+      return journal.getWarningRecordSize();
+   }
    /**
     * Write the record to the current file.
     */

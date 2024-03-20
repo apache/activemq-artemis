@@ -83,6 +83,11 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
       return Long.MAX_VALUE;
    }
 
+   default long getWarningRecordSize() {
+      /** Null journal is pretty much memory */
+      return Long.MAX_VALUE;
+   }
+
    default void recoverLargeMessagesOnFolder(Set<Long> files) throws Exception {
    }
 

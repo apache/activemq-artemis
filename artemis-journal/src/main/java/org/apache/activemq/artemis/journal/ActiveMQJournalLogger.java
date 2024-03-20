@@ -203,4 +203,10 @@ public interface ActiveMQJournalLogger {
    // same as criticalIO but with the FileName associated (if there's a file available)
    @LogMessage(id = 144011, value = "Critical IO Exception happened: {} on {}", level = LogMessage.Level.WARN)
    void criticalIOFile(String message, String fileName, Throwable error);
+
+   @LogMessage(id = 144012, value = "Journal Record sized at {}, which is too close to the max record Size at {}. Record = {}. Internal broker operations such as redistribution and DLQ may be compromised. Move large headers into the body of messages.", level = LogMessage.Level.WARN)
+   void largeHeaderWarning(long recordSize, long maxRecordSize, Object originalData);
+
+
+
 }

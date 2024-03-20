@@ -1068,6 +1068,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       public void replicationSyncFinished() {
          // no-op
       }
+
+      @Override
+      public long getWarningRecordSize() {
+         return getMaxRecordSize() - 2048;
+      }
    }
 
    private interface ExtraConfigurer {
