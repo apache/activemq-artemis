@@ -1201,7 +1201,7 @@ public interface ActiveMQServerLogger {
    void failedToDealWithObjectProperty(SimpleString property, String exceptionMessage);
 
    @LogMessage(id = 222303, value = "Redistribution by {} of messageID = {} failed", level = LogMessage.Level.WARN)
-   void errorRedistributing(String queueName, long m, Throwable t);
+   void errorRedistributing(String queueName, String m, Throwable t);
 
    @LogMessage(id = 222304, value = "Unable to load message from journal", level = LogMessage.Level.WARN)
    void unableToLoadMessageFromJournal(Throwable t);

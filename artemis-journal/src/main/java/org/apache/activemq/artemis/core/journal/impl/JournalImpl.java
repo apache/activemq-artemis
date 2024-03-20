@@ -54,6 +54,7 @@ import io.netty.util.collection.ByteObjectHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.io.DummyCallback;
@@ -923,14 +924,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          logger.trace("scheduling appendAddRecord::id={}, userRecordType={}, record = {}", id, recordType, record);
       }
 
-      final long maxRecordSize = getMaxRecordSize();
       final JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
       final int addRecordEncodeSize = addRecord.getEncodeSize();
 
-      if (addRecordEncodeSize > maxRecordSize) {
-         //The record size should be larger than max record size only on the large messages case.
-         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
-      }
+      checkRecordSize(addRecordEncodeSize, record);
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
@@ -977,14 +974,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          logger.trace("scheduling appendAddEvent::id={}, userRecordType={}, record = {}", id, recordType, record);
       }
 
-      final long maxRecordSize = getMaxRecordSize();
       final JournalInternalRecord addRecord = new JournalAddRecord(JournalImpl.EVENT_RECORD, id, recordType, persister, record);
-      final int addRecordEncodeSize = addRecord.getEncodeSize();
 
-      if (addRecordEncodeSize > maxRecordSize) {
-         //The record size should be larger than max record size only on the large messages case.
-         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
-      }
+      checkRecordSize(addRecord.getEncodeSize(), record);
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(() -> {
@@ -1010,6 +1002,18 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       });
 
       result.get();
+   }
+
+   private void checkRecordSize(int addRecordEncodeSize, Object record) throws ActiveMQIOErrorException {
+      if (addRecordEncodeSize > getWarningRecordSize()) {
+         long maxRecordSize = getMaxRecordSize();
+         ActiveMQJournalLogger.LOGGER.largeHeaderWarning(addRecordEncodeSize, maxRecordSize, record);
+
+         if (addRecordEncodeSize > maxRecordSize) {
+            //The record size should be larger than max record size only on the large messages case.
+            throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
+         }
+      }
    }
 
    @Override
@@ -1271,10 +1275,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
       int encodeSize = addRecord.getEncodeSize();
 
-      if (encodeSize > getMaxRecordSize()) {
-         //The record size should be larger than max record size only on the large messages case.
-         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(encodeSize, getMaxRecordSize());
-      }
+      checkRecordSize(encodeSize, record);
 
       appendExecutor.execute(new Runnable() {
 
@@ -2747,6 +2748,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       } else {
          return Math.min(getFileSize(), fileFactory.getBufferSize());
       }
+   }
+
+   @Override
+   public long getWarningRecordSize() {
+      return getMaxRecordSize() - 2048;
    }
 
    private void flushExecutor(Executor executor) throws InterruptedException {

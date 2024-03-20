@@ -388,4 +388,6 @@ public interface Journal extends ActiveMQComponent {
     * @return
     */
    long getMaxRecordSize();
+
+   long getWarningRecordSize();
 }

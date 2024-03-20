@@ -659,4 +659,9 @@ public class ReplicatedJournal implements Journal {
    public long getMaxRecordSize() {
       return localJournal.getMaxRecordSize();
    }
+
+   @Override
+   public long getWarningRecordSize() {
+      return localJournal.getWarningRecordSize();
+   }
 }

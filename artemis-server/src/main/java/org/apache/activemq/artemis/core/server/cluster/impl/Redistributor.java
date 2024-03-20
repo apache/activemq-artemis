@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -127,13 +128,21 @@ public class Redistributor implements Consumer {
       RoutingContext context = routingInfo.getA();
       Message message = routingInfo.getB();
 
-      postOffice.processRoute(message, context, false);
+      try {
+         postOffice.processRoute(message, context, false);
 
-      if (RefCountMessage.isRefTraceEnabled()) {
-         RefCountMessage.deferredDebug(reference.getMessage(), "redistributing");
+         if (RefCountMessage.isRefTraceEnabled()) {
+            RefCountMessage.deferredDebug(reference.getMessage(), "redistributing");
+         }
+
+         ackRedistribution(reference, context.getTransaction());
+      } catch (Throwable e) {
+         if (context.getTransaction() != null) {
+            context.getTransaction().setAsync(true).rollback();
+         }
+         ActiveMQServerLogger.LOGGER.errorRedistributing(String.valueOf(this.queue.getName()), String.valueOf(message), e);
+         return HandleStatus.NO_MATCH;
       }
-
-      ackRedistribution(reference, context.getTransaction());
 
       return HandleStatus.HANDLED;
    }
