@@ -122,7 +122,7 @@ public class SslPEMTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, "PEMCFG");
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-pem-props-config.txt");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.pemcfg");
       params.put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, "PEM");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-cert.pem");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);

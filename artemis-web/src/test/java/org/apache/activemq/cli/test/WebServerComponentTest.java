@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.http.HttpException;
@@ -119,7 +120,7 @@ public class WebServerComponentTest extends Assert {
 
    static final String KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-keystore.p12").getFile();
 
-   static final String PEM_KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-pem-props-config.txt").getFile();
+   static final String PEM_KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-keystore.pemcfg").getFile();
 
    static final String KEY_STORE_PASSWORD = "securepass";
 
@@ -473,6 +474,64 @@ public class WebServerComponentTest extends Assert {
       }
    }
 
+   @Test
+   public void testSSLAutoReloadPemConfigSources() throws Exception {
+      File serverKeyFile = tempFolder.newFile();
+      File serverCertFile = tempFolder.newFile();
+      File serverPemConfigFile = tempFolder.newFile();
+
+      Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-key.pem"),
+         serverKeyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+      Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-cert.pem"),
+         serverCertFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+      Files.write(serverPemConfigFile.toPath(), Arrays.asList(new String[]{
+         "source.key=" + serverKeyFile.getAbsolutePath(),
+         "source.cert=" + serverCertFile.getAbsolutePath()
+      }));
+
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.setSslAutoReload(true);
+      bindingDTO.setKeyStorePath(serverPemConfigFile.getAbsolutePath());
+      bindingDTO.setKeyStoreType(PemConfigUtil.PEMCFG_STORE_TYPE);
+
+      WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
+
+      try {
+         int port = webServerComponent.getPort(0);
+         AtomicReference<SSLSession> sslSessionReference = new AtomicReference<>();
+         HostnameVerifier hostnameVerifier = (s, sslSession) -> {
+            sslSessionReference.set(sslSession);
+            return true;
+         };
+
+         // check server certificate contains ActiveMQ Artemis Server
+         Assert.assertTrue(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("DNSName: server.artemis.activemq"));
+
+         // check server certificate doesn't contain ActiveMQ Artemis Server
+         Assert.assertFalse(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("DNSName: other-server.artemis.activemq"));
+
+         // update server PEM config sources
+         Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("other-server-key.pem"),
+            serverKeyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+         Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("other-server-cert.pem"),
+            serverCertFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+         // check server certificate contains ActiveMQ Artemis Other Server
+         Wait.assertTrue(() -> testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("DNSName: other-server.artemis.activemq"));
+
+         // check server certificate doesn't contain ActiveMQ Artemis Server
+         Assert.assertFalse(testSimpleSecureServer("localhost", port, "localhost", null, hostnameVerifier) == 200 &&
+            sslSessionReference.get().getPeerCertificates()[0].toString().contains("DNSName: server.artemis.activemq"));
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
 
    private int testSimpleSecureServer(String webServerHostname, int webServerPort, String requestHostname, String sniHostname) throws Exception {
       return testSimpleSecureServer(webServerHostname, webServerPort, requestHostname, sniHostname, null);

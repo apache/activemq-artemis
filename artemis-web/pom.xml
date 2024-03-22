@@ -180,8 +180,10 @@
                               <include>server-keystore.p12</include>
                               <include>server-cert.pem</include>
                               <include>server-key.pem</include>
-                              <include>server-pem-props-config.txt</include>
+                              <include>server-keystore.pemcfg</include>
                               <include>other-server-keystore.p12</include>
+                              <include>other-server-cert.pem</include>
+                              <include>other-server-key.pem</include>
                            </includes>
                         </resource>
                      </resources>

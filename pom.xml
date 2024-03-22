@@ -973,6 +973,7 @@
                      <exclude>**/*.jks</exclude>
                      <exclude>**/*.p12</exclude>
                      <exclude>**/xml.xsd</exclude>
+                     <exclude>**/*.pemcfg</exclude>
                      <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                      <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                      <exclude>**/.settings/**</exclude>

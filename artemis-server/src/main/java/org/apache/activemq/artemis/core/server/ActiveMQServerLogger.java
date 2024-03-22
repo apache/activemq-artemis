@@ -1611,4 +1611,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224136, value = "Skipping correlation ID when converting message to OpenWire since byte[] value is not valid UTF-8: {}", level = LogMessage.Level.WARN)
    void unableToDecodeCorrelationId(String message);
+
+   @LogMessage(id = 224137, value = "Skipping SSL auto reload for sources of store {} because of {}", level = LogMessage.Level.WARN)
+   void skipSSLAutoReloadForSourcesOfStore(String storePath, String reason);
 }

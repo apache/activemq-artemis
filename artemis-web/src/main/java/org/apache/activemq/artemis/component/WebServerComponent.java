@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.component;
 
 import javax.servlet.DispatcherType;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.file.Files;
@@ -38,6 +41,7 @@ import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
+import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
@@ -278,8 +282,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
             }
          }
          if (Boolean.TRUE.equals(binding.getSslAutoReload())) {
-            addStoreResourceScannerTask(binding.getKeyStorePath(), sslFactory);
-            addStoreResourceScannerTask(binding.getTrustStorePath(), sslFactory);
+            addStoreResourceScannerTask(binding.getKeyStorePath(), binding.getKeyStoreType(), sslFactory);
+            addStoreResourceScannerTask(binding.getTrustStorePath(), binding.getTrustStoreType(), sslFactory);
          }
 
          SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
@@ -359,7 +363,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       getScanner().addDirectory(parentFile.toPath());
    }
 
-   private void addStoreResourceScannerTask(String storeFilename, SslContextFactory.Server sslFactory) {
+   private void addStoreResourceScannerTask(String storeFilename, String storeType, SslContextFactory.Server sslFactory) {
       if (storeFilename != null) {
          File storeFile = getStoreFile(storeFilename);
          addScannerTask(storeFile, () -> {
@@ -369,6 +373,23 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                logger.warn("Failed to reload the ssl factory related to {}", storeFile, e);
             }
          });
+
+         if (PemConfigUtil.isPemConfigStoreType(storeType)) {
+            String[] sources;
+
+            try (InputStream pemConfigStream = new FileInputStream(storeFile)) {
+               sources = PemConfigUtil.parseSources(pemConfigStream);
+            } catch (IOException e) {
+               throw new IllegalArgumentException("Invalid PEM Config file: " + e);
+            }
+
+            if (sources != null) {
+               for (String source : sources) {
+                  addStoreResourceScannerTask(source, null, sslFactory);
+               }
+            }
+         }
+
       }
    }
 
