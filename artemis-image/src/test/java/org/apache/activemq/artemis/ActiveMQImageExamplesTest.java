@@ -46,7 +46,7 @@ public class ActiveMQImageExamplesTest {
 
       EmbeddedActiveMQ server = new EmbeddedActiveMQ();
       // look for properties files to augment configuration
-      server.setPropertiesResourcePath("./src/main/resources/,./examples/amqp_sasl_scram_test__etc/");
+      server.setPropertiesResourcePath("./src/main/jib/config/,./examples/amqp_sasl_scram_test__etc/");
       server.setConfiguration(configuration);
 
       server.start();

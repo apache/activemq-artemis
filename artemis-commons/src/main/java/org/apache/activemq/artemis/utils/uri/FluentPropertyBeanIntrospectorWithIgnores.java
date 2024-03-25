@@ -48,14 +48,19 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
    @Override
    public void introspect(IntrospectionContext icontext) throws IntrospectionException {
       for (Method m : icontext.getTargetClass().getMethods()) {
-         if (m.getName().startsWith(getWriteMethodPrefix())) {
-            if (isIgnored(icontext.getTargetClass().getName(), m.getName())) {
-               logger.trace("{} Ignored for {}", m.getName(), icontext.getTargetClass().getName());
+         final String methodName = m.getName();
+         if (methodName.startsWith(getWriteMethodPrefix()) && !methodName.equals(getWriteMethodPrefix())) {
+            if (isIgnored(icontext.getTargetClass().getName(), methodName)) {
+               logger.trace("{} Ignored for {}", methodName, icontext.getTargetClass().getName());
                continue;
             }
 
-            introspect(icontext, m, propertyName(m));
-            introspect(icontext, m, defaultPropertyName(m));
+            final String propertyName = propertyName(methodName);
+            introspect(icontext, m, propertyName);
+            final String defaultPropertyName = defaultPropertyName(methodName);
+            if (!defaultPropertyName.equals(propertyName)) {
+               introspect(icontext, m, defaultPropertyName);
+            }
          }
       }
    }
@@ -63,31 +68,32 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
    private void introspect(IntrospectionContext icontext, Method writeMethod, String propertyName) {
       PropertyDescriptor pd = icontext.getPropertyDescriptor(propertyName);
 
+      Method readMethod = null;
+      if (pd != null) {
+         readMethod = pd.getReadMethod();
+      }
       try {
-         if (pd == null) {
-            icontext.addPropertyDescriptor(createFluentPropertyDescritor(writeMethod, propertyName));
-         } else if (pd.getWriteMethod() == null) {
-            pd.setWriteMethod(writeMethod);
-         }
+         PropertyDescriptor withFluentWrite = createFluentPropertyDescriptor(readMethod, writeMethod, propertyName);
+         icontext.addPropertyDescriptor(withFluentWrite);
       } catch (IntrospectionException e) {
-         logger.trace("error for property named {}", propertyName, e);
+         logger.trace("error on add fluent descriptor for property named {}", propertyName, e);
       }
    }
 
-   private PropertyDescriptor createFluentPropertyDescritor(Method writeMethod, String propertyName) throws IntrospectionException {
-      return new PropertyDescriptor(propertyName, null, writeMethod);
+   private PropertyDescriptor createFluentPropertyDescriptor(Method readMethod, Method writeMethod, String propertyName) throws IntrospectionException {
+      return new PropertyDescriptor(propertyName, readMethod, writeMethod);
    }
 
-   private String propertyName(final Method m) {
-      String methodName = m.getName().substring(getWriteMethodPrefix().length());
-      return (methodName.length() > 1) ? Character.toLowerCase(methodName.charAt(0)) +
-         methodName.substring(1) : methodName.toLowerCase(Locale.ENGLISH);
+   private String propertyName(final String methodName) {
+      String propName = methodName.substring(getWriteMethodPrefix().length());
+      return (propName.length() > 1) ? Character.toLowerCase(propName.charAt(0)) +
+         propName.substring(1) : propName.toLowerCase(Locale.ENGLISH);
    }
 
-   private String defaultPropertyName(final Method m) {
-      final String methodName = m.getName().substring(
+   private String defaultPropertyName(final String methodName) {
+      final String propertyName = methodName.substring(
          getWriteMethodPrefix().length());
-      return (methodName.length() > 1) ? Introspector.decapitalize(methodName) : methodName
+      return (propertyName.length() > 1) ? Introspector.decapitalize(propertyName) : propertyName
          .toLowerCase(Locale.ENGLISH);
    }
 }

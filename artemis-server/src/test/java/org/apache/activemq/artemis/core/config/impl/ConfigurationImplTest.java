@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
@@ -30,6 +31,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -786,17 +788,19 @@ public class ConfigurationImplTest extends ServerTestBase {
       insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
       insertionOrderedProperties.put("AMQPConnections.target.password", "password");
       insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.type", "MIRROR");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.messageAcknowledgements", "true");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueCreation", "true");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueRemoval", "true");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.addressFilter", "foo");
-      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.properties.a", "b");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.type", "MIRROR");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.messageAcknowledgements", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.queueCreation", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.queueRemoval", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.addressFilter", "foo");
+      insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.properties.a", "b");
       if (sync) {
-         insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.sync", "true");
+         insertionOrderedProperties.put("AMQPConnections.target.mirrors.mirror.sync", "true");
       } // else we just use the default that is false
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
 
       Assert.assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
@@ -983,6 +987,8 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
       Assert.assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
       Assert.assertEquals("target", connectConfiguration.getName());
@@ -1115,6 +1121,12 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
 
       Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
+
+      properties = new ConfigurationImpl.InsertionOrderedProperties();
+      // validate out of bound is trapped as error
+      properties.put("bridgeConfigurations.b1.staticConnectors[5]", "d");
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("IndexOutOfBoundsException"));
    }
 
    @Test
@@ -1414,18 +1426,80 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("secureexample", configuration.getFederationConfigurations().get(0).getCredentials().getPassword());
    }
 
+
+   @Test
+   public void testAMQPBrokerConnectionMix() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      properties.put("AMQPConnections.brokerA.uri", "tcp://brokerA:5672");
+      properties.put("AMQPConnections.brokerB.uri", "tcp://brokerB:5672");
+
+      properties.put("AMQPConnections.brokerA.federations.abc.type", AMQPBrokerConnectionAddressType.FEDERATION.toString());
+      properties.put("AMQPConnections.brokerB.mirrors.mirror.type", AMQPBrokerConnectionAddressType.MIRROR.toString());
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
+      Assert.assertEquals(2, configuration.getAMQPConnection().size());
+      for (AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration : configuration.getAMQPConnection()) {
+         if ("brokerB".equals(amqpBrokerConnectConfiguration.getName())) {
+            Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+         } else if ("brokerA".equals(amqpBrokerConnectConfiguration.getName())) {
+            Assert.assertEquals(AMQPBrokerConnectionAddressType.FEDERATION, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+         } else {
+            fail("unexpected amqp broker connection configuration: " + amqpBrokerConnectConfiguration.getName());
+         }
+      }
+   }
+
+   @Test
+   public void testAMQPBrokerConnectionTypes() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      properties.put("AMQPConnections.brokerA.uri", "tcp://brokerA:5672");
+
+      // they all need a unique name as they share a collection
+      properties.put("AMQPConnections.brokerA.federations.a.type", AMQPBrokerConnectionAddressType.FEDERATION.toString());
+      properties.put("AMQPConnections.brokerA.mirrors.b.type", AMQPBrokerConnectionAddressType.MIRROR.toString());
+      properties.put("AMQPConnections.brokerA.peers.c.type", AMQPBrokerConnectionAddressType.PEER.toString());
+      properties.put("AMQPConnections.brokerA.senders.d.type", AMQPBrokerConnectionAddressType.SENDER.toString());
+      properties.put("AMQPConnections.brokerA.receivers.e.type", AMQPBrokerConnectionAddressType.RECEIVER.toString());
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
+      Assert.assertEquals(1, configuration.getAMQPConnection().size());
+
+      Set<AMQPBrokerConnectionAddressType> typesToFind = new HashSet<>();
+      for (AMQPBrokerConnectionAddressType t : AMQPBrokerConnectionAddressType.values()) {
+         typesToFind.add(t);
+      }
+      for (AMQPBrokerConnectionElement amqpBrokerConnectConfiguration : configuration.getAMQPConnection().get(0).getConnectionElements()) {
+         typesToFind.remove(amqpBrokerConnectConfiguration.getType());
+      }
+      assertTrue(typesToFind.isEmpty());
+   }
+
    @Test
    public void testSetNestedPropertyOnCollections() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Properties properties = new Properties();
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
       properties.put("connectionRouters.joe.localTargetFilter", "LF");
       properties.put("connectionRouters.joe.keyFilter", "TF");
       properties.put("connectionRouters.joe.keyType", "SOURCE_IP");
 
+      properties.put("acceptorConfigurations.tcp.factoryClassName", NETTY_ACCEPTOR_FACTORY);
       properties.put("acceptorConfigurations.tcp.params.HOST", "LOCALHOST");
       properties.put("acceptorConfigurations.tcp.params.PORT", "61616");
 
+      properties.put("acceptorConfigurations.invm.factoryClassName", INVM_ACCEPTOR_FACTORY);
       properties.put("acceptorConfigurations.invm.params.ID", "0");
 
       //   <amqp-connection uri="tcp://HOST:PORT" name="other-server" retry-interval="100" reconnect-attempts="-1" user="john" password="doe">
@@ -1437,12 +1511,14 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       //   <amqp-connection uri="tcp://brokerB:5672" name="brokerB"> <mirror/> </amqp-connection>
       properties.put("AMQPConnections.brokerB.uri", "tcp://brokerB:5672");
-      properties.put("AMQPConnections.brokerB.type", AMQPBrokerConnectionAddressType.MIRROR.toString());
+      properties.put("AMQPConnections.brokerB.connectionElements.mirror.type", AMQPBrokerConnectionAddressType.MIRROR.toString());
       properties.put("AMQPConnections.brokerB.connectionElements.mirror.mirrorSNF", "mirrorSNFQueue");
 
       properties.put("resourceLimitSettings.joe.maxConnections", "100");
 
       configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
 
       Assert.assertEquals(1, configuration.getConnectionRouters().size());
       Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
@@ -1454,9 +1530,11 @@ public class ConfigurationImplTest extends ServerTestBase {
       for (TransportConfiguration acceptor : configuration.getAcceptorConfigurations()) {
          if ("tcp".equals(acceptor.getName())) {
             Assert.assertEquals("61616", acceptor.getParams().get("PORT"));
+            Assert.assertEquals(NETTY_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
          }
          if ("invm".equals(acceptor.getName())) {
             Assert.assertEquals("0", acceptor.getParams().get("ID"));
+            Assert.assertEquals(INVM_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
          }
       }
 
@@ -1480,19 +1558,22 @@ public class ConfigurationImplTest extends ServerTestBase {
    public void testSetNestedPropertyOnExistingCollectionEntryViaMappedNotation() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Properties properties = new Properties();
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
       properties.put("connectionRouters.joe.localTargetFilter", "LF");
       // does not exist, ignored
       properties.put("connectionRouters(bob).keyFilter", "TF");
 
-      // apply twice b/c there is no guarantee of order, this may be a problem
       configuration.parsePrefixedProperties(properties, null);
+      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertTrue(configuration.getStatus().contains("does not exist"));
+      Assert.assertTrue(configuration.getStatus().contains("mapped key: bob"));
 
       properties = new Properties();
       // update existing
       properties.put("connectionRouters(joe).keyFilter", "TF");
 
       configuration.parsePrefixedProperties(properties, null);
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       Assert.assertEquals(1, configuration.getConnectionRouters().size());
       Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
@@ -1586,6 +1667,8 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
       Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
 
       TransportConfiguration artemisTransportConfiguration = configuration.getAcceptorConfigurations().stream().filter(
@@ -1601,6 +1684,13 @@ public class ConfigurationImplTest extends ServerTestBase {
          transportConfiguration -> transportConfiguration.getName().equals("new")).findFirst().get();
       Assert.assertTrue(newTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
       Assert.assertEquals("true", newTransportConfiguration.getExtraParams().get("supportAdvisory"));
+      Assert.assertEquals("null", newTransportConfiguration.getFactoryClassName());
+
+      // update with correct factoryClassName
+      properties.put("acceptorConfigurations.new.factoryClassName", NETTY_ACCEPTOR_FACTORY);
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertEquals(NETTY_ACCEPTOR_FACTORY, newTransportConfiguration.getFactoryClassName());
    }
 
 
@@ -2105,6 +2195,19 @@ public class ConfigurationImplTest extends ServerTestBase {
    }
 
    @Test
+   public void journalRetentionPeriod() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+      properties.put("journalRetentionPeriod", TimeUnit.DAYS.toMillis(1));
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertEquals(TimeUnit.DAYS.toMillis(1), configuration.getJournalRetentionPeriod());
+   }
+
+   @Test
    public void testSystemPropValueReplaced() throws Exception {
       ConfigurationImpl configuration = new ConfigurationImpl();
       Properties properties = new Properties();
@@ -2215,7 +2318,7 @@ public class ConfigurationImplTest extends ServerTestBase {
    public void testEnumConversion() throws Exception {
       ConfigurationImpl configuration = new ConfigurationImpl();
       Properties properties = new Properties();
-      properties.put("clusterConfiguration.cc.name", "cc");
+      properties.put("clusterConfigurations.cc.name", "cc");
       properties.put("clusterConfigurations.cc.messageLoadBalancingType", "OFF_WITH_REDISTRIBUTION");
       properties.put("criticalAnalyzerPolicy", "SHUTDOWN");
 
@@ -2433,13 +2536,15 @@ public class ConfigurationImplTest extends ServerTestBase {
       // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
 
-      // possible to change any attribute, but plugins only registered on start
+      // impossible to change any attribute unless the plugin has a name attribute, but plugins only registered on start
       insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
+      // verify error
       Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       Assert.assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
+      Assert.assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    @Test
@@ -2461,13 +2566,14 @@ public class ConfigurationImplTest extends ServerTestBase {
       // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
 
-      // possible to change any attribute, but plugins only registered on start
+      // impossible to change any attribute unless there is a name attribute, but plugins only registered on start
       insertionOrderedProperties.put("securitySettingPlugins.\"org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin.class\".init", "initialContextFactory");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
       Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       Assert.assertTrue(configuration.getStatus().contains("initialContextFactory"));
+      Assert.assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    /**

@@ -90,8 +90,6 @@ import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfig
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -500,6 +498,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   // from properties, as milli
+   public void setJournalRetentionPeriod(long periodMillis) {
+      if (periodMillis <= 0) {
+         this.journalRetentionPeriod = -1;
+      } else {
+         this.journalRetentionPeriod = periodMillis;
+      }
+   }
+
    @Override
    public long getJournalRetentionMaxBytes() {
       return journalRetentionMaxBytes;
@@ -666,6 +673,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      String nextName = resolver.next(name);
                      Object nextTarget = getPropertyUtils().getProperty(target, nextName);
                      if (nextTarget == null) {
+                        if (resolver.isMapped(nextName)) {
+                           throw new InvocationTargetException(null, "Entry does not exist in: " + resolver.getProperty(name) + " for mapped key: " + resolver.getKey(name));
+                        }
                         nextTarget = initProperty(target, nextName);
                      }
                      target = nextTarget;
@@ -937,7 +947,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
       logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
-      errors.put(entry.toString(), oops.getLocalizedMessage());
+      errors.put(entry.toString(), oops.toString());
    }
 
    private synchronized void updateApplyStatus(String propsId, HashMap<String, String> errors) {
@@ -3539,10 +3549,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
                // for maps a name attribute is not mandatory
             }
 
-            // this is always going to be a little hacky b/c our config is not natively property friendly
-            if (instance instanceof TransportConfiguration) {
-               beanUtilsBean.setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
-            }
             return instance;
 
          } catch (Exception e) {
