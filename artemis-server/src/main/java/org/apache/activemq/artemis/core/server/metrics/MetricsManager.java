@@ -168,7 +168,11 @@ public class MetricsManager {
          logger.debug("Unregistering meters for {}", resource);
          for (Meter meter : resourceMeters) {
             Meter removed = meterRegistry.remove(meter);
-            logger.debug("Unregistered meter: {}", removed.getId());
+            if (removed != null) {
+               logger.debug("Unregistered meter: {}", removed.getId());
+            } else {
+               logger.debug("Attempted to unregister meter {}, but it wasn't found in the registry", meter);
+            }
          }
       } else {
          logger.debug("Attempted to unregister meters for {}, but none were found.", resource);
