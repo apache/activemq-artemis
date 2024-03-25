@@ -53,7 +53,7 @@ public class TransportConfiguration implements Serializable {
 
    private String name;
 
-   private String factoryClassName;
+   private String factoryClassName = "null";
 
    private Map<String, Object> params;
 

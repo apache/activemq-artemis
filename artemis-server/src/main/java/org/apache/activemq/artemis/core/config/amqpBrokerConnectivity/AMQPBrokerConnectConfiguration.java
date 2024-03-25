@@ -75,6 +75,42 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return connectionElements;
    }
 
+   public AMQPBrokerConnectConfiguration addMirror(AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement) {
+      return addElement(amqpMirrorBrokerConnectionElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getMirrors() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addPeer(AMQPBrokerConnectionElement element) {
+      element.setType(AMQPBrokerConnectionAddressType.PEER);
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getPeers() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addSender(AMQPBrokerConnectionElement element) {
+      element.setType(AMQPBrokerConnectionAddressType.SENDER);
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getSenders() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addReceiver(AMQPBrokerConnectionElement element) {
+      element.setType(AMQPBrokerConnectionAddressType.RECEIVER);
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getReceivers() {
+      return connectionElements;
+   }
+
+
    @Override
    public void parseURI() throws Exception {
       ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser(false);
