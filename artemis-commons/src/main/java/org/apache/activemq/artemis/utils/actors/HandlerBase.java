@@ -37,11 +37,18 @@ public abstract class HandlerBase {
    }
 
    public static boolean inHandler() {
-      return inHandler.get().count > 0;
+      int count = inHandler.get().count;
+      if (count == 0) {
+         inHandler.remove();
+      }
+      return count > 0;
    }
 
    protected static void leave() {
-      inHandler.get().count--;
+      int count = --inHandler.get().count;
+      if (count == 0) {
+         inHandler.remove();
+      }
    }
 
 }
