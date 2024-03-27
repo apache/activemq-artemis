@@ -535,6 +535,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
    //from amq5
    //make it transient
+   @Deprecated
    private transient Integer queuePrefetch = null;
 
    public AddressSettings(AddressSettings other) {
@@ -1133,10 +1134,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   @Deprecated
    public int getQueuePrefetch() {
       return queuePrefetch != null ? queuePrefetch : AddressSettings.DEFAULT_QUEUE_PREFETCH;
    }
 
+   @Deprecated
    public AddressSettings setQueuePrefetch(int queuePrefetch) {
       this.queuePrefetch = queuePrefetch;
       return this;
