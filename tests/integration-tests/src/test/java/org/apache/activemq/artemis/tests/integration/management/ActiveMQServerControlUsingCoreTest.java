@@ -1493,6 +1493,20 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   boolean exclusive,
                                   String filterString,
                                   String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  String routingType,
+                                  boolean reuseUserSession) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerProperties, routingType, reuseUserSession);
+         }
+
+         @Override
+         public void createDivert(String name,
+                                  String routingName,
+                                  String address,
+                                  String forwardingAddress,
+                                  boolean exclusive,
+                                  String filterString,
+                                  String transformerClassName,
                                   String transformerPropertiesAsJSON,
                                   String routingType) throws Exception {
             proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerPropertiesAsJSON, routingType);

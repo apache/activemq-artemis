@@ -54,6 +54,7 @@ public class DivertConfigurationStorageTest  extends StorageManagerTestBase {
       mytransformer.getProperties().put("key2", "prop2");
       mytransformer.getProperties().put("key3", "prop3");
       configuration.setTransformerConfiguration(mytransformer);
+      configuration.setReuseUserSession(true);
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
@@ -71,6 +72,7 @@ public class DivertConfigurationStorageTest  extends StorageManagerTestBase {
       Assert.assertEquals(configuration.isExclusive(), persistedDivertConfiguration.getDivertConfiguration().isExclusive());
       Assert.assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
       Assert.assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
+      Assert.assertEquals(configuration.isReuseUserSession(), persistedDivertConfiguration.getDivertConfiguration().isReuseUserSession());
       Assert.assertNotNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
       Assert.assertEquals("mytransformer", persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration().getClassName());
       Map<String, String> properties = persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration().getProperties();
