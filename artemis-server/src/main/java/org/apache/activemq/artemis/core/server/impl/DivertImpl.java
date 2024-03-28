@@ -59,6 +59,8 @@ public class DivertImpl implements Divert {
 
    private volatile ComponentConfigurationRoutingType routingType;
 
+   private final boolean reuseUserSession;
+
    public DivertImpl(final SimpleString uniqueName,
                      final SimpleString address,
                      final SimpleString forwardAddress,
@@ -68,7 +70,8 @@ public class DivertImpl implements Divert {
                      final Transformer transformer,
                      final PostOffice postOffice,
                      final StorageManager storageManager,
-                     final ComponentConfigurationRoutingType routingType) {
+                     final ComponentConfigurationRoutingType routingType,
+                     final boolean reuseUserSession) {
       this.address = address;
 
       this.setForwardAddress(forwardAddress);
@@ -88,6 +91,8 @@ public class DivertImpl implements Divert {
       this.storageManager = storageManager;
 
       this.routingType = routingType;
+
+      this.reuseUserSession = reuseUserSession;
    }
 
    @Override
@@ -116,6 +121,10 @@ public class DivertImpl implements Divert {
 
             copy.setExpiration(message.getExpiration());
 
+            //This header could be set if the message is redistributed from a clustered broker.
+            //It needs to be removed as it will interfere with upcoming routing
+            copy.removeExtraBytesProperty(Message.HDR_ROUTE_TO_IDS);
+
             switch (routingType) {
                case ANYCAST:
                   copy.setRoutingType(RoutingType.ANYCAST);
@@ -140,7 +149,11 @@ public class DivertImpl implements Divert {
             copy = message;
          }
 
-         postOffice.route(copy, new RoutingContextImpl(context.getTransaction()).setReusable(false).setRoutingType(copy.getRoutingType()), false);
+         if (!reuseUserSession) {
+            postOffice.route(copy, new RoutingContextImpl(context.getTransaction()).setReusable(false).setRoutingType(copy.getRoutingType()), false);
+         } else {
+            postOffice.route(copy, new RoutingContextImpl(context.getTransaction()).setReusable(false).setRoutingType(copy.getRoutingType()).setServerSession(context.getServerSession()), false);
+         }
       }
    }
 
@@ -233,6 +246,10 @@ public class DivertImpl implements Divert {
          filter +
          ", transformer=" +
          transformer +
+         ", routingType=" +
+         routingType +
+         ", reuseUserSession=" +
+         reuseUserSession +
          "]";
    }
 

@@ -1105,6 +1105,9 @@ Default=false
 | xref:diverts.adoc#diverting-and-splitting-message-flows[routing-type]
 | how to set the routing-type on the diverted message.
 Default=`STRIP`
+
+| xref:diverts.adoc#reusing-the-senders-session[reuse-user-session]
+| should the divert route messages using the senders session
 |===
 
 == address type
