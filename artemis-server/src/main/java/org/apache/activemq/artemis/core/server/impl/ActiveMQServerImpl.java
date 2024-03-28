@@ -4191,9 +4191,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             throw e;
          }
 
-         if (!queueConfiguration.isInternal()) {
-            managementService.registerQueue(queue, queue.getAddress(), storageManager);
-         }
+         managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
          copyRetroactiveMessages(queue);
 
