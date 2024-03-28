@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class FakePostOffice implements PostOffice {
@@ -168,6 +169,11 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public List<Queue> listQueuesForAddress(SimpleString address) throws Exception {
+      return null;
+   }
+
+   @Override
+   public AddressSettings getAddressSettingsMatch(String address) {
       return null;
    }
 

@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -136,6 +139,21 @@ public class DivertImpl implements Divert {
 
             // We call reencode at the end only, in a single call.
             copy.reencode();
+
+            if (postOffice.getAddressSettingsMatch(copy.getAddress()).isAutoCreateDivertDestination()) {
+
+               if (copy.getRoutingType() != null) {
+                  AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(
+                     new QueueConfiguration(copy.getAddress())
+                        .setRoutingType(copy.getRoutingType())
+                        .setDurable(copy.isDurable()));
+
+                  if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
+                     throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(copy.getAddressSimpleString());
+                  }
+               }
+            }
+
          } else {
             copy = message;
          }

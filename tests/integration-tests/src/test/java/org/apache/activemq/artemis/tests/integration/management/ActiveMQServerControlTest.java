@@ -1168,6 +1168,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryAddress(), info.getExpiryAddress());
       assertEquals(addressSettings.getRedeliveryDelay(), info.getRedeliveryDelay());
    }
+
    @Test
    public void emptyAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
@@ -1228,7 +1229,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryQueuePrefix(), info.getExpiryQueuePrefix());
       assertEquals(addressSettings.getExpiryQueueSuffix(), info.getExpiryQueueSuffix());
       assertEquals(addressSettings.isEnableMetrics(), info.isEnableMetrics());
+      assertEquals(addressSettings.isAutoCreateDivertDestination(), info.isAutoCreateDivertDestination());
    }
+
    @Test
    public void testAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
@@ -1288,6 +1291,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
       boolean enableMetrics = RandomUtil.randomBoolean();
+      boolean autoCreateDivertDestination = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(new SimpleString(DLA))
@@ -1342,7 +1346,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
-              .setEnableMetrics(enableMetrics);
+              .setEnableMetrics(enableMetrics)
+              .setAutoCreateDivertDestination(autoCreateDivertDestination);
 
 
       serverControl.addAddressSettings(addressMatch, addressSettings.toJSON());
@@ -1416,6 +1421,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
+      assertEquals(autoCreateDivertDestination, info.isAutoCreateDivertDestination());
 
 
       addressSettings.setMaxSizeBytes(-1).setPageSizeBytes(1000);
@@ -1477,6 +1483,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
+      assertEquals(autoCreateDivertDestination, info.isAutoCreateDivertDestination());
 
 
       addressSettings.setMaxSizeBytes(-2).setPageSizeBytes(1000);
@@ -1554,6 +1561,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
       boolean enableMetrics = RandomUtil.randomBoolean();
+      boolean autoCreateDivertDestination = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(new SimpleString(DLA))
@@ -1608,7 +1616,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
-              .setEnableMetrics(enableMetrics);
+              .setEnableMetrics(enableMetrics)
+              .setAutoCreateDivertDestination(autoCreateDivertDestination);
 
       serverControl.addAddressSettings(root, addressSettings.toJSON());
 

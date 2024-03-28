@@ -80,6 +80,7 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <enable-metrics>true</enable-metrics>
       <enable-ingress-timestamp>false</enable-ingress-timestamp>
       <id-cache-size>500</id-cache-size>
+      <auto-create-divert-destinations>false</auto-create-divert-destinations>
    </address-setting>
 </address-settings>
 ----
@@ -210,12 +211,12 @@ Default is `false`.
 slow-consumer-threshold::
 The minimum rate of message consumption allowed before a consumer is considered "slow."
 Measured in units specified by the slow-consumer-threshold-measurement-unit configuration option.
-Default is `-1`  (i.e. disabled); any other value must be greater than 0 to ensure a queue has messages, and it is the actual consumer that is slow.
+Default is `-1` (i.e. disabled); any other value must be greater than 0 to ensure a queue has messages, and it is the actual consumer that is slow.
 A value of 0 will allow a consumer with no messages pending to be considered slow.
 Read more about xref:slow-consumers.adoc#detecting-slow-consumers[slow consumers].
 
 slow-consumer-threshold-measurement-unit::
-The units used to measure the  slow-consumer-threshold.
+The units used to measure the slow-consumer-threshold.
 Valid options are:
 +
 * MESSAGES_PER_SECOND
@@ -251,32 +252,32 @@ NOTE: automatic queue creation does _not_ work for the core client.
 The core API is a low-level API and is not meant to have such automation.
 
 auto-delete-queues::
-Whether or not the broker should automatically delete auto-created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
+Whether or not the broker should automatically delete auto-created queues when they have both 0 consumers and the message count is less than or equal to `auto-delete-queues-message-count`.
 Default is `true`.
 
 auto-delete-created-queues::
-Whether or not the broker should automatically delete created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
+Whether or not the broker should automatically delete created queues when they have both 0 consumers and the message count is less than or equal to `auto-delete-queues-message-count`.
 Default is `false`.
 
 auto-delete-queues-delay::
-How long to wait (in milliseconds) before deleting auto-created queues after the queue has 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
+How long to wait (in milliseconds) before deleting auto-created queues after the queue has 0 consumers and the message count is less than or equal to `auto-delete-queues-message-count`.
 Default is `0` (delete immediately).
 The broker's `address-queue-scan-period` controls how often (in milliseconds) queues are scanned for potential deletion.
 Use `-1` to disable scanning.
 The default scan value is `30000`.
 
 auto-delete-queues-message-count::
-The message count that the queue must be  less than or equal to before deleting auto-created queues.
+The message count that the queue must be less than or equal to before deleting auto-created queues.
 To disable message count check `-1` can be set.
 Default is `0` (empty queue).
 
 auto-delete-queues-skip-usage-check::
-A queue will only be auto-deleted by  default if it has actually been "used." A queue is considered "used" if any messages have been sent to it or any consumers have connected to it during its life.
+A queue will only be auto-deleted by default if it has actually been "used." A queue is considered "used" if any messages have been sent to it or any consumers have connected to it during its life.
 However, there are use-cases where it's useful to skip this check.
 When set to `true` it is *imperative* to also set `auto-delete-queues-delay` to a value greater than `0` otherwise queues may be deleted almost immediately after being created.
 In this case the queue will be deleted based on when it was created rather then when it was last "used." Default is `false`.
 +
-NOTE: the above auto-delete address settings can also be configured  individually at the queue level when a client auto creates the queue.
+NOTE: the above auto-delete address settings can also be configured individually at the queue level when a client auto creates the queue.
 +
 For Core API it is exposed in createQueue methods.
 +
@@ -322,12 +323,12 @@ Default is `OFF`.
 Read more about xref:config-reload.adoc#configuration-reload[configuration reload].
 
 management-browse-page-size::
-is the number of messages a management resource can browse.
+The number of messages a management resource can browse.
 This is relevant for the `browse, list and count-with-filter` management methods exposed on the queue control.
 Default is `200`.
 
 management-message-attribute-size-limit::
-is the number of bytes collected from the message for browse.
+The number of bytes collected from the message for browse.
 This is relevant for the `browse and list` management methods exposed on the queue control.
 Message attributes longer than this value appear truncated.
 Default is `256`.
@@ -336,13 +337,13 @@ Note that memory needs to be allocated for all messages that are visible at a gi
 Setting this value too high may impact the browser stability due to the large amount of memory that may be required to browse through many messages.
 
 default-purge-on-no-consumers::
-defines a queue's default `purge-on-no-consumers` setting if none is provided on the queue itself.
+Defines a queue's default `purge-on-no-consumers` setting if none is provided on the queue itself.
 Default is `false`.
 This value can be overridden at the queue level using the `purge-on-no-consumers` boolean.
 Read more about xref:address-model.adoc#non-durable-subscription-queue[this functionality].
 
 default-max-consumers::
-defines a queue's default `max-consumers` setting if none is provided on the  queue itself.
+Defines a queue's default `max-consumers` setting if none is provided on the queue itself.
 Default is `-1` (i.e. no limit).
 This value can be overridden at the queue level using the `max-consumers` boolean.
 Read more about xref:address-model.adoc#shared-durable-subscription-queue-using-max-consumers[this functionality].
@@ -358,7 +359,7 @@ Default is `MULTICAST`.
 Read more about xref:address-model.adoc#routing-type[routing types].
 
 default-consumer-window-size::
-The default `consumerWindowSize` value  for a `CORE` protocol consumer, if not defined the default will be set to  1 MiB (1024 * 1024 bytes).
+The default `consumerWindowSize` value for a `CORE` protocol consumer, if not defined the default will be set to 1 MiB (1024 * 1024 bytes).
 The consumer will use this value as the window size if the value is not set on the client.
 Read more about xref:flow-control.adoc#flow-control[flow control].
 
@@ -373,24 +374,28 @@ Defaults to 0.
 Read more about xref:retroactive-addresses.adoc#retroactive-addresses[retroactive addresses].
 
 enable-metrics::
-determines whether or not metrics will be published to any configured metrics plugin for the matching address.
+Determines whether or not metrics will be published to any configured metrics plugin for the matching address.
 Default is `true`.
 Read more about xref:metrics.adoc#metrics[metrics].
 
 enable-ingress-timestamp::
-determines whether or not the broker will add its time  to messages sent to the matching address.
-When `true` the exact behavior will  depend on the specific protocol in use.
+Determines whether or not the broker will add its time to messages sent to the matching address.
+When `true` the exact behavior will depend on the specific protocol in use.
 For AMQP messages the broker will add a `long` _message annotation_ named `x-opt-ingress-time`.
 For core messages (used by the core and OpenWire protocols) the broker will add a long property named `_AMQ_INGRESS_TIMESTAMP`.
-For STOMP messages the broker will add a frame header  named `ingress-timestamp`.
+For STOMP messages the broker will add a frame header named `ingress-timestamp`.
 The value will be the number of milliseconds since the https://en.wikipedia.org/wiki/Unix_time[epoch].
 Default is `false`.
 
 id-cache-size::
-defines the maximum size of the duplicate ID cache for an address, as each address has it's own cache
+Defines the maximum size of the duplicate ID cache for an address, as each address has it's own cache
 that helps to detect and prevent the processing of duplicate messages based on their unique identification.
 By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000`
 elements if not explicitly configured. Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
+
+auto-create-divert-destinations::
+Determines whether or not a message passing through a `Divert` will get its destination
+automatically created. The default value is `false`. Read more about xref:diverts.adoc#computing-destinations-at-runtime[computing destinations in a divert]
 
 ## Literal Matches
 

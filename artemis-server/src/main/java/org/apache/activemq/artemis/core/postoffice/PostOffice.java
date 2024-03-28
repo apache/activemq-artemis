@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
@@ -114,7 +115,7 @@ public interface PostOffice extends ActiveMQComponent {
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
-
+   AddressSettings getAddressSettingsMatch(String address);
 
    void addBinding(Binding binding) throws Exception;
 

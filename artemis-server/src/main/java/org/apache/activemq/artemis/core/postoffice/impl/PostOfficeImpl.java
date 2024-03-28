@@ -932,6 +932,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return queues;
    }
 
+   @Override
+   public AddressSettings getAddressSettingsMatch(String address) {
+      return addressSettingsRepository.getMatch(address);
+   }
+
    // TODO - needs to be synchronized to prevent happening concurrently with activate()
    // (and possible removeBinding and other methods)
    // Otherwise can have situation where createQueue comes in before failover, then failover occurs
