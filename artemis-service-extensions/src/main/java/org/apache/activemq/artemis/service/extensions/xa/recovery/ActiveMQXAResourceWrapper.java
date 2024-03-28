@@ -399,9 +399,10 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
     */
    protected XAException check(final XAException e) throws XAException {
       ActiveMQXARecoveryLogger.LOGGER.xaRecoveryError(e);
-
-      // If any exception happened, we close the connection so we may start fresh
-      close();
+      if (e.errorCode != XAException.XAER_NOTA) {
+         // If any exception happened, we close the connection so we may start fresh
+         close();
+      }
       throw e;
    }
 
