@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
@@ -2545,6 +2546,48 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       Assert.assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
       Assert.assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
+   }
+
+   @Test
+   public void testPropsAndNamePlugin() throws Exception {
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".periodSeconds", "30");
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".acceptorMatchRegex", "netty-.*");
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".periodSeconds", "30");
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".accuracyWindowSeconds", "10");
+
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
+      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
+      Assert.assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
+      Assert.assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
+      Assert.assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
+   }
+
+   @Test
+   public void testConnectionExpiryPluginInit() throws Exception {
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".init", "acceptorMatchRegex=netty-.*,periodSeconds=30,accuracyWindowSeconds=10");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
+      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
+      Assert.assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
+      Assert.assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
+      Assert.assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
    }
 
    @Test

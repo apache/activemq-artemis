@@ -178,3 +178,30 @@ In the example below `ROLE_PROPERTY` is set to `permissions` when that property 
    </broker-plugin>
 </broker-plugins>
 ----
+
+== Using the ConnectionPeriodicExpiryPlugin
+
+The `ConnectionPeriodicExpiryPlugin` will implement a global expiry (and disconnect) for connections that live longer than `periodSeconds` on a matching acceptor basis.
+
+This plugin can be useful when credential rotation or credential validation must be enforced at regular intervals as authentication will be enforced on reconnect.
+
+The plugin requires the configuration of the `acceptorMatchRegex` to determine the acceptors to monitor. It is typical to separate client acceptors and federation or cluster acceptors such that only client connections will be subject to periodic expiry. The `acceptorMatchRegex` must be configured to match the name of the acceptor(s) whose connections will be subject to periodic expiry.
+
+|===
+| Property | Property Description | Default Value
+
+|`acceptorMatchRegex`|the regular expression used to match against the names of acceptors to monitor |
+|`periodSeconds`|the max period, in seconds, that a connection can last | 900 seconds (15 minutes)
+|`accuracyWindowSeconds`|determines how often we check connections for expiry and also provides an upper bound on the random seconds we use to schedule a disconnect. Using a random second will potentially avoid many reconnects occurring at the exact same time. It must be positive value > 0|30 seconds
+
+|===
+
+The plugin can be configured via xml in the normal broker-plugin way:
+[,xml]
+----
+<broker-plugins>
+   <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin">
+      <property key="acceptorMatchRegex" value="netty-client-acceptor" />
+   </broker-plugin>
+</broker-plugins>
+----
