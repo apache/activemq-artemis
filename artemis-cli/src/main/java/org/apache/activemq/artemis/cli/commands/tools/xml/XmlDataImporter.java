@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.messages.BasicConnectionAbstract;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionConfigurationAbtract;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -69,7 +69,7 @@ import picocli.CommandLine.Option;
  * for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataImporter extends BasicConnectionAbstract {
+public final class XmlDataImporter extends ConnectionConfigurationAbtract {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
