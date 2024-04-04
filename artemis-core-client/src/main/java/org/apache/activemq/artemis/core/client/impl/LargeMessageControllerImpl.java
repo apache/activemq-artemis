@@ -318,6 +318,9 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    @Override
    public LargeData take() throws InterruptedException {
       LargeData largeData = largeMessageData.take();
+      if (largeData == null) {
+         return null;
+      }
       bytesTaken += largeData.getChunk().length;
       return largeData;
    }
