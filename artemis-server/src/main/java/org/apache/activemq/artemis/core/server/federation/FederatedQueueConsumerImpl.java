@@ -325,7 +325,10 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.federationDispatchError(clientMessage.toString(), e);
          try {
-            clientSession.rollback();
+            ClientSession localSession = clientSession;
+            if (localSession != null) {
+               localSession.rollback();
+            }
          } catch (ActiveMQException e1) {
          }
       }
