@@ -616,10 +616,6 @@ currently, the only supported value is a blank string.
 In future, this option will allow you to select the Secure Socket Layer (SSL) for the connection to the directory server.
 This option must be set explicitly to an empty string, because it has no default value.
 
-connectionPool::
-boolean, enable the LDAP connection pool property 'com.sun.jndi.ldap.connect.pool'.
-Note that the pool is https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[configured at the jvm level with system properties].
-
 connectionTimeout::
 specifies the string representation of an integer representing the connection timeout in milliseconds.
 If the LDAP provider cannot establish a connection within that period, it aborts the connection attempt.

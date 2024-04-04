@@ -12,6 +12,23 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.34.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=...[Full release notes]
+
+=== Highlights
+
+* A
+* B
+* C
+
+=== Upgrading from 2.33.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4712[ARTEMIS-4712] the connection pooling functionality configured via the `connectionPool` property in `login.config` is no longer supported in the `LDAPLoginModule`.
+The `login.config` may still use the `connectionPool` property.
+No error will be thrown.
+However, connections will no longer be pooled regardless of the configuration.
+
 == 2.33.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354184[Full release notes]
