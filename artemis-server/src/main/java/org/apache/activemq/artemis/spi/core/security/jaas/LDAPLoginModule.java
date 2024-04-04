@@ -94,7 +94,6 @@ public class LDAPLoginModule implements AuditLoginModule {
       REFERRAL("referral"),
       IGNORE_PARTIAL_RESULT_EXCEPTION("ignorePartialResultException"),
       PASSWORD_CODEC("passwordCodec"),
-      CONNECTION_POOL("connectionPool"),
       CONNECTION_TIMEOUT("connectionTimeout"),
       READ_TIMEOUT("readTimeout"),
       NO_CACHE_EXCEPTIONS("noCacheExceptions");
@@ -660,9 +659,6 @@ public class LDAPLoginModule implements AuditLoginModule {
             env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(ConfigKey.CONNECTION_PROTOCOL));
             env.put(Context.PROVIDER_URL, getLDAPPropertyValue(ConfigKey.CONNECTION_URL));
             env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(ConfigKey.AUTHENTICATION));
-            if (isLoginPropertySet(ConfigKey.CONNECTION_POOL)) {
-               env.put("com.sun.jndi.ldap.connect.pool", getLDAPPropertyValue(ConfigKey.CONNECTION_POOL));
-            }
             if (isLoginPropertySet(ConfigKey.CONNECTION_TIMEOUT)) {
                env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(ConfigKey.CONNECTION_TIMEOUT));
             }
