@@ -22,16 +22,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
@@ -802,4 +805,47 @@ public class FileConfigurationParserTest extends ServerTestBase {
       "</address-settings>" + "\n";
 
    private static String lastPart = "</core>";
+
+   @Test
+   public void testParseQueueMatchInFederationConfiguration() throws Exception {
+      String configStr = firstPart +
+                         "<federations>" +
+                          "<federation name=\"server-1-federation\">" +
+                           "<upstream name=\"upstream\">" +
+                            "<static-connectors>" +
+                             "<connector-ref>server-connector</connector-ref>" +
+                            "</static-connectors>" +
+                            "<policy ref=\"queue-federation\"/>" +
+                           "</upstream>" +
+                           "" +
+                           "<queue-policy name=\"queue-federation\">" +
+                            "<include queue-match=\"myQueue\" address-match=\"#\"/>" +
+                           "</queue-policy>" +
+                          "</federation>" +
+                         "</federations>" +
+                         lastPart;
+
+      final FileConfigurationParser parser = new FileConfigurationParser();
+      final ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      final Configuration configuration = parser.parseMainConfig(input);
+      final List<FederationConfiguration> federations = configuration.getFederationConfigurations();
+
+      assertEquals(1, federations.size());
+
+      final FederationConfiguration federation = federations.get(0);
+      final FederationQueuePolicyConfiguration policy =
+         (FederationQueuePolicyConfiguration) federation.getQueuePolicies().get("queue-federation");
+
+      assertNotNull(policy);
+
+      final Set<FederationQueuePolicyConfiguration.Matcher> matches = policy.getIncludes();
+
+      assertEquals(1, matches.size());
+
+      final FederationQueuePolicyConfiguration.Matcher match = matches.iterator().next();
+
+      assertEquals("#", match.getAddressMatch());
+      assertEquals("myQueue", match.getQueueMatch());
+   }
 }
