@@ -2632,7 +2632,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private FederationQueuePolicyConfiguration.Matcher getQueueMatcher(Element child) {
       FederationQueuePolicyConfiguration.Matcher matcher = new FederationQueuePolicyConfiguration.Matcher();
-      matcher.setAddressMatch(child.getAttribute("queue-match"));
+      matcher.setQueueMatch(child.getAttribute("queue-match"));
       matcher.setAddressMatch(child.getAttribute("address-match"));
       return matcher;
    }
