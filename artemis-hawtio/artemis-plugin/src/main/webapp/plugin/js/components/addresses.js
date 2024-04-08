@@ -75,6 +75,7 @@ var Artemis;
            columns: [
                 {name: "ID", visible: true},
                 {name: "Name", visible: true},
+                {name: "Internal", visible: false},
                 {name: "Routing Types", visible: true},
                 {name: "Queue Count", visible: true}
            ]
@@ -103,6 +104,7 @@ var Artemis;
             fieldOptions: [
                 {id: 'id', name: 'ID'},
                 {id: 'name', name: 'Name'},
+                {id: 'internal', name: 'Internal'},
                 {id: 'routingTypes', name: 'Routing Types'},
                 {id: 'queueCount', name: 'Queue Count'}
             ],
@@ -151,6 +153,7 @@ var Artemis;
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
             { header: 'Name', itemField: 'name' },
+            { header: 'Internal', itemField: 'internal' },
             { header: 'Routing Types', itemField: 'routingTypes' },
             { header: 'Queue Count', itemField: 'queueCount' , htmlTemplate: 'addresses-anchor-column-template', colActionFn: (item) => selectQueues(item.idx) }
         ];

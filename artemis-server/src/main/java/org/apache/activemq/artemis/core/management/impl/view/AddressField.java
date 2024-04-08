@@ -24,7 +24,8 @@ public enum AddressField {
    NAME("name"),
    ROUTING_TYPES("routingTypes"),
    PRODUCER_ID("producerId"),
-   QUEUE_COUNT("queueCount");
+   QUEUE_COUNT("queueCount"),
+   INTERNAL("internal");
 
    private static final Map<String, AddressField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
