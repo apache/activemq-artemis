@@ -120,3 +120,51 @@ Just use a comma separated list in `forwarding-address`, e.g.:
    <exclusive>false</exclusive>
 </divert>
 ----
+
+== Reusing the senders session
+
+By default, after a message is received on the diverts `address`, its consequent routing is done by the divert.
+This means it happens separate to the original sender, freeing it up to proceed with other tasks.
+
+In some cases it's useful to keep the original session coupled with consequent routing.
+
+An example of this would be to enable automatic creation of forwarded destinations if they are missing,
+or being able to roll back message delivery if one of multiple destinations could not accept the message.
+
+This behavior can be configured by setting `reuse-user-session` on the divert, which defaults to `false`.
+
+== Computing destinations at runtime
+
+Using logic in a diverts transformer, it's possible to perform complex routing
+by altering properties on individual messages.
+
+A simple example of this:
+
+[,java]
+----
+@Override
+public Message transform(Message message) {
+   if (message.getBooleanProperty("changeDestination")) {
+      message.setAddress(message.getStringProperty("newDestination"));
+   }
+   return message;
+}
+----
+
+Here, the computed destination will get used instead of the diverts `forwarding-address`.
+
+[NOTE]
+====
+There are two important things to consider when computing messages destination where the resulting destination might
+not exist on the broker beforehand.
+
+1. When the diverting to a destination that is not already present on the broker, auto-creation configuration of the
+destination address applies. This configuration is tested against the sender so `reuse-user-session` needs
+to be set to `true`.
+
+2. To be able to create a new destination, the messages `routing-type` has to be known.
+The default behavior of the divert is to remove this information from a message before handing it over to the `transformer`
+according to the default `routingType = STRIP`.
+To make sure the messages end up where they are supposed to, either set the diverts `routingType` or
+make sure to add this information in the `transformer` with the messages `setRoutingType()` method.
+====

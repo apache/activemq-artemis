@@ -3669,6 +3669,20 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String transformerClassName,
                             final Map<String, String> transformerProperties,
                             final String routingType) throws Exception {
+      createDivert(name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerProperties, routingType, ActiveMQDefaultConfiguration.isDefaultDivertReuseUserSession());
+   }
+
+   @Override
+   public void createDivert(final String name,
+                            final String routingName,
+                            final String address,
+                            final String forwardingAddress,
+                            final boolean exclusive,
+                            final String filterString,
+                            final String transformerClassName,
+                            final Map<String, String> transformerProperties,
+                            final String routingType,
+                            final boolean reuseUserSession) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.createDivert(this.server, name, routingName, address, forwardingAddress,
                   exclusive, filterString, transformerClassName, transformerProperties, routingType);
@@ -3678,7 +3692,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty() ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
-         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
+         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType)).setReuseUserSession(reuseUserSession);
          server.deployDivert(config);
       } finally {
          blockOnIO();

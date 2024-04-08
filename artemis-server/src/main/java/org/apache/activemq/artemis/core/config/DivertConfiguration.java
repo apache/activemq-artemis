@@ -47,6 +47,8 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
 
+   private boolean reuseUserSession = ActiveMQDefaultConfiguration.isDefaultDivertReuseUserSession();
+
    public DivertConfiguration() {
    }
 
@@ -80,6 +82,10 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    public ComponentConfigurationRoutingType getRoutingType() {
       return routingType;
+   }
+
+   public boolean isReuseUserSession() {
+      return reuseUserSession;
    }
 
    /**
@@ -150,6 +156,14 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
       return this;
    }
 
+   /**
+    * @param reuseUserSession Should the divert route messages using the senders session
+    */
+   public DivertConfiguration setReuseUserSession(final boolean reuseUserSession) {
+      this.reuseUserSession = reuseUserSession;
+      return this;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -162,6 +176,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
       result = prime * result + ((routingName == null) ? 0 : routingName.hashCode());
       result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
       result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
+      result = prime * result + (reuseUserSession ? 1231 : 1237);
       return result;
    }
 
@@ -211,6 +226,9 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
             return false;
       } else if (!routingType.equals(other.routingType))
          return false;
+      if (reuseUserSession != other.reuseUserSession) {
+         return false;
+      }
       return true;
    }
 
@@ -261,7 +279,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    @Override
    public String toString() {
-      return "DivertConfiguration{" + "name='" + name + '\'' + ", routingName='" + routingName + '\'' + ", address='" + address + '\'' + ", forwardingAddress='" + forwardingAddress + '\'' + ", exclusive=" + exclusive + ", filterString='" + filterString + '\'' + ", transformerConfiguration=" + transformerConfiguration + '}';
+      return "DivertConfiguration{" + "name='" + name + '\'' + ", routingName='" + routingName + '\'' + ", address='" + address + '\'' + ", forwardingAddress='" + forwardingAddress + '\'' + ", exclusive=" + exclusive + ", filterString='" + filterString + '\'' + ", transformerConfiguration=" + transformerConfiguration + '\'' + ", reuseUserSession=" + reuseUserSession + '}';
    }
 
    @Override

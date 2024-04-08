@@ -698,6 +698,8 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final boolean DEFAULT_MANAGEMENT_MESSAGE_RBAC = false;
 
+   private static final boolean DEFAULT_DIVERT_REUSE_USER_SESSION = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1918,4 +1920,9 @@ public final class ActiveMQDefaultConfiguration {
    public static boolean getManagementMessagesRbac() {
       return DEFAULT_MANAGEMENT_MESSAGE_RBAC;
    }
+
+   public static boolean isDefaultDivertReuseUserSession() {
+      return DEFAULT_DIVERT_REUSE_USER_SESSION;
+   }
+
 }
