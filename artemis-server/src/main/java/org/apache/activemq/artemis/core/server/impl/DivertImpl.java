@@ -116,6 +116,10 @@ public class DivertImpl implements Divert {
 
             copy.setExpiration(message.getExpiration());
 
+            //This header could be set if the message is redistributed from a clustered broker.
+            //It needs to be removed as it will interfere with upcoming routing
+            //copy.removeExtraBytesProperty(Message.HDR_ROUTE_TO_IDS);
+
             switch (routingType) {
                case ANYCAST:
                   copy.setRoutingType(RoutingType.ANYCAST);
