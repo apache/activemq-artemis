@@ -48,6 +48,7 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(AddressField.ID.getName(), toString(address.getId()))
          .add(AddressField.NAME.getName(), toString(address.getName()))
+         .add(AddressField.INTERNAL.getName(), toString(address.isInternal()))
          .add(AddressField.ROUTING_TYPES.getName(), toString(address.getRoutingTypes()));
 
       try {
@@ -72,6 +73,8 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
             return address.getId();
          case NAME:
             return address.getName();
+         case INTERNAL:
+            return address.isInternal();
          case ROUTING_TYPES:
             return address.getRoutingTypes();
          case QUEUE_COUNT:
