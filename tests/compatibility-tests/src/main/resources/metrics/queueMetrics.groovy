@@ -30,6 +30,10 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 Object[] queueControls = server.getJMSServerManager().getActiveMQServer().getManagementService().getResources(QueueControl.class);
 for (Object o : queueControls) {
     QueueControl c = (QueueControl) o;
+    if (c.isInternalQueue()) {
+        continue;
+    }
+
     GroovyRun.assertTrue(c.getPersistentSize() > 0);
     GroovyRun.assertTrue(c.getDurablePersistentSize() > 0);
     GroovyRun.assertEquals(33l, c.getMessageCount());

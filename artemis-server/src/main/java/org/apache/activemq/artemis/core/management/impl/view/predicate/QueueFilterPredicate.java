@@ -92,6 +92,8 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
                return matches(queue.getScheduledCount());
             case USER:
                return matches(queue.getUser());
+            case INTERNAL_QUEUE:
+               return matches(queue.isInternalQueue());
             default:
                return true;
          }
