@@ -4000,8 +4000,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    /** Register a queue on the management registry */
    @Override
-   public void registerQueueOnManagement(Queue queue, boolean registerInternal) throws Exception {
-      managementService.registerQueue(queue, queue.getAddress(), storageManager, registerInternal);
+   public void registerQueueOnManagement(Queue queue) throws Exception {
+      managementService.registerQueue(queue, queue.getAddress(), storageManager);
    }
 
    @Override

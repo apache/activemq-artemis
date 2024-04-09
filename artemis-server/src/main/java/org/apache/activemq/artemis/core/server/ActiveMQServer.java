@@ -989,7 +989,7 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    void autoRemoveAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
 
-   void registerQueueOnManagement(Queue queue, boolean registerInternal) throws Exception;
+   void registerQueueOnManagement(Queue queue) throws Exception;
 
    /**
     * Remove an {@code AddressInfo} from the broker.

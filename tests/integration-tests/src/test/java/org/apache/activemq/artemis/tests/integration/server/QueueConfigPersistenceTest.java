@@ -69,7 +69,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       server.start();
       Queue queue = server.locateQueue(getName());
       Assert.assertTrue(queue.isInternalQueue());
-      Assert.assertNull(server.getManagementService().getResource(ResourceNames.QUEUE + getName()));
+      Assert.assertNotNull(server.getManagementService().getResource(ResourceNames.QUEUE + getName()));
 
       server.stop();
    }

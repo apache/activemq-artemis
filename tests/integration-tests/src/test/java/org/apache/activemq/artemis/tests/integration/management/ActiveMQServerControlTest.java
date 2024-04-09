@@ -3479,7 +3479,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(array.getJsonObject(1).getString("name").contains("my_queue"));
 
       //test with an empty filter
-      filterString = createJsonFilter("", "", "");
+      filterString = createJsonFilter("internalQueue", "NOT_CONTAINS", "true");
 
       queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
 
@@ -3727,8 +3727,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from LESS_THAN query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName4.toString(), array.getJsonObject(0).getString("name"));
+         Assert.assertEquals("number of queues returned from LESS_THAN query", 2, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName4.toString(), array.getJsonObject(1).getString("name"));
 
          //test with GREATER_THAN returns 2 queue
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "2");
