@@ -31,6 +31,8 @@ public interface ActiveMQServerControl {
    String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
    String ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION = "Memory used by all the addresses on broker as a percentage of the global-max-size";
    String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
+   String REPLICA_SYNC_DESCRIPTION = "If the initial replication synchronization process is complete";
+   String IS_ACTIVE_DESCRIPTION = "If the server is active";
 
    /**
     * Returns this server's name.
@@ -48,7 +50,7 @@ public interface ActiveMQServerControl {
    String getVersion();
 
 
-   @Attribute(desc = "Server is active")
+   @Attribute(desc = IS_ACTIVE_DESCRIPTION)
    boolean isActive();
 
    /**
@@ -470,7 +472,7 @@ public interface ActiveMQServerControl {
     * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
     * either the primary or backup server.
     */
-   @Attribute(desc = "Whether the initial replication synchronization process with the backup server is complete")
+   @Attribute(desc = REPLICA_SYNC_DESCRIPTION)
    boolean isReplicaSync();
 
    /**
