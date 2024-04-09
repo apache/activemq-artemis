@@ -49,7 +49,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Upgrading from 2.32.0
 
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-4532[ARTEMIS-4532] the names of addresses and queues related to MQTT topics and subscriptions respectively may change.
-This will only impact you if *both* of the following are true:
+This will impact MQTT use-cases if *both* of the following are true:
 +
 . The broker is configured to use a xref:wildcard-syntax.adoc[wildcard syntax] which _doesn't match_ the xref:mqtt.adoc#wildcard-syntax[MQTT wildcard syntax] (e.g. the default wildcard syntax).
 . You are using characters from the broker's wildcard syntax in your MQTT topic name or filter.
@@ -58,6 +58,13 @@ The dot (`.`) character here is part of the broker's wildcard syntax, and it is 
 +
 In this case the characters from the broker's wildcard syntax that do not match the characters in the MQTT wildcard syntax will be escaped with a backslash (i.e. `\`).
 To avoid this conversion you can configure the broker to use the MQTT wildcard syntax or change the name of the MQTT topic name or filter.
+
++
+This change will also impact OpenWire JMS consumers which are using `\#` instead of `<` for wildcard purposes.
+In previous versions the `#` character was just passed through when converting from the OpenWire wildcard format to the Core wildcard format.
+However, now the `\#` character is escaped during conversion.
+It is a bug for an application to use to use `#` as a wildcard with the OpenWire JMS client; `>` is the proper character to use as specified in the https://activemq.apache.org/components/classic/documentation/wildcards[ActiveMQ Classic documentation on wildcards].
+
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-4559[ARTEMIS-4559] folks embedding the broker and also depending on the `artemis-quorum-ri` and/or `artemis-quorum-api` modules and/or using `org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration` will need to use `artemis-lockmanager-ri`, `artemis-lockmanager-api`, and `org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration` respectively. Previously these were marked as "experimental" in the documentation and were changed strictly in name to clarify their use conceptually. Furthermore, the documentation around high availability and network isolation (i.e. split brain) was refactored significantly to be more clear and comprehensive.
 
 == 2.32.0
