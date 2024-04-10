@@ -169,7 +169,8 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
               new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
               new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0),
-              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0)
+              new Metric("artemis.active", "If the server is active", 1.0),
+              new Metric("artemis.replica.sync", "If the initial replication synchronization process is complete", 0.0)
       ));
    }
 
