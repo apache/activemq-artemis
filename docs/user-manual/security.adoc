@@ -381,7 +381,7 @@ In short, the file defines:
 
 * an alias for an entry (e.g. `PropertiesLogin`)
 * the implementation class for the login module (e.g. `org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule`)
-* a flag which indicates whether the success of the login module is `required`, `requisite`, `sufficient`, or `optional` (see more details on these flags in the https://docs.oracle.com/javase/8/docs/api/javax/security/auth/login/Configuration.html[JavaDoc]
+* a flag which indicates whether the success of the login module is `required`, `requisite`, `sufficient`, or `optional` (see more details on these flags in the https://docs.oracle.com/javase/8/docs/api/javax/security/auth/login/Configuration.html[JavaDoc])
 * a list of configuration options specific to the login module implementation
 
 By default, the location and name of `login.config` is specified on the Artemis command-line which is set by `etc/artemis.profile` on linux and  `etc\artemis.profile.cmd` on Windows.
