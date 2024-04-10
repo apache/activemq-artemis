@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,11 +50,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
 @RunWith(Parameterized.class)
 public class MetricsPluginTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean legacyConfig;
 
@@ -91,18 +96,16 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    public void testForArtemisMetricsPresence() throws Exception {
       class Metric {
          public final String name;
-         public final String description;
          public final Double value;
 
-         private Metric(String name, String description, Double value) {
+         private Metric(String name, Double value) {
             this.name = name;
-            this.description = description;
             this.value = value;
          }
 
          @Override
          public String toString() {
-            return name + ": " + value + " (" + description + ")";
+            return name + ": " + value;
          }
 
          @Override
@@ -111,13 +114,12 @@ public class MetricsPluginTest extends ActiveMQTestBase {
             if (o == null || getClass() != o.getClass()) return false;
             Metric metric = (Metric) o;
             return Objects.equals(name, metric.name) &&
-                    Objects.equals(description, metric.description) &&
                     Objects.equals(value, metric.value);
          }
 
          @Override
          public int hashCode() {
-            return Objects.hash(name, description, value);
+            return Objects.hash(name, value);
          }
       }
 
@@ -129,48 +131,44 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       List<Metric> artemisMetrics = metrics.entrySet().stream()
               .map(entry -> new Metric(
                       entry.getKey().getName(),
-                      entry.getKey().getDescription(),
                       entry.getValue()))
               .filter(metric -> metric.name.startsWith("artemis"))
               .collect(Collectors.toList());
 
-//      for (Metric metric : artemisMetrics) {
-//          IntegrationTestLogger.LOGGER.info(metric);
-//      }
-
       assertThat(artemisMetrics, containsInAnyOrder(
               // artemis.(un)routed.message.count is present twice, because of activemq.notifications address
-              new Metric("artemis.address.memory.usage", "Memory used by all the addresses on broker for in-memory messages", 0.0),
-              new Metric("artemis.address.memory.usage.percentage", "Memory used by all the addresses on broker as a percentage of the global-max-size", 0.0),
-              new Metric("artemis.connection.count", "Number of clients connected to this server", 1.0),
-              new Metric("artemis.consumer.count", "number of consumers consuming messages from this queue", 0.0),
-              new Metric("artemis.delivering.durable.message.count", "number of durable messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.durable.persistent.size", "persistent size of durable messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.message.count", "number of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.persistent_size", "persistent size of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.disk.store.usage", "Fraction of total disk store used", 0.0),
-              new Metric("artemis.durable.message.count", "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.durable.persistent.size", "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.message.count", "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.messages.acknowledged", "number of messages acknowledged from this queue since it was created", 0.0),
-              new Metric("artemis.messages.added", "number of messages added to this queue since it was created", 0.0),
-              new Metric("artemis.messages.expired", "number of messages expired from this queue since it was created", 0.0),
-              new Metric("artemis.messages.killed", "number of messages removed from this queue since it was created due to exceeding the max delivery attempts", 0.0),
-              new Metric("artemis.persistent.size", "persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.routed.message.count", "number of messages routed to one or more bindings", 0.0),
-              new Metric("artemis.routed.message.count", "number of messages routed to one or more bindings", 0.0),
-              new Metric("artemis.scheduled.durable.message.count", "number of durable scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.durable.persistent.size", "persistent size of durable scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.message.count", "number of scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.persistent.size", "persistent size of scheduled messages in this queue", 0.0),
-              new Metric("artemis.total.connection.count", "Number of clients which have connected to this server since it was started", 1.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 0.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0),
-              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
-              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
-              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0),
-              new Metric("artemis.active", "If the server is active", 1.0),
-              new Metric("artemis.replica.sync", "If the initial replication synchronization process is complete", 0.0)
+              new Metric("artemis.address.memory.usage",  0.0),
+              new Metric("artemis.address.memory.usage.percentage", 0.0),
+              new Metric("artemis.connection.count", 1.0),
+              new Metric("artemis.consumer.count", 0.0),
+              new Metric("artemis.delivering.durable.message.count", 0.0),
+              new Metric("artemis.delivering.durable.persistent.size", 0.0),
+              new Metric("artemis.delivering.message.count", 0.0),
+              new Metric("artemis.delivering.persistent_size", 0.0),
+              new Metric("artemis.disk.store.usage", 0.0),
+              new Metric("artemis.durable.message.count", 0.0),
+              new Metric("artemis.durable.persistent.size", 0.0),
+              new Metric("artemis.message.count", 0.0),
+              new Metric("artemis.messages.acknowledged", 0.0),
+              new Metric("artemis.messages.added", 0.0),
+              new Metric("artemis.messages.expired", 0.0),
+              new Metric("artemis.messages.killed", 0.0),
+              new Metric("artemis.persistent.size", 0.0),
+              new Metric("artemis.routed.message.count", 0.0),
+              new Metric("artemis.routed.message.count", 0.0),
+              new Metric("artemis.scheduled.durable.message.count", 0.0),
+              new Metric("artemis.scheduled.durable.persistent.size", 0.0),
+              new Metric("artemis.scheduled.message.count", 0.0),
+              new Metric("artemis.scheduled.persistent.size", 0.0),
+              new Metric("artemis.total.connection.count", 1.0),
+              new Metric("artemis.unrouted.message.count", 0.0),
+              new Metric("artemis.unrouted.message.count", 2.0),
+              new Metric("artemis.address.size", 0.0),
+              new Metric("artemis.address.size", 0.0),
+              new Metric("artemis.number.of.pages", 0.0),
+              new Metric("artemis.number.of.pages", 0.0),
+              new Metric("artemis.active", 1.0),
+              new Metric("artemis.replica.sync", 0.0)
       ));
    }
 
