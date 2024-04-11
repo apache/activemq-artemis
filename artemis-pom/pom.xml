@@ -729,6 +729,10 @@
                   <artifactId>netty-transport-native-epoll</artifactId>
                </exclusion>
                <exclusion>
+                  <groupId>io.netty</groupId>
+                  <artifactId>netty-tcnative-boringssl-static</artifactId>
+               </exclusion>
+               <exclusion>
                   <groupId>org.apache.yetus</groupId>
                   <artifactId>audience-annotations</artifactId>
                </exclusion>
