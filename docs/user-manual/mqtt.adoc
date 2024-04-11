@@ -154,11 +154,15 @@ This conversion isn't free so *if you want the best MQTT performance* use `broke
 
 [,xml]
 ----
-<wildcard-addresses>
-   <delimiter>/</delimiter>
-   <any-words>#</any-words>
-   <single-word>*</single-word>
-</wildcard-addresses>
+<core>
+   ...
+   <wildcard-addresses>
+      <delimiter>/</delimiter>
+      <any-words>#</any-words>
+      <single-word>+</single-word>
+   </wildcard-addresses>
+   ...
+</core>
 ----
 
 Of course, changing the default syntax also means other clients on other protocols will need to follow this same syntax as well as the `match` values of your `address-setting` configuration elements.
