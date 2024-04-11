@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.After;
 import org.junit.Assert;
@@ -53,7 +52,7 @@ import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemo
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
 
 /* at the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked list (or leaked-list, pun intended) */
-public class JournalLeakTest extends ActiveMQTestBase {
+public class JournalLeakTest extends AbstractLeakTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

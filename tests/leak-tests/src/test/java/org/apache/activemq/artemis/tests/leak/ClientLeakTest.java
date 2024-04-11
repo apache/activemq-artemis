@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.proton.engine.impl.ReceiverImpl;
@@ -47,7 +46,7 @@ import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemo
 
 // This test spawns the server as a separate VM
 // as we need to count exclusively client objects from qpid-proton
-public class ClientLeakTest extends ActiveMQTestBase {
+public class ClientLeakTest extends AbstractLeakTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
