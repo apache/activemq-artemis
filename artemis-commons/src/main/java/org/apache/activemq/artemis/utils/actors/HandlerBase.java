@@ -26,22 +26,39 @@ package org.apache.activemq.artemis.utils.actors;
 public abstract class HandlerBase {
 
    private static class Counter {
-      int count = 0;
+      int count = 1;
    }
 
    /** an actor could be used within an OrderedExecutor. So we need this counter to decide if there's a Handler anywhere in the stack trace */
-   private static final ThreadLocal<Counter> inHandler = ThreadLocal.withInitial(() -> new Counter());
+   private static final ThreadLocal<Counter> counterThreadLocal = new ThreadLocal<>();
 
    protected static void enter() {
-      inHandler.get().count++;
+      Counter counter = counterThreadLocal.get();
+      if (counter == null) {
+         counter = new Counter(); // it starts at 1, so no need to increment it
+         counterThreadLocal.set(counter);
+      } else {
+         counter.count++;
+      }
    }
 
    public static boolean inHandler() {
-      return inHandler.get().count > 0;
+      Counter counter = counterThreadLocal.get();
+      if (counter == null) {
+         return false;
+      } else if (counter.count == 0) {
+         counterThreadLocal.remove();
+      }
+      return counter.count > 0;
    }
 
    protected static void leave() {
-      inHandler.get().count--;
+      Counter counter = counterThreadLocal.get();
+      if (counter != null) {
+         if (--counter.count <= 0) {
+            counterThreadLocal.remove();
+         }
+      }
    }
 
 }

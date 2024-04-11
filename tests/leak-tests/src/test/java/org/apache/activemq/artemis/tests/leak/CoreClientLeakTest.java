@@ -24,22 +24,35 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class CoreClientLeakTest extends ActiveMQTestBase {
+public class CoreClientLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;
 
    @BeforeClass
    public static void beforeClass() throws Exception {
       Assume.assumeTrue(CheckLeak.isLoaded());
+   }
+
+   @AfterClass
+   public static void afterClass() throws Exception {
+      ServerStatus.clear();
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, ActiveMQServerImpl.class.getName());
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, JournalImpl.class.getName());
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, OrderedExecutor.class.getName());
    }
 
    @Override
@@ -49,6 +62,14 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
       server = createServer(true, createDefaultConfig(1, true));
       server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
       server.start();
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception {
+      super.tearDown();
+      server.stop();
+      server = null;
    }
 
    @Test
@@ -95,6 +116,9 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
             clientSession.deleteQueue(queue);
          }
       }
+
+      locator.close();
    }
+
 
 }

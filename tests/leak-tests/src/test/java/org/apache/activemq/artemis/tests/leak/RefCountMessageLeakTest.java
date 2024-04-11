@@ -22,13 +22,12 @@ import java.util.concurrent.TimeUnit;
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RefCountMessageAccessor;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RefCountMessageLeakTest extends ActiveMQTestBase {
+public class RefCountMessageLeakTest extends AbstractLeakTest {
 
    static class DebugMessage extends RefCountMessage {
       final String string;

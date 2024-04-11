@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
@@ -60,7 +59,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
 
-public class ConnectionLeakTest extends ActiveMQTestBase {
+public class ConnectionLeakTest extends AbstractLeakTest {
 
    private ConnectionFactory createConnectionFactory(String protocol) {
       if (protocol.equals("AMQP")) {
