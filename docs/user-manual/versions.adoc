@@ -28,6 +28,10 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 The `login.config` may still use the `connectionPool` property.
 No error will be thrown.
 However, connections will no longer be pooled regardless of the configuration.
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4498[ARTEMIS-4498] the web console will now report all internal objects.
+  ** This was done in an attempt to allow administrators to act when things are not working as expected, to get metrics on these objects and allow more transparency for the broker.
+  ** this includes all Openwire Advisor queues and addresses, MQTT internal objects, Cluster Store and Forward (SNF) Queues, Mirror SNF.
+  ** You may want to revisit authorizations if you mean to control access to certain users on the web console.
 
 == 2.33.0
 
