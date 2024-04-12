@@ -383,6 +383,13 @@
                         <project-version>${project.version}</project-version>
                         <log4j-version>${log4j.version}</log4j-version>
                      </attributes>
+                     <logHandler>
+                        <outputToConsole>false</outputToConsole>
+                        <failIf>
+                           <!-- https://docs.asciidoctor.org/asciidoctor/latest/errors-and-warnings/#info -->
+                           <containsText>possible invalid reference</containsText>
+                        </failIf>
+                     </logHandler>
                   </configuration>
                </plugin>
             </plugins>

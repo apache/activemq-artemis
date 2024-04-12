@@ -196,7 +196,7 @@ Please consult your specific configuration to know which values will actually be
 | The frequency in milliseconds the configuration file is checked for changes
 | 5000
 
-| xref:ha.adoc#data-replication[check-for-live-server]
+| xref:ha.adoc#replication-configuration[check-for-active-server]
 | Used by a primary server to verify if there are other nodes with the same ID on the topology
 | n/a
 
@@ -370,7 +370,7 @@ The system will create as many files as needed however when reclaiming files it 
 If set to "true" the passwords are masked.
 | `false`
 
-| xref:ha.adoc#data-replication[max-saved-replicated-journals-size]
+| xref:ha.adoc#replication-configuration[max-saved-replicated-journals-size]
 | This specifies how many replication backup directories will be kept when server starts as replica.
 -1 Means no Limit;
 0 don't keep a copy at all.

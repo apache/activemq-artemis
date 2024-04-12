@@ -446,7 +446,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* New ability to replay xref:persistence.adoc#journal-retention[retained journal] records via the management API.
+* New ability to replay xref:persistence.adoc#journal-and-data-retention[retained journal] records via the management API.
 * New environment/system property to set the "key" for masked passwords when  using the xref:masking-passwords.adoc#the-default-codec[default codec].
 * Ability to disable xref:clusters.adoc#configuring-cluster-connections[message-load-balancing and still allow redistribution] via the new `OFF_WITH_REDISTRIBUTION` type.
 * MQTT session state can now be cleaned up automatically to avoid excessive accumulation in situations where client's don't clean up their own sessions.
@@ -459,8 +459,8 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * xref:amqp-broker-connections.adoc#dual-mirror-disaster-recovery[Dual Mirror] support improving capabilities on AMQP Mirror for Disaster Recovery
-* xref:persistence.adoc#journal-retention[Journal Retention]
-* xref:ha.adoc#pluggable-quorum-vote-replication-configurations[Replication integrated with ZooKeeper]
+* xref:persistence.adoc#journal-and-data-retention[Journal Retention]
+* xref:ha.adoc#apache-zookeeper-integration[Replication integrated with ZooKeeper]
 * xref:connection-routers.adoc#connection-routers[Connection Routers]
 * xref:core-bridges.adoc#configuring-core-bridges[Concurrency] configuration for core bridges.
 * xref:filter-expressions.adoc#xpath[XPath filter expressions] (for parity with ActiveMQ "Classic").
