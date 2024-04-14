@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
+import org.apache.activemq.artemis.core.management.impl.view.SessionField;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
@@ -4327,6 +4328,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertEquals("session2 ordered by creationTime", session2.getName(), array.getJsonObject(1).getString("id"));
          Assert.assertEquals("session1 ordered by creationTime", session1.getName(), array.getJsonObject(2).getString("id"));
 
+      }
+   }
+
+   @Test
+   public void testListSessionsJmsClientID() throws Exception {
+      final String clientId = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
+      try (Connection c = cf.createConnection()) {
+         c.setClientID(clientId);
+         c.createSession();
+         String filter = createJsonFilter(SessionField.CLIENT_ID.getName(), "EQUALS", clientId);
+         String json = serverControl.listSessions(filter, 1, 50);
+         System.out.println(json);
+         JsonObject sessions = JsonUtil.readJsonObject(json);
+         JsonArray array = (JsonArray) sessions.get("data");
+
+         Assert.assertEquals("number of sessions returned from query", 2, array.size());
+         JsonObject jsonSession = array.getJsonObject(0);
+
+         Assert.assertEquals("wrong client ID returned", clientId, jsonSession.getString(SessionField.CLIENT_ID.getName()));
       }
    }
 
