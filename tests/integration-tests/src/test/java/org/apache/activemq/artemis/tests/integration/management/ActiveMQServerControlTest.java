@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
@@ -4452,31 +4453,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
-   public void testListConnectionsClientID() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+   public void testListConnectionsJmsClientID() throws Exception {
+      final String clientId = RandomUtil.randomString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
-      if (legacyCreateQueue) {
-         server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
-      } else {
-         server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      }
-
-      ClientSessionFactoryImpl csf = null;
-
-      // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator()) {
-         //sleep as test compares creationTime
-         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
-         ClientSession session1_c1 = csf.createSession();
-         ClientSession session2_c1 = csf.createSession();
-         session1_c1.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
-         session1_c1.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, "MYClientID");
-
-         String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
+      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
+      try (Connection c = cf.createConnection()) {
+         c.setClientID(clientId);
+         String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), "EQUALS", clientId);
          String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
          JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
@@ -4484,12 +4469,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertEquals("number of connections returned from query", 1, array.size());
          JsonObject jsonConnection = array.getJsonObject(0);
 
-         //check all fields
-         Assert.assertEquals("clientID", "MYClientID", jsonConnection.getString("clientID"));
-      } finally {
-         if (csf != null) {
-            csf.close();
-         }
+         Assert.assertEquals("wrong client ID returned", clientId, jsonConnection.getString(ConnectionField.CLIENT_ID.getName()));
       }
    }
 

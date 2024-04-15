@@ -341,7 +341,6 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return connection;
    }
 
-
    protected String getBrokerCoreJMSConnectionString() {
       try {
          String uri = "tcp://127.0.0.1:" + PORT;
@@ -362,6 +361,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected Connection createCoreConnection(boolean start) throws JMSException {
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
+   }
+
+   protected Connection createCoreConnection(String clientId) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientId, true);
    }
 
    protected Connection createCoreConnection(String connectionString,
@@ -408,6 +411,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected Connection createOpenWireConnection(boolean start) throws JMSException {
       return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, start);
+   }
+
+   protected Connection createOpenWireConnection(String clientId) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientId, true);
    }
 
    protected Connection createOpenWireConnection(String connectionString,

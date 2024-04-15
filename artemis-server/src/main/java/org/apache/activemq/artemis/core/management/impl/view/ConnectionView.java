@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.StringUtil;
@@ -52,14 +51,9 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
       Set<String> users = new TreeSet<>();
-      String jmsSessionClientID = null;
       for (ServerSession session : sessions) {
          String username = session.getUsername() == null ? "" : session.getUsername();
          users.add(username);
-         //for the special case for JMS
-         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-            jmsSessionClientID = session.getMetaData("jms-client-id");
-         }
       }
 
       return JsonLoader.createObjectBuilder()
@@ -69,7 +63,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add(ConnectionField.CREATION_TIME.getName(), new Date(connection.getCreationTime()).toString())
          .add(ConnectionField.IMPLEMENTATION.getName(), toString(connection.getClass().getSimpleName()))
          .add(ConnectionField.PROTOCOL.getName(), toString(connection.getProtocolName()))
-         .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
+         .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID()))
          .add(ConnectionField.LOCAL_ADDRESS.getName(), toString(connection.getTransportLocalAddress()))
          .add(ConnectionField.SESSION_COUNT.getName(), sessions.size());
    }

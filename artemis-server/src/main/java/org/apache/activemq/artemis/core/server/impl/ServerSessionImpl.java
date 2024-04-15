@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
@@ -2059,6 +2060,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          return false;
       } else {
          addMetaData(key, data);
+         if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY)) {
+            remotingConnection.setClientID(data);
+         }
          return true;
       }
    }
