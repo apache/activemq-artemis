@@ -383,7 +383,7 @@ This is configured via a system property as follows:
 ----
 IMPORTANT: When this property is provided, the authorization section of management.xml *_MUST_* be omitted/removed as that depends on an alternative MBeanServer interceptor and builder.
 
-The security-settings match addresses used for JMX RBAC use the `mops.` (shorthand for management operations) xref:configuration-index.adoc#management-rbac-prefix[prefix]. This allows independent RBAC between messaging operations and management operations.
+The security-settings match addresses used for JMX RBAC use the `mops.` (shorthand for management operations) xref:configuration-index.adoc#management-rbac-prefix[prefix].
 
 The MBeanServer guard maps JMX MBean ObjectNames to a hierarchical address of the general form:
 
