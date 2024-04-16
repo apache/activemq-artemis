@@ -29,6 +29,9 @@ import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ
 
 String folder = arg[0];
 String id = arg[1];
+String queueName = arg[2]
+String topicName = arg[3]
+boolean useDual = Boolean.parseBoolean(arg[4])
 
 configuration = new ConfigurationImpl();
 configuration.setJournalType(JournalType.NIO);
@@ -37,8 +40,20 @@ configuration.addAcceptorConfiguration("artemis", "tcp://localhost:61617");
 configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(true);
 
-configuration.addAddressConfiguration(new CoreAddressConfiguration().setName("TestQueue").addRoutingType(RoutingType.ANYCAST));
-configuration.addQueueConfiguration(new QueueConfiguration("TestQueue").setAddress("TestQueue").setRoutingType(RoutingType.ANYCAST));
+configuration.addAddressConfiguration(new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST));
+configuration.addQueueConfiguration(new QueueConfiguration(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
+configuration.addAddressConfiguration(new CoreAddressConfiguration().setName(topicName).addRoutingType(RoutingType.MULTICAST));
+
+if (useDual) {
+    try {
+        AMQPBrokerConnectConfiguration connection = new AMQPBrokerConnectConfiguration("mirror", "tcp://localhost:61616").setReconnectAttempts(-1).setRetryInterval(100);
+        AMQPMirrorBrokerConnectionElement replication = new AMQPMirrorBrokerConnectionElement().setDurable(true).setSync(false).setMessageAcknowledgements(true)
+        connection.addElement(replication);
+        configuration.addAMQPConnection(connection);
+    } catch (Throwable ignored) {
+    }
+}
+
 
 theBackupServer = new EmbeddedActiveMQ();
 theBackupServer.setConfiguration(configuration);
