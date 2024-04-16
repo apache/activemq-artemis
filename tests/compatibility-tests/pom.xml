@@ -449,6 +449,28 @@
                         <goals>
                            <goal>dependency-scan</goal>
                         </goals>
+                        <id>2_33_0-check</id>
+                        <configuration>
+                           <optional>true</optional>
+                           <libListWithDeps>
+                              <arg>org.apache.activemq:artemis-jms-server:2.33.0</arg>
+                              <arg>org.apache.activemq:artemis-cli:2.33.0</arg>
+                              <arg>org.apache.activemq:artemis-jms-client:2.33.0</arg>
+                              <arg>org.apache.activemq:artemis-hornetq-protocol:2.33.0</arg>
+                              <arg>org.apache.activemq:artemis-amqp-protocol:2.33.0</arg>
+                              <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                           </libListWithDeps>
+                           <libList>
+                              <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                           </libList>
+                           <file>${basedir}/target/ARTEMIS-2_33_0.cp</file>
+                        </configuration>
+                     </execution>
+                      <execution>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>dependency-scan</goal>
+                        </goals>
                         <id>2_28_0-check</id>
                         <configuration>
                            <optional>true</optional>
