@@ -700,7 +700,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             if (Header.class.equals(constructor.getTypeClass())) {
                header = (Header) constructor.readValue();
                headerPosition = constructorPos;
-               encodedHeaderSize = data.position();
+               encodedHeaderSize = data.position() - constructorPos;
                if (header.getTtl() != null) {
                   if (!expirationReload) {
                      expiration = System.currentTimeMillis() + header.getTtl().intValue();
@@ -778,6 +778,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
     * @return a Netty ByteBuf containing the encoded bytes of this Message instance.
     */
    public ReadableBuffer getSendBuffer(int deliveryCount, MessageReference reference) {
+      ensureMessageDataScanned();
       ensureDataIsValid();
 
       DeliveryAnnotations daToWrite = reference != null ? reference.getProtocolData(DeliveryAnnotations.class) : null;
@@ -825,6 +826,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       }
 
       writeDeliveryAnnotationsForSendBuffer(result, deliveryAnnotations);
+
       // skip existing delivery annotations of the original message
       duplicate.position(encodedHeaderSize + encodedDeliveryAnnotationsSize);
       result.writeBytes(duplicate.byteBuffer());
