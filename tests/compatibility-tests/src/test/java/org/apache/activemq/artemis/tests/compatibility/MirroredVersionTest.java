@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -83,6 +84,12 @@ public class MirroredVersionTest extends ClasspathBase {
       this.useDual = useDual;
    }
 
+   @Before
+   public void beforeStart() {
+      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "1"));
+      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "2"));
+   }
+
    @After
    public void cleanupServers() {
       try {
@@ -93,9 +100,6 @@ public class MirroredVersionTest extends ClasspathBase {
          evaluate(backupClassLoader, "multiVersionMirror/backupServerStop.groovy");
       } catch (Exception ignored) {
       }
-
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "1"));
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "2"));
    }
 
    private String createBody(int size) {
