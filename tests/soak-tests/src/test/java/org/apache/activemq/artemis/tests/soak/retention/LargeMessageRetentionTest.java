@@ -38,9 +38,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
@@ -207,6 +209,8 @@ public class LargeMessageRetentionTest extends SoakTestBase {
          Assert.assertNull(consumer.receiveNoWait());
 
          serverControl.replay(queueName, queueName, "producerI=0 AND messageI>=0 AND messageI<10");
+         SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
+         Wait.assertEquals(10, () -> simpleManagement.getMessageCountOnQueue(queueName), 5000);
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(300_000);
