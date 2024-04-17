@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.utils.UUID;
 
 public interface ServerLocatorInternal extends ServerLocator {
 
@@ -45,6 +46,10 @@ public interface ServerLocatorInternal extends ServerLocator {
    ServerLocatorInternal setNodeID(String nodeID);
 
    String getNodeID();
+
+   ServerLocatorInternal setNodeUUID(UUID nodeUUID);
+
+   UUID getNodeUUID();
 
    void cleanup();
 

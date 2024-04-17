@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -273,6 +274,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       this.connectorConfigs = connectorConfigs;
+   }
+
+   @Override
+   public UUID getNodeUUID() {
+      return serverLocator.getNodeUUID();
    }
 
    @Override

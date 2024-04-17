@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.utils.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -225,6 +226,7 @@ public class ClusterController implements ActiveMQComponent {
                              ServerLocatorInternal serverLocator,
                              ClusterConnectionConfiguration config,
                              TransportConfiguration connector) {
+      serverLocator.setNodeUUID(getNodeUUID());
       serverLocator.setConnectionTTL(config.getConnectionTTL());
       serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
       //if the cluster isn't available we want to hang around until it is
@@ -369,6 +371,10 @@ public class ClusterController implements ActiveMQComponent {
 
    public SimpleString getNodeID() {
       return server.getNodeID();
+   }
+
+   public UUID getNodeUUID() {
+      return server.getNodeManager().getUUID();
    }
 
    public String getIdentity() {
