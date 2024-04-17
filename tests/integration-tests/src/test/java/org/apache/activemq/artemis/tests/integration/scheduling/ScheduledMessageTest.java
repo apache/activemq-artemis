@@ -544,6 +544,24 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testManagementDeleteById() throws Exception {
+      try (ClientSessionFactory sessionFactory = createSessionFactory(locator)) {
+         ClientSession session = sessionFactory.createSession(false, false, false);
+         session.createQueue(new QueueConfiguration(atestq));
+         ClientProducer producer = session.createProducer(atestq);
+         ClientMessage messageToSend = session.createMessage(true);
+         messageToSend.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + 999_999_999);
+         producer.send(messageToSend);
+         session.commit();
+      }
+
+      QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + atestq);
+      assertEquals(1, queueControl.getMessageCount());
+      assertTrue(queueControl.removeMessage((long) queueControl.listScheduledMessages()[0].get("messageID")));
+      assertEquals(0, queueControl.getMessageCount());
+   }
+
+   @Test
    public void testManagementDeliveryByFilter() throws Exception {
       final String propertyValue = RandomUtil.randomString();
       final String propertyName = "X" + RandomUtil.randomString().replace("-","");
