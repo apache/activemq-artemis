@@ -178,7 +178,6 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                ref.acknowledge(tx);
                iter.remove();
                notifyScheduledReferencesUpdated();
-               metrics.decrementMetrics(ref);
                return ref;
             }
          }
