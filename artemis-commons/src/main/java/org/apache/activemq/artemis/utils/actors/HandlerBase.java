@@ -26,23 +26,26 @@ package org.apache.activemq.artemis.utils.actors;
 public abstract class HandlerBase {
 
    private static class Counter {
-      int count = 1;
+      int count = 0;
    }
+
+   // There is only going to be a single Thread using the counter, so it is safe to cache this instance
+   private final Counter cachedCounter = new Counter();
 
    /** an actor could be used within an OrderedExecutor. So we need this counter to decide if there's a Handler anywhere in the stack trace */
    private static final ThreadLocal<Counter> counterThreadLocal = new ThreadLocal<>();
 
-   protected static void enter() {
+   protected void enter() {
       Counter counter = counterThreadLocal.get();
       if (counter == null) {
-         counter = new Counter(); // it starts at 1, so no need to increment it
-         counterThreadLocal.set(counter);
+         cachedCounter.count = 1;
+         counterThreadLocal.set(cachedCounter);
       } else {
          counter.count++;
       }
    }
 
-   public static boolean inHandler() {
+   public boolean inHandler() {
       Counter counter = counterThreadLocal.get();
       if (counter == null) {
          return false;
@@ -52,12 +55,10 @@ public abstract class HandlerBase {
       return counter.count > 0;
    }
 
-   protected static void leave() {
+   protected void leave() {
       Counter counter = counterThreadLocal.get();
-      if (counter != null) {
-         if (--counter.count <= 0) {
-            counterThreadLocal.remove();
-         }
+      if (counter != null && --counter.count <= 0) {
+         counterThreadLocal.remove();
       }
    }
 
