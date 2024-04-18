@@ -69,7 +69,7 @@ public class MemoryAssertions {
    }
 
    public static void assertMemory(CheckLeak checkLeak, int maxExpected, String clazz) throws Exception {
-      assertMemory(checkLeak, maxExpected, 10, 10, clazz);
+      assertMemory(checkLeak, maxExpected, 5, 10, clazz);
    }
 
    public static void assertMemory(CheckLeak checkLeak, int maxExpected, int maxLevel, int maxObjects, String clazz) throws Exception {

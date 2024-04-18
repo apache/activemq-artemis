@@ -774,39 +774,47 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       recoverOperationContext();
 
-      if (me != null) {
-         //filter it like the other protocols
-         if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-            ActiveMQClientLogger.LOGGER.connectionFailureDetected(this.transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
-         }
-      }
       try {
-         if (this.getConnectionInfo() != null) {
-            protocolManager.removeConnection(getClientID(), this);
+         if (me != null) {
+            //filter it like the other protocols
+            if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+               ActiveMQClientLogger.LOGGER.connectionFailureDetected(this.transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
+            }
          }
+         try {
+            if (this.getConnectionInfo() != null) {
+               protocolManager.removeConnection(getClientID(), this);
+            }
+         } finally {
+            try {
+               disconnect(false);
+            } catch (Throwable e) {
+               // it should never happen, but never say never
+               logger.debug("OpenWireConnection::disconnect failure", e);
+            }
+
+            // there may be some transactions not associated with sessions
+            // deal with them after sessions are removed via connection removal
+            operationContext.executeOnCompletion(new IOCallback() {
+               @Override
+               public void done() {
+                  rollbackInProgressLocalTransactions();
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+                  rollbackInProgressLocalTransactions();
+               }
+            });
+         }
+         shutdown(true);
       } finally {
          try {
-            disconnect(false);
-         } catch (Throwable e) {
-            // it should never happen, but never say never
-            logger.debug("OpenWireConnection::disconnect failure", e);
+            transportConnection.close();
+         } catch (Throwable e2) {
+            logger.warn(e2.getMessage(), e2);
          }
-
-         // there may be some transactions not associated with sessions
-         // deal with them after sessions are removed via connection removal
-         operationContext.executeOnCompletion(new IOCallback() {
-            @Override
-            public void done() {
-               rollbackInProgressLocalTransactions();
-            }
-
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-               rollbackInProgressLocalTransactions();
-            }
-         });
       }
-      shutdown(true);
    }
 
    private void delayedStop(final int waitTimeMillis, final String reason, Throwable cause) {
