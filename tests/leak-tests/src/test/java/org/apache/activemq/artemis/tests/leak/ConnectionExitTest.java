@@ -161,8 +161,6 @@ public class ConnectionExitTest extends AbstractLeakTest {
 
          Wait.assertEquals(0, () -> server.getRemotingService().getConnections().size(), 60_000);
 
-         System.out.println("Connections::" + server.getRemotingService().getConnections().size());
-
          basicMemoryAsserts();
       } finally {
          process.destroyForcibly();
