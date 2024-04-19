@@ -542,10 +542,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
          }
 
-         if (!reload && mirrorControllerSource != null) {
-            mirrorControllerSource.addAddress(addressInfo);
-         }
-
          boolean result;
          if (reload) {
             result = addressManager.reloadAddressInfo(addressInfo);
@@ -554,6 +550,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          // only register address if it is new
          if (result) {
+            if (!reload && mirrorControllerSource != null) {
+               mirrorControllerSource.addAddress(addressInfo);
+            }
+
             try {
                managementService.registerAddress(addressInfo);
 

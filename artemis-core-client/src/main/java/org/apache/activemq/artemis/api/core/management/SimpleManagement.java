@@ -118,6 +118,10 @@ public class SimpleManagement implements AutoCloseable {
       return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessageCount");
    }
 
+   public long getMessageAddedOnQueue(String queueName) throws Exception {
+      return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessagesAdded");
+   }
+
    public int getDeliveringCountOnQueue(String queueName) throws Exception {
       return simpleManagementInt(ResourceNames.QUEUE + queueName, "getDeliveringCount");
    }
