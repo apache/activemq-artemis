@@ -268,7 +268,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       long serverPingPeriod = 0;
       long clientPingResponse;
-      volatile boolean shutdown = false;
       AtomicLong lastPingTimestamp = new AtomicLong(0);
       ConnectionEntry connectionEntry;
 
