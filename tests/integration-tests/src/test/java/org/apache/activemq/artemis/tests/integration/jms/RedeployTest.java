@@ -1206,7 +1206,7 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(10, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -1231,7 +1231,7 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(1, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
 
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change_queue"));
          Assert.assertNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_removal_queue_1"));
@@ -1374,11 +1374,11 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(10, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
 
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -1404,11 +1404,11 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(1, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
 
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
 
       } finally {
          embeddedActiveMQ.stop();
@@ -1436,11 +1436,11 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_queue_change"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedActiveMQ, "config_test_queue_change").contains("config_test_queue_change_queue"));
          Assert.assertEquals(1, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue").isEnabled());
 
-         Assert.assertEquals(false, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
-         Assert.assertEquals(true, getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
+         Assert.assertFalse(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isPurgeOnNoConsumers());
+         Assert.assertTrue(getQueue(embeddedActiveMQ, "config_test_queue_change_queue_defaults").isEnabled());
       } finally {
          embeddedActiveMQ.stop();
       }

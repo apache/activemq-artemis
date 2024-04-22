@@ -337,7 +337,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
 
          Assert.assertEquals(i, m.readInt());
-         Assert.assertEquals(true, m.readBoolean());
+         Assert.assertTrue(m.readBoolean());
          Assert.assertEquals("test", m.readString());
       }
    }

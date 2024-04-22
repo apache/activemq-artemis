@@ -47,7 +47,7 @@ public class TopicSessionTest extends PubSubTestCase {
          // publisherSession has been declared has non transacted
          // we recreate it as a transacted session
          publisherSession = publisherConnection.createTopicSession(true, 0);
-         Assert.assertEquals(true, publisherSession.getTransacted());
+         Assert.assertTrue(publisherSession.getTransacted());
          // we also recreate the publisher
          publisher = publisherSession.createPublisher(publisherTopic);
          publisherConnection.start();
@@ -56,7 +56,7 @@ public class TopicSessionTest extends PubSubTestCase {
          // subscriberSession has been declared has non transacted
          // we recreate it as a transacted session
          subscriberSession = subscriberConnection.createTopicSession(true, 0);
-         Assert.assertEquals(true, subscriberSession.getTransacted());
+         Assert.assertTrue(subscriberSession.getTransacted());
          // we also recreate the subscriber
          subscriber = subscriberSession.createSubscriber(subscriberTopic);
          subscriberConnection.start();

@@ -120,22 +120,22 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    public void testDefaults() {
       // Check they match the values from the test file
       Assert.assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
-      Assert.assertEquals(false, conf.isPersistenceEnabled());
-      Assert.assertEquals(true, conf.isClustered());
+      Assert.assertFalse(conf.isPersistenceEnabled());
+      Assert.assertTrue(conf.isClustered());
       Assert.assertEquals(12345, conf.getScheduledThreadPoolMaxSize());
       Assert.assertEquals(54321, conf.getThreadPoolMaxSize());
-      Assert.assertEquals(false, conf.isSecurityEnabled());
+      Assert.assertFalse(conf.isSecurityEnabled());
       Assert.assertEquals(5423, conf.getSecurityInvalidationInterval());
       Assert.assertEquals(333, conf.getAuthenticationCacheSize());
       Assert.assertEquals(444, conf.getAuthorizationCacheSize());
-      Assert.assertEquals(true, conf.isWildcardRoutingEnabled());
+      Assert.assertTrue(conf.isWildcardRoutingEnabled());
       Assert.assertEquals(new SimpleString("Giraffe"), conf.getManagementAddress());
       Assert.assertEquals(new SimpleString("Whatever"), conf.getManagementNotificationAddress());
       Assert.assertEquals("Frog", conf.getClusterUser());
       Assert.assertEquals("Wombat", conf.getClusterPassword());
-      Assert.assertEquals(false, conf.isJMXManagementEnabled());
+      Assert.assertFalse(conf.isJMXManagementEnabled());
       Assert.assertEquals("gro.qtenroh", conf.getJMXDomain());
-      Assert.assertEquals(true, conf.isMessageCounterEnabled());
+      Assert.assertTrue(conf.isMessageCounterEnabled());
       Assert.assertEquals(5, conf.getMessageCounterMaxDayHistory());
       Assert.assertEquals(123456, conf.getMessageCounterSamplePeriod());
       Assert.assertEquals(12345, conf.getConnectionTTLOverride());
@@ -144,40 +144,40 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(10111213, conf.getMessageExpiryScanPeriod());
       Assert.assertEquals(25000, conf.getAddressQueueScanPeriod());
       Assert.assertEquals(127, conf.getIDCacheSize());
-      Assert.assertEquals(true, conf.isPersistIDCache());
+      Assert.assertTrue(conf.isPersistIDCache());
       Assert.assertEquals(Integer.valueOf(777), conf.getJournalDeviceBlockSize());
-      Assert.assertEquals(true, conf.isPersistDeliveryCountBeforeDelivery());
+      Assert.assertTrue(conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals("pagingdir", conf.getPagingDirectory());
       Assert.assertEquals("somedir", conf.getBindingsDirectory());
-      Assert.assertEquals(false, conf.isCreateBindingsDir());
-      Assert.assertEquals(true, conf.isAmqpUseCoreSubscriptionNaming());
-      Assert.assertEquals(false, conf.isSuppressSessionNotifications());
+      Assert.assertFalse(conf.isCreateBindingsDir());
+      Assert.assertTrue(conf.isAmqpUseCoreSubscriptionNaming());
+      Assert.assertFalse(conf.isSuppressSessionNotifications());
       Assert.assertEquals("()", conf.getLiteralMatchMarkers());
 
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
-      Assert.assertEquals(true, conf.isReadWholePage());
+      Assert.assertTrue(conf.isReadWholePage());
       Assert.assertEquals("somedir2", conf.getJournalDirectory());
       Assert.assertEquals("history", conf.getJournalRetentionDirectory());
       Assert.assertEquals(10L * 1024L * 1024L * 1024L, conf.getJournalRetentionMaxBytes());
       Assert.assertEquals(TimeUnit.DAYS.toMillis(365), conf.getJournalRetentionPeriod());
-      Assert.assertEquals(false, conf.isCreateJournalDir());
+      Assert.assertFalse(conf.isCreateJournalDir());
       Assert.assertEquals(JournalType.NIO, conf.getJournalType());
       Assert.assertEquals(10000, conf.getJournalBufferSize_NIO());
       Assert.assertEquals(1000, conf.getJournalBufferTimeout_NIO());
       Assert.assertEquals(56546, conf.getJournalMaxIO_NIO());
       Assert.assertEquals(9876, conf.getJournalFileOpenTimeout());
 
-      Assert.assertEquals(false, conf.isJournalSyncTransactional());
-      Assert.assertEquals(true, conf.isJournalSyncNonTransactional());
+      Assert.assertFalse(conf.isJournalSyncTransactional());
+      Assert.assertTrue(conf.isJournalSyncNonTransactional());
       Assert.assertEquals(12345678, conf.getJournalFileSize());
       Assert.assertEquals(100, conf.getJournalMinFiles());
       Assert.assertEquals(123, conf.getJournalCompactMinFiles());
       Assert.assertEquals(33, conf.getJournalCompactPercentage());
       Assert.assertEquals(7654, conf.getJournalLockAcquisitionTimeout());
-      Assert.assertEquals(true, conf.isGracefulShutdownEnabled());
+      Assert.assertTrue(conf.isGracefulShutdownEnabled());
       Assert.assertEquals(12345, conf.getGracefulShutdownTimeout());
-      Assert.assertEquals(true, conf.isPopulateValidatedUser());
-      Assert.assertEquals(false, conf.isRejectEmptyValidatedUser());
+      Assert.assertTrue(conf.isPopulateValidatedUser());
+      Assert.assertFalse(conf.isRejectEmptyValidatedUser());
       Assert.assertEquals(123456, conf.getMqttSessionScanInterval());
       Assert.assertEquals(567890, conf.getMqttSessionStatePersistenceTimeout());
       Assert.assertEquals(98765, conf.getConnectionTtlCheckInterval());
@@ -270,7 +270,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("forwarding-address1", dic.getForwardingAddress());
             Assert.assertEquals("speed > 88", dic.getFilterString());
             Assert.assertEquals("org.foo.Transformer", dic.getTransformerConfiguration().getClassName());
-            Assert.assertEquals(true, dic.isExclusive());
+            Assert.assertTrue(dic.isExclusive());
          } else if (dic.getName().equals("divert2")) {
             Assert.assertEquals("divert2", dic.getName());
             Assert.assertEquals("routing-name2", dic.getRoutingName());
@@ -278,7 +278,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("forwarding-address2", dic.getForwardingAddress());
             Assert.assertEquals("speed < 88", dic.getFilterString());
             Assert.assertEquals("org.foo.Transformer2", dic.getTransformerConfiguration().getClassName());
-            Assert.assertEquals(false, dic.isExclusive());
+            Assert.assertFalse(dic.isExclusive());
          } else {
             Assert.assertEquals("divert3", dic.getName());
             Assert.assertEquals("org.foo.DivertTransformer3", dic.getTransformerConfiguration().getClassName());
@@ -304,30 +304,30 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(bc.getKeyType(), KeyType.USER_NAME);
             Assert.assertNull(bc.getLocalTargetFilter());
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
-            Assert.assertEquals(false, bc.getPoolConfiguration().isLocalTargetEnabled());
+            Assert.assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
             Assert.assertEquals("connector1", bc.getPoolConfiguration().getStaticConnectors().get(0));
-            Assert.assertEquals(null, bc.getPoolConfiguration().getDiscoveryGroupName());
+            Assert.assertNull(bc.getPoolConfiguration().getDiscoveryGroupName());
          } else if (bc.getName().equals("consistent-hash-router")) {
             Assert.assertEquals(bc.getKeyType(), KeyType.SNI_HOST);
             Assert.assertEquals(bc.getKeyFilter(), "^[^.]+");
             Assert.assertEquals(bc.getLocalTargetFilter(), "DEFAULT");
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), ConsistentHashPolicy.NAME);
             Assert.assertEquals(1000, bc.getPoolConfiguration().getCheckPeriod());
-            Assert.assertEquals(true, bc.getPoolConfiguration().isLocalTargetEnabled());
-            Assert.assertEquals(null, bc.getPoolConfiguration().getStaticConnectors());
+            Assert.assertTrue(bc.getPoolConfiguration().isLocalTargetEnabled());
+            Assert.assertNull(bc.getPoolConfiguration().getStaticConnectors());
             Assert.assertEquals("dg1", bc.getPoolConfiguration().getDiscoveryGroupName());
          } else {
             Assert.assertEquals(bc.getKeyType(), KeyType.SOURCE_IP);
             Assert.assertEquals("least-connections-router", bc.getName());
             Assert.assertNotNull(bc.getCacheConfiguration());
-            Assert.assertEquals(true, bc.getCacheConfiguration().isPersisted());
+            Assert.assertTrue(bc.getCacheConfiguration().isPersisted());
             Assert.assertEquals(60000, bc.getCacheConfiguration().getTimeout());
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), LeastConnectionsPolicy.NAME);
             Assert.assertEquals(3000, bc.getPoolConfiguration().getCheckPeriod());
             Assert.assertEquals(2, bc.getPoolConfiguration().getQuorumSize());
             Assert.assertEquals(1000, bc.getPoolConfiguration().getQuorumTimeout());
-            Assert.assertEquals(false, bc.getPoolConfiguration().isLocalTargetEnabled());
-            Assert.assertEquals(null, bc.getPoolConfiguration().getStaticConnectors());
+            Assert.assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
+            Assert.assertNull(bc.getPoolConfiguration().getStaticConnectors());
             Assert.assertEquals("dg2", bc.getPoolConfiguration().getDiscoveryGroupName());
          }
       }
@@ -347,9 +347,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(0.2, bc.getRetryIntervalMultiplier(), 0.0001);
             assertEquals("max retry interval", 10002, bc.getMaxRetryInterval());
             Assert.assertEquals(2, bc.getReconnectAttempts());
-            Assert.assertEquals(true, bc.isUseDuplicateDetection());
+            Assert.assertTrue(bc.isUseDuplicateDetection());
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
-            Assert.assertEquals(null, bc.getDiscoveryGroupName());
+            Assert.assertNull(bc.getDiscoveryGroupName());
             Assert.assertEquals(444, bc.getProducerWindowSize());
             Assert.assertEquals(1073741824, bc.getConfirmationWindowSize());
             Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, bc.getRoutingType());
@@ -357,9 +357,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
             Assert.assertEquals("bridge-forwarding-address2", bc.getForwardingAddress());
-            Assert.assertEquals(null, bc.getFilterString());
-            Assert.assertEquals(null, bc.getTransformerConfiguration());
-            Assert.assertEquals(null, bc.getStaticConnectors());
+            Assert.assertNull(bc.getFilterString());
+            Assert.assertNull(bc.getTransformerConfiguration());
+            Assert.assertNull(bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
             Assert.assertEquals(568320, bc.getProducerWindowSize());
             Assert.assertEquals(ComponentConfigurationRoutingType.PASS, bc.getRoutingType());
@@ -394,7 +394,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             assertEquals("connection time-to-live", 3370, ccc.getConnectionTTL());
             Assert.assertEquals("queues1", ccc.getAddress());
             Assert.assertEquals(3, ccc.getRetryInterval());
-            Assert.assertEquals(true, ccc.isDuplicateDetection());
+            Assert.assertTrue(ccc.isDuplicateDetection());
             Assert.assertEquals(MessageLoadBalancingType.ON_DEMAND, ccc.getMessageLoadBalancingType());
             Assert.assertEquals(1, ccc.getMaxHops());
             Assert.assertEquals(123, ccc.getCallTimeout());
@@ -404,22 +404,22 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             assertEquals(72, ccc.getReconnectAttempts());
             Assert.assertEquals("connector1", ccc.getStaticConnectors().get(0));
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
-            Assert.assertEquals(null, ccc.getDiscoveryGroupName());
+            Assert.assertNull(ccc.getDiscoveryGroupName());
             Assert.assertEquals(222, ccc.getProducerWindowSize());
-            Assert.assertEquals(true, ccc.isAllowDirectConnectionsOnly());
+            Assert.assertTrue(ccc.isAllowDirectConnectionsOnly());
          } else {
             Assert.assertEquals("cluster-connection2", ccc.getName());
             Assert.assertEquals("queues2", ccc.getAddress());
             Assert.assertEquals(4, ccc.getRetryInterval());
             Assert.assertEquals(456, ccc.getCallTimeout());
             Assert.assertEquals(456, ccc.getCallFailoverTimeout());
-            Assert.assertEquals(false, ccc.isDuplicateDetection());
+            Assert.assertFalse(ccc.isDuplicateDetection());
             Assert.assertEquals(MessageLoadBalancingType.STRICT, ccc.getMessageLoadBalancingType());
             Assert.assertEquals(2, ccc.getMaxHops());
             Assert.assertEquals(Collections.emptyList(), ccc.getStaticConnectors());
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());
             Assert.assertEquals(333, ccc.getProducerWindowSize());
-            Assert.assertEquals(false, ccc.isAllowDirectConnectionsOnly());
+            Assert.assertFalse(ccc.isAllowDirectConnectionsOnly());
          }
       }
 
@@ -449,15 +449,15 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, conf.getAddressSettings().get("a1").getSlowConsumerThresholdMeasurementUnit());
       assertEquals(5, conf.getAddressSettings().get("a1").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.NOTIFY, conf.getAddressSettings().get("a1").getSlowConsumerPolicy());
-      assertEquals(true, conf.getAddressSettings().get("a1").isAutoCreateJmsQueues());
-      assertEquals(true, conf.getAddressSettings().get("a1").isAutoDeleteJmsQueues());
-      assertEquals(true, conf.getAddressSettings().get("a1").isAutoCreateJmsTopics());
-      assertEquals(true, conf.getAddressSettings().get("a1").isAutoDeleteJmsTopics());
+      assertTrue(conf.getAddressSettings().get("a1").isAutoCreateJmsQueues());
+      assertTrue(conf.getAddressSettings().get("a1").isAutoDeleteJmsQueues());
+      assertTrue(conf.getAddressSettings().get("a1").isAutoCreateJmsTopics());
+      assertTrue(conf.getAddressSettings().get("a1").isAutoDeleteJmsTopics());
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteQueuesDelay());
-      assertEquals(false, conf.getAddressSettings().get("a1").getAutoDeleteQueuesSkipUsageCheck());
+      assertFalse(conf.getAddressSettings().get("a1").getAutoDeleteQueuesSkipUsageCheck());
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteAddressesDelay());
-      assertEquals(false, conf.getAddressSettings().get("a1").isAutoDeleteAddressesSkipUsageCheck());
-      assertEquals(false, conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
+      assertFalse(conf.getAddressSettings().get("a1").isAutoDeleteAddressesSkipUsageCheck());
+      assertFalse(conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
       assertEquals(Integer.valueOf(5), conf.getAddressSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a1").getDefaultAddressRoutingType());
@@ -465,17 +465,17 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(0, conf.getAddressSettings().get("a1").getRetroactiveMessageCount());
       assertTrue(conf.getAddressSettings().get("a1").isEnableMetrics());
       assertTrue(conf.getAddressSettings().get("a1").isEnableIngressTimestamp());
-      assertEquals(null, conf.getAddressSettings().get("a1").getIDCacheSize());
+      assertNull(conf.getAddressSettings().get("a1").getIDCacheSize());
 
       assertEquals("a2.1", conf.getAddressSettings().get("a2").getDeadLetterAddress().toString());
-      assertEquals(true, conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
+      assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
       assertEquals("", conf.getAddressSettings().get("a2").getDeadLetterQueuePrefix().toString());
       assertEquals(".DLQ", conf.getAddressSettings().get("a2").getDeadLetterQueueSuffix().toString());
       assertEquals("a2.2", conf.getAddressSettings().get("a2").getExpiryAddress().toString());
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getExpiryDelay());
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMinExpiryDelay());
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMaxExpiryDelay());
-      assertEquals(true, conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
+      assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
       assertEquals("", conf.getAddressSettings().get("a2").getExpiryQueuePrefix().toString());
       assertEquals(".EXP", conf.getAddressSettings().get("a2").getExpiryQueueSuffix().toString());
       assertEquals(5, conf.getAddressSettings().get("a2").getRedeliveryDelay());
@@ -488,15 +488,15 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY, conf.getAddressSettings().get("a2").getSlowConsumerThresholdMeasurementUnit());
       assertEquals(15, conf.getAddressSettings().get("a2").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.KILL, conf.getAddressSettings().get("a2").getSlowConsumerPolicy());
-      assertEquals(false, conf.getAddressSettings().get("a2").isAutoCreateJmsQueues());
-      assertEquals(false, conf.getAddressSettings().get("a2").isAutoDeleteJmsQueues());
-      assertEquals(false, conf.getAddressSettings().get("a2").isAutoCreateJmsTopics());
-      assertEquals(false, conf.getAddressSettings().get("a2").isAutoDeleteJmsTopics());
+      assertFalse(conf.getAddressSettings().get("a2").isAutoCreateJmsQueues());
+      assertFalse(conf.getAddressSettings().get("a2").isAutoDeleteJmsQueues());
+      assertFalse(conf.getAddressSettings().get("a2").isAutoCreateJmsTopics());
+      assertFalse(conf.getAddressSettings().get("a2").isAutoDeleteJmsTopics());
       assertEquals(500, conf.getAddressSettings().get("a2").getAutoDeleteQueuesDelay());
-      assertEquals(true, conf.getAddressSettings().get("a2").getAutoDeleteQueuesSkipUsageCheck());
+      assertTrue(conf.getAddressSettings().get("a2").getAutoDeleteQueuesSkipUsageCheck());
       assertEquals(1000, conf.getAddressSettings().get("a2").getAutoDeleteAddressesDelay());
-      assertEquals(true, conf.getAddressSettings().get("a2").isAutoDeleteAddressesSkipUsageCheck());
-      assertEquals(true, conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
+      assertTrue(conf.getAddressSettings().get("a2").isAutoDeleteAddressesSkipUsageCheck());
+      assertTrue(conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
       assertEquals(Integer.valueOf(15), conf.getAddressSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a2").getDefaultAddressRoutingType());
@@ -516,12 +516,12 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("queue1", conf.getQueueConfigs().get(0).getName().toString());
       assertEquals("address1", conf.getQueueConfigs().get(0).getAddress().toString());
       assertEquals("color='red'", conf.getQueueConfigs().get(0).getFilterString().toString());
-      assertEquals(false, conf.getQueueConfigs().get(0).isDurable());
+      assertFalse(conf.getQueueConfigs().get(0).isDurable());
 
       assertEquals("queue2", conf.getQueueConfigs().get(1).getName().toString());
       assertEquals("address2", conf.getQueueConfigs().get(1).getAddress().toString());
       assertEquals("color='blue'", conf.getQueueConfigs().get(1).getFilterString().toString());
-      assertEquals(false, conf.getQueueConfigs().get(1).isDurable());
+      assertFalse(conf.getQueueConfigs().get(1).isDurable());
 
       verifyAddresses();
 
@@ -558,10 +558,10 @@ public class FileConfigurationTest extends ConfigurationImplTest {
 
       assertEquals(333, conf.getCriticalAnalyzerCheckPeriod());
       assertEquals(777, conf.getCriticalAnalyzerTimeout());
-      assertEquals(false, conf.isCriticalAnalyzer());
+      assertFalse(conf.isCriticalAnalyzer());
       assertEquals(CriticalAnalyzerPolicy.HALT, conf.getCriticalAnalyzerPolicy());
 
-      assertEquals(false, conf.isJournalDatasync());
+      assertFalse(conf.isJournalDatasync());
 
       // keep test for backwards compatibility
       ActiveMQMetricsPlugin metricsPlugin = conf.getMetricsPlugin();
@@ -608,8 +608,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress().toString());
       // If null, then default will be taken from address-settings (which defaults to ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers())
-      assertEquals(null, queueConfiguration.getMaxConsumers());
-      assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNull(queueConfiguration.getMaxConsumers());
+      assertNull(queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 1 Queue 2
       queueConfiguration = addressConfiguration.getQueueConfigs().get(1);
@@ -621,7 +621,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers().intValue());
       assertFalse(queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress().toString());
-      assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 2
       addressConfiguration = conf.getAddressConfigurations().get(1);
@@ -640,7 +640,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(10, queueConfiguration.getMaxConsumers().intValue());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress().toString());
-      assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNull(queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 2 Queue 2
       queueConfiguration = addressConfiguration.getQueueConfigs().get(1);
@@ -649,10 +649,10 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(queueConfiguration.isDurable());
       assertNull(queueConfiguration.getFilterString());
       // If null, then default will be taken from address-settings (which defaults to ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers())
-      assertEquals(null, queueConfiguration.getMaxConsumers());
+      assertNull(queueConfiguration.getMaxConsumers());
       assertTrue(queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress().toString());
-      assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 3
       addressConfiguration = conf.getAddressConfigurations().get(2);

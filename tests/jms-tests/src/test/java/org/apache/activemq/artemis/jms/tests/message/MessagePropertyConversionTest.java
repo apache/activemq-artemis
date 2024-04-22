@@ -1000,7 +1000,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       ProxyAssertSupport.assertEquals(myFloat, m4.getFloatProperty("myFloat"), 0);
       ProxyAssertSupport.assertEquals(myDouble, m4.getDoubleProperty("myDouble"), 0);
 
-      ProxyAssertSupport.assertEquals(false, m4.getBooleanProperty("myIllegal"));
+      ProxyAssertSupport.assertFalse(m4.getBooleanProperty("myIllegal"));
 
       try {
          m4.getByteProperty("myIllegal");

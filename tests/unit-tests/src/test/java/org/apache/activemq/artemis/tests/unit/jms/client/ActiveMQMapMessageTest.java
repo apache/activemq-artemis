@@ -93,7 +93,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
    @Test
    public void testGetBooleanFromNull() throws Exception {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
-      Assert.assertEquals(false, message.getBoolean(itemName));
+      Assert.assertFalse(message.getBoolean(itemName));
    }
 
    @Test

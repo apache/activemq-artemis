@@ -42,10 +42,10 @@ public class SessionTest extends PTPTestCase {
    public void testRecoverTransactedSession() {
       try {
          // senderSession has been created as non transacted
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          // we create it again but as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
          senderSession.recover();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -67,7 +67,7 @@ public class SessionTest extends PTPTestCase {
          // re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
          sender = senderSession.createSender(senderQueue);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
 
          TextMessage message = senderSession.createTextMessage();
          message.setText("testRollbackTransactedSession");
@@ -79,7 +79,7 @@ public class SessionTest extends PTPTestCase {
 
          TextMessage m = (TextMessage) receiver.receiveNoWait();
          // test that no message has been received
-         Assert.assertEquals(null, m);
+         Assert.assertNull(m);
       } catch (Exception e) {
          fail(e);
       }
@@ -96,7 +96,7 @@ public class SessionTest extends PTPTestCase {
          // re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
          sender = senderSession.createSender(senderQueue);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
 
          TextMessage message = senderSession.createTextMessage();
          message.setText("testCommitTransactedSession");
@@ -105,7 +105,7 @@ public class SessionTest extends PTPTestCase {
 
          TextMessage m = (TextMessage) receiver.receiveNoWait();
          // test that no message has been received (the transaction has not been committed yet)
-         Assert.assertEquals(null, m);
+         Assert.assertNull(m);
 
          // commit the transaction -> the sent message should be received
          senderSession.commit();
@@ -127,7 +127,7 @@ public class SessionTest extends PTPTestCase {
    public void testRollbackNonTransactedSession() {
       try {
          // senderSession has been created as non transacted in the setUp() method
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          senderSession.rollback();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -147,7 +147,7 @@ public class SessionTest extends PTPTestCase {
    public void testCommitNonTransactedSession() {
       try {
          // senderSession has been created as non transacted in the setUp() method
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          senderSession.commit();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -166,10 +166,10 @@ public class SessionTest extends PTPTestCase {
    public void testGetTransacted() {
       try {
          // senderSession has been created as non transacted
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          // we re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, Session.AUTO_ACKNOWLEDGE);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
       } catch (Exception e) {
          fail(e);
       }

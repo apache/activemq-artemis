@@ -135,23 +135,23 @@ public class HawtioSecurityControlImplTest {
       CompositeData cd = result.get(new Object[]{objectName, "testMethod(long)"});
       assertEquals(objectName, cd.get("ObjectName"));
       assertEquals("testMethod(long)", cd.get("Method"));
-      assertEquals(true, cd.get("CanInvoke"));
+      assertTrue((boolean) cd.get("CanInvoke"));
       CompositeData cd2 = result.get(new Object[]{objectName, "testMethod2(java.lang.String)"});
       assertEquals(objectName, cd2.get("ObjectName"));
       assertEquals("testMethod2(java.lang.String)", cd2.get("Method"));
-      assertEquals(false, cd2.get("CanInvoke"));
+      assertFalse((boolean) cd2.get("CanInvoke"));
       CompositeData cd3 = result.get(new Object[]{objectName, "otherMethod"});
       assertEquals(objectName, cd3.get("ObjectName"));
       assertEquals("otherMethod", cd3.get("Method"));
-      assertEquals(true, cd3.get("CanInvoke"));
+      assertTrue((boolean) cd3.get("CanInvoke"));
       CompositeData cd4 = result.get(new Object[]{objectName2, ""});
       assertEquals(objectName2, cd4.get("ObjectName"));
       assertEquals("", cd4.get("Method"));
-      assertEquals(true, cd4.get("CanInvoke"));
+      assertTrue((boolean) cd4.get("CanInvoke"));
       CompositeData cd5 = result.get(new Object[]{objectName3, ""});
       assertEquals(objectName3, cd5.get("ObjectName"));
       assertEquals("", cd5.get("Method"));
-      assertEquals(false, cd5.get("CanInvoke"));
+      assertFalse((boolean) cd5.get("CanInvoke"));
    }
 
    @Test
@@ -170,14 +170,14 @@ public class HawtioSecurityControlImplTest {
       CompositeData cd = result.get(new Object[]{objectName, "duplicateMethod1(long)"});
       assertEquals(objectName, cd.get("ObjectName"));
       assertEquals("duplicateMethod1(long)", cd.get("Method"));
-      assertEquals(true, cd.get("CanInvoke"));
+      assertTrue((boolean) cd.get("CanInvoke"));
       CompositeData cd2 = result.get(new Object[]{objectName, "duplicateMethod1(java.lang.String)"});
       assertEquals(objectName, cd2.get("ObjectName"));
       assertEquals("duplicateMethod1(java.lang.String)", cd2.get("Method"));
-      assertEquals(true, cd2.get("CanInvoke"));
+      assertTrue((boolean) cd2.get("CanInvoke"));
       CompositeData cd3 = result.get(new Object[]{objectName, "duplicateMethod2"});
       assertEquals(objectName, cd3.get("ObjectName"));
       assertEquals("duplicateMethod2", cd3.get("Method"));
-      assertEquals(false, cd3.get("CanInvoke"));
+      assertFalse((boolean) cd3.get("CanInvoke"));
    }
 }

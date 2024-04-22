@@ -91,7 +91,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
+      assertFalse(queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -115,7 +115,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
+      assertFalse(queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 

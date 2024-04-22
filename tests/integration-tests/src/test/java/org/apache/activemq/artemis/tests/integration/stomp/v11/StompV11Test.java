@@ -169,7 +169,7 @@ public class StompV11Test extends StompTestBase {
       assertEquals(Stomp.Responses.CONNECTED, reply.getCommand());
 
       //reply headers: version, session, server
-      assertEquals(null, reply.getHeader("version"));
+      assertNull(reply.getHeader("version"));
 
       conn.disconnect();
 
@@ -1969,7 +1969,7 @@ public class StompV11Test extends StompTestBase {
 
       assertEquals("5", frame.getHeader(Stomp.Headers.CONTENT_LENGTH));
 
-      assertEquals(null, frame.getHeader(Stomp.Headers.Message.TYPE));
+      assertNull(frame.getHeader(Stomp.Headers.Message.TYPE));
 
       assertEquals(frame.getBody(), new String(payload, StandardCharsets.UTF_8));
 

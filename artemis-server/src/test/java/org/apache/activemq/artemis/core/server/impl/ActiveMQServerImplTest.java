@@ -103,7 +103,7 @@ public class ActiveMQServerImplTest extends ServerTestBase {
 
       forceGC();
 
-      Assert.assertEquals(null, scheduledRunnableRef.get());
+      Assert.assertNull(scheduledRunnableRef.get());
 
       server.stop();
    }

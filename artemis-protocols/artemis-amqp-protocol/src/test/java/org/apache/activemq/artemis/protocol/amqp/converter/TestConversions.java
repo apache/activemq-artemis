@@ -123,8 +123,8 @@ public class TestConversions extends Assert {
    }
 
    private void verifyProperties(CoreMessageWrapper message) throws Exception {
-      assertEquals(true, message.getBooleanProperty("true"));
-      assertEquals(false, message.getBooleanProperty("false"));
+      assertTrue(message.getBooleanProperty("true"));
+      assertFalse(message.getBooleanProperty("false"));
       assertEquals("bar", message.getStringProperty("foo"));
    }
 

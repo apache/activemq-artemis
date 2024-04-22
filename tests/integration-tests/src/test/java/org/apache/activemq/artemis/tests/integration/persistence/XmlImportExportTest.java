@@ -181,17 +181,17 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
          assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
          assertEquals(i, msg.getObjectProperty("myObjectProperty"));
-         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
-         assertEquals(null, msg.getObjectProperty("myNullObjectProperty"));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
+         assertNull(msg.getObjectProperty("myNullObjectProperty"));
          assertEquals(Integer.valueOf(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
          assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
-         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
-         assertEquals(null, msg.getStringProperty("myNullStringProperty"));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
+         assertNull(msg.getStringProperty("myNullStringProperty"));
          assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
          assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
          assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
-         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
-         assertEquals(null, msg.getSimpleStringProperty("myNullSimpleStringProperty"));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
+         assertNull(msg.getSimpleStringProperty("myNullSimpleStringProperty"));
       }
    }
 
@@ -465,7 +465,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       assertEquals("addressName1", queueQuery.getAddress().toString());
       assertEquals("bob", queueQuery.getFilterString().toString());
-      assertEquals(true, queueQuery.isDurable());
+      assertTrue(queueQuery.isDurable());
    }
 
    @Test

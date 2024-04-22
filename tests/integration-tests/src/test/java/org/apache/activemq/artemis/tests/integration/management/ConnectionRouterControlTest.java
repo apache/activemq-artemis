@@ -64,7 +64,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       Assert.assertEquals(getServer(1).getNodeID().toString(), nodeID);
 
       Boolean local = (Boolean)targetData.get("local");
-      Assert.assertEquals(false, local);
+      Assert.assertFalse(local);
 
       CompositeData connectorData = (CompositeData)targetData.get("connector");
       Assert.assertNotNull(connectorData);
@@ -99,7 +99,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       Assert.assertEquals(getServer(1).getNodeID().toString(), nodeID);
 
       Boolean local = targetData.getBoolean("local");
-      Assert.assertEquals(false, local);
+      Assert.assertFalse(local);
 
       JsonObject connectorData = targetData.getJsonObject("connector");
       Assert.assertNotNull(connectorData);
@@ -133,7 +133,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       Assert.assertEquals(getServer(0).getNodeID().toString(), nodeID);
 
       Boolean local = (Boolean)targetData.get("local");
-      Assert.assertEquals(true, local);
+      Assert.assertTrue(local);
 
       CompositeData connectorData = (CompositeData)targetData.get("connector");
       Assert.assertNull(connectorData);
@@ -178,7 +178,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       Assert.assertEquals(getServer(0).getNodeID().toString(), nodeID);
 
       Boolean local = targetData.getBoolean("local");
-      Assert.assertEquals(true, local);
+      Assert.assertTrue(local);
 
       Assert.assertTrue(targetData.isNull("connector"));
    }

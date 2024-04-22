@@ -146,7 +146,7 @@ public class AddressSettingsInfoTest {
       assertEquals(404, addressSettingsInfo.getExpiryDelay());
       assertEquals(40, addressSettingsInfo.getMinExpiryDelay());
       assertEquals(4004, addressSettingsInfo.getMaxExpiryDelay());
-      assertEquals(false, addressSettingsInfo.isEnableMetrics());
+      assertFalse(addressSettingsInfo.isEnableMetrics());
    }
 
 }

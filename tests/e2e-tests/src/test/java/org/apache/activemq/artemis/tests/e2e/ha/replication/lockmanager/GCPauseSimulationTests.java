@@ -115,10 +115,10 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       int totalMessages = 600;
 
       // ensure artemis-primary is the live
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client start to produce message on primary
       lastProducedMessage = produce(totalMessages / 2, lastProducedMessage);
@@ -140,7 +140,7 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       TimeUnit.SECONDS.sleep(10);
 
       // ensure artemis-backup is live
-      Assert.assertEquals(true, Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client should be able to produce messages to backup
       lastProducedMessage += produce(totalMessages / 2, lastProducedMessage);
@@ -169,10 +169,10 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
 
       // ensure artemis-primary is the live
       artemisPrimaryJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisPrimary) + ":" + service.getPort(artemisPrimary, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // ensure replica is in sync
       Assert.assertTrue(isReplicaInSync());
@@ -191,10 +191,10 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       int totalMessages = 600;
 
       // ensure artemis-primary is the live
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client start to produce message on primary
       lastProducedMessage = produce(totalMessages / 2, lastProducedMessage);
@@ -216,7 +216,7 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       TimeUnit.SECONDS.sleep(10);
 
       // ensure artemis-backup is live
-      Assert.assertEquals(true, Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client should be able to produce messages to backup
       lastProducedMessage += produce(totalMessages / 2, lastProducedMessage);
@@ -253,11 +253,11 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
 
       // ensure artemis-primary is the live
       artemisPrimaryJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisPrimary) + ":" + service.getPort(artemisPrimary, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
       artemisBackupJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisBackup) + ":" + service.getPort(artemisBackup, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      Assert.assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // ensure replica is in sync
       Assert.assertTrue(isReplicaInSync());

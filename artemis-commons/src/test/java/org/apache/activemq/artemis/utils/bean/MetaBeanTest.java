@@ -58,7 +58,7 @@ public class MetaBeanTest {
       Assert.assertEquals(sourceObject, result);
 
 
-      Assert.assertEquals(null, result.getD());
+      Assert.assertNull(result.getD());
       Assert.assertNotNull(result.getIdCacheSize());
       Assert.assertEquals(333, result.getIdCacheSize().intValue());
       Assert.assertEquals(33.33f, result.getFloatValue().floatValue(), 0);

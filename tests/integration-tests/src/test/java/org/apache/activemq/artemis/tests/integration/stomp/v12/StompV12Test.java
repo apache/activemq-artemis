@@ -197,7 +197,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.CONNECTED, reply.getCommand());
 
       //reply headers: version, session, server
-      Assert.assertEquals(null, reply.getHeader(Stomp.Headers.Error.VERSION));
+      Assert.assertNull(reply.getHeader(Stomp.Headers.Error.VERSION));
 
       conn.disconnect();
 
@@ -480,7 +480,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals(body, frame.getBody());
 
       logger.debug("received: {}", frame);
-      Assert.assertEquals(null, frame.getHeader("header1"));
+      Assert.assertNull(frame.getHeader("header1"));
       Assert.assertEquals("value1 ", frame.getHeader(" header1"));
       Assert.assertEquals("value2   ", frame.getHeader("  header2"));
       Assert.assertEquals(" value3", frame.getHeader("header3 "));
@@ -2000,7 +2000,7 @@ public class StompV12Test extends StompTestBase {
 
       Assert.assertEquals("5", frame.getHeader(Stomp.Headers.CONTENT_LENGTH));
 
-      Assert.assertEquals(null, frame.getHeader(Stomp.Headers.Message.TYPE));
+      Assert.assertNull(frame.getHeader(Stomp.Headers.Message.TYPE));
 
       Assert.assertEquals(frame.getBody(), new String(payload, StandardCharsets.UTF_8));
 

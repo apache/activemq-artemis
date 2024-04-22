@@ -30,12 +30,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.lockmanager.DistributedLock;
 import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockTest;
 import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
-
-import org.apache.activemq.artemis.lockmanager.DistributedLockTest;
 import org.apache.curator.test.TestingZooKeeperServer;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -44,8 +43,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import static java.lang.Boolean.TRUE;
 
 @RunWith(value = Parameterized.class)
 public class CuratorDistributedLockTest extends DistributedLockTest {
@@ -305,7 +302,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       TimeUnit.MILLISECONDS.sleep(SESSION_MS + CONNECTION_MS);
       Wait.waitFor(() -> unavailableLock.get() > 0, SERVER_TICK_MS);
       Assert.assertEquals(1, unavailableManager.get());
-      Assert.assertEquals(TRUE, unavailableTimedLock.get());
+      Assert.assertTrue(unavailableTimedLock.get());
    }
 
    @Test

@@ -240,7 +240,7 @@ public class SessionTest extends ActiveMQTestBase {
       Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
       Assert.assertEquals(2, resp.getConsumerCount());
       Assert.assertEquals(2, resp.getMessageCount());
-      Assert.assertEquals(null, resp.getFilterString());
+      Assert.assertNull(resp.getFilterString());
       consumer1.close();
       consumer2.close();
       clientSession.close();

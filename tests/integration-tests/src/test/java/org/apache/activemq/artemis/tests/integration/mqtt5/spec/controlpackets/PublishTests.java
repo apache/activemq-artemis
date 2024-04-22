@@ -1304,7 +1304,7 @@ public class PublishTests extends MQTT5TestSupport {
          public void deliveryComplete(IMqttToken token) {
             int qos = ((MqttPublish)token.getRequestMessage()).getQoS();
             if (qos == 0) {
-               assertEquals(null, token.getResponse());
+               assertNull(token.getResponse());
             } else if (qos == 1) {
                assertEquals(MqttWireMessage.MESSAGE_TYPE_PUBACK, token.getResponse().getType());
             } else if (qos == 2) {

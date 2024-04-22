@@ -228,7 +228,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(true, cf.isHA());
+      Assert.assertTrue(cf.isHA());
    }
 
    @Test

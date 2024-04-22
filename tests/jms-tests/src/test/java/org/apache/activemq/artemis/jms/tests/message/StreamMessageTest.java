@@ -89,7 +89,7 @@ public class StreamMessageTest extends MessageTestBase {
 
       sm.reset();
 
-      ProxyAssertSupport.assertEquals(true, sm.readBoolean());
+      ProxyAssertSupport.assertTrue(sm.readBoolean());
       ProxyAssertSupport.assertEquals((byte) 3, sm.readByte());
       byte[] bytes = new byte[3];
       sm.readBytes(bytes);

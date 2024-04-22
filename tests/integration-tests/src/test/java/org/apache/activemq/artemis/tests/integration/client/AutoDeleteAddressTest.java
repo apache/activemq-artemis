@@ -130,14 +130,14 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
       for (String address : addresses) {
          assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(true, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
       }
 
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
          assertNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(false, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
       }
 
       consumerSession.close();

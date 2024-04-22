@@ -284,9 +284,9 @@ public class JmsContextTest extends JMSTestBase {
       Assert.assertNotNull(msg2);
       Assert.assertTrue(cl.completionLatch.await(1, TimeUnit.SECONDS));
       StreamMessage sm = (StreamMessage) cl.lastMessage;
-      Assert.assertEquals(true, sm.getBooleanProperty(bprop));
+      Assert.assertTrue(sm.getBooleanProperty(bprop));
       Assert.assertEquals(42, sm.getIntProperty(iprop));
-      Assert.assertEquals(true, sm.readBoolean());
+      Assert.assertTrue(sm.readBoolean());
       Assert.assertEquals(67, sm.readInt());
    }
 

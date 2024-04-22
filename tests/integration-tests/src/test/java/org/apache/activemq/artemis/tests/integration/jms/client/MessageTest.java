@@ -188,7 +188,7 @@ public class MessageTest extends JMSTestBase {
 
       msg.setStringProperty("Test", null);
 
-      assertEquals(null, msg.getStringProperty("Test"));
+      assertNull(msg.getStringProperty("Test"));
 
       msg.setObjectProperty(MessageTest.propName1, null);
 
@@ -237,7 +237,7 @@ public class MessageTest extends JMSTestBase {
       } catch (NumberFormatException e) {
          // Ok
       }
-      Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
+      Assert.assertFalse(message.getBooleanProperty(MessageTest.propName1));
       try {
          logger.debug("{}", message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {

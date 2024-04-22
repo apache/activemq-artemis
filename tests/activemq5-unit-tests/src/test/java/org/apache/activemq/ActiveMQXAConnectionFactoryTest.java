@@ -106,7 +106,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       assertEquals(10, cf.getRedeliveryPolicy().getMaximumRedeliveries());
       assertEquals(10000, cf.getRedeliveryPolicy().getInitialRedeliveryDelay());
       assertEquals(10000, cf.getRedeliveryPolicy().getRedeliveryDelay());
-      assertEquals(true, cf.getRedeliveryPolicy().isUseExponentialBackOff());
+      assertTrue(cf.getRedeliveryPolicy().isUseExponentialBackOff());
       assertEquals(2.0, cf.getRedeliveryPolicy().getBackOffMultiplier(), 0.1);
 
       // the broker url have been adjusted.

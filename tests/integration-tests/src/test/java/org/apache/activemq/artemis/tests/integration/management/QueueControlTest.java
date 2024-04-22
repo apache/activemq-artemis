@@ -337,7 +337,7 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertFalse(queueControl.isGroupRebalance());
       Assert.assertEquals(-1, queueControl.getGroupBuckets());
-      Assert.assertEquals(null, queueControl.getGroupFirstKey());
+      Assert.assertNull(queueControl.getGroupFirstKey());
 
       session.deleteQueue(queue);
    }

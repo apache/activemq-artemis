@@ -89,7 +89,7 @@ public class MapMessageTest extends MessageTestBase {
 
       MapMessage mm = (MapMessage) m;
 
-      ProxyAssertSupport.assertEquals(true, mm.getBoolean("boolean"));
+      ProxyAssertSupport.assertTrue(mm.getBoolean("boolean"));
       ProxyAssertSupport.assertEquals((byte) 3, mm.getByte("byte"));
       byte[] bytes = mm.getBytes("bytes");
       ProxyAssertSupport.assertEquals((byte) 3, bytes[0]);

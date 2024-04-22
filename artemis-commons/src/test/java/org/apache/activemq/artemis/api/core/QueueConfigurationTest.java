@@ -27,19 +27,19 @@ public class QueueConfigurationTest {
    public void testSetGroupRebalancePauseDispatch() {
       QueueConfiguration queueConfiguration = new QueueConfiguration("TEST");
 
-      Assert.assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
+      Assert.assertNull(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.setGroupRebalancePauseDispatch(true);
-      Assert.assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      Assert.assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.setGroupRebalancePauseDispatch(false);
-      Assert.assertEquals(false, queueConfiguration.isGroupRebalancePauseDispatch());
+      Assert.assertFalse(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.set(QueueConfiguration.GROUP_REBALANCE_PAUSE_DISPATCH, Boolean.toString(true));
-      Assert.assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      Assert.assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.set(QueueConfiguration.GROUP_REBALANCE_PAUSE_DISPATCH, Boolean.toString(false));
-      Assert.assertEquals(false, queueConfiguration.isGroupRebalancePauseDispatch());
+      Assert.assertFalse(queueConfiguration.isGroupRebalancePauseDispatch());
    }
 
    @Test

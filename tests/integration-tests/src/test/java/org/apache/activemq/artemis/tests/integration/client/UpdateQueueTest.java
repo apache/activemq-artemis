@@ -158,12 +158,12 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertNotNull("queue not found", queue);
       Assert.assertEquals(1, queue.getMaxConsumers());
-      Assert.assertEquals(false, queue.isPurgeOnNoConsumers());
-      Assert.assertEquals(true, queue.isExclusive());
-      Assert.assertEquals(true, queue.isGroupRebalance());
+      Assert.assertFalse(queue.isPurgeOnNoConsumers());
+      Assert.assertTrue(queue.isExclusive());
+      Assert.assertTrue(queue.isGroupRebalance());
       Assert.assertEquals(5, queue.getGroupBuckets());
       Assert.assertEquals("gfk", queue.getGroupFirstKey().toString());
-      Assert.assertEquals(true, queue.isNonDestructive());
+      Assert.assertTrue(queue.isNonDestructive());
       Assert.assertEquals(1, queue.getConsumersBeforeDispatch());
       Assert.assertEquals(10L, queue.getDelayBeforeDispatch());
       Assert.assertEquals("newUser", queue.getUser().toString());

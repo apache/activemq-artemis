@@ -107,7 +107,7 @@ public class TypedPropertiesTest {
    public void testKey() throws Exception {
       props.putBooleanProperty(key, true);
       boolean bool = (Boolean) props.getProperty(key);
-      Assert.assertEquals(true, bool);
+      Assert.assertTrue(bool);
 
       props.putCharProperty(key, 'a');
       char c = (Character) props.getProperty(key);

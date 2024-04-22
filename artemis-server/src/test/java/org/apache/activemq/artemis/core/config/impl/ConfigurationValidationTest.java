@@ -56,7 +56,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
+      Assert.assertTrue(fc.isPersistDeliveryCountBeforeDelivery());
    }
 
    @Test
@@ -83,7 +83,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
       Assert.assertEquals("TEST-PEER", amqpBrokerConnectConfiguration.getConnectionElements().get(2).getMatchAddress().toString());
       Assert.assertEquals(AMQPBrokerConnectionAddressType.PEER, amqpBrokerConnectConfiguration.getConnectionElements().get(2).getType());
       Assert.assertEquals("TEST-WITH-QUEUE-NAME", amqpBrokerConnectConfiguration.getConnectionElements().get(3).getQueueName().toString());
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getMatchAddress());
+      Assert.assertNull(amqpBrokerConnectConfiguration.getConnectionElements().get(3).getMatchAddress());
       Assert.assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getType());
 
       Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(4).getType());
@@ -106,9 +106,9 @@ public class ConfigurationValidationTest extends ServerTestBase {
       });
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(1);
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getUser());
+      Assert.assertNull(amqpBrokerConnectConfiguration.getUser());
       mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getPassword());
+      Assert.assertNull(amqpBrokerConnectConfiguration.getPassword());
       Assert.assertEquals("test2", amqpBrokerConnectConfiguration.getName());
       Assert.assertEquals("tcp://test2:222", amqpBrokerConnectConfiguration.getUri());
       Assert.assertTrue(mirrorConnectionElement.isMessageAcknowledgements());

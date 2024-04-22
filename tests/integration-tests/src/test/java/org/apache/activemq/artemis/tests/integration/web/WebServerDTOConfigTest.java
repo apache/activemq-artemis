@@ -54,7 +54,7 @@ public class WebServerDTOConfigTest {
 
       Assert.assertEquals("customizerTest", webServer.getCustomizer());
       Assert.assertEquals("locationTest", webServer.getRootRedirectLocation());
-      Assert.assertEquals(true, webServer.getWebContentEnabled());
+      Assert.assertTrue(webServer.getWebContentEnabled());
       Assert.assertEquals(Integer.valueOf(1234), webServer.getScanPeriod());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "");
@@ -112,7 +112,7 @@ public class WebServerDTOConfigTest {
 
       BindingDTO testBinding = webServer.getAllBindings().stream().filter(binding -> bindingName.equals(binding.getName())).findFirst().get();
       Assert.assertEquals(BINDING_TEST_URL, testBinding.getUri());
-      Assert.assertEquals(true, testBinding.getClientAuth());
+      Assert.assertTrue(testBinding.getClientAuth());
       Assert.assertEquals("test-passwordCodec", testBinding.getPasswordCodec());
       Assert.assertEquals("test-keyStorePath", testBinding.getKeyStorePath());
       Assert.assertEquals("test-trustStorePath", testBinding.getTrustStorePath());
@@ -180,8 +180,8 @@ public class WebServerDTOConfigTest {
       configuration.parsePrefixedProperties(webServer, "system-" + systemWebPropertyPrefix, properties, systemWebPropertyPrefix);
 
       Assert.assertEquals("filenameTest", webServer.getRequestLog().getFilename());
-      Assert.assertEquals(true, webServer.getRequestLog().getAppend());
-      Assert.assertEquals(true, webServer.getRequestLog().getExtended());
+      Assert.assertTrue(webServer.getRequestLog().getAppend());
+      Assert.assertTrue(webServer.getRequestLog().getExtended());
       Assert.assertEquals("filenameDateFormatTest", webServer.getRequestLog().getFilenameDateFormat());
       Assert.assertEquals(Integer.valueOf(3), webServer.getRequestLog().getRetainDays());
       Assert.assertEquals("ignorePathTest0,ignorePathTest1,ignorePathTest2", webServer.getRequestLog().getIgnorePaths());

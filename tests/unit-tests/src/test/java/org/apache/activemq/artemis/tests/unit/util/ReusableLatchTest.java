@@ -249,13 +249,13 @@ public class ReusableLatchTest extends ActiveMQTestBase {
 
       t.readyLatch.await();
 
-      Assert.assertEquals(true, t.waiting);
+      Assert.assertTrue(t.waiting);
 
       latch.countDown();
 
       t.join();
 
-      Assert.assertEquals(false, t.waiting);
+      Assert.assertFalse(t.waiting);
 
       Assert.assertNull(t.e);
 
@@ -266,13 +266,13 @@ public class ReusableLatchTest extends ActiveMQTestBase {
 
       t.readyLatch.await();
 
-      Assert.assertEquals(true, t.waiting);
+      Assert.assertTrue(t.waiting);
 
       latch.countDown();
 
       t.join();
 
-      Assert.assertEquals(false, t.waiting);
+      Assert.assertFalse(t.waiting);
 
       Assert.assertNull(t.e);
 

@@ -90,9 +90,9 @@ public class JmsProducerTest extends JMSTestBase {
    @Test
    public void testDisMsgID() {
       producer.setDisableMessageID(true);
-      Assert.assertEquals(true, producer.getDisableMessageID());
+      Assert.assertTrue(producer.getDisableMessageID());
       producer.setDisableMessageID(false);
-      Assert.assertEquals(false, producer.getDisableMessageID());
+      Assert.assertFalse(producer.getDisableMessageID());
    }
 
    @Test
@@ -151,7 +151,7 @@ public class JmsProducerTest extends JMSTestBase {
       org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isPurgeOnNoConsumers());
+      assertTrue(queue.isPurgeOnNoConsumers());
    }
 
    @Test
@@ -169,7 +169,7 @@ public class JmsProducerTest extends JMSTestBase {
       org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isPurgeOnNoConsumers());
+      assertTrue(queue.isPurgeOnNoConsumers());
 
       connection.close();
    }

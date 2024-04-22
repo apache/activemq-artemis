@@ -150,7 +150,7 @@ public class AMQPMessageTest {
    public void testCreateMessageFromEncodedReadableBuffer() {
       AMQPStandardMessage decoded = new AMQPStandardMessage(0, ReadableBuffer.ByteBufferReader.wrap(encodedProtonMessage), null, null);
 
-      assertEquals(true, decoded.getHeader().getDurable());
+      assertTrue(decoded.getHeader().getDurable());
       assertEquals(TEST_TO_ADDRESS, decoded.getAddress());
    }
 
@@ -158,7 +158,7 @@ public class AMQPMessageTest {
    public void testCreateMessageFromEncodedByteArrayDataWithExtraProperties() {
       AMQPStandardMessage decoded = new AMQPStandardMessage(0, encodedProtonMessage, new TypedProperties(), null);
 
-      assertEquals(true, decoded.getHeader().getDurable());
+      assertTrue(decoded.getHeader().getDurable());
       assertEquals(TEST_TO_ADDRESS, decoded.getAddress());
       assertNotNull(decoded.getExtraProperties());
    }
@@ -183,7 +183,7 @@ public class AMQPMessageTest {
       assertEquals(persistedSize, message.getPersistSize());
       assertEquals(persistedSize - Integer.BYTES, message.getPersistentSize());
       assertEquals(persistedSize - Integer.BYTES, message.getEncodeSize());
-      assertEquals(true, message.getHeader().getDurable());
+      assertTrue(message.getHeader().getDurable());
       assertEquals(TEST_TO_ADDRESS, message.getAddress());
    }
 
@@ -379,7 +379,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
    }
 
    @Test
@@ -389,7 +389,7 @@ public class AMQPMessageTest {
 
       final String ID = UUID.randomUUID().toString();
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
       decoded.setConnectionID(ID);
       assertEquals(ID, decoded.getConnectionID());
    }
@@ -401,7 +401,7 @@ public class AMQPMessageTest {
 
       final String ID = UUID.randomUUID().toString();
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
       decoded.setConnectionID(ID);
       assertEquals(ID, decoded.getConnectionID());
       assertEquals(ID, decoded.getStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME));
@@ -508,7 +508,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      assertEquals(null, decoded.getDuplicateProperty());
+      assertNull(decoded.getDuplicateProperty());
    }
 
    //----- Test the getAddress methods ---------------------------------------//
@@ -887,8 +887,8 @@ public class AMQPMessageTest {
       decoded.setReplyTo(null);
       decoded.reencode();
 
-      assertEquals(null, decoded.getReplyTo());
-      assertEquals(null, decoded.getProperties().getReplyTo());
+      assertNull(decoded.getReplyTo());
+      assertNull(decoded.getProperties().getReplyTo());
    }
 
    //----- Test access to User ID --------------------------------------------//

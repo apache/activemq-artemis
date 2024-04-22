@@ -39,7 +39,7 @@ public class JMSTypeHeaderTest extends MessageHeaderTestBase {
    public void testNULLJMSType() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m);
-      ProxyAssertSupport.assertEquals(null, queueConsumer.receive(1000).getJMSType());
+      ProxyAssertSupport.assertNull(queueConsumer.receive(1000).getJMSType());
    }
 
 }

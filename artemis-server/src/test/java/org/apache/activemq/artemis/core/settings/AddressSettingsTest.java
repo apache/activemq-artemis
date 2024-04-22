@@ -36,8 +36,8 @@ public class AddressSettingsTest extends ServerTestBase {
    @Test
    public void testDefaults() {
       AddressSettings addressSettings = new AddressSettings();
-      Assert.assertEquals(null, addressSettings.getDeadLetterAddress());
-      Assert.assertEquals(null, addressSettings.getExpiryAddress());
+      Assert.assertNull(addressSettings.getDeadLetterAddress());
+      Assert.assertNull(addressSettings.getExpiryAddress());
       Assert.assertEquals(AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS, addressSettings.getMaxDeliveryAttempts());
       Assert.assertEquals(addressSettings.getMaxSizeBytes(), AddressSettings.DEFAULT_MAX_SIZE_BYTES);
       Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());

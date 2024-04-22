@@ -192,7 +192,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
 
    protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException {
       ProxyAssertSupport.assertNotNull(m);
-      ProxyAssertSupport.assertEquals(true, m.getBooleanProperty("booleanProperty"));
+      ProxyAssertSupport.assertTrue(m.getBooleanProperty("booleanProperty"));
       ProxyAssertSupport.assertEquals((byte) 3, m.getByteProperty("byteProperty"));
       ProxyAssertSupport.assertEquals(Double.valueOf(4.0), Double.valueOf(m.getDoubleProperty("doubleProperty")));
       ProxyAssertSupport.assertEquals(Float.valueOf(5.0f), Float.valueOf(m.getFloatProperty("floatProperty")));

@@ -374,8 +374,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertTrue(queueControl.isDurable());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -401,8 +401,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertTrue(queueControl.isDurable());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -432,7 +432,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertEquals(filter, queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -461,7 +461,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -501,7 +501,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(durable, queueControl.isDurable());
       Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
       Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
@@ -572,7 +572,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(durable, queueControl.isDurable());
       Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
       Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
       Assert.assertEquals(exclusive, queueControl.isExclusive());
       Assert.assertEquals(groupRebalance, queueControl.isGroupRebalance());
       Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
@@ -617,8 +617,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertTrue(queueControl.isDurable());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString(), false, true);
 
@@ -732,7 +732,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -762,7 +762,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
@@ -2626,7 +2626,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
       Assert.assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      Assert.assertFalse(first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
       Assert.assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
       // test the old version that has been replaced for backward compatibility
@@ -2639,7 +2639,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(((ClientSessionImpl) session).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
       Assert.assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(true, second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      Assert.assertTrue(second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
       Assert.assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
       Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
       Assert.assertTrue(second.getString(ConsumerField.FILTER.getName()).length() > 0);
@@ -2710,7 +2710,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
       Assert.assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      Assert.assertFalse(first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
@@ -2725,7 +2725,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
       Assert.assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      Assert.assertFalse(second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
       Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
       Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
       Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());

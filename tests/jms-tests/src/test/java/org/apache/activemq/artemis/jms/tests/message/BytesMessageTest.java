@@ -72,7 +72,7 @@ public class BytesMessageTest extends MessageTestBase {
 
       BytesMessage bm = (BytesMessage) m;
 
-      ProxyAssertSupport.assertEquals(true, bm.readBoolean());
+      ProxyAssertSupport.assertTrue(bm.readBoolean());
       ProxyAssertSupport.assertEquals((byte) 3, bm.readByte());
       byte[] bytes = new byte[3];
       bm.readBytes(bytes);

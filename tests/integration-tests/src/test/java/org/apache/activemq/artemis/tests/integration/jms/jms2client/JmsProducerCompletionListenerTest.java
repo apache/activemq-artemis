@@ -78,7 +78,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
    @Test
    public void testCompletionListener() throws InterruptedException {
       CountingCompletionListener cl = new CountingCompletionListener(TOTAL_MSGS);
-      Assert.assertEquals(null, producer.getAsync());
+      Assert.assertNull(producer.getAsync());
       producer.setAsync(cl);
       Assert.assertEquals(cl, producer.getAsync());
       producer.setAsync(null);

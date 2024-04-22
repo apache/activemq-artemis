@@ -811,15 +811,15 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
       Assert.assertEquals("admin", connectConfiguration.getUser());
       Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
+      Assert.assertFalse(connectConfiguration.isAutostart());
       Assert.assertEquals(1,connectConfiguration.getConnectionElements().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
       AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement;
       Assert.assertEquals("mirror", amqpMirrorBrokerConnectionElement.getName());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueCreation());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueRemoval());
+      Assert.assertTrue(amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
+      Assert.assertTrue(amqpMirrorBrokerConnectionElement.isQueueCreation());
+      Assert.assertTrue(amqpMirrorBrokerConnectionElement.isQueueRemoval());
       Assert.assertEquals(sync, ((AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement).isSync());
       Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
       Assert.assertFalse(amqpMirrorBrokerConnectionElement.getProperties().isEmpty());
@@ -873,7 +873,7 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
       Assert.assertEquals("admin", connectConfiguration.getUser());
       Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
+      Assert.assertFalse(connectConfiguration.isAutostart());
       Assert.assertEquals(1,connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
@@ -998,7 +998,7 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
       Assert.assertEquals("admin", connectConfiguration.getUser());
       Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
+      Assert.assertFalse(connectConfiguration.isAutostart());
       Assert.assertEquals(1,connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
@@ -1168,11 +1168,11 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       ReplicatedPolicyConfiguration replicatedPolicyConfiguration =
          (ReplicatedPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, replicatedPolicyConfiguration.isCheckForActiveServer());
+      Assert.assertTrue(replicatedPolicyConfiguration.isCheckForActiveServer());
       Assert.assertEquals("g0", replicatedPolicyConfiguration.getGroupName());
       Assert.assertEquals("c0", replicatedPolicyConfiguration.getClusterName());
       Assert.assertEquals(3, replicatedPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
-      Assert.assertEquals(true, replicatedPolicyConfiguration.getVoteOnReplicationFailure());
+      Assert.assertTrue(replicatedPolicyConfiguration.getVoteOnReplicationFailure());
       Assert.assertEquals(9, replicatedPolicyConfiguration.getQuorumSize());
       Assert.assertEquals(6, replicatedPolicyConfiguration.getVoteRetries());
       Assert.assertEquals(1, replicatedPolicyConfiguration.getVoteRetryWait());
@@ -1209,10 +1209,10 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("c0", replicaPolicyConfiguration.getClusterName());
       Assert.assertEquals(3, replicaPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
       Assert.assertEquals("g0", replicaPolicyConfiguration.getGroupName());
-      Assert.assertEquals(false, replicaPolicyConfiguration.isRestartBackup());
-      Assert.assertEquals(true, replicaPolicyConfiguration.isAllowFailBack());
+      Assert.assertFalse(replicaPolicyConfiguration.isRestartBackup());
+      Assert.assertTrue(replicaPolicyConfiguration.isAllowFailBack());
       Assert.assertEquals(7, replicaPolicyConfiguration.getInitialReplicationSyncTimeout());
-      Assert.assertEquals(true, replicaPolicyConfiguration.getVoteOnReplicationFailure());
+      Assert.assertTrue(replicaPolicyConfiguration.getVoteOnReplicationFailure());
       Assert.assertEquals(9, replicaPolicyConfiguration.getQuorumSize());
       Assert.assertEquals(6, replicaPolicyConfiguration.getVoteRetries());
       Assert.assertEquals(1, replicaPolicyConfiguration.getVoteRetryWait());
@@ -1237,8 +1237,8 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       SharedStorePrimaryPolicyConfiguration sharedStorePrimaryPolicyConfiguration =
          (SharedStorePrimaryPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, sharedStorePrimaryPolicyConfiguration.isFailoverOnServerShutdown());
-      Assert.assertEquals(false, sharedStorePrimaryPolicyConfiguration.isWaitForActivation());
+      Assert.assertTrue(sharedStorePrimaryPolicyConfiguration.isFailoverOnServerShutdown());
+      Assert.assertFalse(sharedStorePrimaryPolicyConfiguration.isWaitForActivation());
    }
 
    @Test
@@ -1258,9 +1258,9 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       SharedStoreBackupPolicyConfiguration sharedStoreBackupPolicyConfiguration =
          (SharedStoreBackupPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, sharedStoreBackupPolicyConfiguration.isFailoverOnServerShutdown());
-      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isRestartBackup());
-      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isAllowFailBack());
+      Assert.assertTrue(sharedStoreBackupPolicyConfiguration.isFailoverOnServerShutdown());
+      Assert.assertFalse(sharedStoreBackupPolicyConfiguration.isRestartBackup());
+      Assert.assertFalse(sharedStoreBackupPolicyConfiguration.isAllowFailBack());
 
       checkScaleDownConfiguration(sharedStoreBackupPolicyConfiguration.getScaleDownConfiguration());
    }
@@ -1287,7 +1287,7 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       ColocatedPolicyConfiguration colocatedPolicyConfiguration =
          (ColocatedPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, colocatedPolicyConfiguration.isRequestBackup());
+      Assert.assertTrue(colocatedPolicyConfiguration.isRequestBackup());
       Assert.assertEquals(5, colocatedPolicyConfiguration.getBackupRequestRetries());
       Assert.assertEquals(3, colocatedPolicyConfiguration.getBackupRequestRetryInterval());
       Assert.assertEquals(9, colocatedPolicyConfiguration.getMaxBackups());
@@ -1353,7 +1353,7 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("c0", replicationBackupPolicyConfiguration.getClusterName());
       Assert.assertEquals(3, replicationBackupPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
       Assert.assertEquals("g0", replicationBackupPolicyConfiguration.getGroupName());
-      Assert.assertEquals(true, replicationBackupPolicyConfiguration.isAllowFailBack());
+      Assert.assertTrue(replicationBackupPolicyConfiguration.isAllowFailBack());
       Assert.assertEquals(5, replicationBackupPolicyConfiguration.getInitialReplicationSyncTimeout());
       Assert.assertEquals(2, replicationBackupPolicyConfiguration.getRetryReplicationWait());
       Assert.assertEquals("class0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
@@ -1374,7 +1374,7 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals("dg0", scaleDownConfiguration.getDiscoveryGroup());
       Assert.assertEquals("g0", scaleDownConfiguration.getGroupName());
       Assert.assertEquals("c0", scaleDownConfiguration.getClusterName());
-      Assert.assertEquals(false, scaleDownConfiguration.isEnabled());
+      Assert.assertFalse(scaleDownConfiguration.isEnabled());
    }
 
    @Test
@@ -1596,7 +1596,7 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(1, configuration.getAddressConfigurations().size());
       Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
       Assert.assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
-      Assert.assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+      Assert.assertFalse(configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
    }
 
    @Test
@@ -1880,13 +1880,13 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
       Assert.assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      Assert.assertNull(storeImpl.getPageLimitMessages());
+      Assert.assertNull(storeImpl.getPageLimitBytes());
+      Assert.assertNull(storeImpl.getPageFullMessagePolicy());
       Assert.assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
@@ -1910,14 +1910,14 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(1, configuration.getAddressSettings().size());
       Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      Assert.assertNull(storeImpl.getPageLimitMessages());
+      Assert.assertNull(storeImpl.getPageLimitBytes());
+      Assert.assertNull(storeImpl.getPageFullMessagePolicy());
       Assert.assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
@@ -1939,15 +1939,15 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       Assert.assertEquals(1, configuration.getAddressSettings().size());
       Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitMessages());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
       Assert.assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      Assert.assertNull(storeImpl.getPageLimitMessages());
+      Assert.assertNull(storeImpl.getPageLimitBytes());
+      Assert.assertNull(storeImpl.getPageFullMessagePolicy());
       Assert.assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
@@ -1969,15 +1969,15 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       Assert.assertEquals(1, configuration.getAddressSettings().size());
       Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitBytes());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
+      Assert.assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
       Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      Assert.assertNull(storeImpl.getPageLimitMessages());
+      Assert.assertNull(storeImpl.getPageLimitBytes());
+      Assert.assertNull(storeImpl.getPageFullMessagePolicy());
       Assert.assertTrue(loggerHandler.findText("AMQ224124"));
    }
 
@@ -2005,9 +2005,9 @@ public class ConfigurationImplTest extends ServerTestBase {
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      Assert.assertNull(storeImpl.getPageLimitMessages());
+      Assert.assertNull(storeImpl.getPageLimitBytes());
+      Assert.assertNull(storeImpl.getPageFullMessagePolicy());
    }
 
    @Test

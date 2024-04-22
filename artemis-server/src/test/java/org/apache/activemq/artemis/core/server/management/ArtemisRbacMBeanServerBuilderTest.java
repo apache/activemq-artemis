@@ -688,6 +688,6 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       CompositeData cd = ((TabularData)result).get(new Object[]{runtimeName.toString(), "getVmName()"});
       assertEquals(runtimeName.toString(), cd.get("ObjectName"));
       assertEquals("getVmName()", cd.get("Method"));
-      assertEquals(true, cd.get("CanInvoke"));
+      assertTrue((boolean) cd.get("CanInvoke"));
    }
 }
