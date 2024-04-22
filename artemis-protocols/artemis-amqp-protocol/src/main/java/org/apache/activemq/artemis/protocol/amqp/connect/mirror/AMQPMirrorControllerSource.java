@@ -209,6 +209,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (addressInfo.isInternal()) {
+         return;
+      }
+
       if (ignoreAddress(addressInfo.getName())) {
          return;
       }
