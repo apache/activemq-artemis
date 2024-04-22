@@ -98,8 +98,8 @@ public class StreamMessageTest extends MessageTestBase {
       ProxyAssertSupport.assertEquals((byte) 6, bytes[2]);
       ProxyAssertSupport.assertEquals(-1, sm.readBytes(bytes));
       ProxyAssertSupport.assertEquals((char) 7, sm.readChar());
-      ProxyAssertSupport.assertEquals(Double.valueOf(8.0), Double.valueOf(sm.readDouble()));
-      ProxyAssertSupport.assertEquals(Float.valueOf(9.0f), Float.valueOf(sm.readFloat()));
+      ProxyAssertSupport.assertEquals(8.0, sm.readDouble());
+      ProxyAssertSupport.assertEquals(9.0f, sm.readFloat());
       ProxyAssertSupport.assertEquals(10, sm.readInt());
       ProxyAssertSupport.assertEquals(11L, sm.readLong());
       ProxyAssertSupport.assertEquals("this is an object", sm.readObject());

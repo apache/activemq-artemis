@@ -452,7 +452,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       @Override
       public Long getID() {
-         return Long.valueOf(0);
+         return 0L;
       }
 
       @Override

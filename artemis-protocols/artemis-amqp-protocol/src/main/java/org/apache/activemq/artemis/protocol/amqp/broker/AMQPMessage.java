@@ -1687,13 +1687,13 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putBooleanProperty(String key, boolean value) {
-      getApplicationPropertiesMap(true).put(key, Boolean.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putByteProperty(String key, byte value) {
-      getApplicationPropertiesMap(true).put(key, Byte.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
@@ -1705,43 +1705,43 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putShortProperty(String key, short value) {
-      getApplicationPropertiesMap(true).put(key, Short.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putCharProperty(String key, char value) {
-      getApplicationPropertiesMap(true).put(key, Character.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putIntProperty(String key, int value) {
-      getApplicationPropertiesMap(true).put(key, Integer.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putLongProperty(String key, long value) {
-      getApplicationPropertiesMap(true).put(key, Long.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putFloatProperty(String key, float value) {
-      getApplicationPropertiesMap(true).put(key, Float.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putDoubleProperty(String key, double value) {
-      getApplicationPropertiesMap(true).put(key, Double.valueOf(value));
+      getApplicationPropertiesMap(true).put(key, value);
       return this;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putBooleanProperty(SimpleString key, boolean value) {
-      getApplicationPropertiesMap(true).put(key.toString(), Boolean.valueOf(value));
+      getApplicationPropertiesMap(true).put(key.toString(), value);
       return this;
    }
 

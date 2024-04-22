@@ -1143,7 +1143,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             Filter filter = FilterImpl.createFilter(filterStr);
             SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
             if (filter == null && groupByProperty == null) {
-               result.put(null, Long.valueOf(getDeliveringCount()));
+               result.put(null, (long) getDeliveringCount());
             } else {
                Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
                deliveringMessages.forEach((s, messageReferenceList) -> messageReferenceList.forEach(messageReference -> internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())));

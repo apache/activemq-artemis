@@ -166,7 +166,7 @@ public class AMQPMessageIdHelperTest {
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForLong() {
-      String longStringMessageId = AMQPMessageIdHelper.AMQP_ULONG_PREFIX + Long.valueOf(123456789L);
+      String longStringMessageId = AMQPMessageIdHelper.AMQP_ULONG_PREFIX + 123456789L;
       String expected = AMQPMessageIdHelper.JMS_ID_PREFIX + AMQPMessageIdHelper.AMQP_NO_PREFIX + longStringMessageId;
 
       doToMessageIdTestImpl(longStringMessageId, expected);
@@ -398,7 +398,7 @@ public class AMQPMessageIdHelperTest {
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForLong() {
-      String ulongPrefixStringCorrelationId = AMQPMessageIdHelper.AMQP_ULONG_PREFIX + Long.valueOf(123456789L);
+      String ulongPrefixStringCorrelationId = AMQPMessageIdHelper.AMQP_ULONG_PREFIX + 123456789L;
 
       doToCorrelationIDTestImpl(ulongPrefixStringCorrelationId, ulongPrefixStringCorrelationId);
    }

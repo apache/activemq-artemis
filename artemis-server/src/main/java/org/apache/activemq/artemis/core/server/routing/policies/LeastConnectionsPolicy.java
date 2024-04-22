@@ -85,7 +85,7 @@ public class LeastConnectionsPolicy extends RoundRobinPolicy {
 
       if (properties != null) {
          if (properties.containsKey(CONNECTION_COUNT_THRESHOLD)) {
-            connectionCountThreshold = Integer.valueOf(properties.get(CONNECTION_COUNT_THRESHOLD));
+            connectionCountThreshold = Integer.parseInt(properties.get(CONNECTION_COUNT_THRESHOLD));
          }
       }
    }

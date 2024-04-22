@@ -2220,7 +2220,7 @@ public class AMQPMessageTest {
       Object priorityObj = cd.get(CompositeDataConstants.PRIORITY);
       assertTrue(priorityObj instanceof Byte);
 
-      assertEquals(Byte.valueOf((byte) 4), priorityObj);
+      assertEquals((byte) 4, priorityObj);
 
       // With section present, but value not set (defaults 4)
       Header protonHeader = new Header();
@@ -2233,7 +2233,7 @@ public class AMQPMessageTest {
       priorityObj = cd.get(CompositeDataConstants.PRIORITY);
       assertTrue(priorityObj instanceof Byte);
 
-      assertEquals(Byte.valueOf((byte) 4), priorityObj);
+      assertEquals((byte) 4, priorityObj);
 
       // With section present, value set to 5 explicitly
       protonHeader = new Header();
@@ -2247,7 +2247,7 @@ public class AMQPMessageTest {
       priorityObj = cd.get(CompositeDataConstants.PRIORITY);
       assertTrue(priorityObj instanceof Byte);
 
-      assertEquals(Byte.valueOf((byte) 5), priorityObj);
+      assertEquals((byte) 5, priorityObj);
    }
 
    @Test

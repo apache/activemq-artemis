@@ -1181,10 +1181,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
             Integer c = consumerCounts.get(tn);
             if (c == null) {
-               c = Integer.valueOf(cnt);
+               c = cnt;
             }
 
-            if (tn == threadNum && cnt != c.intValue()) {
+            if (tn == threadNum && cnt != c) {
                throw new Exception("Invalid count, expected " + tn + ": " + c + " got " + cnt);
             }
 
@@ -1250,10 +1250,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
          Integer c = counts.get(threadNum);
          if (c == null) {
-            c = Integer.valueOf(cnt);
+            c = cnt;
          }
 
-         if (tn == threadNum && cnt != c.intValue()) {
+         if (tn == threadNum && cnt != c) {
             failure = "Invalid count, expected " + threadNum + ":" + c + " got " + cnt;
             logger.error(failure);
 

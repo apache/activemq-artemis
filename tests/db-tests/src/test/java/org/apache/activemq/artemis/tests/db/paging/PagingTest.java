@@ -1760,7 +1760,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       final HashMap<Integer, AtomicInteger> recordsType = countJournal(config);
 
-      assertNull("The system is acking page records instead of just delete data", recordsType.get(Integer.valueOf(JournalRecordIds.ACKNOWLEDGE_CURSOR)));
+      assertNull("The system is acking page records instead of just delete data", recordsType.get((int) JournalRecordIds.ACKNOWLEDGE_CURSOR));
 
       Pair<List<RecordInfo>, List<PreparedTransactionInfo>> journalData = loadMessageJournal(config);
 
@@ -1771,13 +1771,13 @@ public class PagingTest extends ParameterDBTestBase {
             DescribeJournal.ReferenceDescribe ref = (DescribeJournal.ReferenceDescribe) DescribeJournal.newObjectEncoding(info);
 
             if (ref.refEncoding.queueID == deletedQueueID) {
-               deletedQueueReferences.add(Long.valueOf(info.id));
+               deletedQueueReferences.add(info.id);
             }
          } else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             AckDescribe ref = (AckDescribe) DescribeJournal.newObjectEncoding(info);
 
             if (ref.refEncoding.queueID == deletedQueueID) {
-               deletedQueueReferences.remove(Long.valueOf(info.id));
+               deletedQueueReferences.remove(info.id);
             }
          }
       }

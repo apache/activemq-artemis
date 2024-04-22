@@ -405,7 +405,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public Long getID() {
-         return Long.valueOf(0L);
+         return 0L;
       }
 
       /* (non-Javadoc)

@@ -154,7 +154,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setBody(new AmqpValue(mapValues));
 
@@ -183,7 +183,7 @@ public class TestConversions extends Assert {
       message.setApplicationProperties(properties);
 
       List<Object> objects = new LinkedList<>();
-      objects.add(Integer.valueOf(10));
+      objects.add(10);
       objects.add("10");
 
       message.setBody(new AmqpSequence(objects));
@@ -269,7 +269,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setMessageAnnotations(messageAnnotations);
       message.setBody(new AmqpValue(mapValues));
@@ -321,7 +321,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setFooter(messageFooter);
       message.setBody(new AmqpValue(mapValues));

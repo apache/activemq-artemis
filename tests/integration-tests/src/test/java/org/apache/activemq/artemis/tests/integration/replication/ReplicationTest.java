@@ -299,7 +299,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       manager.largeMessageWrite(500, new byte[1024]);
 
-      manager.largeMessageDelete(Long.valueOf(500), storage);
+      manager.largeMessageDelete(500L, storage);
 
       blockOnReplication(storage, manager);
 
@@ -580,7 +580,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       blockOnReplication(storage, manager);
 
-      LargeServerMessageImpl message1 = (LargeServerMessageImpl) getReplicationEndpoint(backupServer).getLargeMessages().get(Long.valueOf(500));
+      LargeServerMessageImpl message1 = (LargeServerMessageImpl) getReplicationEndpoint(backupServer).getLargeMessages().get(500L);
 
       Assert.assertNotNull(message1);
       Assert.assertFalse(largeMsg.getAppendFile().isOpen());

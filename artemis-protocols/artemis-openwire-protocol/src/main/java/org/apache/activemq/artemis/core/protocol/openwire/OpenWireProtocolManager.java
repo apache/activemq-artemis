@@ -171,7 +171,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       public boolean selectorAware;
 
       public VirtualTopicConfig(String[] configuration) {
-         filterPathTerminus = Integer.valueOf(configuration[1]);
+         filterPathTerminus = Integer.parseInt(configuration[1]);
          // optional config
          for (int i = 2; i < configuration.length; i++) {
             String[] optionPair = configuration[i].split("=");
@@ -182,7 +182,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       private void consumeOption(String[] optionPair) {
          if (optionPair.length == 2) {
             if (SELECTOR_AWARE_OPTION.equals(optionPair[0])) {
-               selectorAware = Boolean.valueOf(optionPair[1]);
+               selectorAware = Boolean.parseBoolean(optionPair[1]);
             }
          }
       }

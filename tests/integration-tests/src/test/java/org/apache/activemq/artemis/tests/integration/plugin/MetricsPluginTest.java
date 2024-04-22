@@ -258,7 +258,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       }
 
       Wait.assertEquals(messageCount, server.locateQueue(queueName)::getMessageCount, 2000, 100);
-      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount));
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) messageCount);
 
       for (int i = 0; i < messageCount; i++) {
          producer.send(message);
@@ -266,7 +266,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       producer.close();
 
       Wait.assertEquals(messageCount * 2, server.locateQueue(queueName)::getMessageCount, 2000, 100);
-      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount * 2));
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) (messageCount * 2));
    }
 
    @Test

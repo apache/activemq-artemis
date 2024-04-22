@@ -96,8 +96,8 @@ public class MapMessageTest extends MessageTestBase {
       ProxyAssertSupport.assertEquals((byte) 4, bytes[1]);
       ProxyAssertSupport.assertEquals((byte) 5, bytes[2]);
       ProxyAssertSupport.assertEquals((char) 6, mm.getChar("char"));
-      ProxyAssertSupport.assertEquals(Double.valueOf(7.0), Double.valueOf(mm.getDouble("double")));
-      ProxyAssertSupport.assertEquals(Float.valueOf(8.0f), Float.valueOf(mm.getFloat("float")));
+      ProxyAssertSupport.assertEquals(7.0, mm.getDouble("double"));
+      ProxyAssertSupport.assertEquals(8.0f, mm.getFloat("float"));
       ProxyAssertSupport.assertEquals(9, mm.getInt("int"));
       ProxyAssertSupport.assertEquals(10L, mm.getLong("long"));
       ProxyAssertSupport.assertEquals("this is an object", mm.getObject("object"));

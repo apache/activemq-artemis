@@ -1390,7 +1390,7 @@ public class PublishTests extends MQTT5TestSupport {
       }
       @Override
       public void messageArrived(String topic, MqttMessage message) throws Exception {
-         int sentAs = Integer.valueOf(new String(message.getPayload(), StandardCharsets.UTF_8));
+         int sentAs = Integer.parseInt(new String(message.getPayload(), StandardCharsets.UTF_8));
          logger.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
          if (sentAs == 0) {
             assertTrue(message.getQos() == 0);

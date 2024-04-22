@@ -51,26 +51,26 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    static {
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('.'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('\\'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('['));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(']'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('^'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('$'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('?'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('*'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('+'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('{'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('}'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('|'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('('));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(')'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(':'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('&'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('<'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('>'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('='));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('!'));
+      REGEXP_CONTROL_CHARS.add('.');
+      REGEXP_CONTROL_CHARS.add('\\');
+      REGEXP_CONTROL_CHARS.add('[');
+      REGEXP_CONTROL_CHARS.add(']');
+      REGEXP_CONTROL_CHARS.add('^');
+      REGEXP_CONTROL_CHARS.add('$');
+      REGEXP_CONTROL_CHARS.add('?');
+      REGEXP_CONTROL_CHARS.add('*');
+      REGEXP_CONTROL_CHARS.add('+');
+      REGEXP_CONTROL_CHARS.add('{');
+      REGEXP_CONTROL_CHARS.add('}');
+      REGEXP_CONTROL_CHARS.add('|');
+      REGEXP_CONTROL_CHARS.add('(');
+      REGEXP_CONTROL_CHARS.add(')');
+      REGEXP_CONTROL_CHARS.add(':');
+      REGEXP_CONTROL_CHARS.add('&');
+      REGEXP_CONTROL_CHARS.add('<');
+      REGEXP_CONTROL_CHARS.add('>');
+      REGEXP_CONTROL_CHARS.add('=');
+      REGEXP_CONTROL_CHARS.add('!');
    }
 
    static class LikeExpression extends UnaryExpression implements BooleanExpression {
@@ -114,7 +114,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             regexp.append(".*?"); // Do a non-greedy match
          } else if (c == '_') {
             regexp.append("."); // match one
-         } else if (REGEXP_CONTROL_CHARS.contains(Character.valueOf(c))) {
+         } else if (REGEXP_CONTROL_CHARS.contains(c)) {
             regexp.append("\\x");
             regexp.append(Integer.toHexString(0xFFFF & c));
          } else {

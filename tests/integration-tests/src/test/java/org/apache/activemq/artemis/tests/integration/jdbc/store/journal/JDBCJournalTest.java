@@ -228,7 +228,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       int noTxRecords = 100;
       for (int i = 1000; i < 1000 + noTx; i++) {
          for (int j = 0; j < noTxRecords; j++) {
-            journal.appendAddRecordTransactional(i, Long.valueOf(i + "" + j), (byte) 1, new byte[0]);
+            journal.appendAddRecordTransactional(i, Long.parseLong(i + "" + j), (byte) 1, new byte[0]);
          }
          journal.appendPrepareRecord(i, new byte[0], true);
          journal.appendCommitRecord(i, true);

@@ -84,7 +84,7 @@ public class PropertySQLProvider implements SQLProvider {
 
    @Override
    public long getMaxBlobSize() {
-      return Long.valueOf(sql("max-blob-size"));
+      return Long.parseLong(sql("max-blob-size"));
    }
 
    @Override

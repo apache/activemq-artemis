@@ -331,7 +331,7 @@ public class PrintData extends DBOption {
                            out.print(" (ACK)");
                         }
 
-                        if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                        if (cursorACKs.getCompletePages(q[i]).contains(pgid)) {
                            acked = true;
                            out.print(" (PG-COMPLETE)");
                         }
@@ -398,8 +398,8 @@ public class PrintData extends DBOption {
             CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
             encoding.decode(buff);
 
-            Long queueID = Long.valueOf(encoding.queueID);
-            Long pageNR = Long.valueOf(encoding.position.getPageNr());
+            Long queueID = encoding.queueID;
+            Long pageNR = encoding.position.getPageNr();
 
             if (!cursorInfo.getCompletePages(queueID).add(pageNR)) {
                System.err.println("Page " + pageNR + " has been already set as complete on queue " + queueID);

@@ -111,9 +111,9 @@ public final class VersionLoader {
          try {
             versionProps.load(in);
             String versionName = versionProps.getProperty("activemq.version.versionName");
-            int majorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.majorVersion"));
-            int minorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.minorVersion"));
-            int microVersion = Integer.valueOf(versionProps.getProperty("activemq.version.microVersion"));
+            int majorVersion = Integer.parseInt(versionProps.getProperty("activemq.version.majorVersion"));
+            int minorVersion = Integer.parseInt(versionProps.getProperty("activemq.version.minorVersion"));
+            int microVersion = Integer.parseInt(versionProps.getProperty("activemq.version.microVersion"));
             int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("activemq.version.incrementingVersion"));
             int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("activemq.version.compatibleVersionList"));
             List<Version> definedVersions = new ArrayList<>(incrementingVersions.length);
