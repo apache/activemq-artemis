@@ -252,8 +252,12 @@ public class PersistedSecuritySetting implements EncodingSupport {
       browseRoles = buffer.readNullableSimpleString();
       createAddressRoles = buffer.readNullableSimpleString();
       deleteAddressRoles = buffer.readNullableSimpleString();
-      viewRoles = buffer.readNullableSimpleString();
-      editRoles = buffer.readNullableSimpleString();
+      if (buffer.readableBytes() > 0) {
+         viewRoles = buffer.readNullableSimpleString();
+      }
+      if (buffer.readableBytes() > 0) {
+         editRoles = buffer.readNullableSimpleString();
+      }
    }
 
    /* (non-Javadoc)
