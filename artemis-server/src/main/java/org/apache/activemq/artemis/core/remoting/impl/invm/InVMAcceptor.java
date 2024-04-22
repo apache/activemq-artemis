@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
@@ -63,8 +64,6 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
    private NotificationService notificationService;
 
-   private final Map<String, Object> configuration;
-
    private ActiveMQPrincipal defaultActiveMQPrincipal;
 
    private final long connectionsAllowed;
@@ -77,18 +76,16 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
    public InVMAcceptor(final String name,
                        final ClusterConnection clusterConnection,
-                       final Map<String, Object> configuration,
+                       final TransportConfiguration transportConfiguration,
                        final BufferHandler handler,
                        final ServerConnectionLifeCycleListener listener,
                        final Map<String, ProtocolManager> protocolMap,
                        final Executor threadPool) {
-      super(protocolMap);
+      super(transportConfiguration, protocolMap);
 
       this.name = name;
 
       this.clusterConnection = clusterConnection;
-
-      this.configuration = configuration;
 
       this.handler = handler;
 

@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +44,7 @@ import org.junit.jupiter.api.Test;
 
 public class NettyConnectionTest extends ActiveMQTestBase {
 
-   private static final Map<String, Object> emptyMap = Collections.emptyMap();
+   private static final TransportConfiguration emptyMap = new TransportConfiguration();
 
    @Test
    public void testGetID() throws Exception {
@@ -130,7 +129,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       TransportConfiguration tf6 = new TransportConfiguration("some.other.FactoryClass", config6, "tf6");
 
       Channel channel = createChannel();
-      NettyConnection conn = new NettyConnection(config, channel, new MyListener(), false, false);
+      NettyConnection conn = new NettyConnection(tf1, channel, new MyListener(), false, false);
 
       assertTrue(conn.isSameTarget(tf1));
       assertTrue(conn.isSameTarget(tf2));

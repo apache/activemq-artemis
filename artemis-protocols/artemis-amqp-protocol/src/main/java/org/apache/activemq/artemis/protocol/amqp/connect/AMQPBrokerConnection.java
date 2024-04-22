@@ -357,7 +357,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          ProtonProtocolManager protonProtocolManager =
             (ProtonProtocolManager)protonProtocolManagerFactory.createProtocolManager(server, configuration.getExtraParams(), null, null);
          NettyConnector connector = (NettyConnector)CONNECTOR_FACTORY.createConnector(
-            configuration.getParams(), null, this, server.getExecutorFactory().getExecutor(), server.getThreadPool(), server.getScheduledPool(), new ClientProtocolManagerWithAMQP(protonProtocolManager));
+            configuration, null, this, server.getExecutorFactory().getExecutor(), server.getThreadPool(), server.getScheduledPool(), new ClientProtocolManagerWithAMQP(protonProtocolManager));
          connector.start();
 
          logger.debug("Connecting {}", configuration);

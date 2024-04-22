@@ -22,8 +22,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -33,7 +35,7 @@ import org.apache.qpid.proton.engine.Connection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class AMQPConnectionContextTest {
@@ -55,7 +57,8 @@ public class AMQPConnectionContextTest {
       Mockito.when(transportChannel.config()).thenReturn(Mockito.mock(ChannelConfig.class));
       Mockito.when(transportChannel.eventLoop()).thenReturn(eventLoop);
       Mockito.when(eventLoop.inEventLoop()).thenReturn(true);
-      NettyConnection transportConnection = new NettyConnection(new HashMap<>(), transportChannel, null, false, false);
+      NettyConnection transportConnection = new NettyConnection(new TransportConfiguration(
+              NettyConnectorFactory.class.getName(), Map.of(), "test"), transportChannel, null, false, false);
 
       Connection connection = Mockito.mock(Connection.class);
       AMQPConnectionCallback protonSPI = Mockito.mock(AMQPConnectionCallback.class);

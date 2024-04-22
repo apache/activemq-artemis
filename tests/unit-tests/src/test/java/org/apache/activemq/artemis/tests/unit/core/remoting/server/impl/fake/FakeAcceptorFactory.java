@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
@@ -38,7 +39,7 @@ public class FakeAcceptorFactory implements AcceptorFactory {
    @Override
    public Acceptor createAcceptor(String name,
                                   ClusterConnection clusterConnection,
-                                  Map<String, Object> configuration,
+                                  TransportConfiguration configuration,
                                   BufferHandler handler,
                                   ServerConnectionLifeCycleListener listener,
                                   Executor threadPool,

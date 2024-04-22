@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfigurationHelper;
 
 /**
@@ -40,7 +40,7 @@ public interface ConnectorFactory extends TransportConfigurationHelper {
     * @param scheduledThreadPool the scheduled thread pool
     * @return a new connector
     */
-   Connector createConnector(Map<String, Object> configuration,
+   Connector createConnector(TransportConfiguration configuration,
                              BufferHandler handler,
                              ClientConnectionLifeCycleListener listener,
                              Executor closeExecutor,

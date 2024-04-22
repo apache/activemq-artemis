@@ -45,7 +45,9 @@ import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.resolver.NoopAddressResolverGroup;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
@@ -105,6 +107,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
       params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
       params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
@@ -126,7 +129,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -168,6 +171,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");
       params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
@@ -189,7 +193,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -212,6 +216,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
       params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
       params.put(TransportConstants.PROXY_PORT_PROP_NAME, SOCKS_PORT);
       params.put(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
@@ -233,7 +238,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
       assertTrue(connector.isStarted());

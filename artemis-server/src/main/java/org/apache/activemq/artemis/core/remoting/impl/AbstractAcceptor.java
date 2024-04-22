@@ -21,14 +21,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 public abstract class AbstractAcceptor implements Acceptor {
 
    protected final Map<String, ProtocolManager> protocolMap;
+   protected final Map<String, Object> configuration;
+   protected final TransportConfiguration transportConfiguration;
 
-   public AbstractAcceptor(Map<String, ProtocolManager> protocolMap) {
+   public AbstractAcceptor(TransportConfiguration transportConfiguration, Map<String,
+           ProtocolManager> protocolMap) {
+      this.transportConfiguration = transportConfiguration;
+      this.configuration = transportConfiguration.getCombinedParams();
       this.protocolMap = protocolMap;
    }
 
@@ -41,6 +47,11 @@ public abstract class AbstractAcceptor implements Acceptor {
       for (ProtocolManager manager : protocolMap.values()) {
          manager.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       }
+   }
+
+   @Override
+   public Map<String, Object> getConfiguration() {
+      return Collections.unmodifiableMap(configuration);
    }
 
    public Map<String, ProtocolManager> getProtocolMap() {

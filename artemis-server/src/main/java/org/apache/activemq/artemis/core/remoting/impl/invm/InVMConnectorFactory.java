@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
@@ -29,7 +30,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 public class InVMConnectorFactory implements ConnectorFactory {
 
    @Override
-   public Connector createConnector(final Map<String, Object> configuration,
+   public Connector createConnector(final TransportConfiguration configuration,
                                     final BufferHandler handler,
                                     final ClientConnectionLifeCycleListener listener,
                                     final Executor closeExecutor,
