@@ -128,8 +128,8 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg = queueProducerSession.createStreamMessage();
             break;
          case OBJECT:
-            res = Double.valueOf(37.6);
-            msg = queueProducerSession.createObjectMessage(Double.valueOf(37.6));
+            res = 37.6;
+            msg = queueProducerSession.createObjectMessage(37.6);
             break;
          case MAP:
             MapMessage msg1 = queueProducerSession.createMapMessage();
@@ -138,8 +138,8 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg1.setString("string", "crocodile");
             msg = msg1;
             Map<String, Object> map = new HashMap<>();
-            map.put("int", Integer.valueOf(13));
-            map.put("long", Long.valueOf(37L));
+            map.put("int", 13);
+            map.put("long", 37L);
             map.put("string", "crocodile");
             res = map;
             break;

@@ -46,7 +46,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Boolean.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -57,7 +57,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Byte.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -68,7 +68,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Short.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -79,7 +79,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Character.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -90,7 +90,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Integer.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -101,7 +101,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Long.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -112,7 +112,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Float.valueOf(value));
+      content.put(name, value);
 
    }
 
@@ -123,7 +123,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, Double.valueOf(value));
+      content.put(name, value);
 
    }
 

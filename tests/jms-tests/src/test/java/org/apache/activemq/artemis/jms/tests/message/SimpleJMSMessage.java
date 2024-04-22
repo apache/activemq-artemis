@@ -35,7 +35,7 @@ public class SimpleJMSMessage implements Message {
 
 
    public SimpleJMSMessage() {
-      properties.put("JMSXDeliveryCount", Integer.valueOf(0));
+      properties.put("JMSXDeliveryCount", 0);
    }
 
    /*
@@ -216,7 +216,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Boolean)) {
          throw new JMSException("Not boolean");
       }
-      return ((Boolean) properties.get(name)).booleanValue();
+      return (Boolean) properties.get(name);
    }
 
    @Override
@@ -225,7 +225,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Byte)) {
          throw new JMSException("Not byte");
       }
-      return ((Byte) properties.get(name)).byteValue();
+      return (Byte) properties.get(name);
    }
 
    @Override
@@ -234,7 +234,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Short)) {
          throw new JMSException("Not short");
       }
-      return ((Short) properties.get(name)).shortValue();
+      return (Short) properties.get(name);
    }
 
    @Override
@@ -243,7 +243,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Integer)) {
          throw new JMSException("Not int");
       }
-      return ((Integer) properties.get(name)).intValue();
+      return (Integer) properties.get(name);
    }
 
    @Override
@@ -252,7 +252,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Long)) {
          throw new JMSException("Not long");
       }
-      return ((Long) properties.get(name)).longValue();
+      return (Long) properties.get(name);
    }
 
    @Override
@@ -261,7 +261,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Float)) {
          throw new JMSException("Not float");
       }
-      return ((Float) properties.get(name)).floatValue();
+      return (Float) properties.get(name);
    }
 
    @Override
@@ -270,7 +270,7 @@ public class SimpleJMSMessage implements Message {
       if (!(prop instanceof Double)) {
          throw new JMSException("Not double");
       }
-      return ((Double) properties.get(name)).doubleValue();
+      return (Double) properties.get(name);
    }
 
    @Override
@@ -299,32 +299,32 @@ public class SimpleJMSMessage implements Message {
 
    @Override
    public void setByteProperty(final String name, final byte value) throws JMSException {
-      properties.put(name, Byte.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override
    public void setShortProperty(final String name, final short value) throws JMSException {
-      properties.put(name, Short.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
-      properties.put(name, Integer.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
-      properties.put(name, Long.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override
    public void setFloatProperty(final String name, final float value) throws JMSException {
-      properties.put(name, Float.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override
    public void setDoubleProperty(final String name, final double value) throws JMSException {
-      properties.put(name, Double.valueOf(value));
+      properties.put(name, value);
    }
 
    @Override

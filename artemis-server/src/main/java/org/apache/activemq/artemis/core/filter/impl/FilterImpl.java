@@ -173,7 +173,7 @@ public class FilterImpl implements Filter {
             return SimpleString.toSimpleString("ID:" + msg.getUserID());
          }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
-         return Integer.valueOf(msg.getPriority());
+         return (int) msg.getPriority();
       } else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
          return msg.getTimestamp();
       } else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName)) {

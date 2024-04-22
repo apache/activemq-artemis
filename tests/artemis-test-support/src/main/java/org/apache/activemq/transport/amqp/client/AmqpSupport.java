@@ -172,7 +172,7 @@ public class AmqpSupport {
 
          int port = 0;
          try {
-            port = Integer.valueOf(info.get(PORT).toString());
+            port = Integer.parseInt(info.get(PORT).toString());
          } catch (Exception ex) {
             result = new IOException(message + " : Redirection information not set.");
          }

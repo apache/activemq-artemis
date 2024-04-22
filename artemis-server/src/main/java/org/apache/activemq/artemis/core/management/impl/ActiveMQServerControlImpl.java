@@ -2434,7 +2434,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                if (session.getName().equals(sessionID.toString())) {
                   Set<ServerConsumer> serverConsumers = session.getServerConsumers();
                   for (ServerConsumer serverConsumer : serverConsumers) {
-                     if (serverConsumer.sequentialID() == Long.valueOf(ID)) {
+                     if (serverConsumer.sequentialID() == Long.parseLong(ID)) {
                         serverConsumer.disconnect();
                         return true;
                      }

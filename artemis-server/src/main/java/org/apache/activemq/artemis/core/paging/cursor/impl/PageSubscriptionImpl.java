@@ -232,7 +232,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       PageCursorInfo info = new PageCursorInfo(position.getPageNr(), position.getMessageNr());
       info.setCompleteInfo(position);
       synchronized (consumedPages) {
-         consumedPages.put(Long.valueOf(position.getPageNr()), info);
+         consumedPages.put(position.getPageNr(), info);
       }
 
       return true;
@@ -743,7 +743,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       logger.debug("removing page {}", deletedPage);
       PageCursorInfo info;
       synchronized (consumedPages) {
-         info = consumedPages.remove(Long.valueOf(deletedPage.getPageId()));
+         info = consumedPages.remove(deletedPage.getPageId());
       }
       if (info != null) {
          PagePosition completeInfo = info.getCompleteInfo();

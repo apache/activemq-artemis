@@ -101,9 +101,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       assertEquals((byte) 5, bytes[1]);
       assertEquals('a', mapMessage.getChar("achar"));
       Double doubleVal = mapMessage.getDouble("adouble");
-      assertTrue(doubleVal.equals(Double.valueOf(4.4)));
+      assertTrue(doubleVal.equals(4.4));
       Float floatVal = mapMessage.getFloat("afloat");
-      assertTrue(floatVal.equals(Float.valueOf(4.5F)));
+      assertTrue(floatVal.equals(4.5F));
       assertEquals(40, mapMessage.getInt("aint"));
       assertEquals(80L, mapMessage.getLong("along"));
       assertEquals(65, mapMessage.getShort("ashort"));
@@ -138,9 +138,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
       assertEquals('b', streamMessage.readChar());
       Double streamDouble = streamMessage.readDouble();
-      assertTrue(streamDouble.equals(Double.valueOf(6.5)));
+      assertTrue(streamDouble.equals(6.5));
       Float streamFloat = streamMessage.readFloat();
-      assertTrue(streamFloat.equals(Float.valueOf(93.9F)));
+      assertTrue(streamFloat.equals(93.9F));
       assertEquals(7657, streamMessage.readInt());
       assertEquals(239999L, streamMessage.readLong());
       assertEquals((short) 34222, streamMessage.readShort());
@@ -627,9 +627,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          assertEquals((byte) 5, bytes[1]);
          assertEquals('a', mapMessage.getChar("achar"));
          Double doubleVal = mapMessage.getDouble("adouble");
-         assertTrue(doubleVal.equals(Double.valueOf(4.4)));
+         assertTrue(doubleVal.equals(4.4));
          Float floatVal = mapMessage.getFloat("afloat");
-         assertTrue(floatVal.equals(Float.valueOf(4.5F)));
+         assertTrue(floatVal.equals(4.5F));
          assertEquals(40, mapMessage.getInt("aint"));
          assertEquals(80L, mapMessage.getLong("along"));
          assertEquals(65, mapMessage.getShort("ashort"));
@@ -666,9 +666,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
          assertEquals('b', streamMessage.readChar());
          Double streamDouble = streamMessage.readDouble();
-         assertTrue(streamDouble.equals(Double.valueOf(6.5)));
+         assertTrue(streamDouble.equals(6.5));
          Float streamFloat = streamMessage.readFloat();
-         assertTrue(streamFloat.equals(Float.valueOf(93.9F)));
+         assertTrue(streamFloat.equals(93.9F));
          assertEquals(7657, streamMessage.readInt());
          assertEquals(239999L, streamMessage.readLong());
          assertEquals((short) 34222, streamMessage.readShort());

@@ -121,7 +121,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);
          msg.putBooleanProperty("myBooleanProperty", Boolean.TRUE);
-         msg.putByteProperty("myByteProperty", Byte.valueOf("0"));
+         msg.putByteProperty("myByteProperty", Byte.parseByte("0"));
          msg.putBytesProperty("myBytesProperty", new byte[]{0, 1, 2, 3, 4});
          msg.putDoubleProperty("myDoubleProperty", i * 1.6);
          msg.putFloatProperty("myFloatProperty", i * 2.5F);

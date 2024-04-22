@@ -563,7 +563,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
       int posPoint = value.lastIndexOf('.');
 
-      int last = Integer.valueOf(value.substring(posPoint + 1));
+      int last = Integer.parseInt(value.substring(posPoint + 1));
 
       return value.substring(0, posPoint + 1) + (last + variant);
    }
@@ -1718,8 +1718,8 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          // sendCallNumber is just a debugging measure.
          Object prop = message.getObjectProperty(SEND_CALL_NUMBER);
          if (prop == null)
-            prop = Integer.valueOf(-1);
-         final int actual = message.getIntProperty("counter").intValue();
+            prop = -1;
+         final int actual = message.getIntProperty("counter");
          Assert.assertEquals("expected=" + i + ". Got: property['counter']=" + actual + " sendNumber=" + prop, i, actual);
          assertMessageBody(i, message);
          if (ack)

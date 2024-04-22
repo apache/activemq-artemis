@@ -65,7 +65,7 @@ public class ConsistentHashModuloPolicyTest {
 
       String[] values = new String[]{"ONE", "TWO", "THREE", "FOUR"};
       for (String v : values) {
-         assertTrue("non negative for: " + v, Integer.valueOf(underTest.transformKey(v)) >= 0);
+         assertTrue("non negative for: " + v, Integer.parseInt(underTest.transformKey(v)) >= 0);
       }
    }
 
@@ -87,7 +87,7 @@ public class ConsistentHashModuloPolicyTest {
       assertNotNull(underTest.getProperties());
 
       for (int i = 0; i < negs.length; i++) {
-         assertTrue("non negative for: " + i, Integer.valueOf(underTest.transformKey("BLA")) >= 0);
+         assertTrue("non negative for: " + i, Integer.parseInt(underTest.transformKey("BLA")) >= 0);
       }
    }
 }

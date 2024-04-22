@@ -241,7 +241,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       String myByte = producer.getStringProperty("abyte");
 
-      if (Byte.valueOf(myByte).byteValue() != bValue) {
+      if (Byte.parseByte(myByte) != bValue) {
          ProxyAssertSupport.fail("conversion from byte to string failed");
       }
 
@@ -289,7 +289,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       String myshort = producer.getStringProperty("ashort");
 
-      if (Short.valueOf(myshort).shortValue() != nShort) {
+      if (Short.parseShort(myshort) != nShort) {
          ProxyAssertSupport.fail("conversion from short to string failed");
       }
 
@@ -344,7 +344,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       }
 
-      if (Integer.valueOf(producer.getStringProperty("anint")).intValue() != nInt) {
+      if (Integer.parseInt(producer.getStringProperty("anint")) != nInt) {
          ProxyAssertSupport.fail("conversion from int to string failed");
       }
 
@@ -400,7 +400,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Long.valueOf(producer.getStringProperty("along")).longValue() != nLong) {
+      if (Long.parseLong(producer.getStringProperty("along")) != nLong) {
          ProxyAssertSupport.fail("conversion from long to string failed");
       }
 
@@ -458,7 +458,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Float.valueOf(producer.getStringProperty("afloat")).floatValue() != nFloat) {
+      if (Float.parseFloat(producer.getStringProperty("afloat")) != nFloat) {
          ProxyAssertSupport.fail("conversion from float to string failed");
       }
 
@@ -512,7 +512,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Double.valueOf(producer.getStringProperty("adouble")).doubleValue() != nDouble) {
+      if (Double.parseDouble(producer.getStringProperty("adouble")) != nDouble) {
          ProxyAssertSupport.fail("conversion from double to string failed");
       }
 

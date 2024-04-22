@@ -556,10 +556,10 @@ public class BridgeReconnectTest extends BridgeTestBase {
       HashMap<Integer, AtomicInteger> counts = countJournal(server1.getConfiguration());
       if (persistCache) {
          // There should be one record per message
-         Assert.assertEquals(numMessages, counts.get(Integer.valueOf(JournalRecordIds.DUPLICATE_ID)).intValue());
+         Assert.assertEquals(numMessages, counts.get((int) JournalRecordIds.DUPLICATE_ID).intValue());
       } else {
          // no cache means there shouldn't be an id anywhere
-         Assert.assertNull(counts.get(Integer.valueOf(JournalRecordIds.DUPLICATE_ID)));
+         Assert.assertNull(counts.get((int) JournalRecordIds.DUPLICATE_ID));
       }
    }
 

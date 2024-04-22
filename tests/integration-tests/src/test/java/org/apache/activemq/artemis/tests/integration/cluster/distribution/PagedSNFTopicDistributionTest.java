@@ -140,7 +140,7 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
    }
 
    private int getCounter(byte typeRecord, HashMap<Integer, AtomicInteger> values) {
-      AtomicInteger value = values.get(Integer.valueOf(typeRecord));
+      AtomicInteger value = values.get((int) typeRecord);
       if (value == null) {
          return 0;
       } else {

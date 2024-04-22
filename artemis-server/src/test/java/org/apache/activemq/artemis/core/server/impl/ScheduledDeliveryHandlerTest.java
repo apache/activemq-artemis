@@ -292,7 +292,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       for (long i = 0; i < numberOfExpectedMessages; i++) {
-         assertTrue(messages.contains(Long.valueOf(i)));
+         assertTrue(messages.contains(i));
       }
    }
 
@@ -1033,7 +1033,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public Long getID() {
-         return Long.valueOf(0L);
+         return 0L;
       }
 
       @Override

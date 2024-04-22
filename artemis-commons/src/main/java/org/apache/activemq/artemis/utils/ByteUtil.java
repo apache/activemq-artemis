@@ -262,22 +262,22 @@ public class ByteUtil {
       try {
          Matcher m = ONE.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)));
+            return Long.parseLong(m.group(1));
          }
 
          m = KILO.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024);
+            return Long.parseLong(m.group(1)) * 1024;
          }
 
          m = MEGA.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024);
+            return Long.parseLong(m.group(1)) * 1024 * 1024;
          }
 
          m = GIGA.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024 * 1024);
+            return Long.parseLong(m.group(1)) * 1024 * 1024 * 1024;
          }
 
          return Long.parseLong(text);

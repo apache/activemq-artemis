@@ -1508,7 +1508,7 @@ public class BridgeTest extends ActiveMQTestBase {
          }
 
          for (int i = 0; i < numMessages; i++) {
-            AtomicInteger msgCount = receivedMsg.get(Integer.valueOf(i));
+            AtomicInteger msgCount = receivedMsg.get(i);
             if (msgCount == null) {
                System.err.println("Msg " + i + " wasn't received");
                failed = true;

@@ -176,13 +176,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       m1.setDoubleProperty("myDouble", myDouble);
       m1.setStringProperty("myString", myString);
 
-      m1.setObjectProperty("myBool", Boolean.valueOf(myBool));
-      m1.setObjectProperty("myByte", Byte.valueOf(myByte));
-      m1.setObjectProperty("myShort", Short.valueOf(myShort));
-      m1.setObjectProperty("myInt", Integer.valueOf(myInt));
-      m1.setObjectProperty("myLong", Long.valueOf(myLong));
-      m1.setObjectProperty("myFloat", Float.valueOf(myFloat));
-      m1.setObjectProperty("myDouble", Double.valueOf(myDouble));
+      m1.setObjectProperty("myBool", myBool);
+      m1.setObjectProperty("myByte", myByte);
+      m1.setObjectProperty("myShort", myShort);
+      m1.setObjectProperty("myInt", myInt);
+      m1.setObjectProperty("myLong", myLong);
+      m1.setObjectProperty("myFloat", myFloat);
+      m1.setObjectProperty("myDouble", myDouble);
       m1.setObjectProperty("myString", myString);
 
       try {

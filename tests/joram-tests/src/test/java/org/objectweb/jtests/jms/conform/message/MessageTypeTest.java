@@ -226,7 +226,7 @@ public class MessageTypeTest extends PTPTestCase {
       try {
          Vector<Object> vector = new Vector<>();
          vector.add("pi");
-         vector.add(Double.valueOf(3.14159));
+         vector.add(3.14159);
 
          ObjectMessage message = senderSession.createObjectMessage();
          message.setObject(vector);

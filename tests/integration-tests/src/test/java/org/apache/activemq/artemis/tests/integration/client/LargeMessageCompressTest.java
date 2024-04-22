@@ -160,7 +160,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
    @Test
    public void testNoDirectByteBufLeaksOnLargeMessageCompression() throws Exception {
-      Assume.assumeThat(PlatformDependent.usedDirectMemory(), not(equalTo(Long.valueOf(-1))));
+      Assume.assumeThat(PlatformDependent.usedDirectMemory(), not(equalTo((long) -1)));
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ActiveMQServer server = createServer(true, isNetty());

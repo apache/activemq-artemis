@@ -480,7 +480,7 @@ public class MQTTPublishManager {
          for (SimpleString propertyName : message.getPropertyNames()) {
             if (propertyName.startsWith(MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE)) {
                SimpleString[] split = propertyName.split('.');
-               int position = Integer.valueOf(split[4].toString());
+               int position = Integer.parseInt(split[4].toString());
                String key = propertyName.subSeq(MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE.length() + split[4].length() + 1, propertyName.length()).toString();
                orderedProperties[position] = new MqttProperties.StringPair(key, message.getStringProperty(propertyName));
             }

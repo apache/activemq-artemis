@@ -135,9 +135,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
 
       //client ping
-      long minPingInterval = Long.valueOf(params[0]);
+      long minPingInterval = Long.parseLong(params[0]);
       //client receive ping
-      long minAcceptInterval = Long.valueOf(params[1]);
+      long minAcceptInterval = Long.parseLong(params[1]);
 
       if (heartBeater == null) {
          heartBeater = new HeartBeater(scheduledExecutorService, executorFactory.getExecutor(), minPingInterval, minAcceptInterval);
@@ -285,7 +285,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
          if (connectionEntry != null) {
             String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
-            double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
+            double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.parseDouble(heartBeatToTtlModifierStr);
 
             // the default response to the client
             clientPingResponse = (long) (connectionEntry.ttl / heartBeatToTtlModifier);
@@ -293,10 +293,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             if (clientPing != 0) {
                clientPingResponse = clientPing;
                String ttlMaxStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MAX);
-               long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
+               long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.parseLong(ttlMaxStr);
 
                String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
-               long ttlMin = ttlMinStr == null ? 1000 : Long.valueOf(ttlMinStr);
+               long ttlMin = ttlMinStr == null ? 1000 : Long.parseLong(ttlMinStr);
 
                /* The connection's TTL should be one of the following:
                 *   1) clientPing * heartBeatToTtlModifier

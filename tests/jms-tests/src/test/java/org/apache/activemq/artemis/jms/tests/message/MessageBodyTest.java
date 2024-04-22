@@ -81,13 +81,13 @@ public class MessageBodyTest extends MessageBodyTestCase {
       m.writeBytes(myBytes);
       m.writeBytes(myBytes, 2, 3);
 
-      m.writeObject(Boolean.valueOf(myBool));
-      m.writeObject(Byte.valueOf(myByte));
-      m.writeObject(Short.valueOf(myShort));
-      m.writeObject(Integer.valueOf(myInt));
-      m.writeObject(Long.valueOf(myLong));
-      m.writeObject(Float.valueOf(myFloat));
-      m.writeObject(Double.valueOf(myDouble));
+      m.writeObject(myBool);
+      m.writeObject(myByte);
+      m.writeObject(myShort);
+      m.writeObject(myInt);
+      m.writeObject(myLong);
+      m.writeObject(myFloat);
+      m.writeObject(myDouble);
       m.writeObject(myString);
       m.writeObject(myBytes);
 
@@ -439,13 +439,13 @@ public class MessageBodyTest extends MessageBodyTestCase {
       m1.setDouble("myDouble", myDouble);
       m1.setString("myString", myString);
 
-      m1.setObject("myBool", Boolean.valueOf(myBool));
-      m1.setObject("myByte", Byte.valueOf(myByte));
-      m1.setObject("myShort", Short.valueOf(myShort));
-      m1.setObject("myInt", Integer.valueOf(myInt));
-      m1.setObject("myLong", Long.valueOf(myLong));
-      m1.setObject("myFloat", Float.valueOf(myFloat));
-      m1.setObject("myDouble", Double.valueOf(myDouble));
+      m1.setObject("myBool", myBool);
+      m1.setObject("myByte", myByte);
+      m1.setObject("myShort", myShort);
+      m1.setObject("myInt", myInt);
+      m1.setObject("myLong", myLong);
+      m1.setObject("myFloat", myFloat);
+      m1.setObject("myDouble", myDouble);
       m1.setObject("myString", myString);
 
       try {
@@ -943,13 +943,13 @@ public class MessageBodyTest extends MessageBodyTestCase {
       m.writeBytes(myBytes);
       m.writeBytes(myBytes, 2, 3);
 
-      m.writeObject(Boolean.valueOf(myBool));
-      m.writeObject(Byte.valueOf(myByte));
-      m.writeObject(Short.valueOf(myShort));
-      m.writeObject(Integer.valueOf(myInt));
-      m.writeObject(Long.valueOf(myLong));
-      m.writeObject(Float.valueOf(myFloat));
-      m.writeObject(Double.valueOf(myDouble));
+      m.writeObject(myBool);
+      m.writeObject(myByte);
+      m.writeObject(myShort);
+      m.writeObject(myInt);
+      m.writeObject(myLong);
+      m.writeObject(myFloat);
+      m.writeObject(myDouble);
       m.writeObject(myString);
       m.writeObject(myBytes);
 
