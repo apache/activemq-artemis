@@ -17,5 +17,5 @@
   -->
 <management-context xmlns="http://activemq.apache.org/schema">
    <connector connector-port="10099"/>
-   <!-- authorisation in broker.xml security-settings with `jmx.` prefix -->
+   <!-- authorisation in broker.xml security-settings with `mops.` prefix -->
 </management-context>
