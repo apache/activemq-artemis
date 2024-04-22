@@ -548,4 +548,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229252, value = "Invalid HAPolicy property: {}")
    RuntimeException unsupportedHAPolicyPropertyType(String invalidHAPolicy);
+
+   @Message(id = 229253, value = "Unable to acquire OperationContext when replicating packet: {}. ExecutorFactory: {}")
+   IllegalStateException replicationFailureRepliTokenNull(String packet, String executorFactory);
 }
