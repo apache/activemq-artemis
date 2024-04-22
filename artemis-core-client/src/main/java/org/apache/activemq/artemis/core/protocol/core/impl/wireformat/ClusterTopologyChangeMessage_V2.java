@@ -110,7 +110,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          TransportConfiguration a;
          if (hasPrimary) {
             a = new TransportConfiguration();
-            a.decode(buffer);
+            a.decode(nodeID, buffer);
          } else {
             a = null;
          }
@@ -118,7 +118,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          TransportConfiguration b;
          if (hasBackup) {
             b = new TransportConfiguration();
-            b.decode(buffer);
+            b.decode(nodeID, buffer);
          } else {
             b = null;
          }

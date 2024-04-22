@@ -122,7 +122,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final Executor flowControlExecutor;
 
-   private RemotingConnection connection;
+   private volatile RemotingConnection connection;
 
    private final long retryInterval;
 
@@ -1450,7 +1450,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          final RemotingConnection connectionInUse = connection;
 
          if (connectionInUse != null && clientFailureCheckPeriod != -1 && connectionTTL != -1 && now >= lastCheck + connectionTTL) {
-            if (!connectionInUse.checkDataReceived()) {
+            if (!connectionInUse.checkDataReceived() || !connectionInUse.isHealthy()) {
 
                // We use a different thread to send the fail
                // but the exception has to be created here to preserve the stack trace

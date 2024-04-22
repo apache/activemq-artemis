@@ -131,11 +131,11 @@ public class NodeAnnounceMessage extends PacketImpl {
       this.currentEventID = buffer.readLong();
       if (buffer.readBoolean()) {
          connector = new TransportConfiguration();
-         connector.decode(buffer);
+         connector.decode(nodeID, buffer);
       }
       if (buffer.readBoolean()) {
          backupConnector = new TransportConfiguration();
-         backupConnector.decode(buffer);
+         backupConnector.decode(nodeID, buffer);
       }
       scaleDownGroupName = buffer.readNullableString();
    }

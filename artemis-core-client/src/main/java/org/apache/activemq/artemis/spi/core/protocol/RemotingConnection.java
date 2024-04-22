@@ -200,6 +200,16 @@ public interface RemotingConnection extends BufferHandler {
    boolean checkDataReceived();
 
    /**
+    * Implementation specific flag to indicate momentary connection state. The process using this
+    * connection may choose to close it if it becomes unhealthy.
+    *
+    * @return true if it is currently healthy, false otherwise
+    */
+   default boolean isHealthy() {
+      return true;
+   }
+
+   /**
     * flush all outstanding data from the connection.
     */
    void flush();

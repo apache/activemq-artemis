@@ -321,7 +321,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                for (int i = 0; i < size; i++) {
                   TransportConfiguration connector = new TransportConfiguration();
 
-                  connector.decode(buffer);
+                  connector.decode(originatingNodeID, buffer);
 
                   entriesRead[i] = new DiscoveryEntry(originatingNodeID, connector, System.currentTimeMillis());
                }
