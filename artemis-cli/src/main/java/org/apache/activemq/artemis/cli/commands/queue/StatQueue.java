@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.commands.queue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,14 +30,17 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.utils.TableOut;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "stat", description = "Print basic stats of a queue. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'.")
 public class StatQueue extends ConnectionAbstract {
 
+   private static final String MANAGEMENT_QUEUE = "activemq.management";
+
    public enum FIELD {
-      NAME("name"), ADDRESS("address"), CONSUMER_COUNT("consumerCount"), MESSAGE_COUNT("messageCount"), MESSAGES_ADDED("messagesAdded"), DELIVERING_COUNT("deliveringCount"), MESSAGES_ACKED("messagesAcked"), SCHEDULED_COUNT("scheduledCount"), ROUTING_TYPE("routingType");
+      NAME("name", false), ADDRESS("address", false), CONSUMER_COUNT("consumerCount", true), MESSAGE_COUNT("messageCount", true), MESSAGES_ADDED("messagesAdded", true), DELIVERING_COUNT("deliveringCount", true), MESSAGES_ACKED("messagesAcked", true), SCHEDULED_COUNT("scheduledCount", true), ROUTING_TYPE("routingType", true), INTERNAL("internalQueue", true);
 
       private static final Map<String, FIELD> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -47,9 +51,11 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       private String jsonId;
+      private boolean center;
 
-      FIELD(String jsonId) {
+      FIELD(String jsonId, boolean center) {
          this.jsonId = jsonId;
+         this.center = center;
       }
 
       String getJsonId() {
@@ -89,6 +95,9 @@ public class StatQueue extends ConnectionAbstract {
 
    @Option(names = "--clustered", description = "Expands the report for all nodes on the topology")
    private boolean clustered = false;
+
+   @Option(names = "--include-management", description = "Include queues created for notification management in the output")
+   private boolean includeManagement = false;
 
    private int statCount = 0;
 
@@ -216,20 +225,36 @@ public class StatQueue extends ConnectionAbstract {
       JsonArray array = queuesAsJsonObject.getJsonArray("data");
 
       int[] columnSizes = new int[FIELD.values().length];
+      boolean[] centralize = new boolean[columnSizes.length];
+
+      ArrayList<String>[] fieldTitles = new ArrayList[columnSizes.length];
 
       FIELD[] fields = FIELD.values();
       for (int i = 0; i < fields.length; i++) {
-         columnSizes[i] = fields[i].toString().length();
+         ArrayList<String> splitTitleArrayList = new ArrayList<>();
+         String[]  splitTitleStringArray = fields[i].toString().split("_");
+         centralize[i] = fields[i].center;
+
+         for (String s : splitTitleStringArray) {
+            splitTitleArrayList.add(s);
+            columnSizes[i] = Math.max(columnSizes[i], s.length());
+         }
+
+         fieldTitles[i] = splitTitleArrayList;
       }
 
       for (int i = 0; i < array.size(); i++) {
          getColumnSizes(array.getJsonObject(i), columnSizes);
       }
 
-      printHeadings(columnSizes);
+      TableOut tableOut = new TableOut("|", 2, columnSizes);
+      tableOut.print(getActionContext().out, fieldTitles, centralize);
 
       for (int i = 0; i < array.size(); i++) {
-         printQueueStats(array.getJsonObject(i), columnSizes);
+         if (!includeManagement && array.getJsonObject(i).getString("name").contains(MANAGEMENT_QUEUE)) {
+            continue;
+         }
+         printQueueStats(array.getJsonObject(i), columnSizes, centralize, tableOut);
          statCount++;
       }
 
@@ -240,6 +265,9 @@ public class StatQueue extends ConnectionAbstract {
 
    private void getColumnSizes(JsonObject jsonObject, int[] columnSizes) {
       int i = 0;
+      if (!includeManagement && jsonObject.getString("name").startsWith(MANAGEMENT_QUEUE)) {
+         return;
+      }
       for (FIELD e: FIELD.values()) {
          if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
             columnSizes[i] = jsonObject.getString(e.jsonId).length();
@@ -252,19 +280,18 @@ public class StatQueue extends ConnectionAbstract {
       }
    }
 
-   private void printHeadings(int[] columnSizes) {
-      // add 10 for the various '|' characters
-      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
+   private void printHeadings(int[] columnSizes, TableOut tableOut) {
+      String[] columns = new String[columnSizes.length];
 
       int i = 0;
       for (FIELD e: FIELD.values()) {
-         stringBuilder.append(paddingString(new StringBuilder(e.toString()), columnSizes[i++])).append('|');
+         columns[i++] = e.toString();
       }
 
-      getActionContext().out.println(stringBuilder);
+      tableOut.print(getActionContext().out, columns);
    }
 
-   private void printQueueStats(JsonObject jsonObject, int[] columnSizes) {
+   private void printQueueStats(JsonObject jsonObject, int[] columnSizes, boolean[] center, TableOut tableOut) {
 
       //should not happen but just in case..
       if (jsonObject == null) {
@@ -274,15 +301,12 @@ public class StatQueue extends ConnectionAbstract {
          return;
       }
 
-      // add 10 for the various '|' characters
-      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
-
       int i = 0;
+      String[] columns = new String[columnSizes.length];
       for (FIELD e: FIELD.values()) {
-         stringBuilder.append(paddingString(new StringBuilder(jsonObject.getString(e.jsonId)), columnSizes[i++])).append('|');
+         columns[i++] = jsonObject.getString(e.jsonId);
       }
-
-      getActionContext().out.println(stringBuilder);
+      tableOut.print(getActionContext().out, columns, center);
    }
 
    private StringBuilder paddingString(StringBuilder value, int maxColumnSize) {

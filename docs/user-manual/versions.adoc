@@ -32,6 +32,8 @@ However, connections will no longer be pooled regardless of the configuration.
   ** This was done in an attempt to allow administrators to act when things are not working as expected, to get metrics on these objects and allow more transparency for the broker.
   ** this includes all Openwire Advisor queues and addresses, MQTT internal objects, Cluster Store and Forward (SNF) Queues, Mirror SNF.
   ** You may want to revisit authorizations if you mean to control access to certain users on the web console.
+* The CLI operation `./artemis queue stat` has its output improved and updated. If you parse the previous output you will see differences in the output.
+  ** It is not recommended to parse the output of a CLI Operation. You may use jolokia calls over management instead.
 
 == 2.33.0
 

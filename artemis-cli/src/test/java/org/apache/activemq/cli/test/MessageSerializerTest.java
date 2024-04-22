@@ -133,7 +133,7 @@ public class MessageSerializerTest extends CliTestBase {
       int currentMessageCount;
       try {
          // parse the value for MESSAGE_COUNT from the output
-         currentMessageCount = Integer.parseInt(getOutputLines(context, false).get(1).split("\\|")[4].trim());
+         currentMessageCount = Integer.parseInt(getOutputLines(context, false).get(2).split("\\|")[4].trim());
       } catch (Exception e) {
          currentMessageCount = 0;
       }

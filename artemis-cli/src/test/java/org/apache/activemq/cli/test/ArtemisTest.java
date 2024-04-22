@@ -1583,7 +1583,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          ArrayList<String> lines = getOutputLines(context, false);
          // Header line + 3 queues
-         Assert.assertEquals("rows returned using queueName=Test1", 4, lines.size());
+         Assert.assertEquals("rows returned using queueName=Test1", 5, lines.size());
 
          //check all queues are displayed when no Filter set
          context = new TestActionContext();
@@ -1606,7 +1606,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 3 queues
-         Assert.assertEquals("rows returned filtering by NAME ", 4, lines.size());
+         Assert.assertEquals("rows returned filtering by NAME ", 5, lines.size());
 
          //check all queues NOT containing "management" are displayed using Filter field NAME
          context = new TestActionContext();
@@ -1619,7 +1619,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 6 queues (Test1/11/12/20+DLQ+ExpiryQueue, but not activemq.management.d6dbba78-d76f-43d6-a2c9-fc0575ed6f5d)
-         Assert.assertEquals("rows returned filtering by NAME operation NOT_CONTAINS", 7, lines.size());
+         Assert.assertEquals("rows returned filtering by NAME operation NOT_CONTAINS", 8, lines.size());
 
          //check only queue named "Test1" is displayed using Filter field NAME and operation EQUALS
          context = new TestActionContext();
@@ -1632,9 +1632,9 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          //Header line + 1 queue only
-         Assert.assertEquals("rows returned filtering by NAME operation EQUALS", 2, lines.size());
+         Assert.assertEquals("rows returned filtering by NAME operation EQUALS", 3, lines.size());
          //verify contents of queue stat line is correct
-         String queueTest1 = lines.get(1);
+         String queueTest1 = lines.get(2);
          String[] parts = queueTest1.split("\\|");
          Assert.assertEquals("queue name", "Test1", parts[1].trim());
          Assert.assertEquals("address name", "Test1", parts[2].trim());
@@ -1657,7 +1657,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 3 queues
-         Assert.assertEquals("rows returned filtering by ADDRESS", 4, lines.size());
+         Assert.assertEquals("rows returned filtering by ADDRESS", 5, lines.size());
 
          //check all queues containing address "Test1" are displayed using Filter field MESSAGE_COUNT
          context = new TestActionContext();
@@ -1671,7 +1671,7 @@ public class ArtemisTest extends CliTestBase {
          lines = getOutputLines(context, false);
 
          // Header line + 0 queues
-         Assert.assertEquals("rows returned filtering by MESSAGE_COUNT", 1, lines.size());
+         Assert.assertEquals("rows returned filtering by MESSAGE_COUNT", 2, lines.size());
 
          //check all queues containing address "Test1" are displayed using Filter field MESSAGE_ADDED
          context = new TestActionContext();
@@ -1684,7 +1684,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 0 queues
-         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 1, lines.size());
+         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 2, lines.size());
 
          //check  queues with greater_than 19 MESSAGE_ADDED  displayed
          context = new TestActionContext();
@@ -1698,8 +1698,8 @@ public class ArtemisTest extends CliTestBase {
          lines = getOutputLines(context, false);
 
          // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 2, lines.size());
-         String[] columns = lines.get(1).split("\\|");
+         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 3, lines.size());
+         String[] columns = lines.get(2).split("\\|");
          Assert.assertEquals("queue name filtered by MESSAGES_ADDED GREATER_THAN ", "Test20", columns[2].trim());
 
          //check queues with less_than 2 MESSAGE_ADDED displayed
@@ -1733,9 +1733,9 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("10");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         columns = lines.get(1).split("\\|");
+         columns = lines.get(2).split("\\|");
          // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by DELIVERING_COUNT", 2, lines.size());
+         Assert.assertEquals("rows returned filtering by DELIVERING_COUNT", 3, lines.size());
          Assert.assertEquals("queue name filtered by DELIVERING_COUNT ", "Test1", columns[2].trim());
 
          //check all queues containing address "Test1" are displayed using Filter field CONSUMER_COUNT
@@ -1748,9 +1748,9 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("2");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         columns = lines.get(1).split("\\|");
+         columns = lines.get(2).split("\\|");
          // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by CONSUMER_COUNT ", 2, lines.size());
+         Assert.assertEquals("rows returned filtering by CONSUMER_COUNT ", 3, lines.size());
          Assert.assertEquals("queue name filtered by CONSUMER_COUNT ", "Test1", columns[2].trim());
 
          //check all queues containing address "Test1" are displayed using Filter field MESSAGE_ACKED
@@ -1763,9 +1763,9 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("5");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         columns = lines.get(1).split("\\|");
+         columns = lines.get(2).split("\\|");
          // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by MESSAGE_ACKED ", 2, lines.size());
+         Assert.assertEquals("rows returned filtering by MESSAGE_ACKED ", 3, lines.size());
          Assert.assertEquals("queue name filtered by MESSAGE_ACKED", "Test1", columns[2].trim());
 
          //check no queues  are displayed when name does not match
@@ -1777,7 +1777,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 0 queues
-         Assert.assertEquals("rows returned by queueName for no Matching queue ", 1, lines.size());
+         Assert.assertEquals("rows returned by queueName for no Matching queue ", 2, lines.size());
 
          //check maxrows is taking effect"
          context = new TestActionContext();
@@ -1789,7 +1789,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + 1 queue only + warning line
-         Assert.assertEquals("rows returned by maxRows=1", 3, lines.size());
+         Assert.assertEquals("rows returned by maxRows=1", 4, lines.size());
 
       } finally {
          stopServer();
@@ -1850,7 +1850,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setQueueName(NAME);
          statQueue.execute(context);
          ArrayList<String> lines = getOutputLines(context, false);
-         Assert.assertEquals("rows returned", 2, lines.size());
+         Assert.assertEquals("rows returned", 4, lines.size());
          String[] split = lines.get(1).split("\\|");
          Assert.assertEquals(StatQueue.DEFAULT_MAX_COLUMN_SIZE, split[1].length());
 
@@ -1862,7 +1862,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setMaxColumnSize(15);
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         Assert.assertEquals("rows returned", 2, lines.size());
+         Assert.assertEquals("rows returned", 5, lines.size());
          split = lines.get(1).split("\\|");
          Assert.assertEquals(15, split[1].length());
 
@@ -1874,7 +1874,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setMaxColumnSize(50);
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         Assert.assertEquals("rows returned", 2, lines.size());
+         Assert.assertEquals("rows returned", 3, lines.size());
          split = lines.get(1).split("\\|");
          Assert.assertEquals(NAME.length(), split[1].length());
 
@@ -1889,10 +1889,7 @@ public class ArtemisTest extends CliTestBase {
          for (String line : lines) {
             System.out.println(line);
          }
-         Assert.assertEquals("rows returned", 2, lines.size());
-         split = lines.get(1).split("\\|");
-         Assert.assertEquals(NAME.length(), split[1].length());
-         Assert.assertEquals("CONSUMER_COUNT".length(), split[3].length());
+         Assert.assertEquals("rows returned", 3, lines.size());
       } finally {
          stopServer();
       }
@@ -2035,7 +2032,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + DEFAULT_MAX_ROWS queues + warning line
-         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
+         Assert.assertEquals("rows returned using queueName=Test", 2 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
          Assert.assertFalse(lines.get(lines.size() - 1).startsWith("WARNING"));
 
          //check all queues containing "Test" are displayed
@@ -2048,7 +2045,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + DEFAULT_MAX_ROWS queues
-         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
+         Assert.assertEquals("rows returned using queueName=Test", 2 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
          Assert.assertFalse(lines.get(lines.size() - 1).startsWith("WARNING"));
 
          sendMessages(session, "Test" + StatQueue.DEFAULT_MAX_ROWS, 1);
@@ -2062,7 +2059,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + DEFAULT_MAX_ROWS queues + warning line
-         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
+         Assert.assertEquals("rows returned using queueName=Test", 2 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
          Assert.assertTrue(lines.get(lines.size() - 1).startsWith("WARNING"));
 
          //check all queues containing "Test" are displayed
@@ -2075,7 +2072,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
          // Header line + DEFAULT_MAX_ROWS queues + warning line
-         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
+         Assert.assertEquals("rows returned using queueName=Test", 2 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
          Assert.assertTrue(lines.get(lines.size() - 1).startsWith("WARNING"));
 
       } finally {
