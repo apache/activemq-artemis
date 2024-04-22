@@ -462,6 +462,9 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
 
       final OperationContext repliToken = OperationContextImpl.getContext(ioExecutorFactory);
+      if (repliToken == null) {
+         throw ActiveMQMessageBundle.BUNDLE.replicationFailureRepliTokenNull(packet.toString(), ioExecutorFactory.toString());
+      }
       if (lineUp) {
          repliToken.replicationLineUp();
       }
