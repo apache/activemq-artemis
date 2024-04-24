@@ -315,7 +315,6 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                             .withProperty(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
          peer.remoteFlow().withLinkCredit(1000).queue();
          peer.expectTransfer().accept(); // Notification address create
-         peer.expectTransfer().accept(); // Address create for odd MQTT address
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
