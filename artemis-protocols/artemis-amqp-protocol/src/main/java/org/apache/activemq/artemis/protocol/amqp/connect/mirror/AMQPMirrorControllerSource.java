@@ -49,7 +49,6 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
-import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnection;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
@@ -164,7 +163,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return started;
    }
 
-   public AMQPMirrorControllerSource(ProtonProtocolManager protonProtocolManager, Queue snfQueue, ActiveMQServer server, AMQPMirrorBrokerConnectionElement replicaConfig,
+   public AMQPMirrorControllerSource(ReferenceIDSupplier referenceIdSupplier, Queue snfQueue, ActiveMQServer server, AMQPMirrorBrokerConnectionElement replicaConfig,
                                      AMQPBrokerConnection brokerConnection) {
       super(server);
       assert snfQueue != null;
@@ -175,7 +174,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          snfQueue.setInternalQueue(true); // to avoid redistribution kicking in
       }
       this.server = server;
-      this.idSupplier = protonProtocolManager.getReferenceIDSupplier();
+      this.idSupplier = referenceIdSupplier;
       this.addQueues = replicaConfig.isQueueCreation();
       this.deleteQueues = replicaConfig.isQueueRemoval();
       this.addressFilter = new MirrorAddressFilter(replicaConfig.getAddressFilter());

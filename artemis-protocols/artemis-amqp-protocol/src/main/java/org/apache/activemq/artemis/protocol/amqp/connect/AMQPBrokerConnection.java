@@ -49,8 +49,11 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirror
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.remoting.CertificateUtil;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -65,10 +68,13 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
+import org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionManager.ClientProtocolManagerWithAMQP;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerAggregation;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.ReferenceIDSupplier;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPLargeMessageWriter;
@@ -120,10 +126,13 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
     */
    public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
+   private static final NettyConnectorFactory CONNECTOR_FACTORY = new NettyConnectorFactory().setServerConnector(true);
+
+   private final ProtonProtocolManagerFactory protonProtocolManagerFactory;
+   private final ReferenceIDSupplier referenceIdSupplier;
    private final AMQPBrokerConnectConfiguration brokerConnectConfiguration;
-   private final ProtonProtocolManager protonProtocolManager;
    private final ActiveMQServer server;
-   private final NettyConnector bridgesConnector;
+   private final List<TransportConfiguration> configurations;
    private NettyConnection connection;
    private Session session;
    private AMQPSessionContext sessionContext;
@@ -134,6 +143,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private AMQPFederationSource brokerFederation;
    private int retryCounter = 0;
    private int lastRetryCounter;
+   private int connectionTimeout;
    private boolean connecting = false;
    private volatile ScheduledFuture<?> reconnectFuture;
    private final Set<Queue> senders = new HashSet<>();
@@ -153,16 +163,16 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    public AMQPBrokerConnection(AMQPBrokerConnectionManager bridgeManager,
                                AMQPBrokerConnectConfiguration brokerConnectConfiguration,
-                               ProtonProtocolManager protonProtocolManager,
-                               ActiveMQServer server,
-                               NettyConnector bridgesConnector) {
+                               ProtonProtocolManagerFactory protonProtocolManagerFactory,
+                               ActiveMQServer server) throws Exception {
       this.bridgeManager = bridgeManager;
       this.brokerConnectConfiguration = brokerConnectConfiguration;
-      this.protonProtocolManager = protonProtocolManager;
       this.server = server;
-      this.bridgesConnector = bridgesConnector;
-      connectExecutor = server.getExecutorFactory().getExecutor();
-      scheduledExecutorService = server.getScheduledPool();
+      this.configurations = brokerConnectConfiguration.getTransportConfigurations();
+      this.connectExecutor = server.getExecutorFactory().getExecutor();
+      this.scheduledExecutorService = server.getScheduledPool();
+      this.protonProtocolManagerFactory = protonProtocolManagerFactory;
+      this.referenceIdSupplier = new ReferenceIDSupplier(server);
    }
 
    @Override
@@ -190,7 +200,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    public int getConnectionTimeout() {
-      return bridgesConnector.getConnectTimeoutMillis();
+      return connectionTimeout;
    }
 
    @Override
@@ -340,19 +350,32 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       try {
          connecting = true;
 
-         List<TransportConfiguration> configurationList = brokerConnectConfiguration.getTransportConfigurations();
+         TransportConfiguration configuration = configurations.get(retryCounter % configurations.size());
+         host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration.getParams());
+         port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration.getParams());
 
-         TransportConfiguration tpConfig = configurationList.get(retryCounter % configurationList.size());
+         ProtonProtocolManager protonProtocolManager =
+            (ProtonProtocolManager)protonProtocolManagerFactory.createProtocolManager(server, configuration.getExtraParams(), null, null);
+         NettyConnector connector = (NettyConnector)CONNECTOR_FACTORY.createConnector(
+            configuration.getParams(), null, this, server.getExecutorFactory().getExecutor(), server.getThreadPool(), server.getScheduledPool(), new ClientProtocolManagerWithAMQP(protonProtocolManager));
+         connector.start();
 
-         String hostOnParameter = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, tpConfig.getParams());
-         int portOnParameter = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, tpConfig.getParams());
-         this.host = hostOnParameter;
-         this.port = portOnParameter;
-         connection = bridgesConnector.createConnection(null, hostOnParameter, portOnParameter);
+         logger.debug("Connecting {}", configuration);
 
-         if (connection == null) {
-            retryConnection();
-            return;
+         connectionTimeout = connector.getConnectTimeoutMillis();
+         try {
+            connection = (NettyConnection) connector.createConnection();
+            if (connection == null) {
+               retryConnection();
+               return;
+            }
+         } finally {
+            if (connection == null) {
+               try {
+                  connector.close();
+               } catch (Exception ex) {
+               }
+            }
          }
 
          lastRetryCounter = retryCounter;
@@ -368,12 +391,15 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
          ClientSASLFactory saslFactory = new SaslFactory(connection, brokerConnectConfiguration);
 
+         NettyConnectorCloseHandler connectorCloseHandler = new NettyConnectorCloseHandler(connector, connectExecutor);
          ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
          protonRemotingConnection.getAmqpConnection().addLinkRemoteCloseListener(getName(), this::linkClosed);
+         protonRemotingConnection.addCloseListener(connectorCloseHandler);
+         protonRemotingConnection.addFailureListener(connectorCloseHandler);
 
-         connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(bridgesConnector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler(), this, server.getExecutorFactory().getExecutor()));
+         connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(connector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler(), this, server.getExecutorFactory().getExecutor()));
 
          session = protonRemotingConnection.getAmqpConnection().getHandler().getConnection().session();
          sessionContext = protonRemotingConnection.getAmqpConnection().getSessionExtension(session);
@@ -531,7 +557,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          throw new IllegalAccessException("Cannot start replica");
       }
 
-      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(protonProtocolManager, snfQueue, server, replicaConfig, this);
+      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(referenceIdSupplier, snfQueue, server, replicaConfig, this);
 
       this.mirrorControllerSource = newPartition;
 
@@ -702,11 +728,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
             AtomicBoolean cancelled = new AtomicBoolean(false);
 
-            if (bridgesConnector.getConnectTimeoutMillis() > 0) {
+            if (getConnectionTimeout() > 0) {
                futureTimeout = server.getScheduledPool().schedule(() -> {
                   cancelled.set(true);
                   error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout(), lastRetryCounter);
-               }, bridgesConnector.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
+               }, getConnectionTimeout(), TimeUnit.MILLISECONDS);
             } else {
                futureTimeout = null;
             }
@@ -1057,6 +1083,41 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          return Boolean.parseBoolean((String) property);
       } else {
          return DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED;
+      }
+   }
+
+   public static class NettyConnectorCloseHandler implements FailureListener, CloseListener {
+
+      private final NettyConnector connector;
+      private final Executor connectionExecutor;
+
+      public NettyConnectorCloseHandler(NettyConnector connector, Executor connectionExecutor) {
+         this.connector = connector;
+         this.connectionExecutor = connectionExecutor;
+      }
+
+      @Override
+      public void connectionClosed() {
+         doCloseConnector();
+      }
+
+      @Override
+      public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+         doCloseConnector();
+      }
+
+      @Override
+      public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+         doCloseConnector();
+      }
+
+      private void doCloseConnector() {
+         connectionExecutor.execute(() -> {
+            try {
+               connector.close();
+            } catch (Exception ex) {
+            }
+         });
       }
    }
 }
