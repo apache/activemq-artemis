@@ -33,8 +33,6 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -60,8 +58,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    private final Map<String, AMQPBrokerConnectConfiguration> amqpConnectionsConfig;
    private final Map<String, AMQPBrokerConnection> amqpBrokerConnections = new HashMap<>();
 
-   private ProtonProtocolManager protonProtocolManager;
-
    public AMQPBrokerConnectionManager(ProtonProtocolManagerFactory factory, List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig, ActiveMQServer server) {
       this.amqpConnectionsConfig =
          amqpConnectionsConfig.stream()
@@ -69,10 +65,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
 
       this.server = server;
       this.protonProtocolManagerFactory = factory;
-   }
-
-   public ProtonProtocolManagerFactory getProtocolManagerFactory() {
-      return protonProtocolManagerFactory;
    }
 
    @Override
@@ -94,14 +86,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    }
 
    private void createBrokerConnection(AMQPBrokerConnectConfiguration configuration, boolean start) throws Exception {
-      NettyConnectorFactory factory = new NettyConnectorFactory().setServerConnector(true);
-      protonProtocolManager = (ProtonProtocolManager)protonProtocolManagerFactory.createProtocolManager(server, configuration.getTransportConfigurations().get(0).getExtraParams(), null, null);
-      NettyConnector bridgesConnector = (NettyConnector)factory.createConnector(configuration.getTransportConfigurations().get(0).getParams(), null, this, server.getExecutorFactory().getExecutor(), server.getThreadPool(), server.getScheduledPool(), new ClientProtocolManagerWithAMQP(protonProtocolManager));
-      bridgesConnector.start();
-
-      logger.debug("Connecting {}", configuration);
-
-      AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, configuration, protonProtocolManager, server, bridgesConnector);
+      AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, configuration, protonProtocolManagerFactory, server);
       amqpBrokerConnections.put(configuration.getName(), amqpBrokerConnection);
       server.registerBrokerConnection(amqpBrokerConnection);
 
