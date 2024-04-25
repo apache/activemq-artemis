@@ -166,7 +166,7 @@ public class AMQPLargeMessageWriter implements MessageWriter {
     * Used to provide re-entry from the flow control executor when IO back-pressure has eased
     */
    private void resume() {
-      connection.runNow(this::tryDelivering);
+      connection.runLater(this::tryDelivering);
    }
 
    private void tryDelivering() {
