@@ -125,11 +125,6 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    @Override
-   public int getLinkAttachTimeout() {
-      return configuration.getLinkAttachTimeout();
-   }
-
-   @Override
    public synchronized AMQPSessionContext getSessionContext() {
       if (!connected) {
          throw new IllegalStateException("Cannot access session while federation is not connected");
@@ -148,58 +143,12 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    @Override
-   public synchronized int getReceiverCredits() {
+   public synchronized AMQPFederationConfiguration getConfiguration() {
       if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
+         throw new IllegalStateException("Cannot access connection while federation is not connected");
       }
 
-      return configuration.getReceiverCredits();
-   }
-
-   @Override
-   public synchronized int getReceiverCreditsLow() {
-      if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
-      }
-
-      return configuration.getReceiverCreditsLow();
-   }
-
-   @Override
-   public synchronized int getLargeMessageThreshold() {
-      if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
-      }
-
-      return configuration.getLargeMessageThreshold();
-   }
-
-   @Override
-   public boolean isCoreMessageTunnelingEnabled() {
-      if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
-      }
-
-      return configuration.isCoreMessageTunnelingEnabled();
-   }
-
-
-   @Override
-   public boolean isIgnoreQueueConsumerFilters() {
-      if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
-      }
-
-      return configuration.isIgnoreSubscriptionFilters();
-   }
-
-   @Override
-   public boolean isIgnoreQueueConsumerPriorities() {
-      if (!connected) {
-         throw new IllegalStateException("Cannot access connection configuration, federation is not connected");
-      }
-
-      return configuration.isIgnoreSubscriptionPriorities();
+      return configuration;
    }
 
    /**

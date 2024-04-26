@@ -41,8 +41,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_CLASS_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_PROPERTIES_MAP;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_PROPERTIES_MAP;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationQueueConsumer.DEFAULT_PULL_CREDIT_BATCH_SIZE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration.DEFAULT_PULL_CREDIT_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -2566,7 +2567,29 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 20000)
-   public void testPullQueueConsumerGrantsCreditOnEmptyQueue() throws Exception {
+   public void testPullQueueConsumerGrantsDefaultCreditOnEmptyQueue() throws Exception {
+      doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(0, false, 0, false, DEFAULT_PULL_CREDIT_BATCH_SIZE);
+   }
+
+   @Test(timeout = 20000)
+   public void testPullQueueConsumerGrantsReceiverConfiguredCreditOnEmptyQueue() throws Exception {
+      doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(0, false, 10, true, 10);
+   }
+
+   @Test(timeout = 20000)
+   public void testPullQueueConsumerGrantsFederationConfiguredCreditOnEmptyQueue() throws Exception {
+      doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(20, true, 0, false, 20);
+   }
+
+   @Test(timeout = 20000)
+   public void testPullQueueConsumerGrantsReceiverConfiguredCreditOverFederationConfiguredOnEmptyQueue() throws Exception {
+      doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(20, true, 10, true, 10);
+   }
+
+   private void doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(int globalBatch, boolean setGlobal,
+                                                                     int receiverBatch, boolean setReceiver,
+                                                                     int expected) throws Exception {
+
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -2586,14 +2609,20 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes("test", "test");
+         receiveFromQueue.addProperty(RECEIVER_CREDITS, 0);
+         if (setReceiver) {
+            receiveFromQueue.addProperty(PULL_RECEIVER_BATCH_SIZE, receiverBatch);
+         }
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         if (setGlobal) {
+            element.addProperty(PULL_RECEIVER_BATCH_SIZE, globalBatch);
+         }
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration(
-               getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() + "?amqpCredits=0");
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -2611,7 +2640,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                             containsString("queue-receiver"),
                                             containsString(server.getNodeID().toString())))
                             .respondInKind();
-         peer.expectFlow().withLinkCredit(DEFAULT_PULL_CREDIT_BATCH_SIZE);
+         peer.expectFlow().withLinkCredit(expected);
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
@@ -2706,6 +2735,27 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    @Test(timeout = 30000)
    public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrain() throws Exception {
+      doTestPullConsumerCreditTopUpAfterEachBacklogDrain(0, false, 0, false, DEFAULT_PULL_CREDIT_BATCH_SIZE);
+   }
+
+   @Test(timeout = 30000)
+   public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainFederationConfigured() throws Exception {
+      doTestPullConsumerCreditTopUpAfterEachBacklogDrain(10, true, 0, false, 10);
+   }
+
+   @Test(timeout = 30000)
+   public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainPolicyConfigured() throws Exception {
+      doTestPullConsumerCreditTopUpAfterEachBacklogDrain(0, false, 20, true, 20);
+   }
+
+   @Test(timeout = 30000)
+   public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainBothConfigured() throws Exception {
+      doTestPullConsumerCreditTopUpAfterEachBacklogDrain(100, true, 20, true, 20);
+   }
+
+   private void doTestPullConsumerCreditTopUpAfterEachBacklogDrain(int globalBatch, boolean setGlobal,
+                                                                   int receiverBatch, boolean setReceiver,
+                                                                   int expected) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -2727,10 +2777,16 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes("test", "test");
+         if (setReceiver) {
+            receiveFromQueue.addProperty(PULL_RECEIVER_BATCH_SIZE, receiverBatch);
+         }
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         if (setGlobal) {
+            element.addProperty(PULL_RECEIVER_BATCH_SIZE, globalBatch);
+         }
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(
@@ -2769,7 +2825,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
-            peer.expectFlow().withLinkCredit(DEFAULT_PULL_CREDIT_BATCH_SIZE);
+            peer.expectFlow().withLinkCredit(expected);
 
             // Remove the backlog and credit should be offered to the remote
             assertNotNull(consumer.receiveNoWait());
@@ -2777,7 +2833,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(20, TimeUnit.SECONDS);
 
             // Consume all the credit that was presented in the batch
-            for (int i = 0; i < DEFAULT_PULL_CREDIT_BATCH_SIZE; ++i) {
+            for (int i = 0; i < expected; ++i) {
                peer.expectDisposition().withState().accepted();
                peer.remoteTransfer().withBody().withString("test-message")
                                     .also()
@@ -2785,19 +2841,19 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                     .now();
             }
 
-            Wait.assertTrue(() -> server.queueQuery(queueName).getMessageCount() == DEFAULT_PULL_CREDIT_BATCH_SIZE, 10_000);
+            Wait.assertTrue(() -> server.queueQuery(queueName).getMessageCount() == expected, 10_000);
 
             // Consume all the newly received message from the remote except one
             // which should leave the queue with a pending message so no credit
             // should be offered.
-            for (int i = 0; i < DEFAULT_PULL_CREDIT_BATCH_SIZE - 1; ++i) {
+            for (int i = 0; i < expected - 1; ++i) {
                assertNotNull(consumer.receiveNoWait());
             }
 
             // We should not get a new batch yet as there is still one pending
             // message on the local queue we have not consumed.
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
-            peer.expectFlow().withLinkCredit(DEFAULT_PULL_CREDIT_BATCH_SIZE);
+            peer.expectFlow().withLinkCredit(expected);
 
             // Remove the backlog and credit should be offered to the remote again
             assertNotNull(consumer.receiveNoWait());

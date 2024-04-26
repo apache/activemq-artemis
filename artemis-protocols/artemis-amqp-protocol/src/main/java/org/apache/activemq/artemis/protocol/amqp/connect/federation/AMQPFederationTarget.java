@@ -67,38 +67,8 @@ public class AMQPFederationTarget extends AMQPFederation {
    }
 
    @Override
-   public int getReceiverCredits() {
-      return configuration.getReceiverCredits();
-   }
-
-   @Override
-   public int getReceiverCreditsLow() {
-      return configuration.getReceiverCreditsLow();
-   }
-
-   @Override
-   public int getLargeMessageThreshold() {
-      return configuration.getLargeMessageThreshold();
-   }
-
-   @Override
-   public int getLinkAttachTimeout() {
-      return configuration.getLinkAttachTimeout();
-   }
-
-   @Override
-   public boolean isCoreMessageTunnelingEnabled() {
-      return configuration.isCoreMessageTunnelingEnabled();
-   }
-
-   @Override
-   public boolean isIgnoreQueueConsumerFilters() {
-      return configuration.isIgnoreSubscriptionFilters();
-   }
-
-   @Override
-   public boolean isIgnoreQueueConsumerPriorities() {
-      return configuration.isIgnoreSubscriptionPriorities();
+   public synchronized AMQPFederationConfiguration getConfiguration() {
+      return configuration;
    }
 
    @Override

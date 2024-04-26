@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.qpid.proton.engine.Receiver;
 
 /**
  * Configuration options applied to a consumer created from federation policies
@@ -59,7 +61,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getReceiverCredits();
+         return federation.getConfiguration().getReceiverCredits();
       }
    }
 
@@ -70,7 +72,21 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getReceiverCreditsLow();
+         return federation.getConfiguration().getReceiverCreditsLow();
+      }
+   }
+
+   /**
+    * @return the credit batch size offered to a {@link Receiver} link that is in pull mode.
+    */
+   public int getPullReceiverBatchSize() {
+      final Object property = properties.get(PULL_RECEIVER_BATCH_SIZE);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return federation.getConfiguration().getPullReceiverBatchSize();
       }
    }
 
@@ -81,7 +97,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getLargeMessageThreshold();
+         return federation.getConfiguration().getLargeMessageThreshold();
       }
    }
 
@@ -92,7 +108,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getLinkAttachTimeout();
+         return federation.getConfiguration().getLinkAttachTimeout();
       }
    }
 
@@ -103,7 +119,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.isCoreMessageTunnelingEnabled();
+         return federation.getConfiguration().isCoreMessageTunnelingEnabled();
       }
    }
 
@@ -114,7 +130,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.isIgnoreQueueConsumerFilters();
+         return federation.getConfiguration().isIgnoreSubscriptionFilters();
       }
    }
 
@@ -125,7 +141,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.isIgnoreQueueConsumerPriorities();
+         return federation.getConfiguration().isIgnoreSubscriptionPriorities();
       }
    }
 }
