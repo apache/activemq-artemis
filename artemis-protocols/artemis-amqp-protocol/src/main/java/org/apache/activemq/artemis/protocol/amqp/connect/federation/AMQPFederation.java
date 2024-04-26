@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationQ
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.qpid.proton.engine.Link;
-import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,39 +131,9 @@ public abstract class AMQPFederation implements FederationInternal {
    public abstract AMQPSessionContext getSessionContext();
 
    /**
-    * @return the timeout before signaling an error when creating remote link (0 mean disable).
+    * @return the federation configuration that is in effect.
     */
-   public abstract int getLinkAttachTimeout();
-
-   /**
-    * @return the configured {@link Receiver} link credit batch size.
-    */
-   public abstract int getReceiverCredits();
-
-   /**
-    * @return the configured {@link Receiver} link credit low value.
-    */
-   public abstract int getReceiverCreditsLow();
-
-   /**
-    * @return the size in bytes before a message is considered large.
-    */
-   public abstract int getLargeMessageThreshold();
-
-   /**
-    * @return the true if the federation should ignore filters on queue consumers.
-    */
-   public abstract boolean isIgnoreQueueConsumerFilters();
-
-   /**
-    * @return the true if the federation should ignore priorities on queue consumers.
-    */
-   public abstract boolean isIgnoreQueueConsumerPriorities();
-
-   /**
-    * @return the true if the federation should support core message tunneling.
-    */
-   public abstract boolean isCoreMessageTunnelingEnabled();
+   public abstract AMQPFederationConfiguration getConfiguration();
 
    @Override
    public final synchronized void start() throws ActiveMQException {

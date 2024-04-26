@@ -99,7 +99,7 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
 
       // Address consumers can't pull as we have no real metric to indicate when / how much
       // we should pull so instead we refuse to match if credit set to zero.
-      if (federation.getReceiverCredits() <= 0) {
+      if (federation.getConfiguration().getReceiverCredits() <= 0) {
          logger.debug("Federation address policy rejecting match on {} because credit is set to zero:", addressInfo.getName());
          return false;
       } else {

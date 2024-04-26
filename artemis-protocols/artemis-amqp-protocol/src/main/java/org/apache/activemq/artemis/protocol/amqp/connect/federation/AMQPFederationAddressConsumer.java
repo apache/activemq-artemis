@@ -321,11 +321,11 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
             final ScheduledFuture<?> openTimeoutTask;
             final AtomicBoolean openTimedOut = new AtomicBoolean(false);
 
-            if (federation.getLinkAttachTimeout() > 0) {
+            if (configuration.getLinkAttachTimeout() > 0) {
                openTimeoutTask = federation.getServer().getScheduledPool().schedule(() -> {
                   openTimedOut.set(true);
                   federation.signalResourceCreateError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
-               }, federation.getLinkAttachTimeout(), TimeUnit.SECONDS);
+               }, configuration.getLinkAttachTimeout(), TimeUnit.SECONDS);
             } else {
                openTimeoutTask = null;
             }

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
@@ -46,6 +47,11 @@ public final class AMQPFederationConfiguration {
     * failed due to not responding to an attach request.
     */
    public static final int DEFAULT_LINK_ATTACH_TIMEOUT = 30;
+
+   /**
+    * Default credits granted to a receiver that is in pull mode.
+    */
+   public static final int DEFAULT_PULL_CREDIT_BATCH_SIZE = 100;
 
    /**
     * Default value for the core message tunneling feature that indicates if core protocol messages
@@ -109,6 +115,20 @@ public final class AMQPFederationConfiguration {
          return Integer.parseInt((String) property);
       } else {
          return connection.getAmqpLowCredits();
+      }
+   }
+
+   /**
+    * @return the credit batch size offered to a {@link Receiver} link that is in pull mode.
+    */
+   public int getPullReceiverBatchSize() {
+      final Object property = properties.get(PULL_RECEIVER_BATCH_SIZE);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return DEFAULT_PULL_CREDIT_BATCH_SIZE;
       }
    }
 
@@ -193,6 +213,7 @@ public final class AMQPFederationConfiguration {
 
       configMap.put(RECEIVER_CREDITS, getReceiverCredits());
       configMap.put(RECEIVER_CREDITS_LOW, getReceiverCreditsLow());
+      configMap.put(PULL_RECEIVER_BATCH_SIZE, getPullReceiverBatchSize());
       configMap.put(LARGE_MESSAGE_THRESHOLD, getLargeMessageThreshold());
       configMap.put(LINK_ATTACH_TIMEOUT, getLinkAttachTimeout());
       configMap.put(IGNORE_QUEUE_CONSUMER_FILTERS, isIgnoreSubscriptionFilters());

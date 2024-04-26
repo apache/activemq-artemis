@@ -91,8 +91,6 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final int DEFAULT_PULL_CREDIT_BATCH_SIZE = 100;
-
    public static final int DEFAULT_PENDING_MSG_CHECK_BACKOFF_MULTIPLIER = 2;
    public static final int DEFAULT_PENDING_MSG_CHECK_MAX_DELAY = 30;
 
@@ -315,11 +313,11 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
             final ScheduledFuture<?> openTimeoutTask;
             final AtomicBoolean openTimedOut = new AtomicBoolean(false);
 
-            if (federation.getLinkAttachTimeout() > 0) {
+            if (configuration.getLinkAttachTimeout() > 0) {
                openTimeoutTask = federation.getServer().getScheduledPool().schedule(() -> {
                   openTimedOut.set(true);
                   federation.signalResourceCreateError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
-               }, federation.getLinkAttachTimeout(), TimeUnit.SECONDS);
+               }, configuration.getLinkAttachTimeout(), TimeUnit.SECONDS);
             } else {
                openTimeoutTask = null;
             }
@@ -516,7 +514,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
          // credit. This also allows consumers created on the remote side of a federation connection
          // to read from properties sent from the federation source that indicate the values that are
          // configured on the local side.
-         if (federation.getReceiverCredits() > 0) {
+         if (configuration.getReceiverCredits() > 0) {
             return createCreditRunnable(configuration.getReceiverCredits(), configuration.getReceiverCreditsLow(), receiver, connection, this);
          } else {
             return this::checkIfCreditTopUpNeeded;
@@ -579,7 +577,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
             return; // Closed before this was triggered.
          }
 
-         receiver.flow(DEFAULT_PULL_CREDIT_BATCH_SIZE);
+         receiver.flow(configuration.getPullReceiverBatchSize());
          connection.instantFlush();
          lastBacklogCheckDelay = 0;
          creditTopUpInProgress.set(false);

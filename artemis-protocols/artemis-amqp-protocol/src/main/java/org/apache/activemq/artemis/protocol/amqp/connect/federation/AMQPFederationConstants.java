@@ -78,6 +78,14 @@ public final class AMQPFederationConstants {
    public static final String RECEIVER_CREDITS_LOW = "amqpLowCredits";
 
    /**
+    * Configuration property that defines the amount of credits to batch to an AMQP receiver link
+    * and the top up value when sending more credit once the broker has capacity available for
+    * them. this can be sent to the peer so that dual federation configurations share the same
+    * configuration on both sides of the connection.
+    */
+   public static final String PULL_RECEIVER_BATCH_SIZE = "amqpPullConsumerCredits";
+
+   /**
     * Configuration property used to convey the local side value to use when considering if a message
     * is a large message, this can be sent to the peer so that dual federation configurations share
     * the same configuration on both sides of the connection.
