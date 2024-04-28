@@ -39,43 +39,28 @@ public final class JMSExceptionHelper {
       JMSException je;
       switch (me.getType()) {
          case CONNECTION_TIMEDOUT:
+         case INTERNAL_ERROR:
+         case NOT_CONNECTED:
             je = new JMSException(me.getMessage());
             break;
 
+         case UNSUPPORTED_PACKET:
+         case OBJECT_CLOSED:
          case ILLEGAL_STATE:
             je = new javax.jms.IllegalStateException(me.getMessage());
             break;
 
-         case INTERNAL_ERROR:
-            je = new JMSException(me.getMessage());
+         case QUEUE_DOES_NOT_EXIST:
+         case QUEUE_EXISTS:
+            je = new InvalidDestinationException(me.getMessage());
             break;
 
          case INVALID_FILTER_EXPRESSION:
             je = new InvalidSelectorException(me.getMessage());
             break;
 
-         case NOT_CONNECTED:
-            je = new JMSException(me.getMessage());
-            break;
-
-         case OBJECT_CLOSED:
-            je = new javax.jms.IllegalStateException(me.getMessage());
-            break;
-
-         case QUEUE_DOES_NOT_EXIST:
-            je = new InvalidDestinationException(me.getMessage());
-            break;
-
-         case QUEUE_EXISTS:
-            je = new InvalidDestinationException(me.getMessage());
-            break;
-
          case SECURITY_EXCEPTION:
             je = new JMSSecurityException(me.getMessage());
-            break;
-
-         case UNSUPPORTED_PACKET:
-            je = new javax.jms.IllegalStateException(me.getMessage());
             break;
 
          case TRANSACTION_ROLLED_BACK:
