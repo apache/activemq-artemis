@@ -98,14 +98,21 @@ public class MQTTSession {
       logger.debug("MQTT session created: {}", id);
    }
 
-   // Called after the client has Connected.
-   synchronized void start() throws Exception {
+   /*
+    * This method is only called by MQTTConnectionManager.connect
+    * which is synchronized with MQTTConnectionManager.disconnect
+    */
+   void start() throws Exception {
       mqttPublishManager.start();
       subscriptionManager.start();
       stopped = false;
    }
 
-   synchronized void stop(boolean failure) throws Exception {
+   /*
+    * This method is only called by MQTTConnectionManager.disconnect
+    * which is synchronized with MQTTConnectionManager.connect
+    */
+   void stop(boolean failure) throws Exception {
       state.setFailed(failure);
 
       if (!stopped) {
