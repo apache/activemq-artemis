@@ -87,7 +87,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent) {
       if (logger.isTraceEnabled()) {
-         logger.trace("{} creating subscription {} {} with filter {}", this.pagingStore.getAddress(), cursorID, filter);
+         logger.trace("{} creating subscription {} {} with filter {}", this, this.pagingStore.getAddress(), cursorID, filter);
       }
 
       if (activeCursors.containsKey(cursorID)) {
