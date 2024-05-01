@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
-      <version>31</version>
+      <version>32</version>
       <relativePath>org.apache:apache</relativePath>
    </parent>
 
@@ -119,9 +119,6 @@
       <zookeeper.version>3.9.1</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
       <pem-keystore.version>2.3.0</pem-keystore.version>
-      <!-- This overrides the Apache parent POM due to https://issues.apache.org/jira/browse/MSHADE-462. Once that issue
-           is resolved and a new Apache parent is released then we can get rid of this. -->
-      <version.maven-shade-plugin>3.4.1</version.maven-shade-plugin>
 
       <!-- This overrides the Apache parent POM. Once a new Apache parent is released with the latest version then we
            can get rid of this. -->
@@ -340,8 +337,6 @@
                   <configuration>
                      <compilerArgs>
                         <arg>-Xdiags:verbose</arg>
-                        <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                      </compilerArgs>
@@ -376,8 +371,6 @@
                      <fork>true</fork>
                      <compilerArgs>
                         <arg>-Xdiags:verbose</arg>
-                        <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:WARN -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
@@ -828,16 +821,6 @@
                      </goals>
                   </execution>
                </executions>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-compiler-plugin</artifactId>
-               <configuration>
-                  <showWarnings>true</showWarnings>
-                  <compilerArgs>
-                     <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
-                  </compilerArgs>
-               </configuration>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>

@@ -292,16 +292,6 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <compilerArgs>
-                  <arg>--add-exports=java.rmi/sun.rmi.server=ALL-UNNAMED</arg>
-                  <arg>--add-exports=java.rmi/sun.rmi.transport=ALL-UNNAMED</arg>
-               </compilerArgs>
-            </configuration>
-         </plugin>
-         <plugin>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-maven-plugin</artifactId>
             <executions>
