@@ -30,10 +30,39 @@ public final class AMQPFederationConstants {
 
    /**
     * Address used by a remote broker instance to validate that an incoming federation connection
-    * has access right to perform federation operations. The user that connects to the AMQP federation
-    * endpoint and attempt to create the control link must have write access to this address.
+    * has access rights to perform federation operations. The user that connects to the AMQP federation
+    * endpoint and attempts to create the control link must have write access to this address and any
+    * address prefixed by this value.
+    *
+    * When securing a federation user account the user must have read and write permissions to addresses
+    * under this prefix using the broker defined delimiter, this include the ability to create non-durable
+    * resources.
+    *
+    * <pre>
+    *    $ACTIVEMQ_ARTEMIS_FEDERATION.#;
+    * </pre>
     */
-   public static final String FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS = "$ACTIVEMQ_ARTEMIS_FEDERATION";
+   public static final String FEDERATION_BASE_VALIDATION_ADDRESS = "$ACTIVEMQ_ARTEMIS_FEDERATION";
+
+   /**
+    * The prefix value added when creating a federation control link beyond the initial portion of the
+    * validation address prefix. Links for command and control of federation operations follow the form:
+    *
+    * <pre>
+    *    $ACTIVEMQ_ARTEMIS_FEDERATION.control.&lt;unique-id&gt;
+    * </pre>
+    */
+   public static final String FEDERATION_CONTROL_LINK_PREFIX = "control";
+
+   /**
+    * The prefix value added when creating a federation events links beyond the initial portion of the
+    * validation address prefix. Links for federation events follow the form:
+    *
+    * <pre>
+    *    $ACTIVEMQ_ARTEMIS_FEDERATION.events.&lt;unique-id&gt;
+    * </pre>
+    */
+   public static final String FEDERATION_EVENTS_LINK_PREFIX = "events";
 
    /**
     * A desired capability added to the federation control link that must be offered

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Objects;
@@ -168,6 +172,50 @@ public abstract class AMQPFederation implements FederationInternal {
             eventProcessor = null;
          }
       }
+   }
+
+   /**
+    * Performs the prefixing for federation events queues that places the events queues into
+    * the name-space of federation related internal queues.
+    *
+    * @param suffix
+    *    A suffix to append to the federation events link (normally the AMQP link name).
+    *
+    * @return the full internal queue name to use for the given suffix.
+    */
+   String prefixEventsLinkQueueName(String suffix) {
+      final StringBuilder builder = new StringBuilder();
+      final char delimiter = getWildcardConfiguration().getDelimiter();
+
+      builder.append(FEDERATION_BASE_VALIDATION_ADDRESS)
+             .append(delimiter)
+             .append(FEDERATION_EVENTS_LINK_PREFIX)
+             .append(delimiter)
+             .append(suffix);
+
+      return builder.toString();
+   }
+
+   /**
+    * Performs the prefixing for federation control queue name that places the queues
+    * into the name-space of federation related internal queues.
+    *
+    * @param suffix
+    *    A suffix to append to the federation control link (normally the AMQP link name).
+    *
+    * @return the full internal queue name to use for the given suffix.
+    */
+   String prefixControlLinkQueueName(String suffix) {
+      final StringBuilder builder = new StringBuilder();
+      final char delimiter = getWildcardConfiguration().getDelimiter();
+
+      builder.append(FEDERATION_BASE_VALIDATION_ADDRESS)
+             .append(delimiter)
+             .append(FEDERATION_CONTROL_LINK_PREFIX)
+             .append(delimiter)
+             .append(suffix);
+
+      return builder.toString();
    }
 
    /**

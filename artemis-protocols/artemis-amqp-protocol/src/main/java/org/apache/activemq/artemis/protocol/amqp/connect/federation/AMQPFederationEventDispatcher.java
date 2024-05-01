@@ -68,6 +68,8 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    private final Set<String> addressWatches = new HashSet<>();
    private final Set<String> queueWatches = new HashSet<>();
 
+   private String eventsAddress;
+
    public AMQPFederationEventDispatcher(AMQPFederation federation, AMQPSessionCallback session, Sender sender) {
       this.session = session;
       this.sender = sender;
@@ -76,7 +78,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    }
 
    private String getEventsLinkAddress() {
-      return sender.getName();
+      return eventsAddress;
    }
 
    /**
@@ -100,8 +102,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    public Consumer init(ProtonServerSenderContext senderContext) throws Exception {
       final Connection protonConnection = senderContext.getSender().getSession().getConnection();
       final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
-
-      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+      final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
 
       if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
@@ -115,7 +116,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
 
       // Create a temporary queue using the unique link name which is where events will
       // be sent to so that they can be held until credit is granted by the remote.
-      final SimpleString queueName = SimpleString.toSimpleString(sender.getName());
+      eventsAddress = federation.prefixEventsLinkQueueName(sender.getName());
 
       if (sender.getLocalState() != EndpointState.ACTIVE) {
          // Indicate that event link capabilities is supported.
@@ -131,11 +132,11 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
             throw new ActiveMQAMQPInternalErrorException("Remote Terminus did not arrive as dynamic node: " + remoteTerminus);
          }
 
-         remoteTerminus.setAddress(queueName.toString());
+         remoteTerminus.setAddress(getEventsLinkAddress());
       }
 
       try {
-         session.createTemporaryQueue(queueName, RoutingType.ANYCAST);
+         session.createTemporaryQueue(SimpleString.toSimpleString(getEventsLinkAddress()), RoutingType.ANYCAST, 1);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
@@ -145,18 +146,16 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
 
       server.registerBrokerPlugin(this); // Start listening for bindings and consumer events.
 
-      return (Consumer) session.createSender(senderContext, queueName, null, false);
+      return (Consumer) session.createSender(senderContext, SimpleString.toSimpleString(getEventsLinkAddress()), null, false);
    }
 
    @Override
    public void close() {
       // Make a best effort to remove the temporary queue used for event messages on close.
-      final SimpleString queueName = SimpleString.toSimpleString(sender.getRemoteTarget().getAddress());
-
       server.unRegisterBrokerPlugin(this);
 
       try {
-         session.removeTemporaryQueue(queueName);
+         session.removeTemporaryQueue(SimpleString.toSimpleString(getEventsLinkAddress()));
       } catch (Exception e) {
          // Ignored as the temporary queue should be removed on connection termination.
       }

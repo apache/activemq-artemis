@@ -263,15 +263,32 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public void createTemporaryQueue(SimpleString queueName, RoutingType routingType) throws Exception {
-      createTemporaryQueue(queueName, queueName, routingType, null);
+      createTemporaryQueue(queueName, queueName, routingType, null, null);
+   }
+
+   public void createTemporaryQueue(SimpleString queueName, RoutingType routingType, Integer maxConsumers) throws Exception {
+      createTemporaryQueue(queueName, queueName, routingType, null, maxConsumers);
    }
 
    public void createTemporaryQueue(SimpleString address,
                                     SimpleString queueName,
                                     RoutingType routingType,
                                     SimpleString filter) throws Exception {
+      createTemporaryQueue(address, queueName, routingType, filter, null);
+   }
+
+   public void createTemporaryQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    RoutingType routingType,
+                                    SimpleString filter,
+                                    Integer maxConsumers) throws Exception {
       try {
-         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setTemporary(true).setDurable(false));
+         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address)
+                                                                    .setRoutingType(routingType)
+                                                                    .setFilterString(filter)
+                                                                    .setTemporary(true)
+                                                                    .setDurable(false)
+                                                                    .setMaxConsumers(maxConsumers));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }

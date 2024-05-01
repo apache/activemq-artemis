@@ -28,7 +28,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_QUEUE_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
@@ -62,10 +64,9 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFedera
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
-import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
@@ -158,21 +159,23 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       federationConfiguration.put(IGNORE_QUEUE_CONSUMER_PRIORITIES, AMQP_INGNORE_CONSUMER_PRIORITIES);
       federationConfiguration.put(AmqpSupport.TUNNEL_CORE_MESSAGES, AMQP_TUNNEL_CORE_MESSAGES);
 
+      final String controlLinkAddress = "test-control-address";
+
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
          peer.expectOpen().respond();
          peer.expectBegin().respond();
          peer.expectAttach().ofSender()
-                            .withDesiredCapability(AMQPFederationConstants.FEDERATION_CONTROL_LINK.toString())
-                            .withName(allOf(containsString("Federation"), containsString("myFederation")))
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .withName(allOf(containsString("federation-"), containsString("myFederation")))
                             .withProperty(FEDERATION_CONFIGURATION.toString(), federationConfiguration)
                             .withTarget().withDynamic(true)
                                          .withCapabilities("temporary-topic")
                             .and()
                             .respond()
-                            .withTarget().withAddress("test-control-address")
+                            .withTarget().withAddress(controlLinkAddress)
                             .and()
-                            .withOfferedCapabilities(AMQPFederationConstants.FEDERATION_CONTROL_LINK.toString());
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -193,7 +196,9 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-         Wait.assertTrue(() -> server.locateQueue("test-control-address") != null);
+         Wait.assertTrue(() -> server.locateQueue(FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                  "." + FEDERATION_CONTROL_LINK_PREFIX +
+                                                  "." + controlLinkAddress) != null);
       }
    }
 
@@ -203,7 +208,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
          peer.expectOpen().respond();
          peer.expectBegin().respond();
-         peer.expectAttach().ofSender().withDesiredCapability(AMQPFederationConstants.FEDERATION_CONTROL_LINK.toString()).respond();
+         peer.expectAttach().ofSender().withDesiredCapability(FEDERATION_CONTROL_LINK.toString()).respond();
          peer.expectConnectionToDrop();
          peer.start();
 
@@ -645,7 +650,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
 
    @Test(timeout = 20000)
    public void testControlLinkPassesConnectAttemptWhenUserHasPrivledges() throws Exception {
-      enableSecurity(server, FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS);
+      enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS);
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -666,8 +671,30 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 20000)
+   public void testControlAndEventsLinksPassesConnectAttemptWhenUserHasPrivledges() throws Exception {
+      enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS + ".#");
+      server.start();
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, getTestName(), true, fullUser, fullPass, true, true);
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+
+         logger.info("Test stopped");
+      }
+   }
+
+   @Test(timeout = 20000)
    public void testControlLinkRefusesConnectAttemptWhenUseDoesNotHavePrivledgesForControlAddress() throws Exception {
-      enableSecurity(server, FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS);
+      enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS);
       server.start();
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -768,6 +795,222 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.close();
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testControlLinkSenderQueueCreatedWithMaxConsumersOfOne() throws Exception {
+      final String controlLinkAddress = "test-control-address";
+      final String federationControlSenderAddress = FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                    "." + FEDERATION_CONTROL_LINK_PREFIX +
+                                                    "." + controlLinkAddress;
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .withName(allOf(containsString("federation-"), containsString("myFederation")))
+                            .withTarget().withDynamic(true)
+                                         .withCapabilities("temporary-topic")
+                            .and()
+                            .respond()
+                            .withTarget().withAddress(controlLinkAddress)
+                            .and()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(
+            getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         final AMQPFederatedBrokerConnectionElement federation = new AMQPFederatedBrokerConnectionElement("myFederation");
+         amqpConnection.addElement(federation);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         Wait.assertTrue(() -> server.locateQueue(federationControlSenderAddress) != null);
+
+         // Try and bind to the control address which should be rejected as the queue
+         // was created with max consumers of one.
+         peer.expectAttach().ofSender()
+                            .withName("test-control-link-suspect")
+                            .withNullSource();
+         peer.expectDetach().withClosed(true)
+                            .withError(AmqpError.INTERNAL_ERROR.toString());
+         peer.remoteAttach().ofReceiver()
+                            .withName("test-control-link-suspect")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withTarget().also()
+                            .withSource().withAddress(federationControlSenderAddress)
+                                         .also()
+                                         .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testEventSenderLinkFromTargetUsesNamespacedDynamicQueue() throws Exception {
+      final String federationControlLinkName = "federation-test";
+
+      server.start();
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         peer.queueClientSaslAnonymousConnect();
+         peer.remoteOpen().queue();
+         peer.expectOpen();
+         peer.remoteBegin().queue();
+         peer.expectBegin();
+         peer.remoteAttach().ofSender()
+                            .withName(federationControlLinkName)
+                            .withDesiredCapabilities(FEDERATION_CONTROL_LINK.toString())
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().also()
+                            .withTarget().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                            .queue();
+         peer.expectAttach().ofReceiver()
+                            .withName(federationControlLinkName)
+                            .withTarget()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_CONTROL_LINK.toString());
+         peer.expectFlow();
+
+         final String federationEventsSenderLinkName = "events-receiver-test";
+
+         peer.remoteAttach().ofReceiver()
+                            .withName(federationEventsSenderLinkName)
+                            .withDesiredCapabilities(FEDERATION_EVENT_LINK.toString())
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withTarget().also()
+                            .withSource().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                                         .queue();
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectAttach().ofSender()
+                            .withName(federationEventsSenderLinkName)
+                            .withSource()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_EVENT_LINK.toString());
+
+         peer.connect("localhost", AMQP_PORT);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // The events receiver from the remote should trigger a temporary queue to be created on
+         // the server to allow sends of events beyond currently available credit.
+         Wait.assertTrue(() -> server.locateQueue(FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                  "." + FEDERATION_EVENTS_LINK_PREFIX +
+                                                  "." + federationEventsSenderLinkName) != null);
+
+         server.stop();
+      }
+   }
+
+   @Test(timeout = 20000)
+   public void testEventsLinkAtTargetIsCreatedWithMaxConsumersOfOne() throws Exception {
+      final String federationControlLinkName = "federation-test";
+
+      server.start();
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         peer.queueClientSaslAnonymousConnect();
+         peer.remoteOpen().queue();
+         peer.expectOpen();
+         peer.remoteBegin().queue();
+         peer.expectBegin();
+         peer.remoteAttach().ofSender()
+                            .withName(federationControlLinkName)
+                            .withDesiredCapabilities(FEDERATION_CONTROL_LINK.toString())
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().also()
+                            .withTarget().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                            .queue();
+         peer.expectAttach().ofReceiver()
+                            .withName(federationControlLinkName)
+                            .withTarget()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_CONTROL_LINK.toString());
+         peer.expectFlow();
+
+         final String federationEventsSenderLinkName = "events-receiver-test";
+         final String federationEventsSenderAddress = FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                      "." + FEDERATION_EVENTS_LINK_PREFIX +
+                                                      "." + federationEventsSenderLinkName;
+
+         peer.remoteAttach().ofReceiver()
+                            .withName(federationEventsSenderLinkName)
+                            .withDesiredCapabilities(FEDERATION_EVENT_LINK.toString())
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withTarget().also()
+                            .withSource().withDynamic(true)
+                                         .withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withLifetimePolicyOfDeleteOnClose()
+                                         .withCapabilities("temporary-topic")
+                                         .also()
+                                         .queue();
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectAttach().ofSender()
+                            .withName(federationEventsSenderLinkName)
+                            .withSource()
+                               .withAddress(notNullValue())
+                            .also()
+                            .withOfferedCapability(FEDERATION_EVENT_LINK.toString());
+
+         peer.connect("localhost", AMQP_PORT);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // The events receiver from the remote should trigger a temporary queue to be created on
+         // the server to allow sends of events beyond currently available credit.
+         Wait.assertTrue(() -> server.locateQueue(federationEventsSenderAddress) != null);
+
+         // Try and bind to the events address which should be rejected as the queue
+         // was created with max consumers of one.
+         peer.expectAttach().ofSender()
+                            .withName("test-events-link-suspect")
+                            .withNullSource();
+         peer.expectDetach().withClosed(true)
+                            .withError(AmqpError.INTERNAL_ERROR.toString());
+         peer.remoteAttach().ofReceiver()
+                            .withName("test-events-link-suspect")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withTarget().also()
+                            .withSource().withAddress(federationEventsSenderAddress)
+                                         .also()
+                                         .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
       }
