@@ -2620,7 +2620,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          second = array.getJsonObject(0);
       }
 
-      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()).longValue());
+      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
       Assert.assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
@@ -2633,7 +2633,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // test the old version that has been replaced for backward compatibility
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getAlternativeName()).longValue());
 
-      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()).longValue());
+      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
       Assert.assertEquals(factory.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
@@ -2704,7 +2704,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject second = sorted[1];
 
       Assert.assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()).longValue());
+      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
       Assert.assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
       Assert.assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
@@ -2719,7 +2719,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(0, first.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue());
 
       Assert.assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()).longValue());
+      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
       Assert.assertEquals(factory2.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
       Assert.assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
