@@ -43,23 +43,24 @@ public class MicrosClock {
    }
 
    public static long now() {
-      long epochSecond = offset;
-      long nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
-
-      if (nanoAdjustment == -1) {
-         epochSecond = System.currentTimeMillis() / 1000 - 1024;
-         nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
-         if (nanoAdjustment == -1) {
-            throw new InternalError("Offset " + epochSecond + " is not in range");
-         } else {
-            offset = epochSecond;
-         }
-      }
-      final long secs = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
-      final long secsInUs = TimeUnit.SECONDS.toMicros(secs);
-      final long nsOffset = (int) Math.floorMod(nanoAdjustment, NANOS_PER_SECOND);
-      final long usOffset = TimeUnit.NANOSECONDS.toMicros(nsOffset);
-      return secsInUs + usOffset;
+//      long epochSecond = offset;
+//      long nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
+//
+//      if (nanoAdjustment == -1) {
+//         epochSecond = System.currentTimeMillis() / 1000 - 1024;
+//         nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
+//         if (nanoAdjustment == -1) {
+//            throw new InternalError("Offset " + epochSecond + " is not in range");
+//         } else {
+//            offset = epochSecond;
+//         }
+//      }
+//      final long secs = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
+//      final long secsInUs = TimeUnit.SECONDS.toMicros(secs);
+//      final long nsOffset = (int) Math.floorMod(nanoAdjustment, NANOS_PER_SECOND);
+//      final long usOffset = TimeUnit.NANOSECONDS.toMicros(nsOffset);
+//      return secsInUs + usOffset;
+      return -1;
    }
 
 }

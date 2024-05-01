@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
-      <version>31</version>
+      <version>32</version>
       <relativePath>org.apache:apache</relativePath>
    </parent>
 
@@ -340,8 +340,8 @@
                   <configuration>
                      <compilerArgs>
                         <arg>-Xdiags:verbose</arg>
-                        <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                        <!--arg>- -add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
+                        <arg>- -add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg-->
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                      </compilerArgs>
@@ -376,8 +376,8 @@
                      <fork>true</fork>
                      <compilerArgs>
                         <arg>-Xdiags:verbose</arg>
-                        <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                        <!--arg>- -add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
+                        <arg>- -add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg-->
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:WARN -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
@@ -829,16 +829,16 @@
                   </execution>
                </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
                <configuration>
                   <showWarnings>true</showWarnings>
                   <compilerArgs>
-                     <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                     <arg>- -add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                   </compilerArgs>
                </configuration>
-            </plugin>
+            </plugin-->
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-rar-plugin</artifactId>
