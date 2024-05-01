@@ -143,7 +143,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertTrue(response.getCommand().equals("RECEIPT"));
 
       conn.disconnect();
    }
@@ -186,7 +186,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertTrue(response.getCommand().equals("RECEIPT"));
 
       conn.disconnect();
    }
@@ -324,7 +324,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertTrue(response.getCommand().equals("RECEIPT"));
 
       conn.disconnect();
    }

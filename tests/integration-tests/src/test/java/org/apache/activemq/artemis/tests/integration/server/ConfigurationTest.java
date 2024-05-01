@@ -127,8 +127,8 @@ public class ConfigurationTest extends ActiveMQTestBase {
          Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("2"));
 
          // verify some server attributes
-         Assert.assertNotNull(server.getActiveMQServerControl().getStatus().contains("version"));
-         Assert.assertNotNull(server.getActiveMQServerControl().getStatus().contains("uptime"));
+         Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("version"));
+         Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("uptime"));
 
       } finally {
          try {
