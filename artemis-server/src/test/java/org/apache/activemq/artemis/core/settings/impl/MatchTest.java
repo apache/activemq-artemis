@@ -78,6 +78,29 @@ public class MatchTest {
       Assert.assertFalse(predicate.test("testing.A"));
       Assert.assertFalse(predicate.test("test"));
       Assert.assertFalse(predicate.test("test.A.B"));
+   }
 
+   @Test
+   public void testDollarMatchingDirectTrue() {
+      final Pattern pattern = Match.createPattern("$test.#", new WildcardConfiguration(), true);
+      final Predicate<String> predicate = pattern.asPredicate();
+
+      Assert.assertTrue(predicate.test("$test.A"));
+      Assert.assertTrue(predicate.test("$test.A.B"));
+
+      Assert.assertFalse(predicate.test("$testing.A"));
+      Assert.assertFalse(predicate.test("$test"));
+   }
+
+   @Test
+   public void testDollarMatchingDirectFalse() {
+      final Pattern pattern = Match.createPattern("$test.#", new WildcardConfiguration(), false);
+      final Predicate<String> predicate = pattern.asPredicate();
+
+      Assert.assertTrue(predicate.test("$test"));
+      Assert.assertTrue(predicate.test("$test.A"));
+      Assert.assertTrue(predicate.test("$test.A.B"));
+
+      Assert.assertFalse(predicate.test("$testing.A"));
    }
 }

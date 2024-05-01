@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
+
 import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -24,11 +26,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
+import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Sender;
 
 /**
@@ -41,6 +45,8 @@ public class AMQPFederationCommandDispatcher implements SenderController {
    private final Sender sender;
    private final AMQPSessionCallback session;
    private final ActiveMQServer server;
+
+   private String controlAddress;
 
    AMQPFederationCommandDispatcher(Sender sender, ActiveMQServer server, AMQPSessionCallback session) {
       this.session = session;
@@ -105,33 +111,40 @@ public class AMQPFederationCommandDispatcher implements SenderController {
 
    @Override
    public Consumer init(ProtonServerSenderContext senderContext) throws Exception {
+      final Connection protonConnection = senderContext.getSender().getSession().getConnection();
+      final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+      final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+      if (federation == null) {
+         throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
+      }
+
       // Get the dynamically generated name to use for local creation of a matching temporary
       // queue that we will send control message to and the broker will dispatch as remote
       // credit is made available.
-      final SimpleString queueName = SimpleString.toSimpleString(sender.getRemoteTarget().getAddress());
+      controlAddress = federation.prefixControlLinkQueueName(sender.getRemoteTarget().getAddress());
 
       try {
-         session.createTemporaryQueue(queueName, RoutingType.ANYCAST);
+         session.createTemporaryQueue(SimpleString.toSimpleString(getControlLinkAddress()), RoutingType.ANYCAST, 1);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
 
-      return (Consumer) session.createSender(senderContext, queueName, null, false);
+      return (Consumer) session.createSender(senderContext, SimpleString.toSimpleString(getControlLinkAddress()), null, false);
    }
 
    @Override
    public void close() throws Exception {
       // Make a best effort to remove the temporary queue used for control commands on close.
-      final SimpleString queueName = SimpleString.toSimpleString(sender.getRemoteTarget().getAddress());
 
       try {
-         session.removeTemporaryQueue(queueName);
+         session.removeTemporaryQueue(SimpleString.toSimpleString(getControlLinkAddress()));
       } catch (Exception e) {
          // Ignored as the temporary queue should be removed on connection termination.
       }
    }
 
    private String getControlLinkAddress() {
-      return sender.getRemoteTarget().getAddress();
+      return controlAddress;
    }
 }

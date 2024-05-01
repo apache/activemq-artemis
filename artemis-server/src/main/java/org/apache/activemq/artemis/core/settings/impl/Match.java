@@ -36,6 +36,10 @@ public class Match<T> {
 
    private static final String DOT_REPLACEMENT = "\\.";
 
+   private static final String DOLLAR = "$";
+
+   private static final String DOLLAR_REPLACEMENT = "\\$";
+
    private final String match;
 
    private final Pattern pattern;
@@ -75,6 +79,7 @@ public class Match<T> {
             actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
          }
          actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
+         actMatch = actMatch.replace(Match.DOLLAR, Match.DOLLAR_REPLACEMENT);
          actMatch = actMatch.replace(wildcardConfiguration.getSingleWordString(), String.format(WORD_WILDCARD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
 
          if (direct) {
