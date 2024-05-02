@@ -47,7 +47,7 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
          .add(SessionField.CONSUMER_COUNT.getName(), session.getConsumerCount())
          .add(SessionField.PRODUCER_COUNT.getName(), session.getProducerCount())
          .add(SessionField.CONNECTION_ID.getName(), session.getConnectionID().toString())
-         .add(SessionField.CLIENT_ID.getName(), session.getRemotingConnection().getClientID());
+         .add(SessionField.CLIENT_ID.getName(), session.getRemotingConnection().getClientID() != null ? session.getRemotingConnection().getClientID() : "");
       return obj;
    }
 
