@@ -1509,4 +1509,30 @@ public interface Configuration {
 
    void setManagementRbacPrefix(String prefix);
 
+   /** This configures the Mirror Ack Manager number of attempts on queues before trying page acks.
+    *  The default value here is 5. */
+   int getMirrorAckManagerQueueAttempts();
+
+   Configuration setMirrorAckManagerQueueAttempts(int queueAttempts);
+
+   /** This configures the Mirror Ack Manager number of attempts on page acks.
+    *  The default value here is 2. */
+   int getMirrorAckManagerPageAttempts();
+
+   Configuration setMirrorAckManagerPageAttempts(int pageAttempts);
+
+   /** This configures the interval in which the Mirror AckManager will retry acks when
+    *  It is not intended to be configured through the XML.
+    *  The default value here is 100, and this is in milliseconds. */
+   int getMirrorAckManagerRetryDelay();
+
+   Configuration setMirrorAckManagerRetryDelay(int delay);
+
+   /** Should Mirror use Page Transactions When target destinations is paging?
+    *  When a target queue on the mirror is paged, the mirror will not record a page transaction for every message.
+    *  The default is false, and the overhead of paged messages will be smaller, but there is a possibility of eventual duplicates in case of interrupted communication between the mirror source and target.
+    *  If you set this to true there will be a record stored on the journal for the page-transaction additionally to the record in the page store. */
+   boolean isMirrorPageTransaction();
+
+   Configuration setMirrorPageTransaction(boolean ignorePageTransactions);
 }

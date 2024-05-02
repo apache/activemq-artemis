@@ -70,6 +70,12 @@
       <critical-analyzer-timeout>777</critical-analyzer-timeout>
       <critical-analyzer>false</critical-analyzer>
       <literal-match-markers>()</literal-match-markers>
+
+      <mirror-ack-manager-queue-attempts>111</mirror-ack-manager-queue-attempts>
+      <mirror-ack-manager-page-attempts>222</mirror-ack-manager-page-attempts>
+      <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
+      <mirror-page-transaction>true</mirror-page-transaction>
+
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>

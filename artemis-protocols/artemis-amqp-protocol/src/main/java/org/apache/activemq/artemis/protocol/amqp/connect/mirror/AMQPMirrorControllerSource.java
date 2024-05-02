@@ -419,6 +419,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
       }
+
+      snfQueue.deliverAsync();
    }
 
    private void syncDone(MessageReference reference) {
@@ -516,6 +518,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          postACKInternalMessage(ref);
          return;
       }
+      snfQueue.deliverAsync();
    }
 
    @Override

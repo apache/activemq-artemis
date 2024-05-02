@@ -30,6 +30,8 @@ public class MirrorTransaction extends TransactionImpl {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   boolean allowPageTransaction;
+
    MirrorController controlInUse;
 
    public MirrorTransaction(StorageManager storageManager) {
@@ -49,4 +51,13 @@ public class MirrorTransaction extends TransactionImpl {
       }
    }
 
+   @Override
+   public boolean isAllowPageTransaction() {
+      return allowPageTransaction;
+   }
+
+   public MirrorTransaction setAllowPageTransaction(boolean allowPageTransaction) {
+      this.allowPageTransaction = allowPageTransaction;
+      return this;
+   }
 }

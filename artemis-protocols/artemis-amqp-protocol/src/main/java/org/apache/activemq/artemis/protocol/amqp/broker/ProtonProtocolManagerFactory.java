@@ -87,7 +87,8 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    @Override
    public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
       try {
-         AckManager ackManager = AckManagerProvider.getManager(server, false);
+         AckManager ackManager = AckManagerProvider.getManager(server);
+         services.add(ackManager);
          server.registerRecordsLoader(ackManager::reload);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
