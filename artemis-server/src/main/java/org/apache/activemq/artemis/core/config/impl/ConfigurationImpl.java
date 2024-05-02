@@ -438,6 +438,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean managementMessagesRbac = ActiveMQDefaultConfiguration.getManagementMessagesRbac();
 
+   private int mirrorAckManagerMinQueueAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerMinQueueAttempts();
+
+   private int mirrorAckManagerMaxPageAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerMaxPageAttempts();
+
+   private int mirrorAckManagerRetryDelay = ActiveMQDefaultConfiguration.getMirrorAckManagerRetryDelay();
+
+   private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getDefaultMirrorPageTransaction();
+
+
    /**
     * Parent folder for all data folders.
     */
@@ -3351,6 +3360,55 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public void setManagementRbacPrefix(String prefix) {
       this.managementRbacPrefix = prefix;
+   }
+
+
+   @Override
+   public int getMirrorAckManagerQueueAttempts() {
+      return mirrorAckManagerMinQueueAttempts;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerQueueAttempts(int minQueueAttempts) {
+      logger.debug("Setting mirrorAckManagerMinQueueAttempts = {}", minQueueAttempts);
+      this.mirrorAckManagerMinQueueAttempts = minQueueAttempts;
+      return this;
+   }
+
+   @Override
+   public int getMirrorAckManagerPageAttempts() {
+      return this.mirrorAckManagerMaxPageAttempts;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerPageAttempts(int maxPageAttempts) {
+      logger.debug("Setting mirrorAckManagerMaxPageAttempts = {}", maxPageAttempts);
+      this.mirrorAckManagerMaxPageAttempts = maxPageAttempts;
+      return this;
+   }
+
+   @Override
+   public int getMirrorAckManagerRetryDelay() {
+      return mirrorAckManagerRetryDelay;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerRetryDelay(int delay) {
+      logger.debug("Setting mirrorAckManagerRetryDelay = {}", delay);
+      this.mirrorAckManagerRetryDelay = delay;
+      return this;
+   }
+
+   @Override
+   public boolean isMirrorPageTransaction() {
+      return mirrorPageTransaction;
+   }
+
+   @Override
+   public Configuration setMirrorPageTransaction(boolean ignorePageTransactions) {
+      logger.debug("Setting mirrorIgnorePageTransactions={}", ignorePageTransactions);
+      this.mirrorPageTransaction = ignorePageTransactions;
+      return this;
    }
 
    // extend property utils with ability to auto-fill and locate from collections

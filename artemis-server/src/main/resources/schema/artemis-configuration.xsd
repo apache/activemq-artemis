@@ -915,6 +915,48 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="mirror-ack-manager-queue-attempts" type="xsd:int" maxOccurs="1" minOccurs="0" default="5">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The number of times a mirror target would retry an acknowledgement on the queue before scanning page files for the message.
+
+                  This is exposed as mirrorAckManagerQueueAttempts on broker properties.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="mirror-ack-manager-page-attempts" type="xsd:int" maxOccurs="1" minOccurs="0" default="2">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The number of times a mirror target would retry an acknowledgement on paging.
+
+                  This is exposed as mirrorAckManagerPageAttempts on broker properties.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="mirror-ack-manager-retry-delay" type="xsd:int" maxOccurs="1" minOccurs="0" default="100">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Period in milliseconds for which retries are going to be exercised.
+                  This is exposed as mirrorAckManagerRetryDelay on broker properties.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="mirror-page-transaction" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="false">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Should Mirror use Page Transactions When target destinations is paging?
+                  When a target queue on the mirror is paged, the mirror will not record a page transaction for every message.
+                  The default is false, and the overhead of paged messages will be smaller, but there is a possibility of eventual duplicates in case of interrupted communication between the mirror source and target.
+                  If you set this to true there will be a record stored on the journal for the page-transaction additionally to the record in the page store.
+
+                  This is exposed as mirrorPageTransactions on broker properties.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="suppress-session-notifications" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

@@ -136,7 +136,7 @@ public class AckManagerTest extends ActiveMQTestBase {
       ReferenceIDSupplier referenceIDSupplier = new ReferenceIDSupplier(server1);
 
       {
-         AckManager ackManager = AckManagerProvider.getManager(server1, false);
+         AckManager ackManager = AckManagerProvider.getManager(server1);
 
          AtomicInteger counter = new AtomicInteger(0);
 
@@ -161,7 +161,8 @@ public class AckManagerTest extends ActiveMQTestBase {
       // in this following loop we will get the ackManager, compare the stored retries. stop the server and validate if they were reloaded correctly
       for (int repeat = 0; repeat < 2; repeat++) {
          logger.info("Repeating {}", repeat);
-         AckManager ackManager = AckManagerProvider.getManager(server1, true);
+         AckManager ackManager = AckManagerProvider.getManager(server1);
+         ackManager.start();
 
          HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
 
@@ -179,19 +180,22 @@ public class AckManagerTest extends ActiveMQTestBase {
          Wait.assertEquals(numberOfMessages, c1s1::getMessageCount);
          Wait.assertEquals(numberOfMessages, c2s2::getMessageCount);
 
-         AckManager originalManager = AckManagerProvider.getManager(server1, false);
+         AckManager originalManager = AckManagerProvider.getManager(server1);
          server1.stop();
          Assert.assertEquals(0, AckManagerProvider.getSize());
          server1.start();
-         AckManager newManager = AckManagerProvider.getManager(server1, false);
+         AckManager newManager = AckManagerProvider.getManager(server1);
          Assert.assertEquals(1, AckManagerProvider.getSize());
-         Assert.assertNotSame(originalManager, AckManagerProvider.getManager(server1, true));
+         Assert.assertNotSame(originalManager, AckManagerProvider.getManager(server1));
+         AckManager manager = AckManagerProvider.getManager(server1);
+         Wait.assertTrue(manager::isStarted, 5_000);
 
          Assert.assertEquals(1, AckManagerProvider.getSize());
          Assert.assertNotSame(newManager, ackManager);
       }
 
-      AckManager ackManager = AckManagerProvider.getManager(server1, true);
+      AckManager ackManager = AckManagerProvider.getManager(server1);
+      ackManager.start();
       HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
       Assert.assertEquals(1, sortedRetries.size());
       LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksOnAddress = sortedRetries.get(c1s1.getAddress());

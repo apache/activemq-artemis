@@ -380,6 +380,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ID_CACHE_SIZE = "id-cache-size";
 
+   private static final String MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS = "mirror-ack-manager-queue-attempts";
+
+   private static final String MIRROR_ACK_MANAGER_PAGE_ATTEMPTS = "mirror-ack-manager-page-attempts";
+
+   private static final String MIRROR_ACK_MANAGER_RETRY_DELAY = "mirror-ack-manager-retry-delay";
+
+   private static final String MIRROR_PAGE_TRANSACTION = "mirror-page-transaction";
+
    private boolean validateAIO = false;
 
    private boolean printPageMaxSizeUsed = false;
@@ -848,6 +856,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setManagementMessageRbac(getBoolean(e, "management-message-rbac", config.isManagementMessageRbac()));
 
       config.setManagementRbacPrefix(getString(e, "management-rbac-prefix", config.getManagementRbacPrefix(), NO_CHECK));
+
+      config.setMirrorPageTransaction(getBoolean(e, MIRROR_PAGE_TRANSACTION, config.isMirrorPageTransaction()));
+
+      config.setMirrorAckManagerPageAttempts(getInteger(e, MIRROR_ACK_MANAGER_PAGE_ATTEMPTS, config.getMirrorAckManagerPageAttempts(), GT_ZERO));
+
+      config.setMirrorAckManagerQueueAttempts(getInteger(e, MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS, config.getMirrorAckManagerQueueAttempts(), GT_ZERO));
+
+      config.setMirrorAckManagerRetryDelay(getInteger(e, MIRROR_ACK_MANAGER_RETRY_DELAY, config.getMirrorAckManagerRetryDelay(), GT_ZERO));
 
       parseAddressSettings(e, config);
 

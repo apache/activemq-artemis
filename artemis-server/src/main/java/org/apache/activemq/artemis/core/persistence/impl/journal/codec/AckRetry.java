@@ -30,8 +30,8 @@ public final class AckRetry {
    byte[] temporaryNodeBytes;
    long messageID;
    AckReason reason;
-   short pageAttempts;
-   short queueAttempts;
+   int pageAttempts;
+   int queueAttempts;
 
    private static Persister persister = new Persister();
 
@@ -41,7 +41,7 @@ public final class AckRetry {
 
    @Override
    public String toString() {
-      return "ACKRetry{" + "nodeID='" + nodeID + '\'' + ", messageID=" + messageID + ", reason=" + reason + '}';
+      return "AckRetry{" + "nodeID='" + nodeID + '\'' + ", messageID=" + messageID + ", reason=" + reason + ", pageAttempts=" + pageAttempts + ", queueAttempts=" + queueAttempts + '}';
    }
 
    public AckRetry() {
@@ -92,19 +92,19 @@ public final class AckRetry {
       return this;
    }
 
-   public short getPageAttempts() {
+   public int getPageAttempts() {
       return pageAttempts;
    }
 
-   public short getQueueAttempts() {
+   public int getQueueAttempts() {
       return queueAttempts;
    }
 
-   public short attemptedPage() {
+   public int attemptedPage() {
       return ++pageAttempts;
    }
 
-   public short attemptedQueue() {
+   public int attemptedQueue() {
       return ++queueAttempts;
    }
 

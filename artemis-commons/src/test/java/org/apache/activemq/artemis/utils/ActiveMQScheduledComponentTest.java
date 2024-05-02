@@ -201,6 +201,52 @@ public class ActiveMQScheduledComponentTest {
       }
    }
 
+
+   @Test
+   public void testUpdatePeriod() throws Throwable {
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(10, TimeUnit.MILLISECONDS, true) {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      local.start();
+
+      try {
+         Assert.assertFalse(latch.await(20, TimeUnit.MILLISECONDS));
+
+         latch.setCount(1);
+         local.delay();
+         Assert.assertTrue(latch.await(20, TimeUnit.MILLISECONDS));
+
+         latch.setCount(1);
+         Assert.assertFalse(latch.await(20, TimeUnit.MILLISECONDS));
+
+         local.setPeriod(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS);
+
+         latch.setCount(1);
+         local.delay();
+         Assert.assertFalse(latch.await(20, TimeUnit.MILLISECONDS));
+
+         local.setPeriod(1);
+         local.delay();
+         Assert.assertTrue(latch.await(20, TimeUnit.MILLISECONDS));
+
+         local.setPeriod(1, TimeUnit.SECONDS);
+
+         latch.setCount(1);
+         local.delay();
+
+         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      } finally {
+         local.stop();
+         local.stop(); // calling stop again should not be an issue.
+      }
+   }
+
    @Test
    public void testUsingCustomInitialDelay() throws InterruptedException {
       final CountDownLatch latch = new CountDownLatch(1);

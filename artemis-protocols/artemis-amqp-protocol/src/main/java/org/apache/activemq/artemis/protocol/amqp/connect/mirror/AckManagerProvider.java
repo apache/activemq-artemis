@@ -47,13 +47,10 @@ public class AckManagerProvider {
       }
    }
 
-   public static AckManager getManager(ActiveMQServer server, boolean start) {
+   public static AckManager getManager(ActiveMQServer server) {
       synchronized (managerHashMap) {
          AckManager ackManager = managerHashMap.get(server);
          if (ackManager != null) {
-            if (start && !ackManager.isStarted()) {
-               ackManager.start();
-            }
             return ackManager;
          }
 
@@ -63,9 +60,6 @@ public class AckManagerProvider {
             server.addExternalComponent(ackManager, false);
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
-         }
-         if (start) {
-            ackManager.start();
          }
          return ackManager;
       }

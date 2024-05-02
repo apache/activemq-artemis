@@ -109,4 +109,8 @@ public interface Transaction {
 
    /** To be used on control transactions that are meant as internal and don't really require a hard sync. */
    Transaction setAsync(boolean async);
+
+   default boolean isAllowPageTransaction() {
+      return true;
+   }
 }

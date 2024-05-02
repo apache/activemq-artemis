@@ -37,6 +37,11 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * K = Key
+ * V = Value
+ * C = Context
+ * */
 public class JournalHashMap<K, V, C> implements Map<K, V> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
