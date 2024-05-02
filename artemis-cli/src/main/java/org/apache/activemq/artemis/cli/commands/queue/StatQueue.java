@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.cli.commands.queue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -99,6 +100,12 @@ public class StatQueue extends ConnectionAbstract {
    @Option(names = "--include-management", description = "Include queues created for notification management in the output")
    private boolean includeManagement = false;
 
+   @Option(names = "--loop", description = "Keep Queue Stat in a forever loop, that you can interrupt with Ctrl-C, sleeping for --loop-time between each iteration.")
+   private boolean useLoop = false;
+
+   @Option(names = "--loop-sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000")
+   private long loopSleep = 60_000;
+
    private int statCount = 0;
 
    //easier for testing
@@ -162,6 +169,23 @@ public class StatQueue extends ConnectionAbstract {
       }
       createConnectionFactory();
 
+      singleExeuction(context, filter);
+
+      while (useLoop) {
+         getActionContext().out.println("Waiting " + loopSleep + " before another queue stat iteration");
+         Thread.sleep(loopSleep);
+         getActionContext().out.print(new Date() + ">> Queue stat results for " + getBrokerInstance());
+         try {
+            singleExeuction(context, filter);
+         } catch (Throwable e) {
+            e.printStackTrace(getActionContext().err);
+         }
+      }
+
+      return statCount;
+   }
+
+   private void singleExeuction(ActionContext context, String filter) throws Exception {
       try (SimpleManagement simpleManagement = new SimpleManagement(brokerURL, user, password).open()) {
          String nodeID = simpleManagement.getNodeID();
          JsonArray topology = simpleManagement.listNetworkTopology();
@@ -193,9 +217,6 @@ public class StatQueue extends ConnectionAbstract {
             }
          }
       }
-
-
-      return statCount;
    }
 
    private void printStats(String uri, final String filter) throws Exception {
