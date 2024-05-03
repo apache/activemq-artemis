@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.core.config.ha;
 
-import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 
 @Deprecated(forRemoval = true)
-public class LiveOnlyPolicyConfiguration implements HAPolicyConfiguration {
+public class LiveOnlyPolicyConfiguration extends PrimaryOnlyPolicyConfiguration {
 
    @Deprecated(forRemoval = true)
    public LiveOnlyPolicyConfiguration() {
@@ -30,19 +29,4 @@ public class LiveOnlyPolicyConfiguration implements HAPolicyConfiguration {
    public LiveOnlyPolicyConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
       this.scaleDownConfiguration = scaleDownConfiguration;
    }
-
-   @Override
-   public TYPE getType() {
-      return TYPE.PRIMARY_ONLY;
-   }
-
-   public ScaleDownConfiguration getScaleDownConfiguration() {
-      return scaleDownConfiguration;
-   }
-
-   public void setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
-      this.scaleDownConfiguration = scaleDownConfiguration;
-   }
-
-   ScaleDownConfiguration scaleDownConfiguration;
 }
