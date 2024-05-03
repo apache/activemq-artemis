@@ -62,6 +62,8 @@ Automatic creation and deletion is configured on a per address basis and is cont
 * `auto-delete-queues`
 * `default-queue-routing-type`
 
+include::_auto-queue-creation-note.adoc[]
+
 See xref:address-settings.adoc#address-settings[the documentation on address settings] for more details on these elements.
 
 Of course, automatic configuration can be disabled and everything can be configured manually.

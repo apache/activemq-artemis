@@ -247,8 +247,10 @@ Whether or not the broker should automatically create a queue when a message is 
 Queues which are auto-created are durable, non-temporary, and non-transient.
 Default is `true`.
 +
-NOTE: automatic queue creation does _not_ work for the core client.
+NOTE: Automatic queue creation does _not_ work for the core client.
 The core API is a low-level API and is not meant to have such automation.
+
+include::_auto-queue-creation-note.adoc[]
 
 auto-delete-queues::
 Whether or not the broker should automatically delete auto-created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.

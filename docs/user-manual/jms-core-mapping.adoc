@@ -2,13 +2,25 @@
 :idprefix:
 :idseparator: -
 
-This chapter describes how JMS destinations are mapped to Apache ActiveMQ Artemis addresses.
+This chapter describes how JMS destinations are mapped to the Apache ActiveMQ Artemis address model.
+If you haven't already done so, please read about the xref:address-model.adoc[address model] as it introduces concepts which are referenced here.
 
-Apache ActiveMQ Artemis core is JMS-agnostic.
-It does not have any concept of a JMS topic.
-A JMS topic is implemented in core as an address with name=(the topic name) and with a MULTICAST routing type with zero or more queues bound to it.
-Each queue bound to that address represents a topic subscription.
+== JMS Topic
 
-Likewise, a JMS queue is implemented as an address with name=(the JMS queue name) with an ANYCAST routing type associated with it.
+A JMS topic is implemented as a xref:address-model.adoc#address[*address*] where the name of the address is the same as the name of the JMS topic.
 
-NOTE: While it is possible to configure a JMS topic and queue with the same name, it is not a recommended configuration for use with cross protocol.
+A subscription on that JMS topic is represented as a xref:address-model.adoc#multicast[*multicast*] xref:address-model.adoc#queue[*queue*] on the corresponding address. The queue is named according to the whether the subscription is durable and according to the client ID and subscription named provided via the JMS API.
+
+Typically there is just one consumer per queue, but there can be multiple consumers on a queue when using JMS shared topic subscriptions.
+Any messages sent to the JMS topic is therefore routed to every multicast queue bound to the corresponding address and then dispatched to any consumers on those queues (i.e. JMS topic subscriber).
+If there are no queues on the address then the message is simply dropped.
+
+This effectively achieves JMS pub/sub semantics.
+
+== JMS Queue
+
+Likewise, a JMS queue is implemented as an xref:address-model.adoc#address[*address*] where the name of the address is the same as the name of the JMS queue.
+
+However, there will be just one xref:address-model.adoc#anycast[*anycast*] xref:address-model.adoc#queue[*queue*] on the corresponding address. All JMS consumers on this queue will _share_ the messages in the queue. The queue is named the same as the address.
+
+This effectively achieves JMS point-to-point semantics.
