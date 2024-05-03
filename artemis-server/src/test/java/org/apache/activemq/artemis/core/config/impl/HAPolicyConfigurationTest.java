@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.PrimaryOnlyPolicy;
@@ -140,6 +141,21 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
    @Test
    public void primaryOnlyTest5() throws Exception {
       primaryOnlyTest("primary-only-hapolicy-config5.xml");
+   }
+
+   @Test
+   public void liveOnlyTest() throws Exception {
+      ActiveMQServerImpl server = new ActiveMQServerImpl(createDefaultConfig(0, true));
+      server.getConfiguration().setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+      try {
+         server.start();
+         Activation activation = server.getActivation();
+         assertTrue(activation instanceof PrimaryOnlyActivation);
+         HAPolicy haPolicy = server.getHAPolicy();
+         assertTrue(haPolicy instanceof PrimaryOnlyPolicy);
+      } finally {
+         server.stop();
+      }
    }
 
    public static class FakeDistributedLockManager implements DistributedLockManager {
