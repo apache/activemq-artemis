@@ -36,7 +36,7 @@ ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 HAWTIO_ROLE='${role}'
 
 # Java Opts
-if [ -z "$JAVA_ARGS" ]; then
+if [ -z "$JAVA_ARGS" ] && [ "$1" = "run" ]; then
     JAVA_ARGS="-XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml -Dlog4j2.disableJmx=true ${java-opts}"
 fi
 

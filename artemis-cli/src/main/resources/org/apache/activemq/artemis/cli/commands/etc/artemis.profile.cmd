@@ -33,7 +33,9 @@ rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be 
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-IF "%JAVA_ARGS%"=="" (set JAVA_ARGS=${java-opts} -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE% -Dlog4j2.disableJmx=true)
+IF "%JAVA_ARGS%"=="" IF "%1"=="run" (
+   set JAVA_ARGS=${java-opts} -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE% -Dlog4j2.disableJmx=true
+)
 
 rem Logs Safepoints JVM pauses: Uncomment to enable them
 rem In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause that could
@@ -47,4 +49,6 @@ rem set JAVA_ARGS=%JAVA_ARGS% -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=%
 
 rem Only enable debug options for the 'run' command
 rem Uncomment to enable remote debugging
-rem if "%1"=="run" set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
+rem IF "%1"=="run" (
+rem    set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
+rem )
