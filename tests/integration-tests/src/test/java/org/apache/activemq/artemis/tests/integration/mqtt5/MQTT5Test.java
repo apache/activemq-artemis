@@ -698,4 +698,19 @@ public class MQTT5Test extends MQTT5TestSupport {
       client.disconnect();
       client.close();
    }
+
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   public void testSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
+      final String topic = "a/b";
+      final String clientID = "myClientID";
+      server.getAddressSettingsRepository().getMatch(topic).setAutoCreateQueues(false);
+
+      MqttClient client = createPahoClient(clientID);
+      client.connect();
+      client.subscribe(topic, 1);
+      Wait.assertTrue(() -> getSubscriptionQueue(topic, clientID) != null, 2000, 100);
+      client.disconnect();
+      client.close();
+   }
 }
