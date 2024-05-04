@@ -104,8 +104,9 @@ public class MQTTSubscriptionManager {
    private void addSubscription(MqttTopicSubscription subscription, Integer subscriptionIdentifier, boolean initialStart) throws Exception {
       String rawTopicName = CompositeAddress.extractAddressName(subscription.topicName());
       String parsedTopicName = MQTTUtil.decomposeSharedSubscriptionTopicFilter(rawTopicName).getB();
+      boolean isFullyQualified = CompositeAddress.isFullyQualified(subscription.topicName());
 
-      Queue q = createQueueForSubscription(rawTopicName, parsedTopicName);
+      Queue q = createQueueForSubscription(rawTopicName, parsedTopicName, isFullyQualified);
 
       int qos = subscription.qualityOfService().value();
 
@@ -146,20 +147,20 @@ public class MQTTSubscriptionManager {
       }
    }
 
-   private Queue createQueueForSubscription(String rawTopicName, String parsedTopicName) throws Exception {
+   private Queue createQueueForSubscription(String rawTopicName, String parsedTopicName, boolean isFullyQualified) throws Exception {
       String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic(parsedTopicName, session.getWildcardConfiguration());
       String coreQueue = MQTTUtil.getCoreQueueFromMqttTopic(rawTopicName, session.getState().getClientId(), session.getWildcardConfiguration());
 
-      // check to see if a subscription queue already exists.
+      // check to see if a subscription queue already exists
       Queue q = session.getServer().locateQueue(coreQueue);
 
-      // The queue does not exist so we need to create it.
+      // the subscription queue does not exist so we need to create it
       if (q == null) {
          SimpleString sAddress = SimpleString.toSimpleString(coreAddress);
 
-         // Check we can auto create queues.
+         // only check if we can auto create queues if it's FQQN
          BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(sAddress);
-         if (!bindingQueryResult.isAutoCreateQueues()) {
+         if (isFullyQualified && !bindingQueryResult.isAutoCreateQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(sAddress);
          }
 
@@ -169,8 +170,7 @@ public class MQTTSubscriptionManager {
             if (!bindingQueryResult.isAutoCreateAddresses()) {
                throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(sAddress);
             }
-            addressInfo = session.getServerSession().createAddress(sAddress,
-                                                                   RoutingType.MULTICAST, true);
+            addressInfo = session.getServerSession().createAddress(sAddress, RoutingType.MULTICAST, true);
          }
          return findOrCreateQueue(bindingQueryResult, addressInfo, coreQueue);
       }

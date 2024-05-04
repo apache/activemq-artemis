@@ -831,6 +831,19 @@ public class StompTest extends StompTestBase {
    }
 
    @TestTemplate
+   public void testSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
+      SimpleString topic = SimpleString.toSimpleString(getTopicPrefix() + getTopicName());
+      server.getAddressSettingsRepository().getMatch(topic.toString()).setAutoCreateQueues(false);
+      conn.connect(defUser, defPass);
+
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(topic).size());
+      subscribeTopic(conn, null, null, null, true);
+      Wait.assertEquals(1, () -> server.getPostOffice().getBindingsForAddress(topic).size(), 2000, 100);
+
+      conn.disconnect();
+   }
+
+   @TestTemplate
    public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
