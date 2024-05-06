@@ -38,6 +38,8 @@ import picocli.CommandLine.Option;
 @Command(name = "stat", description = "Print basic stats of a queue. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'.")
 public class StatQueue extends ConnectionAbstract {
 
+   private static final String NOT_APPLICABLE = "";
+
    private static final String MANAGEMENT_QUEUE = "activemq.management";
 
    public enum FIELD {
@@ -290,8 +292,14 @@ public class StatQueue extends ConnectionAbstract {
          return;
       }
       for (FIELD e: FIELD.values()) {
-         if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
-            columnSizes[i] = jsonObject.getString(e.jsonId).length();
+         if (jsonObject.containsKey(e.jsonId)) {
+            if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
+               columnSizes[i] = jsonObject.getString(e.jsonId).length();
+            }
+         } else {
+            if (NOT_APPLICABLE.length() > columnSizes[i]) {
+               columnSizes[i] = NOT_APPLICABLE.length();
+            }
          }
          // enforce max
          if (columnSizes[i] > maxColumnSize && maxColumnSize != -1) {
@@ -325,7 +333,11 @@ public class StatQueue extends ConnectionAbstract {
       int i = 0;
       String[] columns = new String[columnSizes.length];
       for (FIELD e: FIELD.values()) {
-         columns[i++] = jsonObject.getString(e.jsonId);
+         if (!jsonObject.containsKey(e.jsonId)) {
+            columns[i++] = NOT_APPLICABLE;
+         } else {
+            columns[i++] = jsonObject.getString(e.jsonId);
+         }
       }
       tableOut.print(getActionContext().out, columns, center);
    }
