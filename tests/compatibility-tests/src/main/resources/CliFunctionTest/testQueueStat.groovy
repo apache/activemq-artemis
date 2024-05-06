@@ -22,3 +22,8 @@ import org.apache.activemq.artemis.cli.commands.queue.StatQueue
 Run.setEmbedded(true)
 StatQueue statQueue = new StatQueue()
 statQueue.execute(new ActionContext())
+try {
+    statQueue.setSingleLineHeader(true)
+    statQueue.execute(new ActionContext())
+} catch (Throwable ignored) {
+}
