@@ -58,7 +58,7 @@ public class CLIFunctionTest extends ClasspathBase {
    @Test
    public void testQueueStat() throws Throwable {
       try {
-         setVariable(serverClassloader, "persistent", Boolean.TRUE);
+         setVariable(serverClassloader, "persistent", Boolean.FALSE);
          startServer(serverFolder.getRoot(), serverClassloader, "server", null,
                      false, "servers/artemisServer.groovy",
                      "ARTEMIS", "ARTEMIS", "ARTEMIS");

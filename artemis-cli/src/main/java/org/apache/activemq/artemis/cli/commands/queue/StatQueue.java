@@ -105,8 +105,21 @@ public class StatQueue extends ConnectionAbstract {
    @Option(names = "--loop", description = "Keep Queue Stat in a forever loop, that you can interrupt with Ctrl-C, sleeping for --loop-time between each iteration.")
    private boolean useLoop = false;
 
+   private static final long DEFAULT_SLEEP = 60_000;
    @Option(names = "--loop-sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000")
-   private long loopSleep = 60_000;
+   private long loopSleep = -1;
+
+   @Option(names = "--single-line-header", description = "Use a single line on the header titles")
+   private boolean singleLineHeader = false;
+
+   public boolean isSingleLineHeader() {
+      return singleLineHeader;
+   }
+
+   public StatQueue setSingleLineHeader(boolean singleLineHeader) {
+      this.singleLineHeader = singleLineHeader;
+      return this;
+   }
 
    private int statCount = 0;
 
@@ -173,10 +186,19 @@ public class StatQueue extends ConnectionAbstract {
 
       singleExeuction(context, filter);
 
+      if (loopSleep != -1) {
+         // if --loop-sleep was passed as an argument, it is assumed the user also meant --loop
+         useLoop = true;
+      }
+
+      if (useLoop && loopSleep == -1) {
+         loopSleep = DEFAULT_SLEEP;
+      }
+
       while (useLoop) {
          getActionContext().out.println("Waiting " + loopSleep + " before another queue stat iteration");
          Thread.sleep(loopSleep);
-         getActionContext().out.print(new Date() + ">> Queue stat results for " + getBrokerInstance());
+         getActionContext().out.println(new Date() + ">> Queue stat results for " + getBrokerInstance());
          try {
             singleExeuction(context, filter);
          } catch (Throwable e) {
@@ -254,16 +276,20 @@ public class StatQueue extends ConnectionAbstract {
 
       FIELD[] fields = FIELD.values();
       for (int i = 0; i < fields.length; i++) {
-         ArrayList<String> splitTitleArrayList = new ArrayList<>();
-         String[]  splitTitleStringArray = fields[i].toString().split("_");
-         centralize[i] = fields[i].center;
+         if (singleLineHeader) {
+            columnSizes[i] = fields[i].toString().length();
+         } else {
+            ArrayList<String> splitTitleArrayList = new ArrayList<>();
+            String[] splitTitleStringArray = fields[i].toString().split("_");
+            centralize[i] = fields[i].center;
 
-         for (String s : splitTitleStringArray) {
-            splitTitleArrayList.add(s);
-            columnSizes[i] = Math.max(columnSizes[i], s.length());
+            for (String s : splitTitleStringArray) {
+               splitTitleArrayList.add(s);
+               columnSizes[i] = Math.max(columnSizes[i], s.length());
+            }
+
+            fieldTitles[i] = splitTitleArrayList;
          }
-
-         fieldTitles[i] = splitTitleArrayList;
       }
 
       for (int i = 0; i < array.size(); i++) {
@@ -271,7 +297,12 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       TableOut tableOut = new TableOut("|", 2, columnSizes);
-      tableOut.print(getActionContext().out, fieldTitles, centralize);
+
+      if (singleLineHeader) {
+         printHeadings(columnSizes);
+      } else {
+         tableOut.print(getActionContext().out, fieldTitles, centralize);
+      }
 
       for (int i = 0; i < array.size(); i++) {
          if (!includeManagement && array.getJsonObject(i).getString("name").contains(MANAGEMENT_QUEUE)) {
@@ -309,16 +340,18 @@ public class StatQueue extends ConnectionAbstract {
       }
    }
 
-   private void printHeadings(int[] columnSizes, TableOut tableOut) {
-      String[] columns = new String[columnSizes.length];
+   private void printHeadings(int[] columnSizes) {
+      // add 10 for the various '|' characters
+      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
 
       int i = 0;
       for (FIELD e: FIELD.values()) {
-         columns[i++] = e.toString();
+         stringBuilder.append(paddingString(new StringBuilder(e.toString()), columnSizes[i++])).append('|');
       }
 
-      tableOut.print(getActionContext().out, columns);
+      getActionContext().out.println(stringBuilder);
    }
+
 
    private void printQueueStats(JsonObject jsonObject, int[] columnSizes, boolean[] center, TableOut tableOut) {
 
