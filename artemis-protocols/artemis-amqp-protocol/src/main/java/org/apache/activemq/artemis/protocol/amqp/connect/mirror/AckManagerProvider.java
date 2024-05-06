@@ -35,7 +35,7 @@ public class AckManagerProvider {
    }
 
    public static void remove(ActiveMQServer server) {
-      logger.info("Removing {}", server);
+      logger.debug("Removing {}", server);
       synchronized (managerHashMap) {
          managerHashMap.remove(server);
       }
