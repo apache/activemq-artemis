@@ -1464,6 +1464,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       }
 
+      if (cache.getSize() != cacheSizeToUse) {
+         cache.resize(cacheSizeToUse);
+      }
+
       return cache;
    }
 
