@@ -58,7 +58,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    private int pos;
 
-   private final int cacheSize;
+   private int cacheSize;
 
    InMemoryDuplicateIDCache(final SimpleString address, final int size) {
       this.address = address;
@@ -73,6 +73,18 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
    @Override
    public void load(List<Pair<byte[], Long>> ids) throws Exception {
       logger.debug("address = {} ignore loading ids: in memory cache won't load previously stored ids", address);
+   }
+
+   @Override
+   public int getSize() {
+      return cacheSize;
+   }
+
+   @Override
+   public synchronized DuplicateIDCache resize(int newSize) {
+      newSize = Math.max(cache.size(), newSize);
+      this.cacheSize = newSize;
+      return this;
    }
 
    @Override
