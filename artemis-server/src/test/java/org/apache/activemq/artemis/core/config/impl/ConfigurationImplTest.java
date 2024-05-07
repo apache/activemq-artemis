@@ -2078,11 +2078,13 @@ public class ConfigurationImplTest extends ServerTestBase {
       properties.put("divertConfigurations.divert1.routingName", routingName);
       properties.put("divertConfigurations.divert1.address", address);
       properties.put("divertConfigurations.divert1.forwardingAddress", forwardAddress);
-      properties.put("divertConfigurations.divert1.transformerConfiguration", className);
+      properties.put("divertConfigurations.divert1.transformerConfiguration.className", className);
       properties.put("divertConfigurations.divert1.transformerConfiguration.properties.a", "va");
       properties.put("divertConfigurations.divert1.transformerConfiguration.properties.b", "vb");
 
       configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
 
       Assert.assertEquals(1, configuration.getDivertConfigurations().size());
       Assert.assertEquals(routingName, configuration.getDivertConfigurations().get(0).getRoutingName());
@@ -2588,6 +2590,33 @@ public class ConfigurationImplTest extends ServerTestBase {
       Assert.assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
       Assert.assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
       Assert.assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
+   }
+
+   @Test
+   public void testMetricsPluginInit() throws Exception {
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest.FakeMetricPlugin.class");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+      Assert.assertFalse(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertTrue(configuration.getStatus().contains("NotFound"));
+      Assert.assertTrue(configuration.getStatus().contains("FakeMetricPlugin"));
+
+      // fix the typo error
+      insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin.class");
+      insertionOrderedProperties.put("metricsConfiguration.plugin.init","");
+      insertionOrderedProperties.put("metricsConfiguration.jvmMemory", "false");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+
+      Assert.assertNotNull(configuration.getMetricsConfiguration());
+      Assert.assertNotNull(configuration.getMetricsConfiguration().getPlugin());
+      Assert.assertNull(configuration.getMetricsConfiguration().getPlugin().getRegistry());
    }
 
    @Test

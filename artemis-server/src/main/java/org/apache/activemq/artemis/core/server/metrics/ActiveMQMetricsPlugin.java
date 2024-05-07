@@ -35,4 +35,8 @@ public interface ActiveMQMetricsPlugin extends Serializable {
     */
    default void registered(ActiveMQServer server) {
    }
+
+   default void setInit(Map<String, String> options) {
+      init(options);
+   }
 }
