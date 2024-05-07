@@ -75,7 +75,6 @@ import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
@@ -797,7 +796,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   }
                } else {                             // Value into scalar
                   if (value instanceof String) {
-                     newValue = getConvertUtils().convert((String) value, type);
+                     String possibleDotClassValue = (String)value;
+                     if (type != String.class && possibleDotClassValue.endsWith(DOT_CLASS)) {
+                        final String clazzName = possibleDotClassValue.substring(0, possibleDotClassValue.length() - DOT_CLASS.length());
+                        try {
+                           Class clazzType = this.getClass().getClassLoader().loadClass(clazzName);
+                           newValue = clazzType.getDeclaredConstructor().newInstance();
+                        } catch (Exception e) {
+                           throw new InvocationTargetException(e, " for dot class value: " + possibleDotClassValue + ", on: " + bean);
+                        }
+                     } else {
+                        newValue = getConvertUtils().convert(possibleDotClassValue, type);
+                     }
                   } else if (value instanceof String[]) {
                      newValue = getConvertUtils().convert(((String[]) value)[0], type);
                   } else {
@@ -837,14 +847,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            TransformerConfiguration instance = new TransformerConfiguration(value.toString());
-            return (T) instance;
-         }
-      }, TransformerConfiguration.class);
-
-      beanUtils.getConvertUtils().register(new Converter() {
-         @Override
-         public <T> T convert(Class<T> type, Object value) {
             //we only care about DATABASE type as it is the only one used
             if (StoreConfiguration.StoreType.DATABASE.toString().equals(value)) {
                return (T) new DatabaseStorageConfiguration();
@@ -880,11 +882,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
          public <T> T convert(Class<T> type, Object value) {
             Map convertedValue = new HashMap();
             for (String entry : value.toString().split(",")) {
-               String[] kv = entry.split("=");
-               if (2 != kv.length) {
-                  throw new IllegalArgumentException("map value " + value + " not in k=v format");
+               if (!entry.isBlank()) {
+                  String[] kv = entry.split("=");
+                  if (2 != kv.length) {
+                     throw new IllegalArgumentException("map value " + value + " not in k=v format");
+                  }
+                  convertedValue.put(kv[0], kv[1]);
                }
-               convertedValue.put(kv[0], kv[1]);
             }
             return (T) convertedValue;
          }
