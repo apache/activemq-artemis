@@ -231,22 +231,18 @@ public class PostOfficeJournalLoader implements JournalLoader {
             try {
                long scheduledDeliveryTime = record.getScheduledDeliveryTime();
 
-               if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
-                  scheduledDeliveryTime = 0;
-                  record.getMessage().setScheduledDeliveryTime(0L);
-               }
-
                if (scheduledDeliveryTime != 0) {
-                  record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
+                  if (scheduledDeliveryTime <= currentTime) {
+                     // scheduled delivery time already passed while the broker wasn't running
+                     record.getMessage().setScheduledDeliveryTime(0L);
+                  } else {
+                     record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
+                  }
                }
 
                MessageReference ref = postOffice.reload(record.getMessage(), queue, null);
 
                ref.setDeliveryCount(record.getDeliveryCount());
-
-               if (scheduledDeliveryTime != 0) {
-                  record.getMessage().setScheduledDeliveryTime(0L);
-               }
             } catch (Throwable t) {
                ActiveMQServerLogger.LOGGER.unableToLoadMessageFromJournal(t);
                continue;
