@@ -27,14 +27,18 @@ import javax.jms.Topic;
 import java.io.File;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
@@ -62,6 +66,13 @@ public class SingleMirrorSoakTest extends SoakTestBase {
    private static final int SEND_COMMIT = TestParameters.testProperty(TEST_NAME, "SEND_COMMIT", 100);
    private static final int KILL_INTERNAL =  TestParameters.testProperty(TEST_NAME, "KILL_INTERVAL", 500);
    private static final int SNF_TIMEOUT =  TestParameters.testProperty(TEST_NAME, "SNF_TIMEOUT", 60_000);
+   private static final int GENERAL_WAIT_TIMEOUT =  TestParameters.testProperty(TEST_NAME, "GENERAL_TIMEOUT", 10_000);
+
+   /*
+    * Time each consumer takes to process a message received to allow some messages accumulating.
+    * This sleep happens right before the commit.
+    */
+   private static final int CONSUMER_PROCESSING_TIME = TestParameters.testProperty(TEST_NAME, "CONSUMER_PROCESSING_TIME", 0);
 
    private static final String TOPIC_NAME = "topicTest";
 
@@ -82,12 +93,16 @@ public class SingleMirrorSoakTest extends SoakTestBase {
    volatile Process processDC2;
 
    @After
-   public void destroyServers() {
+   public void destroyServers() throws Exception {
       if (processDC1 != null) {
          processDC1.destroyForcibly();
+         processDC1.waitFor(1, TimeUnit.MINUTES);
+         processDC1 = null;
       }
       if (processDC2 != null) {
          processDC2.destroyForcibly();
+         processDC2.waitFor(1, TimeUnit.MINUTES);
+         processDC2 = null;
       }
 
    }
@@ -121,6 +136,15 @@ public class SingleMirrorSoakTest extends SoakTestBase {
       brokerProperties.put("largeMessageSync", "false");
       brokerProperties.put("mirrorAckManagerPageAttempts", "10");
       brokerProperties.put("mirrorAckManagerRetryDelay", "1000");
+
+      if (paging) {
+         brokerProperties.put("addressSettings.#.maxSizeMessages", "1");
+         brokerProperties.put("addressSettings.#.maxReadPageMessages", "1000");
+         brokerProperties.put("addressSettings.#.maxReadPageBytes", "-1");
+         brokerProperties.put("addressSettings.#.prefetchPageMessages", "100");
+         // un-comment this line if you want to rather use the work around without the fix on the PostOfficeImpl
+         // brokerProperties.put("addressSettings.#.iDCacheSize", "1000");
+      }
       // if we don't use pageTransactions we may eventually get a few duplicates
       brokerProperties.put("mirrorPageTransaction", "true");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
@@ -130,11 +154,6 @@ public class SingleMirrorSoakTest extends SoakTestBase {
       Assert.assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
       Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
-      if (paging) {
-         Assert.assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>1</max-size-messages>"));
-         Assert.assertTrue(FileUtil.findReplace(brokerXml, "<max-read-page-bytes>20M</max-read-page-bytes>", "<max-read-page-bytes>-1</max-read-page-bytes>"));
-         Assert.assertTrue(FileUtil.findReplace(brokerXml, "<max-read-page-messages>-1</max-read-page-messages>", "<max-read-page-messages>100000</max-read-page-messages>\n" + "            <prefetch-page-messages>10000</prefetch-page-messages>"));
-      }
 
       if (TRACE_LOGS) {
          File log4j = new File(serverLocation, "/etc/log4j2.properties");
@@ -248,10 +267,27 @@ public class SingleMirrorSoakTest extends SoakTestBase {
 
       Wait.assertEquals(0, () -> getCount(managementDC1, snfQueue), SNF_TIMEOUT);
       Wait.assertEquals(0, () -> getCount(managementDC2, snfQueue), SNF_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDA + "." + subscriptionID), 10_000);
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDB + "." + subscriptionID), 10_000);
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDA + "." + subscriptionID), 10_000);
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDB + "." + subscriptionID), 10_000);
+      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+
+      destroyServers();
+
+      // counting the number of records on duplicate cache
+      // to validate if ARTEMIS-4765 is fixed
+      ActiveMQServer server = createServer(true, false);
+      server.getConfiguration().setJournalDirectory(getServerLocation(DC2_NODE) + "/data/journal");
+      server.getConfiguration().setBindingsDirectory(getServerLocation(DC2_NODE) + "/data/bindings");
+      server.getConfiguration().setPagingDirectory(getServerLocation(DC2_NODE) + "/data/paging");
+      server.start();
+      server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
+      HashMap<Integer, AtomicInteger> records = countJournal(server.getConfiguration());
+      AtomicInteger duplicateRecordsCount = records.get((int) JournalRecordIds.DUPLICATE_ID);
+      Assert.assertNotNull(duplicateRecordsCount);
+      // 1000 credits by default
+      Assert.assertTrue(duplicateRecordsCount.get() <= 1000);
+
    }
 
    private static void consume(ConnectionFactory factory,
@@ -283,6 +319,9 @@ public class SingleMirrorSoakTest extends SoakTestBase {
             logger.debug("Consumed {}, large={}", i, message.getBooleanProperty("large"));
             pendingCommit++;
             if (pendingCommit >= batchCommit) {
+               if (CONSUMER_PROCESSING_TIME > 0) {
+                  Thread.sleep(CONSUMER_PROCESSING_TIME);
+               }
                logger.info("received {}", i);
                session.commit();
                pendingCommit = 0;
@@ -301,7 +340,6 @@ public class SingleMirrorSoakTest extends SoakTestBase {
    public long getCount(SimpleManagement simpleManagement, String queue) throws Exception {
       try {
          long value = simpleManagement.getMessageCountOnQueue(queue);
-         logger.debug("count on queue {} is {}", queue, value);
          return value;
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);

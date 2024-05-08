@@ -1614,4 +1614,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224137, value = "Skipping SSL auto reload for sources of store {} because of {}", level = LogMessage.Level.WARN)
    void skipSSLAutoReloadForSourcesOfStore(String storePath, String reason);
+
+   @LogMessage(id = 224138, value = "Error Registering DuplicateCacheSize on namespace {}", level = LogMessage.Level.WARN)
+   void errorRegisteringDuplicateCacheSize(String address, Exception reason);
 }

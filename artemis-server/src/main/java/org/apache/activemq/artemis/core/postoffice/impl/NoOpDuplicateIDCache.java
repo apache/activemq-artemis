@@ -74,4 +74,9 @@ public final class NoOpDuplicateIDCache implements DuplicateIDCache {
    public List<Pair<byte[], Long>> getMap() {
       return Collections.emptyList();
    }
+
+   @Override
+   public int getSize() {
+      return 0;
+   }
 }

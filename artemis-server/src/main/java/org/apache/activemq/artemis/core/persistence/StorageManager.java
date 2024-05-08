@@ -377,6 +377,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    List<AbstractPersistedAddressSetting> recoverAddressSettings() throws Exception;
 
+   AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address);
+
    void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception;
 
    void deleteSecuritySetting(SimpleString addressMatch) throws Exception;
