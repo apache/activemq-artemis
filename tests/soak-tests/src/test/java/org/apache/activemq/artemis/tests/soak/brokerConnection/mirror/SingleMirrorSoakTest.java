@@ -139,9 +139,9 @@ public class SingleMirrorSoakTest extends SoakTestBase {
 
       if (paging) {
          brokerProperties.put("addressSettings.#.maxSizeMessages", "1");
-         brokerProperties.put("addressSettings.#.maxReadPageMessages", "100000");
+         brokerProperties.put("addressSettings.#.maxReadPageMessages", "1000");
          brokerProperties.put("addressSettings.#.maxReadPageBytes", "-1");
-         brokerProperties.put("addressSettings.#.prefetchPageMessages", "10000");
+         brokerProperties.put("addressSettings.#.prefetchPageMessages", "100");
          // un-comment this line if you want to rather use the work around without the fix on the PostOfficeImpl
          // brokerProperties.put("addressSettings.#.iDCacheSize", "1000");
       }
