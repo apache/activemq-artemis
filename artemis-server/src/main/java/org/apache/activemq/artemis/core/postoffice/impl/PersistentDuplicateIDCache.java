@@ -62,7 +62,7 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
    private int pos;
 
-   private int cacheSize;
+   private final int cacheSize;
 
    private final StorageManager storageManager;
 
@@ -171,20 +171,6 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
          }
       }
 
-   }
-
-   @Override
-   public int getSize() {
-      return cacheSize;
-   }
-
-   @Override
-   public synchronized DuplicateIDCache resize(int newSize) {
-      // We won't be shrinking items here
-      newSize = Math.max(cache.size(), newSize);
-      this.cacheSize = newSize;
-      logger.trace("newSize = {} after math.min check", newSize);
-      return this;
    }
 
    private static String describeID(byte[] duplicateID) {
