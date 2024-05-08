@@ -60,6 +60,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
@@ -1443,15 +1445,22 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public DuplicateIDCache getDuplicateIDCache(final SimpleString address) {
       int resolvedIdCacheSize = resolveIdCacheSize(address);
-      return getDuplicateIDCache(address, resolvedIdCacheSize);
+      return getDuplicateIDCache(address, resolvedIdCacheSize, false);
    }
 
    @Override
    public DuplicateIDCache getDuplicateIDCache(final SimpleString address, int cacheSizeToUse) {
+      return getDuplicateIDCache(address, cacheSizeToUse, true);
+   }
+
+   private DuplicateIDCache getDuplicateIDCache(final SimpleString address, int cacheSizeToUse, boolean allowRegistration) {
       DuplicateIDCache cache = duplicateIDCaches.get(address);
 
       if (cache == null) {
          if (persistIDCache) {
+            if (allowRegistration) {
+               registerCacheSize(address, cacheSizeToUse);
+            }
             cache = DuplicateIDCaches.persistent(address, cacheSizeToUse, storageManager);
          } else {
             cache = DuplicateIDCaches.inMemory(address, cacheSizeToUse);
@@ -1465,6 +1474,22 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       return cache;
+   }
+
+   private void registerCacheSize(SimpleString address, int cacheSizeToUse) {
+      AbstractPersistedAddressSetting recordedSetting = storageManager.recoverAddressSettings(address);
+      if (recordedSetting == null || recordedSetting.getSetting().getIDCacheSize() == null || recordedSetting.getSetting().getIDCacheSize().intValue() != cacheSizeToUse) {
+         AddressSettings settings = recordedSetting != null ? recordedSetting.getSetting() : new AddressSettings();
+         settings.setIDCacheSize(cacheSizeToUse);
+         server.getAddressSettingsRepository().addMatch(address.toString(), settings);
+         try {
+            storageManager.storeAddressSetting(new PersistedAddressSettingJSON(address, settings, settings.toJSON()));
+         } catch (Exception e) {
+            // nothing could be done here, we just log
+            // if an exception is happening, if IO is compromised the server will eventually be shutdown
+            ActiveMQServerLogger.LOGGER.errorRegisteringDuplicateCacheSize(String.valueOf(address), e);
+         }
+      }
    }
 
    public ConcurrentMap<SimpleString, DuplicateIDCache> getDuplicateIDCaches() {

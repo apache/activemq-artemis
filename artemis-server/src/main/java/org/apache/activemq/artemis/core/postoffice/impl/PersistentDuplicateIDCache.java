@@ -396,4 +396,9 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
       }
    }
 
+   @Override
+   public int getSize() {
+      return cacheSize;
+   }
+
 }

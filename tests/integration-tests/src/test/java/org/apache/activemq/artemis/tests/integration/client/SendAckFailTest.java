@@ -304,6 +304,11 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
+      public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
+         return null;
+      }
+
+      @Override
       public void stop() throws Exception {
          manager.stop();
       }

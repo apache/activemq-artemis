@@ -31,6 +31,8 @@ public interface DuplicateIDCache {
 
    void addToCache(byte[] duplicateID, Transaction tx) throws Exception;
 
+   int getSize();
+
    /**
     * it will add the data to the cache.
     * If TX == null it won't use a transaction.

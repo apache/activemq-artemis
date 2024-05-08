@@ -277,4 +277,9 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
          return null;
       }
    }
+
+   @Override
+   public int getSize() {
+      return cacheSize;
+   }
 }

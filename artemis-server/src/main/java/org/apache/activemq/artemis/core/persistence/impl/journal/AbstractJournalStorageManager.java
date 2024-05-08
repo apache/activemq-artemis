@@ -752,6 +752,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
+      return mapPersistedAddressSettings.get(address);
+   }
+
+   @Override
    public List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception {
       return new ArrayList<>(mapPersistedSecuritySettings.values());
    }

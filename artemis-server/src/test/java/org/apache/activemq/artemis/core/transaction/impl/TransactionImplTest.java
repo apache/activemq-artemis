@@ -333,6 +333,11 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
+      public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
+         return null;
+      }
+
+      @Override
       public void asyncCommit(long txID) throws Exception {
 
       }

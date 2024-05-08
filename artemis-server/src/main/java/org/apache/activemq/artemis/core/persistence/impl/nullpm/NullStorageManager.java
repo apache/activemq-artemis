@@ -80,6 +80,11 @@ public class NullStorageManager implements StorageManager {
 
    private final IOCriticalErrorListener ioCriticalErrorListener;
 
+   @Override
+   public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
+      return null;
+   }
+
    public NullStorageManager(IOCriticalErrorListener ioCriticalErrorListener) {
       this.ioCriticalErrorListener = ioCriticalErrorListener;
    }
