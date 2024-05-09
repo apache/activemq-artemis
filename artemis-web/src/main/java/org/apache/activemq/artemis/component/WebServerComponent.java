@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -132,7 +133,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       if (this.webServerConfig.customizer != null) {
          try {
-            httpConfiguration.addCustomizer((HttpConfiguration.Customizer) Class.forName(this.webServerConfig.customizer).getConstructor().newInstance());
+            httpConfiguration.addCustomizer((HttpConfiguration.Customizer) ClassloadingUtil.getInstanceWithTypeCheck(this.webServerConfig.customizer, HttpConfiguration.Customizer.class, this.getClass().getClassLoader()));
          } catch (Throwable t) {
             ActiveMQWebLogger.LOGGER.customizerNotLoaded(this.webServerConfig.customizer, t);
          }

@@ -122,7 +122,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       if (configs != null) {
          for (final ConnectorServiceConfiguration config : configs) {
             if (connectorServices.get(config.getConnectorName()) == null) {
-               ConnectorServiceFactory factory = loadClass(config.getFactoryClassName());
+               ConnectorServiceFactory factory = loadClass(config.getFactoryClassName(), ConnectorServiceFactory.class);
                addConnectorService(factory, config);
             }
          }
@@ -133,7 +133,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    @Override
    public ConnectorServiceFactory getConnectorService(ConnectorServiceConfiguration configuration) {
-      return loadClass(configuration.getFactoryClassName());
+      return loadClass(configuration.getFactoryClassName(), ConnectorServiceFactory.class);
    }
 
    @Override
@@ -235,7 +235,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       AcceptorFactory factory = acceptorFactories.get(name);
 
       if (factory == null && className != null) {
-         factory = loadClass(className);
+         factory = loadClass(className, AcceptorFactory.class);
          addAcceptorFactory(name, factory);
       }
 
@@ -248,11 +248,11 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @SuppressWarnings("TypeParameterUnusedInFormals")
-   public <T> T loadClass(final String className) {
+   public <T> T loadClass(final String className, Class expectedType) {
       return AccessController.doPrivileged(new PrivilegedAction<T>() {
          @Override
          public T run() {
-            return (T) ClassloadingUtil.newInstanceFromClassLoader(className);
+            return (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType);
          }
       });
    }
@@ -262,7 +262,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
       if (transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
          try {
-            transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName()));
+            transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName(), Transformer.class));
             transformer.init(Collections.unmodifiableMap(transformerConfiguration.getProperties()));
          } catch (Exception e) {
             throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(transformerConfiguration.getClassName(), e);
@@ -274,7 +274,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    private void instantiateInterceptors(List<String> classNames, List<BaseInterceptor> interceptors) {
       if (classNames != null) {
          for (final String className : classNames) {
-            BaseInterceptor interceptor = loadClass(className);
+            BaseInterceptor interceptor = loadClass(className, BaseInterceptor.class);
             interceptors.add(interceptor);
          }
       }

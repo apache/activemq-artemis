@@ -115,6 +115,7 @@ import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
@@ -800,8 +801,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      if (type != String.class && possibleDotClassValue.endsWith(DOT_CLASS)) {
                         final String clazzName = possibleDotClassValue.substring(0, possibleDotClassValue.length() - DOT_CLASS.length());
                         try {
-                           Class clazzType = this.getClass().getClassLoader().loadClass(clazzName);
-                           newValue = clazzType.getDeclaredConstructor().newInstance();
+                           newValue = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
                         } catch (Exception e) {
                            throw new InvocationTargetException(e, " for dot class value: " + possibleDotClassValue + ", on: " + bean);
                         }
@@ -2352,6 +2352,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return brokerPlugins;
    }
 
+   // for properties type inference
+   public void addBrokerPlugin(ActiveMQServerBasePlugin type) {
+      registerBrokerPlugin(type);
+   }
+
    @Override
    public List<ActiveMQServerConnectionPlugin> getBrokerConnectionPlugins() {
       return brokerConnectionPlugins;
@@ -3584,27 +3589,27 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
          Object instance = null;
          try {
+            // we don't know the type, infer from add method add(X x) or add(String key, X x)
+            final String addPropertyName = addPropertyNameBuilder.toString();
+            final Method[] methods = hostingBean.getClass().getMethods();
+            final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) && ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
+               // has a String key
+               && String.class.equals(method.getParameterTypes()[0])
+               // but not initialised from a String form (eg: uri)
+               && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
+
+            if (candidate == null) {
+               throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+            }
+            Class type = candidate.getParameterTypes()[candidate.getParameterCount() - 1];
+
             if (name.indexOf(DOT_CLASS) > 0) {
                final String clazzName = name.substring(0, name.length() - DOT_CLASS.length());
-               instance = this.getClass().getClassLoader().loadClass(clazzName).getDeclaredConstructor().newInstance();
+               instance = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
             } else {
-               // we don't know the type, infer from add method add(X x) or add(String key, X x)
-               final String addPropertyName = addPropertyNameBuilder.toString();
-               final Method[] methods = hostingBean.getClass().getMethods();
-               final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) && ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
-                  // has a String key
-                  && String.class.equals(method.getParameterTypes()[0])
-                  // but not initialised from a String form (eg: uri)
-                  && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
-
-               if (candidate == null) {
-                  throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
-               }
-
-               instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
+               instance = type.getDeclaredConstructor().newInstance();
             }
             // initialise with name
-
             try {
                beanUtilsBean.setProperty(instance, "name", name);
             } catch (Throwable ignored) {
@@ -3617,7 +3622,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
             if (logger.isDebugEnabled()) {
                logger.debug("Failed to add entry for {} to collection: {}", name, hostingBean, e);
             }
-            throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
+            throw new IllegalArgumentException("failed to add entry for collection key " + name + ", cause " + e.getMessage(), e);
          }
       }
 

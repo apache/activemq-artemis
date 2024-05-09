@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -139,8 +140,7 @@ public class Run extends LockAbstract {
             "system-" + systemWebPropertyPrefix, System.getProperties(), systemWebPropertyPrefix);
 
          for (ComponentDTO componentDTO : broker.components) {
-            Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
-            ExternalComponent component = (ExternalComponent) clazz.getDeclaredConstructor(null).newInstance();
+            ExternalComponent component = (ExternalComponent) ClassloadingUtil.getInstanceWithTypeCheck(componentDTO.componentClassName, ExternalComponent.class, this.getClass().getClassLoader());
             component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
             server.getServer().addExternalComponent(component, true);
             assert component.isStarted();

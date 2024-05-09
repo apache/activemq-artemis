@@ -1153,7 +1153,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return AccessController.doPrivileged(new PrivilegedAction<ConnectorFactory>() {
          @Override
          public ConnectorFactory run() {
-            return (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName);
+            return (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class);
          }
       });
    }

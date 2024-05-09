@@ -46,7 +46,7 @@ public class TransportConfigurationUtil {
       }
 
       if (!DEFAULTS.containsKey(className)) {
-         Object object = instantiateObject(className);
+         Object object = instantiateObject(className, TransportConfigurationHelper.class);
          if (object != null && object instanceof TransportConfigurationHelper) {
 
             DEFAULTS.put(className, ((TransportConfigurationHelper) object).getDefaults());
@@ -60,12 +60,12 @@ public class TransportConfigurationUtil {
       return cloneDefaults(DEFAULTS.get(className));
    }
 
-   private static Object instantiateObject(final String className) {
+   private static Object instantiateObject(final String className, final Class expectedType) {
       return AccessController.doPrivileged(new PrivilegedAction<Object>() {
          @Override
          public Object run() {
             try {
-               return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className);
+               return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className, expectedType);
             } catch (IllegalStateException e) {
                return null;
             }

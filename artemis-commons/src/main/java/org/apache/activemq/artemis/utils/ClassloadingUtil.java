@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -36,15 +37,16 @@ public final class ClassloadingUtil {
 
    private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
 
-   public static Object newInstanceFromClassLoader(final String className) {
-      return newInstanceFromClassLoader(ClassloadingUtil.class, className);
+   public static Object newInstanceFromClassLoader(final String className, Class<?> expectedType) {
+      return newInstanceFromClassLoader(ClassloadingUtil.class, className, expectedType);
    }
 
-   public static Object newInstanceFromClassLoader(final Class<?> classOwner, final String className) {
+   public static Object newInstanceFromClassLoader(final Class<?> classOwner,
+                                                   final String className,
+                                                   Class<?> expectedType) {
       ClassLoader loader = classOwner.getClassLoader();
       try {
-         Class<?> clazz = loader.loadClass(className);
-         return clazz.newInstance();
+         return getInstanceWithTypeCheck(className, expectedType, loader);
       } catch (Throwable t) {
          if (t instanceof InstantiationException) {
             System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
@@ -54,48 +56,39 @@ public final class ClassloadingUtil {
             throw new RuntimeException("No local context classloader", t);
 
          try {
-            return loader.loadClass(className).newInstance();
+            return getInstanceWithTypeCheck(className, expectedType, loader);
          } catch (InstantiationException e) {
             throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
          } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
-         } catch (IllegalAccessException e) {
+         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
          }
       }
    }
 
-   public static Object newInstanceFromClassLoader(final String className, Object... objs) {
-      return newInstanceFromClassLoader(ClassloadingUtil.class, className, objs);
+   public static Object getInstanceWithTypeCheck(String className,
+                                   Class<?> expectedType,
+                                   ClassLoader loader) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+      final Class<?> clazz = loadWithCheck(className, expectedType, loader);
+      return clazz.getDeclaredConstructor().newInstance();
    }
 
-   public static Object newInstanceFromClassLoader(final Class<?> classOwner, final String className, Object... objs) {
-      ClassLoader loader = classOwner.getClassLoader();
-      try {
-         Class<?>[] parametersType = new Class<?>[objs.length];
-         for (int i = 0; i < objs.length; i++) {
-            parametersType[i] = objs[i].getClass();
-         }
-         Class<?> clazz = loader.loadClass(className);
-         return clazz.getConstructor(parametersType).newInstance(objs);
-      } catch (Throwable t) {
-         if (t instanceof InstantiationException) {
-            System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
-         }
-         loader = Thread.currentThread().getContextClassLoader();
-         if (loader == null)
-            throw new RuntimeException("No local context classloader", t);
+   public static Object getInstanceForParamsWithTypeCheck(String className,
+                                                 Class<?> expectedType,
+                                                 ClassLoader loader,  Class<?>[] parameterTypes, Object... params) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+      final Class<?> clazz = loadWithCheck(className, expectedType, loader);
+      return clazz.getDeclaredConstructor(parameterTypes).newInstance(params);
+   }
 
-         try {
-            return loader.loadClass(className).newInstance();
-         } catch (InstantiationException e) {
-            throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
-         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-         }
+   private static Class<?> loadWithCheck(String className,
+                                         Class<?> expectedType,
+                                         ClassLoader loader) throws ClassNotFoundException {
+      Class<?> clazz = loader.loadClass(className);
+      if (!expectedType.isAssignableFrom(clazz)) {
+         throw new IllegalStateException("clazz [" + className + "] is not assignable from expected type: " + expectedType);
       }
+      return clazz;
    }
 
    public static URL findResource(final String resourceName) {
