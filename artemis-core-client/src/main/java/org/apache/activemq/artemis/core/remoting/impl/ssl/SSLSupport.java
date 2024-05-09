@@ -278,7 +278,7 @@ public class SSLSupport {
 
    private TrustManagerFactory loadTrustManagerFactory() throws Exception {
       if (trustManagerFactoryPlugin != null) {
-         return AccessController.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin)).getTrustManagerFactory());
+         return AccessController.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin, TrustManagerFactoryPlugin.class)).getTrustManagerFactory());
       } else if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
          return InsecureTrustManagerFactory.INSTANCE;

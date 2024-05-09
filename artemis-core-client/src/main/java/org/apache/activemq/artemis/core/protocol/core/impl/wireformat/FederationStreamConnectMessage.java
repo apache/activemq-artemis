@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
 import org.apache.activemq.artemis.core.config.federation.FederationStreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.Preconditions;
 
 public abstract class FederationStreamConnectMessage <T extends FederationStreamConfiguration> extends PacketImpl {
@@ -148,7 +149,7 @@ public abstract class FederationStreamConnectMessage <T extends FederationStream
 
    private FederationPolicy getFederationPolicy(String clazz) {
       try {
-         return (FederationPolicy) Class.forName(clazz).getConstructor((Class<?>[]) null).newInstance();
+         return (FederationPolicy) ClassloadingUtil.getInstanceWithTypeCheck(clazz, FederationPolicy.class, this.getClass().getClassLoader());
       } catch (Exception e) {
          throw new IllegalStateException("Error. Unable to instantiate FederationPolicy: " + e.getMessage(), e);
       }

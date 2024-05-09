@@ -256,7 +256,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       AccessController.doPrivileged(new PrivilegedAction<Object>() {
          @Override
          public Object run() {
-               loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName);
+               loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
                return null;
          }
       });
@@ -1949,7 +1949,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
             String[] arrayInterceptor = interceptorList.split(",");
             for (String strValue : arrayInterceptor) {
-               Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim());
+               Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim(), Interceptor.class);
                interceptors.add(interceptor);
             }
             return null;

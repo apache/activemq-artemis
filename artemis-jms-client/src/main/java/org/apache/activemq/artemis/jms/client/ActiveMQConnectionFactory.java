@@ -158,7 +158,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-               ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(ActiveMQConnectionFactory.class, protocolManagerFactoryStr);
+               ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(ActiveMQConnectionFactory.class, protocolManagerFactoryStr, ClientProtocolManagerFactory.class );
                serverLocator.setProtocolManagerFactory(protocolManagerFactory);
                return null;
             }

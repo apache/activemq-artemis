@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import javax.sql.DataSource;
@@ -32,7 +33,7 @@ public class JDBCDataSourceUtils {
          .map(key -> key + "=" + (key.equalsIgnoreCase("password") ? "****" : dataSourceProperties.get(key)))
          .collect(Collectors.joining(", ", "{", "}")));
       try {
-         DataSource dataSource = (DataSource) Class.forName(dataSourceClassName).getDeclaredConstructor().newInstance();
+         DataSource dataSource = (DataSource) ClassloadingUtil.getInstanceWithTypeCheck(dataSourceClassName, DataSource.class, JDBCDataSourceUtils.class.getClassLoader());
          for (Map.Entry<String, Object> entry : dataSourceProperties.entrySet()) {
             PropertyUtils.setProperty(dataSource, entry.getKey(), entry.getValue());
          }
