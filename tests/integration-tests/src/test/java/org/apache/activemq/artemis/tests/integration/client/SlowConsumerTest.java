@@ -210,6 +210,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
       session.start();
 
+      Queue queue = server.locateQueue(QUEUE);
+      Wait.assertTrue(() -> queue.getDeliveringCount() >= 3 * threshold);
+
       for (int i = 0; i < 3 * threshold; i++) {
          consumer.receiveImmediate().individualAcknowledge();
       }
