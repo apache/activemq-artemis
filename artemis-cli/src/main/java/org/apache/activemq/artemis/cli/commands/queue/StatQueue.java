@@ -106,7 +106,10 @@ public class StatQueue extends ConnectionAbstract {
    private boolean useLoop = false;
 
    private static final long DEFAULT_SLEEP = 60_000;
-   @Option(names = "--loop-sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000")
+   @Option(names = "--loop-sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000", hidden = true)
+   private long oldSleep = -1;
+
+   @Option(names = "--sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000")
    private long loopSleep = -1;
 
    @Option(names = "--single-line-header", description = "Use a single line on the header titles")
@@ -185,6 +188,11 @@ public class StatQueue extends ConnectionAbstract {
       createConnectionFactory();
 
       singleExeuction(context, filter);
+
+      // if using the hidden parameter
+      if (oldSleep != -1) {
+         loopSleep = oldSleep;
+      }
 
       if (loopSleep != -1) {
          // if --loop-sleep was passed as an argument, it is assumed the user also meant --loop
