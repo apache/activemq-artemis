@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -194,6 +196,20 @@ public final class Page  {
 
    public void sync() throws Exception {
       file.sync();
+   }
+
+   public void trySync() throws IOException {
+      try {
+         if (file.isOpen()) {
+            file.sync();
+         }
+      } catch (IOException e) {
+         if (e instanceof ClosedChannelException) {
+            logger.debug("file.sync on file {} thrown a ClosedChannelException that will just be ignored", file.getFileName());
+         } else {
+            throw e;
+         }
+      }
    }
 
    public boolean isOpen() {
