@@ -170,16 +170,26 @@ public class AMQPLargeMessageWriter implements MessageWriter {
    }
 
    private void tryDelivering() {
+
+      final Delivery localDelivery = delivery;
+      final MessageReference localReference = reference;
+      final LargeBodyReader localBodyReader = largeBodyReader;
+
+      if (localDelivery == null || localReference == null || localBodyReader == null) {
+         logger.debug("Write got closed before tryDelivering was called");
+         return;
+      }
+
       // This is discounting some bytes due to Transfer payload
-      final int frameSize = protonSender.getSession().getConnection().getTransport().getOutboundFrameSizeLimit() - 50 - (delivery.getTag() != null ? delivery.getTag().length : 0);
+      final int frameSize = protonSender.getSession().getConnection().getTransport().getOutboundFrameSizeLimit() - 50 - (localDelivery.getTag() != null ? localDelivery.getTag().length : 0);
 
       try {
          final ByteBuf frameBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(frameSize, frameSize);
          final NettyReadable frameView = new NettyReadable(frameBuffer);
 
          try {
-            largeBodyReader.position(position);
-            long bodySize = largeBodyReader.getSize();
+            localBodyReader.position(position);
+            long bodySize = localBodyReader.getSize();
             // materialize it so we can use its internal NIO buffer
             frameBuffer.ensureWritable(frameSize);
 
@@ -197,7 +207,7 @@ public class AMQPLargeMessageWriter implements MessageWriter {
                }
                frameBuffer.clear();
 
-               final int readSize = largeBodyReader.readInto(frameBuffer.internalNioBuffer(0, frameSize));
+               final int readSize = localBodyReader.readInto(frameBuffer.internalNioBuffer(0, frameSize));
 
                frameBuffer.writerIndex(readSize);
 
@@ -215,9 +225,9 @@ public class AMQPLargeMessageWriter implements MessageWriter {
             frameBuffer.release();
          }
 
-         serverSender.reportDeliveryComplete(this, reference, delivery, true);
+         serverSender.reportDeliveryComplete(this, localReference, localDelivery, true);
       } catch (Exception deliveryError) {
-         serverSender.reportDeliveryError(this, reference, deliveryError);
+         serverSender.reportDeliveryError(this, localReference, deliveryError);
       }
    }
 
