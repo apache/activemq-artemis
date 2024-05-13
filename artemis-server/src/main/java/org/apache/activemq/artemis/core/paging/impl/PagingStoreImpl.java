@@ -515,15 +515,17 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public void ioSync() throws Exception {
       if (!fileFactory.supportsIndividualContext()) {
+         Page page;
          lock.readLock().lock();
 
          try {
-            final Page page = currentPage;
-            if (page != null) {
-               page.sync();
-            }
+            page = currentPage;
          } finally {
             lock.readLock().unlock();
+         }
+
+         if (page != null) {
+            page.trySync();
          }
       }
    }
