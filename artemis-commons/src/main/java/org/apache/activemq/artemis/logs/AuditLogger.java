@@ -2710,4 +2710,10 @@ public interface AuditLogger {
    @LogMessage(id = 601776, value = "User {} is getting first message as json on target resource: {}", level = LogMessage.Level.INFO)
    void peekFirstMessageAsJSON(String user, Object source);
 
+   static void getBrokerPluginClassNames(Object source) {
+      BASE_LOGGER.getBrokerPluginClassNames(getCaller(), source);
+   }
+
+   @LogMessage(id = 601777, value = "User {} is getting broker plugin class names on target resource: {}", level = LogMessage.Level.INFO)
+   void getBrokerPluginClassNames(String user, Object source);
 }

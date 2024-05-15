@@ -44,6 +44,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -100,6 +101,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerLegacyProducersImpl;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -233,6 +235,28 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
       Assert.assertEquals(conf.getJournalPoolFiles(), serverControl.getJournalPoolFiles());
       Assert.assertTrue(serverControl.isActive());
+   }
+
+   @Test
+   public void testBrokerPluginClassNames() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      conf.registerBrokerPlugin(new TestBrokerPlugin());
+      conf.registerBrokerPlugin(new ActiveMQServerPlugin() {
+         @Override
+         public void registered(ActiveMQServer server) {
+         }
+      });
+
+      Assert.assertEquals(2, conf.getBrokerPlugins().size());
+      Assert.assertEquals(2, serverControl.getBrokerPluginClassNames().length);
+      Assert.assertEquals(
+         "org.apache.activemq.artemis.tests.integration.management.ActiveMQServerControlTest.TestBrokerPlugin",
+         serverControl.getBrokerPluginClassNames()[0]);
+      Assert.assertTrue(Pattern.matches(
+         "org.apache.activemq.artemis.tests.integration.management.ActiveMQServerControlTest\\$\\d+$",
+         serverControl.getBrokerPluginClassNames()[1]
+      ));
    }
 
    @Test
@@ -6190,5 +6214,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
    }
 
+   private static class TestBrokerPlugin implements ActiveMQServerPlugin {
+      @Override
+      public void registered(ActiveMQServer server) {
+      }
+   }
 }
 
