@@ -111,6 +111,10 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "List of interceptors used by this server for outgoing messages")
    String[] getOutgoingInterceptorClassNames();
 
+
+   @Attribute(desc = "List of broker plugin class names used by this server")
+   String[] getBrokerPluginClassNames();
+
    /**
     * Returns whether this server is clustered.
     */

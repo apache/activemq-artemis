@@ -541,6 +541,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String[] getBrokerPluginClassNames() {
+            return (String[]) proxy.retrieveAttributeValue("brokerPluginClassNames", String.class);
+         }
+
+         @Override
          public String getJournalDirectory() {
             return (String) proxy.retrieveAttributeValue("journalDirectory");
          }
