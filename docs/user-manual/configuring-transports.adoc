@@ -71,7 +71,7 @@ Here's an example of creating a `ClientSessionFactory` which will connect direct
 ----
 ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61617");
 
-ClientSessionFactory sessionFactory = locator.createClientSessionFactory();
+ClientSessionFactory sessionFactory = locator.createSessionFactory();
 
 ClientSession session = sessionFactory.createSession(...);
 ----
