@@ -121,7 +121,7 @@ ServerLocator locator = ActiveMQClient.createServerLocator("vm://0");
 
 // In this simple example, we just use one session for both producing and receiving
 
-ClientSessionFactory factory =  locator.createClientSessionFactory();
+ClientSessionFactory factory =  locator.createSessionFactory();
 ClientSession session = factory.createSession();
 
 // A producer is associated with an address ...

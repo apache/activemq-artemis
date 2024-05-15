@@ -19,7 +19,7 @@ ClientSession session = null;
 try {
    locator = ActiveMQClient.createServerLocatorWithoutHA(..);
 
-   sf = locator.createClientSessionFactory();
+   sf = locator.createSessionFactory();
 
    session = sf.createSession(...);
 
