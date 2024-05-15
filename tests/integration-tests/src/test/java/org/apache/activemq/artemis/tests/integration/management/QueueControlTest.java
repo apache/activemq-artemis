@@ -423,14 +423,7 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertNull(queueControl.getExpiryAddress());
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings() {
-         private static final long serialVersionUID = 6745306517827764680L;
-
-         @Override
-         public SimpleString getExpiryAddress() {
-            return expiryAddress;
-         }
-      });
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setExpiryAddress(expiryAddress));
 
       Assert.assertEquals(expiryAddress.toString(), queueControl.getExpiryAddress());
 
