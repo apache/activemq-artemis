@@ -177,4 +177,8 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
    default void forEachTransaction(BiConsumer<Long, PageTransactionInfo> transactionConsumer) {
    }
 
+   default boolean isRebuildingCounters() {
+      return false;
+   }
+
 }

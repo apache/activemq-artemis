@@ -35,22 +35,42 @@ public class QueueMessageMetrics {
    private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> COUNT_UPDATER =
          AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "messageCount");
 
+   private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> COUNT_UPDATER_PAGED =
+      AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "messageCountPaged");
+
    private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> DURABLE_COUNT_UPDATER =
          AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "durableMessageCount");
+
+   private static final AtomicIntegerFieldUpdater<QueueMessageMetrics> DURABLE_COUNT_UPDATER_PAGED =
+      AtomicIntegerFieldUpdater.newUpdater(QueueMessageMetrics.class, "durableMessageCountPaged");
 
    private static final AtomicLongFieldUpdater<QueueMessageMetrics> SIZE_UPDATER =
          AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "persistentSize");
 
+   private static final AtomicLongFieldUpdater<QueueMessageMetrics> SIZE_UPDATER_PAGED =
+      AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "persistentSizePaged");
+
    private static final AtomicLongFieldUpdater<QueueMessageMetrics> DURABLE_SIZE_UPDATER =
          AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "durablePersistentSize");
 
+   private static final AtomicLongFieldUpdater<QueueMessageMetrics> DURABLE_SIZE_UPDATER_PAGED =
+      AtomicLongFieldUpdater.newUpdater(QueueMessageMetrics.class, "durablePersistentSizePaged");
+
    private volatile int messageCount;
+
+   private volatile int messageCountPaged;
 
    private volatile long persistentSize;
 
+   private volatile long persistentSizePaged;
+
    private volatile int durableMessageCount;
 
+   private volatile int durableMessageCountPaged;
+
    private volatile long durablePersistentSize;
+
+   private volatile long durablePersistentSizePaged;
 
    private final Queue queue;
 
@@ -64,89 +84,99 @@ public class QueueMessageMetrics {
 
    public void incrementMetrics(final MessageReference reference) {
       long size = getPersistentSize(reference);
-      COUNT_UPDATER.incrementAndGet(this);
-      if (logger.isDebugEnabled()) {
-         logger.debug("{} increment messageCount to {}: {}", this, messageCount, reference);
-      }
-      SIZE_UPDATER.addAndGet(this, size);
-      if (queue.isDurable() && reference.isDurable()) {
-         DURABLE_COUNT_UPDATER.incrementAndGet(this);
-         DURABLE_SIZE_UPDATER.addAndGet(this, size);
+      if (reference.isPaged()) {
+         COUNT_UPDATER_PAGED.incrementAndGet(this);
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} paged messageCountPaged to {}: {}", this, messageCountPaged, reference);
+         }
+         SIZE_UPDATER_PAGED.addAndGet(this, size);
+         if (queue.isDurable() && reference.isDurable()) {
+            DURABLE_COUNT_UPDATER_PAGED.incrementAndGet(this);
+            DURABLE_SIZE_UPDATER_PAGED.addAndGet(this, size);
+         }
+      } else {
+         COUNT_UPDATER.incrementAndGet(this);
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} increment messageCount to {}: {}", this, messageCount, reference);
+         }
+         SIZE_UPDATER.addAndGet(this, size);
+         if (queue.isDurable() && reference.isDurable()) {
+            DURABLE_COUNT_UPDATER.incrementAndGet(this);
+            DURABLE_SIZE_UPDATER.addAndGet(this, size);
+         }
       }
    }
 
    public void decrementMetrics(final MessageReference reference) {
       long size = -getPersistentSize(reference);
-      COUNT_UPDATER.decrementAndGet(this);
-      if (logger.isDebugEnabled()) {
-         logger.debug("{} decrement messageCount to {}: {}", this, messageCount, reference);
-      }
-      SIZE_UPDATER.addAndGet(this, size);
-      if (queue.isDurable() && reference.isDurable()) {
-         DURABLE_COUNT_UPDATER.decrementAndGet(this);
-         DURABLE_SIZE_UPDATER.addAndGet(this, size);
+      if (reference.isPaged()) {
+         COUNT_UPDATER_PAGED.decrementAndGet(this);
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} decrement messageCount to {}: {}", this, messageCountPaged, reference);
+         }
+         SIZE_UPDATER_PAGED.addAndGet(this, size);
+         if (queue.isDurable() && reference.isDurable()) {
+            DURABLE_COUNT_UPDATER_PAGED.decrementAndGet(this);
+            DURABLE_SIZE_UPDATER_PAGED.addAndGet(this, size);
+         }
+      } else {
+         COUNT_UPDATER.decrementAndGet(this);
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} decrement messageCount to {}: {}", this, messageCount, reference);
+         }
+         SIZE_UPDATER.addAndGet(this, size);
+         if (queue.isDurable() && reference.isDurable()) {
+            DURABLE_COUNT_UPDATER.decrementAndGet(this);
+            DURABLE_SIZE_UPDATER.addAndGet(this, size);
+         }
       }
    }
 
 
+   public int getNonPagedMessageCount() {
+      return messageCount;
+   }
 
    /**
     * @return the messageCount
     */
    public int getMessageCount() {
-      return messageCount;
+      return messageCount + messageCountPaged;
    }
-
-   /**
-    * @param messageCount the messageCount to set
-    */
-   public void setMessageCount(int messageCount) {
-      this.messageCount = messageCount;
-   }
-
    /**
     * @return the persistentSize
     */
    public long getPersistentSize() {
+      return persistentSize + persistentSizePaged;
+   }
+
+   public long getNonPagedPersistentSize() {
       return persistentSize;
    }
 
-   /**
-    * @param persistentSize the persistentSize to set
-    */
-   public void setPersistentSize(long persistentSize) {
-      this.persistentSize = persistentSize;
+   public long getNonPagedDurablePersistentSize() {
+      return durablePersistentSize;
    }
 
    /**
     * @return the durableMessageCount
     */
    public int getDurableMessageCount() {
-      return durableMessageCount;
+      return durableMessageCount + durableMessageCountPaged;
    }
 
-   /**
-    * @param durableMessageCount the durableMessageCount to set
-    */
-   public void setDurableMessageCount(int durableMessageCount) {
-      this.durableMessageCount = durableMessageCount;
+   public int getNonPagedDurableMessageCount() {
+      return durableMessageCount;
    }
 
    /**
     * @return the durablePersistentSize
     */
    public long getDurablePersistentSize() {
-      return durablePersistentSize;
+      return durablePersistentSize + durablePersistentSizePaged;
    }
 
-   /**
-    * @param durablePersistentSize the durablePersistentSize to set
-    */
-   public void setDurablePersistentSize(long durablePersistentSize) {
-      this.durablePersistentSize = durablePersistentSize;
-   }
-
-   private long getPersistentSize(final MessageReference reference) {
+   private static long getPersistentSize(final MessageReference reference) {
       long size = 0;
 
       try {
@@ -156,11 +186,6 @@ public class QueueMessageMetrics {
       }
 
       return size;
-   }
-
-   @Override
-   public String toString() {
-      return "QueuePendingMessageMetrics[queue=" + queue.getName() + ", name=" + name + "]";
    }
 
 }

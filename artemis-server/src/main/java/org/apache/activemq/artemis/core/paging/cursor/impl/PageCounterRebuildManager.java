@@ -44,7 +44,6 @@ import java.util.function.BiConsumer;
 
 /** this class will copy current data from the Subscriptions, count messages while the server is already active
  * performing other activity */
-// TODO: Rename this as RebuildManager in a future major version
 public class PageCounterRebuildManager implements Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -90,7 +89,7 @@ public class PageCounterRebuildManager implements Runnable {
             Page currentPage = store.getCurrentPage();
             limitPageId = store.getCurrentWritingPage();
             limitMessageNr = currentPage.getNumberOfMessages();
-            if (logger.isDebugEnabled()) {
+            if (logger.isTraceEnabled()) {
                logger.trace("PageCounterRebuild for {}, Current writing page {} and limit will be {} with lastMessage on last page={}", store.getStoreName(), store.getCurrentWritingPage(), limitPageId, limitMessageNr);
             }
          } catch (Exception e) {
@@ -139,14 +138,6 @@ public class PageCounterRebuildManager implements Runnable {
       }
    }
 
-   private synchronized PageSubscriptionCounter getCounter(long queueID) {
-      CopiedSubscription copiedSubscription = copiedSubscriptionMap.get(queueID);
-      if (copiedSubscription != null) {
-         return copiedSubscription.subscriptionCounter;
-      } else {
-         return null;
-      }
-   }
 
    private CopiedSubscription getSubscription(long queueID) {
       return copiedSubscriptionMap.get(queueID);

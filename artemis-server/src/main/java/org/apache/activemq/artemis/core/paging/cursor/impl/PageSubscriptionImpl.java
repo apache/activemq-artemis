@@ -28,7 +28,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -105,9 +104,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    private final PageSubscriptionCounter counter;
 
-   private final AtomicLong deliveredCount = new AtomicLong(0);
-
-   private final AtomicLong deliveredSize = new AtomicLong(0);
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
@@ -186,7 +182,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       if (empty) {
          return 0;
       } else {
-         return counter.getValue() - deliveredCount.get();
+         return counter.getValue();
       }
    }
 
@@ -202,7 +198,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       } else {
          //A negative value could happen if an old journal was loaded that didn't have
          //size metrics for old records
-         long messageSize = counter.getPersistentSize() - deliveredSize.get();
+         long messageSize = counter.getPersistentSize();
          return messageSize > 0 ? messageSize : 0;
       }
    }
@@ -399,29 +395,21 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
-   public void confirmPosition(final Transaction tx, final PagePosition position) throws Exception {
+   public void confirmPosition(final Transaction tx, final PagePosition position, boolean fromDelivery) throws Exception {
       // if the cursor is persistent
       if (persistent) {
          store.storeCursorAcknowledgeTransactional(tx.getID(), cursorId, position);
       }
-      installTXCallback(tx, position);
+      installTXCallback(tx, position, fromDelivery);
 
-   }
-
-   private void confirmPosition(final Transaction tx, final PagePosition position, final long persistentSize) throws Exception {
-      // if the cursor is persistent
-      if (persistent) {
-         store.storeCursorAcknowledgeTransactional(tx.getID(), cursorId, position);
-      }
-      installTXCallback(tx, position, persistentSize);
    }
 
    @Override
-   public void ackTx(final Transaction tx, final PagedReference reference) throws Exception {
+   public void ackTx(final Transaction tx, final PagedReference reference, boolean fromDelivery) throws Exception {
       //pre-calculate persistentSize
       final long persistentSize = getPersistentSize(reference);
 
-      confirmPosition(tx, reference.getPagedMessage().newPositionObject(), persistentSize);
+      confirmPosition(tx, reference.getPagedMessage().newPositionObject(), true);
 
       counter.increment(tx, -1, -persistentSize);
 
@@ -584,8 +572,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void reloadPreparedACK(final Transaction tx, final PagePosition position) {
-      deliveredCount.incrementAndGet();
-      installTXCallback(tx, position);
+      installTXCallback(tx, position, true);
 
       try {
          counter.increment(tx, -1, -position.getPersistentSize());
@@ -838,16 +825,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       return info;
    }
 
-   private void installTXCallback(final Transaction tx, final PagePosition position) {
-      installTXCallback(tx, position, -1);
-   }
-
-   /**
-    * @param tx
-    * @param position
-    * @param persistentSize if negative it needs to be calculated on the fly
-    */
-   private void installTXCallback(final Transaction tx, final PagePosition position, final long persistentSize) {
+   private void installTXCallback(final Transaction tx, final PagePosition position, final boolean fromDelivery) {
       if (position.getRecordID() >= 0) {
          // It needs to persist, otherwise the cursor will return to the fist page position
          tx.setContainsPersistent();
@@ -862,7 +840,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          PageCursorTX cursorTX = (PageCursorTX) tx.getProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS);
 
          if (cursorTX == null) {
-            cursorTX = new PageCursorTX();
+            cursorTX = new PageCursorTX(fromDelivery);
             tx.putProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS, cursorTX);
             tx.addOperation(cursorTX);
          }
@@ -1118,6 +1096,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    private final class PageCursorTX extends TransactionOperationAbstract {
 
+      private boolean fromDelivery;
+
+      PageCursorTX(boolean fromDelivery) {
+         this.fromDelivery = fromDelivery;
+      }
+
       private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions = new HashMap<>();
 
       private void addPositionConfirmation(final PageSubscriptionImpl cursor, final PagePosition position) {
@@ -1140,8 +1124,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
             for (PagePosition confirmed : positions) {
                cursor.processACK(confirmed);
-               cursor.deliveredCount.decrementAndGet();
-               cursor.deliveredSize.addAndGet(-confirmed.getPersistentSize());
             }
 
          }
@@ -1435,7 +1417,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       @Override
       public void remove() {
-         deliveredCount.incrementAndGet();
          PagedReference delivery = currentDelivery;
          if (delivery != null) {
             PageCursorInfo info = PageSubscriptionImpl.this.getPageInfo(delivery.getPagedMessage().getPageNumber());
@@ -1452,36 +1433,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
             toClose.usageDown();
          }
          currentPage = null;
-      }
-   }
-
-   /**
-    * @return the deliveredCount
-    */
-   @Override
-   public long getDeliveredCount() {
-      return deliveredCount.get();
-   }
-
-   /**
-    * @return the deliveredSize
-    */
-   @Override
-   public long getDeliveredSize() {
-      return deliveredSize.get();
-   }
-
-   @Override
-   public void incrementDeliveredSize(long size) {
-      deliveredSize.addAndGet(size);
-   }
-
-   private long getPersistentSize(PagedMessage msg) {
-      try {
-         return msg != null && msg.getPersistentSize() > 0 ? msg.getPersistentSize() : 0;
-      } catch (ActiveMQException e) {
-         logger.warn("Error computing persistent size of message: {}", msg, e);
-         return 0;
       }
    }
 
