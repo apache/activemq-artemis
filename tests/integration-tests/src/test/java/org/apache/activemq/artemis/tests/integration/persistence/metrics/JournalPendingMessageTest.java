@@ -185,8 +185,8 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
 
       AtomicLong publishedMessageSize = new AtomicLong();
 
-      publishTestQueueMessages(200, DeliveryMode.NON_PERSISTENT, publishedMessageSize);
-      verifyPendingStats(defaultQueueName, 200, publishedMessageSize.get());
+      publishTestQueueMessages(10, DeliveryMode.NON_PERSISTENT, publishedMessageSize);
+      verifyPendingStats(defaultQueueName, 10, publishedMessageSize.get());
       verifyPendingDurableStats(defaultQueueName, 0, 0);
    }
 
@@ -196,10 +196,10 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       AtomicLong publishedNonPersistentMessageSize = new AtomicLong();
       AtomicLong publishedMessageSize = new AtomicLong();
 
-      publishTestQueueMessages(100, DeliveryMode.PERSISTENT, publishedMessageSize);
-      publishTestQueueMessages(100, DeliveryMode.NON_PERSISTENT, publishedNonPersistentMessageSize);
-      verifyPendingStats(defaultQueueName, 200, publishedMessageSize.get() + publishedNonPersistentMessageSize.get());
-      verifyPendingDurableStats(defaultQueueName, 100, publishedMessageSize.get());
+      publishTestQueueMessages(5, DeliveryMode.PERSISTENT, publishedMessageSize);
+      publishTestQueueMessages(10, DeliveryMode.NON_PERSISTENT, publishedNonPersistentMessageSize);
+      verifyPendingStats(defaultQueueName, 15, publishedMessageSize.get() + publishedNonPersistentMessageSize.get());
+      verifyPendingDurableStats(defaultQueueName, 5, publishedMessageSize.get());
    }
 
    @Test

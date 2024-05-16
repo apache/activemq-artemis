@@ -16,7 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# this script contains a suggest set of variables to run the soak tests.
+# use this script for larger parameters, possibly when using larger machines
+
 
 ## Generic variable:
 # Some tests will support saving the producer's state before consumption. If you set this variable these tests will hold a zip file and recover it approprieatedly.
@@ -144,11 +145,11 @@ export TEST_CLUSTER_NOTIFICATIONS_CONTINUITY_NUMBER_OF_QUEUES=200
 export TEST_CLUSTER_NOTIFICATIONS_CONTINUITY_NUMBER_OF_WORKERS=10
 
 export TEST_SINGLE_MIRROR_SOAK_TRACE_LOGS=false
-export TEST_SINGLE_MIRROR_SOAK_NUMBER_MESSAGES=50000
-export TEST_SINGLE_MIRROR_SOAK_NUMBER_MESSAGES_RECEIVE=40000
+export TEST_SINGLE_MIRROR_SOAK_NUMBER_MESSAGES=500000
+export TEST_SINGLE_MIRROR_SOAK_NUMBER_MESSAGES_RECEIVE=400000
 export TEST_SINGLE_MIRROR_SOAK_RECEIVE_COMMIT=500
 export TEST_SINGLE_MIRROR_SOAK_SEND_COMMIT=1000
-export TEST_SINGLE_MIRROR_SOAK_KILL_INTERVAL=10000
-export TEST_SINGLE_MIRROR_SOAK_SNF_TIMEOUT=60000
-export TEST_SINGLE_MIRROR_SOAK_GENERAL_TIMEOUT=10000
+export TEST_SINGLE_MIRROR_SOAK_KILL_INTERVAL=50000
+export TEST_SINGLE_MIRROR_SOAK_SNF_TIMEOUT=60000000
+export TEST_SINGLE_MIRROR_SOAK_GENERAL_TIMEOUT=100000
 export TEST_SINGLE_MIRROR_SOAK_CONSUMER_PROCESSING_TIME=10

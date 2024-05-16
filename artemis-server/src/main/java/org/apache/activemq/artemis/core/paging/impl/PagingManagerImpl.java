@@ -479,6 +479,14 @@ public final class PagingManagerImpl implements PagingManager {
       return started;
    }
 
+   private volatile boolean rebuildingPageCounters;
+
+
+   @Override
+   public boolean isRebuildingCounters() {
+      return rebuildingPageCounters;
+   }
+
    @Override
    public void start() throws Exception {
       lock();
@@ -589,6 +597,9 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public Future<Object> rebuildCounters(Set<Long> storedLargeMessages) {
+      if (rebuildingPageCounters) {
+         logger.debug("Rebuild page counters is already underway, ignoring call");
+      }
       Map<Long, PageTransactionInfo> transactionsSet = new LongObjectHashMap();
       // making a copy
       transactions.forEach((a, b) -> {
@@ -616,6 +627,8 @@ public final class PagingManagerImpl implements PagingManager {
 
       FutureTask<Object> task = new FutureTask<>(() -> null);
       managerExecutor.execute(task);
+
+      managerExecutor.execute(() -> rebuildingPageCounters = false);
 
       return task;
    }

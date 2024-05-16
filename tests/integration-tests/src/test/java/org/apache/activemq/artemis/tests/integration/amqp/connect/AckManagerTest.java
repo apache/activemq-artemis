@@ -76,7 +76,7 @@ public class AckManagerTest extends ActiveMQTestBase {
       super.setUp();
 
       server1 = createServer(true, createDefaultConfig(0, true), 100024, -1, -1, -1);
-      server1.getConfiguration().addAddressSetting(SNF_NAME, new AddressSettings().setMaxSizeBytes(-1).setMaxSizeMessages(-1));
+      server1.getConfiguration().addAddressSetting(SNF_NAME, new AddressSettings().setMaxSizeBytes(-1).setMaxSizeMessages(-1).setMaxReadPageMessages(20));
       server1.getConfiguration().getAcceptorConfigurations().clear();
       server1.getConfiguration().addAcceptorConfiguration("server", "tcp://localhost:61616");
       server1.start();
@@ -287,6 +287,110 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       Assert.assertEquals(0, AckManagerProvider.getSize());
    }
+
+
+
+   @Test
+   public void testRetryFromPaging() throws Throwable {
+
+      String protocol = "AMQP";
+
+      SimpleString TOPIC_NAME = SimpleString.toSimpleString("tp" + RandomUtil.randomString());
+
+      server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+
+      // creating 5 subscriptions
+      for (int i = 0; i < 2; i++) {
+         try (Connection connection = connectionFactory.createConnection()) {
+            connection.setClientID("c" + i);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Topic topic = session.createTopic(TOPIC_NAME.toString());
+            session.createDurableSubscriber(topic, "s" + i);
+         }
+      }
+
+      int numberOfMessages = 15000;
+      int numberOfAcksC0 = 100;
+      int numberOfAcksC1 = 14999;
+
+      String c0s0Name = "c0.s0";
+      String c1s1Name = "c1.s1";
+
+      final Queue c0s0 = server1.locateQueue(c0s0Name);
+      Assert.assertNotNull(c0s0);
+      final Queue c1s1 = server1.locateQueue(c1s1Name);
+      Assert.assertNotNull(c1s1);
+
+      PagingStore store = server1.getPagingManager().getPageStore(TOPIC_NAME);
+      store.startPaging();
+
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Topic topic = session.createTopic(TOPIC_NAME.toString());
+         MessageProducer producer = session.createProducer(topic);
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            Message m = session.createTextMessage("hello " + i);
+            m.setIntProperty("i", i);
+            producer.send(m);
+            if ((i + 1) % 100 == 0) {
+               c1s1.pause();
+               c0s0.pause();
+               session.commit();
+            }
+         }
+         session.commit();
+      }
+
+      ReferenceIDSupplier referenceIDSupplier = new ReferenceIDSupplier(server1);
+
+      {
+         AckManager ackManager = AckManagerProvider.getManager(server1);
+         ackManager.stop();
+
+         AtomicInteger counter = new AtomicInteger(0);
+
+         for (long pageID = store.getFirstPage(); pageID <= store.getCurrentWritingPage(); pageID++) {
+            Page page = store.usePage(pageID);
+            try {
+               page.getMessages().forEach(pagedMessage -> {
+                  int increment = counter.incrementAndGet();
+                  if (increment <= numberOfAcksC0) {
+                     ackManager.addRetry(referenceIDSupplier.getServerID(pagedMessage.getMessage()), c0s0, referenceIDSupplier.getID(pagedMessage.getMessage()), AckReason.NORMAL);
+                  }
+                  if (increment <= numberOfAcksC1) {
+                     ackManager.addRetry(referenceIDSupplier.getServerID(pagedMessage.getMessage()), c1s1, referenceIDSupplier.getID(pagedMessage.getMessage()), AckReason.NORMAL);
+                  }
+               });
+            } finally {
+               page.usageDown();
+            }
+         }
+      }
+
+      server1.stop();
+
+      server1.start();
+
+
+      Queue c0s0AfterRestart = server1.locateQueue(c0s0Name);
+      Assert.assertNotNull(c0s0AfterRestart);
+      Queue c1s1AfterRestart = server1.locateQueue(c1s1Name);
+      Assert.assertNotNull(c1s1AfterRestart);
+
+      Wait.assertEquals(numberOfMessages - numberOfAcksC1, c1s1AfterRestart::getMessageCount, 10_000);
+      Wait.assertEquals(numberOfAcksC1, c1s1AfterRestart::getMessagesAcknowledged, 10_000);
+      Wait.assertEquals(numberOfMessages - numberOfAcksC0, c0s0AfterRestart::getMessageCount, 10_000);
+      Wait.assertEquals(numberOfAcksC0, c0s0AfterRestart::getMessagesAcknowledged, 10_000);
+
+      server1.stop();
+
+      Assert.assertEquals(0, AckManagerProvider.getSize());
+   }
+
+
 
 
    private int getCounter(byte typeRecord, HashMap<Integer, AtomicInteger> values) {

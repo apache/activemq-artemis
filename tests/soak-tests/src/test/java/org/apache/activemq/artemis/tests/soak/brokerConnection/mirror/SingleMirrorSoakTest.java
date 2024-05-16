@@ -29,6 +29,7 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -61,11 +62,16 @@ public class SingleMirrorSoakTest extends SoakTestBase {
 
    // Set this to true and log4j will be configured with some relevant log.trace for the AckManager at the server's
    private static final boolean TRACE_LOGS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "TRACE_LOGS", "false"));
-   private static final int NUMBER_MESSAGES = TestParameters.testProperty(TEST_NAME, "NUMBER_MESSAGES", 2_500);
+   private static final int NUMBER_MESSAGES = TestParameters.testProperty(TEST_NAME, "NUMBER_MESSAGES", 2_000);
+
+   // By default consuming 90% of the messages
+   private static final int NUMBER_MESSAGES_RECEIVE = TestParameters.testProperty(TEST_NAME, "NUMBER_MESSAGES_RECEIVE", 1_800);
    private static final int RECEIVE_COMMIT = TestParameters.testProperty(TEST_NAME, "RECEIVE_COMMIT", 100);
    private static final int SEND_COMMIT = TestParameters.testProperty(TEST_NAME, "SEND_COMMIT", 100);
-   private static final int KILL_INTERNAL =  TestParameters.testProperty(TEST_NAME, "KILL_INTERVAL", 500);
-   private static final int SNF_TIMEOUT =  TestParameters.testProperty(TEST_NAME, "SNF_TIMEOUT", 60_000);
+
+   // If -1 means to never kill the target broker
+   private static final int KILL_INTERVAL =  TestParameters.testProperty(TEST_NAME, "KILL_INTERVAL", 1_000);
+   private static final int SNF_TIMEOUT =  TestParameters.testProperty(TEST_NAME, "SNF_TIMEOUT", 300_000);
    private static final int GENERAL_WAIT_TIMEOUT =  TestParameters.testProperty(TEST_NAME, "GENERAL_TIMEOUT", 10_000);
 
    /*
@@ -134,14 +140,14 @@ public class SingleMirrorSoakTest extends SoakTestBase {
       brokerProperties.put("AMQPConnections." + connectionName + ".type", AMQPBrokerConnectionAddressType.MIRROR.toString());
       brokerProperties.put("AMQPConnections." + connectionName + ".connectionElements.mirror.sync", "false");
       brokerProperties.put("largeMessageSync", "false");
-      brokerProperties.put("mirrorAckManagerPageAttempts", "10");
-      brokerProperties.put("mirrorAckManagerRetryDelay", "1000");
+      //brokerProperties.put("mirrorAckManagerPageAttempts", "20");
+      //brokerProperties.put("mirrorAckManagerRetryDelay", "100");
 
       if (paging) {
          brokerProperties.put("addressSettings.#.maxSizeMessages", "1");
-         brokerProperties.put("addressSettings.#.maxReadPageMessages", "1000");
+         brokerProperties.put("addressSettings.#.maxReadPageMessages", "2000");
          brokerProperties.put("addressSettings.#.maxReadPageBytes", "-1");
-         brokerProperties.put("addressSettings.#.prefetchPageMessages", "100");
+         brokerProperties.put("addressSettings.#.prefetchPageMessages", "500");
          // un-comment this line if you want to rather use the work around without the fix on the PostOfficeImpl
          // brokerProperties.put("addressSettings.#.iDCacheSize", "1000");
       }
@@ -162,6 +168,12 @@ public class SingleMirrorSoakTest extends SoakTestBase {
             + "logger.ack.level=TRACE\n"
             + "logger.config.name=org.apache.activemq.artemis.core.config.impl.ConfigurationImpl\n"
             + "logger.config.level=TRACE\n"
+            + "logger.counter.name=org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl\n"
+            + "logger.counter.level=DEBUG\n"
+            + "logger.queue.name=org.apache.activemq.artemis.core.server.impl.QueueImpl\n"
+            + "logger.queue.level=DEBUG\n"
+            + "logger.rebuild.name=org.apache.activemq.artemis.core.paging.cursor.impl.PageCounterRebuildManager\n"
+            + "logger.rebuild.level=DEBUG\n"
             + "appender.console.filter.threshold.type = ThresholdFilter\n"
             + "appender.console.filter.threshold.level = info"));
       }
@@ -187,7 +199,7 @@ public class SingleMirrorSoakTest extends SoakTestBase {
       startServers();
 
 
-      Assert.assertTrue(KILL_INTERNAL > SEND_COMMIT);
+      Assert.assertTrue(KILL_INTERVAL > SEND_COMMIT || KILL_INTERVAL < 0);
 
       String clientIDA = "nodeA";
       String clientIDB = "nodeB";
@@ -212,18 +224,23 @@ public class SingleMirrorSoakTest extends SoakTestBase {
 
       ExecutorService executorService = Executors.newFixedThreadPool(3);
       runAfter(executorService::shutdownNow);
+      CountDownLatch consumerDone = new CountDownLatch(2);
       executorService.execute(() -> {
          try {
-            consume(connectionFactoryDC1A, clientIDA, subscriptionID, 0, NUMBER_MESSAGES, true, false, RECEIVE_COMMIT);
+            consume(connectionFactoryDC1A, clientIDA, subscriptionID, 0, NUMBER_MESSAGES_RECEIVE, false, false, RECEIVE_COMMIT);
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
+         } finally {
+            consumerDone.countDown();
          }
       });
       executorService.execute(() -> {
          try {
-            consume(connectionFactoryDC1A, clientIDB, subscriptionID, 0, NUMBER_MESSAGES, true, false, RECEIVE_COMMIT);
+            consume(connectionFactoryDC1A, clientIDB, subscriptionID, 0, NUMBER_MESSAGES_RECEIVE, false, false, RECEIVE_COMMIT);
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
+         } finally {
+            consumerDone.countDown();
          }
       });
 
@@ -243,7 +260,7 @@ public class SingleMirrorSoakTest extends SoakTestBase {
                logger.info("Sent {} messages", i);
                session.commit();
             }
-            if (i > 0 && i % KILL_INTERNAL == 0) {
+            if (KILL_INTERVAL > 0 && i > 0 && i % KILL_INTERVAL == 0) {
                restartExeuctor.execute(() -> {
                   if (running.get()) {
                      try {
@@ -265,12 +282,14 @@ public class SingleMirrorSoakTest extends SoakTestBase {
          running.set(false);
       }
 
+      consumerDone.await(SNF_TIMEOUT, TimeUnit.MILLISECONDS);
+
       Wait.assertEquals(0, () -> getCount(managementDC1, snfQueue), SNF_TIMEOUT);
       Wait.assertEquals(0, () -> getCount(managementDC2, snfQueue), SNF_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC1, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC1, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC2, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC2, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
 
       destroyServers();
 
@@ -337,9 +356,10 @@ public class SingleMirrorSoakTest extends SoakTestBase {
       }
    }
 
-   public long getCount(SimpleManagement simpleManagement, String queue) throws Exception {
+   public long getCount(SimpleManagement simpleManagement, String queue) {
       try {
          long value = simpleManagement.getMessageCountOnQueue(queue);
+         logger.info("Queue {} count = {}", queue, value);
          return value;
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);

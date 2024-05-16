@@ -87,10 +87,13 @@ public interface PageSubscription {
    // for internal (cursor) classes
    void confirmPosition(PagePosition ref) throws Exception;
 
-   void ackTx(Transaction tx, PagedReference position) throws Exception;
+   void ackTx(Transaction tx, PagedReference position, boolean fromDelivery) throws Exception;
 
+   default void ackTx(Transaction tx, PagedReference position) throws Exception {
+      ackTx(tx, position, true);
+   }
    // for internal (cursor) classes
-   void confirmPosition(Transaction tx, PagePosition position) throws Exception;
+   void confirmPosition(Transaction tx, PagePosition position, boolean fromDelivery) throws Exception;
 
       /**
        * @return the first page in use or MAX_LONG if none is in use
@@ -157,12 +160,6 @@ public interface PageSubscription {
     * @throws Exception
     */
    void onDeletePage(Page deletedPage) throws Exception;
-
-   long getDeliveredCount();
-
-   long getDeliveredSize();
-
-   void incrementDeliveredSize(long size);
 
    void removePendingDelivery(PagedMessage pagedMessage);
 

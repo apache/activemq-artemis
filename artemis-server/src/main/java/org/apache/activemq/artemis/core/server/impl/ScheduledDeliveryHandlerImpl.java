@@ -97,8 +97,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
+   public int getNonPagedScheduledCount() {
+      return metrics.getNonPagedMessageCount();
+   }
+
+   @Override
    public int getDurableScheduledCount() {
       return metrics.getDurableMessageCount();
+   }
+
+   @Override
+   public int getNonPagedDurableScheduledCount() {
+      return metrics.getNonPagedDurableMessageCount();
    }
 
    @Override
@@ -107,8 +117,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
+   public long getNonPagedScheduledSize() {
+      return metrics.getNonPagedPersistentSize();
+   }
+
+   @Override
    public long getDurableScheduledSize() {
       return metrics.getDurablePersistentSize();
+   }
+
+   @Override
+   public long getNonPagedDurableScheduledSize() {
+      return metrics.getNonPagedPersistentSize();
    }
 
    @Override

@@ -183,10 +183,10 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       recordedSizeUpdater.set(this, size);
       valueUpdater.set(this, value);
       persistentSizeUpdater.set(this, size);
-      addedUpdater.set(this, size);
+      addedUpdater.set(this, value);
    }
 
-   private void process(int add, long size) {
+   private void process(final int add, final long size) {
       if (logger.isTraceEnabled()) {
          logger.trace("process subscription={} add={}, size={}", subscriptionID, add, size);
       }
@@ -203,7 +203,7 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       }
 
       if (isRebuilding()) {
-         recordedValueUpdater.addAndGet(this, value);
+         recordedValueUpdater.addAndGet(this, add);
          recordedSizeUpdater.addAndGet(this, size);
       }
    }
