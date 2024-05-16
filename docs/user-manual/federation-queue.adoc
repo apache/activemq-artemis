@@ -59,29 +59,29 @@ The batch size is derived from the relevant address settings defaultConsumerWind
 
 == Configuring Queue Federation
 
-Federation is configured in `broker.xml`.
+Federation is configured in `broker.xml` file.
 
 Sample Queue Federation setup:
-
+[,xml]
 ----
 <federations>
     <federation name="eu-north-1" user="federation_username" password="32a10275cf4ab4e9">
         <upstream name="eu-east-1">
            <static-connectors>
               <connector-ref>eu-east-connector1</connector-ref>
-              <connector-ref>eu-east-connector1</connector-ref>
+              <connector-ref>eu-east-connector2</connector-ref>
            </static-connectors>
            <policy ref="news-queue-federation"/>
         </upstream>
         <upstream name="eu-west-1" >
            <static-connectors>
               <connector-ref>eu-west-connector1</connector-ref>
-              <connector-ref>eu-west-connector1</connector-ref>
+              <connector-ref>eu-west-connector2</connector-ref>
            </static-connectors>
            <policy ref="news-queue-federation"/>
         </upstream>
 
-        <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="federation-transformer-3">
+        <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="news-transformer">
            <include queue-match="#" address-match="queue.bbc.new" />
            <include queue-match="#" address-match="queue.usatoday" />
            <include queue-match="#" address-match="queue.news.#" />
@@ -98,84 +98,87 @@ Sample Queue Federation setup:
 </federations>
 ----
 
-In the above setup downstream broker `eu-north-1` is configured to connect to two upstream brokers `eu-east-1` and `eu-east-2`, the credentials used for both connections to both brokers in this sample are shared, you can set user and password at the upstream level should they be different per upstream.
+In the above setup downstream broker `eu-north-1` is configured to connect to two upstream brokers `eu-east-1` and `eu-west-1`, the credentials used for both connections to both brokers in this sample are shared, you can set user and password at the upstream level should they be different per upstream.
 
 Both upstreams are configured with the same queue-policy `news-queue-federation`, that is selecting addresses which match any of the include criteria, but will exclude any queues that end with `.local`, keeping these as local queues only.
 
 *It is important that federation name is globally unique.*
 
-Let's take a look at all the `queue-policy` parameters in turn, in order of priority.
+==== Priority ordered queue-policy parameters
 
 name::
 All address-policies must have a unique name in the server.
+
 include::
-The address-match pattern to include addresses.
-Multiple of these can be set.
-If none are set all addresses are matched.
+The address-match pattern to include addresses. Multiple of these can be set. If none are set all addresses are matched.
+
 exclude::
-The address-match pattern to exclude addresses.
-Multiple of these can be set.
+The address-match pattern to exclude addresses. Multiple of these can be set.
+
 priority-adjustment::
  when a consumer attaches its priority is used to make the upstream consumer,  but with an adjustment by default -1, so that local consumers get load balanced first over remote, this enables this to be configurable should it be wanted/needed.
+
 include-federated::
- by default this is false, we don't federate a federated consumer, this is to avoid issue, where in symmetric or any closed loop setup you could end up when no "real" consumers attached with messages flowing round and round endlessly.
+ by default this is `false`, we do not federate a federated consumer, this is to avoid issue, where in symmetric or any closed loop setup you could end up when no "real" consumers attached with messages flowing round and round endlessly.
 +
-There is though a valid case that if you dont have a close loop setup e.g. three brokers in a chain (A\->B\->C) with producer at broker A and consumer at C, you would want broker B to re-federate the consumer onto A.
+There is though a valid case that if you do not have a close loop setup e.g. three brokers in a chain (A\->B\->C) with producer at broker A and consumer at C, you would want broker B to re-federate the consumer onto A.
 
 transformer-ref::
 The ref name for a transformer (see transformer config) that you may wish to configure to transform the message on federation transfer.
 
 NOTE: `address-policy` and `queue-policy` elements are able to be defined in the same federation, and they can be linked to the same upstream.
 
-Now look at all the `transformer` parameters in turn, in order of priority:
+==== Priority ordered transformer parameters
 
 name::
-This must be a unique name in the server, and is used to ref the transformer in `address-policy` and `queue-policy`
+Unique name in the server used to reference the transformer in `address-policy` and `queue-policy`
 
 transformer-class-name::
-An optional transformer-class-name can be specified.
+An optional `transformer-class-name` can be specified.
 This is the name of a user-defined class which implements the `org.apache.activemq.artemis.core.server.transformer.Transformer` interface.
 +
-If this is specified then the transformer's `transform()` method will be invoked with the message before it is transferred.
+If specified, then the transformer's `transform()` method will be invoked with the message before it is transferred.
 This gives you the opportunity to transform the message's header or body before it is federated.
 
-* `property` holds key, value pairs that can be used to configure the transformer.
+property:: holds key-value pairs that can be used to configure the transformer.
 
-Finally look at `upstream`, this is what defines the upstream broker connection and the policies to use against it.
+==== Upstream parameters
+Tag `upstream` defines the upstream broker connection and the policies to use.
 
-* `name` attribute.
-This must be a unique name in the server, and is used to ref the transformer in `address-policy` and `queue-policy`
+name::
+Unique name for upstream federated server.
 
 user::
-This optional attribute determines the user name to use when creating the upstream connection to the remote server.
-If it is not specified the shared federation user and password will be used if set.
+This optional attribute determines the username to use when creating the upstream connection to the remote server.
+If not specified, the shared federation user and password will be used if they were set.
 
 password::
 This optional attribute determines the password to use when creating the upstream connection to the remote server.
-If it is not specified the shared federation user and password will be used if set.
+If not specified, the shared federation user and password will be used if they were set.
 
 static-connectors::
 Either this or `discovery-group-ref` is used to connect the bridge to the target server.
 +
 The `static-connectors` is a list of `connector-ref` elements pointing to `connector` elements defined elsewhere.
-A _connector_ encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc) as well as the server connection parameters (host, port etc).
-For more information about what connectors are and how to configure them, please see xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport].
+A _connector_ encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc.) as well as the server connection parameters (host, port etc).
++
+For more information about what connectors are and how to configure them, see xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport].
 
 discovery-group-ref::
 Either this or `static-connectors` is used to connect the bridge to the target server.
 +
 The `discovery-group-ref` element has one attribute - `discovery-group-name`.
 This attribute points to a `discovery-group` defined elsewhere.
-For more information about what discovery-groups are and how to configure them, please see xref:clusters.adoc#clusters[Discovery Groups].
+For more information about what discovery-groups are and how to configure them, see xref:clusters.adoc#clusters[Discovery Groups].
 
 ha::
-This optional parameter determines whether or not this bridge should support high availability.
-True means it will connect to any available server in a cluster and support failover.
+This optional parameter determines whether this bridge should support high availability.
+`True` means it will connect to any available server in a cluster and support failover.
 Default is `false`.
 
 circuit-breaker-timeout::
-When a connection issue occurs, as the single connection is shared by many federated queue and address consumers, to avoid each one trying to reconnect and possibly causing a thrundering heard issue, the first one will try.
-If unsuccessful the circuit breaker will open, returning the same exception to all.
+When a connection issue occurs, as the single connection is shared by many federated queue and address consumers, to avoid each one trying to reconnect and possibly causing a thundering herd issue, the first one will be tried.
+If unsuccessful the circuit breaker will open, returning the same exception to all connections.
 This is the timeout until the circuit can be closed and connection retried.
 Measured in milliseconds.
 
@@ -204,7 +207,7 @@ This optional parameter determines the period in milliseconds between subsequent
 The default value is `500` milliseconds.
 
 retry-interval-multiplier::
-This is a multiplier used to increase the `retry-interval` after each reconnect attempt, default is 1.
+Used to increase the `retry-interval` after each reconnect attempt, default is 1.
 
 max-retry-interval::
 The maximum delay (in milliseconds) for retries.
@@ -212,27 +215,28 @@ Default is 2000.
 
 initial-connect-attempts::
 The number of times the system will try to connect to the remote broker in the federation.
-If the max-retry is achieved this broker will be considered permanently down and the system will not route messages to this broker.
+If the _max-retry_ is achieved this broker will be considered permanently down and the system will not route messages to this broker.
 Default is -1 (infinite retries).
 
 reconnect-attempts::
 The number of times the system will try to reconnect to the remote broker in the federation.
-If the max-retry is achieved this broker will be considered permanently down and the system will stop routing messages to this broker.
+If the _max-retry_ is achieved this broker will be considered permanently down and the system will stop routing messages to this broker.
 Default is -1 (infinite retries).
 
 == Configuring Downstream Federation
 
 Similarly to `upstream` configuration, a downstream configuration can be configured.
 This works by sending a command to the `downstream` broker to have it create an `upstream` connection back to the downstream broker.
-The benefit of  this is being able to configure everything for federation on one broker in some cases to make it easier, such as a hub and spoke topology.
+The benefit of this is being able to configure everything for federation on one broker in some cases to make it easier, such as a hub and spoke topology.
 
-All of the same configuration options apply to `downstream` as does `upstream` with the exception of one extra configuration flag that needs to be set:
+All the same configuration options apply to `downstream` as does `upstream` with the exception of one extra configuration flag that needs to be set:
 
-The `upstream-connector-ref` is an element pointing to a   `connector` elements defined elsewhere.
-This ref is used to tell the downstream broker   what connector to use to create a new upstream connection back to the downstream broker.
-
-A _connector_ encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc) as well as   the server connection parameters (host, port etc).
-For more information about what connectors are and   how to configure them, please see xref:configuring-transports.adoc#configuring-the-transport[Configuring the   Transport].
+upstream-connector-ref::
+Is an element pointing to a `connector` elements defined elsewhere.
+This reference is used to tell the downstream broker what connector to use to create a new upstream connection back to the downstream broker.
++
+A _connector_ encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc.) as well as the server connection parameters (host, port etc).
+For more information about what connectors are and how to configure them, see xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport].
 
 Sample Downstream Address Federation setup:
 
@@ -257,20 +261,20 @@ Sample Downstream Address Federation setup:
    <federation name="eu-north-1" user="federation_username" password="32a10275cf4ab4e9">
       <downstream name="eu-east-1">
           <static-connectors>
-             <connector-ref>eu-east-connector1</connector-ref>
+             <connector-ref>eu-east-1-connector</connector-ref>
           </static-connectors>
           <upstream-connector-ref>netty-connector</upstream-connector-ref>
           <policy ref="news-address-federation"/>
       </downstream>
       <downstream name="eu-west-1" >
          <static-connectors>
-            <connector-ref>eu-west-connector1</connector-ref>
+            <connector-ref>eu-west-1-connector</connector-ref>
          </static-connectors>
          <upstream-connector-ref>netty-connector</upstream-connector-ref>
          <policy ref="news-address-federation"/>
       </downstream>
 
-      <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="federation-transformer-3">
+      <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="news-transformer">
          <include queue-match="#" address-match="queue.bbc.new" />
          <include queue-match="#" address-match="queue.usatoday" />
          <include queue-match="#" address-match="queue.news.#" />
