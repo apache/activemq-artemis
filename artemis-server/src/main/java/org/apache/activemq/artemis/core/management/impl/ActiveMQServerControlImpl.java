@@ -363,13 +363,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Function<ActiveMQServerBasePlugin, String> pluginToClassName = brokerPlugin ->
-                 brokerPlugin.getClass().getCanonicalName() != null
-                         ? brokerPlugin.getClass().getCanonicalName()
-                         : brokerPlugin.getClass().getName();
+            brokerPlugin.getClass().getCanonicalName() != null
+               ? brokerPlugin.getClass().getCanonicalName()
+               : brokerPlugin.getClass().getName();
 
          return configuration.getBrokerPlugins().stream()
-                 .map(pluginToClassName)
-                 .toArray(String[]::new);
+            .map(pluginToClassName)
+            .toArray(String[]::new);
       } finally {
          blockOnIO();
       }
