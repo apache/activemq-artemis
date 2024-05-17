@@ -28,12 +28,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -93,7 +96,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.commons.lang3.ClassUtils;
@@ -1906,6 +1912,162 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("criticalAnalyzerPolicy", "SHUTDOWN");
 
       configuration.parsePrefixedProperties(properties, null);
+
+      assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
+      assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
+      assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
+   }
+
+   @Test
+   public void testJsonInsertionOrderedProperties() throws Exception {
+      ConfigurationImpl.InsertionOrderedProperties properties =
+         new ConfigurationImpl.InsertionOrderedProperties();
+
+      JsonObject configJsonObject = buildSimpleConfigJsonObject();
+      try (StringReader stringReader = new StringReader(configJsonObject.toString())) {
+         properties.loadJson(stringReader);
+      }
+
+      List<String> keys = new ArrayList<>();
+      properties.entrySet().forEach(entry -> keys.add((String) entry.getKey()));
+
+      List<String> sortedKeys = keys.stream().sorted().collect(Collectors.toList());
+      for (int i = 0; i < sortedKeys.size(); i++) {
+         assertEquals(i, keys.indexOf(sortedKeys.get(i)));
+      }
+   }
+
+   @Test
+   public void testTextPropertiesReaderFromFile() throws Exception {
+      List<String> textProperties = buildSimpleConfigTextList();
+      File tmpFile = File.createTempFile("text-props-test", "", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         for (String textProperty : textProperties) {
+            printWriter.println(textProperty);
+         }
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      testSimpleConfig(configuration);
+   }
+
+   @Test
+   public void testJsonPropertiesReaderFromFile() throws Exception {
+
+      JsonObject configJsonObject = buildSimpleConfigJsonObject();
+      File tmpFile = File.createTempFile("json-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write(configJsonObject.toString());
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      testSimpleConfig(configuration);
+   }
+
+   @Test
+   public void testInvalidJsonPropertiesReaderFromFile() throws Exception {
+
+      File tmpFile = File.createTempFile("json-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("INVALID_JSON");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      try {
+         configuration.parseProperties(tmpFile.getAbsolutePath());
+         fail("Expected JSON parsing exception.");
+      } catch (Exception e) {
+      }
+   }
+
+   private JsonObject buildSimpleConfigJsonObject() {
+      JsonObjectBuilder configObjectBuilder = JsonLoader.createObjectBuilder();
+      {
+         configObjectBuilder.add("globalMaxSize", "25K");
+         configObjectBuilder.add("gracefulShutdownEnabled", true);
+         configObjectBuilder.add("securityEnabled", false);
+         configObjectBuilder.add("maxRedeliveryRecords", 123);
+
+         JsonObjectBuilder addressConfigObjectBuilder = JsonLoader.createObjectBuilder();
+         {
+            JsonObjectBuilder lbaObjectBuilder = JsonLoader.createObjectBuilder();
+            {
+               JsonObjectBuilder queueConfigBuilder = JsonLoader.createObjectBuilder();
+               {
+                  JsonObjectBuilder lbqObjectBuilder = JsonLoader.createObjectBuilder();
+                  {
+                     lbqObjectBuilder.add("routingType", "ANYCAST");
+                     lbqObjectBuilder.add("durable", false);
+                  }
+                  queueConfigBuilder.add("LB.TEST", lbqObjectBuilder.build());
+
+                  JsonObjectBuilder myqObjectBuilder = JsonLoader.createObjectBuilder();
+                  {
+                     myqObjectBuilder.add("routingType", "ANYCAST");
+                     myqObjectBuilder.add("durable", false);
+                  }
+                  queueConfigBuilder.add("my queue", myqObjectBuilder.build());
+               }
+               lbaObjectBuilder.add("queueConfigs", queueConfigBuilder.build());
+            }
+            addressConfigObjectBuilder.add("LB.TEST", lbaObjectBuilder.build());
+         }
+         configObjectBuilder.add("addressConfigurations", addressConfigObjectBuilder.build());
+
+         JsonObjectBuilder clusterConfigObjectBuilder = JsonLoader.createObjectBuilder();
+         {
+            JsonObjectBuilder ccObjectBuilder = JsonLoader.createObjectBuilder();
+            {
+               ccObjectBuilder.add("name", "cc");
+               ccObjectBuilder.add("messageLoadBalancingType", "OFF_WITH_REDISTRIBUTION");
+            }
+            clusterConfigObjectBuilder.add("cc", ccObjectBuilder.build());
+         }
+         configObjectBuilder.add("clusterConfigurations", clusterConfigObjectBuilder.build());
+
+         configObjectBuilder.add("criticalAnalyzerPolicy", "SHUTDOWN");
+      }
+
+      return configObjectBuilder.build();
+   }
+
+   private List<String> buildSimpleConfigTextList() {
+      List<String> textProperties = new ArrayList<>();
+      textProperties.add("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType=ANYCAST");
+      textProperties.add("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".durable=false");
+      textProperties.add("addressConfigurations.\"LB.TEST\".queueConfigs.my\\ queue.routingType=ANYCAST");
+      textProperties.add("addressConfigurations.\"LB.TEST\".queueConfigs.my\\ queue.durable=false");
+      textProperties.add("globalMaxSize=25K");
+      textProperties.add("gracefulShutdownEnabled=true");
+      textProperties.add("securityEnabled=false");
+      textProperties.add("maxRedeliveryRecords=123");
+      textProperties.add("clusterConfigurations.cc.name=cc");
+      textProperties.add("clusterConfigurations.cc.messageLoadBalancingType=OFF_WITH_REDISTRIBUTION");
+      textProperties.add("criticalAnalyzerPolicy=SHUTDOWN");
+
+      return textProperties;
+   }
+
+   private void testSimpleConfig(Configuration configuration) {
+      assertEquals(25 * 1024, configuration.getGlobalMaxSize());
+      assertEquals(true, configuration.isGracefulShutdownEnabled());
+      assertEquals(false, configuration.isSecurityEnabled());
+      assertEquals(123, configuration.getMaxRedeliveryRecords());
+
+      assertEquals(1, configuration.getAddressConfigurations().size());
+      assertEquals(2, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      assertEquals(SimpleString.of("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
+      assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+      assertEquals(SimpleString.of("my queue"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(1).getAddress());
+      assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(1).isDurable());
 
       assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
       assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
