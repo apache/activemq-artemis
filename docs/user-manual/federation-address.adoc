@@ -118,13 +118,15 @@ Both upstreams are configured with the same address-policy `news-address-federat
 
 *It is important that federation name is globally unique.*
 
-==== Priority ordered address-policy parameters
+==== address-policy parameters
 
 name::
 All address-policies must have a unique name in the server.
 
 include::
-The address-match pattern to include addresses. Multiple of these can be set. If none are set all addresses are matched.
+The address-match pattern to include addresses.
+Multiple of these can be set.
+If none are set all addresses are matched.
 
 exclude::
 The address-match pattern to exclude addresses. Multiple of these can be set.
@@ -151,13 +153,12 @@ If there is a divert binding with an address that matches the included addresses
 
 NOTE: `address-policy` and `queue-policy` elements can be defined in the same federation and be linked to the same upstream.
 
-==== Priority ordered transformer parameters
+==== transformer parameters
 
 name::
 Unique name in the server used to reference the transformer in `address-policy` and `queue-policy`.
 
 transformer-class-name::
-An optional `transformer-class-name` can be specified.
 This is the name of a user-defined class which implements the `org.apache.activemq.artemis.core.server.transformer.Transformer` interface.
 +
 If specified, then the transformer's `transform()` method will be invoked with the message before it is transferred.
