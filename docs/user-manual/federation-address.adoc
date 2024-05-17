@@ -7,7 +7,7 @@ Address federation is similar to full multicast over the connected brokers. Ever
 Address federation dynamically links to other addresses in upstream or downstream brokers.
 It automatically creates a queue on the remote address for itself, which it then consumes and copies to the local address, as if they were published directly to it.
 
-Upstream brokers or addresses do not need to be reconfigured. Just add needed permissions to the address for the downstream broker. Same applies for downstream configurations.
+Upstream brokers or addresses do not need to be reconfigured. Just add the needed permissions to the address for the downstream broker. Same applies for downstream configurations.
 
 .Address Federation
 image::images/federation-address.png[]
@@ -130,7 +130,7 @@ exclude::
 The address-match pattern to exclude addresses. Multiple of these can be set.
 
 max-hops::
-The number of maximum hops that message can perform across federated addresses. See <<topology-patterns,Topology Patterns>> above for details.
+The maximum number of hops that message can perform across federated addresses. See <<topology-patterns,Topology Patterns>> above for details.
 
 auto-delete::
 For address federation, the downstream dynamically creates a durable queue on the upstream address.
