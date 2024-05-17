@@ -18,14 +18,16 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
@@ -113,6 +115,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.Env;
@@ -559,36 +562,39 @@ public class ConfigurationImpl implements Configuration, Serializable {
       fileUrlToProperties = resolvePropertiesSources(fileUrlToProperties);
       if (fileUrlToProperties != null) {
          for (String fileUrl : fileUrlToProperties.split(",")) {
-            Properties brokerProperties = new InsertionOrderedProperties();
             if (fileUrl.endsWith("/")) {
                // treat as a directory and parse every property file in alphabetical order
                File dir = new File(fileUrl);
                if (dir.exists()) {
-                  String[] files = dir.list((file, s) -> s.endsWith(".properties"));
+                  String[] files = dir.list((file, s) -> s.endsWith(".json") || s.endsWith(".properties"));
                   if (files != null && files.length > 0) {
                      Arrays.sort(files);
                      for (String fileName : files) {
-                        try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName));
-                             BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-                           brokerProperties.clear();
-                           brokerProperties.load(reader);
-                           parsePrefixedProperties(this, fileName, brokerProperties, null);
-                        }
+                        parseFileProperties(new File(dir, fileName));
                      }
                   }
                }
             } else {
-               File file = new File(fileUrl);
-               try (FileInputStream fileInputStream = new FileInputStream(file);
-                    BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-                  brokerProperties.load(reader);
-                  parsePrefixedProperties(this, file.getName(), brokerProperties, null);
-               }
+               parseFileProperties(new File(fileUrl));
             }
          }
       }
       parsePrefixedProperties(System.getProperties(), systemPropertyPrefix);
       return this;
+   }
+
+   private void parseFileProperties(File file) throws Exception {
+      InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
+      try (FileReader fileReader = new FileReader(file);
+           BufferedReader reader = new BufferedReader(fileReader)) {
+         if (file.getName().endsWith(".json")) {
+            brokerProperties.loadJson(reader);
+         } else {
+            brokerProperties.load(reader);
+         }
+      }
+
+      parsePrefixedProperties(this, file.getName(), brokerProperties, null);
    }
 
    public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
@@ -3690,6 +3696,41 @@ public class ConfigurationImpl implements Configuration, Serializable {
       @Override
       public void clear() {
          orderedMap.clear();
+      }
+
+      public synchronized boolean loadJson(Reader reader) throws IOException {
+         JsonObject jsonObject = JsonLoader.readObject(reader);
+
+         loadJsonObject("", jsonObject);
+
+         return true;
+      }
+
+      private void loadJsonObject(String parentKey, JsonObject jsonObject) {
+         jsonObject.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(jsonEntry -> {
+            JsonValue jsonValue = jsonEntry.getValue();
+            JsonValue.ValueType jsonValueType = jsonValue.getValueType();
+            String jsonKey = jsonEntry.getKey();
+            if (jsonKey.contains(".")) {
+               jsonKey = "\"" + jsonKey + "\"";
+            }
+            String propertyKey = parentKey + jsonKey;
+            switch (jsonValueType) {
+               case OBJECT:
+                  loadJsonObject(propertyKey + ".", jsonValue.asJsonObject());
+                  break;
+               case STRING:
+                  put(propertyKey, jsonObject.getString(jsonKey));
+                  break;
+               case NUMBER:
+               case TRUE:
+               case FALSE:
+                  put(propertyKey, jsonValue.toString());
+                  break;
+               default:
+                  throw new IllegalStateException("JSON value type not supported: " + jsonValueType);
+            }
+         });
       }
    }
 }
