@@ -134,7 +134,7 @@ The maximum number of hops that message can perform across federated addresses. 
 
 auto-delete::
 For address federation, the downstream dynamically creates a durable queue on the upstream address.
-This is used to mark if the upstream queue should be deleted once downstream disconnects and the delay and message count params have been met. It is useful in automation of the cleanup. You may wish to disable this, if you want messages to be queued for the downstream when disconnect no matter what.
+This is used to mark if the upstream queue should be deleted once downstream disconnects and the delay and message count parameters have been met. It is useful in automation of the cleanup. You may wish to disable this, if you want messages to be queued for the downstream when disconnect no matter what.
 
 auto-delete-delay::
 The amount of time in milliseconds after the downstream broker has disconnected, before the upstream queue can be eligible for `auto-delete`.
