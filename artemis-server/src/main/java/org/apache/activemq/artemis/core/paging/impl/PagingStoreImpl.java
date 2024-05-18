@@ -577,7 +577,7 @@ public class PagingStoreImpl implements PagingStore {
 
       final Page page = currentPage;
       if (page != null) {
-         page.close(false);
+         page.close(true);
          currentPage = null;
       }
    }
@@ -994,7 +994,7 @@ public class PagingStoreImpl implements PagingStore {
                }
 
                returnPage = currentPage;
-               returnPage.close(false);
+               returnPage.close(true);
                resetCurrentPage(null);
 
                // The current page is empty... which means we reached the end of the pages

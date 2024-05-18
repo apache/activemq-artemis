@@ -1,4 +1,4 @@
-/*
+/*false
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -70,7 +70,7 @@ public class HelperCreate extends HelperBase {
 
    private boolean clustered = false;
 
-   private boolean slave = false;
+   private boolean backup = false;
 
    private String staticCluster;
 
@@ -184,12 +184,12 @@ public class HelperCreate extends HelperBase {
       return this;
    }
 
-   public boolean isSlave() {
-      return slave;
+   public boolean isBackup() {
+      return backup;
    }
 
-   public HelperCreate setSlave(boolean slave) {
-      this.slave = slave;
+   public HelperCreate setBackup(boolean backup) {
+      this.backup = backup;
       return this;
    }
 
@@ -301,8 +301,8 @@ public class HelperCreate extends HelperBase {
          add(listCommands, "--no-web");
       }
 
-      if (slave) {
-         add(listCommands, "--slave");
+      if (backup) {
+         add(listCommands, "--backup");
       }
 
       if (replicated) {

@@ -16,12 +16,33 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NettyReplicatedFailoverTest extends NettyFailoverTest {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected TestableServer createTestableServer(Configuration config) {
@@ -49,4 +70,71 @@ public class NettyReplicatedFailoverTest extends NettyFailoverTest {
    protected final void crash(ClientSession... sessions) throws Exception {
       crash(true, sessions);
    }
+
+   @Test
+   public void testPagedInSync() throws Exception {
+
+      String queueName = "testPagedInSync";
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+      try (Connection conn = factory.createConnection()) {
+         Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(queueName);
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage("hello"));
+         session.commit();
+
+         org.apache.activemq.artemis.core.server.Queue serverQueue = primaryServer.getServer().locateQueue(queueName);
+         Assert.assertNotNull(serverQueue);
+
+         serverQueue.getPagingStore().startPaging();
+
+         for (int i = 0; i < 50; i++) {
+            producer.send(session.createTextMessage("hello"));
+            session.commit();
+            serverQueue.getPagingStore().forceAnotherPage();
+         }
+         backupServer.stop();
+         backupServer.start();
+         Wait.assertTrue(backupServer.getServer()::isReplicaSync);
+
+         SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupServer.getServer().getActivation();
+         Map<Long, Page> currentPages = activation.getReplicationEndpoint().getPageIndex().get(SimpleString.toSimpleString(queueName));
+
+         logger.info("There are {} page files open", currentPages.size());
+         Wait.assertTrue(() -> currentPages.size() <= 1, 10_000);
+
+         producer.send(session.createTextMessage("on currentPage"));
+         session.commit();
+
+         PagingStore store = primaryServer.getServer().getPagingManager().getPageStore(SimpleString.toSimpleString(queueName));
+         Page currentPage = store.getCurrentPage();
+         logger.info("Page {}", currentPage.getPageId());
+
+         Page depaged = null;
+         for (; ; ) {
+            depaged = store.depage();
+            if (depaged == null || currentPage.getPageId() == depaged.getPageId()) {
+               break;
+            }
+            logger.info("depage :: {} and currentPageID={}", depaged.getPageId(), currentPage.getPageId());
+         }
+
+         Assert.assertNotNull(depaged);
+
+         logger.info("Depaged:: {}", depaged.getPageId());
+
+         for (int i = 0;  i < 10; i++) {
+            producer.send(session.createTextMessage("on current page"));
+            session.commit();
+            store.depage();
+         }
+
+         logger.info("Size:: {}", currentPages.size());
+
+         Wait.assertTrue(() -> currentPages.size() <= 1, 10_000);
+
+      }
+   }
+
 }
