@@ -902,6 +902,10 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       this.executor = executor2;
    }
 
+   public ConcurrentMap<SimpleString, ConcurrentMap<Long, Page>> getPageIndex() {
+      return pageIndex;
+   }
+
    /**
     * This is for tests basically, do not use it as its API is not guaranteed for future usage.
     */

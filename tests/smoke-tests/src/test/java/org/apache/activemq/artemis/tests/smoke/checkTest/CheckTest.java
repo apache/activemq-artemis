@@ -69,13 +69,13 @@ public class CheckTest extends SmokeTestBase {
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setSharedStore(true).setSlave(false).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61716").setArtemisInstance(server0Location);
+         cliCreateServer.setSharedStore(true).setBackup(false).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61716").setArtemisInstance(server0Location);
          cliCreateServer.createServer();
       }
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setSharedStore(true).setSlave(true).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61616").setPortOffset(100).setArtemisInstance(server1Location);
+         cliCreateServer.setSharedStore(true).setBackup(true).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61616").setPortOffset(100).setArtemisInstance(server1Location);
          cliCreateServer.createServer();
       }
    }

@@ -231,21 +231,21 @@ public final class Page  {
       return isOpen;
    }
 
-   public void close(boolean sendEvent) throws Exception {
-      close(sendEvent, true);
+   public void close(boolean sendReplicaClose) throws Exception {
+      close(sendReplicaClose, true);
    }
 
    /**
     * sendEvent means it's a close happening from a major event such moveNext.
     * While reading the cache we don't need (and shouldn't inform the backup
     */
-   public synchronized void close(boolean sendEvent, boolean waitSync) throws Exception {
+   public synchronized void close(boolean sendReplicaClose, boolean waitSync) throws Exception {
       if (readFileBuffer != null) {
          fileFactory.releaseDirectBuffer(readFileBuffer);
          readFileBuffer = null;
       }
 
-      if (sendEvent && storageManager != null) {
+      if (sendReplicaClose && storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
       }
       file.close(waitSync, waitSync);
