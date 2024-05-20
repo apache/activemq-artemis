@@ -91,6 +91,18 @@ Expiry address are defined in the address-setting configuration:
 If messages are expired and no expiry address is specified, messages are simply removed from the queue and dropped.
 Address xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] can be used to configure expiry address for a set of addresses.
 
+If a wildcard is used to configure the expiry address for a set of addresses and you want to _unset_ the expiry address for a particular addess (or set of addresses) then you can do so, e.g.:
+
+[,xml]
+----
+<address-setting match="#">
+   <expiry-address>expiryQueue</expiry-address>
+</address-setting>
+<address-setting match="exampleQueue">
+   <expiry-address/> <!-- unset expiry-address so messages which expire from queues bound to matching addresses are dropped -->
+</address-setting>
+----
+
 == Configuring Automatic Creation of Expiry Resources
 
 It's common to segregate expired messages by their original address.
