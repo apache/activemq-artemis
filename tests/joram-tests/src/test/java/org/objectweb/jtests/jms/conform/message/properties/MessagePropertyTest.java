@@ -198,7 +198,7 @@ public class MessagePropertyTest extends PTPTestCase {
    public void testGetBooleanProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals(false, message.getBooleanProperty("prop"));
+         Assert.assertFalse(message.getBooleanProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }

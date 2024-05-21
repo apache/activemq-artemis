@@ -293,7 +293,7 @@ public class MessagePropertyConversionTest extends PTPTestCase {
       try {
          Message message = senderSession.createMessage();
          message.setStringProperty("prop", "test");
-         Assert.assertEquals(false, message.getBooleanProperty("prop"));
+         Assert.assertFalse(message.getBooleanProperty("prop"));
       } catch (MessageFormatException e) {
       } catch (JMSException e) {
          fail(e);
@@ -310,7 +310,7 @@ public class MessagePropertyConversionTest extends PTPTestCase {
       try {
          Message message = senderSession.createMessage();
          message.setStringProperty("prop", "true");
-         Assert.assertEquals(true, message.getBooleanProperty("prop"));
+         Assert.assertTrue(message.getBooleanProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
@@ -1240,7 +1240,7 @@ public class MessagePropertyConversionTest extends PTPTestCase {
       try {
          Message message = senderSession.createMessage();
          message.setBooleanProperty("prop", true);
-         Assert.assertEquals(true, message.getBooleanProperty("prop"));
+         Assert.assertTrue(message.getBooleanProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
