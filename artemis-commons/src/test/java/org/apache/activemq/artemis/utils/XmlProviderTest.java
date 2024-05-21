@@ -21,28 +21,65 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Validator;
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 @RunWith(Parameterized.class)
-public class XmlProviderTest {
+public class XmlProviderTest extends ArtemisTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static Boolean origXxeEnabled;
+
+   protected boolean xxeEnabled;
 
    @Parameterized.Parameters(name = "xxeEnabled={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Boolean[]{true, false});
    }
 
-   public XmlProviderTest(boolean xxeEnabled) {
+   @BeforeClass
+   public static void beforeAll() {
+      if (origXxeEnabled == null) {
+         origXxeEnabled = XmlProvider.isXxeEnabled();
+      }
+
+      logger.trace("BeforeAll - origXxeEnabled={}, isXxeEnabled={}", origXxeEnabled, XmlProvider.isXxeEnabled());
+   }
+
+   @AfterClass
+   public static void afterAll() {
+      logger.trace("AfterAll - origXxeEnabled={}, isXxeEnabled={} ", origXxeEnabled, XmlProvider.isXxeEnabled());
+      if (origXxeEnabled != null) {
+         logger.trace("AfterAll - Resetting XxeEnabled={}", origXxeEnabled);
+         XmlProvider.setXxeEnabled(origXxeEnabled);
+      }
+   }
+
+   @Before
+   public void setUp() {
+      logger.trace("Running setUp - xxeEnabled={}", xxeEnabled);
       XmlProvider.setXxeEnabled(xxeEnabled);
+   }
+
+   public XmlProviderTest(boolean xxeEnabled) {
+      this.xxeEnabled = xxeEnabled;
    }
 
    @Test

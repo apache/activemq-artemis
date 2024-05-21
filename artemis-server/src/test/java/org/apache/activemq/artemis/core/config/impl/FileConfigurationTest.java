@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -76,39 +77,81 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
-   @BeforeClass
-   public static void setupProperties() {
-      System.setProperty("a2Prop", "a2");
-      System.setProperty("falseProp", "false");
-      System.setProperty("trueProp", "true");
-      System.setProperty("ninetyTwoProp", "92");
-   }
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @AfterClass
-   public static void clearProperties() {
-      System.clearProperty("a2Prop");
-      System.clearProperty("falseProp");
-      System.clearProperty("trueProp");
-      System.clearProperty("ninetyTwoProp");
-   }
+   private static Boolean origXxeEnabled;
+
+   protected boolean xxeEnabled;
 
    @Parameterized.Parameters(name = "xxeEnabled={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Boolean[] {true, false});
    }
 
-   public FileConfigurationTest(boolean xxeEnabled) {
+   @BeforeClass
+   public static void beforeAll() {
+      if (origXxeEnabled == null) {
+         origXxeEnabled = XmlProvider.isXxeEnabled();
+      }
+
+      logger.trace("BeforeAll - origXxeEnabled={}, isXxeEnabled={}", origXxeEnabled, XmlProvider.isXxeEnabled());
+   }
+
+   @AfterClass
+   public static void afterAll() {
+      logger.trace("AfterAll - origXxeEnabled={}, isXxeEnabled={} ", origXxeEnabled, XmlProvider.isXxeEnabled());
+      if (origXxeEnabled != null) {
+         logger.trace("AfterAll - Resetting XxeEnabled={}", origXxeEnabled);
+         XmlProvider.setXxeEnabled(origXxeEnabled);
+      }
+   }
+
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      logger.trace("Running setUp - xxeEnabled={}", xxeEnabled);
       XmlProvider.setXxeEnabled(xxeEnabled);
+
+      setupProperties();
+
+      super.setUp();
+   }
+
+   @After
+   public void afterEach() {
+      clearProperties();
+   }
+
+   public void setupProperties() {
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
+   public void clearProperties() {
+      System.clearProperty("a2Prop");
+      System.clearProperty("falseProp");
+      System.clearProperty("trueProp");
+      System.clearProperty("ninetyTwoProp");
+   }
+
+   public FileConfigurationTest(boolean xxeEnabled) {
+      this.xxeEnabled = xxeEnabled;
    }
 
    protected String getConfigurationName() {
