@@ -22,22 +22,10 @@ import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FileConfigurationDbEncryptedPassTest extends ConfigurationImplTest {
-
+public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationTestBase {
 
    protected String getConfigurationName() {
       return "ConfigurationTest-db-encrypted-pass-config.xml";
-   }
-
-   @Override
-   @Test
-   public void testDefaults() {
-      // empty
-   }
-
-   @Test
-   public void testJdbcPasswordWithCustomCodec() {
-      Assert.assertTrue(MySensitiveStringCodec.decoded);
    }
 
    @Override
@@ -47,6 +35,31 @@ public class FileConfigurationDbEncryptedPassTest extends ConfigurationImplTest 
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;
+   }
+
+   @Test
+   public void testJdbcPasswordWithCustomCodec() {
+      Assert.assertTrue(MySensitiveStringCodec.decoded);
+   }
+
+   @Test
+   public void testSetGetAttributes() throws Exception {
+      doSetGetAttributesTestImpl(conf);
+   }
+
+   @Test
+   public void testGetSetInterceptors() {
+      doGetSetInterceptorsTestImpl(conf);
+   }
+
+   @Test
+   public void testSerialize() throws Exception {
+      doSerializeTestImpl(conf);
+   }
+
+   @Test
+   public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
+      doSetConnectionRoutersPolicyConfigurationTestImpl((ConfigurationImpl) conf);
    }
 
    public static class MySensitiveStringCodec implements SensitiveDataCodec<String> {
