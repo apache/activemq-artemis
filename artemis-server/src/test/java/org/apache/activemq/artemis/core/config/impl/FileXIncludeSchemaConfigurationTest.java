@@ -17,9 +17,8 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
-import org.junit.AfterClass;
 import org.junit.Assume;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
@@ -31,11 +30,18 @@ public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
 
    public FileXIncludeSchemaConfigurationTest(boolean xxeEnabled) {
       super(xxeEnabled);
-      Assume.assumeTrue(xxeEnabled);
    }
 
-   @BeforeClass
-   public static void setupProperties() {
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      Assume.assumeTrue(xxeEnabled);
+
+      super.setUp();
+   }
+
+   @Override
+   public void setupProperties() {
       System.setProperty("xincludePath", "./src/test/resources");
       System.setProperty("a2Prop", "a2");
       System.setProperty("falseProp", "false");
@@ -43,8 +49,8 @@ public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
       System.setProperty("ninetyTwoProp", "92");
    }
 
-   @AfterClass
-   public static void clearProperties() {
+   @Override
+   public void clearProperties() {
       System.clearProperty("xincludePath");
       System.clearProperty("a2Prop");
       System.clearProperty("falseProp");
