@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFedera
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPReceiverBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPSenderBrokerConnectionElement;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.remoting.CertificateUtil;
@@ -282,16 +285,50 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
          Symbol[] dispatchCapability = new Symbol[]{AMQPMirrorControllerSource.QPID_DISPATCH_WAYPOINT_CAPABILITY};
-         connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability, null);
-         connectReceiver(protonRemotingConnection, session, sessionContext, queue, dispatchCapability);
-      } else {
-         if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null);
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null, dispatchCapability);
+         connectReceiver(protonRemotingConnection, session, sessionContext, queue, null, dispatchCapability);
+      } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
+         String targetAddress = null;
+         Symbol[] targetCapabilities = null;
+
+         if (connectionElement instanceof AMQPSenderBrokerConnectionElement) {
+            final AMQPSenderBrokerConnectionElement sender = (AMQPSenderBrokerConnectionElement) connectionElement;
+
+            targetAddress = sender.getTargetAddress();
+            targetCapabilities = parseTerminusCapabilities(sender.getTargetCapabilities());
          }
-         if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
-            connectReceiver(protonRemotingConnection, session, sessionContext, queue);
+
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, targetAddress, targetCapabilities);
+      } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
+         String sourceAddress = null;
+         Symbol[] sourceCapabilities = null;
+
+         if (connectionElement instanceof AMQPReceiverBrokerConnectionElement) {
+            final AMQPReceiverBrokerConnectionElement receiver = (AMQPReceiverBrokerConnectionElement) connectionElement;
+
+            sourceAddress = receiver.getSourceAddress();
+            sourceCapabilities = parseTerminusCapabilities(receiver.getSourceCapabilities());
          }
+
+         connectReceiver(protonRemotingConnection, session, sessionContext, queue, sourceAddress, sourceCapabilities);
       }
+   }
+
+   private Symbol[] parseTerminusCapabilities(String capabilitiesString) {
+      if (capabilitiesString != null && !capabilitiesString.isBlank()) {
+         final List<Symbol> capabilities = new ArrayList<>();
+         final String[] splitCapabilities = capabilitiesString.split(",");
+
+         for (String capability : splitCapabilities) {
+            if (capability != null && !capability.isBlank()) {
+               capabilities.add(Symbol.valueOf(capability));
+            }
+         }
+
+         return capabilities.isEmpty() ? null : capabilities.toArray(new Symbol[0]);
+      }
+
+      return null;
    }
 
    SimpleString getMirrorSNF(AMQPMirrorBrokerConnectionElement mirrorElement) {
@@ -446,8 +483,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                 (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)),
                                 server.getNodeID().toString(),
                                 desiredCapabilities,
+                                requiredOfferedCapabilities,
                                 null,
-                                requiredOfferedCapabilities);
+                                null);
                } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.FEDERATION) {
                   // Starting the Federation triggers rebuild of federation links
                   // based on current broker state.
@@ -635,7 +673,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                 Session session,
                                 AMQPSessionContext sessionContext,
                                 Queue queue,
-                                Symbol... capabilities) {
+                                String sourceAddress,
+                                Symbol[] sourceCapabilities) {
       logger.debug("Connecting inbound for {}", queue);
 
       if (session == null) {
@@ -658,13 +697,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          receiver.setTarget(target);
 
          Source source = new Source();
-         source.setAddress(queue.getAddress().toString());
-         receiver.setSource(source);
-
-         if (capabilities != null) {
-            source.setCapabilities(capabilities);
+         if (sourceAddress != null && !sourceAddress.isBlank()) {
+            source.setAddress(sourceAddress);
+         } else {
+            source.setAddress(queue.getAddress().toString());
          }
 
+         if (sourceCapabilities != null) {
+            source.setCapabilities(sourceCapabilities);
+         }
+
+         receiver.setSource(source);
          receiver.open();
          protonRemotingConnection.getAmqpConnection().flush();
          try {
@@ -681,8 +724,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
                               String brokerID,
                               Symbol[] desiredCapabilities,
-                              Symbol[] targetCapabilities,
-                              Symbol[] requiredOfferedCapabilities) {
+                              Symbol[] requiredOfferedCapabilities,
+                              String targetAddress,
+                              Symbol[] targetCapabilities) {
       logger.debug("Connecting outbound for {}", queue);
 
       if (session == null) {
@@ -701,7 +745,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             sender.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             Target target = new Target();
-            target.setAddress(targetName);
+            if (targetAddress != null && !targetAddress.isBlank()) {
+               target.setAddress(targetAddress);
+            } else {
+               target.setAddress(targetName);
+            }
             if (targetCapabilities != null) {
                target.setCapabilities(targetCapabilities);
             }

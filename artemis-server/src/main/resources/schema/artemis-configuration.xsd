@@ -2151,8 +2151,8 @@
    <xsd:complexType name="amqp-connectionUriType">
       <xsd:sequence>
          <xsd:choice maxOccurs="unbounded">
-            <xsd:element name="sender" type="amqp-address-match-type"/>
-            <xsd:element name="receiver" type="amqp-address-match-type"/>
+            <xsd:element name="sender" type="amqp-broker-connect-sender-type"/>
+            <xsd:element name="receiver" type="amqp-broker-connect-receiver-type"/>
             <xsd:element name="peer" type="amqp-address-match-type"/>
             <xsd:element name="mirror" type="amqp-mirror-type"/>
             <xsd:element name="federation" type="amqp-federation-type"/>
@@ -2226,6 +2226,50 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-broker-connect-sender-type">
+      <xsd:complexContent>
+         <xsd:extension base="amqp-address-match-type">
+            <xsd:attribute name="target-address" type="xsd:string" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     This address to assign to the AMQP sender link Target.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="target-capabilities" type="xsd:string" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     This comma separated list of capabilities assigned to the AMQP Sender
+                     link Target capabilities.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-broker-connect-receiver-type">
+      <xsd:complexContent>
+         <xsd:extension base="amqp-address-match-type">
+            <xsd:attribute name="source-address" type="xsd:string" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     This address to assign to the AMQP receiver link Source.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="source-capabilities" type="xsd:string" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     This comma separated list of capabilities assigned to the AMQP Receiver
+                     link Source capabilities.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
    </xsd:complexType>
 
    <xsd:complexType name="amqp-mirror-type">
