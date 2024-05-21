@@ -26,12 +26,20 @@ import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
+public class DefaultsFileConfigurationTest extends AbstractConfigurationTestBase {
 
    @Override
+   protected Configuration createConfiguration() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-defaults.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      return fc;
+   }
+
    @Test
    public void testDefaults() {
-
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
@@ -149,17 +157,5 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultUptimeMetrics(), conf.getMetricsConfiguration().isUptime());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLoggingMetrics(), conf.getMetricsConfiguration().isLogging());
-   }
-
-   // Protected ---------------------------------------------------------------------------------------------
-
-   @Override
-   protected Configuration createConfiguration() throws Exception {
-      FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-defaults.xml");
-      deploymentManager.addDeployable(fc);
-      deploymentManager.readConfiguration();
-
-      return fc;
    }
 }

@@ -84,7 +84,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class FileConfigurationTest extends ConfigurationImplTest {
+public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
    @BeforeClass
    public static void setupProperties() {
@@ -116,8 +116,18 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    }
 
    @Override
+   protected Configuration createConfiguration() throws Exception {
+      // This may be set for the entire testsuite, but on this test we need this out
+      System.clearProperty("brokerconfig.maxDiskUsage");
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      return fc;
+   }
+
    @Test
-   public void testDefaults() {
+   public void testFileConfiguration() {
       // Check they match the values from the test file
       Assert.assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
       Assert.assertEquals(false, conf.isPersistenceEnabled());
@@ -927,15 +937,24 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("value3", metricPluginOptions.get("key3"));
    }
 
-   @Override
-   protected Configuration createConfiguration() throws Exception {
-      // This may be set for the entire testsuite, but on this test we need this out
-      System.clearProperty("brokerconfig.maxDiskUsage");
-      FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
-      deploymentManager.addDeployable(fc);
-      deploymentManager.readConfiguration();
-      return fc;
+   @Test
+   public void testSetGetAttributes() throws Exception {
+      doSetGetAttributesTestImpl(conf);
+   }
+
+   @Test
+   public void testGetSetInterceptors() {
+      doGetSetInterceptorsTestImpl(conf);
+   }
+
+   @Test
+   public void testSerialize() throws Exception {
+      doSerializeTestImpl(conf);
+   }
+
+   @Test
+   public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
+      doSetConnectionRoutersPolicyConfigurationTestImpl(new FileConfiguration());
    }
 
    private Configuration createConfiguration(String filename) throws Exception {

@@ -24,16 +24,19 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FileConfigurationBrokerConnectionEncryptedTest extends ConfigurationImplTest {
+public class FileConfigurationBrokerConnectionEncryptedTest extends AbstractConfigurationTestBase {
 
    protected String getConfigurationName() {
       return "ConfigurationTest-broker-connection-encrypted-config.xml";
    }
 
    @Override
-   @Test
-   public void testDefaults() {
-      // empty
+   protected Configuration createConfiguration() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      return fc;
    }
 
    @Test
@@ -71,16 +74,25 @@ public class FileConfigurationBrokerConnectionEncryptedTest extends Configuratio
       Assert.assertTrue("enc-test configuration is not present", encTest);
       Assert.assertTrue("plain-test configuration is not present", plainTest);
       Assert.assertTrue("empty-test configuration is not present", emptyTest);
-
    }
 
-   @Override
-   protected Configuration createConfiguration() throws Exception {
-      FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
-      deploymentManager.addDeployable(fc);
-      deploymentManager.readConfiguration();
-      return fc;
+   @Test
+   public void testSetGetAttributes() throws Exception {
+      doSetGetAttributesTestImpl(conf);
    }
 
+   @Test
+   public void testGetSetInterceptors() {
+      doGetSetInterceptorsTestImpl(conf);
+   }
+
+   @Test
+   public void testSerialize() throws Exception {
+      doSerializeTestImpl(conf);
+   }
+
+   @Test
+   public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
+      doSetConnectionRoutersPolicyConfigurationTestImpl((ConfigurationImpl) conf);
+   }
 }

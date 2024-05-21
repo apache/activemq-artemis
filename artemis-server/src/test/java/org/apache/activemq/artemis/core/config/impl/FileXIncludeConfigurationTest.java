@@ -22,6 +22,11 @@ import org.junit.BeforeClass;
 
 public class FileXIncludeConfigurationTest extends FileConfigurationTest {
 
+   @Override
+   protected String getConfigurationName() {
+      return  "ConfigurationTest-xinclude-config.xml";
+   }
+
    public FileXIncludeConfigurationTest(boolean xxeEnabled) {
       super(xxeEnabled);
       Assume.assumeTrue(xxeEnabled);
@@ -43,10 +48,5 @@ public class FileXIncludeConfigurationTest extends FileConfigurationTest {
       System.clearProperty("falseProp");
       System.clearProperty("trueProp");
       System.clearProperty("ninetyTwoProp");
-   }
-
-   @Override
-   protected String getConfigurationName() {
-      return  "ConfigurationTest-xinclude-config.xml";
    }
 }
