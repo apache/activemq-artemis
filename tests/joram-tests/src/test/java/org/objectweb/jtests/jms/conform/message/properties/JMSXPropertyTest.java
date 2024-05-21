@@ -91,7 +91,7 @@ public class JMSXPropertyTest extends PTPTestCase {
          // senderSession has been created as non transacted
          // we create it again but as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
          // we create again the sender
          sender = senderSession.createSender(senderQueue);
          senderConnection.start();
@@ -100,7 +100,7 @@ public class JMSXPropertyTest extends PTPTestCase {
          // receiverSession has been created as non transacted
          // we create it again but as a transacted session
          receiverSession = receiverConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, receiverSession.getTransacted());
+         Assert.assertTrue(receiverSession.getTransacted());
          // we create again the receiver
          if (receiver != null) {
             receiver.close();
@@ -123,7 +123,7 @@ public class JMSXPropertyTest extends PTPTestCase {
          // ... which is the one which was sent...
          Assert.assertEquals("testJMSXDeliveryCount", msg.getText());
          // ...and has not been redelivered
-         Assert.assertEquals(false, msg.getJMSRedelivered());
+         Assert.assertFalse(msg.getJMSRedelivered());
          // ... so it has been delivered once
          int jmsxDeliveryCount = msg.getIntProperty("JMSXDeliveryCount");
          Assert.assertEquals(1, jmsxDeliveryCount);
@@ -138,7 +138,7 @@ public class JMSXPropertyTest extends PTPTestCase {
          // ... which is still the one which was sent...
          Assert.assertEquals("testJMSXDeliveryCount", msg.getText());
          // .. but this time, it has been redelivered
-         Assert.assertEquals(true, msg.getJMSRedelivered());
+         Assert.assertTrue(msg.getJMSRedelivered());
          // ... so it has been delivered a second time
          jmsxDeliveryCount = msg.getIntProperty("JMSXDeliveryCount");
          Assert.assertEquals(2, jmsxDeliveryCount);

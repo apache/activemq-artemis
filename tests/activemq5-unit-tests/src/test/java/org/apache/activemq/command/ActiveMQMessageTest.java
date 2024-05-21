@@ -531,7 +531,7 @@ public class ActiveMQMessageTest extends TestCase {
       assertEquals("Cheddar", msg.getStringProperty(name));
 
       msg.setStringProperty(name, null);
-      assertEquals(null, msg.getStringProperty(name));
+      assertNull(msg.getStringProperty(name));
    }
 
    public void testSetNullPropertyName() throws JMSException {

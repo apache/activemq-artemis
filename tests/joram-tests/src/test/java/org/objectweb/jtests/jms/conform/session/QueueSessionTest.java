@@ -46,7 +46,7 @@ public class QueueSessionTest extends PTPTestCase {
          // senderSession has been created as non transacted
          // we create it again but as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
          // we create again the sender
          sender = senderSession.createSender(senderQueue);
          senderConnection.start();
@@ -55,7 +55,7 @@ public class QueueSessionTest extends PTPTestCase {
          // receiverSession has been created as non transacted
          // we create it again but as a transacted session
          receiverSession = receiverConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, receiverSession.getTransacted());
+         Assert.assertTrue(receiverSession.getTransacted());
 
          if (receiver != null) {
             receiver.close();
@@ -79,7 +79,7 @@ public class QueueSessionTest extends PTPTestCase {
          // ... which is the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // ...and has not been redelivered
-         Assert.assertEquals(false, msg.getJMSRedelivered());
+         Assert.assertFalse(msg.getJMSRedelivered());
 
          // we rollback the *consumer* transaction
          receiverSession.rollback();
@@ -92,7 +92,7 @@ public class QueueSessionTest extends PTPTestCase {
          // ... which is still the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // .. but this time, it has been redelivered
-         Assert.assertEquals(true, msg.getJMSRedelivered());
+         Assert.assertTrue(msg.getJMSRedelivered());
 
       } catch (Exception e) {
          fail(e);
