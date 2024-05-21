@@ -40,7 +40,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NettyReplicatedFailoverTest extends NettyFailoverTest {
+public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

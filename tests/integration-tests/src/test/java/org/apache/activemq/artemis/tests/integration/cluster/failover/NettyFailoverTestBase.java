@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,25 +51,18 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class NettyFailoverTest extends FailoverTest {
+public class NettyFailoverTestBase extends FailoverTest {
 
    public enum NodeManagerType {
       InVM, Jdbc
    }
 
-   @Parameterized.Parameters(name = "{0} Node Manager")
-   public static Iterable<? extends Object> nodeManagerTypes() {
-      return Arrays.asList(new Object[][]{
-         {NodeManagerType.Jdbc},
-         {NodeManagerType.InVM}});
-   }
+   public final NodeManagerType nodeManagerType;
 
-   @Parameterized.Parameter(0)
-   public NodeManagerType nodeManagerType;
+   public NettyFailoverTestBase(NodeManagerType nodeManagerType) {
+      this.nodeManagerType = nodeManagerType;
+   }
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
