@@ -17,6 +17,10 @@
 package org.apache.activemq.artemis.component;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,6 +44,7 @@ import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
@@ -166,6 +171,19 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                handlers.addHandler(webContext);
                webContext.setInitParameter(DIR_ALLOWED, "false");
                webContext.getSessionHandler().getSessionCookieConfig().setComment("__SAME_SITE_STRICT__");
+               webContext.addEventListener(new ServletContextListener() {
+                  @Override
+                  public void contextInitialized(ServletContextEvent sce) {
+                     sce.getServletContext().addListener(new ServletRequestListener() {
+                        @Override
+                        public void requestDestroyed(ServletRequestEvent sre) {
+                           ServletRequestListener.super.requestDestroyed(sre);
+                           AuditLogger.currentCaller.remove();
+                           AuditLogger.remoteAddress.remove();
+                        }
+                     });
+                  }
+               });
                webContextData.add(new Pair(webContext, binding.uri));
             }
          }
