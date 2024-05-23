@@ -557,8 +557,10 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + atestq);
       assertEquals(1, queueControl.getMessageCount());
+      assertEquals(1, queueControl.getScheduledCount());
       assertTrue(queueControl.removeMessage((long) queueControl.listScheduledMessages()[0].get("messageID")));
       assertEquals(0, queueControl.getMessageCount());
+      assertEquals(0, queueControl.getScheduledCount());
    }
 
    @Test

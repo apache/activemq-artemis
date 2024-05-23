@@ -266,10 +266,15 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
 
    @Override
    public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
+      acknowledge(tx, reason, consumer, true);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception {
       if (tx == null) {
          getQueue().acknowledge(this, reason, consumer);
       } else {
-         getQueue().acknowledge(tx, this, reason, consumer, true);
+         getQueue().acknowledge(tx, this, reason, consumer, delivering);
       }
    }
 

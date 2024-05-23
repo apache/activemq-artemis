@@ -114,6 +114,8 @@ public interface MessageReference {
 
    void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception;
 
+   void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception;
+
    void emptyConsumerID();
 
    void setConsumerId(long consumerID);
