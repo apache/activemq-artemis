@@ -275,6 +275,11 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
       getQueue().acknowledge(tx, this, reason, consumer, true);
    }
 
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception {
+      getQueue().acknowledge(tx, this, reason, consumer, delivering);
+   }
+
    /* (non-Javadoc)
        * @see java.lang.Object#toString()
        */

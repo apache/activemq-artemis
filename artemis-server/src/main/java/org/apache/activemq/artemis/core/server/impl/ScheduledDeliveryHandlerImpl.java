@@ -175,9 +175,10 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          while (iter.hasNext()) {
             MessageReference ref = iter.next().getRef();
             if (ref.getMessage().getMessageID() == id) {
-               ref.acknowledge(tx);
+               ref.acknowledge(tx, AckReason.NORMAL, null, false);
                iter.remove();
                notifyScheduledReferencesUpdated();
+               metrics.decrementMetrics(ref);
                return ref;
             }
          }

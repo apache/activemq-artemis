@@ -169,6 +169,11 @@ public class GroupFirstMessageReference implements MessageReference {
    }
 
    @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception {
+      messageReference.acknowledge(tx, reason, consumer, delivering);
+   }
+
+   @Override
    public void emptyConsumerID() {
       messageReference.emptyConsumerID();
    }
