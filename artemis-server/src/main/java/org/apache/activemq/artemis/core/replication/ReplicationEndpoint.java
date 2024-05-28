@@ -608,7 +608,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("handleLargeMessageEnd on {}", packet.getMessageId());
       }
-      final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), packet.isDelete(), false);
+      final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), true, false);
       if (message != null) {
          if (!packet.isDelete()) {
             if (logger.isTraceEnabled()) {
@@ -644,12 +644,15 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    private ReplicatedLargeMessage lookupLargeMessage(final long messageId,
-                                                     final boolean delete,
+                                                     final boolean remove,
                                                      final boolean createIfNotExists) {
       ReplicatedLargeMessage message;
 
-      if (delete) {
+      if (remove) {
          message = largeMessages.remove(messageId);
+         if (message == null) {
+            return newLargeMessage(messageId, false);
+         }
       } else {
          message = largeMessages.get(messageId);
          if (message == null) {
@@ -657,8 +660,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
                createLargeMessage(messageId, false);
                message = largeMessages.get(messageId);
             } else {
-               // No warnings if it's a delete, as duplicate deletes may be sent repeatedly.
-               ActiveMQServerLogger.LOGGER.largeMessageNotAvailable(messageId);
+               return newLargeMessage(messageId, false);
             }
          }
       }
@@ -679,6 +681,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    private void createLargeMessage(final long id, boolean liveToBackupSync) {
+      ReplicatedLargeMessage msg = newLargeMessage(id, liveToBackupSync);
+      largeMessages.put(id, msg);
+   }
+
+   private ReplicatedLargeMessage newLargeMessage(long id, boolean liveToBackupSync) {
       ReplicatedLargeMessage msg;
       if (liveToBackupSync) {
          msg = new LargeServerMessageInSync(storageManager);
@@ -688,7 +695,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       msg.setDurable(true);
       msg.setMessageID(id);
-      largeMessages.put(id, msg);
+      return msg;
    }
 
    /**
