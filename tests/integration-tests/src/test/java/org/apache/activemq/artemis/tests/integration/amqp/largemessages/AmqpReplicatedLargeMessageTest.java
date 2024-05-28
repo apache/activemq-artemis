@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -82,7 +83,6 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
 
          ActiveMQServer server = primaryServer.getServer();
 
-         boolean crashServer = true;
          int size = 100 * 1024;
          AmqpClient client = createAmqpClient(new URI(smallFrameLive));
          AmqpConnection connection = client.createConnection();
@@ -115,21 +115,19 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
 
          AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server);
 
-         if (crashServer) {
-            connection.close();
-            primaryServer.crash();
+         connection.close();
+         primaryServer.crash();
 
-            Wait.assertTrue(backupServer::isActive);
+         Wait.assertTrue(backupServer::isActive);
 
-            server = backupServer.getServer();
+         server = backupServer.getServer();
 
-            client = createAmqpClient(new URI(smallFrameBackup));
-            connection = client.createConnection();
-            addConnection(connection);
-            connection.setMaxFrameSize(2 * 1024);
-            connection.connect();
-            session = connection.createSession();
-         }
+         client = createAmqpClient(new URI(smallFrameBackup));
+         connection = client.createConnection();
+         addConnection(connection);
+         connection.setMaxFrameSize(2 * 1024);
+         connection.connect();
+         session = connection.createSession();
 
          queueView = server.locateQueue(getQueueName());
          Wait.assertEquals(100, queueView::getMessageCount);
@@ -156,6 +154,79 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
          connection.close();
 
          Wait.assertEquals(0, queueView::getMessageCount);
+         validateNoFilesOnLargeDir(getLargeMessagesDir(0, true), 0);
+      } catch (Exception e) {
+         e.printStackTrace();
+         throw e;
+      }
+   }
+
+   @Test(timeout = 60_000)
+   public void testCloseFilesOnTarget() throws Exception {
+      try {
+
+         ActiveMQServer server = primaryServer.getServer();
+
+         int size = 100 * 1024;
+         AmqpClient client = createAmqpClient(new URI(smallFrameLive));
+         AmqpConnection connection = client.createConnection();
+         addConnection(connection);
+         connection.setMaxFrameSize(2 * 1024);
+         connection.connect();
+
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(getQueueName().toString());
+
+         Queue queueView = server.locateQueue(getQueueName());
+         assertNotNull(queueView);
+         assertEquals(0, queueView.getMessageCount());
+
+         session.begin();
+         for (int m = 0; m < 100; m++) {
+            AmqpMessage message = new AmqpMessage();
+            message.setDurable(true);
+            message.setApplicationProperty("i", "m " + m);
+            byte[] bytes = new byte[size];
+            for (int i = 0; i < bytes.length; i++) {
+               bytes[i] = (byte) 'z';
+            }
+
+            message.setBytes(bytes);
+            sender.send(message);
+         }
+         session.commit();
+
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server);
+
+         queueView = server.locateQueue(getQueueName());
+         Wait.assertEquals(100, queueView::getMessageCount);
+
+         SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupServer.getServer().getActivation();
+         Wait.assertEquals(0, () -> activation.getReplicationEndpoint().getLargeMessages().size(), 5000);
+
+         AmqpReceiver receiver = session.createReceiver(getQueueName().toString());
+         receiver.flow(100);
+         for (int i = 0; i < 100; i++) {
+            AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
+            Assert.assertNotNull(msgReceived);
+            Data body = (Data)msgReceived.getWrappedMessage().getBody();
+            byte[] bodyArray = body.getValue().getArray();
+            for (int bI = 0; bI < size; bI++) {
+               Assert.assertEquals((byte)'z', bodyArray[bI]);
+            }
+            msgReceived.accept(true);
+         }
+
+         receiver.flow(1);
+         Assert.assertNull(receiver.receiveNoWait());
+
+         receiver.close();
+
+         connection.close();
+
+         Wait.assertEquals(0, queueView::getMessageCount);
+         validateNoFilesOnLargeDir(getLargeMessagesDir(0, false), 0);
          validateNoFilesOnLargeDir(getLargeMessagesDir(0, true), 0);
       } catch (Exception e) {
          e.printStackTrace();

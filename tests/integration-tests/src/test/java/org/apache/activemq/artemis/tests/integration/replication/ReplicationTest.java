@@ -92,6 +92,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -576,13 +577,20 @@ public final class ReplicationTest extends ActiveMQTestBase {
       CoreMessage msg = new CoreMessage().initBuffer(1024).setMessageID(1);
       LargeServerMessage largeMsg = liveServer.getStorageManager().createCoreLargeMessage(500, msg);
       largeMsg.addBytes(new byte[1024]);
-      largeMsg.releaseResources(true, true);
 
       blockOnReplication(storage, manager);
 
       LargeServerMessageImpl message1 = (LargeServerMessageImpl) getReplicationEndpoint(backupServer).getLargeMessages().get(500L);
 
+
       Assert.assertNotNull(message1);
+      Assert.assertTrue(largeMsg.getAppendFile().isOpen());
+      Assert.assertTrue(message1.getAppendFile().isOpen());
+
+      largeMsg.releaseResources(true, true);
+
+      Wait.assertTrue(() -> getReplicationEndpoint(backupServer).getLargeMessages().get(500L) == null, 5000);
+
       Assert.assertFalse(largeMsg.getAppendFile().isOpen());
       Assert.assertFalse(message1.getAppendFile().isOpen());
    }
