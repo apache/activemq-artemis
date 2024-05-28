@@ -21,7 +21,7 @@ Broker connections are configured by the `<broker-connections>` XML element in t
 An ActiveMQ Artemis broker can initiate connections using the AMQP protocol.
 This means that the broker can connect to another AMQP server (not necessarily ActiveMQ Artemis) and create elements on that connection.
 
-To define an AMQP broker connection, add an `<amqp-connection>` element within the `<broker-connections` element in the `broker.xml` configuration file.
+To define an AMQP broker connection, add an `<amqp-connection>` element within the `<broker-connections>` element in the `broker.xml` configuration file.
 For example:
 
 [,xml]
@@ -34,44 +34,43 @@ For example:
 ----
 
 uri::
-: tcp://host:myport[?options] (this is a required argument)
+tcp://host:myport[?options] (this is a required argument)
 name::
-: Name of the connection used for management purposes
+Name of the connection used for management purposes
 user::
-: User name with which to connect to the endpoint (this is an optional argument)
+Username with which to connect to the endpoint (this is an optional argument)
 password::
-: Password with which to connect to the endpoint (this is an optional argument)
+Password with which to connect to the endpoint (this is an optional argument)
 retry-interval::
-: Time, in milliseconds to wait before retrying a connection after an error.
+Time, in milliseconds to wait before retrying a connection after an error.
 The default value is `5000`.
 reconnect-attempts::
-: default is -1 meaning infinite
+default is -1 meaning infinite
 auto-start::
- : Should the broker connection start automatically with the broker.
-Default is `true`.
-If false it is necessary to call a management operation to start it.
+Should the broker connection start automatically with the broker. Default is `true`.
+If `false` it is necessary to call a management operation to start it.
 
 NOTE: The connection URI options for transport settings, such as enabling and configuring TLS, are common with other Artemis connector URIs.
 See xref:configuring-transports.adoc#configuring-netty-ssl[the transport doc] for more.
-An example configuration for a TLS AMQP broker-connection can be found in the broker xref:examples.adoc[examples] at ./examples/features/broker-connection/amqp-sending-overssl.
+An example configuration for a TLS AMQP broker-connection can be found in the broker xref:examples.adoc[examples] at _./examples/features/broker-connection/amqp-sending-overssl_.
 
 NOTE: If auto-start is disabled on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
 
 IMPORTANT: The target endpoint needs permission for all operations that are configured.
-Therefore, If a security manager is being used, ensure that you perform the configured operations with a user with sufficient permissions.
+Therefore, if a security manager is being used, ensure that you perform the configured operations with a user with sufficient permissions.
 
 == AMQP Server Connection Operations
 
 The following types of operations are supported on an AMQP server connection:
 
 * Mirrors
- ** The broker uses an AMQP connection to another broker and duplicates messages and sends acknowledgements over the wire.
+** The broker uses an AMQP connection to another broker and duplicates messages and sends acknowledgements over the wire.
 * Senders
- ** Messages received on specific queues are transferred to another endpoint.
+** Messages received on specific queues are transferred to another endpoint.
 * Receivers
- ** The broker pulls messages from another endpoint.
+** The broker pulls messages from another endpoint.
 * Peers
- ** The broker creates both senders and receivers on another endpoint that knows how to handle them.
+** The broker creates both senders and receivers on another endpoint that knows how to handle them.
 This is currently implemented by Apache Qpid Dispatch.
 
 == Reconnecting and Failover
@@ -80,11 +79,11 @@ It is possible to determine how reconnection will happen on a broker connection.
 
 These are the attributes that are available on the amqp-connection XML element:
 
-* reconnect-attempts: default is -1 (infinite).
+reconnect-attempts:: default is -1 (infinite).
 How many attempts will be done after a failed connection
-* retry-interval: default is 5000, in milliseconds, the wait between each retry of a connection.
+retry-interval:: default is 5000, in milliseconds, the wait between each retry of a connection
 
-It is also possible to specify alternate hosts on a broker connection by appending a comma separated list after a # at the end of the URI.
+It is also possible to specify alternate hosts on a broker connection by appending a comma separated list after a `#` at the end of the URI.
 The broker connection would keep trying on the alternate list until one of the targets is available to connect.
 Example:
 
@@ -110,15 +109,15 @@ Mirroring will reproduce any operation that happened on the source brokers towar
 The following events are sent through mirroring:
 
 * Message sending
- ** Messages sent to one broker will be "replicated" to the target broker.
+** Messages sent to one broker will be "replicated" to the target broker.
 * Message acknowledgement
- ** Acknowledgements removing messages at one broker will be sent to the target broker.
- ** Note that if the message is pending for a consumer on the target mirror, the ack will not succeed and the message might be delivered by both brokers.
+** Acknowledgements removing messages at one broker will be sent to the target broker.
+** Note that if the message is pending for a consumer on the target mirror, the ack will not succeed and the message might be delivered by both brokers.
 * Queue and address creation.
 * Queue and address deletion.
 
-By default every operation is sent asynchronously without blocking any clients.
-However if you set sync="true" on the mirror configuration, the clients will always wait for the mirror on every blocking operation.
+By default, every operation is sent asynchronously without blocking any clients.
+However, if you set `sync=true` on the mirror configuration the clients will always wait for the mirror on every blocking operation.
 
 === Mirror configuration
 
@@ -126,41 +125,42 @@ Add a `<mirror>` element within the `<amqp-connection>` element to configure mir
 
 The following optional arguments can be utilized:
 
-queue-removal::
-: Specifies whether a queue- or address-removal event is sent.
-The default value is `true`.
 message-acknowledgements::
-: Specifies whether message acknowledgements are sent.
+Specifies whether message acknowledgements are sent.
 The default value is `true`.
 queue-creation::
-: Specifies whether a queue- or address-creation event is sent.
+Specifies whether a queue- or address-creation event is sent.
+The default value is `true`.
+queue-removal::
+Specifies whether a queue- or address-removal event is sent.
 The default value is `true`.
 address-filter::
-: An optional comma-separated list of inclusion and/or exclusion filter entries used to govern which addresses (and related queues) mirroring events will be created for on this broker-connection.
+An optional comma-separated list of inclusion and/or exclusion filter entries used to govern which addresses (and related queues) mirroring events will be created for on this broker-connection.
 That is, events will only be mirrored to the target broker for addresses that match the filter.
 An address is matched when it begins with an inclusion entry specified in this field, unless the address is also explicitly excluded by another entry.
++
 An exclusion entry is prefixed with `!` to denote any address beginning with that value does not match.
 If no inclusion entry is specified in the list, all addresses not explicitly excluded will match.
 If the address-filter attribute is not specified, then all addresses (and related queues) will match and be mirrored.
 +
 Examples:
 
- ** 'eu' matches all addresses starting with 'eu'
- ** '!eu' matches all address except for those starting with 'eu'
- ** 'eu.uk,eu.de' matches all addresses starting with either 'eu.uk' or 'eu.de'
- ** 'eu,!eu.uk' matches all addresses starting with 'eu' but not those starting with 'eu.uk'
+* `eu` matches all addresses starting with `eu`
+* `!eu` matches all address except for those starting with `eu`
+* `eu.uk,eu.de` matches all addresses starting with either `eu.uk` or `eu.de`
+* `eu,!eu.uk` matches all addresses starting with `eu` but not those starting with `eu.uk`
 
 +
 [NOTE]
 ====
- ** Address exclusion will always take precedence over address inclusion.
- ** Address matching on mirror elements is prefix-based and does not support wild-card matching.
+* Address exclusion will always take precedence over address inclusion.
+* Address matching on mirror elements is prefix-based and does not support wild-card matching.
 ====
 sync::
-By default is `false`.
-If set it to true any client blocking operation will be held until the mirror has confirmed receiving the operation.
+If set to `true` any client blocking operation will be held until the mirror has confirmed receiving the operation.
+Default is `false`.
 * Notice that a disconnected node would hold all operations from the client.
-If you set sync=true you must reconnect a mirror before performing any operations.
+If you set `sync=true` you must reconnect a mirror before performing any operations.
 
 An example of a mirror configuration is shown below:
 
@@ -175,9 +175,9 @@ An example of a mirror configuration is shown below:
 
 === Store and Forward Queue
 
-Mirror events are always stored on a local queue prefixed as "$ACTIVEMQ_ARTEMIS_MIRROR_" and then concatenated with the broker connection's configured name.
+Mirror events are always stored on a local queue prefixed as `$ACTIVEMQ_ARTEMIS_MIRROR_` and then concatenated with the broker connection's configured name.
 
-So, in the following configuration mirror events will be stored on a queue named "$ACTIVEMQ_ARTEMIS_MIRROR_brokerB".
+So, in the following configuration, mirror events will be stored on a queue named `$ACTIVEMQ_ARTEMIS_MIRROR_brokerB`.
 
 [,xml]
 ----
@@ -188,11 +188,11 @@ So, in the following configuration mirror events will be stored on a queue named
 </broker-connection>
 ----
 
-These messages are then transferred to brokerB:5672.
-A producer to the address $ACTIVEMQ_ARTEMIS_MIRROR_brokerB will be created towards brokerB.
+These messages are then transferred to _brokerB:5672_.
+A producer to the address `$ACTIVEMQ_ARTEMIS_MIRROR_brokerB` will be created towards _brokerB_.
 If there is a security manager configured, security roles must be provided to the user on the broker connection.
 
-Notice the queue $ACTIVEMQ_ARTEMIS_MIRROR_brokerB will not actually exist on brokerB and so it wont be visible on the administration console.
+Notice the queue `$ACTIVEMQ_ARTEMIS_MIRROR_brokerB` will not actually exist on _brokerB_ and so it will not be visible on the administration console.
 The target broker will treat these messages accordingly as mirror events and perform the appropriate operations at the target broker.
 
 === Pre Existing Messages
@@ -205,13 +205,13 @@ Previously existing messages will not be forwarded to other brokers.
 ActiveMQ Artemis supports automatic fallback mirroring.
 Every sent message and every acknowledgement is asynchronously replicated to the mirrored broker.
 
-On the following diagram, there will be two servers called DataCenter1, and DataCenter2.
-In order to have a dual mirror configuration, it is necessary is to add the mirror broker connection on each broker.xml:
+On the following diagram there will be two servers called _DataCenter1_, and _DataCenter2_.
+In order to have a dual mirror configuration it is necessary to add the mirror broker connection on each `broker.xml`:
 
 image:images/broker-connection-DR.jpg[Broker Connection DR] Figure 2.
 Broker Connection - Disaster Recovery.
 
-on DataCenter1, the following code should be added on broker.xml:
+On _DataCenter1_ the following code should be added on `broker.xml`:
 
 [,xml]
 ----
@@ -222,7 +222,7 @@ on DataCenter1, the following code should be added on broker.xml:
 </broker-connections>
 ----
 
-The following xml should be added on DataCenter2's broker.xml:
+The following xml snippet should be added on _DataCenter2_'s `broker.xml`:
 
 [,xml]
 ----
@@ -234,16 +234,20 @@ The following xml should be added on DataCenter2's broker.xml:
 ----
 
 The broker connections will replicate sends and acknowledgements to the other broker, no matter where they originated.
-If messages are sent on DC1 (DataCenter1) these will be automatically transferred to DC2 (DataCenter2).
-Messages acknowledgements received on DC2 will be automatically related back to DC1.
+If messages are sent on DC1 (_DataCenter1_) these will be automatically transferred to DC2 (_DataCenter2_).
+Message acknowledgements received on DC2 will be automatically related back to DC1.
+
 The only exception to that rule would be if there were already consumers with pending messages on any server, where a mirrored acknowledgement will not prevent the message being consumed by both consumers.
+[NOTE]
+====
 It is recommended to not have active consumers on both servers.
+====
 
-== Example
+=== Example
 
-There is an example as part of the distribution showing dual broker configuration (or disaster recovery) under ./examples/features/broker-connection/disaster-recovery.
+There is an example as part of the distribution showing dual broker configuration (or disaster recovery) in `./examples/features/broker-connection/disaster-recovery`.
 
-On the example two brokers are configured to mirror each other and whatever happens in one broker is immediately copied over to the other broker.
+On the provided example above, two brokers are configured to mirror each other and whatever happens in one broker is immediately copied over to the other broker.
 
 == Senders and Receivers
 
@@ -262,11 +266,11 @@ Wildcard expressions can be used to match senders and receivers to specific addr
 When configuring a sender or receiver, the following properties can be set:
 
 address-match::
-: Match the sender or receiver to a specific address or *set* of addresses, using a wildcard expression
+Match the sender or receiver to a specific address or *set* of addresses, using a wildcard expression.
 queue-name::
-: Configure the sender or receiver for a specific queue
+Configure the sender or receiver for a specific queue.
 
-Some examples are shown below.
+=== Examples
 
 Using address expressions:
 
@@ -337,7 +341,7 @@ This replaces the traditional need of a router-initiated connection and auto-lin
 Qpid Dispatch Router offers a lot of advanced networking options that be used together with ActiveMQ Artemis.
 
 With a peer configuration, the same properties are present as when there are senders and receivers.
-For example, a configuration where queues with names beginning "queue." act as storage for the matching router waypoint address would be:
+For example, a configuration where queues with names beginning `queue.` act as storage for the matching router waypoint address would be:
 
 [,xml]
 ----
@@ -381,7 +385,7 @@ The brokers peer configuration replaces these aspects of the router waypoint usa
 == Address Consideration
 
 It is highly recommended that `address name` and `queue name` are the same.
-When a queue with its distinct name (as in the following example) is used, senders and receivers will always use the `address name` when creating the remote endpoint.
+When a queue with its distinct name (as in the following example) is used senders and receivers will always use the `address` `name` when creating the remote endpoint.
 
 [,xml]
 ----
@@ -399,15 +403,18 @@ When a queue with its distinct name (as in the following example) is used, sende
 </addresses>
 ----
 
-In the above example the `broker connection` would create an AMQP sender towards "queues.A".
+The above example would create an AMQP sender towards `queues.A`.
 
-IMPORTANT: To avoid confusion it is recommended that `address name` and `queue name` are kept the same.
+IMPORTANT: To avoid confusion it is recommended that `address` `name` and `queue` `name` are kept the same.
 
 == Federation
 
-Broker federation allows the local broker to create remote receivers for addresses or queues that have local demand, conversely the broker connection can send federation configuration to the remote broker causing it to create receivers on the local broker based on remote demand on an address or queue over this same connection.
+Broker federation allows the local broker to create remote receivers for addresses or queues that have local demand.
+Conversely, the broker connection can send federation configuration to the remote broker causing it to create receivers on the local broker based on remote demand on an address or queue over this same connection.
 
-Add a `<federation>` element within the `<amqp-connection>` element to configure federation to the broker instance, the `<amqp-connection>` contains all the configuration for authentication and reconnection handling, see the above sections to configure those values.
+Add a `<federation>` element within the `<amqp-connection>` element to configure federation to the broker instance.
+The `<amqp-connection>` contains all the configuration for authentication and reconnection handling.
+See above sections to configure those values.
 
 The broker connection federation configuration consists of one or more policies that define either local or remote federation configurations for addresses or queues.
 
@@ -435,11 +442,14 @@ The broker connection federation configuration consists of one or more policies 
 </broker-connections>
 ----
 
-===== Local and remote address federation
+=== Local and remote address federation
 
-Local or Remote address federation configures the local or remote broker to watch for demand on addresses and when demand exists it will create a consumer on the matching address on the opposing broker. Because the consumers are created on addresses on the opposing broker the authentication credentials supplied to the broker connection must have sufficient access to read from (local address federation) or write to the matching address (remote address federation) on the opposing broker.
+Local or Remote address federation configures the local or remote broker to watch for demand on addresses.
+When demand exists it will create a consumer on the matching address on the opposing broker.
+Because the consumers are created on addresses on the opposing broker, the authentication credentials supplied to the broker connection must have sufficient access to read from (local address federation) or write to the matching address (remote address federation) on the opposing broker.
 
-An example of address federation configuration is shown below, the local and remote address policies have identical configuration parameters only the policy element names are different.
+An example of address federation configuration is shown below.
+Local and remote address policies have identical configuration parameters, only the policy element names are different.
 
 [,xml]
 ----
@@ -463,25 +473,38 @@ An example of address federation configuration is shown below, the local and rem
 name::
 The name of the policy, these names should be unique within a broker connection's federation policy elements.
 include::
-The address-match pattern to use to match included addresses, multiple of these can be set. If none are set all addresses are matched.
+The address-match pattern to use to match included addresses, multiple of these can be set.
+If none are set all addresses are matched.
 exclude::
-The address-match pattern to use to match excluded addresses, multiple of these can be set or it can be omitted if no excludes are needed.
+The address-match pattern to use to match excluded addresses, multiple of these can be set, or it can be omitted if no excludes are needed.
 max-hops::
-The number of hops that a message can have made for it to be federated, the default value is zero and will work for most simple federatio0n deployments however is certain topologies a higher value may be required to prevent looping.
+The maximum number of hops that a message can perform to be federated.
+Default value is `0` and will work for most simple federation deployments.
+However, in certain topologies a higher value may be required to prevent looping.
 auto-delete::
-For address federation, a durable queue is created on the opposing broker for the matching address. This option is used to mark if the queue should be deleted once the initiating broker disconnects, and the delay and message count parameters have been met. This is useful if you want to automate the clean up, though you may wish to disable this if you want messages to queued for the opposing broker when it disconnects. The default value is `false` and the federation consumer queue will not be auto deleted.
+For address federation, a durable queue is created on the broker from which messages are being federated.
+Set this property to `true` to mark the queue for automatic deletion once the initiating broker disconnects and the delay and message count parameters are met.
+This is a useful option if you want to automate the cleanup of dynamically-created queues.
+The default value is `false`, which means that the queue is not automatically deleted.
+
 auto-delete-delay::
-The amount of time in milliseconds after the initiating broker has disconnected before the created queue can be eligible for `auto-delete`. The default value is zero if the option is omitted.
+The amount of time in milliseconds after the initiating broker has disconnected before the created queue can be eligible for `auto-delete`.
+The default value is `0` when option is omitted.
 auto-delete-message-count::
-The amount number messages in the remote queue that the message count must be equal or below before the initiating broker has disconnected before the queue can be eligible for auto deletion. The default value is zero if the option is omitted.
+After the initiating broker has disconnected, the maximum number of messages allowed in the remote queue for the queue to be eligible for automatic deletion.
+The default value is `0`.
+
 enable-divert-bindings::
-Setting to true will enable divert bindings to be listened for demand. If there is a divert binding with an address that matches the included addresses for the federation, any queue bindings that match the forward address of the divert will create demand. The default value for this option is `false`.
+Setting to `true` enables divert bindings to be listened-to for demand.
+If a divert binding with an address matches the included addresses for the address policy, any queue bindings that match the forwarding address of the divert creates demand. The default value is `false`.
 
-===== Local and remote queue federation
+=== Local and remote queue federation
 
-Local or Remote queue federation configures the local or remote broker to watch for demand on queues and when demand exists it will create a consumer on the matching queue on the opposing broker. Because the consumers are created on queues on the opposing broker the authentication credentials supplied to the broker connection must have sufficient access to read from (local queue federation) or write to the matching queue (remote queue federation) on the opposing broker.
+Local or Remote queue federation configures the local or remote broker to watch for demand on queues and when demand exists it will create a consumer on the matching queue on the opposing broker.
+Because the consumers are created on queues on the opposing broker, the authentication credentials supplied to the broker connection must have sufficient access to read from (local queue federation) or write to the matching queue (remote queue federation) on the opposing broker.
 
-An example of queue federation configuration is shown below, the local and remote queue policies have identical configuration parameters only the policy element names are different.
+An example of queue federation configuration is shown below.
+Local and remote queue policies have identical configuration parameters, only the policy element names are different.
 
 [,xml]
 ----
@@ -498,13 +521,17 @@ An example of queue federation configuration is shown below, the local and remot
 ----
 
 name::
-The name of the policy, these names should be unique within a broker connection's federation policy elements.
+The name of the policy.
+These names should be unique within a broker connection's federation policy elements.
 include::
-The queue-match pattern to use to match included queues, multiple of these can be set. If none are set all queues are matched.
+The queue-match pattern to use to match included queues.
+Multiple of these can be set.
+If none are set all queues are matched.
 exclude::
-The queue-match pattern to use to match excluded queues, multiple of these can be set or it can be omitted if no excludes are needed.
+The queue-match pattern to use to match excluded queues.
+Multiple of these can be set, or it can be omitted if no excludes are needed.
 priority-adjustment::
-When federation consumers are created this value can be used to ensure that those federation consumers have a lower priority value than other local consumers on the same queue. The default value for this configuration option if not set is `-1`.
+When federation consumers are created this value can be used to ensure that those federation consumers have a lower priority value than other local consumers on the same queue.
+The default is `-1`.
 include-federated::
 Controls if consumers on a queue which come from federation instances should be counted when observing a queue for demand, by default this value is `false` and federation consumers are not counted.
-
