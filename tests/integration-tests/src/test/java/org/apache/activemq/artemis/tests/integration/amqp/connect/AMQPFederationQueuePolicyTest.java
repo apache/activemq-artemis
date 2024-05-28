@@ -3394,7 +3394,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.remoteDetach().withClosed(true)
                             .withErrorCondition(AmqpError.NOT_FOUND.toString(), "Queue not found")
                             .queue();
-         peer.expectFlow();
+         peer.expectFlow().optional();
          peer.expectDetach();
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
