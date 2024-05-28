@@ -209,6 +209,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          peer.expectOpen().respond();
          peer.expectBegin().respond();
          peer.expectAttach().ofSender().withDesiredCapability(FEDERATION_CONTROL_LINK.toString()).respond();
+         peer.expectClose().optional(); // Can sometimes be sent
          peer.expectConnectionToDrop();
          peer.start();
 
