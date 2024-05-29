@@ -459,7 +459,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
    private void internalBlockMaxMessages(String protocolSend, String protocolReceive, ActiveMQServer server, boolean global) throws Exception {
 
-      final int MESSAGES = 1000;
+      final int MESSAGES = 1200;
 
       logger.info("\n{}\nSending {}, Receiving {}\n{}", "*".repeat(80), protocolSend, protocolReceive, "*".repeat(80));
 
@@ -496,8 +496,9 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
             try {
                Session session = connSend.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(session.createQueue(ADDRESS));
-               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+               producer.setDeliveryMode(protocolSend.equals("OPENWIRE") ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
                for (int i = 0; i < MESSAGES; i++) {
+                  logger.debug("Sending {} protocol {}", i, protocolSend);
                   producer.send(session.createTextMessage("OK!" + i));
                }
                session.close();
@@ -511,7 +512,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          Wait.assertTrue(() -> loggerHandler.findText("AMQ222183"), 5000, 10); //unblock
          Assert.assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
 
-         Assert.assertFalse(done.await(100, TimeUnit.MILLISECONDS));
+         Assert.assertFalse(done.await(200, TimeUnit.MILLISECONDS));
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
