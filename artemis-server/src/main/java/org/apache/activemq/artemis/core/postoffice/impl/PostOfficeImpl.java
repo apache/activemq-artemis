@@ -124,8 +124,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    public static final SimpleString BRIDGE_CACHE_STR = new SimpleString("BRIDGE.");
 
-   private final Executor postOfficeExecutor;
-
    private final AddressManager addressManager;
 
    private final QueueFactory queueFactory;
@@ -196,8 +194,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.persistIDCache = persistIDCache;
 
       this.addressSettingsRepository = addressSettingsRepository;
-
-      this.postOfficeExecutor = server.getExecutorFactory().getExecutor();
 
       this.server = server;
    }
