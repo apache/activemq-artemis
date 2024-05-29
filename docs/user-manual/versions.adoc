@@ -20,7 +20,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * https://issues.apache.org/jira/browse/ARTEMIS-4758[Extensive resiliency tests and hardening on Mirroring].
 * https://issues.apache.org/jira/browse/ARTEMIS-4773[Paging performance improvements on sync].
-* https://issues.apache.org/jira/browse/ARTEMIS-4306[Statics about security events].
+* https://issues.apache.org/jira/browse/ARTEMIS-4306[Statistics about security events].
 * https://issues.apache.org/jira/browse/ARTEMIS-4675[Replication status metrics].
 
 
