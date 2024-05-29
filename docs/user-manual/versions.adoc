@@ -14,13 +14,15 @@ NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#u
 
 == 2.34.0
 
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=...[Full release notes]
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354426[Full release notes]
 
 === Highlights
 
-* A
-* B
-* C
+* https://issues.apache.org/jira/browse/ARTEMIS-4758[Extensive resiliency tests and hardening on Mirroring].
+* https://issues.apache.org/jira/browse/ARTEMIS-4773[Paging performance improvements on sync].
+* https://issues.apache.org/jira/browse/ARTEMIS-4306[Statics about security events].
+* https://issues.apache.org/jira/browse/ARTEMIS-4675[Replication status metrics].
+
 
 === Upgrading from 2.33.0
 
@@ -32,8 +34,8 @@ However, connections will no longer be pooled regardless of the configuration.
   ** This was done in an attempt to allow administrators to act when things are not working as expected, to get metrics on these objects and allow more transparency for the broker.
   ** this includes all Openwire Advisor queues and addresses, MQTT internal objects, Cluster Store and Forward (SNF) Queues, Mirror SNF.
   ** You may want to revisit authorizations if you mean to control access to certain users on the web console.
-* The CLI operation `./artemis queue stat` has its output improved and updated. If you parse the previous output you will see differences in the output.
-  ** It is not recommended to parse the output of a CLI Operation. You may use jolokia calls over management instead.
+* The CLI operation `./artemis queue stat` has its output improved and updated. If you parsed the previous output in scripts you will see differences in the output.
+  ** It is not recommended to parse the output of a CLI Operation. You may use jolokia calls over management instead with proper JSON output.
 
 == 2.33.0
 
