@@ -488,7 +488,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
       } catch (Exception ex) {
          ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
-         return;
       }
 
    }

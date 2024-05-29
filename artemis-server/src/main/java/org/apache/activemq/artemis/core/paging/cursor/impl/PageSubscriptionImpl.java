@@ -340,9 +340,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   }
                }
             }
-
-            infoPG.acks.clear();
-            infoPG.removedReferences.clear();
          }
 
          tx.addOperation(new TransactionOperationAbstract() {
@@ -751,7 +748,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
                }
             }
          }
-         info.acks.clear();
       }
       deletedPage.usageExhaust();
    }
