@@ -2682,13 +2682,17 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(false, false);
 
-      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
       fileMessage.setMessageID(1005);
 
       for (int i = 0; i < largeMessageSize; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
+
+      // we need to call sync, especially for JDBC Storage.
+      // we need to make sure the database has all the packets before a send can be called
+      fileMessage.getAppendFile().sync();
 
       // The server would be doing this
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
