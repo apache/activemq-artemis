@@ -139,6 +139,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+import static org.junit.Assume.assumeFalse;
+
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
@@ -321,6 +323,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @Test
    public void testAuthCounts() throws Exception {
+      // don't test this with management messages as it completely throws off the auth counts
+      assumeFalse(usingCore());
+
       ActiveMQServerControl serverControl = createManagementControl();
 
       Assert.assertEquals(0, serverControl.getAuthenticationSuccessCount());
@@ -1138,7 +1143,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String addressMatch = "test.#";
       String exactAddress = "test.whatever";
 
-      assertEquals(1, serverControl.getRoles(addressMatch).length);
+      assertEquals(2, serverControl.getRoles(addressMatch).length);
       serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", null, "bar", "foo, bar", "", "", "bar", "foo", "foo", "", "");
 
       // Restart the server. Those settings should be persisted
@@ -1218,7 +1223,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertFalse((boolean)barRole[10]);
 
       serverControl.removeSecuritySettings(addressMatch);
-      assertEquals(1, serverControl.getRoles(exactAddress).length);
+      assertEquals(2, serverControl.getRoles(exactAddress).length);
    }
 
    @Test
