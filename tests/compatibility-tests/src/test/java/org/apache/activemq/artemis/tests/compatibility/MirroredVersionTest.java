@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_THIRTYTHREE_ZERO;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYEIGHT_ZERO;
 
 @RunWith(Parameterized.class)
 public class MirroredVersionTest extends ClasspathBase {
