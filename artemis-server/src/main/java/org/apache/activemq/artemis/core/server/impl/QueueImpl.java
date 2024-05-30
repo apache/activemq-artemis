@@ -3366,6 +3366,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxSize() &&
             intermediateMessageReferences.size() + messageReferences.size() < MAX_DEPAGE_NUM;
       } else {
+
+         /*
+           queueMemorySize.getSize() = How many bytes the messages in memory (read from paging or journal, ready to delivery) are occupying
+           queueMemorySize.getElements() = How many elements are in memory ready to be delivered.
+           deliveringMetrics.getMessageCount() = How many messages are in the client's buffer for the consumers.
+           deliveringMetrics.getPersistentSize() = How many bytes are in the client's buffer for the consumers.
+
+           At all times the four rules have to be satisfied, and they can be switched off.
+
+           Notice in case all of these are -1, we will use the previous semantic on fetching data from paging on the other part of the 'if' in this method.
+
+           Also notice in case needsDepageResult = false, we will check for the maxReadBytes and then print a warning if there are more delivering than we can handle.
+          */
+
          boolean needsDepageResult =
             (maxReadBytes <= 0 || (queueMemorySize.getSize() + deliveringMetrics.getPersistentSize()) < maxReadBytes) &&
             (prefetchBytes <= 0 || (queueMemorySize.getSize() < prefetchBytes)) &&
