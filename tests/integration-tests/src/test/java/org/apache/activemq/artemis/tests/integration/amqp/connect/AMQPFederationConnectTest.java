@@ -57,15 +57,25 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Session;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.ActiveMQServerAMQPFederationPlugin;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
@@ -1014,6 +1024,99 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
+      }
+   }
+
+   @Test(timeout = 30_000)
+   public void testFederationDemandAddedAndImmediateBrokerShutdownOverlaps() throws Exception {
+      // Testing for a race on broker shutdown if demand was added at the same time and the
+      // broker is creating an outbound consumer to match that demand.
+      for (int i = 0; i < 2; ++i) {
+         doTestFederationDemandAddedAndImmediateBrokerShutdown();
+      }
+   }
+
+   private void doTestFederationDemandAddedAndImmediateBrokerShutdown() throws Exception {
+      if (server == null || !server.isStarted()) {
+         server = createServer();
+      }
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes("test", "test");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.registerBrokerPlugin(new ActiveMQServerAMQPFederationPlugin() {
+
+            @Override
+            public void beforeCreateFederationConsumer(final FederationConsumerInfo consumerInfo) throws ActiveMQException {
+               logger.debug("Delaying attach of outgoing federation receiver");
+               ForkJoinPool.commonPool().execute(() -> {
+                  try {
+                     server.stop();
+                  } catch (Exception e) {
+                  }
+               });
+               // Allow a bit of time for the server stop to get started before allowing
+               // the remote federation consumer to begin being built.
+               try {
+                  Thread.sleep(new Random(System.currentTimeMillis()).nextInt(8));
+               } catch (InterruptedException e) {
+               }
+            }
+         });
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().optional();
+         peer.expectFlow().optional();
+         peer.expectDetach().optional();
+         peer.expectClose().optional();
+         peer.expectConnectionToDrop();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+
+            connection.start();
+
+            try {
+               session.createConsumer(session.createQueue("test"));
+            } catch (JMSException ex) {
+               // Ignored as we are asynchronously shutting down the server, this could happen.
+            }
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
       }
    }
 

@@ -28,6 +28,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.qpid.proton.engine.Receiver;
@@ -41,11 +42,13 @@ import org.apache.qpid.proton.engine.Receiver;
 public final class AMQPFederationConsumerConfiguration {
 
    private final Map<String, Object> properties;
-   private final AMQPFederation federation;
+   private final AMQPFederationConfiguration configuration;
 
    @SuppressWarnings("unchecked")
-   public AMQPFederationConsumerConfiguration(AMQPFederation federation, Map<String, ?> properties) {
-      this.federation = federation;
+   public AMQPFederationConsumerConfiguration(AMQPFederationConfiguration configuration, Map<String, ?> properties) {
+      Objects.requireNonNull(configuration, "Federation configuration cannot be null");
+
+      this.configuration = configuration;
 
       if (properties == null || properties.isEmpty()) {
          this.properties = Collections.EMPTY_MAP;
@@ -61,7 +64,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getConfiguration().getReceiverCredits();
+         return configuration.getReceiverCredits();
       }
    }
 
@@ -72,7 +75,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getConfiguration().getReceiverCreditsLow();
+         return configuration.getReceiverCreditsLow();
       }
    }
 
@@ -86,7 +89,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getConfiguration().getPullReceiverBatchSize();
+         return configuration.getPullReceiverBatchSize();
       }
    }
 
@@ -97,7 +100,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getConfiguration().getLargeMessageThreshold();
+         return configuration.getLargeMessageThreshold();
       }
    }
 
@@ -108,7 +111,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Integer.parseInt((String) property);
       } else {
-         return federation.getConfiguration().getLinkAttachTimeout();
+         return configuration.getLinkAttachTimeout();
       }
    }
 
@@ -119,7 +122,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.getConfiguration().isCoreMessageTunnelingEnabled();
+         return configuration.isCoreMessageTunnelingEnabled();
       }
    }
 
@@ -130,7 +133,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.getConfiguration().isIgnoreSubscriptionFilters();
+         return configuration.isIgnoreSubscriptionFilters();
       }
    }
 
@@ -141,7 +144,7 @@ public final class AMQPFederationConsumerConfiguration {
       } else if (property instanceof String) {
          return Boolean.parseBoolean((String) property);
       } else {
-         return federation.getConfiguration().isIgnoreSubscriptionPriorities();
+         return configuration.isIgnoreSubscriptionPriorities();
       }
    }
 }
