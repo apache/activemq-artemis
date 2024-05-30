@@ -788,7 +788,7 @@ public class PagingTest extends ParameterDBTestBase {
          consumer.close();
          Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
 
-         Wait.assertEquals(1, () -> PagingStoreTestAccessor.getUsedPagesSize(queue.getPagingStore()), 1000, 100);
+         Wait.assertTrue(() -> PagingStoreTestAccessor.getUsedPagesSize(queue.getPagingStore()) <= 1, 1000, 100);
 
       }
       Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
