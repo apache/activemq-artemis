@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerIn
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationAddressPolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationGenericConsumerInfo;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,16 +49,23 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final AMQPFederation federation;
-   protected final AMQPFederationConsumerConfiguration configuration;
-
    protected final String remoteQueueFilter;
+
+   protected volatile AMQPFederationConsumerConfiguration configuration;
+   protected volatile AMQPSessionContext session;
 
    public AMQPFederationAddressPolicyManager(AMQPFederation federation, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
       super(federation, addressPolicy);
 
       this.federation = federation;
       this.remoteQueueFilter = generateAddressFilter(policy.getMaxHops());
-      this.configuration = new AMQPFederationConsumerConfiguration(federation, policy.getProperties());
+   }
+
+   @Override
+   protected void handlePolicyManagerStarted(FederationReceiveFromAddressPolicy policy) {
+      // Capture state for the current connection on each start of the policy manager.
+      configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), policy.getProperties());
+      session = federation.getSessionContext();
    }
 
    @Override
@@ -88,7 +96,7 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
 
       // Don't initiate anything yet as the caller might need to register error handlers etc
       // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationAddressConsumer(federation, configuration, federation.getSessionContext(), consumerInfo, policy);
+      return new AMQPFederationAddressConsumer(federation, configuration, session, consumerInfo, policy);
    }
 
    @Override

@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerIn
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationGenericConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationQueuePolicyManager;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +47,21 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final AMQPFederation federation;
-   protected final AMQPFederationConsumerConfiguration configuration;
+
+   protected volatile AMQPFederationConsumerConfiguration configuration;
+   protected volatile AMQPSessionContext session;
 
    public AMQPFederationQueuePolicyManager(AMQPFederation federation, FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
       super(federation, queuePolicy);
 
       this.federation = federation;
-      this.configuration = new AMQPFederationConsumerConfiguration(federation, policy.getProperties());
+   }
+
+   @Override
+   protected void handlePolicyManagerStarted(FederationReceiveFromQueuePolicy policy) {
+      // Capture state for the current connection on each start of the policy manager.
+      configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), policy.getProperties());
+      session = federation.getSessionContext();
    }
 
    @Override
@@ -87,7 +96,7 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
 
       // Don't initiate anything yet as the caller might need to register error handlers etc
       // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationQueueConsumer(federation, configuration, federation.getSessionContext(), consumerInfo, policy);
+      return new AMQPFederationQueueConsumer(federation, configuration, session, consumerInfo, policy);
    }
 
    @Override

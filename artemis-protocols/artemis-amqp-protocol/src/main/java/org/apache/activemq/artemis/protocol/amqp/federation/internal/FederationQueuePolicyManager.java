@@ -80,6 +80,7 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    public synchronized void start() {
       if (!started) {
          started = true;
+         handlePolicyManagerStarted(policy);
          server.registerBrokerPlugin(this);
          scanAllQueueBindings(); // Create consumers for existing queue with demand.
       }
@@ -302,6 +303,16 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    protected boolean testIfQueueMatchesPolicy(String queueName) {
       return policy.testQueue(queueName);
    }
+
+   /**
+    * Called on start of the manager before any other actions are taken to allow the subclass time
+    * to configure itself and prepare any needed state prior to starting management of federated
+    * resources.
+    *
+    * @param policy
+    *    The policy configuration for this policy manager.
+    */
+   protected abstract void handlePolicyManagerStarted(FederationReceiveFromQueuePolicy policy);
 
    /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer}

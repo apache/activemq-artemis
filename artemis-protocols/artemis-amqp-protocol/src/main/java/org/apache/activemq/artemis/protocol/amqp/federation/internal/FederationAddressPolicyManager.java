@@ -87,6 +87,7 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    public synchronized void start() {
       if (!started) {
          started = true;
+         handlePolicyManagerStarted(policy);
          server.registerBrokerPlugin(this);
          scanAllBindings(); // Create remote consumers for existing addresses with demand.
       }
@@ -476,6 +477,16 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    protected boolean testIfAddressMatchesPolicy(String address, RoutingType type) {
       return policy.test(address, type);
    }
+
+   /**
+    * Called on start of the manager before any other actions are taken to allow the subclass time
+    * to configure itself and prepare any needed state prior to starting management of federated
+    * resources.
+    *
+    * @param policy
+    *    The policy configuration for this policy manager.
+    */
+   protected abstract void handlePolicyManagerStarted(FederationReceiveFromAddressPolicy policy);
 
    /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo}
