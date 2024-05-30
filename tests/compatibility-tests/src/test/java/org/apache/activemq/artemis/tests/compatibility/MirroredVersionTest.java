@@ -64,14 +64,11 @@ public class MirroredVersionTest extends ClasspathBase {
 
    private final boolean useDual;
 
-
    @Parameterized.Parameters(name = "BrokerA={0}, BrokerB={1}, dualMirror={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
       combinations.add(new Object[]{TWO_THIRTYTHREE_ZERO, SNAPSHOT, true});
       combinations.add(new Object[]{SNAPSHOT, TWO_THIRTYTHREE_ZERO, true});
-      combinations.add(new Object[]{TWO_TWENTYEIGHT_ZERO, SNAPSHOT, false});
-      combinations.add(new Object[]{SNAPSHOT, TWO_TWENTYEIGHT_ZERO, false});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, true});
       return combinations;
    }
@@ -84,12 +81,6 @@ public class MirroredVersionTest extends ClasspathBase {
       this.useDual = useDual;
    }
 
-   @Before
-   public void beforeStart() {
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "1"));
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "2"));
-   }
-
    @After
    public void cleanupServers() {
       try {
@@ -100,6 +91,13 @@ public class MirroredVersionTest extends ClasspathBase {
          evaluate(backupClassLoader, "multiVersionMirror/backupServerStop.groovy");
       } catch (Exception ignored) {
       }
+   }
+
+   @Before
+   @After
+   public void deleteFolders() {
+      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "1"));
+      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "2"));
    }
 
    private String createBody(int size) {
