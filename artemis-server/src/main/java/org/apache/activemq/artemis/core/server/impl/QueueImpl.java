@@ -3378,6 +3378,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
            Notice in case all of these are -1, we will use the previous semantic on fetching data from paging on the other part of the 'if' in this method.
 
            Also notice in case needsDepageResult = false, we will check for the maxReadBytes and then print a warning if there are more delivering than we can handle.
+
+           maxRead(Bytes or messages) will limit reading messages by the number of delivering + available messages (bytes or message-count)
+           prefetch (bytes or messages) will limit reading messages by the number of available messages, without using the delivering
+
+           prefetch(bytes and messages) should be <= max-read(bytes and messages) at all times.
           */
 
          boolean needsDepageResult =
