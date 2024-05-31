@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -58,6 +59,7 @@ import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -562,18 +564,6 @@ public class PagingStoreImpl implements PagingStore {
       }
 
       final List<Runnable> pendingTasks = new ArrayList<>();
-
-      final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add, 30, TimeUnit.SECONDS);
-      if (pendingTasksWhileShuttingDown > 0) {
-         logger.trace("Try executing {} pending tasks on stop", pendingTasksWhileShuttingDown);
-         for (Runnable pendingTask : pendingTasks) {
-            try {
-               pendingTask.run();
-            } catch (Throwable t) {
-               logger.warn("Error while executing a pending task on shutdown", t);
-            }
-         }
-      }
 
       final Page page = currentPage;
       if (page != null) {
@@ -1401,9 +1391,41 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void destroy() throws Exception {
-      SequentialFileFactory factory = fileFactory;
-      if (factory != null) {
-         storeFactory.removeFileFactory(factory);
+      // destroy has to be executed in the same executor as the cleanup
+      execute(this::internalDestroy);
+      OperationContext context = OperationContextImpl.getContext();
+      if (context != null) {
+         // this is to make clients to wait the delete completion of the storage
+         context.storeLineUp();
+         execute(context::done);
+      }
+   }
+
+   private void internalDestroy() {
+      try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
+         while (true) {
+            if (lock(100)) {
+               break;
+            }
+         }
+
+         try {
+            SequentialFileFactory factory = fileFactory;
+            if (factory != null) {
+               try {
+                  storeFactory.removeFileFactory(factory);
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
+            }
+         } finally {
+            unlock();
+            try {
+               stop();
+            } catch (Exception e2) {
+               logger.debug(e2.getMessage(), e2);
+            }
+         }
       }
    }
 

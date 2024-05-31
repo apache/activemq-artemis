@@ -405,15 +405,16 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void deletePageStore(final SimpleString storeName) throws Exception {
+      PagingStore store;
       syncLock.readLock().lock();
       try {
-         PagingStore store = stores.remove(CompositeAddress.extractAddressName(storeName));
-         if (store != null) {
-            store.stop();
-            store.destroy();
-         }
+         store = stores.remove(CompositeAddress.extractAddressName(storeName));
       } finally {
          syncLock.readLock().unlock();
+      }
+
+      if (store != null) {
+         store.destroy();
       }
    }
 
