@@ -1450,6 +1450,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public int countTopologyPeers(String clusterConnectionName) throws Exception {
+            return (int) proxy.invokeOperation("countTopologyPeers", clusterConnectionName);
+         }
+
+         @Override
          public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
             return null;
          }
