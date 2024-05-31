@@ -1910,6 +1910,9 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
    String listNetworkTopology() throws Exception;
 
+   @Operation(desc = "Number of peers in the topology of a given cluster connection", impact = MBeanOperationInfo.INFO)
+   int countTopologyPeers(@Parameter(name = "clusterConnectionName", desc = "Name of the cluster connection") String clusterConnectionName) throws Exception;
+
    @Operation(desc = "Get the selected address", impact = MBeanOperationInfo.INFO)
    String getAddressInfo(@Parameter(name = "address", desc = "The address") String address) throws ActiveMQAddressDoesNotExistException;
 
