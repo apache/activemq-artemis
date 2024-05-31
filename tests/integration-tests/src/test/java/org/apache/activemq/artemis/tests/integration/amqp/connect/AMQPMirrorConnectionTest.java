@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.CONNECTION_FORCED;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TUNNEL_CORE_MESSAGES;
 
 import java.lang.invoke.MethodHandles;
@@ -152,7 +153,9 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.expectAttach().ofSender()
                             .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
                             .withDesiredCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
-                            .respond();
+                            .respond(); // Response omits "amq.mirror" in offered capabilities.
+         peer.expectClose().withError(CONNECTION_FORCED.toString()).optional(); // Can hit the wire in rare instances.
+         peer.expectConnectionToDrop();
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
