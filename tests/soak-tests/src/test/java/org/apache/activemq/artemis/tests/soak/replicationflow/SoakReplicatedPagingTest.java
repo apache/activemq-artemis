@@ -166,7 +166,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
          if (arg.length != 4) {
             System.err.println("You need to pass in protocol, consumerType, Time, transaction");
-            System.exit(0);
+            exit(0, "invalid arguments");
          }
 
          String protocol = arg[0];
@@ -211,28 +211,33 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
          logger.debug("Awaiting producers...");
          if (!producersLatch.await(60000, TimeUnit.MILLISECONDS)) {
-            System.err.println("Awaiting producers timeout");
-            System.exit(0);
+            System.out.println("Awaiting producers timeout");
+            exit(-1, "awaiting producers timeout");
          }
 
          logger.debug("Awaiting consumers...");
          if (!consumersLatch.await(60000, TimeUnit.MILLISECONDS)) {
-            System.err.println("Awaiting consumers timeout");
-            System.exit(0);
+            System.out.println("Awaiting consumers timeout");
+            exit(-2, "Consumer did not start");
          }
 
          logger.debug("Awaiting timeout...");
          Thread.sleep(time);
 
-         int exitStatus = consumed.get() > 0 ? 1 : 0;
+         int exitStatus = consumed.get() > 0 ? 1 : -3;
          logger.debug("Exiting with the status: {}", exitStatus);
-         System.exit(exitStatus);
+
+         exit(exitStatus, "Consumed " + consumed.get() + " messages");
       } catch (Throwable t) {
          System.err.println("Exiting with the status 0. Reason: " + t);
          t.printStackTrace();
-         System.exit(0);
+         exit(-4, t.getMessage());
       }
+   }
 
+   public static void exit(int code, String message) {
+      System.out.println("Exit code:: " + message);
+      System.exit(code);
    }
 
    @Test
@@ -254,7 +259,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          if (result <= 0) {
             jstack();
          }
-         Assert.assertTrue(result > 0);
+         Assert.assertEquals(0, result);
       }
    }
 
