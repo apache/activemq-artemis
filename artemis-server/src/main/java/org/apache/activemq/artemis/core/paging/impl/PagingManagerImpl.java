@@ -393,7 +393,7 @@ public final class PagingManagerImpl implements PagingManager {
             if (oldStore != null) {
                oldStore.stop();
             }
-            store.getCursorProvider().counterRebuildStarted(); // TODO-NOW-DONT-MERGE maybe this should be removed
+            store.getCursorProvider().counterRebuildStarted();
             store.start();
             stores.put(store.getStoreName(), store);
          }
