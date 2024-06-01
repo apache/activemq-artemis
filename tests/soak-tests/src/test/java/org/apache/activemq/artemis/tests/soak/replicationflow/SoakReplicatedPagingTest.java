@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -72,6 +73,8 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class SoakReplicatedPagingTest extends SoakTestBase {
+
+   public static int OK = 1;
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -224,7 +227,12 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          logger.debug("Awaiting timeout...");
          Thread.sleep(time);
 
-         int exitStatus = consumed.get() > 0 ? 1 : -3;
+         if (consumed.get() == 0) {
+            System.out.println("Retrying to wait consumers...");
+            Wait.assertTrue(() -> consumed.get() > 0, 15_000, 100);
+         }
+
+         int exitStatus = consumed.get() > 0 ? OK : -3;
          logger.debug("Exiting with the status: {}", exitStatus);
 
          exit(exitStatus, "Consumed " + consumed.get() + " messages");
@@ -236,7 +244,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
    }
 
    public static void exit(int code, String message) {
-      System.out.println("Exit code:: " + message);
+      System.out.println("Exit code:: " + code + "::" + message);
       System.exit(code);
    }
 
@@ -259,7 +267,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          if (result <= 0) {
             jstack();
          }
-         Assert.assertEquals(0, result);
+         Assert.assertEquals(OK, result);
       }
    }
 
