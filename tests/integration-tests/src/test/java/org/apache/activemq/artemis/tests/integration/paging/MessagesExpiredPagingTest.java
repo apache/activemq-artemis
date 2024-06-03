@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -39,10 +43,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -68,16 +71,16 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
    ExecutorService expiresExecutor;
 
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       running.set(false);
       expiresExecutor.shutdown();
-      Assert.assertTrue(expiresExecutor.awaitTermination(10, TimeUnit.SECONDS));
+      assertTrue(expiresExecutor.awaitTermination(10, TimeUnit.SECONDS));
       super.tearDown();
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -218,8 +221,8 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
          // first check just to make sure topics are being consumed regularly
          for (Consumer c : consumers) {
             c.join(5000);
-            Assert.assertFalse(c.isAlive());
-            Assert.assertEquals(0, c.errors.get());
+            assertFalse(c.isAlive());
+            assertEquals(0, c.errors.get());
          }
       }
    }
@@ -252,7 +255,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
                while (running.get()) {
                   TextMessage message = (TextMessage)consumer.receive(500);
                   if (message != null) {
-                     Assert.assertTrue(message.getText().length() > minimalSize);
+                     assertTrue(message.getText().length() > minimalSize);
                      consumed.incrementAndGet();
                      consumedDelta.incrementAndGet();
                      Thread.sleep(2);

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -36,8 +38,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournalHashMapTest extends ActiveMQTestBase {
 
@@ -90,17 +91,17 @@ public class JournalHashMapTest extends ActiveMQTestBase {
 
       ArrayList<JournalHashMap.MapRecord<Long, Long>> records = new ArrayList<>();
       recordInfos.forEach(r -> {
-         Assert.assertEquals((byte)3, r.userRecordType);
+         assertEquals((byte)3, r.userRecordType);
          journalHashMapProvider.reload(r);
       });
 
       List<JournalHashMap<Long, Long, Object>>  existingLists = journalHashMapProvider.getMaps();
-      Assert.assertEquals(1, existingLists.size());
+      assertEquals(1, existingLists.size());
       JournalHashMap<Long, Long, Object> reloadedList = existingLists.get(0);
 
-      Assert.assertEquals(journalHashMap.size(), reloadedList.size());
+      assertEquals(journalHashMap.size(), reloadedList.size());
 
-      journalHashMap.forEach((a, b) -> Assert.assertEquals(b, reloadedList.get(a)));
+      journalHashMap.forEach((a, b) -> assertEquals(b, reloadedList.get(a)));
 
    }
 

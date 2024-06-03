@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +27,8 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -43,7 +47,8 @@ public class MessageReceiptTests extends MQTT5TestSupport {
     *
     * This test is pretty generic. It just creates a bunch of individual consumers and sends a message to each one.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMessageReceipt() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";

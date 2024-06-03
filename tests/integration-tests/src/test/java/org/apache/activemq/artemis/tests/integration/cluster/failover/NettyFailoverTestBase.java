@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -41,16 +45,14 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
+import org.apache.activemq.artemis.tests.extensions.ThreadLeakCheckExtension;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class NettyFailoverTestBase extends FailoverTest {
 
@@ -79,7 +81,7 @@ public class NettyFailoverTestBase extends FailoverTest {
 
    @Override
    protected NodeManager createReplicatedBackupNodeManager(Configuration backupConfig) {
-      Assume.assumeThat("Replicated backup is supported only by " + NodeManagerType.InVM + " Node Manager", nodeManagerType, Is.is(NodeManagerType.InVM));
+      assumeTrue(nodeManagerType == NodeManagerType.InVM, "Replicated backup is supported only by " + NodeManagerType.InVM + " Node Manager");
       return super.createReplicatedBackupNodeManager(backupConfig);
    }
 
@@ -127,10 +129,10 @@ public class NettyFailoverTestBase extends FailoverTest {
    }
 
 
-   @After
+   @AfterEach
    public void shutDownExecutors() {
       if (!scheduledExecutorServices.isEmpty()) {
-         ThreadLeakCheckRule.addKownThread("oracle.jdbc.driver.BlockSource.ThreadedCachingBlockSource.BlockReleaser");
+         ThreadLeakCheckExtension.addKownThread("oracle.jdbc.driver.BlockSource.ThreadedCachingBlockSource.BlockReleaser");
          executors.forEach(ExecutorService::shutdown);
          scheduledExecutorServices.forEach(ExecutorService::shutdown);
          executors.clear();
@@ -138,7 +140,8 @@ public class NettyFailoverTestBase extends FailoverTest {
       }
    }
 
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
    public void testFailoverWithHostAlias() throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
@@ -169,9 +172,9 @@ public class NettyFailoverTestBase extends FailoverTest {
 
       sf.close();
 
-      Assert.assertEquals(0, sf.numSessions());
+      assertEquals(0, sf.numSessions());
 
-      Assert.assertEquals(0, sf.numConnections());
+      assertEquals(0, sf.numConnections());
    }
 
 }

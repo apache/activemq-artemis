@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
@@ -23,13 +26,13 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
-public class ResourceNamesTest extends Assert {
+@ExtendWith(ParameterizedTestExtension.class)
+public class ResourceNamesTest {
 
    char delimiterChar;
    final String delimiter;
@@ -42,7 +45,7 @@ public class ResourceNamesTest extends Assert {
    final String testResourceDivertName;
 
 
-   @Parameterized.Parameters(name = "delimiterChar={0}")
+   @Parameters(name = "delimiterChar={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][] {{'/'}, {'.'}});
    }
@@ -60,28 +63,28 @@ public class ResourceNamesTest extends Assert {
       testResourceDivertName = baseName + ResourceNames.DIVERT.replace('.', delimiterChar) + ResourceNames.RETROACTIVE_SUFFIX;
    }
 
-   @Test
+   @TestTemplate
    public void testGetRetroactiveResourceAddressName() {
       assertEquals(testResourceAddressName, ResourceNames.getRetroactiveResourceAddressName(prefix, delimiter, testAddress).toString());
    }
 
-   @Test
+   @TestTemplate
    public void testGetRetroactiveResourceQueueName() {
       assertEquals(testResourceMulticastQueueName, ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, testAddress, RoutingType.MULTICAST).toString());
       assertEquals(testResourceAnycastQueueName, ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, testAddress, RoutingType.ANYCAST).toString());
    }
 
-   @Test
+   @TestTemplate
    public void testGetRetroactiveResourceDivertName() {
       assertEquals(testResourceDivertName, ResourceNames.getRetroactiveResourceDivertName(prefix, delimiter, testAddress).toString());
    }
 
-   @Test
+   @TestTemplate
    public void testDecomposeRetroactiveResourceAddressName() {
       assertEquals(testAddress.toString(), ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, testResourceAddressName));
    }
 
-   @Test
+   @TestTemplate
    public void testIsRetroactiveResource() {
       assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.toSimpleString(testResourceAddressName)));
       assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.toSimpleString(testResourceMulticastQueueName)));

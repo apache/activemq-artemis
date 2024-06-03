@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
@@ -26,8 +29,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +59,7 @@ public class QuorumFailOverPrimaryVotesTest extends StaticClusterWithBackupFailo
 
    /** Ignored per https://issues.apache.org/jira/browse/ARTEMIS-2484.
     *   Please remove this javadoc and the @Ignore when fixed */
-   @Ignore
+   @Disabled
    @Test
    public void testQuorumVotingPrimaryNotDead() throws Exception {
       int[] liveServerIDs = new int[]{0, 1, 2};
@@ -94,8 +97,8 @@ public class QuorumFailOverPrimaryVotesTest extends StaticClusterWithBackupFailo
 
       locators[0].addClusterTopologyListener(primaryTopologyListener);
 
-      assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
-      assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
+      assertTrue(servers[3].getHAPolicy().isBackup(), "we assume 3 is a backup");
+      assertFalse(servers[3].getHAPolicy().isSharedStore(), "no shared storage");
 
       SharedNothingPrimaryActivation primaryActivation = (SharedNothingPrimaryActivation) servers[0].getActivation();
       servers[0].getRemotingService().freeze(null, null);

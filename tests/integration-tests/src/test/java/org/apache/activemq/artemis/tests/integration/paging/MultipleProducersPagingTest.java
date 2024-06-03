@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -42,10 +45,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultipleProducersPagingTest extends ActiveMQTestBase {
 
@@ -65,7 +67,7 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
    private Queue queue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
@@ -95,9 +97,9 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
       for (int i = 0; i < PRODUCERS; i++) {
          executor.execute(new ProducerRun());
       }
-      Assert.assertTrue("must take less than a minute to run", runnersLatch.await(1, TimeUnit.MINUTES));
-      Assert.assertEquals("number sent", TOTAL_MSG, msgSent.longValue());
-      Assert.assertEquals("number received", TOTAL_MSG, msgReceived.longValue());
+      assertTrue(runnersLatch.await(1, TimeUnit.MINUTES), "must take less than a minute to run");
+      assertEquals(TOTAL_MSG, msgSent.longValue(), "number sent");
+      assertEquals(TOTAL_MSG, msgReceived.longValue(), "number received");
    }
 
    private synchronized Session createSession() throws JMSException {
@@ -152,7 +154,7 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       executor.shutdown();
       for (Connection conn : connections) {

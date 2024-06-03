@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
@@ -23,8 +25,7 @@ import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BackupManagerInheritedConfigTest extends FailoverTestBase {
 
@@ -53,10 +54,10 @@ public class BackupManagerInheritedConfigTest extends FailoverTestBase {
       for (BackupManager.BackupConnector backupConnector : server.getBackupManager().getBackupConnectors()) {
 
          Wait.assertTrue(() -> backupConnector.getBackupServerLocator() != null);
-         Assert.assertEquals(333, backupConnector.getBackupServerLocator().getRetryInterval());
-         Assert.assertEquals(-1, backupConnector.getBackupServerLocator().getReconnectAttempts());
-         Assert.assertEquals(1000, backupConnector.getBackupServerLocator().getClientFailureCheckPeriod());
-         Assert.assertEquals(5000, backupConnector.getBackupServerLocator().getConnectionTTL());
+         assertEquals(333, backupConnector.getBackupServerLocator().getRetryInterval());
+         assertEquals(-1, backupConnector.getBackupServerLocator().getReconnectAttempts());
+         assertEquals(1000, backupConnector.getBackupServerLocator().getClientFailureCheckPeriod());
+         assertEquals(5000, backupConnector.getBackupServerLocator().getConnectionTTL());
       }
    }
 

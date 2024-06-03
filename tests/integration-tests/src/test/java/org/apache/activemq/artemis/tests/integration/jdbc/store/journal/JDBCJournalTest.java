@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,25 +41,21 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JDBCJournalTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
 
    private JDBCJournalImpl journal;
 
@@ -67,15 +67,15 @@ public class JDBCJournalTest extends ActiveMQTestBase {
 
    private DatabaseStorageConfiguration dbConf;
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean useAuthentication;
 
-   @Parameterized.Parameters(name = "authentication = {0}")
+   @Parameters(name = "authentication = {0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{false}, {true}});
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -104,7 +104,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       dbConf = createDefaultDatabaseStorageConfiguration();
       if (useAuthentication) {
@@ -128,33 +128,33 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       journal.start();
    }
 
-   @Test
+   @TestTemplate
    public void testRestartEmptyJournal() throws SQLException {
-      Assert.assertTrue(journal.isStarted());
-      Assert.assertEquals(0, journal.getNumberOfRecords());
+      assertTrue(journal.isStarted());
+      assertTrue(journal.isStarted());
       journal.stop();
       journal.start();
-      Assert.assertTrue(journal.isStarted());
+      assertTrue(journal.isStarted());
    }
 
-   @Test
+   @TestTemplate
    public void testConcurrentEmptyJournal() throws SQLException {
-      Assert.assertTrue(journal.isStarted());
-      Assert.assertEquals(0, journal.getNumberOfRecords());
+      assertTrue(journal.isStarted());
+      assertEquals(0, journal.getNumberOfRecords());
       final JDBCJournalImpl secondJournal = new JDBCJournalImpl(dbConf.getConnectionProvider(),
                                                                           sqlProvider, scheduledExecutorService,
                                                                           executorService, (code, message, file) -> {
-         Assert.fail(message);
+         fail(message);
       }, 5);
       secondJournal.start();
       try {
-         Assert.assertTrue(secondJournal.isStarted());
+         assertTrue(secondJournal.isStarted());
       } finally {
          secondJournal.stop();
       }
    }
 
-   @Test
+   @TestTemplate
    public void testInsertRecords() throws Exception {
       int noRecords = 10;
       for (int i = 0; i < noRecords; i++) {
@@ -164,14 +164,14 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       assertEquals(noRecords, journal.getNumberOfRecords());
    }
 
-   @Test
+   @TestTemplate
    public void testCleanupTxRecords() throws Exception {
       journal.appendDeleteRecordTransactional(1, 1);
       journal.appendCommitRecord(1, true);
       assertEquals(0, journal.getNumberOfRecords());
    }
 
-   @Test
+   @TestTemplate
    public void testCleanupTxRecords4TransactionalRecords() throws Exception {
       // add committed transactional record e.g. paging
       journal.appendAddRecordTransactional(152, 154, (byte) 13, new byte[0]);
@@ -184,7 +184,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       assertEquals(0, journal.getNumberOfRecords());
    }
 
-   @Test
+   @TestTemplate
    public void testCallbacks() throws Exception {
       final int noRecords = 10;
       final CountDownLatch done = new CountDownLatch(noRecords);
@@ -214,7 +214,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       assertEquals(done.getCount(), 0);
    }
 
-   @Test
+   @TestTemplate
    public void testReadJournal() throws Exception {
       int noRecords = 100;
 

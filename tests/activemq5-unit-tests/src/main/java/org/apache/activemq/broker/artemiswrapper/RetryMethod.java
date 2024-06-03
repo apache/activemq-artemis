@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.broker.artemiswrapper;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

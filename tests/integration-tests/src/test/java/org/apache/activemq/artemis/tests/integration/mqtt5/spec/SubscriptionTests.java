@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +32,8 @@ import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -46,7 +53,8 @@ public class SubscriptionTests extends MQTT5TestSupport {
    /*
     * [MQTT-4.8.2-3] The Server MUST respect the granted QoS for the Client's subscription.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testSharedSubscriptionRespectQoS() throws Exception {
       final String TOPIC = "myTopic";
       final String SUB_NAME = "myShare";
@@ -111,7 +119,8 @@ public class SubscriptionTests extends MQTT5TestSupport {
     * PUBLISH packet from the Server, the Server MUST discard the Application Message and not attempt to send it to any
     * other Subscriber.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testSharedSubscriptionWithAck() throws Exception {
       final String TOPIC = "myTopic";
       final String SUB_NAME = "myShare";

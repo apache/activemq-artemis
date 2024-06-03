@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +28,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URIFactory;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 import org.apache.activemq.artemis.utils.uri.URISupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class URIParserTest {
 
@@ -40,12 +42,12 @@ public class URIParserTest {
       FruitParser parser = new FruitParser();
       Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"), null);
 
-      Assert.assertEquals("fruit", fruit.getName());
-      Assert.assertEquals(3030, fruit.getPort());
-      Assert.assertEquals("fair-market", fruit.getHost());
-      Assert.assertEquals("some:guy", fruit.getUserInfo());
-      Assert.assertEquals("green", fruit.getColor());
-      Assert.assertEquals("something", fruit.getFluentName());
+      assertEquals("fruit", fruit.getName());
+      assertEquals(3030, fruit.getPort());
+      assertEquals("fair-market", fruit.getHost());
+      assertEquals("some:guy", fruit.getUserInfo());
+      assertEquals("green", fruit.getColor());
+      assertEquals("something", fruit.getFluentName());
 
    }
 
@@ -65,8 +67,8 @@ public class URIParserTest {
 
       Fruit newFruit = (Fruit) parser.newObject(uri, "something");
 
-      Assert.assertEquals(myFruit.getHost(), newFruit.getHost());
-      Assert.assertEquals(myFruit.getFluentName(), newFruit.getFluentName());
+      assertEquals(myFruit.getHost(), newFruit.getHost());
+      assertEquals(myFruit.getFluentName(), newFruit.getFluentName());
 
    }
 
@@ -79,9 +81,9 @@ public class URIParserTest {
    public void testSchemaNoHosProperty() throws Throwable {
       FruitParser parser = new FruitParser();
       FruitBase fruit = parser.newObject(new URI("base://some:guy@fair-market:3030?color=green&fluentName=something"), null);
-      Assert.assertEquals("base", fruit.getName());
-      Assert.assertEquals("green", fruit.getColor());
-      Assert.assertEquals("something", fruit.getFluentName());
+      assertEquals("base", fruit.getName());
+      assertEquals("green", fruit.getColor());
+      assertEquals("something", fruit.getFluentName());
    }
 
    /**
@@ -94,28 +96,28 @@ public class URIParserTest {
       FruitParser parser = new FruitParser();
       Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@port?color=green&fluentName=something"), null);
 
-      Assert.assertEquals("fruit", fruit.getName());
-      Assert.assertEquals("green", fruit.getColor());
-      Assert.assertEquals("something", fruit.getFluentName());
+      assertEquals("fruit", fruit.getName());
+      assertEquals("green", fruit.getColor());
+      assertEquals("something", fruit.getFluentName());
    }
 
    @Test
    public void testQueryConversion() throws Exception {
       Map<String, String> query = new HashMap<>();
       String queryString = URISupport.createQueryString(query);
-      Assert.assertTrue(queryString.isEmpty());
+      assertTrue(queryString.isEmpty());
 
       query.put("key1", "value1");
       queryString = URISupport.createQueryString(query);
-      Assert.assertEquals("key1=value1", queryString);
+      assertEquals("key1=value1", queryString);
 
       query.put("key3", "value3");
       queryString = URISupport.createQueryString(query);
-      Assert.assertEquals("key1=value1&key3=value3", queryString);
+      assertEquals("key1=value1&key3=value3", queryString);
 
       query.put("key2", "value2");
       queryString = URISupport.createQueryString(query);
-      Assert.assertEquals("key1=value1&key2=value2&key3=value3", queryString);
+      assertEquals("key1=value1&key2=value2&key3=value3", queryString);
 
    }
 

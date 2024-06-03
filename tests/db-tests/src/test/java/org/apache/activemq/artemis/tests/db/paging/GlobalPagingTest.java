@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -34,24 +36,28 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class GlobalPagingTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.randomList());
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -63,7 +69,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
       return database.getDriverClass();
    }
 
-   @Test
+   @TestTemplate
    public void testMaxMessages() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.getConfiguration().getAddressSettings().clear();
@@ -91,7 +97,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(addressName));
          for (int i = 0; i < 6; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
          session.commit();
 
@@ -100,7 +106,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testMaxMessagesOpposite() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.getConfiguration().getAddressSettings().clear();
@@ -128,7 +134,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(addressName));
          for (int i = 0; i < 6; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
          session.commit();
 
@@ -137,7 +143,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testMaxMessagesBytes() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.getConfiguration().getAddressSettings().clear();
@@ -167,7 +173,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(addressName));
          for (int i = 0; i < 6; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
          session.commit();
 
@@ -176,7 +182,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testMaxMessagesBytesOpposite() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.getConfiguration().getAddressSettings().clear();
@@ -206,7 +212,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(addressName));
          for (int i = 0; i < 6; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
          session.commit();
 

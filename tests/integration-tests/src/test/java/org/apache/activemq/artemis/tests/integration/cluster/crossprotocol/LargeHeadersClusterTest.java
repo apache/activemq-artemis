@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -24,6 +27,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,17 +44,18 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LargeHeadersClusterTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -61,20 +66,20 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
    // to avoid perfect roundings and making sure messages are evenly distributed
    private static final int NUMBER_OF_MESSAGES = 77 * 2;
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public String protocol;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-
    }
+
    private void startServers(MessageLoadBalancingType loadBalancingType) throws Exception {
       setupServers();
 
@@ -112,12 +117,12 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
       } else if (protocol.equals("CORE")) {
          return new ActiveMQConnectionFactory("tcp://localhost:" + (61616 + node));
       } else {
-         Assert.fail("Protocol " + protocol + " unknown");
+         fail("Protocol " + protocol + " unknown");
          return null;
       }
    }
 
-   @Test
+   @TestTemplate
    public void testGrowingHeaders() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
@@ -152,7 +157,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
                logger.warn("error at {}", i, e);
             }
             if (!protocol.equals("AMQP")) {
-               Assert.assertTrue(loggerHandler.findText("AMQ144012"));
+               assertTrue(loggerHandler.findText("AMQ144012"));
             }
          }
       }
@@ -204,7 +209,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
 
 
       // messages should still flow
-      Assert.assertTrue(newSenderFound.get());
+      assertTrue(newSenderFound.get());
    }
 
 
@@ -288,5 +293,4 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
 
       return configuration;
    }
-
 }

@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -31,10 +36,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,13 +57,13 @@ public class MessageReferenceLeakTest extends AbstractLeakTest {
       server.start();
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startServer();
       ServerLocator locator = addServerLocator(createInVMNonHALocator().setBlockOnNonDurableSend(true).setConsumerWindowSize(0));
@@ -67,6 +72,7 @@ public class MessageReferenceLeakTest extends AbstractLeakTest {
       session.start();
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();

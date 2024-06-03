@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -45,9 +51,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -61,7 +66,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -74,7 +79,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
    @Test
    public void testAutoCreateDeleteRecreate() throws Exception {
       // This test is about validating the behaviour of queues recreates with the default configuration
-      Assert.assertEquals("Supposed to use default configuration on this test", ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod(), server.getConfiguration().getAddressQueueScanPeriod());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod(), server.getConfiguration().getAddressQueueScanPeriod(), "Supposed to use default configuration on this test");
       server.start();
       int THREADS = 40;
       ExecutorService executor = Executors.newFixedThreadPool(THREADS);
@@ -110,8 +115,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
             }
 
             barrier.await(10, TimeUnit.SECONDS);
-            Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
-            Assert.assertEquals(0, errors.get());
+            assertTrue(done.await(10, TimeUnit.SECONDS));
+            assertEquals(0, errors.get());
 
             try (Connection connection = cf.createConnection()) {
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -122,7 +127,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
                MessageProducer producer = session.createProducer(queue);
                producer.send(session.createTextMessage("hello"));
 
-               Assert.assertNotNull(consumer.receive(5000));
+               assertNotNull(consumer.receive(5000));
             }
          }
       } finally {
@@ -150,7 +155,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(QUEUE_NAME);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertTrue(serverQueue.isSwept());
+         assertTrue(serverQueue.isSwept());
          MessageConsumer consumer = session.createConsumer(queue);
          // no need to wait reaping to wait reaping to set it false. A simple add consumer on the queue should clear this
          Wait.assertFalse(serverQueue::isSwept);
@@ -158,17 +163,17 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertFalse(loggerHandler.findText("AMQ224112"));
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertTrue(loggerHandler.findText("AMQ224112"));
-         Assert.assertTrue("Queue name should be mentioned on logs", loggerHandler.findText(QUEUE_NAME));
+         assertTrue(loggerHandler.findText("AMQ224112"));
+         assertTrue(loggerHandler.findText(QUEUE_NAME), "Queue name should be mentioned on logs");
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertTrue(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
+         assertTrue(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
       }
    }
 
@@ -198,14 +203,14 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-         Assert.assertFalse(loggerHandler.findText("AMQ224113"));
+         assertFalse(loggerHandler.findText("AMQ224113"));
          Thread.sleep(50);
-         Assert.assertFalse(info.isSwept());
+         assertFalse(info.isSwept());
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(loggerHandler.findText("AMQ224113"));
-         Assert.assertTrue(info.isSwept());
+         assertFalse(loggerHandler.findText("AMQ224113"));
+         assertTrue(info.isSwept());
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertTrue(loggerHandler.findText("AMQ224113"));
+         assertTrue(loggerHandler.findText("AMQ224113"));
       }
    }
 
@@ -236,18 +241,18 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-         Assert.assertFalse(loggerHandler.findText("AMQ224113"));
+         assertFalse(loggerHandler.findText("AMQ224113"));
          Thread.sleep(50);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(loggerHandler.findText("AMQ224113"));
-         Assert.assertTrue(info.isSwept());
+         assertFalse(loggerHandler.findText("AMQ224113"));
+         assertTrue(info.isSwept());
          try (Connection connection = cf.createConnection()) {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Topic topic = session.createTopic(ADDRESS_NAME);
             session.createConsumer(topic);
             PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-            Assert.assertFalse(loggerHandler.findText("AMQ224113"));
-            Assert.assertFalse(info.isSwept()); // it should be cleared because there is a consumer now
+            assertFalse(loggerHandler.findText("AMQ224113"));
+            assertFalse(info.isSwept()); // it should be cleared because there is a consumer now
          }
       }
    }
@@ -268,8 +273,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       try (Connection connection = cf.createConnection();
          AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -277,14 +282,14 @@ public class AutoCreateTest extends ActiveMQTestBase {
          Queue queue = session.createQueue(QUEUE_NAME);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(QUEUE_NAME);
-         Assert.assertTrue(serverQueue.isSwept());
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertTrue(serverQueue.isSwept());
+         assertFalse(loggerHandler.findText("AMQ224112"));
          MessageConsumer consumer = session.createConsumer(queue);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(serverQueue.isSwept());
+         assertFalse(serverQueue.isSwept());
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertFalse(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
+         assertFalse(loggerHandler.findText("AMQ224112"));
       }
    }
 
@@ -304,8 +309,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
 
       try (Connection connection = cf.createConnection();
@@ -314,16 +319,16 @@ public class AutoCreateTest extends ActiveMQTestBase {
          Queue queue = session.createQueue(QUEUE_NAME);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(QUEUE_NAME);
-         Assert.assertTrue(serverQueue.isSwept());
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertTrue(serverQueue.isSwept());
+         assertFalse(loggerHandler.findText("AMQ224112"));
          MessageProducer producer = session.createProducer(queue);
          producer.send(session.createTextMessage("hello"));
          Wait.assertEquals(1, serverQueue::getMessageCount);
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(serverQueue.isSwept());
+         assertFalse(serverQueue.isSwept());
          PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
-         Assert.assertFalse(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertFalse(loggerHandler.findText("AMQ224113")); // we need another sweep to remove it
+         assertFalse(loggerHandler.findText("AMQ224112"));
       }
    }
 
@@ -365,16 +370,16 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       server.stop();
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
 
-         Assert.assertTrue(loggerHandler.findText("AMQ224113"));
-         Assert.assertTrue(loggerHandler.findText("AMQ224112"));
+         assertTrue(loggerHandler.findText("AMQ224113"));
+         assertTrue(loggerHandler.findText("AMQ224112"));
       }
 
       String randomString = "random " + RandomUtil.randomString();
@@ -389,30 +394,30 @@ public class AutoCreateTest extends ActiveMQTestBase {
       }
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       server.stop();
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
 
          // this time around the address QUEUE_NAME had a queue with messages, it has to exist
-         Assert.assertFalse(loggerHandler.matchText("AMQ224113.*" + QUEUE_NAME));
-         Assert.assertFalse(loggerHandler.findText("AMQ224112"));
+         assertFalse(loggerHandler.matchText("AMQ224113.*" + QUEUE_NAME));
+         assertFalse(loggerHandler.findText("AMQ224112"));
          // the address TOPIC_NAME had no queues, it has to be removed
-         Assert.assertTrue(loggerHandler.matchText("AMQ224113.*" + TOPIC_NAME));
+         assertTrue(loggerHandler.matchText("AMQ224113.*" + TOPIC_NAME));
       }
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
-      Assert.assertNotNull(info);
-      Assert.assertTrue(info.isAutoCreated());
+      assertNotNull(info);
+      assertTrue(info.isAutoCreated());
 
       info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
-      Assert.assertNull(info);
+      assertNull(info);
 
       { // just a namespace
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(QUEUE_NAME);
@@ -426,7 +431,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          Queue queue = session.createQueue(QUEUE_NAME);
          MessageConsumer consumer = session.createConsumer(queue);
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertEquals(randomString, message.getText());
+         assertEquals(randomString, message.getText());
       }
 
    }

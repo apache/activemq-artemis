@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.sender;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,8 +36,7 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +129,7 @@ public class SenderSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 1000;
 
-      Assert.assertTrue("numberOfMessages must be even", numberOfMessages % 2 == 0);
+      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
 
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
       ConnectionFactory connectionFactoryDC2A = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61618");
@@ -168,7 +170,7 @@ public class SenderSoakTest extends SoakTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {}, large={}", message.getIntProperty("i"), message.getBooleanProperty("large"));
          }
          session.commit();

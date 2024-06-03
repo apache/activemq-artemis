@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -26,8 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlTest
@@ -60,7 +64,7 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       assertTrue(pubishDoneToQeueuB.await(2, TimeUnit.SECONDS));
 
       msg = (TextMessage) consumer.receive(5000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       assertEquals("Message 2", msg.getText());
       msg.acknowledge();
 
@@ -108,7 +112,7 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       keepGoing.set(false);
 
       consumer.close();
-      assertFalse("producer has resumed", done.get());
+      assertFalse(done.get(), "producer has resumed");
    }
 
    @Test
@@ -147,14 +151,14 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       TextMessage msg;
       for (int idx = 0; idx < 5; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         assertNotNull("Got a message", msg);
+         assertNotNull(msg, "Got a message");
          msg.acknowledge();
       }
       Thread.sleep(1000);
       keepGoing.set(false);
 
       consumer.close();
-      assertFalse("producer has resumed", done.get());
+      assertFalse(done.get(), "producer has resumed");
    }
 
    @Test

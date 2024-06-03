@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AutoCloseCoreTest extends SingleServerTestBase {
 

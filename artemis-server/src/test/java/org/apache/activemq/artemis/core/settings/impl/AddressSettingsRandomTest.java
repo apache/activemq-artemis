@@ -17,11 +17,12 @@
 
 package org.apache.activemq.artemis.core.settings.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.utils.bean.MetaBean;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +43,10 @@ public class AddressSettingsRandomTest {
       logger.debug(jsonOutput);
 
       AddressSettings outputSettings = AddressSettings.fromJSON(jsonOutput);
-      Assert.assertEquals(randomSettings, outputSettings);
+      assertEquals(randomSettings, outputSettings);
 
       AddressSettings copy = new AddressSettings(randomSettings);
-      Assert.assertEquals(randomSettings, copy);
+      assertEquals(randomSettings, copy);
 
    }
 }

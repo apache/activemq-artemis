@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.selector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.ComparisonExpression;
 import org.apache.activemq.artemis.selector.filter.Expression;
@@ -23,10 +26,10 @@ import org.apache.activemq.artemis.selector.filter.LogicExpression;
 import org.apache.activemq.artemis.selector.filter.PropertyExpression;
 import org.apache.activemq.artemis.selector.filter.XPathExpression;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 public class SelectorParserTest {
@@ -40,7 +43,7 @@ public class SelectorParserTest {
    @Test
    public void testParseXPath() throws Exception {
       BooleanExpression filter = parse("XPATH '//title[@lang=''eng'']'");
-      Assert.assertTrue("Created XPath expression", filter instanceof XPathExpression);
+      assertTrue(filter instanceof XPathExpression, "Created XPath expression");
       info("Expression: " + filter);
    }
 
@@ -53,13 +56,13 @@ public class SelectorParserTest {
          info("Parsing: " + value);
 
          BooleanExpression andExpression = parse(value);
-         Assert.assertTrue("Created LogicExpression expression", andExpression instanceof LogicExpression);
+         assertTrue(andExpression instanceof LogicExpression, "Created LogicExpression expression");
          LogicExpression logicExpression = (LogicExpression) andExpression;
          Expression left = logicExpression.getLeft();
          Expression right = logicExpression.getRight();
 
-         Assert.assertTrue("Left is a binary filter", left instanceof ComparisonExpression);
-         Assert.assertTrue("Right is a binary filter", right instanceof ComparisonExpression);
+         assertTrue(left instanceof ComparisonExpression, "Left is a binary filter");
+         assertTrue(right instanceof ComparisonExpression, "Right is a binary filter");
          ComparisonExpression leftCompare = (ComparisonExpression) left;
          ComparisonExpression rightCompare = (ComparisonExpression) right;
          assertPropertyExpression("left", leftCompare.getLeft(), "x");
@@ -68,9 +71,9 @@ public class SelectorParserTest {
    }
 
    protected void assertPropertyExpression(String message, Expression expression, String expected) {
-      Assert.assertTrue(message + ". Must be PropertyExpression", expression instanceof PropertyExpression);
+      assertTrue(expression instanceof PropertyExpression, message + ". Must be PropertyExpression");
       PropertyExpression propExp = (PropertyExpression) expression;
-      Assert.assertEquals(message + ". Property name", expected, propExp.getName());
+      assertEquals(expected, propExp.getName(), message + ". Property name");
    }
 
    protected BooleanExpression parse(String text) throws Exception {

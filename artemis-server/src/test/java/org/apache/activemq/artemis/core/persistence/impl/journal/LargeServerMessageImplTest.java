@@ -17,13 +17,14 @@
 
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LargeServerMessageImplTest extends ServerTestBase {
 
@@ -38,6 +39,6 @@ public class LargeServerMessageImplTest extends ServerTestBase {
       file.delete();
       message.deleteFile();
       message.getBodyBufferSize();
-      Assert.assertFalse(file.exists());
+      assertFalse(file.exists());
    }
 }

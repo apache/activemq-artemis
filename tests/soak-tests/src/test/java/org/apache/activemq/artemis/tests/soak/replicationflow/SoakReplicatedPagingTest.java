@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.soak.replicationflow;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
@@ -53,6 +55,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
@@ -62,16 +66,14 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SoakReplicatedPagingTest extends SoakTestBase {
 
    public static int OK = 1;
@@ -99,7 +101,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
       }
    }
 
-   @Parameterized.Parameters(name = "protocol={0}, type={1}, tx={2}")
+   @Parameters(name = "protocol={0}, type={1}, tx={2}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{"MQTT", "topic", false}, {"AMQP", "shared", false}, {"AMQP", "queue", false}, {"OPENWIRE", "topic", false}, {"OPENWIRE", "queue", false}, {"CORE", "shared", false}, {"CORE", "queue", false},
          {"AMQP", "shared", true}, {"AMQP", "queue", true}, {"OPENWIRE", "topic", true}, {"OPENWIRE", "queue", true}, {"CORE", "shared", true}, {"CORE", "queue", true}});
@@ -114,7 +116,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
    private static Process server1;
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -137,7 +139,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
@@ -248,9 +250,8 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
       System.exit(code);
    }
 
-   @Test
+   @TestTemplate
    public void testPagingReplication() throws Throwable {
-
       server1 = startServer(SERVER_NAME_1, 0, 30000);
 
       for (int i = 0; i < CLIENT_KILLS; i++) {
@@ -267,7 +268,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          if (result <= 0) {
             jstack();
          }
-         Assert.assertEquals(OK, result);
+         assertEquals(OK, result);
       }
    }
 

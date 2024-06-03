@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
@@ -36,9 +39,9 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSContextTest extends ActiveMQRATestBase {
 
@@ -48,7 +51,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
    private ActiveMQRAConnectionFactory qraConnectionFactory;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
@@ -75,7 +78,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (resourceAdapter != null) {
          resourceAdapter.stop();

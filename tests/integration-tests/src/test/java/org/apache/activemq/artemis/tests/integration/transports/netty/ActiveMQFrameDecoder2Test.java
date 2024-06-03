@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.transports.netty;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,8 +28,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
 
@@ -64,14 +66,14 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
             if (frame == null) {
                break;
             }
-            Assert.assertEquals(4, frame.readerIndex());
-            Assert.assertEquals(ActiveMQFrameDecoder2Test.MSG_LEN, frame.readableBytes());
-            Assert.assertEquals(Unpooled.wrappedBuffer(data), frame);
+            assertEquals(4, frame.readerIndex());
+            assertEquals(ActiveMQFrameDecoder2Test.MSG_LEN, frame.readableBytes());
+            assertEquals(Unpooled.wrappedBuffer(data), frame);
             cnt++;
             frame.release();
          }
       }
-      Assert.assertEquals(ActiveMQFrameDecoder2Test.MSG_CNT, cnt);
+      assertEquals(ActiveMQFrameDecoder2Test.MSG_CNT, cnt);
    }
 
    @Test
@@ -79,28 +81,28 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
       final EmbeddedChannel decoder = new EmbeddedChannel(new ActiveMQFrameDecoder2());
 
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{0}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{0}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{0}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{4}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{5}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{6}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{7}));
-      Assert.assertNull(decoder.readInbound());
+      assertNull(decoder.readInbound());
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{8}));
 
       ByteBuf frame = (ByteBuf) decoder.readInbound();
-      Assert.assertEquals(4, frame.readerIndex());
-      Assert.assertEquals(4, frame.readableBytes());
-      Assert.assertEquals(5, frame.getByte(4));
-      Assert.assertEquals(6, frame.getByte(5));
-      Assert.assertEquals(7, frame.getByte(6));
-      Assert.assertEquals(8, frame.getByte(7));
+      assertEquals(4, frame.readerIndex());
+      assertEquals(4, frame.readableBytes());
+      assertEquals(5, frame.getByte(4));
+      assertEquals(6, frame.getByte(5));
+      assertEquals(7, frame.getByte(6));
+      assertEquals(8, frame.getByte(7));
       frame.release();
    }
 }

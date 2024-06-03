@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RandomUtilTest {
 
@@ -26,14 +28,14 @@ public class RandomUtilTest {
    @Test
    public void testInterval() {
       int i = RandomUtil.randomInterval(0, 1000);
-      Assert.assertTrue(i <= 1000);
-      Assert.assertTrue(i >= 0);
+      assertTrue(i <= 1000);
+      assertTrue(i >= 0);
 
       i = RandomUtil.randomInterval(0, 0);
-      Assert.assertEquals(0, i);
+      assertEquals(0, i);
 
       i = RandomUtil.randomInterval(10, 10);
-      Assert.assertEquals(10, i);
+      assertEquals(10, i);
 
    }
 }

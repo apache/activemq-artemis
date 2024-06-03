@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -37,8 +39,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPPrintDataTest extends ActiveMQTestBase {
 
@@ -66,7 +67,7 @@ public class AMQPPrintDataTest extends ActiveMQTestBase {
          PrintData.printData(server.getConfiguration().getBindingsLocation().getAbsoluteFile(), server.getConfiguration().getJournalLocation().getAbsoluteFile(), server.getConfiguration().getPagingLocation().getAbsoluteFile(),
                              printStream, false, false);
 
-         Assert.assertTrue(byteArrayOutputStream.toString().contains(random));
+         assertTrue(byteArrayOutputStream.toString().contains(random));
 
 
       } finally {

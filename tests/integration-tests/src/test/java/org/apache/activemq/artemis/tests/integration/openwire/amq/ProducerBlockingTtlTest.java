@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -23,9 +27,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.tcp.TcpTransport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -50,14 +54,14 @@ public class ProducerBlockingTtlTest extends BasicOpenWireTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       this.makeSureCoreQueueExist("QUEUE.A");
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (flowControlConnection != null) {

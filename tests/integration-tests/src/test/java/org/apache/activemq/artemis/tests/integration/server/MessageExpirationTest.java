@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -29,9 +32,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageExpirationTest extends ActiveMQTestBase {
 
@@ -58,14 +60,14 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
-      Assert.assertEquals(0, server.locateQueue(queue).getMessagesExpired());
+      assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(true);
       message.setExpiration(System.currentTimeMillis() + EXPIRATION);
       producer.send(message);
 
-      Assert.assertTrue(Wait.waitFor(() -> server.locateQueue(queue).getMessagesExpired() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue).getMessagesExpired() == 1, 2000, 100));
 
       assertEquals(0, server.locateQueue(queue).getMessageCount());
       assertEquals(0, server.locateQueue(queue).getDeliveringCount());
@@ -80,14 +82,14 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
-      Assert.assertEquals(0, server.locateQueue(queue).getMessagesExpired());
+      assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(true);
       message.setExpiration(System.currentTimeMillis() + EXPIRATION);
       producer.send(message);
 
-      Assert.assertTrue(Wait.waitFor(() -> server.locateQueue(queue).getMessagesExpired() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queue).getMessagesExpired() == 1, 2000, 100));
 
       assertEquals(0, server.locateQueue(queue).getMessageCount());
       assertEquals(0, server.locateQueue(queue).getDeliveringCount());
@@ -225,7 +227,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

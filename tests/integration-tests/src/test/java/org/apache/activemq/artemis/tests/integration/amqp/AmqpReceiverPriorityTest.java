@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -23,7 +27,8 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +39,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPriority() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -63,11 +69,11 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
          AmqpMessage message1 = receiver1.receiveNoWait();
          AmqpMessage message2 = receiver2.receive(250, TimeUnit.MILLISECONDS);
          AmqpMessage message3 = receiver3.receiveNoWait();
-         assertNotNull("did not receive message first time", message2);
+         assertNotNull(message2, "did not receive message first time");
          assertEquals("MessageID:" + i, message2.getMessageId());
          message2.accept();
-         assertNull("message is not meant to goto lower priority receiver", message1);
-         assertNull("message is not meant to goto lower priority receiver", message3);
+         assertNull(message1, "message is not meant to goto lower priority receiver");
+         assertNull(message3, "message is not meant to goto lower priority receiver");
       }
       assertNoMessage(receiver1);
       assertNoMessage(receiver3);
@@ -81,10 +87,10 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
       for (int i = 0; i < 5; i++) {
          AmqpMessage message1 = receiver1.receiveNoWait();
          AmqpMessage message3 = receiver3.receive(250, TimeUnit.MILLISECONDS);
-         assertNotNull("did not receive message first time", message3);
+         assertNotNull(message3, "did not receive message first time");
          assertEquals("MessageID:" + i, message3.getMessageId());
          message3.accept();
-         assertNull("message is not meant to goto lower priority receiver", message1);
+         assertNull(message1, "message is not meant to goto lower priority receiver");
       }
       assertNoMessage(receiver1);
 
@@ -95,15 +101,17 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    public void assertNoMessage(AmqpReceiver receiver) throws Exception {
       //A check to make sure no messages
       AmqpMessage message = receiver.receive(250, TimeUnit.MILLISECONDS);
-      assertNull("message is not meant to goto lower priority receiver", message);
+      assertNull(message, "message is not meant to goto lower priority receiver");
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPriorityProvidedAsByte() throws Exception {
       testPriorityNumber((byte) 5);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPriorityProvidedAsUnsignedInteger() throws Exception {
       testPriorityNumber(UnsignedInteger.valueOf(5));
    }
@@ -125,7 +133,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 2; i++) {
          AmqpMessage message1 = receiver1.receive(3000, TimeUnit.MILLISECONDS);
-         assertNotNull("did not receive message" + i, message1);
+         assertNotNull(message1, "did not receive message" + i);
          assertEquals("MessageID:" + i, message1.getMessageId());
          message1.accept();
       }

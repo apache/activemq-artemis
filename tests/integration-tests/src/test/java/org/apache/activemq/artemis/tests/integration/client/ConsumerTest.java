@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -69,20 +75,20 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ConsumerTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -97,7 +103,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       return super.waitForBindings(server, address, local, expectedBindingCount, expectedConsumerCount, timeout);
    }
 
-   @Parameterized.Parameters(name = "isNetty={0}, persistent={1}")
+   @Parameters(name = "isNetty={0}, persistent={1}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true, true}, {false, false}, {false, true}, {true, false}});
    }
@@ -119,7 +125,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       return netty;
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -131,29 +137,11 @@ public class ConsumerTest extends ActiveMQTestBase {
       server.start();
 
       locator = createFactory(isNetty());
-   }
-
-   @Before
-   public void createQueue() throws Exception {
-
-      ServerLocator locator = createFactory(isNetty());
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
-      ClientSessionFactory sf2 = createSessionFactory(locator);
-
-      ClientSession session = sf.createSession(false, true, true, true);
 
       server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testStressConnection() throws Exception {
 
       for (int i = 0; i < 10; i++) {
@@ -165,12 +153,12 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleSend() throws Throwable {
       receive(false);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleSendWithCloseConsumer() throws Throwable {
       receive(true);
    }
@@ -207,7 +195,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
       ClientMessage message2 = consumer.receive(1000);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       logger.debug("Id::{}", message2.getMessageID());
 
@@ -217,16 +205,16 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       logger.debug("String::{}", message2.getReadOnlyBodyBuffer().readString());
 
-      Assert.assertEquals("elo", message2.getStringProperty("hello"));
+      assertEquals("elo", message2.getStringProperty("hello"));
 
-      Assert.assertEquals("hi", message2.getReadOnlyBodyBuffer().readString());
+      assertEquals("hi", message2.getReadOnlyBodyBuffer().readString());
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveAMQP() throws Throwable {
 
       if (!isNetty()) {
@@ -237,7 +225,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(2, 2);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveCore() throws Throwable {
 
       if (!isNetty()) {
@@ -248,7 +236,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(1, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveCore() throws Throwable {
 
       if (!isNetty()) {
@@ -259,7 +247,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(2, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testAutoCreateMulticastAddress() throws Throwable {
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
@@ -289,17 +277,17 @@ public class ConsumerTest extends ActiveMQTestBase {
       assertEquals(0, server.getTotalMessageCount());
    }
 
-   @Test
+   @TestTemplate
    public void testAutoCreateCOnConsumerAMQP() throws Throwable {
       testAutoCreate(2);
    }
 
-   @Test
+   @TestTemplate
    public void testAutoCreateCOnConsumerCore() throws Throwable {
       testAutoCreate(1);
    }
 
-   @Test
+   @TestTemplate
    public void testAutoCreateCOnConsumerOpenWire() throws Throwable {
       testAutoCreate(3);
    }
@@ -326,7 +314,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
             producer.send(session.createTextMessage("hello"));
 
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
             consumer.close();
             session.close();
          } finally {
@@ -339,7 +327,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextOnConsumerAMQP() throws Throwable {
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
@@ -363,7 +351,7 @@ public class ConsumerTest extends ActiveMQTestBase {
             }
          }
 
-         Assert.assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
+         assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
 
          final AMQPSessionContext sessionContext = ((ProtonServerSenderContext)
             serverConsumer.getProtocolContext()).getSessionContext();
@@ -380,7 +368,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testAutoDeleteAutoCreatedAddressAndQueue() throws Throwable {
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
@@ -414,7 +402,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       Wait.assertEquals(0, server::getTotalMessageCount);
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveAMQP() throws Throwable {
 
       if (!isNetty()) {
@@ -425,7 +413,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(1, 2);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveAMQP() throws Throwable {
 
       if (!isNetty()) {
@@ -436,7 +424,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(3, 2);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveOpenWire() throws Throwable {
 
       if (!isNetty()) {
@@ -447,7 +435,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(2, 3);
    }
 
-   @Test
+   @TestTemplate
    public void testOpenWireReceiveCore() throws Throwable {
 
       if (!isNetty()) {
@@ -458,7 +446,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(3, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testCoreReceiveOpenwire() throws Throwable {
 
       if (!isNetty()) {
@@ -534,17 +522,17 @@ public class ConsumerTest extends ActiveMQTestBase {
             try (MessageConsumer consumer = session.createConsumer(queue)) {
 
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals(0, message.getIntProperty("mycount"));
-               Assert.assertEquals("hello", message.getText());
+               assertNotNull(message);
+               assertEquals(0, message.getIntProperty("mycount"));
+               assertEquals("hello", message.getText());
 
                message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals(1, message.getIntProperty("mycount"));
-               Assert.assertEquals(bufferLargeContent, message.getText());
+               assertNotNull(message);
+               assertEquals(1, message.getIntProperty("mycount"));
+               assertEquals(bufferLargeContent, message.getText());
 
                Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
-               Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+               assertEquals(0, server.getPagingManager().getGlobalSize());
             }
          }
       }
@@ -637,25 +625,25 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("mycount"));
-            Assert.assertEquals("hello " + i, message.getText());
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("mycount"));
+            assertEquals("hello " + i, message.getText());
 
             ObjectMessage objectMessage = (ObjectMessage)consumer.receive(5000);
-            Assert.assertNotNull(objectMessage);
-            Assert.assertEquals(i, ((MyTest)objectMessage.getObject()).getI());
+            assertNotNull(objectMessage);
+            assertEquals(i, ((MyTest)objectMessage.getObject()).getI());
 
             MapMessage mapMessage = (MapMessage) consumer.receive(1000);
-            Assert.assertNotNull(mapMessage);
-            Assert.assertEquals(i, mapMessage.getInt("intOne"));
-            Assert.assertEquals(Integer.toString(i), mapMessage.getString("stringOne"));
+            assertNotNull(mapMessage);
+            assertEquals(i, mapMessage.getInt("intOne"));
+            assertEquals(Integer.toString(i), mapMessage.getString("stringOne"));
 
             StreamMessage stream = (StreamMessage)consumer.receive(5000);
-            Assert.assertTrue(stream.readBoolean());
-            Assert.assertEquals(i, stream.readInt());
+            assertTrue(stream.readBoolean());
+            assertEquals(i, stream.readInt());
 
             BytesMessage bytes = (BytesMessage) consumer.receive(5000);
-            Assert.assertEquals("string " + i, bytes.readUTF());
+            assertEquals("string " + i, bytes.readUTF());
          }
 
          consumer.close();
@@ -663,27 +651,27 @@ public class ConsumerTest extends ActiveMQTestBase {
          consumer = session.createConsumer(queue, "JMSType = 'car' AND color = 'blue' AND weight > 2500");
 
          TextMessage msg = (TextMessage) consumer.receive(1000);
-         Assert.assertEquals("testSelectorExampleFromSpecs:2", msg.getText());
+         assertEquals("testSelectorExampleFromSpecs:2", msg.getText());
 
          consumer.close();
 
          consumer = session.createConsumer(queue);
          msg = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
 
 
-         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+         assertEquals(0, server.getPagingManager().getGlobalSize());
 
       } finally {
          connection.close();
       }
    }
 
-   @Test
+   @TestTemplate
    public void testConsumerAckImmediateAutoCommitTrue() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -703,16 +691,16 @@ public class ConsumerTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testConsumerAckImmediateAutoCommitFalse() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -733,16 +721,16 @@ public class ConsumerTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testConsumerAckImmediateAckIgnored() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -763,19 +751,19 @@ public class ConsumerTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          if (i < 50) {
             message2.acknowledge();
          }
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testConsumerAckImmediateCloseSession() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -796,22 +784,22 @@ public class ConsumerTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          if (i < 50) {
             message2.acknowledge();
          }
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
    }
 
-   @Test
+   @TestTemplate
    public void testAcksWithSmallSendWindow() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -852,13 +840,13 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
       });
       sessionRec.start();
-      Assert.assertTrue(latch.await(60, TimeUnit.SECONDS));
+      assertTrue(latch.await(60, TimeUnit.SECONDS));
       sessionRec.close();
       locator.close();
    }
 
    // https://jira.jboss.org/browse/HORNETQ-410
-   @Test
+   @TestTemplate
    public void testConsumeWithNoConsumerFlowControl() throws Exception {
 
       ServerLocator locator = createInVMNonHALocator();
@@ -894,7 +882,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testClearListener() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -915,7 +903,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testNoReceiveWithListener() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -931,17 +919,17 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       try {
          consumer.receiveImmediate();
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQIllegalStateException ise) {
          //ok
       } catch (ActiveMQException me) {
-         Assert.fail("Wrong exception code");
+         fail("Wrong exception code");
       }
 
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testReceiveAndResend() throws Exception {
 
       final Set<Object> sessions = new ConcurrentHashSet<>();
@@ -1062,12 +1050,12 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       sf.close();
 
-      assertEquals("Had errors along the execution", 0, errors.get());
+      assertEquals(0, errors.get(), "Had errors along the execution");
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
-   @Test
+   @TestTemplate
    public void testConsumerCreditsOnRollback() throws Exception {
       locator.setConsumerWindowSize(10000);
 
@@ -1115,7 +1103,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
-   @Test
+   @TestTemplate
    public void testInVMURI() throws Exception {
       locator.close();
       ServerLocator locator = addServerLocator(ServerLocatorImpl.newLocator("vm:/1"));
@@ -1126,7 +1114,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
-      Assert.assertNotNull(consumer.receiveImmediate());
+      assertNotNull(consumer.receiveImmediate());
       session.close();
       factory.close();
 
@@ -1134,7 +1122,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
-   @Test
+   @TestTemplate
    public void testConsumerCreditsOnRollbackLargeMessages() throws Exception {
       locator.setConsumerWindowSize(10000).setMinLargeMessageSize(1000);
 
@@ -1180,7 +1168,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleConsumersOnSharedQueue() throws Throwable {
       if (!isNetty() || this.durable) {
          return;
@@ -1292,11 +1280,11 @@ public class ConsumerTest extends ActiveMQTestBase {
       });
       Stream.of(consumersRunners).forEach(Thread::interrupt);
       for (int i = 0; i < forks; i++) {
-         Assert.assertEquals("The consumer " + i + " must receive all the messages sent.", messages * runs, receivedMessages.get(i));
+         assertEquals(messages * runs, receivedMessages.get(i), "The consumer " + i + " must receive all the messages sent.");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testConsumerXpathSelector() throws Exception {
       final SimpleString BODY = SimpleString.toSimpleString("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -1317,10 +1305,10 @@ public class ConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(QUEUE.toString(), "XPATH 'root/a'");
       session.start();
       ClientMessage message2 = consumer.receive(5000);
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
-      Assert.assertEquals(BODY, message2.getBodyBuffer().readNullableSimpleString());
-      Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(BODY, message2.getBodyBuffer().readNullableSimpleString());
+      assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }

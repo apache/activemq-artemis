@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +40,7 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is testing a double transfer (copy).
@@ -125,7 +127,7 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
          AmqpReceiver receiverDLQ = session.createReceiver(getExpiryQueue(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getQueueName() + "'");
          receiverDLQ.flow(1);
          AmqpMessage received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
          Map<Symbol, Object> avAnnotations = received.getWrappedMessage().getMessageAnnotations().getValue();
          avAnnotations.forEach((key, value) -> {
             annotations.put(key.toString(), value);
@@ -138,7 +140,7 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
          receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getExpiryQueue() + "'");
          receiverDLQ.flow(1);
          received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
          received.accept();
 
          assertEquals(0, received.getTimeToLive());

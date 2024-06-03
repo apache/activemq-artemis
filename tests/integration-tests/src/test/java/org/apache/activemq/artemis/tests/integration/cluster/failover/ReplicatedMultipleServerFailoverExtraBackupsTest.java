@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -32,25 +35,20 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule();
 
    private void waitForSync(ActiveMQServer server) throws Exception {
       Wait.waitFor(server::isReplicaSync);
    }
 
-   @RetryMethod(retries = 1)
    @Override
-   @Test
+   @TestTemplate
    public void testStartPrimaryFirst() throws Exception {
       switch (haType()) {
          case SharedNothingReplication:
@@ -95,7 +93,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    }
 
    @Override
-   @Test
+   @TestTemplate
    public void testStartBackupFirst() throws Exception {
       switch (haType()) {
          case SharedNothingReplication:
@@ -169,7 +167,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
          testableServer.stop();
       }
 
-      Assert.assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
+      assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
 
       ClientConsumer consumer0 = session0.createConsumer(ADDRESS);
       ClientConsumer consumer1 = session1.createConsumer(ADDRESS);
@@ -178,10 +176,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer0.receive(1000);
-         assertNotNull("expecting durable msg " + i, message);
+         assertNotNull(message, "expecting durable msg " + i);
          message.acknowledge();
          message = consumer1.receive(1000);
-         assertNotNull("expecting durable msg " + i, message);
+         assertNotNull(message, "expecting durable msg " + i);
          message.acknowledge();
 
       }

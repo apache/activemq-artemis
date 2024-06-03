@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -47,7 +51,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       setupPrimaryServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
@@ -70,7 +74,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0, 2);
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1);
       String scaleDownConnector = servers[0].getConfiguration().getClusterConfigurations().get(0).getStaticConnectors().get(0);
-      Assert.assertEquals(61617, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
+      assertEquals(61617, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
       scaleDownConfiguration0.getConnectors().add(scaleDownConnector);
       startServers(0, 1, 2);
       setupSessionFactory(0, isNetty(), false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
@@ -168,7 +172,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Wait.assertEquals(TEST_SIZE, snfQueue::getMessageCount);
 
       // ensure the message is in the SnF queue
-      Assert.assertEquals(TEST_SIZE, getMessageCount(snfQueue));
+      assertEquals(TEST_SIZE, getMessageCount(snfQueue));
 
       // trigger scaleDown from node 0 to node 1
       logger.debug("============ Stopping {}", servers[0].getNodeID());
@@ -188,12 +192,12 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
       for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
-         Assert.assertNotNull(clientMessage);
+         assertNotNull(clientMessage);
          if (large) {
-            Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, clientMessage.getBodySize());
+            assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, clientMessage.getBodySize());
 
             for (int j = 0; j < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; j++) {
-               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
+               assertEquals(ActiveMQTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
             }
          }
          logger.debug("Received: {}", clientMessage);
@@ -202,14 +206,14 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
       // ensure there are no more messages on queue 1
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
       removeConsumer(0);
 
       Wait.assertTrue(() -> (servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
       Wait.assertTrue(() -> (servers[1].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
 
-      Assert.assertFalse(servers[1].queueQuery(SimpleString.toSimpleString(snfAddress)).isExists());
-      Assert.assertFalse(servers[1].addressQuery(SimpleString.toSimpleString(snfAddress)).isExists());
+      assertFalse(servers[1].queueQuery(SimpleString.toSimpleString(snfAddress)).isExists());
+      assertFalse(servers[1].addressQuery(SimpleString.toSimpleString(snfAddress)).isExists());
    }
 
    @Test
@@ -271,7 +275,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Wait.assertEquals(0, () -> getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()) +
          getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
 
-      Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
 
       // get the messages from queue 1 on node 1
       addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
@@ -283,24 +287,24 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
       for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(1000);
-         Assert.assertNotNull(clientMessage);
+         assertNotNull(clientMessage);
          logger.debug("Received: {}", clientMessage);
          clientMessage.acknowledge();
 
          clientMessage = consumers[1].getConsumer().receive(1000);
-         Assert.assertNotNull(clientMessage);
+         assertNotNull(clientMessage);
          logger.debug("Received: {}", clientMessage);
          clientMessage.acknowledge();
       }
 
       // ensure there are no more messages on queue 1
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
       removeConsumer(0);
 
       // ensure there are no more messages on queue 3
       clientMessage = consumers[1].getConsumer().receive(250);
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
       removeConsumer(1);
    }
 }

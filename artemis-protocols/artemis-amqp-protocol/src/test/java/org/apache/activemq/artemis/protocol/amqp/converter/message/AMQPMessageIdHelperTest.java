@@ -18,13 +18,13 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.UUID;
 
@@ -32,14 +32,14 @@ import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageIdHelper;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AMQPMessageIdHelperTest {
 
    private AMQPMessageIdHelper messageIdHelper;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       messageIdHelper = AMQPMessageIdHelper.INSTANCE;
    }
@@ -51,7 +51,7 @@ public class AMQPMessageIdHelperTest {
    @Test
    public void testHasIdPrefixWithPrefix() {
       String myId = "ID:something";
-      assertTrue("'ID:' prefix should have been identified", messageIdHelper.hasMessageIdPrefix(myId));
+      assertTrue(messageIdHelper.hasMessageIdPrefix(myId), "'ID:' prefix should have been identified");
    }
 
    /**
@@ -61,7 +61,7 @@ public class AMQPMessageIdHelperTest {
    @Test
    public void testHasIdPrefixWithIDButNoColonPrefix() {
       String myIdNoColon = "IDsomething";
-      assertFalse("'ID' prefix should not have been identified without trailing colon", messageIdHelper.hasMessageIdPrefix(myIdNoColon));
+      assertFalse(messageIdHelper.hasMessageIdPrefix(myIdNoColon), "'ID' prefix should not have been identified without trailing colon");
    }
 
    /**
@@ -71,7 +71,7 @@ public class AMQPMessageIdHelperTest {
    @Test
    public void testHasIdPrefixWithNull() {
       String nullString = null;
-      assertFalse("null string should not result in identification as having the prefix", messageIdHelper.hasMessageIdPrefix(nullString));
+      assertFalse(messageIdHelper.hasMessageIdPrefix(nullString), "null string should not result in identification as having the prefix");
    }
 
    /**
@@ -81,7 +81,7 @@ public class AMQPMessageIdHelperTest {
    @Test
    public void testHasIdPrefixWithoutPrefix() {
       String myNonId = "something";
-      assertFalse("string without 'ID:' anywhere should not have been identified as having the prefix", messageIdHelper.hasMessageIdPrefix(myNonId));
+      assertFalse(messageIdHelper.hasMessageIdPrefix(myNonId), "string without 'ID:' anywhere should not have been identified as having the prefix");
    }
 
    /**
@@ -91,7 +91,7 @@ public class AMQPMessageIdHelperTest {
    @Test
    public void testHasIdPrefixWithLowercaseID() {
       String myLowerCaseNonId = "id:something";
-      assertFalse("lowercase 'id:' prefix should not result in identification as having 'ID:' prefix", messageIdHelper.hasMessageIdPrefix(myLowerCaseNonId));
+      assertFalse(messageIdHelper.hasMessageIdPrefix(myLowerCaseNonId), "lowercase 'id:' prefix should not result in identification as having 'ID:' prefix");
    }
 
    /**
@@ -100,7 +100,7 @@ public class AMQPMessageIdHelperTest {
     */
    @Test
    public void testToMessageIdStringWithNull() {
-      assertNull("null string should have been returned", messageIdHelper.toMessageIdString(null));
+      assertNull(messageIdHelper.toMessageIdString(null), "null string should have been returned");
    }
 
    /**
@@ -119,8 +119,8 @@ public class AMQPMessageIdHelperTest {
 
    private void doToMessageIdTestImpl(Object idObject, String expected) {
       String idString = messageIdHelper.toMessageIdString(idObject);
-      assertNotNull("null string should not have been returned", idString);
-      assertEquals("expected id string was not returned", expected, idString);
+      assertNotNull(idString, "null string should not have been returned");
+      assertEquals(expected, idString, "expected id string was not returned");
    }
 
    /**
@@ -326,7 +326,7 @@ public class AMQPMessageIdHelperTest {
     */
    @Test
    public void testToCorrelationIdStringWithNull() {
-      assertNull("null string should have been returned", messageIdHelper.toCorrelationIdStringOrBytes(null));
+      assertNull(messageIdHelper.toCorrelationIdStringOrBytes(null), "null string should have been returned");
    }
 
    /**
@@ -345,14 +345,14 @@ public class AMQPMessageIdHelperTest {
 
    private void doToCorrelationIDTestImpl(Object idObject, String expected) {
       String idString = (String) messageIdHelper.toCorrelationIdStringOrBytes(idObject);
-      assertNotNull("null string should not have been returned", idString);
-      assertEquals("expected id string was not returned", expected, idString);
+      assertNotNull(idString, "null string should not have been returned");
+      assertEquals(expected, idString, "expected id string was not returned");
    }
 
    private void doToCorrelationIDBytesTestImpl(Object idObject, byte[] expected) {
       byte[] idBytes = (byte[]) messageIdHelper.toCorrelationIdStringOrBytes(idObject);
-      assertNotNull("null byte[] should not have been returned", idBytes);
-      assertArrayEquals("expected id byte[] was not returned", expected, idBytes);
+      assertNotNull(idBytes, "null byte[] should not have been returned");
+      assertArrayEquals(expected, idBytes, "expected id byte[] was not returned");
    }
 
    /**
@@ -556,8 +556,8 @@ public class AMQPMessageIdHelperTest {
 
    private void doToIdObjectTestImpl(String idString, Object expected) throws ActiveMQAMQPIllegalStateException {
       Object idObject = messageIdHelper.toIdObject(idString);
-      assertNotNull("null object should not have been returned", idObject);
-      assertEquals("expected id object was not returned", expected, idObject);
+      assertNotNull(idObject, "null object should not have been returned");
+      assertEquals(expected, idObject, "expected id object was not returned");
    }
 
    /**
@@ -602,7 +602,7 @@ public class AMQPMessageIdHelperTest {
     */
    @Test
    public void testToIdObjectWithNull() throws Exception {
-      assertNull("null object should have been returned", messageIdHelper.toIdObject(null));
+      assertNull(messageIdHelper.toIdObject(null), "null object should have been returned");
    }
 
    /**
@@ -734,7 +734,7 @@ public class AMQPMessageIdHelperTest {
       } catch (ActiveMQAMQPIllegalStateException iae) {
          // expected
          String msg = iae.getMessage();
-         assertTrue("Message was not as expected: " + msg, msg.contains("even length"));
+         assertTrue(msg.contains("even length"), "Message was not as expected: " + msg);
       }
    }
 
@@ -757,7 +757,7 @@ public class AMQPMessageIdHelperTest {
       } catch (ActiveMQAMQPIllegalStateException ice) {
          // expected
          String msg = ice.getMessage();
-         assertTrue("Message was not as expected: " + msg, msg.contains("non-hex"));
+         assertTrue(msg.contains("non-hex"), "Message was not as expected: " + msg);
       }
 
       // char after '9', before 'A'
@@ -770,7 +770,7 @@ public class AMQPMessageIdHelperTest {
       } catch (ActiveMQAMQPIllegalStateException iae) {
          // expected
          String msg = iae.getMessage();
-         assertTrue("Message was not as expected: " + msg, msg.contains("non-hex"));
+         assertTrue(msg.contains("non-hex"), "Message was not as expected: " + msg);
       }
 
       // char after 'F', before 'a'
@@ -783,7 +783,7 @@ public class AMQPMessageIdHelperTest {
       } catch (ActiveMQAMQPIllegalStateException iae) {
          // expected
          String msg = iae.getMessage();
-         assertTrue("Message was not as expected: " + msg, msg.contains("non-hex"));
+         assertTrue(msg.contains("non-hex"), "Message was not as expected: " + msg);
       }
 
       // char after 'f'
@@ -796,7 +796,7 @@ public class AMQPMessageIdHelperTest {
       } catch (ActiveMQAMQPIllegalStateException ice) {
          // expected
          String msg = ice.getMessage();
-         assertTrue("Message was not as expected: " + msg, msg.contains("non-hex"));
+         assertTrue(msg.contains("non-hex"), "Message was not as expected: " + msg);
       }
    }
 }

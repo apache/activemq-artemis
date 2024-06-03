@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Federation Test Base
@@ -48,7 +48,7 @@ public class FederatedTestBase extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       for (int i = 0; i < numberOfServers(); i++) {

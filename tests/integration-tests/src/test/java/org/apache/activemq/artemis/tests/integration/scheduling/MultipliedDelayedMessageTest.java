@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,9 +30,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -51,7 +53,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       initServer();
@@ -94,7 +96,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueName);
       session.start();
       tm = consumer.receive(500);
-      Assert.assertNotNull(tm);
+      assertNotNull(tm);
 
       for (int i = 1; i <= 6; i++) {
          // Ack the message, but rollback the session to trigger redelivery with increasing delivery count
@@ -106,9 +108,9 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
          logger.debug("\nExpected delay: {}", expectedDelay);
          tm = consumer.receive(expectedDelay + 500);
          long stop = System.currentTimeMillis();
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
          logger.debug("Actual delay: {}", (stop - start));
-         Assert.assertTrue(stop - start >= expectedDelay);
+         assertTrue(stop - start >= expectedDelay);
       }
 
       tm.acknowledge();

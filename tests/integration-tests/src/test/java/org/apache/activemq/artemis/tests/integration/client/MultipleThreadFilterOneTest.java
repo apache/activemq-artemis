@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,8 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,8 +150,8 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
             for (int i = 0; i < numberOfMessages; i++) {
                ClientMessage msg = consumer.receive(15000);
-               Assert.assertNotNull(msg);
-               Assert.assertEquals(nr, msg.getIntProperty("prodNR").intValue());
+               assertNotNull(msg);
+               assertEquals(nr, msg.getIntProperty("prodNR").intValue());
                msg.acknowledge();
 
                if (i % 500 == 0) {
@@ -157,7 +160,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
                }
             }
 
-            Assert.assertNull(consumer.receiveImmediate());
+            assertNull(consumer.receiveImmediate());
 
             consumerSession.commit();
          } catch (Throwable e) {
@@ -246,12 +249,12 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
          for (SomeProducer producer : producers) {
             producer.join();
-            Assert.assertEquals(0, producer.errors.get());
+            assertEquals(0, producer.errors.get());
          }
 
          for (SomeConsumer consumer : consumers) {
             consumer.join();
-            Assert.assertEquals(0, consumer.errors.get());
+            assertEquals(0, consumer.errors.get());
          }
 
          if (useDeadConsumer) {

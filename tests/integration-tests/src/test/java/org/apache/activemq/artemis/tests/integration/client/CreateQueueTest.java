@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -32,13 +36,14 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CreateQueueTest extends ActiveMQTestBase {
 
    private boolean legacyCreateQueue;
@@ -54,7 +59,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
    private ActiveMQServer server;
    private ClientSessionFactory cf;
 
-   @Parameterized.Parameters(name = "legacyCreateQueue={0}")
+   @Parameters(name = "legacyCreateQueue={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -64,7 +69,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -74,7 +79,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
       cf = createSessionFactory(locator);
    }
 
-   @Test
+   @TestTemplate
    public void testUnsupportedRoutingType() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoCreateAddresses(false));
@@ -112,7 +117,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
       sendSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testAddressDoesNotExist() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoCreateAddresses(false));

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -42,8 +48,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailoverTest {
 
@@ -90,7 +95,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
 
                TransportConfiguration backupConnector = (TransportConfiguration)
                   ((ClientSessionFactoryImpl)sessionFactory).getBackupConnector();
-               Assert.assertNotEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
+               assertNotEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
 
                int serverIdBeforeCrash = Integer.parseInt(sessionFactory.
                   getConnectorConfiguration().getName().substring(4));
@@ -101,15 +106,15 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
 
                crashAndWaitForFailure(getServer(serverIdBeforeCrash), clientSession);
 
-               Assert.assertEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
-               Assert.assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
+               assertEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
+               assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
 
                int serverIdAfterCrash = Integer.parseInt(sessionFactory.
                   getConnectorConfiguration().getName().substring(4));
-               Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
+               assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
                try (ClientConsumer clientConsumer = clientSession.createConsumer(QUEUE_NAME)) {
-                  Assert.assertNotNull(clientConsumer.receive(3000));
+                  assertNotNull(clientConsumer.receive(3000));
                }
 
                QueueControl testQueueControlAfterCrash = (QueueControl)getServer(serverIdAfterCrash).
@@ -171,39 +176,39 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                QueueControl testQueueControlBeforeCrash = (QueueControl)getServer(serverIdBeforeCrash).
                   getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
 
-               Assert.assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
+               assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
 
                try (ClientProducer clientProducer = clientSession.createProducer(QUEUES_TESTADDRESS)) {
                   clientProducer.send(clientSession.createMessage(true));
                   clientProducer.send(clientSession.createMessage(true));
                }
 
-               Assert.assertEquals(2, testQueueControlBeforeCrash.getMessageCount());
+               assertEquals(2, testQueueControlBeforeCrash.getMessageCount());
 
                try (ClientConsumer clientConsumer = clientSession.createConsumer(QUEUE_NAME)) {
                   ClientMessage messageBeforeCrash = clientConsumer.receive(3000);
-                  Assert.assertNotNull(messageBeforeCrash);
+                  assertNotNull(messageBeforeCrash);
                   messageBeforeCrash.acknowledge();
                   clientSession.commit();
 
-                  Assert.assertEquals(1, testQueueControlBeforeCrash.getMessageCount());
+                  assertEquals(1, testQueueControlBeforeCrash.getMessageCount());
 
                   crashAndWaitForFailure(getServer(serverIdBeforeCrash), clientSession);
 
-                  Assert.assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
+                  assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
 
                   int serverIdAfterCrash = Integer.parseInt(sessionFactory.
                      getConnectorConfiguration().getName().substring(4));
-                  Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
+                  assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
-                  Assert.assertTrue(isPrimaryServerID(serverIdAfterCrash));
+                  assertTrue(isPrimaryServerID(serverIdAfterCrash));
 
                   QueueControl testQueueControlAfterCrash = (QueueControl)getServer(serverIdAfterCrash).
                      getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
 
                   Wait.waitFor(() -> testQueueControlAfterCrash.getMessageCount() == 1, 3000);
 
-                  Assert.assertNotNull(clientConsumer.receive());
+                  assertNotNull(clientConsumer.receive());
                }
 
                clientSession.stop();
@@ -245,18 +250,18 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                clientSession.start();
 
                TransportConfiguration backupConnector = (TransportConfiguration) ((ClientSessionFactoryImpl) sessionFactory).getBackupConnector();
-               Assert.assertNull(backupConnector);
+               assertNull(backupConnector);
 
                int serverIdBeforeCrash = Integer.parseInt(sessionFactory.getConnectorConfiguration().getName().substring(4));
 
                createQueue(serverIdBeforeCrash, QUEUES_TESTADDRESS, QUEUE_NAME, null, false);
 
                QueueControl testQueueControlBeforeCrash = (QueueControl) getServer(serverIdBeforeCrash).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
-               Assert.assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
+               assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
 
                for (int i : getPrimaryServerIDs()) {
                   if (i != serverIdBeforeCrash) {
-                     Assert.assertNull(getServer(i).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME));
+                     assertNull(getServer(i).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME));
                   }
                }
 
@@ -267,14 +272,14 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
 
                   Wait.waitFor(() -> testQueueControlBeforeCrash.getMessageCount() == 1, 3000);
 
-                  Assert.assertNotNull(clientConsumer.receive(3000));
+                  assertNotNull(clientConsumer.receive(3000));
 
                   crashAndWaitForFailure(getServer(serverIdBeforeCrash), clientSession);
 
-                  Assert.assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
+                  assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
 
                   int serverIdAfterCrash = Integer.parseInt(sessionFactory.getConnectorConfiguration().getName().substring(4));
-                  Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
+                  assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
                   boolean serverIdAfterCrashFound = false;
                   for (int i : getPrimaryServerIDs()) {
@@ -282,19 +287,19 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                         serverIdAfterCrashFound = true;
                      }
                   }
-                  Assert.assertTrue(serverIdAfterCrashFound);
+                  assertTrue(serverIdAfterCrashFound);
 
                   QueueControl testQueueControlAfterCrash = (QueueControl) getServer(serverIdAfterCrash).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
-                  Assert.assertNotNull(testQueueControlAfterCrash);
-                  Assert.assertEquals(0, testQueueControlAfterCrash.getMessageCount());
+                  assertNotNull(testQueueControlAfterCrash);
+                  assertEquals(0, testQueueControlAfterCrash.getMessageCount());
 
                   try (ClientProducer clientProducer = clientSession.createProducer(QUEUES_TESTADDRESS)) {
                      clientProducer.send(clientSession.createMessage(true));
 
                      Wait.waitFor(() -> testQueueControlAfterCrash.getMessageCount() == 1, 3000);
-                     Assert.assertEquals(1, testQueueControlAfterCrash.getMessageCount());
+                     assertEquals(1, testQueueControlAfterCrash.getMessageCount());
 
-                     Assert.assertNotNull(clientConsumer.receive(3000));
+                     assertNotNull(clientConsumer.receive(3000));
                   }
 
                   clientSession.stop();
@@ -343,7 +348,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
             ClientSessionFactory sessionFactory = ((ActiveMQConnection)connection).getSessionFactory();
             TransportConfiguration backupConnector = (TransportConfiguration)
                ((ClientSessionFactoryImpl)sessionFactory).getBackupConnector();
-            Assert.assertNotEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
+            assertNotEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
 
             int serverIdBeforeCrash = Integer.parseInt(sessionFactory.
                getConnectorConfiguration().getName().substring(4));
@@ -356,15 +361,15 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
 
             ClientSession clientSession = ((ActiveMQSession)session).getCoreSession();
             crashAndWaitForFailure(getServer(serverIdBeforeCrash), clientSession);
-            Assert.assertEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
-            Assert.assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
+            assertEquals(backupConnector.getName(), sessionFactory.getConnectorConfiguration().getName());
+            assertEquals(TEST_PARAM, sessionFactory.getConnectorConfiguration().getExtraParams().get(TEST_PARAM));
 
             int serverIdAfterCrash = Integer.parseInt(sessionFactory.
                getConnectorConfiguration().getName().substring(4));
-            Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
+            assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
             try (MessageConsumer messageConsumer = session.createConsumer(testQueue)) {
-               Assert.assertNotNull(messageConsumer.receive(3000));
+               assertNotNull(messageConsumer.receive(3000));
             }
 
             QueueControl testQueueControlAfterCrash = (QueueControl)getServer(serverIdAfterCrash).

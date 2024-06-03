@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -27,9 +31,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -39,7 +43,7 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
 
    private ActiveMQServer server2;
 
-   @Before
+   @BeforeEach
    public void setServers() throws Exception {
       server.setIdentity("server1");
       server.getConfiguration().addAcceptorConfiguration("flow", "tcp://localhost:6666" + "?protocols=CORE");
@@ -64,10 +68,10 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < numberOfMessages; i++) {
          AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);
          assertNotNull(message);
-         Assert.assertEquals(text, message.getText());
+         assertEquals(text, message.getText());
          message.accept();
       }
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
       receiver.close();
 
       connection.close();
@@ -98,12 +102,14 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCoreBridgeDivert() throws Exception {
       internalTest(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCoreBridgeNoDivert() throws Exception {
       internalTest(false);
    }

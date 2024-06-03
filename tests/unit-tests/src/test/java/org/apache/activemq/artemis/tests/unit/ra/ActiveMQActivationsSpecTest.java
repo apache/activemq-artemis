@@ -16,46 +16,57 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.jms.Session;
 import javax.resource.spi.InvalidPropertyException;
 
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationValidationUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQActivationsSpecTest {
 
-   @Test(expected = InvalidPropertyException.class)
+   @Test
    public void nullDestinationName() throws InvalidPropertyException {
-      ActiveMQActivationValidationUtils.validate(null, "destinationType", false, "subscriptionName");
+      assertThrows(InvalidPropertyException.class, () -> {
+         ActiveMQActivationValidationUtils.validate(null, "destinationType", false, "subscriptionName");
+      });
    }
 
-   @Test(expected = InvalidPropertyException.class)
+   @Test
    public void emptyDestinationName() throws InvalidPropertyException {
-      ActiveMQActivationValidationUtils.validate(null, "destinationType", false, "subscriptionName");
+      assertThrows(InvalidPropertyException.class, () -> {
+         ActiveMQActivationValidationUtils.validate(null, "destinationType", false, "subscriptionName");
+      });
    }
 
    public void nullDestinationType() throws InvalidPropertyException {
       ActiveMQActivationValidationUtils.validate("destinationName", null, false, "subscriptionName");
    }
 
-   @Test(expected = InvalidPropertyException.class)
+   @Test
    public void emptyDestinationType() throws InvalidPropertyException {
-      ActiveMQActivationValidationUtils.validate("destinationName", "", false, "subscriptionName");
+      assertThrows(InvalidPropertyException.class, () -> {
+         ActiveMQActivationValidationUtils.validate("destinationName", "", false, "subscriptionName");
+      });
    }
 
-   @Test(expected = InvalidPropertyException.class)
+   @Test
    public void subscriptionDurableButNoName() throws InvalidPropertyException {
-      ActiveMQActivationValidationUtils.validate("", "", true, "subscriptionName");
+      assertThrows(InvalidPropertyException.class, () -> {
+         ActiveMQActivationValidationUtils.validate("", "", true, "subscriptionName");
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void validateAcknowledgeMode() {
-      assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("DUPS_OK_ACKNOWLEDGE"), Session.DUPS_OK_ACKNOWLEDGE);
-      assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Dups-ok-acknowledge"), Session.DUPS_OK_ACKNOWLEDGE);
-      assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("AUTO_ACKNOWLEDGE"), Session.AUTO_ACKNOWLEDGE);
-      assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Auto-acknowledge"), Session.AUTO_ACKNOWLEDGE);
-      ActiveMQActivationValidationUtils.validateAcknowledgeMode("Invalid Acknowledge Mode");
+      assertThrows(IllegalArgumentException.class, () -> {
+         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("DUPS_OK_ACKNOWLEDGE"), Session.DUPS_OK_ACKNOWLEDGE);
+         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Dups-ok-acknowledge"), Session.DUPS_OK_ACKNOWLEDGE);
+         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("AUTO_ACKNOWLEDGE"), Session.AUTO_ACKNOWLEDGE);
+         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Auto-acknowledge"), Session.AUTO_ACKNOWLEDGE);
+         ActiveMQActivationValidationUtils.validateAcknowledgeMode("Invalid Acknowledge Mode");
+      });
    }
 }

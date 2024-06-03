@@ -32,7 +32,7 @@ import javax.naming.InitialContext;
 import java.util.List;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests focused on durable subscription behavior. More durable subscription tests can be found in

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -51,11 +56,11 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,11 +76,11 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
    public File primaryDir;
    public File backupDir;
 
-   @Before
+   @BeforeEach
    public void setupDirectories() throws Exception {
 
-      primaryDir = temporaryFolder.newFolder("primary");
-      backupDir = temporaryFolder.newFolder("backup");
+      primaryDir = newFolder(temporaryFolder, "primary");
+      backupDir = newFolder(temporaryFolder, "backup");
       primaryDir.mkdirs();
       backupDir.mkdirs();
    }
@@ -84,7 +89,7 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
    public void primaryCrashOnBackupSyncLargeMessageTest() throws Exception {
       Process process = SpawnedVMSupport.spawnVM(PrimaryCrashOnBackupSyncTest.class.getCanonicalName(), backupDir.getAbsolutePath(), primaryDir.getAbsolutePath());
       try {
-         Assert.assertEquals(OK, process.waitFor());
+         assertEquals(OK, process.waitFor());
 
          Configuration primaryConfiguration = createPrimaryConfiguration();
          ActiveMQServer primaryServer = ActiveMQServers.newActiveMQServer(primaryConfiguration);
@@ -94,12 +99,12 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
          File primaryLMDir = primaryServer.getConfiguration().getLargeMessagesLocation();
          Wait.assertTrue(() -> getAllMessageFileIds(primaryLMDir).size() == 0, 5000, 100);
          Set<Long> primaryLM = getAllMessageFileIds(primaryLMDir);
-         Assert.assertEquals("we really ought to delete these after delivery", 0, primaryLM.size());
+         assertEquals(0, primaryLM.size(), "we really ought to delete these after delivery");
          primaryServer.stop();
       } finally {
          process.destroy();
-         Assert.assertTrue(process.waitFor(5, TimeUnit.SECONDS));
-         Assert.assertFalse(process.isAlive());
+         assertTrue(process.waitFor(5, TimeUnit.SECONDS));
+         assertFalse(process.isAlive());
       }
    }
 
@@ -176,7 +181,7 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer("PrimaryCrashTestQueue");
       for (int i = 0; i < msgCount; i++) {
          ClientMessage message = consumer.receive(1000);
-         Assert.assertNotNull("Expecting a message " + i, message);
+         assertNotNull(message, "Expecting a message " + i);
          message.acknowledge();
       }
       session.commit();
@@ -239,6 +244,15 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
          throwable.printStackTrace();
       }
    }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
+   }
 }
 
 class DelayPagingStoreImpl extends PagingStoreImpl {
@@ -262,5 +276,14 @@ class DelayPagingStoreImpl extends PagingStoreImpl {
       //in order to extend the synchronization time
       Thread.sleep(20 * 1000);
       super.sendPages(replicator, pageIds);
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

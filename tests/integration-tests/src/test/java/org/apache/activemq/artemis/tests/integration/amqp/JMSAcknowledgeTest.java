@@ -16,9 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -29,14 +33,16 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class JMSAcknowledgeTest extends JMSClientTestSupport {
 
    private static final String MSG_NUM = "MSG_NUM";
    private static final int INDIVIDUAL_ACK = 101;
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeIndividualMessagesOutOfOrder() throws Throwable {
       Connection connection = createConnection();
 
@@ -64,8 +70,8 @@ public class JMSAcknowledgeTest extends JMSClientTestSupport {
       List<Message> messages = new ArrayList<>();
       for (int i = 0; i < msgCount; i++) {
          TextMessage message = (TextMessage) cons.receive(5000);
-         assertNotNull("Message " + i + " was not received", message);
-         assertEquals("unexpected message number property", i, message.getIntProperty(MSG_NUM));
+         assertNotNull(message, "Message " + i + " was not received");
+         assertEquals(i, message.getIntProperty(MSG_NUM), "unexpected message number property");
 
          messages.add(message);
       }
@@ -92,10 +98,10 @@ public class JMSAcknowledgeTest extends JMSClientTestSupport {
 
       for (int i = 0; i < msgCount / 2; i++) {
          TextMessage message = (TextMessage) cons.receive(5000);
-         assertNotNull("Message " + i + " was not received", message);
+         assertNotNull(message, "Message " + i + " was not received");
          Message expectedMsg = messages.remove(0);
          int expectedMsgNum = expectedMsg.getIntProperty(MSG_NUM);
-         assertEquals("unexpected message number property", expectedMsgNum, message.getIntProperty(MSG_NUM));
+         assertEquals(expectedMsgNum, message.getIntProperty(MSG_NUM), "unexpected message number property");
       }
    }
 }

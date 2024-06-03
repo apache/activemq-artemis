@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.tests.extensions;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -26,18 +26,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 /**
  * This is useful to make sure you won't have leaking threads between tests
  */
-public class ThreadLeakCheckRule extends TestWatcher {
+public class ThreadLeakCheckDelegate {
 
    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -45,91 +43,66 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
    protected boolean enabled = true;
 
-   protected boolean testFailed = false;
-
-   protected Description testDescription = null;
-
-   protected Throwable failure = null;
-
    protected Map<Thread, StackTraceElement[]> previousThreads;
 
-   /**
-    * Override to set up your specific external resource.
-    */
-   @Override
-   protected void starting(Description description) {
-      // do nothing
-
+   public void beforeTest() {
       previousThreads = Thread.getAllStackTraces();
-
    }
 
    public void disable() {
       enabled = false;
    }
 
-   @Override
-   protected void failed(Throwable e, Description description) {
-      this.failure = e;
-      this.testFailed = true;
-      this.testDescription = description;
-   }
+   public void afterTest(Throwable failure, String nameOfTest, Consumer<String> failureCallback) {
+      boolean testFailed = failure != null;
 
-   @Override
-   protected void succeeded(Description description) {
-      this.testFailed = false;
-   }
+      logger.debug("checking thread enabled? {}, testFailed? {}", enabled, testFailed);
 
-   /**
-    * Override to tear down your specific external resource.
-    */
-   @Override
-   protected void finished(Description description) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("checking thread enabled? {}, testFailed? {}", enabled, testFailed);
-      }
       try {
          if (enabled) {
             String failedThread = null;
-
             boolean failedOnce = false;
-
-            int retryNr = 0;
+            int checks = 0;
 
             // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
-            long timeout = System.currentTimeMillis() + (testFailed ? 0 : 60000);
+            int timeout = testFailed ? 0 : 60000;
+
+            long deadline = System.currentTimeMillis() + timeout;
             do {
                failedThread = checkThread();
 
                if (failedThread != null) {
-                  retryNr++;
-                  if (!failedOnce) {
-                     logger.warn("There are threads failing. ThreadLeakCheckRule will retry for {} milliseconds", timeout);
+                  checks++;
+                  if (timeout > 0 && !failedOnce) {
+                     logger.warn("There are unexpected threads remaining. ThreadLeakCheckExtension will retry for {} milliseconds", timeout);
                   }
                   failedOnce = true;
+
                   forceGC();
-                  try {
-                     Thread.sleep(500);
-                  } catch (Throwable e) {
+
+                  if (timeout > 0) {
+                     try {
+                        Thread.sleep(500);
+                     } catch (Throwable e) {
+                     }
                   }
                }
             }
-            while (failedThread != null && timeout > System.currentTimeMillis());
+            while (failedThread != null && deadline > System.currentTimeMillis());
 
             if (failedThread != null) {
                logger.warn("There are leaked threads: \n{}", failedThread);
                if (!testFailed) {
                   //we only fail on thread leak if test passes.
-                  Assert.fail("Thread leaked");
+                  failureCallback.accept("Thread leaked (see log)");
                } else {
-                  logger.warn("The test failed and there is a leak", failure);
+                  logger.warn("The test failed and there is a thread leak (see log)", failure);
                   failure.printStackTrace();
-                  Assert.fail("Test " + testDescription + " Failed with a leak - " + failure.getMessage());
+                  failureCallback.accept("Test " + nameOfTest + " failed and there is a thread leak (see log) - " + failure.getMessage());
                }
             } else if (failedOnce) {
-               logger.info("Threads were cleared after {}", retryNr);
+               logger.info("Threads were cleared after {} checks", checks);
             }
-
          } else {
             enabled = true;
          }
@@ -224,6 +197,9 @@ public class ThreadLeakCheckRule extends TestWatcher {
                for (StackTraceElement el : elements) {
                   writer.println(el);
                }
+               writer.println("*********************************************************************************");
+               writer.println("ThreadGroup: " + aliveThread.getThreadGroup());
+
                aliveThread.interrupt();
             }
 
@@ -294,6 +270,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
       } else if (threadName.contains("ForkJoinPool.commonPool")) {
          return true;
       } else if (threadName.contains("GC Daemon")) {
+         return true;
+      } else if (threadName.contains("junit-jupiter-timeout-watcher")) {
          return true;
       } else {
          // validating for known stack traces

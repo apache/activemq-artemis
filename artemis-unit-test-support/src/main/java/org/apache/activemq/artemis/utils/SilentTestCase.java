@@ -19,9 +19,8 @@ package org.apache.activemq.artemis.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Test case that hijacks sys-out and sys-err.
@@ -29,7 +28,7 @@ import org.junit.Before;
  * It is meant to avoid cluttering either during test execution when the tested code (expectedly)
  * writes to these.
  */
-public abstract class SilentTestCase extends Assert {
+public abstract class SilentTestCase {
 
    private PrintStream origSysOut;
    private PrintStream origSysErr;
@@ -37,7 +36,7 @@ public abstract class SilentTestCase extends Assert {
    private PrintStream sysOut;
    private PrintStream sysErr;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       origSysOut = System.out;
       origSysErr = System.err;
@@ -47,7 +46,7 @@ public abstract class SilentTestCase extends Assert {
       System.setErr(sysErr);
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.setOut(origSysOut);
       System.setErr(origSysErr);

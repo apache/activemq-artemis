@@ -27,18 +27,19 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -52,8 +53,12 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
 import static org.apache.activemq.artemis.tests.util.Jmx.withPrimary;
 import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
 import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public abstract class LockManagerSinglePairTest extends SmokeTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -82,7 +87,7 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       }
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       simpleCreate("zkReplicationPrimary");
       simpleCreate("zkReplicationPrimaryPeerA");
@@ -144,10 +149,10 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       }
    }
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean forceKill;
 
-   @Parameterized.Parameters(name = "forceKill={0}")
+   @Parameters(name = "forceKill={0}")
    public static Iterable<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{false}, {true}});
    }
@@ -168,23 +173,23 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
 
    protected abstract void restart(int[] nodes) throws Exception;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       brokers.forEach(BrokerControl::cleanupData);
    }
 
    @Override
-   @After
+   @AfterEach
    public void after() throws Exception {
       super.after();
    }
 
-   @Test
+   @TestTemplate
    public void testCanQueryEmptyBackup() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       logger.info("starting primary");
       Process primary = this.primary.startServer(this, timeout);
-      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       Wait.assertTrue(() -> !this.primary.isBackup().orElse(true), timeout);
       logger.info("killing primary");
       ServerUtil.killServer(primary, forceKill);
@@ -200,21 +205,21 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
    }
 
-   @Test
+   @TestTemplate
    public void testBackupFailoverAndPrimaryFailback() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       logger.info("starting primary");
       Process primaryInstance = primary.startServer(this, timeout);
-      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       // primary UN REPLICATED
-      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
+      assertEquals(1L, primary.getActivationSequence().get().longValue());
 
       logger.info("started primary");
       logger.info("starting backup");
       Process backupInstance = backup.startServer(this, 0);
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       final String nodeID = primary.getNodeID().get();
-      Assert.assertNotNull(nodeID);
+      assertNotNull(nodeID);
       logger.info("NodeID: {}", nodeID);
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
@@ -226,19 +231,19 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       }
       logger.info("primary topology is: {}", primary.listNetworkTopology().get());
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertTrue(backup.isReplicaSync().get());
+      assertTrue(backup.isReplicaSync().get());
       logger.info("backup is synchronized with live");
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
-      Assert.assertNotNull(urlBackup);
+      assertNotNull(urlBackup);
       logger.info("backup: {}", urlBackup);
       final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
-      Assert.assertNotNull(urlPrimary);
+      assertNotNull(urlPrimary);
       logger.info("primary: {}", urlPrimary);
-      Assert.assertNotEquals(urlPrimary, urlBackup);
+      assertNotEquals(urlPrimary, urlBackup);
 
       // primary REPLICATED, backup matches (has replicated) activation sequence
-      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
-      Assert.assertEquals(1L, backup.getActivationSequence().get().longValue());
+      assertEquals(1L, primary.getActivationSequence().get().longValue());
+      assertEquals(1L, backup.getActivationSequence().get().longValue());
 
       logger.info("killing primary");
       ServerUtil.killServer(primaryInstance, forceKill);
@@ -251,10 +256,10 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertEquals(nodeID, backup.getNodeID().get());
+      assertEquals(nodeID, backup.getNodeID().get());
 
       // backup UN REPLICATED (new version)
-      Assert.assertEquals(2L, backup.getActivationSequence().get().longValue());
+      assertEquals(2L, backup.getActivationSequence().get().longValue());
 
       // wait a bit before restarting primary
       logger.info("waiting before starting primary");
@@ -263,7 +268,7 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       primaryInstance = primary.startServer(this, 0);
       logger.info("started primary");
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
-      Assert.assertTrue(!primary.isBackup().get());
+      assertTrue(!primary.isBackup().get());
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
@@ -274,24 +279,24 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       }
       logger.info("primary topology is: {}", primary.listNetworkTopology().get());
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertTrue(backup.isReplicaSync().get());
+      assertTrue(backup.isReplicaSync().get());
       logger.info("backup is synchronized with live");
-      Assert.assertEquals(nodeID, primary.getNodeID().get());
+      assertEquals(nodeID, primary.getNodeID().get());
 
       // primary ran un replicated for a short while after failback, before backup was in sync
-      Assert.assertEquals(3L, primary.getActivationSequence().get().longValue());
-      Assert.assertEquals(3L, backup.getActivationSequence().get().longValue());
+      assertEquals(3L, primary.getActivationSequence().get().longValue());
+      assertEquals(3L, backup.getActivationSequence().get().longValue());
 
       logger.info("Done, killing both");
       ServerUtil.killServer(primaryInstance);
       ServerUtil.killServer(backupInstance);
    }
 
-   @Test
+   @TestTemplate
    public void testActivePrimarySuicideOnLostQuorum() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process primaryInstance = primary.startServer(this, timeout);
-      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
       final String nodeID = primary.getNodeID().get();
       Wait.assertTrue(() -> validateNetworkTopology(primary.listNetworkTopology().orElse(""),
@@ -301,7 +306,7 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
       final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
-      Assert.assertTrue(validateNetworkTopology(primary.listNetworkTopology().orElse(""),
+      assertTrue(validateNetworkTopology(primary.listNetworkTopology().orElse(""),
                                                 containsExactNodeIds(nodeID)
                                                    .and(withPrimary(nodeID, urlPrimary::equals))
                                                    .and(withBackup(nodeID, Objects::isNull))
@@ -311,16 +316,16 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       Wait.waitFor(()-> !primaryInstance.isAlive(), timeout);
    }
 
-   @Test
+   @TestTemplate
    public void testActiveBackupSuicideOnLostQuorum() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process primaryInstance = primary.startServer(this, timeout);
-      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
       Process backupInstance = backup.startServer(this, 0);
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       final String nodeID = primary.getNodeID().get();
-      Assert.assertNotNull(nodeID);
+      assertNotNull(nodeID);
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
@@ -329,12 +334,12 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
       }
-      Assert.assertTrue(backup.isReplicaSync().get());
+      assertTrue(backup.isReplicaSync().get());
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
-      Assert.assertNotNull(urlBackup);
+      assertNotNull(urlBackup);
       final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
-      Assert.assertNotNull(urlPrimary);
-      Assert.assertNotEquals(urlPrimary, urlBackup);
+      assertNotNull(urlPrimary);
+      assertNotEquals(urlPrimary, urlBackup);
       ServerUtil.killServer(primaryInstance, forceKill);
       Wait.assertTrue(() -> !backup.isBackup().orElse(true), timeout);
       Wait.assertTrue(() -> validateNetworkTopology(backup.listNetworkTopology().orElse(""),
@@ -343,25 +348,25 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
-      Assert.assertEquals(nodeID, backup.getNodeID().get());
+      assertEquals(nodeID, backup.getNodeID().get());
       stopMajority();
       Wait.waitFor(()-> !backupInstance.isAlive(), timeout);
    }
 
 
-   @Test
+   @TestTemplate
    public void testOnlyLastUnreplicatedCanStart() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       logger.info("starting primary");
       Process primaryInstance = primary.startServer(this, timeout);
-      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
       logger.info("started primary");
       logger.info("starting backup");
       Process backupInstance = backup.startServer(this, 0);
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       final String nodeID = primary.getNodeID().get();
-      Assert.assertNotNull(nodeID);
+      assertNotNull(nodeID);
       logger.info("NodeID: {}", nodeID);
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
@@ -373,20 +378,20 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       }
       logger.info("primary topology is: {}", primary.listNetworkTopology().get());
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertTrue(backup.isReplicaSync().get());
+      assertTrue(backup.isReplicaSync().get());
       logger.info("backup is synchronized with live");
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
-      Assert.assertNotNull(urlBackup);
+      assertNotNull(urlBackup);
       logger.info("backup: {}", urlBackup);
       final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
-      Assert.assertNotNull(urlPrimary);
+      assertNotNull(urlPrimary);
       logger.info("primary: {}", urlPrimary);
-      Assert.assertNotEquals(urlPrimary, urlBackup);
+      assertNotEquals(urlPrimary, urlBackup);
 
 
       // verify sequence id's in sync
-      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
-      Assert.assertEquals(1L, backup.getActivationSequence().get().longValue());
+      assertEquals(1L, primary.getActivationSequence().get().longValue());
+      assertEquals(1L, backup.getActivationSequence().get().longValue());
 
       logger.info("killing primary");
       ServerUtil.killServer(primaryInstance, forceKill);
@@ -399,11 +404,11 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertEquals(nodeID, backup.getNodeID().get());
+      assertEquals(nodeID, backup.getNodeID().get());
 
 
       // backup now UNREPLICATED, it is the only node that can continue
-      Assert.assertEquals(2L, backup.getActivationSequence().get().longValue());
+      assertEquals(2L, backup.getActivationSequence().get().longValue());
 
       logger.info("killing backup");
       ServerUtil.killServer(backupInstance, forceKill);
@@ -428,6 +433,6 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       assertTrue(Wait.waitFor(() -> nodeID.equals(backup.getNodeID().orElse("not set yet"))));
       logger.info("restarted backup");
 
-      Assert.assertEquals(3L, backup.getActivationSequence().get().longValue());
+      assertEquals(3L, backup.getActivationSequence().get().longValue());
    }
 }

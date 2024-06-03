@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.routing;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+
 import java.util.Collections;
 
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
@@ -25,23 +28,17 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ConnectionRouterManagerTest {
 
    ActiveMQServer mockServer;
    ConnectionRouterManager underTest;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
 
       mockServer = mock(ActiveMQServer.class);
@@ -50,27 +47,29 @@ public class ConnectionRouterManagerTest {
       underTest.start();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (underTest != null) {
          underTest.stop();
       }
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void deployLocalOnlyPoolInvalid() throws Exception {
+      assertThrows(IllegalStateException.class, () -> {
 
-      ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
-      connectionRouterConfiguration.setName("partition-local-pool");
-      NamedPropertyConfiguration policyConfig = new NamedPropertyConfiguration();
-      policyConfig.setName(ConsistentHashPolicy.NAME);
-      connectionRouterConfiguration.setPolicyConfiguration(policyConfig);
+         ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
+         connectionRouterConfiguration.setName("partition-local-pool");
+         NamedPropertyConfiguration policyConfig = new NamedPropertyConfiguration();
+         policyConfig.setName(ConsistentHashPolicy.NAME);
+         connectionRouterConfiguration.setPolicyConfiguration(policyConfig);
 
-      PoolConfiguration poolConfiguration = new PoolConfiguration();
-      poolConfiguration.setLocalTargetEnabled(true);
-      connectionRouterConfiguration.setPoolConfiguration(poolConfiguration);
+         PoolConfiguration poolConfiguration = new PoolConfiguration();
+         poolConfiguration.setLocalTargetEnabled(true);
+         connectionRouterConfiguration.setPoolConfiguration(poolConfiguration);
 
-      underTest.deployConnectionRouter(connectionRouterConfiguration);
+         underTest.deployConnectionRouter(connectionRouterConfiguration);
+      });
    }
 
    @Test
@@ -85,7 +84,7 @@ public class ConnectionRouterManagerTest {
       underTest.deployConnectionRouter(connectionRouterConfiguration);
    }
 
-   @Test()
+   @Test
    public void deployLocalOnlyWithPolicy() throws Exception {
 
       ManagementService mockManagementService = Mockito.mock(ManagementService.class);

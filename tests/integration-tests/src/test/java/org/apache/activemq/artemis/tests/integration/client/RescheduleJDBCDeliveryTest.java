@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -40,8 +44,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +114,7 @@ public class RescheduleJDBCDeliveryTest extends ActiveMQTestBase {
          for (int i = 0; i < maxRedeliveries; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
             logger.debug("received {}", message);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             session.rollback();
          }
       }
@@ -130,10 +133,10 @@ public class RescheduleJDBCDeliveryTest extends ActiveMQTestBase {
       }
 
       if (maxRecords < 0) {
-         Assert.assertEquals(maxRedeliveries * 2, records);
+         assertEquals(maxRedeliveries * 2, records);
       } else {
 
-         Assert.assertEquals(maxRecords * 2, records);
+         assertEquals(maxRecords * 2, records);
       }
 
       server.start();
@@ -147,9 +150,9 @@ public class RescheduleJDBCDeliveryTest extends ActiveMQTestBase {
 
          TextMessage message = (TextMessage) consumer.receive(5000);
          logger.debug("received {}", message);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          session.commit();
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

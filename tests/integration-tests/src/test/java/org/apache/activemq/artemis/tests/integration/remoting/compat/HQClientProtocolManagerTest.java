@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting.compat;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,7 +31,7 @@ import org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientPro
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
@@ -97,7 +99,7 @@ public class HQClientProtocolManagerTest extends ActiveMQTestBase {
 
       public static void checkReceivedTypes() throws Exception {
          for (Byte type : receivedTypes) {
-            assertFalse("Received unsupported type: " + type, unsupportedTypes.contains(type));
+            assertFalse(unsupportedTypes.contains(type), "Received unsupported type: " + type);
          }
       }
    }

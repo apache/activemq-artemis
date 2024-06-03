@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -31,8 +35,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFilesRepository;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
@@ -79,7 +82,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       File[] fileList = history.listFiles((a, name) -> name.endsWith(".journal"));
 
-      Assert.assertEquals(1, fileList.length);
+      assertEquals(1, fileList.length);
    }
 
    @Test
@@ -91,26 +94,26 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       String fileNameGenerated = journal.getHistoryFileName(1, clebertsBirthday);
 
       // I was actually born at 4:30 :) but I need all numbers lower than 2 digits on the test
-      Assert.assertEquals("cleberts-19720119040507-1.birthday", fileNameGenerated);
-      Assert.assertEquals("19720119040507", journal.getDatePortion(fileNameGenerated));
+      assertEquals("cleberts-19720119040507-1.birthday", fileNameGenerated);
+      assertEquals("19720119040507", journal.getDatePortion(fileNameGenerated));
 
       long d = journal.getDatePortionMillis(fileNameGenerated);
 
       GregorianCalendar compareCalendar = new GregorianCalendar();
       compareCalendar.setTimeInMillis(d);
 
-      Assert.assertEquals(1972, compareCalendar.get(Calendar.YEAR));
-      Assert.assertEquals(0, compareCalendar.get(Calendar.MONTH));
-      Assert.assertEquals(19, compareCalendar.get(Calendar.DAY_OF_MONTH));
-      Assert.assertEquals(4, compareCalendar.get(Calendar.HOUR_OF_DAY));
-      Assert.assertEquals(5, compareCalendar.get(Calendar.MINUTE));
-      Assert.assertEquals(7, compareCalendar.get(Calendar.SECOND));
+      assertEquals(1972, compareCalendar.get(Calendar.YEAR));
+      assertEquals(0, compareCalendar.get(Calendar.MONTH));
+      assertEquals(19, compareCalendar.get(Calendar.DAY_OF_MONTH));
+      assertEquals(4, compareCalendar.get(Calendar.HOUR_OF_DAY));
+      assertEquals(5, compareCalendar.get(Calendar.MINUTE));
+      assertEquals(7, compareCalendar.get(Calendar.SECOND));
 
-      Assert.assertFalse(d < clebertsBirthday.getTimeInMillis());
+      assertFalse(d < clebertsBirthday.getTimeInMillis());
 
       compareCalendar.set(Calendar.YEAR, 1971);
 
-      Assert.assertTrue(compareCalendar.getTimeInMillis() < clebertsBirthday.getTimeInMillis());
+      assertTrue(compareCalendar.getTimeInMillis() < clebertsBirthday.getTimeInMillis());
 
    }
 
@@ -121,8 +124,8 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       String withoutBkp = "jrn-1.data";
       String withBKP = withoutBkp + ".bkp";
       // I was actually born at 4:30 :) but I need all numbers lower than 2 digits on the test
-      Assert.assertEquals(withoutBkp, journal.removeBackupExtension(withBKP));
-      Assert.assertEquals(withoutBkp, journal.removeBackupExtension(withoutBkp)); // it should be possible to do it
+      assertEquals(withoutBkp, journal.removeBackupExtension(withBKP));
+      assertEquals(withoutBkp, journal.removeBackupExtension(withoutBkp)); // it should be possible to do it
 
       String withoutBKP = "jrn-1.data";
    }
@@ -134,7 +137,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       calendar.setTimeInMillis(System.currentTimeMillis());
       String fileName = journal.getHistoryFileName(3, calendar);
       long id = JournalFilesRepository.getFileNameID("jrn", fileName);
-      Assert.assertEquals(3, id);
+      assertEquals(3, id);
    }
 
    @Test
@@ -179,7 +182,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       File[] files = tempFolder.listFiles(fnf);
 
-      Assert.assertEquals(100, files.length);
+      assertEquals(100, files.length);
 
       HashSet<String> hashSet = new HashSet<>();
       for (File file : files) {
@@ -187,7 +190,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
+         assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
       }
 
    }
@@ -235,7 +238,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       File[] files = tempFolder.listFiles(fnf);
 
-      Assert.assertEquals(200, files.length);
+      assertEquals(200, files.length);
 
       HashSet<String> hashSet = new HashSet<>();
       for (File file : files) {
@@ -243,11 +246,11 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
+         assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
       }
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertTrue(hashSet.contains(journal.getHistoryFileName(i, oldCalendar)));
+         assertTrue(hashSet.contains(journal.getHistoryFileName(i, oldCalendar)));
       }
 
    }
@@ -295,7 +298,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       File[] files = tempFolder.listFiles(fnf);
 
-      Assert.assertEquals(10, files.length);
+      assertEquals(10, files.length);
 
       HashSet<String> hashSet = new HashSet<>();
       for (File file : files) {
@@ -304,7 +307,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
 
       for (int i = 90; i < 100; i++) {
-         Assert.assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
+         assertTrue(hashSet.contains(journal.getHistoryFileName(i, todayCalendar)));
       }
 
    }

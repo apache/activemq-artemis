@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.netty.channel.EventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class SharedEventLoopGroupTest {
    @Test

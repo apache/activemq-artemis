@@ -19,15 +19,15 @@ package org.apache.activemq.artemis.tests.integration.clientcrash;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.BeforeEach;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
-import org.junit.Before;
 
 public abstract class ClientTestBase extends SpawnedTestBase {
 
    protected ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

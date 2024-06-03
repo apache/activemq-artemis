@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -44,10 +47,9 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +105,7 @@ public class IdempotentACKTest extends SoakTestBase {
       saveProperties(brokerProperties, brokerPropertiesFile);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       createServer(DC1_NODE_A, "mirror", DC2_NODEA_URI, 0);
       createServer(DC2_NODE_A, "mirror", DC1_NODEA_URI, 2);
@@ -117,7 +119,7 @@ public class IdempotentACKTest extends SoakTestBase {
       ServerUtil.waitForServerToStart(2, 10_000);
    }
 
-   @Before
+   @BeforeEach
    public void cleanupServers() {
       cleanupData(DC1_NODE_A);
       cleanupData(DC2_NODE_A);
@@ -171,7 +173,7 @@ public class IdempotentACKTest extends SoakTestBase {
       final int messagesPerConsumer = 30;
 
       // Just a reminder: if you change number on this test, this needs to be true:
-      Assert.assertEquals("Invalid test config", 0, numberOfMessages % consumers);
+      assertEquals(0, numberOfMessages % consumers, "Invalid test config");
 
       AtomicBoolean running = new AtomicBoolean(true);
       runAfter(() -> running.set(false));
@@ -217,11 +219,11 @@ public class IdempotentACKTest extends SoakTestBase {
          sendDone.countDown();
       });
 
-      Assert.assertTrue(killSend.await(50, TimeUnit.SECONDS));
+      assertTrue(killSend.await(50, TimeUnit.SECONDS));
 
       restartDC1_ServerA();
 
-      Assert.assertTrue(sendDone.await(50, TimeUnit.SECONDS));
+      assertTrue(sendDone.await(50, TimeUnit.SECONDS));
 
       SimpleManagement simpleManagementDC1A = new SimpleManagement(DC1_NODEA_URI, null, null);
       SimpleManagement simpleManagementDC2A = new SimpleManagement(DC2_NODEA_URI, null, null);
@@ -271,11 +273,11 @@ public class IdempotentACKTest extends SoakTestBase {
          executor.execute(runnableConsumer);
       }
 
-      Assert.assertTrue(latchKill.await(10, TimeUnit.SECONDS));
+      assertTrue(latchKill.await(10, TimeUnit.SECONDS));
 
       restartDC1_ServerA();
 
-      Assert.assertTrue(latchDone.await(4, TimeUnit.MINUTES));
+      assertTrue(latchDone.await(4, TimeUnit.MINUTES));
 
       long flushedMessages = 0;
 
@@ -302,7 +304,7 @@ public class IdempotentACKTest extends SoakTestBase {
 
    private void restartDC1_ServerA() throws Exception {
       processDC1_node_A.destroyForcibly();
-      Assert.assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
       processDC1_node_A = startServer(DC1_NODE_A, -1, -1, new File(getServerLocation(DC1_NODE_A), "broker.properties"));
       ServerUtil.waitForServerToStart(0, 10_000);
    }

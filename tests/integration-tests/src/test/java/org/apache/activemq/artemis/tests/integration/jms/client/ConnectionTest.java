@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
@@ -40,9 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -91,8 +97,8 @@ public class ConnectionTest extends JMSTestBase {
       }
 
       try (JMSContext ctx = factory.createContext()) {
-         Assert.assertNotNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
-         Assert.assertNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
+         assertNotNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
+         assertNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
       }
 
       factory.close();
@@ -100,14 +106,14 @@ public class ConnectionTest extends JMSTestBase {
 
    @Test
    public void testSetSameIdToDifferentConnections() throws Exception {
-      String id = "somethingElse" + name.getMethodName();
+      String id = "somethingElse" + name;
       conn = cf.createConnection();
       conn2 = cf.createConnection();
       conn.getClientID();
       conn.setClientID(id);
       try {
          conn2.setClientID(id);
-         Assert.fail("should not happen.");
+         fail("should not happen.");
       } catch (InvalidClientIDException expected) {
          // expected
       }
@@ -129,7 +135,7 @@ public class ConnectionTest extends JMSTestBase {
       conn = connectionFactory.createConnection();
       try {
          conn2 = connectionFactory.createConnection();
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (InvalidClientIDException expected) {
          // expected
       }
@@ -150,7 +156,7 @@ public class ConnectionTest extends JMSTestBase {
       try {
          conn2 = connectionFactory.createConnection();
       } catch (InvalidClientIDException expected) {
-         Assert.fail("Should allow sharing of client IDs among the same CF");
+         fail("Should allow sharing of client IDs among the same CF");
       }
 
       Session session1 = conn.createSession();
@@ -309,7 +315,7 @@ public class ConnectionTest extends JMSTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (conn2 != null) {
          conn2.close();

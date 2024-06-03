@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -30,7 +32,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * I have added this test to help validate if the connectors from Recovery will be

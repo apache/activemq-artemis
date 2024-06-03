@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +44,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PagingSendTest extends ActiveMQTestBase {
 
@@ -57,7 +60,7 @@ public class PagingSendTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = newActiveMQServer();
@@ -121,7 +124,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       for (int i = 0; i < 200; i++) {
          ClientMessage message2 = consumer.receive(10000);
 
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
 
          if (i == 100) {
             session.commit();
@@ -192,7 +195,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = consumer.receive(10000);
 
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          assertEquals(i, msg.getIntProperty("count").intValue());
 
@@ -230,7 +233,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(queueAddr);
 
       // Give time Queue.deliverAsync to deliver messages
-      Assert.assertTrue("Messages were not propagated to internal structures.", waitForMessages(queue, batchSize, 3000));
+      assertTrue(waitForMessages(queue, batchSize, 3000), "Messages were not propagated to internal structures.");
 
       AtomicInteger errors = new AtomicInteger(0);
       CountDownLatch done = new CountDownLatch(1);
@@ -250,7 +253,7 @@ public class PagingSendTest extends ActiveMQTestBase {
          }
          done.countDown();
       });
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 
@@ -334,7 +337,7 @@ public class PagingSendTest extends ActiveMQTestBase {
             duplicates++;
          }
       }
-      Assert.assertEquals(0, duplicates);
+      assertEquals(0, duplicates);
    }
 
    public boolean waitForMessages(Queue queue, int count, long timeout) throws Exception {

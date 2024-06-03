@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -24,8 +26,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournalFileSizeTest extends ActiveMQTestBase {
 
@@ -54,7 +55,7 @@ public class JournalFileSizeTest extends ActiveMQTestBase {
       config.setJournalFileSize(origFileSize + (align / 2 - 1));
       JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
-      Assert.assertEquals(origFileSize, fileSize);
+      assertEquals(origFileSize, fileSize);
    }
 
    @Test
@@ -64,7 +65,7 @@ public class JournalFileSizeTest extends ActiveMQTestBase {
       config.setJournalFileSize(origFileSize + (align / 2 + 1));
       JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
-      Assert.assertEquals(origFileSize + align, fileSize);
+      assertEquals(origFileSize + align, fileSize);
    }
 
    @Test
@@ -74,6 +75,6 @@ public class JournalFileSizeTest extends ActiveMQTestBase {
       config.setJournalFileSize(origFileSize + (align / 2));
       JournalStorageManager manager = new JournalStorageManager(config,EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
-      Assert.assertEquals(origFileSize + align, fileSize);
+      assertEquals(origFileSize + align, fileSize);
    }
 }

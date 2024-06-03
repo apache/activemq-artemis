@@ -16,8 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class PlainSASLTest {
 
@@ -29,7 +30,7 @@ public class PlainSASLTest {
       ServerSASLPlain serverSASLPlain = new ServerSASLPlain();
       serverSASLPlain.processSASL(bytesResult);
       PlainSASLResult result = (PlainSASLResult) serverSASLPlain.result();
-      Assert.assertEquals("user-me", result.getUser());
-      Assert.assertEquals("password-secret", result.getPassword());
+      assertEquals("user-me", result.getUser());
+      assertEquals("password-secret", result.getPassword());
    }
 }

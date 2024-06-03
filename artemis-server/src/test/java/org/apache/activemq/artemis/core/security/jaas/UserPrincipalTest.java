@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
-import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class UserPrincipalTest extends Assert {
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.junit.jupiter.api.Test;
+
+public class UserPrincipalTest {
 
    @Test
    public void testArguments() {

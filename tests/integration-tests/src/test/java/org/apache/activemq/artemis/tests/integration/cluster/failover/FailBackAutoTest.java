@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,18 +37,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class FailBackAutoTest extends FailoverTestBase {
 
@@ -52,7 +58,7 @@ public class FailBackAutoTest extends FailoverTestBase {
    private ClientSessionFactoryInternal sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
@@ -168,7 +174,7 @@ public class FailBackAutoTest extends FailoverTestBase {
       logger.debug("restarting primary node now");
       primaryServer.start();
 
-      assertTrue("expected a session failure 1", listener.getLatch().await(5, TimeUnit.SECONDS));
+      assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS), "expected a session failure 1");
 
       message = session.createMessage(true);
 
@@ -188,7 +194,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       primaryServer.crash();
 
-      assertTrue("expected a session failure 2", listener.getLatch().await(5, TimeUnit.SECONDS));
+      assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS), "expected a session failure 2");
 
       session.close();
 
@@ -219,7 +225,7 @@ public class FailBackAutoTest extends FailoverTestBase {
       producer = session.createProducer(ADDRESS);
       sendMessages(session, producer, 2 * NUM_MESSAGES);
       session.commit();
-      assertFalse("must NOT be a backup", primaryServer.getServer().getHAPolicy().isBackup());
+      assertFalse(primaryServer.getServer().getHAPolicy().isBackup(), "must NOT be a backup");
       adaptPrimaryConfigForReplicatedFailBack(primaryServer);
 
       CountDownSessionFailureListener listener = new CountDownSessionFailureListener(session);
@@ -228,7 +234,7 @@ public class FailBackAutoTest extends FailoverTestBase {
       primaryServer.start();
 
       assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
-      assertTrue("primary initialized after restart", primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
+      assertTrue(primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS), "primary initialized after restart");
 
       session.start();
       receiveMessages(consumer, 0, NUM_MESSAGES, true);

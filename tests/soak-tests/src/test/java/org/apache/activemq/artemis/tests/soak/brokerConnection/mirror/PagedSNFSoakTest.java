@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -39,10 +43,10 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,24 +112,26 @@ public class PagedSNFSoakTest extends SoakTestBase {
       saveProperties(brokerProperties, brokerPropertiesFile);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       createServer(DC1_NODE_A, "mirror", DC2_NODEA_URI, 0);
       createServer(DC2_NODE_A, "mirror", DC1_NODEA_URI, 2);
    }
 
-   @Before
+   @BeforeEach
    public void cleanupServers() {
       cleanupData(DC1_NODE_A);
       cleanupData(DC2_NODE_A);
    }
 
-   @Test(timeout = 240_000L)
+   @Test
+   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
    public void testAMQP() throws Exception {
       testAccumulateAndSend("AMQP");
    }
 
-   @Test(timeout = 240_000L)
+   @Test
+   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
    public void testCORE() throws Exception {
       testAccumulateAndSend("CORE");
    }
@@ -235,7 +241,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
             MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
             for (int i = 0; i < numberOfMessages; i++) {
                Message message = consumer.receive(5000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
                if (i > 0 && i % batchSize == 0) {
                   logger.debug("Commit consume {}", i);
                   session.commit();
@@ -258,9 +264,9 @@ public class PagedSNFSoakTest extends SoakTestBase {
       try (MessageConsumer consumer = session.createConsumer(queue)) {
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(10_000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(body, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("id"));
+            assertNotNull(message);
+            assertEquals(body, message.getText());
+            assertEquals(i, message.getIntProperty("id"));
             logger.debug("received {}", i);
             if ((i + 1) % 10 == 0) {
                session.commit();
@@ -301,7 +307,7 @@ public class PagedSNFSoakTest extends SoakTestBase {
 
    int getNumberOfLargeMessages(String serverName) throws Exception {
       File lmFolder = new File(getServerLocation(serverName) + "/data/large-messages");
-      Assert.assertTrue(lmFolder.exists());
+      assertTrue(lmFolder.exists());
       return lmFolder.list().length;
    }
 
@@ -312,12 +318,12 @@ public class PagedSNFSoakTest extends SoakTestBase {
 
    private void stopDC1() throws Exception {
       processDC1_node_A.destroyForcibly();
-      Assert.assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
    }
 
    private void stopDC2() throws Exception {
       processDC2_node_A.destroyForcibly();
-      Assert.assertTrue(processDC2_node_A.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(processDC2_node_A.waitFor(10, TimeUnit.SECONDS));
    }
 
    private void startDC2() throws Exception {

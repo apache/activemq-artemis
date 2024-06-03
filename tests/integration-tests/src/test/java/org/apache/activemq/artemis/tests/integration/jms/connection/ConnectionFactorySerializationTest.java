@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,16 +49,15 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectionFactorySerializationTest extends JMSTestBase {
 
    protected static ActiveMQConnectionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -72,15 +74,15 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(dgc.getName(), "dg1");
-      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      Assert.assertEquals(dgc.getRefreshTimeout(), 5000);
-      Assert.assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
+      assertEquals(dgc.getName(), "dg1");
+      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
+      assertEquals(dgc.getRefreshTimeout(), 5000);
+      assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
       UDPBroadcastEndpointFactory befc = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
-      Assert.assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
-      Assert.assertEquals(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress"), befc.getLocalBindAddress());
-      Assert.assertEquals(getUDPDiscoveryPort(), befc.getGroupPort());
-      Assert.assertEquals(getUDPDiscoveryAddress(), befc.getGroupAddress());
+      assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
+      assertEquals(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress"), befc.getLocalBindAddress());
+      assertEquals(getUDPDiscoveryPort(), befc.getGroupPort());
+      assertEquals(getUDPDiscoveryAddress(), befc.getGroupAddress());
    }
 
    @Test
@@ -94,13 +96,13 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(dgc.getName(), "dg1");
-      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      Assert.assertEquals(dgc.getRefreshTimeout(), 5000);
-      Assert.assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsFileBroadcastEndpointFactory);
+      assertEquals(dgc.getName(), "dg1");
+      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
+      assertEquals(dgc.getRefreshTimeout(), 5000);
+      assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsFileBroadcastEndpointFactory);
       JGroupsFileBroadcastEndpointFactory befc = (JGroupsFileBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
-      Assert.assertEquals("myChannel", befc.getChannelName());
-      Assert.assertEquals("/META-INF/myfile.xml", befc.getFile());
+      assertEquals("myChannel", befc.getChannelName());
+      assertEquals("/META-INF/myfile.xml", befc.getFile());
    }
 
    @Test
@@ -113,16 +115,16 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
-      Assert.assertEquals(cf.isHA(), y.isHA());
+      assertEquals(cf.isHA(), y.isHA());
       TransportConfiguration[] staticConnectors = y.getStaticConnectors();
-      Assert.assertEquals(staticConnectors.length, 2);
+      assertEquals(staticConnectors.length, 2);
       TransportConfiguration tc0 = cf.getStaticConnectors()[0];
       TransportConfiguration y0 = y.getStaticConnectors()[0];
       Map<String, Object> ctParams = tc0.getParams();
       Map<String, Object> y0Params = y0.getParams();
-      Assert.assertEquals(ctParams.size(), y0Params.size());
+      assertEquals(ctParams.size(), y0Params.size());
       for (String key : y0Params.keySet()) {
-         Assert.assertEquals(ctParams.get(key), y0Params.get(key));
+         assertEquals(ctParams.get(key), y0Params.get(key));
       }
    }
 
@@ -260,7 +262,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       PropertyDescriptor[] descriptors = bean.getPropertyUtils().getPropertyDescriptors(factory);
       for (PropertyDescriptor descriptor : descriptors) {
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
-            Assert.assertEquals(descriptor.getName() + " incorrect", bean.getProperty(factory, descriptor.getName()), bean.getProperty(factory2, descriptor.getName()));
+            assertEquals(bean.getProperty(factory, descriptor.getName()), bean.getProperty(factory2, descriptor.getName()), descriptor.getName() + " incorrect");
          }
       }
    }

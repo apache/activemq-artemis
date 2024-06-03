@@ -18,21 +18,8 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import static java.util.Arrays.asList;
-
-@RunWith(Parameterized.class)
 public class LockManagerReplicationOrderTest extends ReplicationOrderTest {
-
-   @Parameterized.Parameter
-   public boolean useNetty;
-
-   @Parameterized.Parameters(name = "useNetty={0}")
-   public static Iterable<Object[]> getParams() {
-      return asList(new Object[][]{{false}, {true}});
-   }
 
    @Override
    protected void createConfigs() throws Exception {
@@ -48,13 +35,11 @@ public class LockManagerReplicationOrderTest extends ReplicationOrderTest {
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return useNetty ? getNettyAcceptorTransportConfiguration(live) :
-         super.getAcceptorTransportConfiguration(live);
+      return getNettyAcceptorTransportConfiguration(live);
    }
 
    @Override
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return useNetty ? getNettyConnectorTransportConfiguration(live) :
-         super.getConnectorTransportConfiguration(live);
+      return getNettyConnectorTransportConfiguration(live);
    }
 }

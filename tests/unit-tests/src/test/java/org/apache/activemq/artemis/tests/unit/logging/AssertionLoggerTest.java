@@ -16,13 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.unit.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,7 @@ public class AssertionLoggerTest {
    public void testInfoAMQP() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          ActiveMQAMQPProtocolLogger.LOGGER.retryConnection("test", "test", 1, 1);
-         Assert.assertTrue(loggerHandler.findText("AMQ111002"));
+         assertTrue(loggerHandler.findText("AMQ111002"));
       }
    }
 
@@ -56,21 +58,21 @@ public class AssertionLoggerTest {
       Logger logging = LoggerFactory.getLogger(clazz);
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          logging.warn(randomLogging);
-         Assert.assertTrue(loggerHandler.findText(randomLogging));
+         assertTrue(loggerHandler.findText(randomLogging));
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          for (int i = 0; i < 10; i++) {
             logging.warn(randomLogging);
          }
-         Assert.assertEquals(10, loggerHandler.countText(randomLogging));
+         assertEquals(10, loggerHandler.countText(randomLogging));
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          for (int i = 0; i < 10; i++) {
             logging.info(randomLogging);
          }
-         Assert.assertEquals(10, loggerHandler.countText(randomLogging));
+         assertEquals(10, loggerHandler.countText(randomLogging));
       }
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanager;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -43,8 +45,8 @@ import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTest;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -63,7 +65,8 @@ public class LockManagerNettyNoGroupNameReplicatedFailoverTest extends FailoverT
     * Default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
     * it is stopped permanently.
     */
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
    public void testReplicatedFailback() throws Exception {
       try {
          beforeWaitForRemoteBackupSynchronization();
@@ -161,12 +164,12 @@ public class LockManagerNettyNoGroupNameReplicatedFailoverTest extends FailoverT
          webServerComponent.start();
 
          backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
-         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          backupServer.getServer().addExternalComponent(webServerComponent, false);
          // this is called when backup servers go from primary back to backup
          backupServer.getServer().fail(true);
-         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
-         Assert.assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
+         assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
          ((ServiceComponent) (backupServer.getServer().getExternalComponents().get(0))).stop(true);
       } finally {
          httpServer.stop(0);

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.sasl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.net.URL;
 
@@ -33,10 +37,9 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.exceptions.JMSSecuritySaslException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test SASL-SCRAM Support
@@ -45,20 +48,20 @@ public class SaslScramTest extends ActiveMQTestBase {
 
    private EmbeddedActiveMQ BROKER;
 
-   @Before
+   @BeforeEach
    public void startBroker() throws Exception {
       String loginConfPath = new File(SaslScramTest.class.getResource("/login.config").toURI()).getAbsolutePath();
       System.out.println(loginConfPath);
       System.setProperty("java.security.auth.login.config", loginConfPath);
       BROKER = new EmbeddedActiveMQ();
       URL urlScram = SaslScramTest.class.getResource("/broker-saslscram.xml");
-      Assert.assertNotNull(urlScram);
+      assertNotNull(urlScram);
       BROKER.setConfigResourcePath(urlScram.toExternalForm());
       BROKER.setSecurityManager(new ActiveMQJAASSecurityManager("artemis-sasl-scram"));
       BROKER.start();
    }
 
-   @After
+   @AfterEach
    public void shutdownBroker() throws Exception {
       BROKER.stop();
    }
@@ -85,9 +88,11 @@ public class SaslScramTest extends ActiveMQTestBase {
     * Checks that a user that is only stored with one explicit mechanism can't use another mechanism
     * @throws JMSException is expected
     */
-   @Test(expected = JMSSecuritySaslException.class)
+   @Test
    public void testEncryptedWorksOnlyWithMechanism() throws JMSException {
-      sendRcv("SCRAM-SHA-1", "test", "test");
+      assertThrows(JMSSecuritySaslException.class, () -> {
+         sendRcv("SCRAM-SHA-1", "test", "test");
+      });
    }
 
    /**

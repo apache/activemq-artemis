@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -30,19 +34,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.ActiveMQSession;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer6Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "destinationType={0}")
+   @Parameters(name = "destinationType={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{ActiveMQDestination.QUEUE_TYPE}, {ActiveMQDestination.TOPIC_TYPE}});
    }
@@ -53,7 +58,7 @@ public class JMSConsumer6Test extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testPassMessageListenerIntoCreateConsumer() throws Exception {
 
       final AtomicInteger counter = new AtomicInteger(0);
@@ -84,7 +89,7 @@ public class JMSConsumer6Test extends BasicOpenWireTest {
       assertEquals(4, counter.get());
    }
 
-   @Test
+   @TestTemplate
    public void testAckOfExpired() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -116,12 +121,12 @@ public class JMSConsumer6Test extends BasicOpenWireTest {
       for (int i = 0; i < count; i++) {
          TextMessage msg = (TextMessage) amqConsumer.receive();
          assertNotNull(msg);
-         assertTrue("message has \"no expiry\" text: " + msg.getText(), msg.getText().contains("no expiry"));
+         assertTrue(msg.getText().contains("no expiry"), "message has \"no expiry\" text: " + msg.getText());
 
          // force an ack when there are expired messages
          amqConsumer.acknowledge();
       }
-      assertEquals("consumer has expiredMessages", count, amqConsumer.getConsumerStats().getExpiredMessageCount().getCount());
+      assertEquals(count, amqConsumer.getConsumerStats().getExpiredMessageCount().getCount(), "consumer has expiredMessages");
    }
 
 }

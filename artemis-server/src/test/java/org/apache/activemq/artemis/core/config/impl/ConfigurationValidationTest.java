@@ -16,16 +16,21 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.XMLUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
 public class ConfigurationValidationTest extends ServerTestBase {
@@ -45,7 +50,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
    public void testMinimalConfiguration() throws Exception {
       String xml = "<core xmlns='urn:activemq:core'>" + "</core>";
       Element element = XMLUtil.stringToElement(xml);
-      Assert.assertNotNull(element);
+      assertNotNull(element);
       XMLUtil.validate(element, "schema/artemis-configuration.xsd");
    }
 
@@ -56,7 +61,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
+      assertTrue(fc.isPersistDeliveryCountBeforeDelivery());
    }
 
    @Test
@@ -66,146 +71,146 @@ public class ConfigurationValidationTest extends ServerTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      Assert.assertEquals(5, fc.getAMQPConnection().size());
+      assertEquals(5, fc.getAMQPConnection().size());
 
       AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(0);
-      Assert.assertEquals("testuser", amqpBrokerConnectConfiguration.getUser());
-      Assert.assertEquals("testpassword", amqpBrokerConnectConfiguration.getPassword());
-      Assert.assertEquals(33, amqpBrokerConnectConfiguration.getReconnectAttempts());
-      Assert.assertEquals(333, amqpBrokerConnectConfiguration.getRetryInterval());
-      Assert.assertEquals("test1", amqpBrokerConnectConfiguration.getName());
-      Assert.assertEquals("tcp://test1:111", amqpBrokerConnectConfiguration.getUri());
+      assertEquals("testuser", amqpBrokerConnectConfiguration.getUser());
+      assertEquals("testpassword", amqpBrokerConnectConfiguration.getPassword());
+      assertEquals(33, amqpBrokerConnectConfiguration.getReconnectAttempts());
+      assertEquals(333, amqpBrokerConnectConfiguration.getRetryInterval());
+      assertEquals("test1", amqpBrokerConnectConfiguration.getName());
+      assertEquals("tcp://test1:111", amqpBrokerConnectConfiguration.getUri());
 
-      Assert.assertEquals("TEST-SENDER", amqpBrokerConnectConfiguration.getConnectionElements().get(0).getMatchAddress().toString());
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.SENDER, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
-      Assert.assertEquals("TEST-RECEIVER", amqpBrokerConnectConfiguration.getConnectionElements().get(1).getMatchAddress().toString());
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(1).getType());
-      Assert.assertEquals("TEST-PEER", amqpBrokerConnectConfiguration.getConnectionElements().get(2).getMatchAddress().toString());
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.PEER, amqpBrokerConnectConfiguration.getConnectionElements().get(2).getType());
-      Assert.assertEquals("TEST-WITH-QUEUE-NAME", amqpBrokerConnectConfiguration.getConnectionElements().get(3).getQueueName().toString());
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getMatchAddress());
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getType());
+      assertEquals("TEST-SENDER", amqpBrokerConnectConfiguration.getConnectionElements().get(0).getMatchAddress().toString());
+      assertEquals(AMQPBrokerConnectionAddressType.SENDER, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+      assertEquals("TEST-RECEIVER", amqpBrokerConnectConfiguration.getConnectionElements().get(1).getMatchAddress().toString());
+      assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(1).getType());
+      assertEquals("TEST-PEER", amqpBrokerConnectConfiguration.getConnectionElements().get(2).getMatchAddress().toString());
+      assertEquals(AMQPBrokerConnectionAddressType.PEER, amqpBrokerConnectConfiguration.getConnectionElements().get(2).getType());
+      assertEquals("TEST-WITH-QUEUE-NAME", amqpBrokerConnectConfiguration.getConnectionElements().get(3).getQueueName().toString());
+      assertNull(amqpBrokerConnectConfiguration.getConnectionElements().get(3).getMatchAddress());
+      assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getType());
 
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(4).getType());
+      assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(4).getType());
       AMQPMirrorBrokerConnectionElement mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(4);
-      Assert.assertFalse(mirrorConnectionElement.isMessageAcknowledgements());
-      Assert.assertFalse(mirrorConnectionElement.isQueueCreation());
-      Assert.assertFalse(mirrorConnectionElement.isQueueRemoval());
-      Assert.assertFalse(mirrorConnectionElement.isDurable());
-      Assert.assertTrue(mirrorConnectionElement.isSync());
+      assertFalse(mirrorConnectionElement.isMessageAcknowledgements());
+      assertFalse(mirrorConnectionElement.isQueueCreation());
+      assertFalse(mirrorConnectionElement.isQueueRemoval());
+      assertFalse(mirrorConnectionElement.isDurable());
+      assertTrue(mirrorConnectionElement.isSync());
 
-      Assert.assertEquals(AMQPBrokerConnectionAddressType.FEDERATION, amqpBrokerConnectConfiguration.getConnectionElements().get(5).getType());
+      assertEquals(AMQPBrokerConnectionAddressType.FEDERATION, amqpBrokerConnectConfiguration.getConnectionElements().get(5).getType());
       AMQPFederatedBrokerConnectionElement federationConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(5);
-      Assert.assertEquals("test1", federationConnectionElement.getName());
-      Assert.assertEquals(1, federationConnectionElement.getLocalQueuePolicies().size());
+      assertEquals("test1", federationConnectionElement.getName());
+      assertEquals(1, federationConnectionElement.getLocalQueuePolicies().size());
       federationConnectionElement.getLocalQueuePolicies().forEach((p) -> {
-         Assert.assertEquals("composite", p.getName());
-         Assert.assertEquals(1, p.getIncludes().size());
-         Assert.assertEquals(0, p.getExcludes().size());
-         Assert.assertNull(p.getTransformerConfiguration());
+         assertEquals("composite", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         assertEquals(0, p.getExcludes().size());
+         assertNull(p.getTransformerConfiguration());
       });
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(1);
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getUser());
+      assertNull(amqpBrokerConnectConfiguration.getUser());
       mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
-      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getPassword());
-      Assert.assertEquals("test2", amqpBrokerConnectConfiguration.getName());
-      Assert.assertEquals("tcp://test2:222", amqpBrokerConnectConfiguration.getUri());
-      Assert.assertTrue(mirrorConnectionElement.isMessageAcknowledgements());
-      Assert.assertFalse(mirrorConnectionElement.isDurable());
-      Assert.assertTrue(mirrorConnectionElement.isQueueCreation());
-      Assert.assertTrue(mirrorConnectionElement.isQueueRemoval());
-      Assert.assertFalse(mirrorConnectionElement.isSync()); // checking the default
+      assertNull(amqpBrokerConnectConfiguration.getPassword());
+      assertEquals("test2", amqpBrokerConnectConfiguration.getName());
+      assertEquals("tcp://test2:222", amqpBrokerConnectConfiguration.getUri());
+      assertTrue(mirrorConnectionElement.isMessageAcknowledgements());
+      assertFalse(mirrorConnectionElement.isDurable());
+      assertTrue(mirrorConnectionElement.isQueueCreation());
+      assertTrue(mirrorConnectionElement.isQueueRemoval());
+      assertFalse(mirrorConnectionElement.isSync()); // checking the default
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(2);
-      Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());
+      assertFalse(amqpBrokerConnectConfiguration.isAutostart());
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(3);
-      Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());
+      assertFalse(amqpBrokerConnectConfiguration.isAutostart());
       AMQPFederatedBrokerConnectionElement federationElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
-      Assert.assertEquals(1, federationElement.getLocalAddressPolicies().size());
-      Assert.assertEquals(2, federationElement.getLocalQueuePolicies().size());
-      Assert.assertEquals(1, federationElement.getRemoteAddressPolicies().size());
-      Assert.assertEquals(1, federationElement.getRemoteQueuePolicies().size());
-      Assert.assertTrue(federationElement.getProperties().containsKey("amqpCredits"));
-      Assert.assertEquals("7", federationElement.getProperties().get("amqpCredits"));
-      Assert.assertTrue(federationElement.getProperties().containsKey("amqpLowCredits"));
-      Assert.assertEquals("1", federationElement.getProperties().get("amqpLowCredits"));
+      assertEquals(1, federationElement.getLocalAddressPolicies().size());
+      assertEquals(2, federationElement.getLocalQueuePolicies().size());
+      assertEquals(1, federationElement.getRemoteAddressPolicies().size());
+      assertEquals(1, federationElement.getRemoteQueuePolicies().size());
+      assertTrue(federationElement.getProperties().containsKey("amqpCredits"));
+      assertEquals("7", federationElement.getProperties().get("amqpCredits"));
+      assertTrue(federationElement.getProperties().containsKey("amqpLowCredits"));
+      assertEquals("1", federationElement.getProperties().get("amqpLowCredits"));
 
       federationElement.getLocalAddressPolicies().forEach(p -> {
-         Assert.assertEquals("lap1", p.getName());
-         Assert.assertEquals(1, p.getIncludes().size());
-         p.getIncludes().forEach(match -> Assert.assertEquals("orders", match.getAddressMatch()));
-         Assert.assertEquals(1, p.getExcludes().size());
-         p.getExcludes().forEach(match -> Assert.assertEquals("all.#", match.getAddressMatch()));
-         Assert.assertFalse(p.getAutoDelete());
-         Assert.assertEquals(1L, (long) p.getAutoDeleteDelay());
-         Assert.assertEquals(12L, (long) p.getAutoDeleteMessageCount());
-         Assert.assertEquals(2, (int) p.getMaxHops());
-         Assert.assertNotNull(p.getTransformerConfiguration());
-         Assert.assertEquals("class-name", p.getTransformerConfiguration().getClassName());
+         assertEquals("lap1", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> assertEquals("orders", match.getAddressMatch()));
+         assertEquals(1, p.getExcludes().size());
+         p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
+         assertFalse(p.getAutoDelete());
+         assertEquals(1L, (long) p.getAutoDeleteDelay());
+         assertEquals(12L, (long) p.getAutoDeleteMessageCount());
+         assertEquals(2, (int) p.getMaxHops());
+         assertNotNull(p.getTransformerConfiguration());
+         assertEquals("class-name", p.getTransformerConfiguration().getClassName());
       });
       federationElement.getLocalQueuePolicies().forEach((p) -> {
          if (p.getName().endsWith("lqp1")) {
-            Assert.assertEquals(1, (int) p.getPriorityAdjustment());
-            Assert.assertFalse(p.isIncludeFederated());
-            Assert.assertEquals("class-another", p.getTransformerConfiguration().getClassName());
-            Assert.assertNotNull(p.getProperties());
-            Assert.assertFalse(p.getProperties().isEmpty());
-            Assert.assertTrue(p.getProperties().containsKey("amqpCredits"));
-            Assert.assertEquals("1", p.getProperties().get("amqpCredits"));
+            assertEquals(1, (int) p.getPriorityAdjustment());
+            assertFalse(p.isIncludeFederated());
+            assertEquals("class-another", p.getTransformerConfiguration().getClassName());
+            assertNotNull(p.getProperties());
+            assertFalse(p.getProperties().isEmpty());
+            assertTrue(p.getProperties().containsKey("amqpCredits"));
+            assertEquals("1", p.getProperties().get("amqpCredits"));
          } else if (p.getName().endsWith("lqp2")) {
-            Assert.assertNull(p.getPriorityAdjustment());
-            Assert.assertFalse(p.isIncludeFederated());
+            assertNull(p.getPriorityAdjustment());
+            assertFalse(p.isIncludeFederated());
          } else {
-            Assert.fail("Should only be two local queue policies");
+            fail("Should only be two local queue policies");
          }
       });
       federationElement.getRemoteAddressPolicies().forEach((p) -> {
-         Assert.assertEquals("rap1", p.getName());
-         Assert.assertEquals(1, p.getIncludes().size());
-         p.getIncludes().forEach(match -> Assert.assertEquals("support", match.getAddressMatch()));
-         Assert.assertEquals(0, p.getExcludes().size());
-         Assert.assertTrue(p.getAutoDelete());
-         Assert.assertEquals(2L, (long) p.getAutoDeleteDelay());
-         Assert.assertEquals(42L, (long) p.getAutoDeleteMessageCount());
-         Assert.assertEquals(1, (int) p.getMaxHops());
-         Assert.assertNotNull(p.getTransformerConfiguration());
-         Assert.assertEquals("something", p.getTransformerConfiguration().getClassName());
-         Assert.assertEquals(2, p.getTransformerConfiguration().getProperties().size());
-         Assert.assertEquals("value1", p.getTransformerConfiguration().getProperties().get("key1"));
-         Assert.assertEquals("value2", p.getTransformerConfiguration().getProperties().get("key2"));
-         Assert.assertNotNull(p.getProperties());
-         Assert.assertFalse(p.getProperties().isEmpty());
-         Assert.assertTrue(p.getProperties().containsKey("amqpCredits"));
-         Assert.assertEquals("2", p.getProperties().get("amqpCredits"));
-         Assert.assertTrue(p.getProperties().containsKey("amqpLowCredits"));
-         Assert.assertEquals("1", p.getProperties().get("amqpLowCredits"));
+         assertEquals("rap1", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> assertEquals("support", match.getAddressMatch()));
+         assertEquals(0, p.getExcludes().size());
+         assertTrue(p.getAutoDelete());
+         assertEquals(2L, (long) p.getAutoDeleteDelay());
+         assertEquals(42L, (long) p.getAutoDeleteMessageCount());
+         assertEquals(1, (int) p.getMaxHops());
+         assertNotNull(p.getTransformerConfiguration());
+         assertEquals("something", p.getTransformerConfiguration().getClassName());
+         assertEquals(2, p.getTransformerConfiguration().getProperties().size());
+         assertEquals("value1", p.getTransformerConfiguration().getProperties().get("key1"));
+         assertEquals("value2", p.getTransformerConfiguration().getProperties().get("key2"));
+         assertNotNull(p.getProperties());
+         assertFalse(p.getProperties().isEmpty());
+         assertTrue(p.getProperties().containsKey("amqpCredits"));
+         assertEquals("2", p.getProperties().get("amqpCredits"));
+         assertTrue(p.getProperties().containsKey("amqpLowCredits"));
+         assertEquals("1", p.getProperties().get("amqpLowCredits"));
       });
       federationElement.getRemoteQueuePolicies().forEach((p) -> {
-         Assert.assertEquals("rqp1", p.getName());
-         Assert.assertEquals(-1, (int) p.getPriorityAdjustment());
-         Assert.assertTrue(p.isIncludeFederated());
+         assertEquals("rqp1", p.getName());
+         assertEquals(-1, (int) p.getPriorityAdjustment());
+         assertTrue(p.isIncludeFederated());
          p.getIncludes().forEach(match -> {
-            Assert.assertEquals("#", match.getAddressMatch());
-            Assert.assertEquals("tracking", match.getQueueMatch());
+            assertEquals("#", match.getAddressMatch());
+            assertEquals("tracking", match.getQueueMatch());
          });
-         Assert.assertNotNull(p.getProperties());
-         Assert.assertFalse(p.getProperties().isEmpty());
-         Assert.assertTrue(p.getProperties().containsKey("amqpCredits"));
-         Assert.assertEquals("2", p.getProperties().get("amqpCredits"));
-         Assert.assertTrue(p.getProperties().containsKey("amqpLowCredits"));
-         Assert.assertEquals("1", p.getProperties().get("amqpLowCredits"));
+         assertNotNull(p.getProperties());
+         assertFalse(p.getProperties().isEmpty());
+         assertTrue(p.getProperties().containsKey("amqpCredits"));
+         assertEquals("2", p.getProperties().get("amqpCredits"));
+         assertTrue(p.getProperties().containsKey("amqpLowCredits"));
+         assertEquals("1", p.getProperties().get("amqpLowCredits"));
       });
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(4);
-      Assert.assertEquals("test-property", amqpBrokerConnectConfiguration.getName());
-      Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());
-      Assert.assertNotNull(amqpBrokerConnectConfiguration.getConnectionElements().get(0));
+      assertEquals("test-property", amqpBrokerConnectConfiguration.getName());
+      assertFalse(amqpBrokerConnectConfiguration.isAutostart());
+      assertNotNull(amqpBrokerConnectConfiguration.getConnectionElements().get(0));
       mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
-      Assert.assertNotNull(mirrorConnectionElement.getProperties());
-      Assert.assertFalse(mirrorConnectionElement.getProperties().isEmpty());
-      Assert.assertFalse(Boolean.valueOf((String) mirrorConnectionElement.getProperties().get("tunnel-core-messages")));
+      assertNotNull(mirrorConnectionElement.getProperties());
+      assertFalse(mirrorConnectionElement.getProperties().isEmpty());
+      assertFalse(Boolean.valueOf((String) mirrorConnectionElement.getProperties().get("tunnel-core-messages")));
    }
 
    @Test

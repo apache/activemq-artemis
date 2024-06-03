@@ -16,15 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTDisabledLinkStealingTest extends MQTTTestSupport {
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testDisabledLinkStealing() throws Exception {
       final String clientId = RandomUtil.randomString();
       MQTT mqtt = createMQTTConnection(clientId, false);
@@ -41,7 +48,7 @@ public class MQTTDisabledLinkStealingTest extends MQTTTestSupport {
          // ignore expected exception
       }
 
-      assertTrue("Client no longer connected!", Wait.waitFor(() -> connection1.isConnected(), 3000, 200));
+      assertTrue(Wait.waitFor(() -> connection1.isConnected(), 3000, 200), "Client no longer connected!");
       connection1.disconnect();
    }
 

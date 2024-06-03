@@ -19,31 +19,26 @@ package org.apache.activemq.artemis.tests.smoke.console;
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
 
 public class ConsoleMutualSSLTest extends SmokeTestBase {
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
    protected static final String SERVER_NAME = "console-mutual-ssl";
    protected static final String SERVER_ADMIN_USERNAME = "admin";
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       File server0Location = getFileServerLocation(SERVER_NAME);
       deleteDirectory(server0Location);
@@ -67,7 +62,7 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
       cliCreateServer.createServer();
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME);
       disableCheckThread();

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -28,8 +32,7 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
@@ -50,14 +53,14 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
       afterRestartQueueView.forEach((next) -> {
          final AMQPMessage message = (AMQPMessage)next.getMessage();
-         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
-         Assert.assertTrue(message.isDurable());
+         assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+         assertTrue(message.isDurable());
          // Doing the check again in case isDurable messed up the scanning status. It should not change the status by definition
-         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+         assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
          messageReference.add(message);
       });
 
-      Assert.assertEquals(1, messageReference.size());
+      assertEquals(1, messageReference.size());
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -72,7 +75,7 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
       assertEquals(1, afterRestartQueueView.getMessageCount());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, messageReference.get(0).getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, messageReference.get(0).getDataScanningStatus());
 
 
       receive.accept();

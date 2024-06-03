@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -32,9 +35,9 @@ import java.util.Vector;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicRequestReplyTest
@@ -54,7 +57,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    @Test
    public void testSendAndReceive() throws Exception {
       clientConnection = createConnection();
-      clientConnection.setClientID("ClientConnection:" + name.getMethodName());
+      clientConnection.setClientID("ClientConnection:" + name);
 
       Session session = clientConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -88,14 +91,14 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
 
       if (msg instanceof TextMessage) {
          TextMessage replyMessage = (TextMessage) msg;
-         assertEquals("Wrong message content", "Hello: Olivier", replyMessage.getText());
+         assertEquals("Hello: Olivier", replyMessage.getText(), "Wrong message content");
       } else {
          fail("Should have received a reply by now");
       }
       replyConsumer.close();
       deleteTemporaryDestination(replyDestination);
 
-      assertEquals("Should not have had any failures: " + failures, 0, failures.size());
+      assertEquals(0, failures.size(), "Should not have had any failures: " + failures);
    }
 
    @Test
@@ -155,12 +158,12 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       serverConnection = createConnection();
-      serverConnection.setClientID("serverConnection:" + name.getMethodName());
+      serverConnection.setClientID("serverConnection:" + name);
       serverSession = serverConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       replyProducer = serverSession.createProducer(null);
@@ -184,7 +187,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
 
       serverConnection.close();

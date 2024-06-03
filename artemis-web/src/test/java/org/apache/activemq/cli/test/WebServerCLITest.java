@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,43 +40,30 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+public class WebServerCLITest extends ArtemisTestCase {
 
-
-public class WebServerCLITest {
-
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
    private String original = System.getProperty("java.security.auth.login.config");
 
-   public WebServerCLITest() {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
-   }
-
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
-      System.setProperty("java.security.auth.login.config", temporaryFolder.getRoot().getAbsolutePath() + "/etc/login.config");
+      System.setProperty("java.security.auth.login.config", temporaryFolder.getAbsolutePath() + "/etc/login.config");
       Run.setEmbedded(true);
       PropertiesLoader.resetUsersAndGroupsCache();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       ActiveMQClient.clearThreadPools();
       System.clearProperty("artemis.instance");
@@ -90,7 +82,7 @@ public class WebServerCLITest {
    @Test
    public void testStopEmbeddedWebServerOnCriticalIOError() throws Exception {
       Run.setEmbedded(true);
-      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      File instance1 = new File(temporaryFolder, "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
       Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
@@ -114,13 +106,13 @@ public class WebServerCLITest {
    public void testCleanupFolder() throws Exception {
       List<File> fileList = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
-         File directory =  temporaryFolder.newFolder("test & output " + i);
+         File directory =  newFolder(temporaryFolder, "test & output " + i);
          fillup(directory);
       }
       Process process = WebTmpCleaner.cleanupTmpFiles(null, fileList);
-      Assert.assertEquals(0, process.waitFor());
+      assertEquals(0, process.waitFor());
       for (File f : fileList) {
-         Assert.assertFalse(f.exists());
+         assertFalse(f.exists());
       }
 
    }
@@ -139,5 +131,13 @@ public class WebServerCLITest {
       Artemis.internalExecute("stop");
       assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
       assertEquals(0, LibaioContext.getTotalMaxIO());
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

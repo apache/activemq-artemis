@@ -16,52 +16,50 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.NoSuchElementException;
 
-@RunWith(Parameterized.class)
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class TabsTest extends ConsoleTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    public TabsTest(MutableCapabilities browserOptions) {
       super(browserOptions);
    }
 
-   @Test
+   @TestTemplate
    public void testConnectionsTab() {
       testTab("connections", "Connections");
    }
 
-   @Test
+   @TestTemplate
    public void testSessionsTab() {
       testTab("sessions", "Sessions");
    }
 
-   @Test
+   @TestTemplate
    public void testConsumersTab() {
       testTab("consumers", "Consumers");
    }
 
-   @Test
+   @TestTemplate
    public void testProducersTab() {
       testTab("producers", "Producers");
    }
 
-   @Test
+   @TestTemplate
    public void testAddressesTab() {
       testTab("addresses", "Addresses");
    }
 
-   @Test
+   @TestTemplate
    public void testQueuesTab() {
       testTab("queues", "Queues");
    }
@@ -72,37 +70,37 @@ public class TabsTest extends ConsoleTest {
       driver.findElement(By.xpath("//a[contains(text(),'" + tab + "')]"));
    }
 
-   @Test
+   @TestTemplate
    public void testConnectionsTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("queues", "Connections");
    }
 
-   @Test
+   @TestTemplate
    public void testSessionsTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("connections", "Sessions");
    }
 
-   @Test
+   @TestTemplate
    public void testConsumersTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("connections", "Consumers");
    }
 
-   @Test
+   @TestTemplate
    public void testProducersTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("connections", "roducers");
    }
 
-   @Test
+   @TestTemplate
    public void testAddressesTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("connections", "Addresses");
    }
 
-   @Test
+   @TestTemplate
    public void testQueuesTabNegative() {
       // use credentials for a valid user who cannot see the tab
       testTabNegative("connections", "Queues");

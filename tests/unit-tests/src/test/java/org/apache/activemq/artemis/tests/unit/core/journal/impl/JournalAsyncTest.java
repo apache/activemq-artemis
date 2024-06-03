@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,10 +31,9 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JournalAsyncTest extends ActiveMQTestBase {
 
@@ -94,13 +97,13 @@ public class JournalAsyncTest extends ActiveMQTestBase {
       LocalThread t = new LocalThread();
       t.start();
 
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       Thread.yield();
 
       Thread.sleep(100);
 
-      Assert.assertTrue(t.isAlive());
+      assertTrue(t.isAlive());
 
       factory.flushAllCallbacks();
 
@@ -148,19 +151,19 @@ public class JournalAsyncTest extends ActiveMQTestBase {
          LocalThread t = new LocalThread();
          t.start();
 
-         Assert.assertFalse("journal.append with sync true should hold until the write is done", latch.await(100, TimeUnit.MILLISECONDS));
+         assertFalse(latch.await(100, TimeUnit.MILLISECONDS), "journal.append with sync true should hold until the write is done");
 
          Thread.yield();
 
-         Assert.assertTrue(t.isAlive());
+         assertTrue(t.isAlive());
 
          latchHoldDirect.countDown();
 
-         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+         assertTrue(latch.await(30, TimeUnit.SECONDS));
 
          t.join();
 
-         Assert.assertFalse(t.isAlive());
+         assertFalse(t.isAlive());
 
          if (t.e != null) {
             throw t.e;
@@ -220,15 +223,15 @@ public class JournalAsyncTest extends ActiveMQTestBase {
          LocalThread t = new LocalThread();
          t.start();
 
-         Assert.assertTrue("journal.append with sync true and IOContext should not hold thread", latch.await(10, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS), "journal.append with sync true and IOContext should not hold thread");
 
          latchHoldDirect.countDown();
 
-         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+         assertTrue(latch.await(30, TimeUnit.SECONDS));
 
          t.join();
 
-         Assert.assertFalse(t.isAlive());
+         assertFalse(t.isAlive());
 
          if (t.e != null) {
             throw t.e;
@@ -260,7 +263,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
       try {
          journalImpl.appendAddRecordTransactional(1L, 2, (byte) 1, new SimpleEncoding(1, (byte) 0));
          journalImpl.appendCommitRecord(1L, true);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
          // An exception already happened in one of the elements on this transaction.
          // We can't accept any more elements on the transaction
       } catch (Exception ignored) {
@@ -278,7 +281,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
       try {
          journalImpl.appendAddRecord(1L, (byte) 0, new SimpleEncoding(1, (byte) 0), true);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (Exception ignored) {
 
       }
@@ -288,7 +291,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -303,7 +306,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (journalImpl != null) {
          try {

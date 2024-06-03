@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.junit.Assert;
 
 public class TestJDBCDriver extends AbstractJDBCDriver {
 
@@ -62,7 +63,7 @@ public class TestJDBCDriver extends AbstractJDBCDriver {
             connection.createStatement().execute(sqlProvider.createBackupLockSQL());
          }
       } catch (SQLException e) {
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
    }
 

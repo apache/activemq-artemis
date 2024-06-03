@@ -17,25 +17,25 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.spy;
 
 /**
  * HttpAcceptorHandlerTest
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HttpAcceptorHandlerTest {
 
    private static final String HTTP_HANDLER = "http-handler";
 
    private HttpKeepAliveRunnable spy;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       spy = spy(new HttpKeepAliveRunnable());
    }

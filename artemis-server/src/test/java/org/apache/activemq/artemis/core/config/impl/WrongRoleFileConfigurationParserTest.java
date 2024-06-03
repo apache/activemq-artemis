@@ -16,13 +16,15 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:

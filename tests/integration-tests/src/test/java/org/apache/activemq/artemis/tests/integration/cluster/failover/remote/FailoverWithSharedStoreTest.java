@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover.remote;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -23,7 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FailoverWithSharedStoreTest extends ClusterTestBase {
 

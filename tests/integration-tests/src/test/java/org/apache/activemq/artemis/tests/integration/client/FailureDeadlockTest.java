@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -31,9 +33,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -49,7 +50,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
    private ActiveMQConnectionFactory cf2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -137,7 +138,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
 
          try {
             conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Assert.fail("should throw exception");
+            fail("should throw exception");
          } catch (JMSException e) {
             //pass
          }

@@ -19,12 +19,12 @@
 
 package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.junit.jupiter.api.Test;
 
 public class AddressSettingsInfoTest {
 
@@ -146,7 +146,7 @@ public class AddressSettingsInfoTest {
       assertEquals(404, addressSettingsInfo.getExpiryDelay());
       assertEquals(40, addressSettingsInfo.getMinExpiryDelay());
       assertEquals(4004, addressSettingsInfo.getMaxExpiryDelay());
-      assertEquals(false, addressSettingsInfo.isEnableMetrics());
+      assertFalse(addressSettingsInfo.isEnableMetrics());
    }
 
 }

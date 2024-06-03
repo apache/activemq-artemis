@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -36,7 +37,7 @@ public class LockManagerReplicaTimeoutTest extends ReplicaTimeoutTest {
                                            TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
                                            TransportConfiguration primaryConnector) throws IOException {
-      DistributedLockManagerConfiguration managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+      DistributedLockManagerConfiguration managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
                                                                     primaryConfig, primaryConnector, null,
@@ -52,5 +53,14 @@ public class LockManagerReplicaTimeoutTest extends ReplicaTimeoutTest {
    @Override
    protected boolean expectPrimarySuicide() {
       return false;
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

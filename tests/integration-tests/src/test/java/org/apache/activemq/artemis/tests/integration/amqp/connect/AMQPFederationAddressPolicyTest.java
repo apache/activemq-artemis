@@ -46,6 +46,11 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -122,7 +127,8 @@ import org.apache.qpid.protonj2.test.driver.matchers.transport.TransferPayloadCo
 import org.apache.qpid.protonj2.test.driver.matchers.types.EncodedAmqpValueMatcher;
 import org.hamcrest.Matchers;
 import org.jgroups.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +154,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       return createServer(AMQP_PORT, false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverWhenLocalQueueIsStaticlyDefined() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -244,7 +251,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverLinkForAddressMatch() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -317,7 +325,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverLinkForAddressMatchUsingPolicyCredit() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -392,12 +401,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverLinkForAddressMatchWithMaxHopsFilter() throws Exception {
       doTestFederationCreatesAddressReceiverLinkForAddressWithCorrectFilters(true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverLinkForAddressMatchWithoutMaxHopsFilter() throws Exception {
       doTestFederationCreatesAddressReceiverLinkForAddressWithCorrectFilters(false);
    }
@@ -555,7 +566,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationClosesAddressReceiverLinkWhenDemandRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -634,7 +646,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationRetainsAddressReceiverLinkWhenDurableSubscriberIsOffline() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -720,7 +733,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationClosesAddressReceiverLinkWaitsForAllDemandToRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -801,7 +815,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationHandlesAddressDeletedAndConsumerRecreates() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -887,7 +902,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConsumerCreatedWhenDemandAddedToDivertAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -969,7 +985,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConsumerCreatedWhenDemandAddedToCompositeDivertAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1059,7 +1076,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConsumerRemovesDemandFromDivertConsumersOnlyWhenAllDemandIsRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1143,7 +1161,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConsumerRetainsDemandForDivertBindingWithoutActiveAnycastSubscriptions() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1232,7 +1251,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConsumerRemovesDemandForDivertBindingWithoutActiveMulticastSubscriptions() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1323,7 +1343,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationRemovesRemoteDemandIfDivertIsRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1405,7 +1426,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testDivertBindingsDoNotCreateAdditionalDemandIfDemandOnForwardingAddressAlreadyExists() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1498,7 +1520,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testInboundMessageRoutedToReceiverOnLocalAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1570,7 +1593,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteBrokerAcceptsAddressPolicyFromControlLink() throws Exception {
       server.start();
 
@@ -1607,7 +1631,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteBrokerAcceptsAddressPolicyFromControlLinkWithTransformerConfiguration() throws Exception {
       server.start();
 
@@ -1652,7 +1677,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteFederatesAddressWhenDemandIsApplied() throws Exception {
       server.start();
 
@@ -1715,7 +1741,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteFederatesAddressWhenDemandIsAppliedUsingControllerDefinedLinkCredit() throws Exception {
       server.start();
 
@@ -1779,7 +1806,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteFederatesAddressWhenDemandIsAppliedUsingPolicyDefinedLinkCredit() throws Exception {
       server.start();
 
@@ -1848,7 +1876,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteFederatesAddressAndAppliesTransformerWhenDemandIsApplied() throws Exception {
       server.start();
 
@@ -1921,7 +1950,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteBrokerAnswersAttachOfFederationReceiverProperly() throws Exception {
       server.start();
 
@@ -1967,7 +1997,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverWithMaxHopsFilterAppliesFilterCorrectly() throws Exception {
       server.start();
 
@@ -2084,7 +2115,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteConnectionCannotAttachAddressFederationLinkWithoutControlLink() throws Exception {
       server.start();
 
@@ -2129,7 +2161,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testTransformInboundFederatedMessageBeforeDispatch() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -2212,7 +2245,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationDoesNotCreateAddressReceiverLinkForAddressMatchWhenLinkCreditIsSetToZero() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -2274,12 +2308,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
       doTestCoreMessageHandlingBasedOnTunnelingState(false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
       doTestCoreMessageHandlingBasedOnTunnelingState(true);
    }
@@ -2351,12 +2387,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreLargeMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
       doTestCoreLargeMessageHandlingBasedOnTunnelingState(false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreLargeMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
       doTestCoreLargeMessageHandlingBasedOnTunnelingState(true);
    }
@@ -2435,7 +2473,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationStartedTriggersRemoteDemandWithExistingAddressBindings() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.start();
@@ -2540,7 +2579,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationStartedTriggersRemoteDemandWithExistingAddressAndDivertBindings() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.start();
@@ -2648,7 +2688,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationStartTriggersFederationWithMultipleDivertsAndRemainsActiveAfterOneRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.start();
@@ -2768,7 +2809,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationPluginCanLimitDemandToOnlyTheConfiguredDivert() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -2865,7 +2907,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesEventSenderAndReceiverWhenLocalAndRemotePoliciesAdded() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
@@ -2950,7 +2993,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationSendsRemotePolicyIfEventsSenderLinkRejected() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
@@ -3019,7 +3063,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteBrokerSendsAddressAddedEventForInterestedPeer() throws Exception {
       final AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateQueues(false);
@@ -3089,7 +3134,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationCreatesAddressReceiverInResponseToAddressAddedEvent() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3186,7 +3232,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddressAddedEventIgnoredIfFederationConsumerAlreadyCreated() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3265,7 +3312,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testRemoteBrokerClosesFederationReceiverAfterAddressRemoved() throws Exception {
       server.start();
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
@@ -3335,7 +3383,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationAddressDemandTrackedWhenRemoteRejectsInitialAttempts() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3436,7 +3485,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationAddressDemandTrackedWhenPluginBlocksInitialAttempts() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();

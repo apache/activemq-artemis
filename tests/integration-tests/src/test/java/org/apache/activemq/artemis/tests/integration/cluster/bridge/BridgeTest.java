@@ -16,12 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,21 +86,20 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -103,7 +110,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
    private final boolean netty;
 
-   @Parameterized.Parameters(name = "isNetty={0}")
+   @Parameters(name = "isNetty={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -117,7 +124,7 @@ public class BridgeTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       StopInterceptor.reset();
       super.setUp();
@@ -131,27 +138,27 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleBridge() throws Exception {
       internaltestSimpleBridge(false, false);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleBridgeFiles() throws Exception {
       internaltestSimpleBridge(false, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleBridgeLargeMessageNullPersistence() throws Exception {
       internaltestSimpleBridge(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleBridgeLargeMessageFiles() throws Exception {
       internaltestSimpleBridge(true, true);
    }
 
-   @Test
+   @TestTemplate
    public void testLargeMessageBridge() throws Exception {
       long time = System.currentTimeMillis();
       Map<String, Object> server0Params = new HashMap<>();
@@ -230,16 +237,16 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          readLargeMessages(message, 10);
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -256,7 +263,7 @@ public class BridgeTest extends ActiveMQTestBase {
       long timeTaken = System.currentTimeMillis() - time;
    }
 
-   @Test
+   @TestTemplate
    public void testBlockedBridgeAndReconnect() throws Exception {
       long time = System.currentTimeMillis();
       Map<String, Object> server0Params = new HashMap<>();
@@ -343,9 +350,9 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
@@ -372,16 +379,16 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = numMessages / 2; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
       Wait.assertEquals(0, server0.locateQueue(SimpleString.toSimpleString("queue0"))::getMessageCount);
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -480,9 +487,9 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          if (largeMessage) {
             readLargeMessages(message, 10);
@@ -491,7 +498,7 @@ public class BridgeTest extends ActiveMQTestBase {
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -534,22 +541,22 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testWithFilter() throws Exception {
       internalTestWithFilter(false, false);
    }
 
-   @Test
+   @TestTemplate
    public void testWithFilterFiles() throws Exception {
       internalTestWithFilter(false, true);
    }
 
-   @Test
+   @TestTemplate
    public void testWithFilterLargeMessages() throws Exception {
       internalTestWithFilter(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testWithFilterLargeMessagesFiles() throws Exception {
       internalTestWithFilter(true, true);
    }
@@ -633,7 +640,7 @@ public class BridgeTest extends ActiveMQTestBase {
          producer0.send(message);
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -652,11 +659,11 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(4000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals("goat", message.getStringProperty(selectorKey));
+         assertEquals("goat", message.getStringProperty(selectorKey));
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
 
@@ -669,7 +676,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       session1.commit();
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -692,7 +699,7 @@ public class BridgeTest extends ActiveMQTestBase {
    }
 
    // Created to verify JBPAPP-6057
-   @Test
+   @TestTemplate
    public void testStartLater() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
@@ -780,7 +787,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       session1.commit();
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       consumer1.close();
 
@@ -800,7 +807,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testWithDuplicates() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
@@ -914,18 +921,18 @@ public class BridgeTest extends ActiveMQTestBase {
 
       session1.commit();
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       ClientConsumer otherConsumer = session0.createConsumer(secondQueue);
       session0.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = otherConsumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          // This is validating the Bridge is not messing up with the original message
          // and should make a copy of the message before sending it
-         Assert.assertEquals(2, message.getPropertyNames().size());
-         Assert.assertEquals(i, message.getIntProperty(propKey).intValue());
-         Assert.assertEquals(new SimpleString("monkey" + i), message.getSimpleStringProperty(selectorKey));
+         assertEquals(2, message.getPropertyNames().size());
+         assertEquals(i, message.getIntProperty(propKey).intValue());
+         assertEquals(new SimpleString("monkey" + i), message.getSimpleStringProperty(selectorKey));
          message.acknowledge();
 
       }
@@ -959,12 +966,12 @@ public class BridgeTest extends ActiveMQTestBase {
       server1.stop();
    }
 
-   @Test
+   @TestTemplate
    public void testWithTransformer() throws Exception {
       internaltestWithTransformer(false);
    }
 
-   @Test
+   @TestTemplate
    public void testWithTransformerFiles() throws Exception {
       internaltestWithTransformer(true);
    }
@@ -1043,21 +1050,21 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          SimpleString val = (SimpleString) message.getObjectProperty(propKey);
 
-         Assert.assertEquals(new SimpleString("bong"), val);
+         assertEquals(new SimpleString("bong"), val);
 
          String sval = message.getBodyBuffer().readString();
 
-         Assert.assertEquals("dee be dee be dee be dee", sval);
+         assertEquals("dee be dee be dee be dee", sval);
 
          message.acknowledge();
 
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -1072,7 +1079,7 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testWithTransformerProperties() throws Exception {
       final String propKey = "bridged";
       final String propValue = "true";
@@ -1149,21 +1156,21 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          String messagePropVal = message.getStringProperty(propKey);
 
-         Assert.assertEquals(propValue, messagePropVal);
+         assertEquals(propValue, messagePropVal);
 
          String sval = message.getBodyBuffer().readString();
 
-         Assert.assertEquals("doo be doo be doo be doo", sval);
+         assertEquals("doo be doo be doo be doo", sval);
 
          message.acknowledge();
 
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -1178,7 +1185,7 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSawtoothLoad() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
@@ -1251,7 +1258,7 @@ public class BridgeTest extends ActiveMQTestBase {
                   for (int i = 0; i < numMessages; i++) {
                      ClientMessage message = consumer.receive(5000);
 
-                     Assert.assertNotNull(message);
+                     assertNotNull(message);
 
                      message.acknowledge();
                      semop.release();
@@ -1367,7 +1374,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testBridgeWithPaging() throws Exception {
       ActiveMQServer server0 = null;
       ActiveMQServer server1 = null;
@@ -1519,7 +1526,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          }
 
-         assertFalse("Test failed", failed);
+         assertFalse(failed, "Test failed");
 
          session0.close();
 
@@ -1596,7 +1603,7 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testBridgeWithLargeMessage() throws Exception {
       ActiveMQServer server0 = null;
       ActiveMQServer server1 = null;
@@ -1683,9 +1690,9 @@ public class BridgeTest extends ActiveMQTestBase {
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(5000);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             ActiveMQBuffer buff = message.getBodyBuffer();
 
@@ -1698,7 +1705,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          session1.commit();
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          session0.close();
 
@@ -1726,7 +1733,7 @@ public class BridgeTest extends ActiveMQTestBase {
       assertEquals(0, loadQueues(server0).size());
    }
 
-   @Test
+   @TestTemplate
    public void testBridgeWithVeryLargeMessage() throws Exception {
       ActiveMQServer server0 = null;
       ActiveMQServer server1 = null;
@@ -1827,7 +1834,7 @@ public class BridgeTest extends ActiveMQTestBase {
          }
          session1.commit();
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          session0.close();
 
@@ -1887,7 +1894,7 @@ public class BridgeTest extends ActiveMQTestBase {
       buffOut.close();
    }
 
-   @Test
+   @TestTemplate
    public void testNullForwardingAddress() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
@@ -1967,14 +1974,14 @@ public class BridgeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       session0.close();
 
@@ -1986,7 +1993,7 @@ public class BridgeTest extends ActiveMQTestBase {
       closeFields();
    }
 
-   @Test
+   @TestTemplate
    public void testInjectedTransformer() throws Exception {
       final SimpleString ADDRESS = new SimpleString("myAddress");
       final SimpleString QUEUE = new SimpleString("myQueue");
@@ -2014,7 +2021,7 @@ public class BridgeTest extends ActiveMQTestBase {
       assertEquals(transformer, ((BridgeImpl) bridge).getTransformer());
    }
 
-   @Test
+   @TestTemplate
    public void testDefaultConfirmationWindowSize() throws Exception {
       final SimpleString ADDRESS = new SimpleString("myAddress");
       final SimpleString QUEUE = new SimpleString("myQueue");
@@ -2044,10 +2051,10 @@ public class BridgeTest extends ActiveMQTestBase {
       ClientConsumer consumer = addClientConsumer(session.createConsumer(FORWARDING_QUEUE));
       session.start();
       producer.send(session.createMessage(true));
-      Assert.assertNotNull(consumer.receive(200));
+      assertNotNull(consumer.receive(200));
    }
 
-   @Test
+   @TestTemplate
    public void testManagementLeak() throws Exception {
       final SimpleString ADDRESS = new SimpleString("myAddress");
       final SimpleString QUEUE = new SimpleString("myQueue");

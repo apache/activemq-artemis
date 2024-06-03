@@ -19,21 +19,22 @@
 
 package org.apache.activemq.artemis.api.core.management;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertTrue;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class OperationAnnotationTest {
 
-   @Parameterized.Parameters(name = "class=({0})")
+   @Parameters(name = "class=({0})")
    public static Collection<Object[]> getTestParameters() {
       return Arrays.asList(new Object[][]{{ActiveMQServerControl.class},
                                           {AddressControl.class},
@@ -52,7 +53,7 @@ public class OperationAnnotationTest {
       this.managementClass = managementClass;
    }
 
-   @Test
+   @TestTemplate
    public void testEachParameterAnnotated() throws Exception {
       checkControlInterface(managementClass);
    }
@@ -76,7 +77,7 @@ public class OperationAnnotationTest {
                         break;
                      }
                   }
-                  assertTrue("method " + m + " has parameters with no Parameter annotation", hasParameterAnnotation);
+                  assertTrue(hasParameterAnnotation, "method " + m + " has parameters with no Parameter annotation");
                }
             }
          }

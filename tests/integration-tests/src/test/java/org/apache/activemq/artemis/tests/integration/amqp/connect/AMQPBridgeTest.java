@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -39,8 +42,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPBridgeTest extends AmqpClientTestSupport {
 
@@ -136,7 +138,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       }
 
       Queue testQueueOnServer2 = server_2.locateQueue(queueName);
-      Assert.assertNotNull(testQueueOnServer2);
+      assertNotNull(testQueueOnServer2);
       Wait.assertEquals(0, testQueueOnServer2::getMessageCount);
 
       ConnectionFactory factory2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
@@ -149,13 +151,13 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
             if (message instanceof TextMessage) {
-               Assert.assertEquals(largeMessageBody, ((TextMessage)message).getText());
+               assertEquals(largeMessageBody, ((TextMessage)message).getText());
             } else {
                System.out.println("i = " + i);
             }
          }
       }
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
    }
 
    @Test
@@ -228,7 +230,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       if (security) {
          Thread.sleep(500); // on this case we need to wait some time to make sure retries are kicking in.
          // since the password is wrong, this should return null.
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          // we are fixing the password, hoping the connection will fix itself.
          amqpConnection.setUser(fullUser).setPassword(fullPass);
       }
@@ -237,13 +239,13 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
             if (message instanceof TextMessage) {
-               Assert.assertEquals(largeMessageBody, ((TextMessage)message).getText());
+               assertEquals(largeMessageBody, ((TextMessage)message).getText());
             } else {
                System.out.println("i = " + i);
             }
          }
       }
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
    }
 
 }

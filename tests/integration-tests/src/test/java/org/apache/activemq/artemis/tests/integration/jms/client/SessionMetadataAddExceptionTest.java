@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
@@ -29,7 +34,8 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test that the client receives an exception if there is an error when metadata
@@ -73,27 +79,34 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
       return config;
    }
 
-   @Test(timeout = 5000, expected = JMSException.class)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testInvalidClientIdSetConnection() throws Exception {
-      Connection con = cf.createConnection();
-      try {
-         con.setClientID("invalid");
-      } finally {
+      assertThrows(JMSException.class, () -> {
+         Connection con = cf.createConnection();
          try {
-            con.close();
-         } catch (Exception ignored) {
+            con.setClientID("invalid");
+         } finally {
+            try {
+               con.close();
+            } catch (Exception ignored) {
+            }
          }
-      }
+      });
    }
 
-   @Test(timeout = 5000, expected = JMSException.class)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testInvalidClientIdSetFactory() throws Exception {
-      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
-      activeMQConnectionFactory.setClientID("invalid");
-      cf.createConnection();
+      assertThrows(JMSException.class, () -> {
+         ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
+         activeMQConnectionFactory.setClientID("invalid");
+         cf.createConnection();
+      });
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testDuplicateClientIdSet() throws Exception {
       ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
       Connection con = cf.createConnection();
@@ -109,21 +122,25 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
       }
    }
 
-   @Test(timeout = 5000, expected = JMSException.class)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testDuplicateClientIdSetActiveMQException() throws Exception {
-      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
-      Connection con = cf.createConnection();
-      Connection con2 = cf.createConnection();
-      try {
-         con.setClientID("valid2");
-         con2.setClientID("valid2");
-         fail("Should have failed");
-      } finally {
-         activeMQConnectionFactory.close();
-      }
+      assertThrows(JMSException.class, () -> {
+         ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
+         Connection con = cf.createConnection();
+         Connection con2 = cf.createConnection();
+         try {
+            con.setClientID("valid2");
+            con2.setClientID("valid2");
+            fail("Should have failed");
+         } finally {
+            activeMQConnectionFactory.close();
+         }
+      });
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testValidIdSetConnection() throws Exception {
       Connection con = cf.createConnection();
       try {
@@ -134,7 +151,8 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
       }
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testValidClientIdSetFactory() throws Exception {
       ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
       activeMQConnectionFactory.setClientID("valid");

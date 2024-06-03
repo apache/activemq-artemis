@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -46,9 +51,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSReconnectTest extends ActiveMQTestBase {
 
@@ -135,20 +139,20 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       conn.close();
 
-      Assert.assertNotNull(listener.e);
+      assertNotNull(listener.e);
 
-      Assert.assertTrue(me == listener.e.getCause());
+      assertTrue(me == listener.e.getCause());
    }
 
    @Test
@@ -216,18 +220,18 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       conn.close();
 
-      Assert.assertNotNull(listener.e);
+      assertNotNull(listener.e);
    }
 
    //If the server is shutdown after a non durable sub is created, then close on the connection should proceed normally
@@ -288,7 +292,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

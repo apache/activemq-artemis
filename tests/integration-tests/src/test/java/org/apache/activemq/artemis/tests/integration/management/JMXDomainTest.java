@@ -29,18 +29,19 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMXDomainTest extends ManagementTestBase {
 
    private ActiveMQServer server_0 = null;
    private ActiveMQServer server_1 = null;
    private boolean jmxUseBrokerName;
 
-   @Parameterized.Parameters(name = "jmxUseBrokerName={0}")
+   @Parameters(name = "jmxUseBrokerName={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][] {{true}, {false}});
    }
@@ -50,7 +51,7 @@ public class JMXDomainTest extends ManagementTestBase {
       this.jmxUseBrokerName = jmxUseBrokerName;
    }
 
-   @Test
+   @TestTemplate
    public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception {
       Configuration config_0 = createDefaultInVMConfig().setJMXManagementEnabled(true);
 

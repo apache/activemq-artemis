@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,8 +37,7 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
 
@@ -57,23 +61,23 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
    @Test
    public void testAMQPSenderHonourRoutingTypeOfExistingAddress() throws Exception {
       RoutingType routingType = server.getConfiguration().getAddressSettings().get("#").getDefaultAddressRoutingType();
-      Assert.assertEquals(RoutingType.ANYCAST, routingType);
+      assertEquals(RoutingType.ANYCAST, routingType);
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {
          RoutingType addressRoutingType = RoutingType.MULTICAST;
          SimpleString address = SimpleString.toSimpleString("myTopic_" + UUID.randomUUID().toString());
          clientSession.createAddress(address, addressRoutingType, false);
          ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
-         Assert.assertTrue(addressQuery.isExists());
-         Assert.assertTrue(addressQuery.getQueueNames().isEmpty());
-         AmqpClient client = createAmqpClient(guestUser, guestPass);
+         assertTrue(addressQuery.isExists());
+         assertTrue(addressQuery.getQueueNames().isEmpty());
+         AmqpClient client = createAmqpClient(guestPass, guestUser);
          AmqpConnection connection = addConnection(client.connect());
          AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(address.toString());
          try {
             ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-            Assert.assertFalse(queueQuery.isExists());
-            Assert.assertEquals(addressRoutingType, queueQuery.getRoutingType());
+            assertFalse(queueQuery.isExists());
+            assertEquals(addressRoutingType, queueQuery.getRoutingType());
          } finally {
             sender.close();
             session.close();
@@ -86,24 +90,24 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
    @Test
    public void testAMQPSenderCreateQueueWithDefaultRoutingTypeIfAddressDoNotExist() throws Exception {
       RoutingType defaultRoutingType = server.getConfiguration().getAddressSettings().get("#").getDefaultAddressRoutingType();
-      Assert.assertEquals(RoutingType.ANYCAST, defaultRoutingType);
+      assertEquals(RoutingType.ANYCAST, defaultRoutingType);
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {
          SimpleString address = SimpleString.toSimpleString("myTopic_" + UUID.randomUUID().toString());
          ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
-         Assert.assertFalse(addressQuery.isExists());
-         Assert.assertTrue(addressQuery.getQueueNames().isEmpty());
-         AmqpClient client = createAmqpClient(guestUser, guestPass);
+         assertFalse(addressQuery.isExists());
+         assertTrue(addressQuery.getQueueNames().isEmpty());
+         AmqpClient client = createAmqpClient(guestPass, guestUser);
          AmqpConnection connection = addConnection(client.connect());
          AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(address.toString());
          try {
             addressQuery = clientSession.addressQuery(address);
-            Assert.assertTrue(addressQuery.isExists());
-            Assert.assertThat(addressQuery.getQueueNames(), CoreMatchers.hasItem(address));
+            assertTrue(addressQuery.isExists());
+            assertThat(addressQuery.getQueueNames(), CoreMatchers.hasItem(address));
             ClientSession.QueueQuery queueQuery = clientSession.queueQuery(address);
-            Assert.assertTrue(queueQuery.isExists());
-            Assert.assertEquals(defaultRoutingType, queueQuery.getRoutingType());
+            assertTrue(queueQuery.isExists());
+            assertEquals(defaultRoutingType, queueQuery.getRoutingType());
          } finally {
             sender.close();
             session.close();

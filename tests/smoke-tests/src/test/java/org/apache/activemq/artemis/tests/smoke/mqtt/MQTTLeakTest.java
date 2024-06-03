@@ -31,10 +31,10 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MQTTLeakTest extends SmokeTestBase {
 
@@ -62,7 +62,7 @@ public class MQTTLeakTest extends SmokeTestBase {
 
     */
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -77,13 +77,13 @@ public class MQTTLeakTest extends SmokeTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
    }
 
-   @After
+   @AfterEach
    @Override
    public void after() throws Exception {
       super.after();

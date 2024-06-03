@@ -14,22 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.rules;
+package org.apache.activemq.artemis.tests.extensions;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 
-import org.junit.Assert;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This is useful to make sure you won't have leaking directories between tests
+ * This is useful to make sure you won't have leaking files/directories between tests
  */
-public class NoFilesBehind extends TestWatcher {
+public class FilesLeftBehindCheckExtension implements Extension, BeforeAllCallback, AfterAllCallback {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String[] filesToCheck;
 
-   public NoFilesBehind(String... filesToCheck) {
+   public FilesLeftBehindCheckExtension(String... filesToCheck) {
       this.filesToCheck = filesToCheck;
    }
 
@@ -45,18 +53,22 @@ public class NoFilesBehind extends TestWatcher {
    }
 
    @Override
-   protected void starting(Description description) {
+   public void beforeAll(ExtensionContext context) throws Exception {
       File leaked = checkFiles();
       if (leaked != null) {
-         Assert.fail("A previous test left a folder around:: " + leaked.getAbsolutePath());
+         fail("A previous test (unknown) left a file/directory around: " + leaked.getAbsolutePath());
       }
    }
 
    @Override
-   protected void finished(Description description) {
+   public void afterAll(ExtensionContext context) throws Exception {
+      String testName = context.getRequiredTestClass().getName();
+
+      logger.debug("Checking files left behind after {}", testName);
+
       File leaked = checkFiles();
       if (leaked != null) {
-         Assert.fail(leaked.getAbsolutePath() + "A directory is being left behind: " + leaked.getAbsolutePath());
+         fail("A file/directory is being left behind by " + testName + ": " + leaked.getAbsolutePath());
       }
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -26,8 +29,7 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test connections can be established to remote peers via WebSockets
@@ -88,6 +90,6 @@ public class WebSocketConnectionTest extends JMSClientTestSupport {
 
       int httpAcceptorHandlerCount = nettyAcceptor.getProtocolHandler().getHttpKeepAliveRunnable().getHandlers().size();
 
-      Assert.assertEquals(0, httpAcceptorHandlerCount);
+      assertEquals(0, httpAcceptorHandlerCount);
    }
 }

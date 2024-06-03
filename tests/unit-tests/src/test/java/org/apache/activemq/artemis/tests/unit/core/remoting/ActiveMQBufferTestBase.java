@@ -16,14 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
@@ -31,7 +36,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
    private ActiveMQBuffer wrapper;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -39,7 +44,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       wrapper = null;
 
@@ -50,15 +55,15 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
    @Test
    public void testNullString() throws Exception {
-      Assert.assertNull(putAndGetNullableString(null));
+      assertNull(putAndGetNullableString(null));
    }
 
    @Test
    public void testEmptyString() throws Exception {
       String result = putAndGetNullableString("");
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals("", result);
+      assertNotNull(result);
+      assertEquals("", result);
    }
 
    @Test
@@ -67,13 +72,13 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
       String result = putAndGetNullableString(junk);
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(junk, result);
+      assertNotNull(result);
+      assertEquals(junk, result);
    }
 
    @Test
    public void testNullSimpleString() throws Exception {
-      Assert.assertNull(putAndGetNullableSimpleString(null));
+      assertNull(putAndGetNullableSimpleString(null));
    }
 
    @Test
@@ -81,7 +86,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       SimpleString emptySimpleString = new SimpleString("");
       SimpleString result = putAndGetNullableSimpleString(emptySimpleString);
 
-      Assert.assertNotNull(result);
+      assertNotNull(result);
       ActiveMQTestBase.assertEqualsByteArrays(emptySimpleString.getData(), result.getData());
    }
 
@@ -90,7 +95,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       SimpleString junk = RandomUtil.randomSimpleString();
       SimpleString result = putAndGetNullableSimpleString(junk);
 
-      Assert.assertNotNull(result);
+      assertNotNull(result);
       ActiveMQTestBase.assertEqualsByteArrays(junk.getData(), result.getData());
    }
 
@@ -99,7 +104,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       byte b = RandomUtil.randomByte();
       wrapper.writeByte(b);
 
-      Assert.assertEquals(b, wrapper.readByte());
+      assertEquals(b, wrapper.readByte());
    }
 
    @Test
@@ -107,12 +112,12 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       byte b = (byte) 0xff;
       wrapper.writeByte(b);
 
-      Assert.assertEquals(255, wrapper.readUnsignedByte());
+      assertEquals(255, wrapper.readUnsignedByte());
 
       b = (byte) 0xf;
       wrapper.writeByte(b);
 
-      Assert.assertEquals(b, wrapper.readUnsignedByte());
+      assertEquals(b, wrapper.readUnsignedByte());
    }
 
    @Test
@@ -140,42 +145,42 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
    public void testPutTrueBoolean() throws Exception {
       wrapper.writeBoolean(true);
 
-      Assert.assertTrue(wrapper.readBoolean());
+      assertTrue(wrapper.readBoolean());
    }
 
    @Test
    public void testPutFalseBoolean() throws Exception {
       wrapper.writeBoolean(false);
 
-      Assert.assertFalse(wrapper.readBoolean());
+      assertFalse(wrapper.readBoolean());
    }
 
    @Test
    public void testPutNullableTrueBoolean() throws Exception {
       wrapper.writeNullableBoolean(true);
 
-      Assert.assertTrue(wrapper.readNullableBoolean());
+      assertTrue(wrapper.readNullableBoolean());
    }
 
    @Test
    public void testPutNullableFalseBoolean() throws Exception {
       wrapper.writeNullableBoolean(false);
 
-      Assert.assertFalse(wrapper.readNullableBoolean());
+      assertFalse(wrapper.readNullableBoolean());
    }
 
    @Test
    public void testNullBoolean() throws Exception {
       wrapper.writeNullableBoolean(null);
 
-      Assert.assertNull(wrapper.readNullableBoolean());
+      assertNull(wrapper.readNullableBoolean());
    }
 
    @Test
    public void testChar() throws Exception {
       wrapper.writeChar('a');
 
-      Assert.assertEquals('a', wrapper.readChar());
+      assertEquals('a', wrapper.readChar());
    }
 
    @Test
@@ -183,7 +188,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       int i = RandomUtil.randomInt();
       wrapper.writeInt(i);
 
-      Assert.assertEquals(i, wrapper.readInt());
+      assertEquals(i, wrapper.readInt());
    }
 
    @Test
@@ -196,8 +201,8 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       // rewrite firstInt at the beginning
       wrapper.setInt(0, firstInt);
 
-      Assert.assertEquals(firstInt, wrapper.readInt());
-      Assert.assertEquals(secondInt, wrapper.readInt());
+      assertEquals(firstInt, wrapper.readInt());
+      assertEquals(secondInt, wrapper.readInt());
    }
 
    @Test
@@ -205,7 +210,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       long l = RandomUtil.randomLong();
       wrapper.writeLong(l);
 
-      Assert.assertEquals(l, wrapper.readLong());
+      assertEquals(l, wrapper.readLong());
    }
 
    @Test
@@ -213,14 +218,14 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       Long l = RandomUtil.randomLong();
       wrapper.writeNullableLong(l);
 
-      Assert.assertEquals(l, wrapper.readNullableLong());
+      assertEquals(l, wrapper.readNullableLong());
    }
 
    @Test
    public void testNullLong() throws Exception {
       wrapper.writeNullableLong(null);
 
-      Assert.assertNull(wrapper.readNullableLong());
+      assertNull(wrapper.readNullableLong());
    }
 
    @Test
@@ -231,7 +236,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
       int s2 = wrapper.readUnsignedShort();
 
-      Assert.assertEquals(s1, s2);
+      assertEquals(s1, s2);
 
       s1 = Short.MIN_VALUE;
 
@@ -239,7 +244,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
       s2 = wrapper.readUnsignedShort();
 
-      Assert.assertEquals(s1 * -1, s2);
+      assertEquals(s1 * -1, s2);
 
       s1 = -1;
 
@@ -249,14 +254,14 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
       // / The max of an unsigned short
       // (http://en.wikipedia.org/wiki/Unsigned_short)
-      Assert.assertEquals(s2, 65535);
+      assertEquals(s2, 65535);
    }
 
    @Test
    public void testShort() throws Exception {
       wrapper.writeShort((short) 1);
 
-      Assert.assertEquals((short) 1, wrapper.readShort());
+      assertEquals((short) 1, wrapper.readShort());
    }
 
    @Test
@@ -264,7 +269,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       double d = RandomUtil.randomDouble();
       wrapper.writeDouble(d);
 
-      Assert.assertEquals(d, wrapper.readDouble(), 0.000001);
+      assertEquals(d, wrapper.readDouble(), 0.000001);
    }
 
    @Test
@@ -272,7 +277,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       float f = RandomUtil.randomFloat();
       wrapper.writeFloat(f);
 
-      Assert.assertEquals(f, wrapper.readFloat(), 0.000001);
+      assertEquals(f, wrapper.readFloat(), 0.000001);
    }
 
    @Test
@@ -280,7 +285,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       String str = RandomUtil.randomString();
       wrapper.writeUTF(str);
 
-      Assert.assertEquals(str, wrapper.readUTF());
+      assertEquals(str, wrapper.readUTF());
    }
 
    @Test
@@ -289,7 +294,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       wrapper.writeBytes(bytes);
 
       byte[] array = wrapper.toByteBuffer().array();
-      Assert.assertEquals(wrapper.capacity(), array.length);
+      assertEquals(wrapper.capacity(), array.length);
       ActiveMQTestBase.assertEqualsByteArrays(128, bytes, wrapper.toByteBuffer().array());
    }
 
@@ -298,11 +303,11 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       int i = RandomUtil.randomInt();
       wrapper.writeInt(i);
 
-      Assert.assertEquals(i, wrapper.readInt());
+      assertEquals(i, wrapper.readInt());
 
       wrapper.resetReaderIndex();
 
-      Assert.assertEquals(i, wrapper.readInt());
+      assertEquals(i, wrapper.readInt());
    }
 
    @Test
@@ -315,20 +320,20 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       wrapper.writeBytes(bytes);
 
       // check the remaining is 2/3
-      Assert.assertEquals(capacity - fill, wrapper.writableBytes());
+      assertEquals(capacity - fill, wrapper.writableBytes());
    }
 
    @Test
    public void testPosition() throws Exception {
-      Assert.assertEquals(0, wrapper.writerIndex());
+      assertEquals(0, wrapper.writerIndex());
 
       byte[] bytes = RandomUtil.randomBytes(128);
       wrapper.writeBytes(bytes);
 
-      Assert.assertEquals(bytes.length, wrapper.writerIndex());
+      assertEquals(bytes.length, wrapper.writerIndex());
 
       wrapper.writerIndex(0);
-      Assert.assertEquals(0, wrapper.writerIndex());
+      assertEquals(0, wrapper.writerIndex());
    }
 
 

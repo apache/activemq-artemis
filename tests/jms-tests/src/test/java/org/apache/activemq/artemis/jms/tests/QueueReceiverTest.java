@@ -24,7 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueReceiverTest extends JMSTestCase {
 

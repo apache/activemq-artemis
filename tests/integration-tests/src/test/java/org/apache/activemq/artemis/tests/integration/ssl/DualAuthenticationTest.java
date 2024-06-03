@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashMap;
@@ -45,9 +48,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -104,12 +106,12 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       consumerSession.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Map<String, Object> params = new HashMap<>();

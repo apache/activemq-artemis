@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -55,10 +57,9 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
 
@@ -75,14 +76,14 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       slowServer = createSlowServer();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (slowServer != null) {
@@ -147,7 +148,7 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
             producer.send(producerSession.createTextMessage("i=" + i));
          }
 
-         Assert.assertTrue(done.await(5000, TimeUnit.MILLISECONDS));
+         assertTrue(done.await(5000, TimeUnit.MILLISECONDS));
       }
 
       Queue snf = server.locateQueue(replication.getMirrorSNF());

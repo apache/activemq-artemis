@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +41,9 @@ import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequen
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -120,11 +123,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          file.read(buffer);
 
          for (int i = 0; i < 200; i++) {
-            Assert.assertEquals((byte) 1, buffer.get(i));
+            assertEquals((byte) 1, buffer.get(i));
          }
 
          for (int i = 201; i < 600; i++) {
-            Assert.assertEquals("Position " + i, (byte) 2, buffer.get(i));
+            assertEquals((byte) 2, buffer.get(i), "Position " + i);
          }
 
       } catch (Exception ignored) {
@@ -137,7 +140,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       try {
          journalImpl = new JournalImpl(2000, 2, 2, 0, 0, factory, "tt", "tt", 1000);
-         Assert.fail("Expected IllegalArgumentException");
+         fail("Expected IllegalArgumentException");
       } catch (IllegalArgumentException ignored) {
          // expected
       }
@@ -158,15 +161,15 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 10);
 
-      Assert.assertEquals(1, records.size());
+      assertEquals(1, records.size());
 
-      Assert.assertEquals(13, records.get(0).id);
+      assertEquals(13, records.get(0).id);
 
-      Assert.assertEquals(14, records.get(0).userRecordType);
+      assertEquals(14, records.get(0).userRecordType);
 
-      Assert.assertEquals(1, records.get(0).data.length);
+      assertEquals(1, records.get(0).data.length);
 
-      Assert.assertEquals(15, records.get(0).data[0]);
+      assertEquals(15, records.get(0).data[0]);
 
    }
 
@@ -177,8 +180,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 10);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 25; i++) {
          byte[] bytes = new byte[5];
@@ -195,15 +198,15 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1024);
 
-      Assert.assertEquals(50, records.size());
+      assertEquals(50, records.size());
 
       int i = 0;
       for (RecordInfo recordItem : records) {
-         Assert.assertEquals(i * 100L, recordItem.id);
-         Assert.assertEquals(i, recordItem.getUserRecordType());
-         Assert.assertEquals(5, recordItem.data.length);
+         assertEquals(i * 100L, recordItem.id);
+         assertEquals(i, recordItem.getUserRecordType());
+         assertEquals(5, recordItem.data.length);
          for (int j = 0; j < 5; j++) {
-            Assert.assertEquals((byte) i, recordItem.data[j]);
+            assertEquals((byte) i, recordItem.data[j]);
          }
 
          i++;
@@ -224,19 +227,19 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       for (RecordInfo recordItem : records) {
 
          if (i < 50) {
-            Assert.assertEquals(i * 100L, recordItem.id);
-            Assert.assertEquals(i, recordItem.getUserRecordType());
-            Assert.assertEquals(5, recordItem.data.length);
+            assertEquals(i * 100L, recordItem.id);
+            assertEquals(i, recordItem.getUserRecordType());
+            assertEquals(5, recordItem.data.length);
             for (int j = 0; j < 5; j++) {
-               Assert.assertEquals((byte) i, recordItem.data[j]);
+               assertEquals((byte) i, recordItem.data[j]);
             }
          } else {
-            Assert.assertEquals((i - 10) * 100L, recordItem.id);
-            Assert.assertEquals(i - 10, recordItem.getUserRecordType());
-            Assert.assertTrue(recordItem.isUpdate);
-            Assert.assertEquals(10, recordItem.data.length);
+            assertEquals((i - 10) * 100L, recordItem.id);
+            assertEquals(i - 10, recordItem.getUserRecordType());
+            assertTrue(recordItem.isUpdate);
+            assertEquals(10, recordItem.data.length);
             for (int j = 0; j < 10; j++) {
-               Assert.assertEquals((byte) 'x', recordItem.data[j]);
+               assertEquals((byte) 'x', recordItem.data[j]);
             }
          }
 
@@ -259,7 +262,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
       logger.debug("Initial:--> {}", journalImpl.debug());
 
@@ -275,7 +278,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       // async requests are done
       journalImpl.debugWait();
 
-      Assert.assertEquals(3, factory.listFiles("tt").size());
+      assertEquals(3, factory.listFiles("tt").size());
 
       for (int i = 10; i < 50; i++) {
          journalImpl.appendDeleteRecord(i, false);
@@ -285,9 +288,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
 
-      Assert.assertEquals(3, factory.listFiles("tt").size());
+      assertEquals(3, factory.listFiles("tt").size());
 
    }
 
@@ -303,7 +306,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
       logger.debug("Initial:--> {}", journalImpl.debug());
 
@@ -317,7 +320,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       // async requests are done
       journalImpl.debugWait();
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
       for (int i = 0; i < 50; i++) {
          journalImpl.appendDeleteRecord(i, false);
@@ -329,13 +332,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      Assert.assertEquals(3, factory.listFiles("tt").size());
+      assertEquals(3, factory.listFiles("tt").size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(1, records.size());
+      assertEquals(1, records.size());
 
-      Assert.assertEquals(1000, records.get(0).id);
+      assertEquals(1000, records.get(0).id);
 
       journalImpl.checkReclaimStatus();
 
@@ -349,7 +352,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       logger.debug("Files bufferSize: {}", factory.listFiles("tt").size());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
    }
 
@@ -359,29 +362,29 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       journalImpl.appendAddRecordTransactional(1, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       try {
          journalImpl.appendCommitRecord(1L, true);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
-         Assert.fail("Supposed to throw exception");
+         fail("Supposed to throw exception");
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
    }
 
@@ -393,8 +396,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.setAutoReclaim(false);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(77L, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
@@ -403,25 +406,25 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       journalImpl.appendAddRecordTransactional(78L, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
-      Assert.assertEquals(2, incompleteTransactions.size());
-      Assert.assertEquals((Long) 77L, incompleteTransactions.get(0));
-      Assert.assertEquals((Long) 78L, incompleteTransactions.get(1));
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
+      assertEquals(2, incompleteTransactions.size());
+      assertEquals((Long) 77L, incompleteTransactions.get(0));
+      assertEquals((Long) 78L, incompleteTransactions.get(1));
 
       try {
          journalImpl.appendCommitRecord(77L, true);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
-         Assert.fail("Supposed to throw exception");
+         fail("Supposed to throw exception");
       } catch (Exception e) {
          logger.debug("Got an expected exception:", e);
       }
@@ -431,8 +434,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.forceMoveNextFile();
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
    }
 
    @Test
@@ -441,8 +444,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(1, (byte) 1));
@@ -453,18 +456,18 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(10, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(10, records.size());
+      assertEquals(0, transactions.size());
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(10, journalImpl.getDataFilesCount());
+      assertEquals(10, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecordTransactional(2L, i);
@@ -481,13 +484,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(1, journalImpl.getDataFilesCount());
+      assertEquals(1, journalImpl.getDataFilesCount());
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(1, journalImpl.getDataFilesCount());
+      assertEquals(1, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(3, factory.listFiles("tt").size());
+      assertEquals(3, factory.listFiles("tt").size());
    }
 
    @Test
@@ -496,8 +499,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       journalImpl.appendAddRecordTransactional(1L, 2L, (byte) 3, new SimpleEncoding(1900 - JournalImpl.SIZE_ADD_RECORD_TX - 1, (byte) 4));
 
@@ -507,7 +510,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(1, records.size());
+      assertEquals(1, records.size());
 
    }
 
@@ -517,10 +520,10 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 2; i++) {
          journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
@@ -549,7 +552,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       int posCheckSize = buffer.position();
 
-      Assert.assertEquals(JournalImpl.SIZE_ADD_RECORD_TX + 2, buffer.getInt());
+      assertEquals(JournalImpl.SIZE_ADD_RECORD_TX + 2, buffer.getInt());
 
       buffer.position(posCheckSize);
 
@@ -566,13 +569,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
+      assertEquals(0, records.size());
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
    }
 
@@ -582,10 +585,10 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 20; i++) {
          journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
@@ -615,7 +618,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       int posCheckSize = buffer.position();
 
-      Assert.assertEquals(JournalImpl.SIZE_ADD_RECORD_TX + 2, buffer.getInt());
+      assertEquals(JournalImpl.SIZE_ADD_RECORD_TX + 2, buffer.getInt());
 
       buffer.position(posCheckSize);
 
@@ -632,7 +635,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(20, records.size());
+      assertEquals(20, records.size());
 
       journalImpl.checkReclaimStatus();
 
@@ -644,11 +647,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100, 10);
 
-      Assert.assertEquals(10, factory.listFiles("tt").size());
+      assertEquals(10, factory.listFiles("tt").size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 100, 2);
 
-      Assert.assertEquals(10, factory.listFiles("tt").size());
+      assertEquals(10, factory.listFiles("tt").size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecord(i, (byte) 0, new SimpleEncoding(1, (byte) 0), false);
@@ -657,9 +660,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100, 2);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecord(i, false);
@@ -671,9 +674,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100, 2);
 
-      Assert.assertEquals(0, records.size());
+      assertEquals(0, records.size());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
    }
 
    @Test
@@ -682,10 +685,10 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
@@ -727,13 +730,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
+      assertEquals(0, records.size());
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
    }
 
@@ -743,8 +746,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
@@ -773,7 +776,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(1, records.size());
+      assertEquals(1, records.size());
    }
 
    @Test
@@ -782,8 +785,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 50; i++) {
          if (i == 10) {
@@ -807,7 +810,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(40, records.size());
+      assertEquals(40, records.size());
 
    }
 
@@ -817,8 +820,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       SimpleEncoding xid = new SimpleEncoding(10, (byte) 1);
 
@@ -832,22 +835,22 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(1, transactions.size());
-      Assert.assertEquals(1, transactions.get(0).getRecordsToDelete().size());
-      Assert.assertEquals(1, records.size());
+      assertEquals(1, transactions.size());
+      assertEquals(1, transactions.get(0).getRecordsToDelete().size());
+      assertEquals(1, records.size());
 
       for (RecordInfo record : transactions.get(0).getRecordsToDelete()) {
          byte[] data = record.data;
-         Assert.assertEquals(100, data.length);
+         assertEquals(100, data.length);
          for (byte element : data) {
-            Assert.assertEquals((byte) 'j', element);
+            assertEquals((byte) 'j', element);
          }
       }
 
-      Assert.assertEquals(10, transactions.get(0).getExtraData().length);
+      assertEquals(10, transactions.get(0).getExtraData().length);
 
       for (int i = 0; i < 10; i++) {
-         Assert.assertEquals((byte) 1, transactions.get(0).getExtraData()[i]);
+         assertEquals((byte) 1, transactions.get(0).getExtraData()[i]);
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -856,8 +859,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, transactions.size());
-      Assert.assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
 
    }
 
@@ -867,8 +870,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
@@ -881,29 +884,29 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.appendPrepareRecord(1L, xid1, false);
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 1024);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(1, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(1, transactions.size());
 
-      Assert.assertEquals(10, transactions.get(0).getExtraData().length);
+      assertEquals(10, transactions.get(0).getExtraData().length);
       for (int i = 0; i < 10; i++) {
-         Assert.assertEquals((byte) 1, transactions.get(0).getExtraData()[i]);
+         assertEquals((byte) 1, transactions.get(0).getExtraData()[i]);
       }
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(10, journalImpl.getDataFilesCount());
+      assertEquals(10, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       journalImpl.appendCommitRecord(1L, false);
 
       setupAndLoadJournal(JOURNAL_SIZE, 1024);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
 
       journalImpl.checkReclaimStatus();
 
@@ -917,24 +920,24 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(1, transactions.size());
+      assertEquals(1, transactions.size());
 
-      Assert.assertEquals(15, transactions.get(0).getExtraData().length);
+      assertEquals(15, transactions.get(0).getExtraData().length);
 
       for (byte element : transactions.get(0).getExtraData()) {
-         Assert.assertEquals(2, element);
+         assertEquals(2, element);
       }
 
-      Assert.assertEquals(10, journalImpl.getDataFilesCount());
+      assertEquals(10, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(12, factory.listFiles("tt").size());
+      assertEquals(12, factory.listFiles("tt").size());
 
       journalImpl.appendCommitRecord(2L, false);
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       journalImpl.forceMoveNextFile();
 
@@ -950,8 +953,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       for (int i = 0; i < 10; i++) {
          journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
@@ -960,8 +963,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.appendPrepareRecord(1L, new SimpleEncoding(13, (byte) 0), false);
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(1, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(1, transactions.size());
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
@@ -990,8 +993,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
    }
 
    @Test
@@ -1015,13 +1018,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
    }
 
@@ -1040,11 +1043,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
    }
 
    // It should be ok to write records on NIO, and later read then on AIO
@@ -1062,11 +1065,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
 
       setupAndLoadJournal(JOURNAL_SIZE, 512);
 
-      Assert.assertEquals(10, records.size());
+      assertEquals(10, records.size());
    }
 
    @Test
@@ -1083,17 +1086,17 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(1, journalImpl.getDataFilesCount());
+      assertEquals(1, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(1, transactions.size());
+      assertEquals(1, transactions.size());
 
       journalImpl.forceMoveNextFile();
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(1, journalImpl.getDataFilesCount());
+      assertEquals(1, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(1, transactions.size());
+      assertEquals(1, transactions.size());
 
       journalImpl.appendCommitRecord(2L, false);
 
@@ -1107,8 +1110,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.debugWait();
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, transactions.size());
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, transactions.size());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
    }
 
@@ -1127,8 +1130,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      Assert.assertEquals(0, records.size());
-      Assert.assertEquals(0, transactions.size());
+      assertEquals(0, records.size());
+      assertEquals(0, transactions.size());
 
       final CountDownLatch latchReady = new CountDownLatch(2);
       final CountDownLatch latchStart = new CountDownLatch(1);
@@ -1197,7 +1200,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       t1.join();
       t2.join();
 
-      Assert.assertEquals(2, finishedOK.intValue());
+      assertEquals(2, finishedOK.intValue());
 
       journalImpl.debugWait();
 
@@ -1207,9 +1210,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.checkReclaimStatus();
 
-      Assert.assertEquals(0, journalImpl.getDataFilesCount());
+      assertEquals(0, journalImpl.getDataFilesCount());
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
+      assertEquals(2, factory.listFiles("tt").size());
 
    }
 
@@ -1255,15 +1258,15 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.load(info, trans, null);
 
-      Assert.assertEquals(0, info.size());
-      Assert.assertEquals(0, trans.size());
+      assertEquals(0, info.size());
+      assertEquals(0, trans.size());
 
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -1280,7 +1283,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       stopComponent(journalImpl);
       if (factory != null)

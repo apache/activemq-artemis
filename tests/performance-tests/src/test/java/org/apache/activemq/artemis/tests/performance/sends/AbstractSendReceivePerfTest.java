@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.performance.sends;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -35,8 +37,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Client-ack time
@@ -49,7 +50,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
    protected AtomicBoolean running = new AtomicBoolean(true);
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -74,8 +75,8 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
 
    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractSendReceivePerfTest.class.getName());
 
-   @Test
-   public void testSendReceive() throws Exception {
+   // Subclasses can add a test which calls this
+   protected void doSendReceiveTestImpl() throws Exception {
       long numberOfSamples = Long.getLong("HORNETQ_TEST_SAMPLES", 1000);
 
       MessageReceiver receiver = new MessageReceiver(Q_NAME, numberOfSamples);

@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTTestSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_BINDING;
@@ -57,6 +58,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MqttPluginTest extends MQTTTestSupport {
 
@@ -76,7 +79,8 @@ public class MqttPluginTest extends MQTTTestSupport {
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testSendAndReceiveMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -91,7 +95,7 @@ public class MqttPluginTest extends MQTTTestSupport {
             for (int i = 0; i < NUM_MESSAGES; i++) {
                try {
                   byte[] payload = subscriptionProvider.receive(10000);
-                  assertNotNull("Should get a message", payload);
+                  assertNotNull(payload, "Should get a message");
                   latch.countDown();
                } catch (Exception e) {
                   e.printStackTrace();
@@ -125,7 +129,8 @@ public class MqttPluginTest extends MQTTTestSupport {
             BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testMQTTAutoCreate() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);

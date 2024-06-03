@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.LinkedList;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
@@ -32,8 +35,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournalFileRepositoryOrderTest extends ActiveMQTestBase {
 
@@ -73,14 +75,14 @@ public class JournalFileRepositoryOrderTest extends ActiveMQTestBase {
          LinkedList<Integer> values = new LinkedList<>();
          for (int i = 0; i < 5000; i++) {
             file = repository.openFile();
-            Assert.assertNotNull(file);
+            assertNotNull(file);
             values.add(file.getRecordID());
             dataFiles.push(file);
          }
 
          int previous = Integer.MIN_VALUE;
          for (Integer v : values) {
-            Assert.assertTrue(v.intValue() > previous);
+            assertTrue(v.intValue() > previous);
             previous = v;
          }
 

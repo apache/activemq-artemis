@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -27,8 +31,7 @@ import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MqttClusterWildcardTest extends ClusterTestBase {
 
@@ -268,15 +271,15 @@ public class MqttClusterWildcardTest extends ClusterTestBase {
          connection1.publish("test/1/some/la", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
 
          Message message2 = connection1.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
          Message message3 = connection1.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message3);
+         assertNotNull(message3);
          Message message4 = connection2.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message4);
+         assertNotNull(message4);
          Message message5 = connection2.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message5);
+         assertNotNull(message5);
          Message message6 = connection2.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message6);
+         assertNotNull(message6);
 
          assertEquals(payload1, new String(message1.getPayload()));
          assertEquals(payload2, new String(message2.getPayload()));

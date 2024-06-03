@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.logs;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class CommonsLogBundlesTest {
 
@@ -32,13 +32,13 @@ public class CommonsLogBundlesTest {
    private static LogLevel origAuditLoggersLevel;
    private static LogLevel origUtilLoggersLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origAuditLoggersLevel = AssertionLoggerHandler.setLevel(AUDIT_LOGGERS, LogLevel.INFO);
       origUtilLoggersLevel = AssertionLoggerHandler.setLevel(UTIL_LOGGER, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(AUDIT_LOGGERS, origAuditLoggersLevel);
       AssertionLoggerHandler.setLevel(UTIL_LOGGER, origUtilLoggersLevel);
@@ -59,8 +59,8 @@ public class CommonsLogBundlesTest {
 
       String message = e.getMessage();
       assertNotNull(message);
-      assertTrue("unexpected message: " + message, message.startsWith("AMQ209000"));
-      assertTrue("unexpected message: " + message, message.contains("breadcrumb"));
+      assertTrue(message.startsWith("AMQ209000"), "unexpected message: " + message);
+      assertTrue(message.contains("breadcrumb"), "unexpected message: " + message);
    }
 
    @Test

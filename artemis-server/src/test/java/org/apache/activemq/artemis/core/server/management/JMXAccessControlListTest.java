@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.util.List;
 
 public class JMXAccessControlListTest {
@@ -31,9 +36,9 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToAllowList("org.myDomain", null);
       controlList.addToAllowList("org.myDomain.foo", null);
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
    }
 
    @Test
@@ -41,31 +46,31 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToAllowList("org.myDomain", "type=foo");
       controlList.addToAllowList("org.myDomain.foo", "type=bar");
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
 
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
    }
 
    @Test
    public void testBasicDomainWithWildCardProperty() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToAllowList("org.myDomain", "type=*");
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
    }
 
    @Test
    public void testWildcardDomain() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToAllowList("*", null);
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
    }
 
    @Test
@@ -73,15 +78,15 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToAllowList("*", "type=foo");
       controlList.addToAllowList("org.myDomain.foo", "type=bar");
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=bar")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=foo")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
-      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=bar")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=foo")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
 
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
-      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
+      assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
    }
 
    @Test
@@ -89,7 +94,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "admin");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -98,7 +103,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=foo","listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -107,7 +112,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=foo","listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=\"foo\""), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -116,7 +121,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=*","listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -126,9 +131,9 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=bar*","listSomething", "browse");
       controlList.addToRoleAccess("org.myDomain", "type=foo.bar*","listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "view");
-      Assert.assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo.bar.test"),
+      assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo.bar.test"),
          "listSomething").toArray(), new String[]{"admin"});
-      Assert.assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=bar.test"),
+      assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=bar.test"),
          "listSomething").toArray(), new String[]{"browse"});
    }
 
@@ -137,7 +142,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin", "view", "update");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin", "view", "update"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin", "view", "update"});
    }
 
    @Test
@@ -145,7 +150,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null,"list*", "admin");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -154,9 +159,9 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null,"list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomethingMore");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"view"});
+      assertArrayEquals(roles.toArray(), new String[]{"view"});
    }
 
    @Test
@@ -165,7 +170,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("setSomething","admin");
       controlList.addToRoleAccess("org.myDomain", null,"list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomething");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -175,7 +180,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("set*","admin");
       controlList.addToRoleAccess("org.myDomain", null,"list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomethingMore");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -185,7 +190,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("*","admin");
       controlList.addToRoleAccess("org.myDomain", null,"list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomethingMore");
-      Assert.assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(roles.toArray(), new String[]{"admin"});
    }
 
    @Test
@@ -198,32 +203,32 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain.foo", null,"*", "amq");
 
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "listFoo");
-      Assert.assertNotNull(roles);
-      Assert.assertEquals(roles.size(), 2);
-      Assert.assertEquals(roles.get(0), "amq");
-      Assert.assertEquals(roles.get(1), "monitor");
+      assertNotNull(roles);
+      assertEquals(roles.size(), 2);
+      assertEquals(roles.get(0), "amq");
+      assertEquals(roles.get(1), "monitor");
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "getFoo");
-      Assert.assertNotNull(roles);
-      Assert.assertEquals(roles.size(), 2);
-      Assert.assertEquals(roles.get(0), "amq");
-      Assert.assertEquals(roles.get(1), "monitor");
+      assertNotNull(roles);
+      assertEquals(roles.size(), 2);
+      assertEquals(roles.get(0), "amq");
+      assertEquals(roles.get(1), "monitor");
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "isFoo");
-      Assert.assertNotNull(roles);
-      Assert.assertEquals(roles.size(), 2);
-      Assert.assertEquals(roles.get(0), "amq");
-      Assert.assertEquals(roles.get(1), "monitor");
+      assertNotNull(roles);
+      assertEquals(roles.size(), 2);
+      assertEquals(roles.get(0), "amq");
+      assertEquals(roles.get(1), "monitor");
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "setFoo");
-      Assert.assertNotNull(roles);
-      Assert.assertEquals(roles.size(), 1);
-      Assert.assertEquals(roles.get(0), "amq");
+      assertNotNull(roles);
+      assertEquals(roles.size(), 1);
+      assertEquals(roles.get(0), "amq");
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "createFoo");
-      Assert.assertNotNull(roles);
-      Assert.assertEquals(roles.size(), 1);
-      Assert.assertEquals(roles.get(0), "amq");
+      assertNotNull(roles);
+      assertEquals(roles.size(), 1);
+      assertEquals(roles.get(0), "amq");
 
    }
 }

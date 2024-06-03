@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not explicitly tested here):
@@ -29,6 +29,6 @@ import org.junit.Ignore;
  * [MQTT-1.5.7-1] Both strings MUST comply with the requirements for UTF-8 Encoded Strings.
  */
 
-@Ignore
+@Disabled
 public class DataFormatTests extends MQTT5TestSupport {
 }

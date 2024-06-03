@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -27,9 +30,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageCounterTest extends ActiveMQTestBase {
 
@@ -40,7 +42,7 @@ public class MessageCounterTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -78,17 +80,17 @@ public class MessageCounterTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
 
          session.commit();
 
-         Assert.assertEquals("m" + i, message.getBodyBuffer().readString());
+         assertEquals("m" + i, message.getBodyBuffer().readString());
       }
 
       session.close();
 
-      Assert.assertEquals(0, getMessageCount(server.getPostOffice(), QUEUE.toString()));
+      assertEquals(0, getMessageCount(server.getPostOffice(), QUEUE.toString()));
 
    }
 

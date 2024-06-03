@@ -16,15 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+// Parameters set by super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class LockManagerInfiniteRedeliveryTest extends InfiniteRedeliveryTest {
 
    private DistributedLockManagerConfiguration managerConfiguration;
@@ -33,12 +39,12 @@ public class LockManagerInfiniteRedeliveryTest extends InfiniteRedeliveryTest {
       super(protocol, useCLI);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
       this.managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(),
-                                                                          Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+                                                                          Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager").toString()));
    }
 
    @Override
@@ -50,5 +56,13 @@ public class LockManagerInfiniteRedeliveryTest extends InfiniteRedeliveryTest {
                                                                     managerConfiguration, managerConfiguration);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
          .setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

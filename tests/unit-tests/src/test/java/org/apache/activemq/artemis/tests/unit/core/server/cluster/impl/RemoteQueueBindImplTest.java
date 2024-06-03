@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntFunction;
@@ -27,7 +31,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingIm
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RemoteQueueBindImplTest extends ActiveMQTestBase {
 

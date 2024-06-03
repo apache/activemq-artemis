@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.clusterNotificationsContinuity;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageListener;
 import javax.jms.Queue;
@@ -39,18 +43,14 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters
@@ -77,7 +77,7 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
    private final Process[] serverProcesses = new Process[NUMBER_OF_SERVERS];
    private Process dmlcProcess;
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       for (int s = 0; s < NUMBER_OF_SERVERS; s++) {
          String serverName = SERVER_NAME_BASE + s;
@@ -128,9 +128,9 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       for (int i = 0; i < NUMBER_OF_SERVERS; i++) {
          String serverName = SERVER_NAME_BASE + i;
 
@@ -187,12 +187,12 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
          String serverName = SERVER_NAME_BASE + i;
 
          File artemisLog = new File("target/" + serverName + "/log/artemis.log");
-         Assert.assertFalse(findLogRecord(artemisLog, "AMQ224037"));
+         assertFalse(findLogRecord(artemisLog, "AMQ224037"));
       }
 
    }
 
-   @After
+   @AfterEach
    public void cleanup() {
       SpawnedVMSupport.forceKill();
 

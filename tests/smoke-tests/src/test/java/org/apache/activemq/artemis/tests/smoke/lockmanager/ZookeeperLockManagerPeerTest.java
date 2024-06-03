@@ -20,11 +20,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -37,7 +38,12 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
 import static org.apache.activemq.artemis.tests.util.Jmx.withPrimary;
 import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
 import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePairTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -51,14 +57,14 @@ public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePair
       brokers = Arrays.asList(primary, backup);
    }
 
-   @Ignore
-   @Test
+   @Disabled
    @Override
+   @TestTemplate
    public void testBackupFailoverAndPrimaryFailback() throws Exception {
       // peers don't request fail back by default
    }
 
-   @Test
+   @TestTemplate
    public void testBackupCannotForgetPeerIdOnLostQuorum() throws Exception {
       // see FileLockTest::testCorrelationId to get more info why this is not peer-journal-001 as in broker.xml
       final String coordinationId = "peer.journal.001";
@@ -67,10 +73,10 @@ public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePair
       final Process primary = this.primary.startServer(this, 0);
       logger.info("waiting peer a to increase coordinated activation sequence to 1");
       Wait.assertEquals(1L, () -> this.primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
-      Assert.assertEquals(coordinationId, this.primary.getNodeID().get());
+      assertEquals(coordinationId, this.primary.getNodeID().get());
       Wait.waitFor(() -> this.primary.listNetworkTopology().isPresent(), timeout);
       final String urlPeerA = primaryOf(coordinationId, decodeNetworkTopologyJson(this.primary.listNetworkTopology().get()));
-      Assert.assertNotNull(urlPeerA);
+      assertNotNull(urlPeerA);
       logger.info("peer a acceptor: {}", urlPeerA);
       logger.info("killing peer a");
       ServerUtil.killServer(primary, forceKill);
@@ -88,15 +94,15 @@ public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePair
       final Process restartedPrimary = this.primary.startServer(this, 0);
       logger.info("waiting peer a to increase coordinated activation sequence to 2");
       Wait.assertEquals(2L, () -> this.primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
-      Assert.assertEquals(coordinationId, this.primary.getNodeID().get());
+      assertEquals(coordinationId, this.primary.getNodeID().get());
       logger.info("waiting peer b to be a replica");
       Wait.waitFor(() -> backup.isReplicaSync().orElse(false));
       Wait.assertEquals(2L, () -> backup.getActivationSequence().get().longValue());
       final String expectedUrlPeerA = primaryOf(coordinationId, decodeNetworkTopologyJson(this.primary.listNetworkTopology().get()));
-      Assert.assertEquals(urlPeerA, expectedUrlPeerA);
+      assertEquals(urlPeerA, expectedUrlPeerA);
    }
 
-   @Test
+   @TestTemplate
    public void testMultiPrimary_Peer() throws Exception {
 
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
@@ -108,7 +114,7 @@ public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePair
       assertTrue(Wait.waitFor(() -> 1L == backup.getActivationSequence().orElse(Long.MAX_VALUE).longValue()));
 
       final String nodeID = backup.getNodeID().get();
-      Assert.assertNotNull(nodeID);
+      assertNotNull(nodeID);
       logger.info("NodeID: {}", nodeID);
 
       logger.info("starting peer a primary");
@@ -128,8 +134,8 @@ public class ZookeeperLockManagerPeerTest extends ZookeeperLockManagerSinglePair
 
       logger.info("primary topology is: {}", primary.listNetworkTopology().get());
       logger.info("backup topology is: {}", backup.listNetworkTopology().get());
-      Assert.assertTrue(backup.isReplicaSync().get());
-      Assert.assertTrue(primary.isReplicaSync().get());
+      assertTrue(backup.isReplicaSync().get());
+      assertTrue(primary.isReplicaSync().get());
 
 
       logger.info("killing peer-b");

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -31,8 +34,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +51,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       return true;
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();

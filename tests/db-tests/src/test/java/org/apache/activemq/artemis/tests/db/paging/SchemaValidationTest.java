@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collection;
 
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -25,18 +28,20 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class SchemaValidationTest extends ParameterDBTestBase {
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
-   @Test
+   @TestTemplate
    public void testTableNameTooLong() throws Exception {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
@@ -53,11 +58,11 @@ public class SchemaValidationTest extends ParameterDBTestBase {
          server.start();
 
          //due to a failed initialisation of the paging manager, it must be null
-         Assert.assertNull(server.getPagingManager());
+         assertNull(server.getPagingManager());
 
          server.stop();
 
-         Assert.assertTrue(loggerHandler.findText("AMQ224000")); // Failure in initialization
+         assertTrue(loggerHandler.findText("AMQ224000")); // Failure in initialization
       }
    }
 

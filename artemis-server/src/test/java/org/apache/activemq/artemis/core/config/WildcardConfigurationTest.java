@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class WildcardConfigurationTest extends Assert {
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.Test;
+
+public class WildcardConfigurationTest {
 
    private static final WildcardConfiguration MQTT_WILDCARD = new WildcardConfiguration().setDelimiter('/').setAnyWords('#').setSingleWord('+');
    private static final WildcardConfiguration DEFAULT_WILDCARD = new WildcardConfiguration();

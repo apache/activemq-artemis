@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -48,15 +57,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
 
 public class SlowConsumerTest extends ActiveMQTestBase {
 
@@ -72,7 +76,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -130,7 +134,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             }
          });
          session.start();
-         assertTrue("All messages should be received within the timeout", latch.await(1, TimeUnit.SECONDS));
+         assertTrue(latch.await(1, TimeUnit.SECONDS), "All messages should be received within the timeout");
       }
       assertEquals(0, server.locateQueue(getName()).getMessageCount());
    }
@@ -543,7 +547,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       queue.getPagingStore().startPaging();
 
 
-      Assert.assertTrue(queue.getPagingStore().isPaging());
+      assertTrue(queue.getPagingStore().isPaging());
 
       for (int i = 0; i < messages; i++) {
          producer.send(session.createMessage(true));
@@ -645,7 +649,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       try {
          Wait.assertEquals(messages, queue::getMessagesAcknowledged);
-         Assert.assertEquals(1, queue.getConsumerCount());
+         assertEquals(1, queue.getConsumerCount());
          Wait.assertEquals(messages, () -> receivedMessages.size());
       } finally {
          consumer.stopRunning();
@@ -729,16 +733,16 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
          producer.join(10000);
 
-         Assert.assertEquals(3, queue.getConsumerCount());
+         assertEquals(3, queue.getConsumerCount());
          Wait.assertEquals(messages, receivedMessages::size);
 
 
       } finally {
          producer.stopRunning();
-         Assert.assertFalse(producer.failed);
+         assertFalse(producer.failed);
          for (FixedRateConsumer consumer : consumers) {
             consumer.stopRunning();
-            Assert.assertFalse(consumer.failed);
+            assertFalse(consumer.failed);
          }
          logger.debug("***report messages received: {}", receivedMessages.size());
          logger.debug("***consumers left: {}", consumers.size());

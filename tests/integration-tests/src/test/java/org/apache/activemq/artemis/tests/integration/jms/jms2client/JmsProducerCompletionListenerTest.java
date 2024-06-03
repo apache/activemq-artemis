@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
 import javax.jms.IllegalStateRuntimeException;
@@ -34,14 +40,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JmsProducerCompletionListenerTest extends JMSTestBase {
 
    static final int TOTAL_MSGS = 200;
@@ -52,7 +58,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
 
    private final int confirmationWindowSize;
 
-   @Parameterized.Parameters(name = "confirmationWindowSize={0}")
+   @Parameters(name = "confirmationWindowSize={0}")
    public static Iterable<Object[]> data() {
       return Arrays.asList(new Object[][]{{-1}, {0}, {10}, {1000}});
    }
@@ -67,20 +73,20 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       context = createContext();
       producer = context.createProducer();
-      queue = createQueue(name.getMethodName() + "Queue");
+      queue = createQueue( name + "Queue");
    }
 
-   @Test
+   @TestTemplate
    public void testCompletionListener() throws InterruptedException {
       CountingCompletionListener cl = new CountingCompletionListener(TOTAL_MSGS);
-      Assert.assertEquals(null, producer.getAsync());
+      assertNull(producer.getAsync());
       producer.setAsync(cl);
-      Assert.assertEquals(cl, producer.getAsync());
+      assertEquals(cl, producer.getAsync());
       producer.setAsync(null);
       producer.setAsync(cl);
       JMSConsumer consumer = context.createConsumer(queue);
@@ -88,10 +94,10 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       receiveMessages(consumer, 0, TOTAL_MSGS, true);
       assertEquals(TOTAL_MSGS, cl.completion.get());
       context.close();
-      Assert.assertTrue("completion listener should be called", cl.completionLatch.await(3, TimeUnit.SECONDS));
+      assertTrue(cl.completionLatch.await(3, TimeUnit.SECONDS), "completion listener should be called");
    }
 
-   @Test
+   @TestTemplate
    public void testNullCompletionListener() throws Exception {
       Connection connection = null;
       try {
@@ -99,7 +105,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
          Session session = connection.createSession();
          MessageProducer prod = session.createProducer(queue);
          prod.send(session.createMessage(), null);
-         Assert.fail("Didn't get expected exception!");
+         fail("Didn't get expected exception!");
       } catch (IllegalArgumentException expected) {
          //ok
       } finally {
@@ -109,7 +115,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testInvalidCallFromListener() throws InterruptedException {
       JMSConsumer consumer = context.createConsumer(queue);
       List<InvalidCompletionListener> listeners = new ArrayList<>();
@@ -122,9 +128,9 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       receiveMessages(consumer, 0, 1, true);
       context.close();
       for (InvalidCompletionListener cl : listeners) {
-         Assert.assertTrue(cl.latch.await(1, TimeUnit.SECONDS));
-         Assert.assertNotNull(cl.error);
-         Assert.assertTrue(cl.error instanceof IllegalStateRuntimeException);
+         assertTrue(cl.latch.await(1, TimeUnit.SECONDS));
+         assertNotNull(cl.error);
+         assertTrue(cl.error instanceof IllegalStateRuntimeException);
       }
    }
 

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -39,10 +43,9 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +55,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    public static final String SERVER_NAME_B = "mirrored-subscriptions/broker2";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_A);
@@ -77,7 +80,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    Process processB;
    Process processA;
 
-   @Before
+   @BeforeEach
    public void beforeClass() throws Exception {
 
       startServers();
@@ -150,7 +153,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
                TopicSubscriber subscriber = session.createDurableSubscriber(topic, "subscription" + clientID);
                for (int messageI = 0; messageI < NUMBER_OF_MESSAGES; messageI++) {
                   TextMessage message = (TextMessage) subscriber.receive(5000);
-                  Assert.assertNotNull(message);
+                  assertNotNull(message);
                   if (messageI % COMMIT_INTERVAL == 0) {
                      session.commit();
                      logger.info("Received {} messages on receiver {}", messageI, clientID);
@@ -169,7 +172,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
          if (clientID == 0) {
             // The first execution will block until finished, we will then kill all the servers and make sure
             // all the counters are preserved.
-            Assert.assertTrue(threadDone.await(300, TimeUnit.SECONDS));
+            assertTrue(threadDone.await(300, TimeUnit.SECONDS));
             processA.destroyForcibly();
             processB.destroyForcibly();
             Wait.assertFalse(processA::isAlive);
@@ -185,8 +188,8 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
          }
       }
 
-      Assert.assertTrue(done.await(300, TimeUnit.SECONDS));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(300, TimeUnit.SECONDS));
+      assertEquals(0, errors.get());
       checkMessages(0, CLIENTS, mainURI, secondURI);
    }
 

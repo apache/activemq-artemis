@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.federation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.UUID;
@@ -35,7 +38,8 @@ import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.tests.integration.jms.RedeployTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +47,20 @@ public class FederationQueueMatchXMLConfigParsingTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testOpenWireOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("OPENWIRE");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("CORE");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("AMQP");
    }
@@ -119,17 +126,20 @@ public class FederationQueueMatchXMLConfigParsingTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueuePolicyMatchesOnlyIndicatedQueueOpenwire() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("OPENWIRE");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueuePolicyMatchesOnlyIndicatedQueueCore() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("CORE");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueuePolicyMatchesOnlyIndicatedQueueAMQP() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("AMQP");
    }

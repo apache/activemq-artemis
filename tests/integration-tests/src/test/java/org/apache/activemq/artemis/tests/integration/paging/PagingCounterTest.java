@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -49,10 +53,9 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,20 +69,27 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
    private AssertionLoggerHandler loggerHandler;
 
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
+      super.setUp();
 
-   @Before
-   public void checkLoggerStart() throws Exception {
+      server = newActiveMQServer();
+      server.start();
+      sl = createInVMNonHALocator();
       loggerHandler = new AssertionLoggerHandler();
    }
 
-   @After
+   @AfterEach
    public void checkLoggerEnd() throws Exception {
-      try {
-         // These are the message errors for the negative size address size
-         Assert.assertFalse(loggerHandler.findText("222214"));
-         Assert.assertFalse(loggerHandler.findText("222215"));
-      } finally {
-         loggerHandler.close();
+      if (loggerHandler != null) {
+         try {
+            // These are the message errors for the negative size address size
+            assertFalse(loggerHandler.findText("222214"));
+            assertFalse(loggerHandler.findText("222215"));
+         } finally {
+            loggerHandler.close();
+         }
       }
    }
 
@@ -133,7 +143,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          final int BUMPS = 2000;
 
-         Assert.assertEquals(0, counter.getValue());
+         assertEquals(0, counter.getValue());
 
          ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
          runAfter(executorService::shutdownNow);
@@ -201,7 +211,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          final int BUMPS = 2000;
 
-         Assert.assertEquals(0, counter.getValue());
+         assertEquals(0, counter.getValue());
 
          ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
          runAfter(executorService::shutdownNow);
@@ -239,7 +249,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          final PageSubscriptionCounter counterAfterRestart = locateCounter(queue);
          Wait.assertEquals((long)(BUMPS * 2 * THREADS), counterAfterRestart::getValue, 5000, 100);
-         Assert.assertEquals(BUMPS * 2 * THREADS, counterAfterRestart.getValue());
+         assertEquals(BUMPS * 2 * THREADS, counterAfterRestart.getValue());
 
       } finally {
          sf.close();
@@ -522,16 +532,6 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       Wait.assertEquals(3000, counter::getValue);
       Wait.assertEquals(3000L, queue::getMessageCount, 1000, 100);
-   }
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-
-      server = newActiveMQServer();
-      server.start();
-      sl = createInVMNonHALocator();
    }
 
    private ActiveMQServer newActiveMQServer() throws Exception {

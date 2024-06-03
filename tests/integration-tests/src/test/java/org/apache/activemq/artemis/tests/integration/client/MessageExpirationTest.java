@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -39,9 +43,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageExpirationTest extends ActiveMQTestBase {
 
@@ -73,7 +76,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       consumer.close();
       session.deleteQueue(queue);
@@ -117,7 +120,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 20; i++) {
          javax.jms.Message message2 = consumer.receiveNoWait();
-         Assert.assertNull(message2);
+         assertNull(message2);
       }
 
       consumer.close();
@@ -198,11 +201,11 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       Thread.sleep(500);
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       consumer.close();
       session.deleteQueue(queue);
@@ -226,10 +229,10 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       consumer.close();
       session.deleteQueue(queue);
@@ -258,14 +261,14 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       ClientConsumer expiryConsumer = session.createConsumer(expiryQueue);
       ClientMessage expiredMessage = expiryConsumer.receive(500);
-      Assert.assertNotNull(expiredMessage);
-      Assert.assertNotNull(expiredMessage.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME));
-      Assert.assertEquals(address, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertEquals(queue, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertNotNull(expiredMessage);
+      assertNotNull(expiredMessage.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME));
+      assertEquals(address, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertEquals(queue, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_QUEUE));
       consumer.close();
       expiryConsumer.close();
       session.deleteQueue(queue);
@@ -275,7 +278,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

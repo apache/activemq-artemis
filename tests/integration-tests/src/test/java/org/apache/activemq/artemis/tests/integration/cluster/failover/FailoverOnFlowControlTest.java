@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;

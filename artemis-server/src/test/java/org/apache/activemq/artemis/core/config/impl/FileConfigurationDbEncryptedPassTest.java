@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationTestBase {
 
@@ -39,7 +40,7 @@ public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationT
 
    @Test
    public void testJdbcPasswordWithCustomCodec() {
-      Assert.assertTrue(MySensitiveStringCodec.decoded);
+      assertTrue(MySensitiveStringCodec.decoded);
    }
 
    @Test

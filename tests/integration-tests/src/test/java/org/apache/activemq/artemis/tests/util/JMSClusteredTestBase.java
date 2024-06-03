@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -37,7 +39,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class JMSClusteredTestBase extends ActiveMQTestBase {
 
@@ -88,7 +90,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

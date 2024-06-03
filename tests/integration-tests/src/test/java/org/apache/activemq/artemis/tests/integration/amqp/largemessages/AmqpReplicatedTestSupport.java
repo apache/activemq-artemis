@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.tests.integration.amqp.AmqpTestSupport;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
 
@@ -44,6 +45,7 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
 
    protected NodeManager nodeManager;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();

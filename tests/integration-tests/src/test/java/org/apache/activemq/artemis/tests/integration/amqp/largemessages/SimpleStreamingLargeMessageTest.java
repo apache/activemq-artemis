@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -38,6 +45,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -51,15 +60,14 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test broker behavior when creating AMQP senders
  */
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
    private String smallFrameAcceptor = new String("tcp://localhost:" + (AMQP_PORT + 8));
@@ -67,7 +75,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
    int frameSize;
    int minLargeMessageSize;
 
-   @Parameterized.Parameters(name = "frameSize = {0}, minLargeMessage = {1}")
+   @Parameters(name = "frameSize = {0}, minLargeMessage = {1}")
    public static Iterable<? extends Object> testParameters() {
       // The reason I use two frames sizes here
       // is because a message that wasn't broken into frames
@@ -87,17 +95,20 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       server.getConfiguration().addAcceptorConfiguration("flow", smallFrameAcceptor + "?protocols=AMQP;useEpoll=false;maxFrameSize=" + frameSize + ";amqpMinLargeMessageSize=" + minLargeMessageSize);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendNonPersistent() throws Exception {
       testSend(false, false);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendPersistent() throws Exception {
       testSend(true, false);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendPersistentRestartServer() throws Exception {
       testSend(true, true);
    }
@@ -154,17 +165,17 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(10);
          for (int i = 0; i < 10; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(msgReceived);
+            assertNotNull(msgReceived);
             Data body = (Data) msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte) 'z', bodyArray[bI]);
+               assertEquals((byte) 'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          receiver.close();
 
@@ -178,19 +189,19 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendWithPropertiesAndFilterPersistentRestart() throws Exception {
       testSendWithPropertiesAndFilter(true, true);
 
    }
 
-   @Test
+   @TestTemplate
    public void testSendWithPropertiesAndFilterPersistentNoRestart() throws Exception {
       testSendWithPropertiesAndFilter(true, false);
 
    }
 
-   @Test
+   @TestTemplate
    public void testSendWithPropertiesNonPersistent() throws Exception {
       testSendWithPropertiesAndFilter(false, false);
 
@@ -261,19 +272,19 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(10);
          for (int i = 0; i < 5; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(msgReceived);
-            Assert.assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
-            Assert.assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
+            assertNotNull(msgReceived);
+            assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
+            assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
             Data body = (Data) msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte) 'z', bodyArray[bI]);
+               assertEquals((byte) 'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          receiver.close();
          connection.close();
@@ -287,7 +298,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
    }
 
 
-   @Test
+   @TestTemplate
    public void testSingleMessage() throws Exception {
       try {
 
@@ -340,8 +351,8 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
             MessageReference ref = browserIterator.next();
             org.apache.activemq.artemis.api.core.Message message = ref.getMessage();
 
-            Assert.assertNotNull(message);
-            Assert.assertTrue(message instanceof LargeServerMessage);
+            assertNotNull(message);
+            assertTrue(message instanceof LargeServerMessage);
          }
          browserIterator.close();
 
@@ -371,19 +382,19 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
          for (int i = 0; i < 1; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(msgReceived);
-            Assert.assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
-            Assert.assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
+            assertNotNull(msgReceived);
+            assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
+            assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
             Data body = (Data) msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte) 'z', bodyArray[bI]);
+               assertEquals((byte) 'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          receiver.close();
          connection.close();
@@ -396,7 +407,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
    }
 
-   @Test
+   @TestTemplate
    public void testJMSPersistentTX() throws Exception {
 
       boolean persistent = true;
@@ -405,7 +416,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       jmsTest(persistent, tx);
    }
 
-   @Test
+   @TestTemplate
    public void testJMSPersistentNonTX() throws Exception {
 
       boolean persistent = true;
@@ -414,7 +425,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       jmsTest(persistent, tx);
    }
 
-   @Test
+   @TestTemplate
    public void testJMSNonPersistentTX() throws Exception {
 
       boolean persistent = false;
@@ -423,7 +434,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       jmsTest(persistent, tx);
    }
 
-   @Test
+   @TestTemplate
    public void testJMSNonPersistentNonTX() throws Exception {
 
       boolean persistent = false;
@@ -464,13 +475,13 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
                   producerSession.commit();
                }
                final Message receivedMessage = consumer.receive(5000);
-               Assert.assertNotNull("A message should be received in 5000 ms", receivedMessage);
+               assertNotNull(receivedMessage, "A message should be received in 5000 ms");
                if (tx) {
                   consumerSession.commit();
                }
-               Assert.assertThat(receivedMessage, IsInstanceOf.instanceOf(sentMessage.getClass()));
-               Assert.assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
-               Assert.assertArrayEquals(largeMessageContent, receivedContent);
+               assertThat(receivedMessage, IsInstanceOf.instanceOf(sentMessage.getClass()));
+               assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
+               assertArrayEquals(largeMessageContent, receivedContent);
             }
          }
       }

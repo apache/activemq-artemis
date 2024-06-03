@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
@@ -27,15 +29,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.cli.commands.Create;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -51,11 +51,8 @@ import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 /** The server for ConsoleTest is created on the pom as there are some properties that are passed by argument on the CI */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public abstract class ConsoleTest extends SmokeTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -70,7 +67,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
    protected String webServerUrl;
    private BrowserWebDriverContainer browserWebDriverContainer;
 
-   @Parameterized.Parameters(name = "browserOptions={0}")
+   @Parameters(name = "browserOptions={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{new ChromeOptions()}, {new FirefoxOptions()}});
    }
@@ -80,7 +77,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
       this.webServerUrl = String.format("%s://%s:%d", "http", System.getProperty("sts-http-host", "localhost"), 8161);
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       File jolokiaAccessFile = Paths.get(getServerLocation(SERVER_NAME), "etc", Create.ETC_JOLOKIA_ACCESS_XML).toFile();
       String jolokiaAccessContent = FileUtils.readFileToString(jolokiaAccessFile, "UTF-8");
@@ -157,7 +154,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
             driver = browserWebDriverContainer.getWebDriver();
          }
       } catch (Exception e) {
-         Assume.assumeNoException("Error on loading the web driver", e);
+         assumeTrue(false, "Error on loading the web driver: " + e.getMessage());
       }
 
       // Wait for server console
@@ -175,7 +172,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
       });
    }
 
-   @After
+   @AfterEach
    public void stopWebDriver() {
       if (browserWebDriverContainer != null) {
          browserWebDriverContainer.stop();

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.isolated.web;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -51,29 +56,28 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.RequestLogDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test leaks a thread named org.eclipse.jetty.util.RolloverFileOutputStream which is why it is isolated now.
  * In the future Jetty might fix this.
  */
-public class WebServerComponentTest extends Assert {
+public class WebServerComponentTest {
 
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
 
    private List<ActiveMQComponent> testedComponents;
 
-   @Before
+   @BeforeEach
    public void setupNetty() throws URISyntaxException {
       System.setProperty("jetty.base", "./target");
       // Configure the client.
       testedComponents = new ArrayList<>();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.clearProperty("jetty.base");
       for (ActiveMQComponent c : testedComponents) {
@@ -95,7 +99,7 @@ public class WebServerComponentTest extends Assert {
       requestLogDTO.filename = requestLogFileName;
       webServerDTO.setRequestLog(requestLogDTO);
       WebServerComponent webServerComponent = new WebServerComponent();
-      Assert.assertFalse(webServerComponent.isStarted());
+      assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
@@ -121,9 +125,9 @@ public class WebServerComponentTest extends Assert {
       ch.close();
       ch.eventLoop().shutdownGracefully();
       ch.eventLoop().awaitTermination(5, TimeUnit.SECONDS);
-      Assert.assertTrue(webServerComponent.isStarted());
+      assertTrue(webServerComponent.isStarted());
       webServerComponent.stop(true);
-      Assert.assertFalse(webServerComponent.isStarted());
+      assertFalse(webServerComponent.isStarted());
       File requestLog = new File(requestLogFileName);
       assertTrue(requestLog.exists());
       boolean logEntryFound = false;

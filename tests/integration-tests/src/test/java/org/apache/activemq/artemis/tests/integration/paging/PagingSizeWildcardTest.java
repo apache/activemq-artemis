@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -31,7 +34,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PagingSizeWildcardTest extends ActiveMQTestBase {
 
@@ -60,8 +63,8 @@ public class PagingSizeWildcardTest extends ActiveMQTestBase {
          publish(cf, numMessages);
 
          for (int i = 0; i < numMessages; i++) {
-            assertNotNull(" on " +  i, consumerA.receive(1000));
-            assertNotNull(" on " +  i, consumerW.receive(1000));
+            assertNotNull(consumerA.receive(1000), " on " +  i);
+            assertNotNull(consumerW.receive(1000), " on " +  i);
          }
 
          // commit in reverse order to dispatch
@@ -69,7 +72,7 @@ public class PagingSizeWildcardTest extends ActiveMQTestBase {
          sessA.commit();
 
          for (SimpleString psName : server.getPagingManager().getStoreNames()) {
-            assertTrue("non negative size: " + psName, server.getPagingManager().getPageStore(psName).getAddressSize() >= 0);
+            assertTrue(server.getPagingManager().getPageStore(psName).getAddressSize() >= 0, "non negative size: " + psName);
          }
          conn.close();
 
@@ -105,8 +108,8 @@ public class PagingSizeWildcardTest extends ActiveMQTestBase {
          publish(cf, numMessages);
 
          for (int i = 0; i < numMessages; i++) {
-            assertNotNull(" on " +  i, consumerA.receive(1000));
-            assertNotNull(" on " +  i, consumerW.receive(1000));
+            assertNotNull(consumerA.receive(1000), " on " +  i);
+            assertNotNull(consumerW.receive(1000), " on " +  i);
          }
 
          // commit in reverse order to dispatch
@@ -114,7 +117,7 @@ public class PagingSizeWildcardTest extends ActiveMQTestBase {
          sessA.commit();
 
          for (SimpleString psName : server.getPagingManager().getStoreNames()) {
-            assertTrue("non negative size: " + psName, server.getPagingManager().getPageStore(psName).getAddressSize() >= 0);
+            assertTrue(server.getPagingManager().getPageStore(psName).getAddressSize() >= 0, "non negative size: " + psName);
          }
          conn.close();
 

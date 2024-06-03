@@ -22,7 +22,7 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Non-durable subscriber tests.

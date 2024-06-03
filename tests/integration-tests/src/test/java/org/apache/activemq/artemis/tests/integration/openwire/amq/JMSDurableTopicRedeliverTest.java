@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JMSDurableTopicRedeliverTest
@@ -29,7 +34,7 @@ import org.junit.Test;
 public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       durable = true;
       super.setUp();

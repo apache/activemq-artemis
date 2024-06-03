@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -55,9 +61,9 @@ import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapp
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OutgoingConnectionTest extends ActiveMQRATestBase {
 
@@ -73,7 +79,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
@@ -99,7 +105,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (resourceAdapter != null) {
          resourceAdapter.stop();

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -47,11 +54,9 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SocksProxyTest extends ActiveMQTestBase {
 
@@ -65,7 +70,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
    private NioEventLoopGroup workerGroup;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -77,7 +82,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       closeExecutor.shutdownNow();
       threadPool.shutdownNow();
@@ -91,7 +96,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
    @Test
    public void testSocksProxyHandlerAdded() throws Exception {
       InetAddress address = getNonLoopbackAddress();
-      Assume.assumeTrue("Cannot find non-loopback address", address != null);
+      assumeTrue(address != null, "Cannot find non-loopback address");
 
       BufferHandler handler = (connectionID, buffer) -> {
       };
@@ -124,13 +129,13 @@ public class SocksProxyTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
 
       ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
-      Assert.assertNotNull(pipeline.get(Socks5ProxyHandler.class));
+      assertNotNull(pipeline.get(Socks5ProxyHandler.class));
 
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    private InetAddress getNonLoopbackAddress() throws SocketException {
@@ -187,13 +192,13 @@ public class SocksProxyTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
 
       ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
-      Assert.assertNull(pipeline.get(Socks5ProxyHandler.class));
+      assertNull(pipeline.get(Socks5ProxyHandler.class));
 
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -231,31 +236,31 @@ public class SocksProxyTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
 
       connector.getBootStrap().register().await().channel().pipeline();
 
       AddressResolverGroup<?> resolver = connector.getBootStrap().config().resolver();
-      Assert.assertSame(resolver, NoopAddressResolverGroup.INSTANCE);
+      assertSame(resolver, NoopAddressResolverGroup.INSTANCE);
 
       Connection connection = connector.createConnection(future -> {
          future.awaitUninterruptibly();
-         Assert.assertTrue(future.isSuccess());
+         assertTrue(future.isSuccess());
 
          Socks5ProxyHandler socks5Handler = future.channel().pipeline().get(Socks5ProxyHandler.class);
-         Assert.assertNotNull(socks5Handler);
+         assertNotNull(socks5Handler);
 
          InetSocketAddress remoteAddress = (InetSocketAddress)socks5Handler.destinationAddress();
-         Assert.assertTrue(remoteAddress.isUnresolved());
+         assertTrue(remoteAddress.isUnresolved());
       });
-      Assert.assertNotNull(connection);
+      assertNotNull(connection);
 
-      Assert.assertTrue(connection.isOpen());
+      assertTrue(connection.isOpen());
       connection.close();
-      Assert.assertFalse(connection.isOpen());
+      assertFalse(connection.isOpen());
 
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    private void startSocksProxy() throws Exception {

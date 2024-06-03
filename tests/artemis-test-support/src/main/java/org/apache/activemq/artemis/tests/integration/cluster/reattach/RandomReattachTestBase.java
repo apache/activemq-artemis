@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,20 +48,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public abstract class RandomReattachTestBase extends ActiveMQTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -271,10 +271,10 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          @Override
          public void onMessageAssert(final ClientMessage message) {
             if (count == numMessages) {
-               Assert.fail("Too many messages");
+               fail("Too many messages");
             }
 
-            Assert.assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
 
             count++;
 
@@ -305,7 +305,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          handler.checkAssertions();
 
-         Assert.assertTrue("Didn't receive all messages", ok);
+         assertTrue(ok, "Didn't receive all messages");
       }
 
       sessSend.close();
@@ -375,10 +375,10 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          @Override
          public void onMessageAssert(final ClientMessage message) {
             if (count == numMessages) {
-               Assert.fail("Too many messages");
+               fail("Too many messages");
             }
 
-            Assert.assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
 
             count++;
 
@@ -403,7 +403,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          handler.checkAssertions();
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
       }
 
       sessSend.close();
@@ -483,10 +483,10 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          @Override
          public void onMessageAssert(final ClientMessage message) {
             if (count == numMessages) {
-               Assert.fail("Too many messages, expected " + count);
+               fail("Too many messages, expected " + count);
             }
 
-            Assert.assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
 
             count++;
 
@@ -516,7 +516,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
 
          handler.checkAssertions();
       }
@@ -539,7 +539,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
 
          handler.checkAssertions();
       }
@@ -625,10 +625,10 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          @Override
          public void onMessageAssert(final ClientMessage message) {
             if (count == numMessages) {
-               Assert.fail("Too many messages, " + count);
+               fail("Too many messages, " + count);
             }
 
-            Assert.assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
 
             count++;
 
@@ -651,7 +651,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(20000, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
 
          handler.checkAssertions();
       }
@@ -674,7 +674,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
 
          handler.checkAssertions();
       }
@@ -745,9 +745,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -757,7 +757,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -827,9 +827,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
                throw new IllegalStateException("Failed to receive message " + i);
             }
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -839,7 +839,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -856,7 +856,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       s.close();
 
-      Assert.assertEquals(1, ((ClientSessionFactoryImpl) sf).numSessions());
+      assertEquals(1, ((ClientSessionFactoryImpl) sf).numSessions());
 
       long end = System.currentTimeMillis();
 
@@ -915,9 +915,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -926,7 +926,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       for (ClientConsumer consumer : consumers) {
          ClientMessage msg = consumer.receiveImmediate();
 
-         Assert.assertNull(msg);
+         assertNull(msg);
       }
 
       for (ClientSession session : sessions) {
@@ -937,9 +937,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -949,7 +949,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -1029,9 +1029,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -1041,7 +1041,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -1053,9 +1053,9 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
 
             msg.acknowledge();
          }
@@ -1065,7 +1065,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
          for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -1109,7 +1109,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       ClientMessage message2 = consumer.receive(RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -1138,7 +1138,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       ClientMessage message2 = consumer.receive(RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -1201,7 +1201,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       ClientMessage message2 = consumer.receive(RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -1217,7 +1217,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -1225,7 +1225,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       timer.cancel();
 
@@ -1249,7 +1249,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    private void stop() throws Exception {
       server.stop();
 
-      Assert.assertEquals(0, InVMRegistry.instance.size());
+      assertEquals(0, InVMRegistry.instance.size());
 
       server = null;
    }

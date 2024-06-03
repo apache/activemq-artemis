@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.routing;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -25,18 +25,18 @@ import org.apache.activemq.artemis.core.server.routing.policies.Policy;
 import org.apache.activemq.artemis.core.server.routing.targets.LocalTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConnectionRouterTest {
 
    Target localTarget;
    ConnectionRouter underTest;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       ActiveMQServer mockServer = mock(ActiveMQServer.class);
       localTarget = new LocalTarget(null, mockServer);

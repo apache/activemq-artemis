@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence.metrics;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -43,12 +45,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.Wait.Condition;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
 
 public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,7 +59,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
    protected String defaultTopicName = "test.topic";
    protected static int maxMessageSize = 1000;
 
-   @Before
+   @BeforeEach
    public void setupAddresses() throws Exception {
       server.getPostOffice()
             .addAddressInfo(new AddressInfo(SimpleString.toSimpleString(defaultQueueName), RoutingType.ANYCAST));

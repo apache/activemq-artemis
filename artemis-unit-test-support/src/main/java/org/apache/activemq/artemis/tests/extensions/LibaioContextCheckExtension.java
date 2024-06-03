@@ -14,25 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.rules;
+package org.apache.activemq.artemis.tests.extensions;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This is useful to make sure you won't have LibaioContext between tests
  */
-public class LibaioContextCheck extends TestWatcher {
+public class LibaioContextCheckExtension implements Extension, BeforeAllCallback, AfterAllCallback {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -41,17 +42,17 @@ public class LibaioContextCheck extends TestWatcher {
 
    private static String previouslyFailedTotalMaxIoMessage;
 
-   public LibaioContextCheck() {
+   public LibaioContextCheckExtension() {
    }
 
    @Override
-   protected void starting(Description description) {
-      checkLibaioBefore(description.getClassName());
+   public void beforeAll(ExtensionContext context) throws Exception {
+      checkLibaioBefore(context.getRequiredTestClass().getName());
    }
 
    @Override
-   protected void finished(Description description) {
-      checkLibaioAfter(description.getClassName());
+   public void afterAll(ExtensionContext context) throws Exception {
+      checkLibaioAfter(context.getRequiredTestClass().getName());
    }
 
    public static void checkLibaioBefore(String testClassName) {
@@ -102,6 +103,6 @@ public class LibaioContextCheck extends TestWatcher {
       String message = String.format(currentFailureMessageFormat, testClassName, totalMaxIO);
       logger.error(message);
 
-      Assert.fail(message);
+      fail(message);
    }
 }

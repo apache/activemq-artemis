@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -31,13 +35,12 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -53,12 +56,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class KeyTypeTest extends RoutingTestBase {
 
    private static final String MOCK_POLICY_NAME = "MOCK_POLICY";
 
-   @Parameterized.Parameters(name = "protocol: {0}")
+   @Parameters(name = "protocol: {0}")
    public static Collection<Object[]> data() {
       Collection<Object[]> data = new ArrayList<>();
 
@@ -85,12 +88,11 @@ public class KeyTypeTest extends RoutingTestBase {
 
    private final List<String> keys = new ArrayList<>();
 
-
    public KeyTypeTest(String protocol) {
       this.protocol = protocol;
    }
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME,
          new PolicyFactory() {
@@ -107,7 +109,7 @@ public class KeyTypeTest extends RoutingTestBase {
          });
    }
 
-   @Test
+   @TestTemplate
    public void testClientIDKey() throws Exception {
       setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.CLIENT_ID, MOCK_POLICY_NAME, null, true, null, 1);
@@ -122,8 +124,8 @@ public class KeyTypeTest extends RoutingTestBase {
          connection.start();
       }
 
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("test", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("test", keys.get(0));
    }
 
    @Override
@@ -131,7 +133,7 @@ public class KeyTypeTest extends RoutingTestBase {
       return false;
    }
 
-   @Test
+   @TestTemplate
    public void testClientIDKeyOnBackup() throws Exception {
       setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
@@ -161,11 +163,11 @@ public class KeyTypeTest extends RoutingTestBase {
          connection.start();
       }
 
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("test", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("test", keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testSNIHostKey() throws Exception {
       String localHostname = "localhost.localdomain";
 
@@ -175,7 +177,7 @@ public class KeyTypeTest extends RoutingTestBase {
          if (!checkLocalHostname(localHostname)) {
             localHostname = "localhost";
 
-            Assume.assumeTrue(CORE_PROTOCOL.equals(protocol) && checkLocalHostname(localHostname));
+            assumeTrue(CORE_PROTOCOL.equals(protocol) && checkLocalHostname(localHostname));
          }
       }
 
@@ -194,11 +196,11 @@ public class KeyTypeTest extends RoutingTestBase {
          connection.start();
       }
 
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals(localHostname, keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals(localHostname, keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testSourceIPKey() throws Exception {
       setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.SOURCE_IP, MOCK_POLICY_NAME, null, true, null, 1);
@@ -211,11 +213,11 @@ public class KeyTypeTest extends RoutingTestBase {
          connection.start();
       }
 
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals(InetAddress.getLoopbackAddress().getHostAddress(), keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals(InetAddress.getLoopbackAddress().getHostAddress(), keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testUserNameKey() throws Exception {
       setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.USER_NAME, MOCK_POLICY_NAME, null, true, null, 1);
@@ -228,13 +230,12 @@ public class KeyTypeTest extends RoutingTestBase {
          connection.start();
       }
 
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("admin", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("admin", keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testRoleNameKeyLocalTarget() throws Exception {
-
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       servers[0] = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       setupRouterServerWithLocalTarget(0, KeyType.ROLE_NAME, "b", "b");

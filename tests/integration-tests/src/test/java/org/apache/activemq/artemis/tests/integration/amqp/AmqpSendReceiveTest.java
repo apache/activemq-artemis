@@ -17,6 +17,12 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,8 +58,8 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.Message;
 import org.jgroups.util.UUID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -75,7 +81,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       return false;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAcceptWithoutSettling() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -100,7 +107,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       Wait.assertEquals(0, queue::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testQueueReceiverReadMessage() throws Exception {
       sendMessages(getQueueName(), 1);
 
@@ -122,7 +130,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCoreBridge() throws Exception {
       server.getRemotingService().createAcceptor("acceptor", "vm://0").start();
       server.getConfiguration().addConnectorConfiguration("connector", "vm://0");
@@ -159,7 +168,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageDurableFalse() throws Exception {
       sendMessages(getQueueName(), 1, false);
 
@@ -183,7 +193,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageDurableTrue() throws Exception {
       assertNotNull(server.locateQueue(getQueueName()));
       sendMessages(getQueueName(), 1, true);
@@ -208,7 +219,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testTwoQueueReceiversOnSameConnectionReadMessagesNoDispositions() throws Exception {
       int MSG_COUNT = 4;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -244,7 +256,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testTwoQueueReceiversOnSameConnectionReadMessagesAcceptOnEach() throws Exception {
       int MSG_COUNT = 4;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -266,13 +279,13 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue("Should have ack'd two", Wait.waitFor(new Wait.Condition() {
+      assertTrue(Wait.waitFor(new Wait.Condition() {
 
          @Override
          public boolean isSatisfied() throws Exception {
             return queueView.getMessagesAcknowledged() == 2;
          }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
 
       AmqpReceiver receiver2 = session.createReceiver(getQueueName());
 
@@ -286,13 +299,13 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue("Queue should be empty now", Wait.waitFor(new Wait.Condition() {
+      assertTrue(Wait.waitFor(new Wait.Condition() {
 
          @Override
          public boolean isSatisfied() throws Exception {
             return queueView.getMessagesAcknowledged() == 4;
          }
-      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(10)));
+      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(10)), "Queue should be empty now");
 
       receiver1.close();
       receiver2.close();
@@ -302,7 +315,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSecondReceiverOnQueueGetsAllUnconsumedMessages() throws Exception {
       int MSG_COUNT = 20;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -318,13 +332,13 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver1.flow(20);
 
-      assertTrue("Should have dispatch to prefetch", Wait.waitFor(new Wait.Condition() {
+      assertTrue(Wait.waitFor(new Wait.Condition() {
 
          @Override
          public boolean isSatisfied() throws Exception {
             return queueView.getDeliveringCount() >= 2;
          }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have dispatch to prefetch");
 
       receiver1.close();
 
@@ -340,13 +354,13 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue("Should have ack'd two", Wait.waitFor(new Wait.Condition() {
+      assertTrue(Wait.waitFor(new Wait.Condition() {
 
          @Override
          public boolean isSatisfied() throws Exception {
             return queueView.getMessagesAcknowledged() == 2;
          }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
 
       receiver2.close();
 
@@ -355,7 +369,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSimpleSendOneReceiveOne() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -377,7 +392,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg1", received.getMessageId());
       received.accept();
 
@@ -386,7 +401,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendFilterAnnotation() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -413,11 +429,11 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName(), "\"m.x-opt-serialNo\"=2");
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg2", received.getMessageId());
       received.accept();
 
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       receiver.close();
 
@@ -425,7 +441,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCloseBusyReceiver() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -454,7 +471,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(MSG_COUNT);
       AmqpMessage received = receiver1.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have got a message", received);
+      assertNotNull(received, "Should have got a message");
       assertEquals("msg0", received.getMessageId());
       receiver1.close();
 
@@ -462,7 +479,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.flow(200);
       for (int i = 0; i < MSG_COUNT; ++i) {
          received = receiver2.receive(5, TimeUnit.SECONDS);
-         assertNotNull("Should have got a message", received);
+         assertNotNull(received, "Should have got a message");
          logger.debug("Read message: {}", received.getMessageId());
          assertEquals("msg" + i, received.getMessageId());
       }
@@ -471,7 +488,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveWithJMSSelectorFilter() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -493,7 +511,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName(), "sn = 100");
       receiver.flow(2);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       assertEquals(100, received.getApplicationProperty("sn"));
       assertEquals("abcdefg", received.getGroupId());
       received.accept();
@@ -504,7 +522,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveWithJMSSelectorFilterOnJMSType() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -525,7 +544,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName(), "JMSType = 'target'");
       receiver.flow(2);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       assertEquals("target", received.getSubject());
       received.accept();
 
@@ -535,7 +554,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAdvancedLinkFlowControl() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -562,8 +582,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.flow(2);
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver1.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 1", message1);
-      assertNotNull("Should have read message 2", message2);
+      assertNotNull(message1, "Should have read message 1");
+      assertNotNull(message2, "Should have read message 2");
       assertEquals("msg0", message1.getMessageId());
       assertEquals("msg1", message2.getMessageId());
       message1.accept();
@@ -574,8 +594,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.flow(2);
       AmqpMessage message3 = receiver2.receive(10, TimeUnit.SECONDS);
       AmqpMessage message4 = receiver2.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 3", message3);
-      assertNotNull("Should have read message 4", message4);
+      assertNotNull(message3, "Should have read message 3");
+      assertNotNull(message4, "Should have read message 4");
       assertEquals("msg2", message3.getMessageId());
       assertEquals("msg3", message4.getMessageId());
       message3.accept();
@@ -585,7 +605,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.flow(MSG_COUNT - 4);
       for (int i = 4; i < MSG_COUNT; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read a message", message);
+         assertNotNull(message, "Should have read a message");
          assertEquals("msg" + i, message.getMessageId());
          message.accept();
       }
@@ -596,7 +616,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDispatchOrderWithPrefetchOfOne() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -626,8 +647,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver2.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 1", message1);
-      assertNotNull("Should have read message 2", message2);
+      assertNotNull(message1, "Should have read message 1");
+      assertNotNull(message2, "Should have read message 2");
       assertEquals("msg0", message1.getMessageId());
       assertEquals("msg1", message2.getMessageId());
       message1.accept();
@@ -637,8 +658,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpMessage message3 = receiver1.receive(10, TimeUnit.SECONDS);
       receiver2.flow(1);
       AmqpMessage message4 = receiver2.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 3", message3);
-      assertNotNull("Should have read message 4", message4);
+      assertNotNull(message3, "Should have read message 3");
+      assertNotNull(message4, "Should have read message 4");
       assertEquals("msg2", message3.getMessageId());
       assertEquals("msg3", message4.getMessageId());
       message3.accept();
@@ -651,7 +672,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Receiver #1 should have read a message", message);
+         assertNotNull(message, "Receiver #1 should have read a message");
          logger.debug("Receiver #1 read message: {}", message.getMessageId());
          message.accept();
       }
@@ -660,7 +681,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver2.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Receiver #2 should have read message[" + i + "]", message);
+         assertNotNull(message, "Receiver #2 should have read message[" + i + "]");
          logger.debug("Receiver #2 read message: {}", message.getMessageId());
          message.accept();
       }
@@ -671,7 +692,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveMessageAndRefillCreditBeforeAccept() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -705,7 +727,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveMessageAndRefillCreditBeforeAcceptOnQueueAsync() throws Exception {
       final AmqpClient client = createAmqpClient();
       final LinkedList<Throwable> errors = new LinkedList<>();
@@ -768,10 +791,11 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       executorService.shutdown();
       executorService.awaitTermination(20, TimeUnit.SECONDS);
-      assertTrue("no errors: " + errors, errors.isEmpty());
+      assertTrue(errors.isEmpty(), "no errors: " + errors);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageDurabliltyFollowsSpec() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -792,8 +816,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       Wait.assertEquals(1, queue::getMessageCount);
       receiver1.flow(1);
       message1 = receiver1.receive(50, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", message1);
-      assertFalse("First message sent should not be durable", message1.isDurable());
+      assertNotNull(message1, "Should have read a message");
+      assertFalse(message1.isDurable(), "First message sent should not be durable");
       message1.accept();
 
       // Create default message that should be sent as durable
@@ -806,30 +830,34 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       Wait.assertEquals(1, queue::getMessageCount);
       receiver1.flow(1);
       message2 = receiver1.receive(50, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", message2);
-      assertTrue("Second message sent should be durable", message2.isDurable());
+      assertNotNull(message2, "Should have read a message");
+      assertTrue(message2.isDurable(), "Second message sent should be durable");
       message2.accept();
 
       sender.close();
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithHeaderMarkedDurableIsPersisted() throws Exception {
       doTestBrokerRestartAndDurability(true, true, false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithHeaderMarkedNonDurableIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, true, true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithHeaderDefaultedNonDurableIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, true, false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithNoHeaderIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, false, false);
    }
@@ -862,7 +890,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
          protonMessage.setHeader(header);
       } else {
-         assertNull("Should not have a header", protonMessage.getHeader());
+         assertNull(protonMessage.getHeader(), "Should not have a header");
       }
 
       AmqpMessage message = new AmqpMessage(protonMessage);
@@ -893,15 +921,16 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message = receiver.receive(1, TimeUnit.SECONDS);
 
       if (durable) {
-         assertNotNull("Should have read a message", message);
+         assertNotNull(message, "Should have read a message");
       } else {
-         assertNull("Should not have read a message", message);
+         assertNull(message, "Should not have read a message");
       }
 
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveMessageBeyondAckedAmountQueue() throws Exception {
       final int MSG_COUNT = 50;
 
@@ -949,7 +978,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testTwoPresettledReceiversReceiveAllMessages() throws Exception {
       final int MSG_COUNT = 100;
 
@@ -973,8 +1003,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.flow(2);
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver1.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 1", message1);
-      assertNotNull("Should have read message 2", message2);
+      assertNotNull(message1, "Should have read message 1");
+      assertNotNull(message2, "Should have read message 2");
       assertEquals("msg0", message1.getMessageId());
       assertEquals("msg1", message2.getMessageId());
       message1.accept();
@@ -984,8 +1014,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.flow(2);
       AmqpMessage message3 = receiver2.receive(10, TimeUnit.SECONDS);
       AmqpMessage message4 = receiver2.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message 3", message3);
-      assertNotNull("Should have read message 4", message4);
+      assertNotNull(message3, "Should have read message 3");
+      assertNotNull(message4, "Should have read message 4");
       assertEquals("msg2", message3.getMessageId());
       assertEquals("msg3", message4.getMessageId());
       message3.accept();
@@ -998,7 +1028,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Receiver #1 should have read a message", message);
+         assertNotNull(message, "Receiver #1 should have read a message");
          logger.debug("Receiver #1 read message: {}", message.getMessageId());
          message.accept();
       }
@@ -1007,7 +1037,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver2.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Receiver #2 should have read a message[" + i + "]", message);
+         assertNotNull(message, "Receiver #2 should have read a message[" + i + "]");
          logger.debug("Receiver #2 read message: {}", message.getMessageId());
          message.accept();
       }
@@ -1018,7 +1048,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDeliveryDelayOfferedWhenRequested() throws Exception {
       AmqpClient client = createAmqpClient();
       client.setValidator(new AmqpValidator() {
@@ -1045,27 +1076,32 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithToFieldSetToSenderAddress() throws Exception {
       doTestMessageWithToFieldSet(false, getQueueName());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithToFieldSetToRandomAddress() throws Exception {
       doTestMessageWithToFieldSet(false, UUID.randomUUID().toString());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithToFieldSetToEmpty() throws Exception {
       doTestMessageWithToFieldSet(false, "");
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithToFieldSetToNull() throws Exception {
       doTestMessageWithToFieldSet(false, null);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMessageWithToFieldSetWithAnonymousSender() throws Exception {
       doTestMessageWithToFieldSet(true, getQueueName());
    }
@@ -1100,7 +1136,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -1121,7 +1158,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendingAndReceivingToQueueWithDifferentAddressAndQueueName() throws Exception {
       String queueName = "TestQueueName";
       String address = "TestAddress";
@@ -1148,12 +1186,14 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendReceiveLotsOfDurableMessagesOnQueue() throws Exception {
       doTestSendReceiveLotsOfDurableMessages(Queue.class);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendReceiveLotsOfDurableMessagesOnTopic() throws Exception {
       doTestSendReceiveLotsOfDurableMessages(Topic.class);
    }
@@ -1207,8 +1247,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          sender.send(message);
       }
 
-      assertTrue("did not read all messages, waiting on: " + done.getCount(), done.await(10, TimeUnit.SECONDS));
-      assertFalse("should not be any errors on receive", error.get());
+      assertTrue(done.await(10, TimeUnit.SECONDS), "did not read all messages, waiting on: " + done.getCount());
+      assertFalse(error.get(), "should not be any errors on receive");
       Wait.assertEquals(0, queueView::getDeliveringCount);
 
       sender.close();
@@ -1217,8 +1257,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
 
-
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiveRejecting() throws Exception {
       final int MSG_COUNT = 1000;
 
@@ -1246,15 +1286,15 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
          receiver.flow(MSG_COUNT);
          AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(received);
-         Assert.assertEquals("msg" + i, received.getMessageId());
+         assertNotNull(received);
+         assertEquals("msg" + i, received.getMessageId());
          received.accept();
          receiver.close();
       }
       final AmqpReceiver receiver = session.createReceiver(address);
       receiver.flow(MSG_COUNT);
 
-      Assert.assertNull(receiver.receive(1, TimeUnit.MILLISECONDS));
+      assertNull(receiver.receive(1, TimeUnit.MILLISECONDS));
 
 
       Wait.assertEquals(0, queueView::getDeliveringCount);

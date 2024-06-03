@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -26,15 +30,12 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.jgroups.JChannel;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.apache.activemq.artemis.json.JsonArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,38 +46,25 @@ public class JGroupsChannelBroadcastGroupControlTest extends ManagementTestBase 
 
    JGroupsChannelBroadcastGroupControl broadcastGroupControl;
 
-   @After
-   public void cleanupJChannel() {
-      JChannelManager.getInstance().clear();
-   }
-
-   @Before
-   public void prepareJChannel() {
-      JChannelManager.getInstance().setLoopbackMessages(true);
-   }
-
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
-
    @Test
    public void testAttributes() throws Exception {
       ChannelBroadcastEndpointFactory udpCfg = (ChannelBroadcastEndpointFactory) broadcastGroupConfig.getEndpointFactory();
-      Assert.assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
-      Assert.assertEquals(udpCfg.getChannelName(), broadcastGroupControl.getChannelName());
-      Assert.assertEquals(broadcastGroupConfig.getBroadcastPeriod(), broadcastGroupControl.getBroadcastPeriod());
+      assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
+      assertEquals(udpCfg.getChannelName(), broadcastGroupControl.getChannelName());
+      assertEquals(broadcastGroupConfig.getBroadcastPeriod(), broadcastGroupControl.getBroadcastPeriod());
 
       Object[] connectorPairs = broadcastGroupControl.getConnectorPairs();
-      Assert.assertEquals(1, connectorPairs.length);
+      assertEquals(1, connectorPairs.length);
 
       String connectorPairData = (String) connectorPairs[0];
-      Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
+      assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
       String jsonString = broadcastGroupControl.getConnectorPairsAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(1, array.size());
-      Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), array.getString(0));
+      assertEquals(1, array.size());
+      assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), array.getString(0));
 
-      Assert.assertTrue(broadcastGroupControl.isStarted());
+      assertTrue(broadcastGroupControl.isStarted());
    }
 
    protected JGroupsChannelBroadcastGroupControl createManagementControl(final String name) throws Exception {
@@ -84,9 +72,11 @@ public class JGroupsChannelBroadcastGroupControlTest extends ManagementTestBase 
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
+
+      prepareJChannel();
 
       TransportConfiguration connectorConfiguration = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<>();
@@ -102,5 +92,14 @@ public class JGroupsChannelBroadcastGroupControlTest extends ManagementTestBase 
       server.start();
 
       broadcastGroupControl = createManagementControl(broadcastGroupConfig.getName());
+   }
+
+   public void prepareJChannel() {
+      JChannelManager.getInstance().setLoopbackMessages(true);
+   }
+
+   @AfterEach
+   public void cleanupJChannel() {
+      JChannelManager.getInstance().clear();
    }
 }

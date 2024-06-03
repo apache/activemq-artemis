@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.compatibility.base;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -26,42 +30,21 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.apache.activemq.artemis.tests.extensions.LogTestNameExtension;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
-
-
+@ExtendWith(LogTestNameExtension.class)
 public class ClasspathBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-
-      @Override
-      protected void starting(Description description) {
-         logger.info("**** start #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
-      }
-
-      @Override
-      protected void finished(Description description) {
-         logger.info("**** end #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
-      }
-   };
-
-   @AfterClass
+   @AfterAll
    public static void cleanup() {
       loaderMap.values().forEach((cl -> clearClassLoader(cl)));
       clearClassLoader(VersionedBase.class.getClassLoader());
@@ -83,20 +66,14 @@ public class ClasspathBase {
       clearGroovy(loader);
    }
 
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public static File serverFolder;
 
-   @ClassRule
-   public static TemporaryFolder serverFolder;
    private static int javaVersion;
 
    public static final int getJavaVersion() {
       return javaVersion;
-   }
-
-   // definining server folder
-   static {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      serverFolder = new TemporaryFolder(parent);
    }
 
    // defining java version
@@ -157,7 +134,7 @@ public class ClasspathBase {
    protected ClassLoader getClasspath(String name, boolean forceNew) throws Exception {
 
       if (name.equals(GroovyRun.ONE_FIVE) || name.equals(GroovyRun.TWO_ZERO)) {
-         Assume.assumeTrue("This version of artemis cannot be ran against JDK16+", getJavaVersion() < 16);
+         assumeTrue(getJavaVersion() < 16, "This version of artemis cannot be ran against JDK16+");
       }
 
       if (!forceNew) {
@@ -181,7 +158,7 @@ public class ClasspathBase {
          classPathValue = buffer.toString();
       }
 
-      Assert.assertTrue("Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp", classPathValue != null && !classPathValue.trim().equals(""));
+      assertTrue(classPathValue != null && !classPathValue.trim().equals(""), "Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp");
 
       ClassLoader loader = defineClassLoader(classPathValue);
       if (!forceNew) {

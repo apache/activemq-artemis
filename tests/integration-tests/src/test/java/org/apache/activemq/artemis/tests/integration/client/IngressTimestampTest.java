@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -38,24 +41,25 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.message.JmsTextMessage;
 import org.apache.qpid.jms.provider.amqp.message.AmqpJmsMessageFacade;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class IngressTimestampTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 
-   @Parameterized.Parameters(name = "restart={0}, large={1}")
+   @Parameters(name = "restart={0}, large={1}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true, true},
@@ -65,13 +69,13 @@ public class IngressTimestampTest extends ActiveMQTestBase {
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean restart;
 
-   @Parameterized.Parameter(1)
+   @Parameter(index = 1)
    public boolean large;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -81,47 +85,47 @@ public class IngressTimestampTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveCore() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveCore() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveCore() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveOpenwire() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.OPENWIRE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveOpenWire() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.OPENWIRE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveOpenWire() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.OPENWIRE);
    }
@@ -156,7 +160,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
             javax.jms.Queue queue = session.createQueue(QUEUE.toString());
             try (MessageConsumer consumer = session.createConsumer(queue)) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
                Enumeration e = message.getPropertyNames();
                while (e.hasMoreElements()) {
                   System.out.println(e.nextElement());
@@ -173,7 +177,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
                assertNotNull(ingressTimestampHeader);
                assertTrue(ingressTimestampHeader instanceof Long);
                long ingressTimestamp = (Long) ingressTimestampHeader;
-               assertTrue("Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend,ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend);
+               assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend,"Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
             }
          }
       }

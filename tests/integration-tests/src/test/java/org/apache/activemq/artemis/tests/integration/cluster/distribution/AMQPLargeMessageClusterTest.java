@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -25,23 +36,21 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AMQPLargeMessageClusterTest extends ClusterTestBase {
 
    private static final int RECEIVE_TIMEOUT_MILLIS = 20_000;
@@ -50,7 +59,7 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
 
    private final boolean persistenceEnabled;
 
-   @Parameterized.Parameters(name = "persistenceEnabled = {0}")
+   @Parameters(name = "persistenceEnabled = {0}")
    public static Iterable<? extends Object> persistenceEnabled() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -60,11 +69,11 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      deleteDirectory(temporaryFolder.getRoot());
-      temporaryFolder.getRoot().mkdirs();
+      deleteDirectory(temporaryFolder);
+      temporaryFolder.mkdirs();
 
       start();
    }
@@ -79,12 +88,14 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
       return true;
    }
 
-   @Test(timeout = RECEIVE_TIMEOUT_MILLIS * (MESSAGES + 1))
+   @TestTemplate
+   @Timeout(value = RECEIVE_TIMEOUT_MILLIS * (MESSAGES + 1), unit = TimeUnit.MILLISECONDS)
    public void testSendReceiveLargeMessage() throws Exception {
       testSendReceiveLargeMessage(message -> { }, message -> { });
    }
 
-   @Test(timeout = RECEIVE_TIMEOUT_MILLIS * (MESSAGES + 1))
+   @TestTemplate
+   @Timeout(value = RECEIVE_TIMEOUT_MILLIS * (MESSAGES + 1), unit = TimeUnit.MILLISECONDS)
    public void testSendReceiveLargeMessageWithJMSCorrelationID() throws Exception {
       final String jmsCorrelationID = "123456";
       testSendReceiveLargeMessage(message -> {
@@ -95,7 +106,7 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
          }
       }, message -> {
          try {
-            Assert.assertEquals(jmsCorrelationID, message.getJMSCorrelationID());
+            assertEquals(jmsCorrelationID, message.getJMSCorrelationID());
          } catch (JMSException e) {
             fail("Exception not expected: " + e);
          }
@@ -144,11 +155,11 @@ public class AMQPLargeMessageClusterTest extends ClusterTestBase {
                beforeSending.accept(sentMessage);
                producer.send(sentMessage);
                final Message receivedMessage = consumer.receive(RECEIVE_TIMEOUT_MILLIS);
-               Assert.assertNotNull("A message should be received in " + RECEIVE_TIMEOUT_MILLIS + " ms", receivedMessage);
-               Assert.assertThat(receivedMessage, IsInstanceOf.instanceOf(sentMessage.getClass()));
+               assertNotNull(receivedMessage, "A message should be received in " + RECEIVE_TIMEOUT_MILLIS + " ms");
+               assertThat(receivedMessage, IsInstanceOf.instanceOf(sentMessage.getClass()));
                try {
-                  Assert.assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
-                  Assert.assertArrayEquals(largeMessageContent, receivedContent);
+                  assertEquals(largeMessageContent.length, ((BytesMessage) receivedMessage).readBytes(receivedContent));
+                  assertArrayEquals(largeMessageContent, receivedContent);
                } catch (Throwable e) {
                   e.printStackTrace();
                   System.exit(-1);

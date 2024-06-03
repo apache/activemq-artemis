@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * See {@link BackupSyncDelay} for the rationale about these 'WithDelay' tests.
@@ -33,7 +33,7 @@ public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();

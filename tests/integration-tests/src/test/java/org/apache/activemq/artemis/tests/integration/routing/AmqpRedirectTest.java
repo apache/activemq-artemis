@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URI;
 import java.util.Map;
 
@@ -29,7 +31,7 @@ import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.transport.ConnectionError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Note: The primary routing tests for AMQP clients are in e.g {@link RedirectTest} along with those for other protocols.

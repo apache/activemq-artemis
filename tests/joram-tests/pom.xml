@@ -53,8 +53,9 @@
          <artifactId>artemis-core-client</artifactId>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.vintage</groupId>
+         <artifactId>junit-vintage-engine</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>

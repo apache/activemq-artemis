@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -32,6 +38,9 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -45,18 +54,17 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test broker behavior when creating AMQP senders
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpSenderTest extends AmqpClientTestSupport {
 
-   @Parameterized.Parameters(name = "persistentCache={0}")
+   @Parameters(name = "persistentCache={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
@@ -68,24 +76,27 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       server.getConfiguration().setPersistIDCache(persistCache);
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean persistCache;
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeSettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.SETTLED);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeUnsettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.UNSETTLED);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeMixedIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.MIXED);
    }
@@ -113,12 +124,14 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverSettlementModeSetToFirst() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.FIRST);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverSettlementModeSetToSecond() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.SECOND);
    }
@@ -146,7 +159,8 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testUnsettledSender() throws Exception {
       final int MSG_COUNT = 1000;
 
@@ -180,13 +194,14 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      assertTrue("Remote should have settled all deliveries", settled.await(5, TimeUnit.MINUTES));
+      assertTrue(settled.await(5, TimeUnit.MINUTES), "Remote should have settled all deliveries");
 
       connection.close();
    }
 
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMixDurableAndNonDurable() throws Exception {
       final int MSG_COUNT = 2000;
 
@@ -211,16 +226,17 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       for (int i = 1; i <= MSG_COUNT; ++i) {
          javax.jms.Message message = receiver.receive(10000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
       }
 
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testPresettledSender() throws Exception {
       final int MSG_COUNT = 1000;
 
@@ -244,7 +260,8 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDuplicateDetection() throws Exception {
       final int MSG_COUNT = 10;
 
@@ -257,7 +274,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.setPresettle(true);
       receiver.flow(10);
-      Assert.assertNull("somehow the queue had messages from a previous test", receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait(), "somehow the queue had messages from a previous test");
 
       for (int i = 1; i <= MSG_COUNT; ++i) {
          AmqpMessage message = new AmqpMessage();
@@ -266,13 +283,14 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       }
 
       AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       sender.close();
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDuplicateDetectionRollback() throws Exception {
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
@@ -292,8 +310,8 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          connection.start();
 
          MessageConsumer consumer = session.createConsumer(producerQueue);
-         Assert.assertNotNull(consumer.receive(5000));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(consumer.receive(5000));
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          Queue serverQueue = server.locateQueue(getQueueName());
@@ -308,30 +326,31 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          } catch (Exception e) {
             error = true;
          }
-         Assert.assertTrue(error);
+         assertTrue(error);
 
 
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderCreditReplenishment() throws Exception {
       AtomicInteger counter = new AtomicInteger();
       CountDownLatch initialCredit = new CountDownLatch(1);
       CountDownLatch refreshedCredit = new CountDownLatch(1);
 
-      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
       client.setValidator(new AmqpValidator() {
          @Override
          public void inspectCredit(Sender sender) {
             int count = counter.incrementAndGet();
             switch (count) {
                case 1:
-                  assertEquals("Unexpected initial credit", AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
+                  assertEquals(AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit(), "Unexpected initial credit");
                   initialCredit.countDown();
                   break;
                case 2:
-                  assertEquals("Unexpected replenished credit", AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit());
+                  assertEquals(AmqpSupport.AMQP_CREDITS_DEFAULT, sender.getCredit(), "Unexpected replenished credit");
                   refreshedCredit.countDown();
                   break;
                default:
@@ -346,7 +365,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(getQueueName());
 
          // Wait for initial credit to arrive and be checked
-         assertTrue("Expected credit did not arrive", initialCredit.await(3000, TimeUnit.MILLISECONDS));
+         assertTrue(initialCredit.await(3000, TimeUnit.MILLISECONDS), "Expected credit did not arrive");
 
          // Send just enough messages not to cause credit replenishment
          final int msgCount = AmqpSupport.AMQP_CREDITS_DEFAULT - AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
@@ -357,14 +376,14 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          }
 
          // Wait and check more credit hasn't flowed yet
-         assertFalse("Expected credit not to have been refreshed yet", refreshedCredit.await(50, TimeUnit.MILLISECONDS));
+         assertFalse(refreshedCredit.await(50, TimeUnit.MILLISECONDS), "Expected credit not to have been refreshed yet");
 
          // Send a final message needed to provoke the replenishment flow, wait for to arrive
          AmqpMessage message = new AmqpMessage();
          message.setText("Test-Message: " + msgCount);
          sender.send(message);
 
-         assertTrue("Expected credit refresh did not occur", refreshedCredit.await(3000, TimeUnit.MILLISECONDS));
+         assertTrue(refreshedCredit.await(3000, TimeUnit.MILLISECONDS), "Expected credit refresh did not occur");
 
          connection.close();
       } finally {

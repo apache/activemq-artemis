@@ -16,18 +16,18 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.security.Principal;
 
 import javax.security.auth.Subject;
+
+import org.junit.jupiter.api.Test;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-
-import org.junit.Test;
 
 public class Krb5LoginModuleTest {
 

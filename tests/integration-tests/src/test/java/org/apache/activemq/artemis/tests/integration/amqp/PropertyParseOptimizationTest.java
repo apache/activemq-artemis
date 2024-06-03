@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -34,8 +38,8 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Data;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * This test will validate if application properties are only parsed when there's a filter.
@@ -50,7 +54,8 @@ public class PropertyParseOptimizationTest extends AmqpClientTestSupport {
       server.getConfiguration().addAcceptorConfiguration("noDuplicate", noDuplicateAcceptor + "?protocols=AMQP;useEpoll=false;amqpDuplicateDetection=false");
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendWithPropertiesAndFilter() throws Exception {
       int size = 10 * 1024;
       AmqpClient client = createAmqpClient(new URI(noDuplicateAcceptor));
@@ -94,24 +99,24 @@ public class PropertyParseOptimizationTest extends AmqpClientTestSupport {
          // if this rule fails it means something is requesting the application property for the message,
          // or the optimization is gone.
          // be careful if you decide to change this rule, as we have done extensive test to get this in place.
-         Assert.assertNull("Application properties on AMQP Messages should only be parsed over demand", AMQPMessageBrokerAccessor.getDecodedApplicationProperties(message));
+         assertNull(AMQPMessageBrokerAccessor.getDecodedApplicationProperties(message), "Application properties on AMQP Messages should only be parsed over demand");
       }
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), "odd=true");
       receiver.flow(10);
       for (int i = 0; i < 5; i++) {
          AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(msgReceived);
+         assertNotNull(msgReceived);
          Data body = (Data) msgReceived.getWrappedMessage().getBody();
          byte[] bodyArray = body.getValue().getArray();
          for (int bI = 0; bI < size; bI++) {
-            Assert.assertEquals((byte) 'z', bodyArray[bI]);
+            assertEquals((byte) 'z', bodyArray[bI]);
          }
          msgReceived.accept(true);
       }
 
       receiver.flow(1);
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
       Wait.assertEquals(5, queueView::getMessageCount);
 
       receiver.close();

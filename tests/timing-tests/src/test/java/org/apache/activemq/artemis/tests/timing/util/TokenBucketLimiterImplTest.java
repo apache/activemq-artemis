@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.timing.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
 
@@ -126,13 +127,13 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
 
          // any variation on 1 could make the test to fail, for that reason we make it this way
 
-         Assert.assertTrue(count == 5 || count == 6);
+         assertTrue(count == 5 || count == 6);
       } else {
          double actualRate = (double) (1000 * count) / measureTime;
 
-         Assert.assertTrue("actual rate = " + actualRate + " expected=" + rate, actualRate > rate * (1 - error));
+         assertTrue(actualRate > rate * (1 - error), "actual rate = " + actualRate + " expected=" + rate);
 
-         Assert.assertTrue("actual rate = " + actualRate + " expected=" + rate, actualRate < rate * (1 + error));
+         assertTrue(actualRate < rate * (1 + error), "actual rate = " + actualRate + " expected=" + rate);
       }
    }
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,72 +25,41 @@ import java.util.List;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import org.apache.activemq.artemis.tests.rules.NoFilesBehind;
-import org.apache.activemq.artemis.tests.rules.NoProcessFilesBehind;
-import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TestName;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.apache.activemq.artemis.tests.extensions.CleanupSystemPropertiesExtension;
+import org.apache.activemq.artemis.tests.extensions.FilesLeftBehindCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.LogTestNameExtension;
+import org.apache.activemq.artemis.tests.extensions.OpenFilesCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.ThreadLeakCheckExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Parent class with basic utilities around creating unit etc test classes.
  */
-public abstract class ArtemisTestCase extends Assert {
+@ExtendWith(LogTestNameExtension.class)
+@ExtendWith(CleanupSystemPropertiesExtension.class)
+public abstract class ArtemisTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   @RegisterExtension
+   protected static ThreadLeakCheckExtension threadLeakCheckExtension = new ThreadLeakCheckExtension();
+
+   @RegisterExtension
+   protected static OpenFilesCheckExtension openFilesCheckExtension = new OpenFilesCheckExtension(1000);
+
+   @RegisterExtension
+   protected static FilesLeftBehindCheckExtension filesLeftBehindCheckExtension = new FilesLeftBehindCheckExtension("data", "null");
+
    private static String testClassName = "not-yet-set";
 
-   /** This will make sure threads are not leaking between tests */
-   @ClassRule
-   public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
-
-   @ClassRule
-   public static NoProcessFilesBehind noProcessFilesBehind = new NoProcessFilesBehind(1000);
-
-   @ClassRule
-   public static TestRule classWatcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         testClassName = description.getClassName();
-      }
-   };
-
-   /** We should not under any circumstance create data outside of ./target
-    *  if you have a test failing because because of this rule for any reason,
-    *  even if you use afterClass events, move the test to ./target and always cleanup after
-    *  your data even under ./target.
-    *  Do not try to disable this rule! Fix your test! */
-   @Rule
-   public NoFilesBehind noFilesBehind = new NoFilesBehind("data", "null");
-
-   /** This will cleanup any system property changed inside tests */
-   @Rule
-   public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
-
-   @Rule
-   public TestName name = new TestName();
-
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         logger.info("**** start #test {}() ***", description.getMethodName());
-      }
-
-      @Override
-      protected void finished(Description description) {
-         logger.info("**** end #test {}() ***", description.getMethodName());
-      }
-   };
+   public String name;
 
    public interface TestCompletionTask {
       void run() throws Exception;
@@ -104,7 +75,7 @@ public abstract class ArtemisTestCase extends Assert {
     * @param completionTask A TestCleanupTask that will be passed, possibly from a lambda
     */
    protected void runAfter(TestCompletionTask completionTask) {
-      Assert.assertNotNull(completionTask);
+      assertNotNull(completionTask);
       runAfterEx(() -> {
          try {
             completionTask.run();
@@ -124,15 +95,25 @@ public abstract class ArtemisTestCase extends Assert {
     * @param completionTask A TestCompletionTask that will be passed, possibly from a lambda method
     */
    protected synchronized void runAfterEx(TestCompletionTask completionTask) {
-      Assert.assertNotNull(completionTask);
+      assertNotNull(completionTask);
       if (runAfter == null) {
          runAfter = new ArrayList<>();
       }
       runAfter.add(completionTask);
    }
 
-   @After
-   public synchronized void runAfter() throws Throwable {
+   @BeforeAll
+   public static void doBeforeTestClass(TestInfo testInfo) {
+      testClassName = testInfo.getTestClass().get().getName();
+   }
+
+   @BeforeEach
+   public void doBeforeTestMethod(TestInfo testInfo) {
+      name = testInfo.getTestMethod().get().getName();
+   }
+
+   @AfterEach
+   public synchronized void doRunAfter() throws Throwable {
       ArrayList<Throwable> throwables = new ArrayList<>();
       List<TestCompletionTask> localRunAfter = runAfter;
       runAfter = null;
@@ -153,7 +134,7 @@ public abstract class ArtemisTestCase extends Assert {
    }
 
    public static void forceGC() {
-      ThreadLeakCheckRule.forceGC();
+      ThreadLeakCheckExtension.forceGC();
    }
 
    public MBeanServer createMBeanServer() {
@@ -162,8 +143,11 @@ public abstract class ArtemisTestCase extends Assert {
       return mBeanServer;
    }
 
+   public String getTestMethodName() {
+      return name;
+   }
+
    public static String getTestClassName() {
       return testClassName;
    }
-
 }

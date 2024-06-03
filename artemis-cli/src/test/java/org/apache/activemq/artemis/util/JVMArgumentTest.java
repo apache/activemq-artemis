@@ -17,10 +17,13 @@
 
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JVMArgumentTest {
 
@@ -34,9 +37,9 @@ public class JVMArgumentTest {
 
       HashMap<String, String> usedArgs = new HashMap<>();
       JVMArgumentParser.parseOriginalArgs(prefix, "\"", arguments, fixedArguments, usedArgs);
-      Assert.assertEquals(2, usedArgs.size());
-      Assert.assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
-      Assert.assertEquals("-Xms333M", usedArgs.get("-Xms"));
+      assertEquals(2, usedArgs.size());
+      assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
+      assertEquals("-Xms333M", usedArgs.get("-Xms"));
 
       String newLine = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)";
 
@@ -44,11 +47,11 @@ public class JVMArgumentTest {
 
       System.out.println("output::" + resultLine);
 
-      Assert.assertFalse(resultLine.contains("-must-go"));
-      Assert.assertTrue(resultLine.contains("-Xmx77G"));
-      Assert.assertTrue(resultLine.contains("-Xms333M"));
-      Assert.assertFalse(resultLine.contains("-Xmx1G"));
-      Assert.assertFalse(resultLine.contains("-Xmx512M"));
+      assertFalse(resultLine.contains("-must-go"));
+      assertTrue(resultLine.contains("-Xmx77G"));
+      assertTrue(resultLine.contains("-Xms333M"));
+      assertFalse(resultLine.contains("-Xmx1G"));
+      assertFalse(resultLine.contains("-Xmx512M"));
    }
 
 
@@ -62,9 +65,9 @@ public class JVMArgumentTest {
 
       HashMap<String, String> usedArgs = new HashMap<>();
       JVMArgumentParser.parseOriginalArgs(prefix, "\"", arguments, fixedArguments, usedArgs);
-      Assert.assertEquals(2, usedArgs.size());
-      Assert.assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
-      Assert.assertEquals("-Xms333M", usedArgs.get("-Xms"));
+      assertEquals(2, usedArgs.size());
+      assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
+      assertEquals("-Xms333M", usedArgs.get("-Xms"));
 
       String newLine = "    JAVA_ARGS= -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)";
 
@@ -72,13 +75,13 @@ public class JVMArgumentTest {
 
       System.out.println("output::" + resultLine);
 
-      Assert.assertFalse(resultLine.contains("-must-go"));
-      Assert.assertTrue(resultLine.contains("-Xmx77G"));
-      Assert.assertTrue(resultLine.contains("-Xms333M"));
-      Assert.assertFalse(resultLine.contains("-Xmx1G"));
-      Assert.assertFalse(resultLine.contains("-Xmx512M"));
+      assertFalse(resultLine.contains("-must-go"));
+      assertTrue(resultLine.contains("-Xmx77G"));
+      assertTrue(resultLine.contains("-Xms333M"));
+      assertFalse(resultLine.contains("-Xmx1G"));
+      assertFalse(resultLine.contains("-Xmx512M"));
 
-      Assert.assertTrue(resultLine.startsWith("    "));
+      assertTrue(resultLine.startsWith("    "));
    }
 
 }

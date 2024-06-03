@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +38,7 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test broker behavior when creating AMQP senders
@@ -124,18 +127,18 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg1", received.getMessageId());
       assertEquals(uuid, received.getDeliveryAnnotation("KEY"));
       received.accept();
 
       received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg2", received.getMessageId());
       assertEquals(uuid, received.getDeliveryAnnotation("KEY"));
       received.accept();
 
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       receiver.close();
 

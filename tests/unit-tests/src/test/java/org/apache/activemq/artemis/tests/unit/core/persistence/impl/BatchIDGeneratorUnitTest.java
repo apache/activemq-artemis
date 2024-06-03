@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -31,8 +34,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGener
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
@@ -49,7 +51,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
       long id1 = batch.generateID();
       long id2 = batch.generateID();
 
-      Assert.assertTrue(id2 > id1);
+      assertTrue(id2 > id1);
 
       journal.stop();
       batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
@@ -57,11 +59,11 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       long id3 = batch.generateID();
 
-      Assert.assertEquals(1001, id3);
+      assertEquals(1001, id3);
 
       long id4 = batch.generateID();
 
-      Assert.assertTrue(id4 > id3 && id4 < 2000);
+      assertTrue(id4 > id3 && id4 < 2000);
 
       batch.persistCurrentID();
 
@@ -70,7 +72,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
       loadIDs(journal, batch);
 
       long id5 = batch.generateID();
-      Assert.assertTrue(id5 > id4 && id5 < 2000);
+      assertTrue(id5 > id4 && id5 < 2000);
 
       long lastId = id5;
 
@@ -91,7 +93,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
          long id = batch.generateID();
 
-         Assert.assertTrue(id > lastId);
+         assertTrue(id > lastId);
 
          lastId = id;
       }
@@ -107,7 +109,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
       batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
       loadIDs(journal, batch);
 
-      Assert.assertEquals("No Ids were generated, so the currentID was supposed to stay the same", lastId, batch.getCurrentID());
+      assertEquals(lastId, batch.getCurrentID(), "No Ids were generated, so the currentID was supposed to stay the same");
 
       journal.stop();
 
@@ -120,9 +122,9 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
       journal.start();
       journal.load(records, tx, null);
 
-      Assert.assertEquals(0, tx.size());
+      assertEquals(0, tx.size());
 
-      Assert.assertTrue("Contains " + records.size(), records.size() > 0);
+      assertTrue(records.size() > 0, "Contains " + records.size());
 
       for (RecordInfo record : records) {
          if (record.userRecordType == JournalRecordIds.ID_COUNTER_RECORD) {

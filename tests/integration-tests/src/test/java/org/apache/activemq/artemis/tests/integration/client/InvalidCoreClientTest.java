@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
@@ -45,9 +47,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InvalidCoreClientTest extends ActiveMQTestBase {
 
@@ -60,7 +61,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -147,7 +148,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
 
       try {
          channel.sendBlocking(packet, PacketImpl.SESS_XA_RESP);
-         Assert.fail("Failure expected");
+         fail("Failure expected");
       } catch (Exception failed) {
       }
 

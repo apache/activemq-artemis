@@ -16,24 +16,25 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class TimeUnitsTest {
 
-   @Rule
-   public TemporaryFolder folder = new TemporaryFolder();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File folder;
 
    @Test
    public void testWaitOnBoolean() throws IOException {
-      File tmpFile = folder.newFile("myfile.txt");
+      File tmpFile = File.createTempFile("myfile", ".txt", folder);
       assertTrue(tmpFile.exists());
       long begin = System.currentTimeMillis();
       boolean result = TimeUtils.waitOnBoolean(false, 100, tmpFile::exists);

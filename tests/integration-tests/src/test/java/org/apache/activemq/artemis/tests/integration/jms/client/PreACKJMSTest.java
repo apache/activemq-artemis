@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -28,9 +32,9 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class PreACKJMSTest extends JMSTestBase {
 
@@ -86,11 +90,11 @@ public class PreACKJMSTest extends JMSTestBase {
 
       msg2 = (TextMessage) cons.receiveNoWait();
 
-      assertNull("ConnectionFactory is on PreACK mode, the message shouldn't be received", msg2);
+      assertNull(msg2, "ConnectionFactory is on PreACK mode, the message shouldn't be received");
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void testPreACKTransactional() throws Exception {
       conn = cf.createConnection();
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -127,13 +131,13 @@ public class PreACKJMSTest extends JMSTestBase {
 
       msg2 = (TextMessage) cons.receive(10);
 
-      assertNotNull("ConnectionFactory is on PreACK mode but it is transacted", msg2);
+      assertNotNull(msg2, "ConnectionFactory is on PreACK mode but it is transacted");
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");

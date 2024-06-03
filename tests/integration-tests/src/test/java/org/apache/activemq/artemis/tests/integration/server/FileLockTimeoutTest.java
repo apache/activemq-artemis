@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +32,6 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
 
    protected void doTest(final boolean useAIO) throws Exception {
       if (useAIO) {
-         Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")), LibaioContext.isLoaded());
+         assertTrue(LibaioContext.isLoaded(), String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")));
       }
       Configuration config = super.createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).clearAcceptorConfigurations();
 
@@ -84,8 +85,8 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
 
          service.shutdown();
 
-         assertTrue("Expected to find AMQ224000", loggerHandler.findText("AMQ224000"));
-         assertTrue("Expected to find \"Timed out waiting for lock\"", loggerHandler.findTrace("Timed out waiting for lock"));
+         assertTrue(loggerHandler.findText("AMQ224000"), "Expected to find AMQ224000");
+         assertTrue(loggerHandler.findTrace("Timed out waiting for lock"), "Expected to find \"Timed out waiting for lock\"");
       }
    }
 }

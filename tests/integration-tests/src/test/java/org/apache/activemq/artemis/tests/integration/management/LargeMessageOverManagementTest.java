@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -32,9 +37,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
@@ -50,7 +54,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -89,9 +93,9 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message = consumer.receive(1000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals(bigData.length, message.getBodySize());
-      Assert.assertTrue(message.isLargeMessage());
+      assertNotNull(message);
+      assertEquals(bigData.length, message.getBodySize());
+      assertTrue(message.isLargeMessage());
 
 
 
@@ -99,7 +103,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
       message.getBodyBuffer().readBytes(bytesRead);
 
       for (int i = 0; i < bytesRead.length; i++) {
-         Assert.assertEquals(bytesRead[i], bigData[i]);
+         assertEquals(bytesRead[i], bigData[i]);
       }
 
 
@@ -107,7 +111,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
 
       // this is an extra check,
       consumer = session.createConsumer(emptyqueue);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
    }
 
@@ -126,15 +130,15 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
 
       ClientConsumer consumer = session.createConsumer(address);
       ClientMessage message = consumer.receive(1000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals(bigData.length, message.getBodySize());
-      Assert.assertTrue(message.isLargeMessage());
+      assertNotNull(message);
+      assertEquals(bigData.length, message.getBodySize());
+      assertTrue(message.isLargeMessage());
 
       byte[] bytesRead = new byte[bigData.length];
       message.getBodyBuffer().readBytes(bytesRead);
 
       for (int i = 0; i < bytesRead.length; i++) {
-         Assert.assertEquals(bytesRead[i], bigData[i]);
+         assertEquals(bytesRead[i], bigData[i]);
       }
 
    }

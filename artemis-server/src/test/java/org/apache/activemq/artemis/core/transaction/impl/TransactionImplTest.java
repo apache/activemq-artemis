@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.transaction.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -71,13 +75,11 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class TransactionImplTest extends ServerTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -85,7 +87,7 @@ public class TransactionImplTest extends ServerTestBase {
    @Test
    public void testTimeoutAndThenCommitWithARollback() throws Exception {
       TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
-      Assert.assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
+      assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
 
       final AtomicInteger commit = new AtomicInteger(0);
       final AtomicInteger rollback = new AtomicInteger(0);
@@ -137,7 +139,7 @@ public class TransactionImplTest extends ServerTestBase {
       for (int i = 0; i < 2; i++) {
          try {
             tx.commit();
-            Assert.fail("Exception expected!");
+            fail("Exception expected!");
          } catch (ActiveMQException expected) {
          }
       }
@@ -145,15 +147,15 @@ public class TransactionImplTest extends ServerTestBase {
       // it should just be ignored!
       tx.rollback();
 
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
 
    }
 
    @Test
    public void testTimeoutThenRollbackWithRollback() throws Exception {
       TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
-      Assert.assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
+      assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
 
       final AtomicInteger commit = new AtomicInteger(0);
       final AtomicInteger rollback = new AtomicInteger(0);
@@ -208,8 +210,8 @@ public class TransactionImplTest extends ServerTestBase {
       tx.markAsRollbackOnly(new ActiveMQException("rollback only again"));
       tx.rollback();
 
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
 
    }
 
@@ -263,8 +265,8 @@ public class TransactionImplTest extends ServerTestBase {
             return null;
          }
       });
-      Assert.assertEquals(1, commit.get());
-      Assert.assertEquals(0, rollback.get());
+      assertEquals(1, commit.get());
+      assertEquals(0, rollback.get());
    }
 
    @Test
@@ -316,8 +318,8 @@ public class TransactionImplTest extends ServerTestBase {
             return null;
          }
       });
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
    }
 
    class FakeSM implements StorageManager {

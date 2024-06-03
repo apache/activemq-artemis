@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ServerLogBundlesTest {
 
@@ -33,13 +33,13 @@ public class ServerLogBundlesTest {
    private static LogLevel origServerLoggerLevel;
    private static LogLevel origQueueLoggerLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origServerLoggerLevel = AssertionLoggerHandler.setLevel(SERVER_LOGGER, LogLevel.INFO);
       origQueueLoggerLevel = AssertionLoggerHandler.setLevel(QUEUE_LOGGER, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(SERVER_LOGGER, origServerLoggerLevel);
       AssertionLoggerHandler.setLevel(QUEUE_LOGGER, origQueueLoggerLevel);
@@ -60,9 +60,9 @@ public class ServerLogBundlesTest {
 
       String message = e.getMessage();
       assertNotNull(message);
-      assertTrue("unexpected message: " + message, message.startsWith("AMQ229235"));
-      assertTrue("unexpected message: " + message, message.contains("nameBreadCrumb"));
-      assertTrue("unexpected message: " + message, message.contains("bindingBreadCrumb"));
+      assertTrue(message.startsWith("AMQ229235"), "unexpected message: " + message);
+      assertTrue(message.contains("nameBreadCrumb"), "unexpected message: " + message);
+      assertTrue(message.contains("bindingBreadCrumb"), "unexpected message: " + message);
    }
 
    @Test

@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,15 +38,15 @@ import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class RecoverTest extends JMSTestBase {
 
    boolean useTX;
@@ -58,7 +63,7 @@ public class RecoverTest extends JMSTestBase {
       this.journalType = journalType;
    }
 
-   @Parameterized.Parameters(name = "useTX={0}, protocol={1}, paging={2}, largeMessage={3}, journal-type={4}")
+   @Parameters(name = "useTX={0}, protocol={1}, paging={2}, largeMessage={3}, journal-type={4}")
    public static Collection<Object[]> data() {
       Object[] journalType;
       if (LibaioContext.isLoaded()) {
@@ -109,7 +114,7 @@ public class RecoverTest extends JMSTestBase {
       return true;
    }
 
-   @Test
+   @TestTemplate
    public void testRecover() throws Exception {
 
       createQueue(true, "TestQueue");
@@ -119,6 +124,7 @@ public class RecoverTest extends JMSTestBase {
       }
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = factory.createConnection();
+      addConnection(connection);
       Session session = connection.createSession(useTX, useTX ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue("TestQueue");
       MessageProducer producer = session.createProducer(queue);
@@ -154,10 +160,10 @@ public class RecoverTest extends JMSTestBase {
 
       for (int i = 0; i < maxMessage; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          if (!protocol.equals("OPENWIRE")) {
             // openwire won't support large message or its conversions
-            Assert.assertEquals(i + messageBody, message.getText());
+            assertEquals(i + messageBody, message.getText());
          }
       }
 
@@ -178,9 +184,9 @@ public class RecoverTest extends JMSTestBase {
 
       if (large) {
          File[] largeMessageFiles = server.getConfiguration().getLargeMessagesLocation().listFiles();
-         Assert.assertEquals(maxMessage, largeMessageFiles.length);
+         assertEquals(maxMessage, largeMessageFiles.length);
          for (File f : largeMessageFiles) {
-            Assert.assertTrue("File length was " + f.length(), f.length() > 0);
+            assertTrue(f.length() > 0, "File length was " + f.length());
          }
       }
 
@@ -190,6 +196,7 @@ public class RecoverTest extends JMSTestBase {
 
       factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       connection = factory.createConnection();
+      addConnection(connection);
       session = connection.createSession(useTX, useTX ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
 
       connection.start();
@@ -198,14 +205,14 @@ public class RecoverTest extends JMSTestBase {
 
       for (int i = 0; i < maxMessage; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          if (!protocol.equals("OPENWIRE")) {
             // openwire won't support large message or its conversions
-            Assert.assertEquals(i + messageBody, message.getText());
+            assertEquals(i + messageBody, message.getText());
          }
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       if (useTX) {
          session.commit();

@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurationHelperTest {
 
@@ -29,13 +30,13 @@ public class ConfigurationHelperTest {
    public void testDefaultInt() {
       Map<String, Object> values = new HashMap<>();
       values.put("test", "zzz");
-      Assert.assertEquals(3, ConfigurationHelper.getIntProperty("test", 3, values));
+      assertEquals(3, ConfigurationHelper.getIntProperty("test", 3, values));
    }
 
    @Test
    public void testDefaultLong() {
       Map<String, Object> values = new HashMap<>();
       values.put("test", "zzz");
-      Assert.assertEquals(3L, ConfigurationHelper.getLongProperty("test", 3L, values));
+      assertEquals(3L, ConfigurationHelper.getLongProperty("test", 3L, values));
    }
 }

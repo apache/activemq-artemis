@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -29,7 +34,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Enumeration;
 import java.util.Set;
@@ -169,7 +174,7 @@ public class TopicClusterTest extends JMSClusteredTestBase {
             Enumeration enumProps = m.getPropertyNames();
             while (enumProps.hasMoreElements()) {
                String propName = (String) enumProps.nextElement();
-               assertFalse("Shouldn't be in jms property: " + propName, propName.startsWith(org.apache.activemq.artemis.api.core.Message.HDR_ROUTE_TO_IDS.toString()));
+               assertFalse(propName.startsWith(org.apache.activemq.artemis.api.core.Message.HDR_ROUTE_TO_IDS.toString()), "Shouldn't be in jms property: " + propName);
             }
             checked = true;
          }

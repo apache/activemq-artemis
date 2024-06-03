@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -28,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GracefulShutdownTest extends ActiveMQTestBase {
 
@@ -144,12 +150,12 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
 
       Thread.sleep(timeout / 2);
 
-      assertTrue("thread should still be alive here waiting for the timeout to elapse", t.isAlive());
+      assertTrue(t.isAlive(), "thread should still be alive here waiting for the timeout to elapse");
 
       while (t.isAlive()) {
          Thread.sleep(100);
       }
 
-      assertTrue("thread terminated too soon, the graceful shutdown timeout wasn't enforced properly", System.currentTimeMillis() - start >= timeout);
+      assertTrue(System.currentTimeMillis() - start >= timeout, "thread terminated too soon, the graceful shutdown timeout wasn't enforced properly");
    }
 }

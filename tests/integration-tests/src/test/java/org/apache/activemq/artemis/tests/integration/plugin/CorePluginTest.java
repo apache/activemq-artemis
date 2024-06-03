@@ -54,9 +54,8 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ACKNOWLEDGE_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
@@ -97,6 +96,10 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_UPDATE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CorePluginTest extends JMSTestBase {
 
@@ -120,7 +123,7 @@ public class CorePluginTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");
@@ -171,11 +174,11 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsAtLeast(1, BEFORE_MESSAGE_ROUTE,
             AFTER_MESSAGE_ROUTE);
 
-      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.afterSendCounter.get());
-      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.successRoutedCounter.get());
-      assertEquals("configurationVerifier config set", "val_1", configurationVerifier.value1);
+      assertEquals(1, configurationVerifier.afterSendCounter.get(), "configurationVerifier is invoked");
+      assertEquals(1, configurationVerifier.successRoutedCounter.get(), "configurationVerifier is invoked");
+      assertEquals("val_1", configurationVerifier.value1, "configurationVerifier config set");
 
-      assertFalse(ackVerifier.getErrorMsg(), ackVerifier.hasError());
+      assertFalse(ackVerifier.hasError(), ackVerifier.getErrorMsg());
    }
 
    @Test
@@ -265,7 +268,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
-      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
+      assertFalse(expiredVerifier.hasError(), expiredVerifier.getErrorMsg());
    }
 
    @Test
@@ -300,7 +303,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
-      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
+      assertFalse(expiredVerifier.hasError(), expiredVerifier.getErrorMsg());
    }
 
    @Test
@@ -375,12 +378,12 @@ public class CorePluginTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
       session0.close();
       session1.close();
 

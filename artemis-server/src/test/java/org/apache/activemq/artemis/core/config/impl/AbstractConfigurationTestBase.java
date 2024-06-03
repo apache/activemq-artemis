@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,14 +35,14 @@ import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashMo
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractConfigurationTestBase extends ServerTestBase {
 
    protected Configuration conf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -432,8 +438,8 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       assertEquals(i, configuration.getPageSyncTimeout());
 
       configuration.registerBrokerPlugin(new LoggingActiveMQServerPlugin());
-      assertEquals("ensure one plugin registered", 1, configuration.getBrokerPlugins().size());
-      assertEquals("ensure one connection plugin registered", 1, configuration.getBrokerConnectionPlugins().size());
+      assertEquals(1, configuration.getBrokerPlugins().size(), "ensure one plugin registered");
+      assertEquals(1, configuration.getBrokerConnectionPlugins().size(), "ensure one connection plugin registered");
 
 
       // This will use serialization to perform a deep copy of the object

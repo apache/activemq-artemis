@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -23,9 +31,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -46,20 +51,21 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -71,16 +77,16 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
    // to avoid perfect roundings and making sure messages are evenly distributed
    private static final int NUMBER_OF_MESSAGES = 77 * 2;
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public String protocol;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -123,7 +129,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       } else if (protocol.equals("CORE")) {
          return new ActiveMQConnectionFactory("tcp://localhost:" + (61616 + node));
       } else {
-         Assert.fail("Protocol " + protocol + " unknown");
+         fail("Protocol " + protocol + " unknown");
          return null;
       }
    }
@@ -136,7 +142,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testLoadBalancing() throws Exception {
 
       startServers(MessageLoadBalancingType.STRICT);
@@ -179,7 +185,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
       connection[1].start();
-      Assert.assertNull(consumer[1].receiveNoWait());
+      assertNull(consumer[1].receiveNoWait());
       connection[1].stop();
 
       servers[0].stop();
@@ -199,7 +205,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testRedistributionStoppedWithNoRemoteConsumers() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
@@ -265,7 +271,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       Wait.assertEquals(0, servers[1].locateQueue(queueName)::getMessageCount);
    }
 
-   @Test
+   @TestTemplate
    public void testExpireRedistributed() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
@@ -304,7 +310,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       connection.close();
    }
 
-   @Test
+   @TestTemplate
    public void testRestartConnection() throws Exception {
 
       startServers(MessageLoadBalancingType.STRICT);
@@ -391,7 +397,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testRedistributeAfterLoadBalanced() throws Exception {
 
       startServers(MessageLoadBalancingType.ON_DEMAND);
@@ -475,12 +481,12 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       for (int i = 0; i < messageCount; i++) {
          Message msg = messageConsumer.receive(5000);
-         Assert.assertNotNull("did not receive message at " + i, msg);
+         assertNotNull(msg, "did not receive message at " + i);
       }
 
       // this means no more messages received
       if (exactCount) {
-         Assert.assertNull(messageConsumer.receiveNoWait());
+         assertNull(messageConsumer.receiveNoWait());
       }
    }
 

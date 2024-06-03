@@ -16,39 +16,40 @@
  */
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class SelectorTranslatorTest {
    @Test
    public void testConvertHQFilterString() {
       String selector = "HQUserID = 'ID:AMQ-12435678'";
 
-      Assert.assertEquals("AMQUserID = 'ID:AMQ-12435678'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQUserID = 'ID:AMQ-12435678'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQUserID = 'HQUserID'";
 
-      Assert.assertEquals("AMQUserID = 'HQUserID'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQUserID = 'HQUserID'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQUserID = 'ID:AMQ-12435678'";
 
-      Assert.assertEquals("AMQUserID = 'ID:AMQ-12435678'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQUserID = 'ID:AMQ-12435678'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQDurable='NON_DURABLE'";
 
-      Assert.assertEquals("AMQDurable='NON_DURABLE'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQDurable='NON_DURABLE'", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQPriority=5";
 
-      Assert.assertEquals("AMQPriority=5", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQPriority=5", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQTimestamp=12345678";
 
-      Assert.assertEquals("AMQTimestamp=12345678", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQTimestamp=12345678", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
 
       selector = "HQExpiration=12345678";
 
-      Assert.assertEquals("AMQExpiration=12345678", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
+      assertEquals("AMQExpiration=12345678", HQFilterConversionInterceptor.convertHQToActiveMQFilterString(selector));
    }
 
 }

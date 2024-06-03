@@ -16,14 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.MessageFormatException;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
@@ -31,7 +36,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
    private String itemName;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -45,17 +50,17 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setBoolean(itemName, true);
 
-      Assert.assertTrue(message.itemExists(itemName));
+      assertTrue(message.itemExists(itemName));
 
       message.clearBody();
 
-      Assert.assertFalse(message.itemExists(itemName));
+      assertFalse(message.itemExists(itemName));
    }
 
    @Test
    public void testGetType() throws Exception {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
-      Assert.assertEquals(ActiveMQMapMessage.TYPE, message.getType());
+      assertEquals(ActiveMQMapMessage.TYPE, message.getType());
    }
 
    @Test
@@ -63,7 +68,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       try {
          message.setBoolean(null, true);
-         Assert.fail("item name can not be null");
+         fail("item name can not be null");
       } catch (IllegalArgumentException e) {
       }
 
@@ -74,7 +79,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       try {
          message.setBoolean("", true);
-         Assert.fail("item name can not be empty");
+         fail("item name can not be empty");
       } catch (IllegalArgumentException e) {
       }
 
@@ -87,13 +92,13 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setBoolean(itemName, value);
 
-      Assert.assertEquals(value, message.getBoolean(itemName));
+      assertEquals(value, message.getBoolean(itemName));
    }
 
    @Test
    public void testGetBooleanFromNull() throws Exception {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
-      Assert.assertEquals(false, message.getBoolean(itemName));
+      assertFalse(message.getBoolean(itemName));
    }
 
    @Test
@@ -103,7 +108,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Boolean.toString(value));
 
-      Assert.assertEquals(value, message.getBoolean(itemName));
+      assertEquals(value, message.getBoolean(itemName));
    }
 
    @Test
@@ -113,7 +118,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getBoolean(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -125,7 +130,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setByte(itemName, value);
 
-      Assert.assertEquals(value, message.getByte(itemName));
+      assertEquals(value, message.getByte(itemName));
    }
 
    @Test
@@ -134,7 +139,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getByte(itemName);
-         Assert.fail("NumberFormatException");
+         fail("NumberFormatException");
       } catch (NumberFormatException e) {
       }
    }
@@ -146,7 +151,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Byte.toString(value));
 
-      Assert.assertEquals(value, message.getByte(itemName));
+      assertEquals(value, message.getByte(itemName));
    }
 
    @Test
@@ -156,7 +161,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getByte(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -168,7 +173,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setByte(itemName, value);
 
-      Assert.assertEquals(value, message.getShort(itemName));
+      assertEquals(value, message.getShort(itemName));
    }
 
    @Test
@@ -178,7 +183,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setShort(itemName, value);
 
-      Assert.assertEquals(value, message.getShort(itemName));
+      assertEquals(value, message.getShort(itemName));
    }
 
    @Test
@@ -187,7 +192,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getShort(itemName);
-         Assert.fail("NumberFormatException");
+         fail("NumberFormatException");
       } catch (NumberFormatException e) {
       }
    }
@@ -199,7 +204,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Short.toString(value));
 
-      Assert.assertEquals(value, message.getShort(itemName));
+      assertEquals(value, message.getShort(itemName));
    }
 
    @Test
@@ -209,7 +214,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getShort(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -221,7 +226,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setByte(itemName, value);
 
-      Assert.assertEquals(value, message.getInt(itemName));
+      assertEquals(value, message.getInt(itemName));
    }
 
    @Test
@@ -231,7 +236,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setShort(itemName, value);
 
-      Assert.assertEquals(value, message.getInt(itemName));
+      assertEquals(value, message.getInt(itemName));
    }
 
    @Test
@@ -241,7 +246,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setInt(itemName, value);
 
-      Assert.assertEquals(value, message.getInt(itemName));
+      assertEquals(value, message.getInt(itemName));
    }
 
    @Test
@@ -250,7 +255,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getInt(itemName);
-         Assert.fail("NumberFormatException");
+         fail("NumberFormatException");
       } catch (NumberFormatException e) {
       }
    }
@@ -262,7 +267,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Integer.toString(value));
 
-      Assert.assertEquals(value, message.getInt(itemName));
+      assertEquals(value, message.getInt(itemName));
    }
 
    @Test
@@ -272,7 +277,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getInt(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -284,7 +289,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setChar(itemName, value);
 
-      Assert.assertEquals(value, message.getChar(itemName));
+      assertEquals(value, message.getChar(itemName));
    }
 
    @Test
@@ -293,7 +298,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getChar(itemName);
-         Assert.fail("NullPointerException");
+         fail("NullPointerException");
       } catch (NullPointerException e) {
       }
    }
@@ -305,7 +310,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getChar(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -317,7 +322,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setByte(itemName, value);
 
-      Assert.assertEquals(value, message.getLong(itemName));
+      assertEquals(value, message.getLong(itemName));
    }
 
    @Test
@@ -327,7 +332,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setShort(itemName, value);
 
-      Assert.assertEquals(value, message.getLong(itemName));
+      assertEquals(value, message.getLong(itemName));
    }
 
    @Test
@@ -337,7 +342,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setInt(itemName, value);
 
-      Assert.assertEquals(value, message.getLong(itemName));
+      assertEquals(value, message.getLong(itemName));
    }
 
    @Test
@@ -347,7 +352,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setLong(itemName, value);
 
-      Assert.assertEquals(value, message.getLong(itemName));
+      assertEquals(value, message.getLong(itemName));
    }
 
    @Test
@@ -356,7 +361,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getLong(itemName);
-         Assert.fail("NumberFormatException");
+         fail("NumberFormatException");
       } catch (NumberFormatException e) {
       }
    }
@@ -368,7 +373,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Long.toString(value));
 
-      Assert.assertEquals(value, message.getLong(itemName));
+      assertEquals(value, message.getLong(itemName));
    }
 
    @Test
@@ -378,7 +383,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getLong(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -390,7 +395,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setFloat(itemName, value);
 
-      Assert.assertEquals(value, message.getFloat(itemName), 0.000001);
+      assertEquals(value, message.getFloat(itemName), 0.000001);
    }
 
    @Test
@@ -399,7 +404,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getFloat(itemName);
-         Assert.fail("NullPointerException");
+         fail("NullPointerException");
       } catch (NullPointerException e) {
       }
    }
@@ -411,7 +416,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Float.toString(value));
 
-      Assert.assertEquals(value, message.getFloat(itemName), 0.000001);
+      assertEquals(value, message.getFloat(itemName), 0.000001);
    }
 
    @Test
@@ -421,7 +426,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getFloat(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -433,7 +438,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setFloat(itemName, value);
 
-      Assert.assertEquals(Float.valueOf(value).doubleValue(), message.getDouble(itemName), 0.000001);
+      assertEquals(Float.valueOf(value).doubleValue(), message.getDouble(itemName), 0.000001);
    }
 
    @Test
@@ -443,7 +448,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setDouble(itemName, value);
 
-      Assert.assertEquals(value, message.getDouble(itemName), 0.000001);
+      assertEquals(value, message.getDouble(itemName), 0.000001);
    }
 
    @Test
@@ -452,7 +457,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getDouble(itemName);
-         Assert.fail("NullPointerException");
+         fail("NullPointerException");
       } catch (NullPointerException e) {
       }
    }
@@ -464,7 +469,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, Double.toString(value));
 
-      Assert.assertEquals(value, message.getDouble(itemName), 0.000001);
+      assertEquals(value, message.getDouble(itemName), 0.000001);
    }
 
    @Test
@@ -474,7 +479,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getDouble(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -486,7 +491,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setBoolean(itemName, value);
 
-      Assert.assertEquals(Boolean.toString(value), message.getString(itemName));
+      assertEquals(Boolean.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -496,7 +501,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setByte(itemName, value);
 
-      Assert.assertEquals(Byte.toString(value), message.getString(itemName));
+      assertEquals(Byte.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -506,7 +511,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setChar(itemName, value);
 
-      Assert.assertEquals(Character.toString(value), message.getString(itemName));
+      assertEquals(Character.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -516,7 +521,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setShort(itemName, value);
 
-      Assert.assertEquals(Short.toString(value), message.getString(itemName));
+      assertEquals(Short.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -526,7 +531,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setInt(itemName, value);
 
-      Assert.assertEquals(Integer.toString(value), message.getString(itemName));
+      assertEquals(Integer.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -536,7 +541,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setLong(itemName, value);
 
-      Assert.assertEquals(Long.toString(value), message.getString(itemName));
+      assertEquals(Long.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -546,7 +551,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setFloat(itemName, value);
 
-      Assert.assertEquals(Float.toString(value), message.getString(itemName));
+      assertEquals(Float.toString(value), message.getString(itemName));
    }
 
    @Test
@@ -556,14 +561,14 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setDouble(itemName, value);
 
-      Assert.assertEquals(Double.toString(value), message.getString(itemName));
+      assertEquals(Double.toString(value), message.getString(itemName));
    }
 
    @Test
    public void testGetStringFromNull() throws Exception {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
 
-      Assert.assertNull(message.getString(itemName));
+      assertNull(message.getString(itemName));
    }
 
    @Test
@@ -573,7 +578,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, value);
 
-      Assert.assertEquals(value, message.getString(itemName));
+      assertEquals(value, message.getString(itemName));
    }
 
    @Test
@@ -589,7 +594,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
    public void testGetBytesFromNull() throws Exception {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
 
-      Assert.assertNull(message.getBytes(itemName));
+      assertNull(message.getBytes(itemName));
    }
 
    @Test
@@ -599,7 +604,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
       try {
          message.getBytes(itemName);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -610,7 +615,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setObject(itemName, value);
 
-      Assert.assertEquals(value, message.getObject(itemName));
+      assertEquals(value, message.getObject(itemName));
    }
 
    @Test
@@ -662,6 +667,6 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setObject(itemName, value);
 
-      Assert.assertEquals(value, message.getObject(itemName));
+      assertEquals(value, message.getObject(itemName));
    }
 }

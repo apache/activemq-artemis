@@ -17,9 +17,16 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -48,8 +55,9 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +94,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       params.put("amqpMinLargeMessageSize", MIN_LARGE_MESSAGE_SIZE);
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -108,12 +116,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnLocalBrokerFederatesMessagesFromRemoteAMQP() throws Exception {
       testAddresDemandOnLocalBrokerFederatesMessagesFromRemote("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnLocalBrokerFederatesMessagesFromRemoteCORE() throws Exception {
       testAddresDemandOnLocalBrokerFederatesMessagesFromRemote("CORE");
    }
@@ -181,12 +191,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testDivertAddressDemandOnLocalBrokerFederatesMessagesFromRemoteAMQP() throws Exception {
       testDivertAddresDemandOnLocalBrokerFederatesMessagesFromRemote("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testDivertAddresDemandOnLocalBrokerFederatesMessagesFromRemoteCORE() throws Exception {
       testDivertAddresDemandOnLocalBrokerFederatesMessagesFromRemote("CORE");
    }
@@ -264,12 +276,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesMessagesFromRemoteAMQP() throws Exception {
       testQueueDemandOnLocalBrokerFederatesMessagesFromRemote("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesMessagesFromRemoteCORE() throws Exception {
       testQueueDemandOnLocalBrokerFederatesMessagesFromRemote("CORE");
    }
@@ -332,12 +346,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnRemoteBrokerFederatesMessagesFromLocalAMQP() throws Exception {
       testAddresDemandOnRemoteBrokerFederatesMessagesFromLocal("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnRemoteBrokerFederatesMessagesFromLocalCORE() throws Exception {
       testAddresDemandOnRemoteBrokerFederatesMessagesFromLocal("CORE");
    }
@@ -405,12 +421,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnRemoteWithRemoteConfigrationLeadsToMessageBeingFederatedAMQP() throws Exception {
       testQueueDemandOnRemoteWithRemoteConfigrationLeadsToMessageBeingFederated("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnRemoteWithRemoteConfigrationLeadsToMessageBeingFederatedCORE() throws Exception {
       testQueueDemandOnRemoteWithRemoteConfigrationLeadsToMessageBeingFederated("CORE");
    }
@@ -473,12 +491,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testDivertAddresDemandOnRemoteBrokerFederatesMessagesFromLocalAMQP() throws Exception {
       testDivertAddresDemandOnRemoteBrokerFederatesMessagesFromLocal("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testDivertAddresDemandOnRemoteBrokerFederatesMessagesFromLocalCORE() throws Exception {
       testDivertAddresDemandOnRemoteBrokerFederatesMessagesFromLocal("CORE");
    }
@@ -557,19 +577,22 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemoteAMQP() throws Exception {
       // core tunneling shouldn't affect the AMQP message that cross
       testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemote("AMQP", true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemoteCORENoTunneling() throws Exception {
       // core message should be converted to AMQP and back.
       testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemote("CORE", false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemoteCOREWithTunneling() throws Exception {
       // core messages should be tunneled in an AMQP message an then read back
       testAddresDemandOnLocalBrokerFederatesLargeMessagesFromRemote("CORE", true);
@@ -655,13 +678,15 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesLargeMessagesFromRemoteAMQP() throws Exception {
       // core tunneling shouldn't affect the AMQP message that cross
       testQueueDemandOnLocalBrokerFederatesLargeMessagesFromRemote("AMQP", true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesLargeMessagesFromRemoteCORENoTunneling() throws Exception {
       // core message should be converted to AMQP and back.
       testQueueDemandOnLocalBrokerFederatesLargeMessagesFromRemote("CORE", false);
@@ -749,12 +774,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreMessageCrossingAddressWithThreeBrokersWithoutTunneling() throws Exception {
       doTestCoreMessageCrossingAddressWithThreeBrokers(false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreMessageCrossingAddressWithThreeBrokersWithTunneling() throws Exception {
       doTestCoreMessageCrossingAddressWithThreeBrokers(true);
    }
@@ -925,27 +952,32 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient() throws Exception {
       testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient("CORE", "AMQP", false); // Tunneling doesn't matter here
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreConsumerDemandOnLocalBrokerFederatesMessageFromCoreClientTunneled() throws Exception {
       testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient("CORE", "CORE", true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testCoreConsumerDemandOnLocalBrokerFederatesMessageFromCoreClientUnTunneled() throws Exception {
       testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient("CORE", "CORE", false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPConsumerDemandOnLocalBrokerFederatesMessageFromCoreClientTunneled() throws Exception {
       testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient("AMQP", "CORE", true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPConsumerDemandOnLocalBrokerFederatesMessageFromCoreClientNotTunneled() throws Exception {
       testCoreConsumerDemandOnLocalBrokerFederatesMessageFromAMQPClient("AMQP", "CORE", false);
    }
@@ -1028,12 +1060,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemoteAMQP() throws Exception {
       testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemote("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemoteCORE() throws Exception {
       testQueueDemandOnLocalBrokerFederatesMatchingFilteredMessagesFromRemote("CORE");
    }
@@ -1122,12 +1156,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddressFederatedOverSingleConnectionNotReflectedBackToSendingNodeAMQP() throws Exception {
       doTestAddressFederatedOverSingleConnectionNotReflectedBackToSendingNode("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddressFederatedOverSingleConnectionNotReflectedBackToSendingNodeCore() throws Exception {
       doTestAddressFederatedOverSingleConnectionNotReflectedBackToSendingNode("CORE");
    }
@@ -1230,12 +1266,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddressFederatedOnTwoConnectionsNotReflectedBackToSendingNodeAMQP() throws Exception {
       doTestAddressFederatedOverTwoConnectionNotReflectedBackToSendingNode("AMQP");
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testAddressFederatedOnTwoConnectionsNotReflectedBackToSendingNodeCore() throws Exception {
       doTestAddressFederatedOverTwoConnectionNotReflectedBackToSendingNode("CORE");
    }

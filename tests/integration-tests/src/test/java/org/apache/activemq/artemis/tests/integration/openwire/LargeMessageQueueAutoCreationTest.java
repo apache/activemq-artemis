@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -24,13 +27,15 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -46,9 +51,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 //adapted from https://issues.apache.org/jira/browse/ARTEMIS-1416
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
 
    Queue queue1;
@@ -56,16 +62,16 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
    ActiveMQConnection testConn;
    ClientSession clientSession;
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean usingCore;
 
-   @Parameterized.Parameters(name = "isCore={0}")
+   @Parameters(name = "isCore={0}")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String randomSuffix = new BigInteger(130, random).toString(32);
@@ -75,7 +81,7 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       testConn.close();
       super.tearDown();
@@ -97,12 +103,14 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
       return new ActiveMQQueue(queueName);
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testSmallString() throws Exception {
       sendStringOfSize(1024);
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testHugeString() throws Exception {
       sendStringOfSize(1024 * 1024);
    }
@@ -144,10 +152,10 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
          conn.start();
 
          TextMessage rm = (TextMessage) cons.receive(5000);
-         Assert.assertNotNull(rm);
+         assertNotNull(rm);
 
          String str = rm.getText();
-         Assert.assertEquals(originalString, str);
+         assertEquals(originalString, str);
       } finally {
          if (conn != null) {
             conn.close();

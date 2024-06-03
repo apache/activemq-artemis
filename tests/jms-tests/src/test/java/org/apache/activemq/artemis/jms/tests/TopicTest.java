@@ -29,7 +29,7 @@ import javax.jms.Topic;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopicTest extends JMSTestCase {
 

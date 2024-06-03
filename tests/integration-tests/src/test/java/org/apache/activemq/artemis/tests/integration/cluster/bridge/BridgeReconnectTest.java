@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,28 +70,27 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeReconnectTest extends BridgeTestBase {
 
-   @Parameterized.Parameters(name = "persistentCache={0}")
+   @Parameters(name = "persistentCache={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean persistCache;
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -118,7 +125,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    int reconnectAttempts = 3;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server0Params = new HashMap<>();
@@ -152,7 +159,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
     *
     * @see https://bugzilla.redhat.com/show_bug.cgi?id=900764
     */
-   @Test
+   @TestTemplate
    public void testFailoverDeploysBridge() throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
       server0 = createActiveMQServer(0, server0Params, isNetty(), nodeManager);
@@ -199,11 +206,11 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       session0 = csf0.createSession(false, true, true);
       Map<String, Bridge> bridges = server2.getClusterManager().getBridges();
-      assertTrue("backup must deploy bridge on failover", !bridges.isEmpty());
+      assertTrue(!bridges.isEmpty(), "backup must deploy bridge on failover");
    }
 
    // Fail bridge and reconnecting immediately
-   @Test
+   @TestTemplate
    public void testFailoverAndReconnectImmediately() throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
       server0 = createActiveMQServer(0, server0Params, isNetty(), nodeManager);
@@ -286,7 +293,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    }
 
    // Fail bridge and attempt failover a few times before succeeding
-   @Test
+   @TestTemplate
    public void testFailoverAndReconnectAfterAFewTries() throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
 
@@ -356,7 +363,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    }
 
    // Fail bridge and reconnect same node, no backup specified
-   @Test
+   @TestTemplate
    public void testReconnectSameNode() throws Exception {
       server0 = createActiveMQServer(0, isNetty(), server0Params);
 
@@ -434,7 +441,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
    // Fail bridge and reconnect same node, no backup specified
    // It will keep a send blocking as if CPU was making it creep
-   @Test
+   @TestTemplate
    public void testReconnectSameNodeAfterDeliveryWithBlocking() throws Exception {
       server0 = createActiveMQServer(0, isNetty(), server0Params);
 
@@ -556,27 +563,27 @@ public class BridgeReconnectTest extends BridgeTestBase {
       HashMap<Integer, AtomicInteger> counts = countJournal(server1.getConfiguration());
       if (persistCache) {
          // There should be one record per message
-         Assert.assertEquals(numMessages, counts.get((int) JournalRecordIds.DUPLICATE_ID).intValue());
+         assertEquals(numMessages, counts.get((int) JournalRecordIds.DUPLICATE_ID).intValue());
       } else {
          // no cache means there shouldn't be an id anywhere
-         Assert.assertNull(counts.get((int) JournalRecordIds.DUPLICATE_ID));
+         assertNull(counts.get((int) JournalRecordIds.DUPLICATE_ID));
       }
    }
 
    // We test that we can pause more than client failure check period (to prompt the pinger to failing)
    // before reconnecting
-   @Test
+   @TestTemplate
    public void testShutdownServerCleanlyAndReconnectSameNodeWithSleep() throws Exception {
       testShutdownServerCleanlyAndReconnectSameNode(true);
    }
 
-   @Test
+   @TestTemplate
    public void testShutdownServerCleanlyAndReconnectSameNode() throws Exception {
       testShutdownServerCleanlyAndReconnectSameNode(false);
    }
 
    private void testShutdownServerCleanlyAndReconnectSameNode(final boolean sleep) throws Exception {
-      Assume.assumeTrue(persistCache);
+      assumeTrue(persistCache);
       server0 = createActiveMQServer(0, isNetty(), server0Params);
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
@@ -644,8 +651,8 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage r1 = cons1.receive(30000);
-         assertNotNull("received expected msg", r1);
-         assertEquals("property value matches", i, r1.getObjectProperty(propKey));
+         assertNotNull(r1, "received expected msg");
+         assertEquals(i, r1.getObjectProperty(propKey), "property value matches");
       }
 
       BridgeReconnectTest.logger.debug("got messages");
@@ -681,7 +688,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          assertEquals(0, server2.getRemotingService().getConnections().size());
    }
 
-   @Test
+   @TestTemplate
    public void testFailoverThenFailAgainAndReconnect() throws Exception {
       server0 = createActiveMQServer(0, isNetty(), server0Params);
 
@@ -768,7 +775,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage r1 = cons1.receive(1500);
-         assertNotNull("Didn't receive message", r1);
+         assertNotNull(r1, "Didn't receive message");
          if (outOfOrder == -1 && i != r1.getIntProperty(propKey).intValue()) {
             outOfOrder = r1.getIntProperty(propKey).intValue();
             supposed = i;
@@ -783,7 +790,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
       assertNoMoreConnections();
    }
 
-   @Test
+   @TestTemplate
    public void testDeliveringCountOnBridgeConnectionFailure() throws Exception {
       server0 = createActiveMQServer(0, isNetty(), server0Params);
 

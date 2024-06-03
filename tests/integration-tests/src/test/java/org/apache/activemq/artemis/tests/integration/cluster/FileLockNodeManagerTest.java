@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +25,6 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
 
 public class FileLockNodeManagerTest extends NodeManagerTest {
 
@@ -42,7 +43,7 @@ public class FileLockNodeManagerTest extends NodeManagerTest {
       }
       for (Process process : processes) {
          if (process.exitValue() == 9) {
-            Assert.fail("failed see output");
+            fail("failed see output");
          }
       }
 

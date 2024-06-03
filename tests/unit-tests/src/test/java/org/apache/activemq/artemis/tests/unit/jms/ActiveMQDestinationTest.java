@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms;
 
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Destination;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -25,11 +32,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQDestinationTest extends ActiveMQTestBase {
 
@@ -43,10 +46,10 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       ActiveMQDestination sameDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
       ActiveMQDestination differentDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address + RandomUtil.randomString());
 
-      Assert.assertFalse(destination.equals(null));
-      Assert.assertTrue(destination.equals(destination));
-      Assert.assertTrue(destination.equals(sameDestination));
-      Assert.assertFalse(destination.equals(differentDestination));
+      assertFalse(destination.equals(null));
+      assertTrue(destination.equals(destination));
+      assertTrue(destination.equals(sameDestination));
+      assertFalse(destination.equals(differentDestination));
    }
 
    @Test
@@ -54,8 +57,8 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Queue);
-      Assert.assertEquals(destinationName, ((Queue) destination).getQueueName());
+      assertTrue(destination instanceof Queue);
+      assertEquals(destinationName, ((Queue) destination).getQueueName());
    }
 
    @Test
@@ -63,8 +66,8 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = TOPIC_QUALIFIED_PREFIX + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Topic);
-      Assert.assertEquals(destinationName, ((Topic) destination).getTopicName());
+      assertTrue(destination instanceof Topic);
+      assertEquals(destinationName, ((Topic) destination).getTopicName());
    }
 
    @Test
@@ -73,7 +76,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = invalidPrefix + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Destination);
+      assertTrue(destination instanceof Destination);
    }
 
    @Test
@@ -82,7 +85,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       try {
          System.out.println("Destination: " + destination.toString());
       } catch (NullPointerException npe) {
-         Assert.fail("Caught NPE!");
+         fail("Caught NPE!");
       }
    }
 
@@ -92,7 +95,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       try {
          System.out.println("Destination: " + destination.toString());
       } catch (NullPointerException npe) {
-         Assert.fail("Caught NPE!");
+         fail("Caught NPE!");
       }
    }
 

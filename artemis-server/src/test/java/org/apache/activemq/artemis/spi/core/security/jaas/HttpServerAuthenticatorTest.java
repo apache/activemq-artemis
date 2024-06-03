@@ -16,6 +16,20 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.AUTHORIZATION_HEADER_NAME;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.DEFAULT_SUBJECT_ATTRIBUTE;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REALM_PROPERTY_NAME;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REQUEST_SUBJECT_ATTRIBUTE_PROPERTY_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import javax.security.auth.Subject;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -25,24 +39,10 @@ import java.util.Set;
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpsExchange;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
-
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.AUTHORIZATION_HEADER_NAME;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.DEFAULT_SUBJECT_ATTRIBUTE;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REALM_PROPERTY_NAME;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REQUEST_SUBJECT_ATTRIBUTE_PROPERTY_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class HttpServerAuthenticatorTest {
 
@@ -50,7 +50,7 @@ public class HttpServerAuthenticatorTest {
 
    static final String loginConfigSystemPropName = "java.security.auth.login.config";
 
-   @BeforeClass
+   @BeforeAll
    public static void setSystemProps() {
       URL url = HttpServerAuthenticatorTest.class.getClassLoader().getResource("login.config");
       if (url != null) {
@@ -61,7 +61,7 @@ public class HttpServerAuthenticatorTest {
       }
    }
 
-   @AfterClass
+   @AfterAll
    public static void unsetSystemProps() {
       System.clearProperty(loginConfigSystemPropName);
       System.clearProperty(REALM_PROPERTY_NAME);
@@ -143,7 +143,7 @@ public class HttpServerAuthenticatorTest {
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
       assertTrue(result instanceof Authenticator.Failure);
-      assertNull("no subject", httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE));
+      assertNull(httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE), "no subject");
 
       // kube login attempt
       verify(httpsExchange, times(1)).getRequestHeaders();

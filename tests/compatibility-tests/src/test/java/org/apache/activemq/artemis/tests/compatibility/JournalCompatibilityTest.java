@@ -27,19 +27,20 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JournalCompatibilityTest extends VersionedBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
@@ -65,13 +66,13 @@ public class JournalCompatibilityTest extends VersionedBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void removeFolder() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
    }
 
-   @After
+   @AfterEach
    public void tearDown() {
       try {
          stopServer(serverClassloader);
@@ -83,48 +84,48 @@ public class JournalCompatibilityTest extends VersionedBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
+      startServer(serverFolder, senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
 
       setVariable(receiverClassloader, "latch", null);
       evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceivePaging() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
+      startServer(serverFolder, senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "journalcompatibility/forcepaging.groovy");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       evaluate(senderClassloader, "journalcompatibility/ispaging.groovy");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
       evaluate(receiverClassloader, "journalcompatibility/ispaging.groovy");
 
       setVariable(receiverClassloader, "latch", null);
       evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveAMQPPaging() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
+      startServer(serverFolder, senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "journalcompatibility/forcepaging.groovy");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages", "AMQP");
       evaluate(senderClassloader, "journalcompatibility/ispaging.groovy");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
       evaluate(receiverClassloader, "journalcompatibility/ispaging.groovy");
 
       setVariable(receiverClassloader, "latch", null);
@@ -135,15 +136,15 @@ public class JournalCompatibilityTest extends VersionedBase {
     * Test that the server starts properly using an old journal even though persistent size
     * metrics were not originaly stored
     */
-   @Test
+   @TestTemplate
    public void testSendReceiveQueueMetrics() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
+      startServer(serverFolder, senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
 
       setVariable(receiverClassloader, "latch", null);
       evaluate(receiverClassloader, "metrics/queueMetrics.groovy", server, receiver, "receiveMessages");
@@ -154,18 +155,18 @@ public class JournalCompatibilityTest extends VersionedBase {
     * be persisted the journal the server should still start properly.  The persistent sizes
     * will be recovered when the messages are depaged
     */
-   @Test
+   @TestTemplate
    public void testSendReceiveSizeQueueMetricsPaging() throws Throwable {
       setVariable(senderClassloader, "persistent", true);
       //Set max size to 1 to cause messages to immediately go to the paging store
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", Long.toString(1), true);
+      startServer(serverFolder, senderClassloader, "journalTest", Long.toString(1), true);
       evaluate(senderClassloader, "journalcompatibility/forcepaging.groovy");
       evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
       evaluate(senderClassloader, "journalcompatibility/ispaging.groovy");
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", Long.toString(1), false);
+      startServer(serverFolder, receiverClassloader, "journalTest", Long.toString(1), false);
       evaluate(receiverClassloader, "journalcompatibility/ispaging.groovy");
 
 

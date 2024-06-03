@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -29,19 +32,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer7Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
+   @Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}});
    }
@@ -56,7 +60,7 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception {
       final AtomicInteger counter = new AtomicInteger(0);
       final CountDownLatch sendDone = new CountDownLatch(1);

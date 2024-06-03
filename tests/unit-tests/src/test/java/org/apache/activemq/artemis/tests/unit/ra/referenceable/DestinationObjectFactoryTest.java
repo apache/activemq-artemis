@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra.referenceable;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
@@ -23,8 +27,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DestinationObjectFactoryTest extends ActiveMQTestBase {
 
@@ -38,9 +41,9 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
       Class<?> factoryClass = Class.forName(factoryName);
       ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
       Object object = factory.getObjectInstance(reference, null, null, null);
-      Assert.assertNotNull(object);
-      Assert.assertTrue(object instanceof ActiveMQDestination);
-      Assert.assertEquals(queue, object);
+      assertNotNull(object);
+      assertTrue(object instanceof ActiveMQDestination);
+      assertEquals(queue, object);
    }
 
 

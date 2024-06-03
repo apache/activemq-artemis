@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.IllegalStateException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -43,7 +49,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.util.IdGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
@@ -116,7 +122,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       assertTrue(closeDone.await(20, TimeUnit.SECONDS));
       // await possible exceptions
       Thread.sleep(1000);
-      assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
+      assertTrue(exceptions.isEmpty(), "no exceptions: " + exceptions);
       executor.shutdown();
    }
 
@@ -159,7 +165,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       assertNotNull(m);
       m = consumer.receive(5000);
       assertNotNull(m);
-      assertFalse("redelivered flag set", m.getJMSRedelivered());
+      assertFalse(m.getJMSRedelivered(), "redelivered flag set");
 
       // install another consumer while message dispatch is unacked/uncommitted
       Session redispatchSession = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -172,7 +178,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       Message msg = redispatchConsumer.receive(3000);
       assertNotNull(msg);
 
-      assertTrue("redelivered flag set", msg.getJMSRedelivered());
+      assertTrue(msg.getJMSRedelivered(), "redelivered flag set");
       assertEquals(2, msg.getLongProperty("JMSXDeliveryCount"));
 
       msg = redispatchConsumer.receive(1000);

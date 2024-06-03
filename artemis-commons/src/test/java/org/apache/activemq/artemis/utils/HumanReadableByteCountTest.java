@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class HumanReadableByteCountTest {
 

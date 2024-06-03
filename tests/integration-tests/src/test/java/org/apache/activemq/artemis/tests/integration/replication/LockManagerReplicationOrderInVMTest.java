@@ -14,27 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.activemq.artemis.tests.integration.replication;
 
-package org.apache.activemq.artemis.tests.rules;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 
-import java.io.File;
+public class LockManagerReplicationOrderInVMTest extends ReplicationOrderTest {
 
-import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.rules.ExternalResource;
-
-/**
- * This will remove a folder on a tearDown *
- */
-public class RemoveFolder extends ExternalResource {
-
-   private final String folderName;
-
-   public RemoveFolder(String folderName) {
-      this.folderName = folderName;
+   @Override
+   protected void createConfigs() throws Exception {
+      createPluggableReplicatedConfigs();
    }
 
    @Override
-   protected void after() {
-      FileUtil.deleteDirectory(new File(folderName));
+   protected void setupHAPolicyConfiguration() {
+      ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
+         .setMaxSavedReplicatedJournalsSize(2)
+         .setAllowFailBack(true);
    }
 }

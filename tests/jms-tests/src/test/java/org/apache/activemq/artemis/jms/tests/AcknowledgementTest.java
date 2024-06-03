@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -35,13 +39,10 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class AcknowledgementTest extends JMSTestCase {
 
@@ -729,7 +730,7 @@ public class AcknowledgementTest extends JMSTestCase {
       if (messageReceived != null) {
          logger.debug("Message received {}", messageReceived.getText());
       }
-      Assert.assertNull(messageReceived);
+      assertNull(messageReceived);
 
       consumer.close();
 
@@ -1256,7 +1257,7 @@ public class AcknowledgementTest extends JMSTestCase {
       logger.debug("BlockOnAcknowledge=false MessageCount={} TimeToConsume={}", messageCount, time1);
       logger.debug("BlockOnAcknowledge=true MessageCount={} TimeToConsume={}", messageCount, time2);
 
-      Assert.assertTrue(time1 < (time2 / 2));
+      assertTrue(time1 < (time2 / 2));
 
    }
 

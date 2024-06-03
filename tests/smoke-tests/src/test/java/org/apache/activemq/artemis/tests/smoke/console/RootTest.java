@@ -16,24 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.MutableCapabilities;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class RootTest extends ConsoleTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    public RootTest(MutableCapabilities browserOptions) {
       super(browserOptions);
    }
 
-   @Test
+   @TestTemplate
    public void testRedirect() {
       driver.get(webServerUrl);
-      Assert.assertTrue(driver.getCurrentUrl().startsWith(webServerUrl + "/console"));
+      assertTrue(driver.getCurrentUrl().startsWith(webServerUrl + "/console"));
    }
 }

@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AddressImplTest extends ActiveMQTestBase {
 
@@ -31,7 +33,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s2 = new SimpleString("abcde");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
-      Assert.assertTrue(a1.matches(a2));
+      assertTrue(a1.matches(a2));
    }
 
    @Test
@@ -40,7 +42,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s2 = new SimpleString("a.b");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
-      Assert.assertTrue(a1.matches(a2));
+      assertTrue(a1.matches(a2));
    }
 
    @Test
@@ -49,7 +51,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s2 = new SimpleString("a.b.c.d.e.f.g.h.i.j.k.l.m.n.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
-      Assert.assertFalse(a1.matches(a2));
+      assertFalse(a1.matches(a2));
    }
 
    @Test
@@ -60,8 +62,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -72,8 +74,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -84,8 +86,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -96,8 +98,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -108,8 +110,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertTrue(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertTrue(a2.matches(w));
    }
 
    @Test
@@ -120,8 +122,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertTrue(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertTrue(a2.matches(w));
    }
 
    @Test
@@ -132,8 +134,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertTrue(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertTrue(a2.matches(w));
    }
 
    @Test
@@ -144,8 +146,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertTrue(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertTrue(a2.matches(w));
    }
 
    @Test
@@ -156,8 +158,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -168,8 +170,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertTrue(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertTrue(a2.matches(w));
    }
 
    @Test
@@ -180,8 +182,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -192,8 +194,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -204,8 +206,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -216,8 +218,8 @@ public class AddressImplTest extends ActiveMQTestBase {
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
-      Assert.assertFalse(a2.matches(w));
+      assertTrue(a1.matches(w));
+      assertFalse(a2.matches(w));
    }
 
    @Test
@@ -226,7 +228,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("a.b.c#");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    @Test
@@ -235,7 +237,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("#a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    @Test
@@ -244,7 +246,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("#*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    @Test
@@ -253,7 +255,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("a.b.c*");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    @Test
@@ -262,7 +264,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    @Test
@@ -271,7 +273,7 @@ public class AddressImplTest extends ActiveMQTestBase {
       SimpleString s3 = new SimpleString("*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
-      Assert.assertFalse(a1.matches(w));
+      assertFalse(a1.matches(w));
    }
 
    /**
@@ -283,6 +285,6 @@ public class AddressImplTest extends ActiveMQTestBase {
       final SimpleString s3 = new SimpleString("a.b.#.d");
       final Address a1 = new AddressImpl(s1);
       final Address w = new AddressImpl(s3);
-      Assert.assertTrue(a1.matches(w));
+      assertTrue(a1.matches(w));
    }
 }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +42,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
@@ -51,7 +55,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -130,14 +134,14 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
       for (String address : addresses) {
          assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(true, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
       }
 
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
          assertNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(false, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
       }
 
       consumerSession.close();

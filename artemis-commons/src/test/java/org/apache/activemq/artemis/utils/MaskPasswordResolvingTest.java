@@ -16,19 +16,21 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
-@RunWith(Parameterized.class)
-public class MaskPasswordResolvingTest {
+@ExtendWith(ParameterizedTestExtension.class)
+public class MaskPasswordResolvingTest extends ArtemisTestCase {
 
    private static final String plainPassword = "password";
    private static final String defaultMaskPassword = "defaultmasked";
@@ -37,7 +39,7 @@ public class MaskPasswordResolvingTest {
    private static final String oldCustomizedCodecPassword = "secret";
    private static final String oldExplicitPlainPassword = "PASSWORD";
 
-   @Parameterized.Parameters(name = "mask({0})password({1})codec({2})")
+   @Parameters(name = "mask({0})password({1})codec({2})")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{null, plainPassword, null},
                                           {null, "ENC(3bdfd94fe8cdf710e7fefa72f809ea90)", null},
@@ -58,7 +60,7 @@ public class MaskPasswordResolvingTest {
       this.codec = codec;
    }
 
-   @Test
+   @TestTemplate
    public void testPasswordResolving() throws Exception {
       String resolved = PasswordMaskingUtil.resolveMask(maskPassword, password, codec);
       checkResult(resolved);

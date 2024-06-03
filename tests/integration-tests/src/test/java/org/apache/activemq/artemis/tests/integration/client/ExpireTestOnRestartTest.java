@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,8 +36,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +48,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
    ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true);
@@ -128,7 +132,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
          extras++;
       }
 
-      assertEquals("Received extra messages on expire address", 0, extras);
+      assertEquals(0, extras, "Received extra messages on expire address");
 
       session.commit();
 

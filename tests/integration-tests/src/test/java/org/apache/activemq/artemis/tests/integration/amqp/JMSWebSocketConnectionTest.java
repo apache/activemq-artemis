@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -25,10 +28,13 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+
+import java.util.concurrent.TimeUnit;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test connections can be established to remote peers via WebSockets
@@ -40,7 +46,8 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testCreateConnectionAndStart() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -49,7 +56,8 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testSendReceiveOverWS() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -73,7 +81,8 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testSendLargeMessageToClientFromOpenWire() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -95,8 +104,9 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
       }
    }
 
-   @Ignore("Broker can't accept messages over 65535 right now")
-   @Test(timeout = 30000)
+   @Disabled("Broker can't accept messages over 65535 right now")
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testSendLargeMessageToClientFromAMQP() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();

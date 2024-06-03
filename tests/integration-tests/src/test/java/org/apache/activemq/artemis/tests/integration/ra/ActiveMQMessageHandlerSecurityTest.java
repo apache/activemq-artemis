@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -27,7 +29,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
 

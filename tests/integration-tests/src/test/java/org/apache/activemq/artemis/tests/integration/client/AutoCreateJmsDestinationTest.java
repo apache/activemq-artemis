@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.api.core.management.ResourceNames.ADDRESS;
+import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEUE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -30,6 +39,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -55,15 +65,12 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.ADDRESS;
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEUE;
 
 public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
@@ -97,7 +104,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       // make sure the JMX control was created for the address and queue
@@ -132,7 +139,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       // make sure the JMX control was created for the address and queue
@@ -165,7 +172,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       connection.close();
@@ -196,7 +203,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       connection.close();
@@ -218,9 +225,9 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       try {
          session.createProducer(queue);
-         Assert.fail("Sending a message here should throw a JMSSecurityException");
+         fail("Sending a message here should throw a JMSSecurityException");
       } catch (Exception e) {
-         Assert.assertTrue(e instanceof JMSSecurityException);
+         assertTrue(e instanceof JMSSecurityException);
       }
 
       connection.close();
@@ -253,11 +260,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
 
       Message m = messageConsumer.receive(500);
-      Assert.assertNull(m);
+      assertNull(m);
 
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
-      Assert.assertEquals(0, q.getMessagesAdded());
+      assertEquals(0, q.getMessageCount());
+      assertEquals(0, q.getMessagesAdded());
       connection.close();
    }
 
@@ -275,11 +282,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
 
       Message m = messageConsumer.receive(500);
-      Assert.assertNull(m);
+      assertNull(m);
 
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
-      Assert.assertEquals(0, q.getMessagesAdded());
+      assertEquals(0, q.getMessageCount());
+      assertEquals(0, q.getMessagesAdded());
       connection.close();
    }
 
@@ -399,10 +406,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          producer.send(session.createTextMessage("hello"));
       }
 
-      Assert.assertTrue((((ActiveMQDestination) topic).isCreated()));
+      assertTrue((((ActiveMQDestination) topic).isCreated()));
    }
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnly() throws Exception {
@@ -420,15 +428,16 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(null);
          try {
             producer.send(queue, session.createTextMessage("hello"));
-            Assert.fail("Expected to throw exception here");
+            fail("Expected to throw exception here");
          } catch (JMSException expected) {
          }
-         Assert.assertFalse(((ActiveMQDestination) queue).isCreated());
+         assertFalse(((ActiveMQDestination) queue).isCreated());
       }
 
    }
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnlyDuringProducerCreate() throws Exception {
@@ -444,15 +453,16 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
          MessageProducer producer = session.createProducer(queue);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (JMSException expected) {
       }
 
-      Assert.assertFalse(((ActiveMQDestination) queue).isCreated());
+      assertFalse(((ActiveMQDestination) queue).isCreated());
    }
 
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnlyDuringProducerCreateQueueSucceed() throws Exception {
@@ -467,14 +477,14 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
-         Assert.assertNotNull(server.locateQueue(addressName));
+         assertNotNull(server.locateQueue(addressName));
 
-         Assert.assertTrue(((ActiveMQDestination) queue).isCreated());
+         assertTrue(((ActiveMQDestination) queue).isCreated());
       }
    }
 
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -490,7 +500,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       clientSession = factory.createSession();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       clientSession.close();

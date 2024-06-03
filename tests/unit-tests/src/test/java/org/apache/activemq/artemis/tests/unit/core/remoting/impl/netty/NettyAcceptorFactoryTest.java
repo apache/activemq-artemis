@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -33,8 +35,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
@@ -74,6 +75,6 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
       Acceptor acceptor = factory.createAcceptor("netty", null, params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), new HashMap<String, ProtocolManager>());
 
-      Assert.assertTrue(acceptor instanceof NettyAcceptor);
+      assertTrue(acceptor instanceof NettyAcceptor);
    }
 }

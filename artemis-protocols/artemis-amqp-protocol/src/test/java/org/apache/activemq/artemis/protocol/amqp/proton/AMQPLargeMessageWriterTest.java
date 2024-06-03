@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -40,8 +40,8 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.impl.TransportImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -97,7 +97,7 @@ public class AMQPLargeMessageWriterTest {
    @Spy
    NullStorageManager nullStoreManager = new NullStorageManager();
 
-   @Before
+   @BeforeEach
    public void setUp() {
       MockitoAnnotations.openMocks(this);
 

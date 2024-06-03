@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -33,13 +38,12 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PendingDeliveriesTest extends ClientTestBase {
 
-   @Before
+   @BeforeEach
    public void createQueue() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST));
@@ -124,8 +128,8 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             // give more time to receive first message but do not wait so long for last as all message were most likely sent
-            Assert.assertNotNull("consumer.receive(...) returned null for " + i + "th message. Number of expected messages" +
-                    " to be received is " + NUMBER_OF_MESSAGES, i == NUMBER_OF_MESSAGES - 1 ? consumer.receive(500) : consumer.receive(5000));
+            assertNotNull(i == NUMBER_OF_MESSAGES - 1 ? consumer.receive(500) : consumer.receive(5000), "consumer.receive(...) returned null for " + i + "th message. Number of expected messages" +
+                    " to be received is " + NUMBER_OF_MESSAGES);
          }
       } finally {
          connection.stop();
@@ -158,7 +162,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
             }
          }
 
-         Assert.assertTrue(i < NUMBER_OF_MESSAGES);
+         assertTrue(i < NUMBER_OF_MESSAGES);
       } finally {
          connection.stop();
          connection.close();
@@ -171,7 +175,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          startClient(CORE_URI_NO_RECONNECT, "queue1", false, true);
          Thread.sleep(500);
-         Assert.assertFalse(loggerHandler.findText("clearing up resources"));
+         assertFalse(loggerHandler.findText("clearing up resources"));
       }
    }
 
@@ -193,7 +197,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
                             boolean log,
                             boolean cleanShutdown) throws Exception {
       Process process = SpawnedVMSupport.spawnVM(PendingDeliveriesTest.class.getName(), log, uriToUse, destinationName, Boolean.toString(cleanShutdown));
-      Assert.assertEquals(0, process.waitFor());
+      assertEquals(0, process.waitFor());
    }
 
 }

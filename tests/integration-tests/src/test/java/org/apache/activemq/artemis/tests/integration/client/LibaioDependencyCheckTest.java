@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This tests is placed in duplication here to validate that the libaio module is properly loaded on this
@@ -33,7 +35,7 @@ public class LibaioDependencyCheckTest extends ActiveMQTestBase {
    @Test
    public void testDependency() throws Exception {
       if (System.getProperties().get("os.name").equals("Linux")) {
-         assertTrue("Libaio is not available on this platform", LibaioContext.isLoaded());
+         assertTrue(LibaioContext.isLoaded(), "Libaio is not available on this platform");
       }
    }
 

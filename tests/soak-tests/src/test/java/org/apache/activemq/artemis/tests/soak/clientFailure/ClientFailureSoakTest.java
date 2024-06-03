@@ -17,6 +17,14 @@
 
 package org.apache.activemq.artemis.tests.soak.clientFailure;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -40,24 +48,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ClientFailureSoakTest extends SoakTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -68,7 +73,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
 
    private static File brokerPropertiesFile;
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       File serverLocation = getFileServerLocation(SERVER_NAME_0);
       deleteDirectory(serverLocation);
@@ -103,7 +108,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
    private final int NUMBER_OF_MESSAGES;
    private final String MEMORY_CLIENT;
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
@@ -116,9 +121,9 @@ public class ClientFailureSoakTest extends SoakTestBase {
       return parameters;
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       serverProcess = startServer(SERVER_NAME_0, 0, 30_000, brokerPropertiesFile);
@@ -137,7 +142,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
       MEMORY_CLIENT = testProperty(TEST_NAME, protocol + "_MEMORY_CLIENT", "-Xmx128m");
    }
 
-   @Test
+   @TestTemplate
    public void testSoakClientFailures() throws Exception {
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
 
@@ -197,8 +202,8 @@ public class ClientFailureSoakTest extends SoakTestBase {
                      logger.info("\n*******************************************************************************************************************************" + "\nThread {} iteration {}" + "\n*******************************************************************************************************************************", threadID, it);
                      Process process = SpawnedVMSupport.spawnVM(null, null, ClientFailureSoakTestClient.class.getName(), "-Xms128m", MEMORY_CLIENT, new String[]{}, true, true, protocol, String.valueOf(THREADS_PER_VM), String.valueOf(CLIENT_CONSUMERS_PER_THREAD), QUEUE_NAME);
                      logger.info("Started process");
-                     Assert.assertTrue(process.waitFor(10, TimeUnit.HOURS));
-                     Assert.assertEquals(ClientFailureSoakTestClient.RETURN_OK, process.exitValue());
+                     assertTrue(process.waitFor(10, TimeUnit.HOURS));
+                     assertEquals(ClientFailureSoakTestClient.RETURN_OK, process.exitValue());
                   }
                } catch (Throwable throwable) {
                   logger.warn(throwable.getMessage(), throwable);
@@ -209,7 +214,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
             });
          }
 
-         Assert.assertTrue(done.await(10, TimeUnit.HOURS));
+         assertTrue(done.await(10, TimeUnit.HOURS));
 
          if (errors.get() != 0) {
             logger.warn("There were errors in previous executions:: {}. We will look into the receiving part now, but beware of previous errors", errors.get());
@@ -240,15 +245,15 @@ public class ClientFailureSoakTest extends SoakTestBase {
 
             for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                Message message = consumer.receive(60_000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
 
                if (!receivedIDs.add(message.getIntProperty("i"))) {
                   logger.warn("Message {} received in duplicate", message.getIntProperty("i"));
-                  Assert.fail("Message " + message.getIntProperty("i") + " received in duplicate");
+                  fail("Message " + message.getIntProperty("i") + " received in duplicate");
                }
 
                if (i != message.getIntProperty("i")) {
-                  Assert.fail("Message " + message.getIntProperty("i") + " received out of order, when it was supposed to be " + i + " with body size = " + ((TextMessage) message).getText().length());
+                  fail("Message " + message.getIntProperty("i") + " received out of order, when it was supposed to be " + i + " with body size = " + ((TextMessage) message).getText().length());
                   logger.info("message {} received out of order. Expected {}", message.getIntProperty("i"), i);
                   outOfOrder++;
                }
@@ -258,15 +263,15 @@ public class ClientFailureSoakTest extends SoakTestBase {
                }
             }
             logger.info("Received {} messages outOfOrder", outOfOrder);
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             session.rollback();
-            Assert.assertEquals(0, outOfOrder);
+            assertEquals(0, outOfOrder);
          }
 
          Wait.assertEquals(0, () -> simpleManagement.getDeliveringCountOnQueue(QUEUE_NAME), 10_000, 100);
          Wait.assertEquals(0, () -> simpleManagement.getNumberOfConsumersOnQueue(QUEUE_NAME), 10_000, 100);
          Wait.assertEquals((long) NUMBER_OF_MESSAGES, () -> simpleManagement.getMessageCountOnQueue(QUEUE_NAME), 10_000, 500);
-         Assert.assertEquals("There were errors in the consumers", 0, errors.get());
+         assertEquals(0, errors.get(), "There were errors in the consumers");
       }
    }
 

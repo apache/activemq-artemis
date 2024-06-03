@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -28,9 +35,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
 
@@ -48,7 +54,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
-      Assert.assertFalse(q.isDurable());
+      assertFalse(q.isDurable());
 
       session.close();
    }
@@ -59,7 +65,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queueName).setAddress(address));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
-      Assert.assertTrue(q.isDurable());
+      assertTrue(q.isDurable());
 
       session.close();
    }
@@ -70,7 +76,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
-      Assert.assertFalse(q.isTemporary());
+      assertFalse(q.isTemporary());
 
       session.close();
    }
@@ -81,7 +87,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false).setTemporary(true));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
-      Assert.assertTrue(q.isTemporary());
+      assertTrue(q.isTemporary());
 
       session.close();
    }
@@ -93,7 +99,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
-      Assert.assertEquals(q.getFilter().getFilterString(), filterString);
+      assertEquals(q.getFilter().getFilterString(), filterString);
 
       session.close();
    }
@@ -105,7 +111,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       SimpleString filterString = new SimpleString("x=y");
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
-      Assert.assertTrue(binding.getBindable() instanceof LastValueQueue);
+      assertTrue(binding.getBindable() instanceof LastValueQueue);
 
       session.close();
    }
@@ -115,10 +121,10 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
-      Assert.assertNotNull(binding);
+      assertNotNull(binding);
       session.deleteQueue(queueName);
       binding = server.getPostOffice().getBinding(queueName);
-      Assert.assertNull(binding);
+      assertNull(binding);
       session.close();
    }
 
@@ -127,7 +133,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       try {
          session.deleteQueue(queueName);
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQNonExistentQueueException neqe) {
          //ok
       } catch (ActiveMQException e) {
@@ -137,7 +143,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);

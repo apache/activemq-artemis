@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,11 +26,10 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AcceptorControlImplTest extends Assert {
+public class AcceptorControlImplTest {
 
    @Test
    public void testParameters() throws Exception {
@@ -45,7 +46,7 @@ public class AcceptorControlImplTest extends Assert {
       AcceptorControlImpl acceptorControl = new AcceptorControlImpl(acceptor, storageManager, transportConfiguration);
 
       Map<String, Object> acceptorPrameters = acceptorControl.getParameters();
-      Assert.assertEquals(params.get("param"), acceptorPrameters.get("param"));
-      Assert.assertEquals(extraProps.get("extraProp"), acceptorPrameters.get("extraProp"));
+      assertEquals(params.get("param"), acceptorPrameters.get("param"));
+      assertEquals(extraProps.get("extraProp"), acceptorPrameters.get("extraProp"));
    }
 }

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,23 +29,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AddressConfigTest extends VersionedBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
@@ -63,19 +64,19 @@ public class AddressConfigTest extends VersionedBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
+      FileUtil.deleteDirectory(serverFolder);
    }
 
-   @After
+   @AfterEach
    public void stopTest() throws Exception {
       execute(serverClassloader, "server.stop()");
    }
 
-   @Test
+   @TestTemplate
    public void testClientSenderServerAddressSettings() throws Throwable {
-      evaluate(serverClassloader, "addressConfig/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath());
+      evaluate(serverClassloader, "addressConfig/artemisServer.groovy", serverFolder.getAbsolutePath());
 
 
       CountDownLatch latch = new CountDownLatch(1);
@@ -111,7 +112,7 @@ public class AddressConfigTest extends VersionedBase {
 
 
       try {
-         Assert.assertTrue("Sender is blocking by mistake", latch.await(10, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS), "Sender is blocking by mistake");
       } finally {
 
          t.join(TimeUnit.SECONDS.toMillis(1));

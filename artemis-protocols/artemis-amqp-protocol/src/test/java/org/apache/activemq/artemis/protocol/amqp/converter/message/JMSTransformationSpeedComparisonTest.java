@@ -33,11 +33,10 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -46,17 +45,17 @@ import io.netty.buffer.Unpooled;
 /**
  * Some simple performance tests for the Message Transformers.
  */
-@Ignore("Useful for profiling but slow and not meant as a unit test")
+@Disabled("Useful for profiling but slow and not meant as a unit test")
 public class JMSTransformationSpeedComparisonTest {
 
-   @Rule
-   public TestName test = new TestName();
+   public String test;
 
    private final int WARM_CYCLES = 1000;
    private final int PROFILE_CYCLES = 1000000;
 
-   @Before
-   public void setUp() {
+   @BeforeEach
+   public void setUp(TestInfo testInfo) {
+      this.test = testInfo.getTestMethod().get().getName();
    }
 
    @Test
@@ -293,7 +292,7 @@ public class JMSTransformationSpeedComparisonTest {
 
    private void LOG_RESULTS(long duration) {
       String result = "[JMS] Total time for " + PROFILE_CYCLES + " cycles of transforms = " + TimeUnit.NANOSECONDS.toMillis(duration) + " ms -> "
-         + test.getMethodName();
+         + test;
 
       System.out.println(result);
    }

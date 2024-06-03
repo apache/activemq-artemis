@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,19 +57,13 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class ClusteredGroupingTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    @Test
    public void testGroupingGroupTimeoutWithUnproposal() throws Exception {
@@ -140,7 +142,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
          Thread.sleep(10);
       }
 
-      assertEquals("Unproposal should cleanup the queue group as well", 0, queue0Server2.getGroupCount());
+      assertEquals(0, queue0Server2.getGroupCount(), "Unproposal should cleanup the queue group as well");
 
       removeConsumer(0);
 
@@ -424,7 +426,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       long time = System.currentTimeMillis();
       startServers(2, 0);
-      assertTrue("The group start should have waited the timeout on groups", System.currentTimeMillis() >= time + TIMEOUT_GROUPS);
+      assertTrue(System.currentTimeMillis() >= time + TIMEOUT_GROUPS, "The group start should have waited the timeout on groups");
 
       setupSessionFactory(0, isNetty());
       setupSessionFactory(2, isNetty());
@@ -446,7 +448,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       response = servers[0].getGroupingHandler().getProposal(groupIDOnConsumer1.concat(".").concat("queue0"), false);
 
-      assertFalse("group should have been reassigned since server is not up yet", response.getClusterName().toString().equals("queue0" + node1ID));
+      assertFalse(response.getClusterName().toString().equals("queue0" + node1ID), "group should have been reassigned since server is not up yet");
 
       assertNotNull(msg);
       msg.acknowledge();
@@ -506,7 +508,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       }
       Thread.sleep(1000);
 
-      assertNull("Group should have timed out", servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
+      assertNull(servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false), "Group should have timed out");
 
       sendWithProperty(0, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
       sendWithProperty(1, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
@@ -531,7 +533,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
          Thread.sleep(10);
       }
 
-      assertNull("Group should have timed out", servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
+      assertNull(servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false), "Group should have timed out");
    }
 
    @Test
@@ -843,7 +845,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       long time = System.currentTimeMillis();
       startServers(1, 2, 0);
-      assertTrue("Server restart took a long wait even though it wasn't required as the server already had all the bindings", System.currentTimeMillis() - time < TIMEOUT);
+      assertTrue(System.currentTimeMillis() - time < TIMEOUT, "Server restart took a long wait even though it wasn't required as the server already had all the bindings");
 
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());

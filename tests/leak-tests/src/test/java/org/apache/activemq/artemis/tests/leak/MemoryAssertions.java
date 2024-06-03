@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
@@ -37,7 +40,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +85,7 @@ public class MemoryAssertions {
          String report = checkLeak.exploreObjectReferences(maxLevel, maxObjects, true, objects);
          logger.info(report);
 
-         Assert.fail("Class " + clazz + " has leaked " + objects.length + " objects\n" + report);
+         fail("Class " + clazz + " has leaked " + objects.length + " objects\n" + report);
       }
    }
 
@@ -108,7 +110,7 @@ public class MemoryAssertions {
          }
       }
 
-      Assert.assertFalse(stringWriter.toString(), failed);
+      assertFalse(failed, stringWriter.toString());
    }
 
    private static List<String> getClassList(Class clazz) {

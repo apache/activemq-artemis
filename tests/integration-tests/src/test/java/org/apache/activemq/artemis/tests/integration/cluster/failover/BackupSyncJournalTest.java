@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -52,9 +57,8 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUID;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BackupSyncJournalTest extends FailoverTestBase {
 
@@ -78,7 +82,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    protected final FailoverWaiter failoverWaiter = new FailoverWaiter();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
@@ -92,8 +96,8 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    @Test
    public void testNodeID() throws Exception {
       startBackupFinishSyncing();
-      assertTrue("must be running", backupServer.isStarted());
-      assertEquals("backup and primary should have the same nodeID", primaryServer.getServer().getNodeID(), backupServer.getServer().getNodeID());
+      assertTrue(backupServer.isStarted(), "must be running");
+      assertEquals(primaryServer.getServer().getNodeID(), backupServer.getServer().getNodeID(), "backup and primary should have the same nodeID");
    }
 
    @Test
@@ -143,12 +147,12 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       int size = messageJournal.getFileSize();
       PagingStore ps = primaryServer.getServer().getPagingManager().getPageStore(ADDRESS);
       if (ps.getPageSizeBytes() == PAGE_SIZE) {
-         assertTrue("isStarted", ps.isStarted());
-         assertFalse("start paging should return false, because we expect paging to be running", ps.startPaging());
+         assertTrue(ps.isStarted(), "isStarted");
+         assertFalse(ps.startPaging(), "start paging should return false, because we expect paging to be running");
       }
       finishSyncAndFailover();
 
-      assertEquals("file sizes must be the same", size, backupMsgJournal.getFileSize());
+      assertEquals(size, backupMsgJournal.getFileSize(), "file sizes must be the same");
       Set<Pair<Long, Integer>> backupIds = getFileIds(backupMsgJournal);
 
       int total = 0;
@@ -171,7 +175,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       session.start();
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       ClientMessage msg = consumer.receiveImmediate();
-      assertNull("there should be no more messages to receive! " + msg, msg);
+      assertNull(msg, "there should be no more messages to receive! " + msg);
       consumer.close();
       session.commit();
 
@@ -221,10 +225,10 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    protected void finishSyncAndFailover() throws Exception {
       syncDelay.deliverUpToDateMsg();
       waitForRemoteBackup(sessionFactory, BACKUP_WAIT_TIME, true, backupServer.getServer());
-      assertFalse("should not be initialized", backupServer.getServer().isActive());
+      assertFalse(backupServer.getServer().isActive(), "should not be initialized");
 
       crash(session);
-      assertTrue("backup initialized", backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS));
+      assertTrue(backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS), "backup initialized");
 
       assertNodeIdWasSaved();
    }
@@ -235,14 +239,14 @@ public class BackupSyncJournalTest extends FailoverTestBase {
     * @throws InterruptedException
     */
    private void assertNodeIdWasSaved() throws Exception {
-      assertTrue("backup initialized", backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS));
+      assertTrue(backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS), "backup initialized");
 
       // assert that nodeID was saved (to the right file!)
 
       String journalDirectory = backupConfig.getJournalDirectory();
 
       File serverLockFile = new File(journalDirectory, "server.lock");
-      assertTrue("server.lock must exist!\n " + serverLockFile, serverLockFile.exists());
+      assertTrue(serverLockFile.exists(), "server.lock must exist!\n " + serverLockFile);
       RandomAccessFile raFile = new RandomAccessFile(serverLockFile, "r");
       try {
          // verify the nodeID was written correctly
@@ -250,13 +254,13 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          final int size = 16;
          ByteBuffer id = ByteBuffer.allocateDirect(size);
          int read = channel.read(id, 3);
-         assertEquals("tried to read " + size + " bytes", size, read);
+         assertEquals(size, read, "tried to read " + size + " bytes");
          byte[] bytes = new byte[16];
          id.position(0);
          id.get(bytes);
          UUID uuid = new UUID(UUID.TYPE_TIME_BASED, bytes);
          SimpleString storedNodeId = new SimpleString(uuid.toString());
-         assertEquals("nodeId must match", backupServer.getServer().getNodeID(), storedNodeId);
+         assertEquals(backupServer.getServer().getNodeID(), storedNodeId, "nodeId must match");
       } finally {
          raFile.close();
       }
@@ -287,24 +291,24 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       assertNoMoreMessages();
 
       sendMessages(session, producer, 2 * n_msgs);
-      assertFalse("must NOT be a backup", primaryServer.getServer().getHAPolicy().isBackup());
+      assertFalse(primaryServer.getServer().getHAPolicy().isBackup(), "must NOT be a backup");
       adaptPrimaryConfigForReplicatedFailBack(primaryServer);
       FileMoveManager primaryMoveManager = new FileMoveManager(primaryServer.getServer().getConfiguration().getJournalLocation(), -1);
       primaryServer.getServer().lockActivation();
       try {
          primaryServer.start();
-         assertTrue("must have become a backup", primaryServer.getServer().getHAPolicy().isBackup());
-         Assert.assertEquals(0, primaryMoveManager.getNumberOfFolders());
+         assertTrue(primaryServer.getServer().getHAPolicy().isBackup(), "must have become a backup");
+         assertEquals(0, primaryMoveManager.getNumberOfFolders());
       } finally {
          primaryServer.getServer().unlockActivation();
       }
       waitForServerToStart(primaryServer.getServer());
       primaryServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
-      Assert.assertEquals(1, primaryMoveManager.getNumberOfFolders());
-      assertTrue("must be active now", !primaryServer.getServer().getHAPolicy().isBackup());
+      assertEquals(1, primaryMoveManager.getNumberOfFolders());
+      assertTrue(!primaryServer.getServer().getHAPolicy().isBackup(), "must be active now");
 
-      assertTrue("Fail-back must initialize primary!", primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
-      assertFalse("must be primary!", primaryServer.getServer().getHAPolicy().isBackup());
+      assertTrue(primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS), "Fail-back must initialize primary!");
+      assertFalse(primaryServer.getServer().getHAPolicy().isBackup(), "must be primary!");
       int i = 0;
       while (!backupServer.isStarted() && i++ < 100) {
          Thread.sleep(100);
@@ -345,7 +349,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    }
 
    private void startBackupCrashPrimary() throws Exception {
-      assertFalse("backup is started?", backupServer.isStarted());
+      assertFalse(backupServer.isStarted(), "backup is started?");
       primaryServer.removeInterceptor(syncDelay);
       backupServer.start();
       waitForBackup(sessionFactory, BACKUP_WAIT_TIME);
@@ -355,7 +359,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       //for some system the retryAttempts and retryInterval may be too small
       //so that during failover all attempts have failed before the backup
       //server is fully activated.
-      assertTrue("Session didn't failover, the maxRetryAttempts and retryInterval may be too small", failoverWaiter.waitFailoverComplete());
+      assertTrue(failoverWaiter.waitFailoverComplete(), "Session didn't failover, the maxRetryAttempts and retryInterval may be too small");
    }
 
    protected void createProducerSendSomeMessages() throws ActiveMQException {

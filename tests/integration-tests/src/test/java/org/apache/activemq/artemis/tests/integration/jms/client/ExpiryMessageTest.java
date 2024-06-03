@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.Test;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
 
 public class ExpiryMessageTest extends JMSTestBase {
 

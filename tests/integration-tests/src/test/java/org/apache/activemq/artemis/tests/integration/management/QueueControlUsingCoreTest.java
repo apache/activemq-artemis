@@ -24,10 +24,11 @@ import javax.management.openmbean.CompositeData;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+// Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class QueueControlUsingCoreTest extends QueueControlTest {
 
    public QueueControlUsingCoreTest(boolean durable) {

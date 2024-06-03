@@ -20,6 +20,8 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
+import org.junit.jupiter.api.Test;
+
 public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
    @Override
@@ -65,4 +67,8 @@ public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
    }
 
+   @Test
+   public void testSendReceive() throws Exception {
+      super.doSendReceiveTestImpl();
+   }
 }

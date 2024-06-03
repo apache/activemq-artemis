@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
@@ -39,10 +44,9 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
@@ -77,7 +81,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
    static final ReusableLatch flagSyncWait = new ReusableLatch(1);
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -119,11 +123,11 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       waitForServerToStart(primaryServer);
 
       // Just to make sure the expression worked
-      Assert.assertEquals(10000, factory.getMinLargeMessageSize());
-      Assert.assertEquals(10000, factory.getProducerWindowSize());
-      Assert.assertEquals(100, factory.getRetryInterval());
-      Assert.assertEquals(-1, factory.getReconnectAttempts());
-      Assert.assertTrue(factory.isHA());
+      assertEquals(10000, factory.getMinLargeMessageSize());
+      assertEquals(10000, factory.getProducerWindowSize());
+      assertEquals(100, factory.getRetryInterval());
+      assertEquals(-1, factory.getReconnectAttempts());
+      assertTrue(factory.isHA());
 
       connection = (ActiveMQConnection) factory.createConnection();
       session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -141,7 +145,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       waitForServerToStart(backupServer);
    }
 
-   @After
+   @AfterEach
    public void stopServers() throws Exception {
       if (connection != null) {
          try {
@@ -205,10 +209,10 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
          for (int msgi = 0; msgi < numberOfMessage; msgi++) {
             MapMessage message = (MapMessage) consumer.receive(5000);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
             for (int i = 0; i < 10; i++) {
-               Assert.assertEquals(200 * 1024, message.getBytes("test" + i).length);
+               assertEquals(200 * 1024, message.getBytes("test" + i).length);
             }
 
             session.commit();
@@ -216,9 +220,9 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
          consumer.close();
       }
 
-      Assert.assertFalse(t.isAlive());
+      assertFalse(t.isAlive());
       primaryServer.fail(true);
-      Assert.assertTrue(failedOver.await(10, TimeUnit.SECONDS));
+      assertTrue(failedOver.await(10, TimeUnit.SECONDS));
 
       {
          MessageConsumer consumer = session.createConsumer(targetQueue);
@@ -228,10 +232,10 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
          for (int msgi = 0; msgi < numberOfMessage; msgi++) {
             MapMessage message = (MapMessage) consumer.receive(5000);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
             for (int i = 0; i < 10; i++) {
-               Assert.assertEquals(200 * 1024, message.getBytes("test" + i).length);
+               assertEquals(200 * 1024, message.getBytes("test" + i).length);
             }
 
             session.commit();

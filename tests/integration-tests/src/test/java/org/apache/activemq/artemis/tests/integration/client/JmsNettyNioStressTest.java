@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -45,8 +48,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * -- https://issues.jboss.org/browse/HORNETQ-746
@@ -137,12 +139,12 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       session.createAddress(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, false);
       session.createAddress(SimpleString.toSimpleString("queue2"), RoutingType.ANYCAST, false);
 
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
+      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
       session.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST));
       session.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST));
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
+      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
       session.commit();
       sf.close();
       session.close();
@@ -273,7 +275,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
       Wait.waitFor(() -> totalExpectedCount == totalCount.get(), 60000, 100);
 
-      Assert.assertEquals("Possible deadlock", totalExpectedCount, totalCount.get());
+      assertEquals(totalExpectedCount, totalCount.get(), "Possible deadlock");
 
       // attempt cleaning up (this is not in a finally, still needs some work)
       connectionProducer.close();

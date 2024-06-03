@@ -16,13 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -48,7 +55,8 @@ public class EnhancedAuthenticationTests extends MQTT5TestSupport {
     * CONNACK with a Reason Code of 0x8C (Bad authentication method) or 0x87 (Not Authorized) as described in section
     * 4.13 and MUST close the Network Connection.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testBadAuthenticationMethod() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
 

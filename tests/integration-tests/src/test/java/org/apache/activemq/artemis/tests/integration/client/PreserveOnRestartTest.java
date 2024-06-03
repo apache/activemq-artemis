@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -30,9 +34,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PreserveOnRestartTest extends ActiveMQTestBase {
 
@@ -40,7 +43,7 @@ public class PreserveOnRestartTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -87,10 +90,10 @@ public class PreserveOnRestartTest extends ActiveMQTestBase {
          connection.start();
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("hello" + i, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
       }
 
@@ -99,6 +102,6 @@ public class PreserveOnRestartTest extends ActiveMQTestBase {
 
       server.stop();
       server.start();
-      Assert.assertNull(server.locateQueue(queueName));
+      assertNull(server.locateQueue(queueName));
    }
 }

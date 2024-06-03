@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -40,8 +45,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,9 +85,9 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
 
-         Assert.assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
-         Assert.assertNotNull(serverQueue.getFilter());
-         Assert.assertEquals(filter, serverQueue.getFilter().getFilterString().toString());
+         assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
+         assertNotNull(serverQueue.getFilter());
+         assertEquals(filter, serverQueue.getFilter().getFilterString().toString());
          assertEquals(filter, server.locateQueue(queue).getFilter().getFilterString().toString());
 
          MessageProducer producer = s.createProducer(s.createTopic("address"));
@@ -92,16 +96,16 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          message.setStringProperty("prop", "match");
          producer.send(message);
 
-         Assert.assertNotNull(mc.receive(5000));
+         assertNotNull(mc.receive(5000));
 
          message = s.createTextMessage("hello");
          message.setStringProperty("prop", "nomatch");
          producer.send(message);
 
          if (protocol.equals("OPENWIRE")) {
-            Assert.assertNull(mc.receive(500)); // false negatives in openwire
+            assertNull(mc.receive(500)); // false negatives in openwire
          } else {
-            Assert.assertNull(mc.receiveNoWait());
+            assertNull(mc.receiveNoWait());
          }
       }
 
@@ -115,7 +119,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
             logger.debug(e.getMessage(), e);
             thrownException = true;
          }
-         Assert.assertTrue(thrownException);
+         assertTrue(thrownException);
 
          // validating the case where I am adding a consumer without a filter
          // on this case the consumer will have no filter, but the filter on the queue should take care of things
@@ -130,7 +134,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
 
             Wait.assertEquals(1, () -> serverQueue.getConsumers().size());
             serverQueue.getConsumers().forEach(serverConsumer -> {
-               Assert.assertNull(serverConsumer.getFilter());
+               assertNull(serverConsumer.getFilter());
             });
 
 
@@ -140,16 +144,16 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
             message.setStringProperty("prop", "match");
             producer.send(message);
 
-            Assert.assertNotNull(mc.receive(5000));
+            assertNotNull(mc.receive(5000));
 
             message = s.createTextMessage("hello");
             message.setStringProperty("prop", "nomatch");
             producer.send(message);
 
             if (protocol.equals("OPENWIRE")) {
-               Assert.assertNull(mc.receive(500)); // false negatives in openwire
+               assertNull(mc.receive(500)); // false negatives in openwire
             } else {
-               Assert.assertNull(mc.receiveNoWait());
+               assertNull(mc.receiveNoWait());
             }
 
          }
@@ -194,13 +198,13 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
 
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
-         Assert.assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
-         Assert.assertNull(serverQueue.getFilter()); // it was pre-created without a filter, so we will just filter on the consumer
+         assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
+         assertNull(serverQueue.getFilter()); // it was pre-created without a filter, so we will just filter on the consumer
 
          Wait.assertEquals(1, () -> serverQueue.getConsumers().size());
          serverQueue.getConsumers().forEach(consumer -> {
-            Assert.assertNotNull(consumer.getFilter());
-            Assert.assertEquals(filter, consumer.getFilter().getFilterString().toString());
+            assertNotNull(consumer.getFilter());
+            assertEquals(filter, consumer.getFilter().getFilterString().toString());
          });
 
          MessageProducer producer = s.createProducer(s.createTopic("address"));
@@ -209,7 +213,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          message.setStringProperty("prop", "match");
          producer.send(message);
 
-         Assert.assertNotNull(mc.receive(5000));
+         assertNotNull(mc.receive(5000));
 
          message = s.createTextMessage("hello");
          message.setStringProperty("prop", "nomatch");
@@ -261,7 +265,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          thrownException = true;
       }
 
-      Assert.assertTrue(thrownException);
+      assertTrue(thrownException);
    }
 
    @Test
@@ -303,9 +307,9 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
 
-         Assert.assertEquals(RoutingType.ANYCAST, serverQueue.getRoutingType());
+         assertEquals(RoutingType.ANYCAST, serverQueue.getRoutingType());
 
-         Assert.assertNull(serverQueue.getFilter());
+         assertNull(serverQueue.getFilter());
 
          MessageProducer p = s.createProducer(q);
 
@@ -328,8 +332,8 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          Wait.assertEquals(1, () -> serverQueue.getConsumers().size());
 
          serverQueue.getConsumers().forEach(queueConsumer -> {
-            Assert.assertNotNull(queueConsumer.getFilter());
-            Assert.assertEquals(filter, queueConsumer.getFilter().getFilterString().toString());
+            assertNotNull(queueConsumer.getFilter());
+            assertEquals(filter, queueConsumer.getFilter().getFilterString().toString());
          });
 
          mc.close();
@@ -343,8 +347,8 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
 
          Wait.assertEquals(1, () -> serverQueue.getConsumers().size());
          serverQueue.getConsumers().forEach(queueConsumer -> {
-            Assert.assertNotNull(queueConsumer.getFilter());
-            Assert.assertEquals(invalidFilter, queueConsumer.getFilter().getFilterString().toString());
+            assertNotNull(queueConsumer.getFilter());
+            assertEquals(invalidFilter, queueConsumer.getFilter().getFilterString().toString());
          });
 
       }
@@ -398,13 +402,13 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
                for (int i = 0; i < expected; i++) {
                   TextMessage message = (TextMessage) consumer.receive(5000);
                   logger.debug("Queue {} received message {}", queueName, message.getText());
-                  Assert.assertEquals(i, message.getIntProperty("i"));
-                  Assert.assertNotNull(message);
+                  assertEquals(i, message.getIntProperty("i"));
+                  assertNotNull(message);
                }
                if (protocol.equals("OPENWIRE")) {
-                  Assert.assertNull(consumer.receive(500)); // false negatives in openwire
+                  assertNull(consumer.receive(500)); // false negatives in openwire
                } else {
-                  Assert.assertNull(consumer.receiveNoWait());
+                  assertNull(consumer.receiveNoWait());
                }
             } catch (Throwable e) {
                errors++;
@@ -444,10 +448,10 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
             executor.execute(consumer);
          }
 
-         Assert.assertTrue(doneLatch.await(10, TimeUnit.SECONDS));
+         assertTrue(doneLatch.await(10, TimeUnit.SECONDS));
 
          for (RunnableConsumer consumer : consumers) {
-            Assert.assertEquals("Error on consumer for queue " + consumer.queueName,  0, consumer.errors);
+            assertEquals(0, consumer.errors, "Error on consumer for queue " + consumer.queueName);
          }
       }
    }

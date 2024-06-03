@@ -25,7 +25,7 @@ import javax.jms.Session;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A MessageWithReadResolveTest

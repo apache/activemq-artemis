@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -45,13 +48,14 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MirrorControllerBasicTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -79,7 +83,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < 10; i++) {
-         Assert.assertNotNull(consumer.receive(1000));
+         assertNotNull(consumer.receive(1000));
       }
 
       connection.close();
@@ -104,14 +108,14 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
 
       AmqpValue value = (AmqpValue)amqpMessage.getWrappedMessage().getBody();
-      Assert.assertEquals("body-test", (String)value.getValue());
-      Assert.assertEquals("ad1",amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.ADDRESS.toString()));
-      Assert.assertEquals("qu1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.QUEUE.toString()));
-      Assert.assertEquals("someUID", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString()));
-      Assert.assertEquals("test", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.EVENT_TYPE.toString()));
+      assertEquals("body-test", (String)value.getValue());
+      assertEquals("ad1",amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.ADDRESS.toString()));
+      assertEquals("qu1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.QUEUE.toString()));
+      assertEquals("someUID", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString()));
+      assertEquals("test", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.EVENT_TYPE.toString()));
       Number ackReason = (Number)amqpMessage.getMessageAnnotation("x-opt-amq-mr-ack-reason");
-      Assert.assertEquals(AckReason.KILLED.getVal(), ackReason.byteValue());
-      Assert.assertEquals(AckReason.KILLED, AckReason.fromValue(ackReason.byteValue()));
+      assertEquals(AckReason.KILLED.getVal(), ackReason.byteValue());
+      assertEquals(AckReason.KILLED, AckReason.fromValue(ackReason.byteValue()));
 
       connection.close();
 

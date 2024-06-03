@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -24,8 +27,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,28 +38,28 @@ public class AddressSettingsTest extends ServerTestBase {
    @Test
    public void testDefaults() {
       AddressSettings addressSettings = new AddressSettings();
-      Assert.assertEquals(null, addressSettings.getDeadLetterAddress());
-      Assert.assertEquals(null, addressSettings.getExpiryAddress());
-      Assert.assertEquals(AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS, addressSettings.getMaxDeliveryAttempts());
-      Assert.assertEquals(addressSettings.getMaxSizeBytes(), AddressSettings.DEFAULT_MAX_SIZE_BYTES);
-      Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());
-      Assert.assertEquals(AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT, addressSettings.getMessageCounterHistoryDayLimit());
-      Assert.assertEquals(AddressSettings.DEFAULT_REDELIVER_DELAY, addressSettings.getRedeliveryDelay());
-      Assert.assertEquals(AddressSettings.DEFAULT_REDELIVER_MULTIPLIER, addressSettings.getRedeliveryMultiplier(), 0.000001);
-      Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD, addressSettings.getSlowConsumerThreshold());
-      Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT, addressSettings.getSlowConsumerThresholdMeasurementUnit());
-      Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_CHECK_PERIOD, addressSettings.getSlowConsumerCheckPeriod());
-      Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY, addressSettings.getSlowConsumerPolicy());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_JMS_QUEUES, addressSettings.isAutoCreateJmsQueues());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_JMS_QUEUES, addressSettings.isAutoDeleteJmsQueues());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_TOPICS, addressSettings.isAutoCreateJmsTopics());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_TOPICS, addressSettings.isAutoDeleteJmsTopics());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, addressSettings.isAutoCreateQueues());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, addressSettings.isAutoDeleteQueues());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, addressSettings.isAutoCreateAddresses());
-      Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES, addressSettings.isAutoDeleteAddresses());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), addressSettings.isDefaultPurgeOnNoConsumers());
-      Assert.assertEquals(Integer.valueOf(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()), addressSettings.getDefaultMaxConsumers());
+      assertNull(addressSettings.getDeadLetterAddress());
+      assertNull(addressSettings.getExpiryAddress());
+      assertEquals(AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS, addressSettings.getMaxDeliveryAttempts());
+      assertEquals(addressSettings.getMaxSizeBytes(), AddressSettings.DEFAULT_MAX_SIZE_BYTES);
+      assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());
+      assertEquals(AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT, addressSettings.getMessageCounterHistoryDayLimit());
+      assertEquals(AddressSettings.DEFAULT_REDELIVER_DELAY, addressSettings.getRedeliveryDelay());
+      assertEquals(AddressSettings.DEFAULT_REDELIVER_MULTIPLIER, addressSettings.getRedeliveryMultiplier(), 0.000001);
+      assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD, addressSettings.getSlowConsumerThreshold());
+      assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT, addressSettings.getSlowConsumerThresholdMeasurementUnit());
+      assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_CHECK_PERIOD, addressSettings.getSlowConsumerCheckPeriod());
+      assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY, addressSettings.getSlowConsumerPolicy());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_JMS_QUEUES, addressSettings.isAutoCreateJmsQueues());
+      assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_JMS_QUEUES, addressSettings.isAutoDeleteJmsQueues());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_TOPICS, addressSettings.isAutoCreateJmsTopics());
+      assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_TOPICS, addressSettings.isAutoDeleteJmsTopics());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, addressSettings.isAutoCreateQueues());
+      assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, addressSettings.isAutoDeleteQueues());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, addressSettings.isAutoCreateAddresses());
+      assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES, addressSettings.isAutoDeleteAddresses());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), addressSettings.isDefaultPurgeOnNoConsumers());
+      assertEquals(Integer.valueOf(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()), addressSettings.getDefaultMaxConsumers());
    }
 
    @Test
@@ -96,21 +98,21 @@ public class AddressSettingsTest extends ServerTestBase {
       } else {
          addressSettings.merge(addressSettingsToMerge);
       }
-      Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
-      Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
-      Assert.assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
-      Assert.assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      Assert.assertEquals(addressSettings.getMaxSizeMessages(), 101);
-      Assert.assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
-      Assert.assertEquals(addressSettings.getRedeliveryDelay(), 1003);
-      Assert.assertEquals(addressSettings.getPageSizeBytes(), 1004);
-      Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
-      Assert.assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
-      Assert.assertEquals(DeletionPolicy.FORCE, addressSettings.getConfigDeleteDiverts());
-      Assert.assertEquals(Long.valueOf(999), addressSettings.getExpiryDelay());
-      Assert.assertEquals(Long.valueOf(888), addressSettings.getMinExpiryDelay());
-      Assert.assertEquals(Long.valueOf(777), addressSettings.getMaxExpiryDelay());
-      Assert.assertEquals(Integer.valueOf(5), addressSettings.getIDCacheSize());
+      assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
+      assertEquals(addressSettings.getExpiryAddress(), exp);
+      assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
+      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
+      assertEquals(addressSettings.getMaxSizeMessages(), 101);
+      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
+      assertEquals(addressSettings.getRedeliveryDelay(), 1003);
+      assertEquals(addressSettings.getPageSizeBytes(), 1004);
+      assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+      assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      assertEquals(DeletionPolicy.FORCE, addressSettings.getConfigDeleteDiverts());
+      assertEquals(Long.valueOf(999), addressSettings.getExpiryDelay());
+      assertEquals(Long.valueOf(888), addressSettings.getMinExpiryDelay());
+      assertEquals(Long.valueOf(777), addressSettings.getMaxExpiryDelay());
+      assertEquals(Integer.valueOf(5), addressSettings.getIDCacheSize());
    }
 
    @Test
@@ -153,15 +155,15 @@ public class AddressSettingsTest extends ServerTestBase {
          addressSettings.merge(addressSettingsToMerge2);
       }
 
-      Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
-      Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
-      Assert.assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
-      Assert.assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      Assert.assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
-      Assert.assertEquals(addressSettings.getRedeliveryDelay(), 2003);
-      Assert.assertEquals(addressSettings.getRedeliveryMultiplier(), 2.5, 0.000001);
-      Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
-      Assert.assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
+      assertEquals(addressSettings.getExpiryAddress(), exp);
+      assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
+      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
+      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
+      assertEquals(addressSettings.getRedeliveryDelay(), 2003);
+      assertEquals(addressSettings.getRedeliveryMultiplier(), 2.5, 0.000001);
+      assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+      assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
    }
 
    @Test
@@ -209,15 +211,15 @@ public class AddressSettingsTest extends ServerTestBase {
          addressSettings.merge(addressSettingsToMerge2);
       }
 
-      Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
-      Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
-      Assert.assertEquals(addressSettings.getMaxDeliveryAttempts(), 2000);
-      Assert.assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      Assert.assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 2002);
-      Assert.assertEquals(addressSettings.getRedeliveryDelay(), 1003);
-      Assert.assertEquals(addressSettings.getRedeliveryMultiplier(), 1.0, 0.000001);
-      Assert.assertEquals(addressSettings.getMaxRedeliveryDelay(), 5000);
-      Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+      assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
+      assertEquals(addressSettings.getExpiryAddress(), exp);
+      assertEquals(addressSettings.getMaxDeliveryAttempts(), 2000);
+      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
+      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 2002);
+      assertEquals(addressSettings.getRedeliveryDelay(), 1003);
+      assertEquals(addressSettings.getRedeliveryMultiplier(), 1.0, 0.000001);
+      assertEquals(addressSettings.getMaxRedeliveryDelay(), 5000);
+      assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
    }
 
    @Test
@@ -237,12 +239,12 @@ public class AddressSettingsTest extends ServerTestBase {
       logger.info("Json:: {}", json);
 
       AddressSettings jsonClone = AddressSettings.fromJSON(json);
-      Assert.assertEquals(1001, jsonClone.getMaxSizeBytes());
+      assertEquals(1001, jsonClone.getMaxSizeBytes());
       System.err.println("AddressSettings::" + addressSettings);
       System.err.println("clonedSettings ::" + jsonClone);
-      Assert.assertEquals(addressSettings.getAddressFullMessagePolicy(), jsonClone.getAddressFullMessagePolicy());
+      assertEquals(addressSettings.getAddressFullMessagePolicy(), jsonClone.getAddressFullMessagePolicy());
 
-      Assert.assertEquals(addressSettings, jsonClone);
+      assertEquals(addressSettings, jsonClone);
 
    }
 }

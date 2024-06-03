@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class MultiServerTestBase extends ActiveMQTestBase {
 
@@ -77,7 +77,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

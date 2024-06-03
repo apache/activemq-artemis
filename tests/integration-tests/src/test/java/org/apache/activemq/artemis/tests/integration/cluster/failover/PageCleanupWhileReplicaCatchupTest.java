@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -23,6 +25,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -37,9 +40,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -53,7 +56,7 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
    volatile boolean running = true;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
@@ -85,7 +88,8 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
       return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, conf, nodeManager, id);
    }
 
-   @Test(timeout = 160_000)
+   @Test
+   @Timeout(value = 160_000, unit = TimeUnit.MILLISECONDS)
    public void testPageCleanup() throws Throwable {
 
       Worker[] workers = new Worker[NUMBER_OF_WORKERS];
@@ -150,7 +154,7 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
                      producer.send(session.createTextMessage("hello " + i));
                   }
                   for (int i = 0; i < 10; i++) {
-                     Assert.assertNotNull(consumer.receive(5000));
+                     assertNotNull(consumer.receive(5000));
                   }
                   Thread.sleep(500); // this is just pacing producing and consuming
                }

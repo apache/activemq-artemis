@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -47,7 +47,7 @@ public class JMSTest extends JMSTestCase {
    Connection conn = null;
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (conn != null) {

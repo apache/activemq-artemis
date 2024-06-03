@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.naming.NamingException;
 import java.util.ArrayList;
 
@@ -23,7 +26,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSDynamicConfigTest extends JMSTestBase {
 

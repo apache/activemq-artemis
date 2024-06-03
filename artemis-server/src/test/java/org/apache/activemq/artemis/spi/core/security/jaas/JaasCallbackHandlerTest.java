@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -27,11 +32,7 @@ import java.security.Principal;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.core.management.impl.ManagementRemotingConnection;
-import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
 
 public class JaasCallbackHandlerTest {
 
@@ -103,9 +104,11 @@ public class JaasCallbackHandlerTest {
       assertNull(clientIDCallback.getClientID());
    }
 
-   @Test(expected = UnsupportedCallbackException.class)
+   @Test
    public void handleUnsupported() throws Exception {
-      new JaasCallbackHandler(null, null, null).handle(new Callback[]{new TextInputCallback("prompt")});
+      assertThrows(UnsupportedCallbackException.class, () -> {
+         new JaasCallbackHandler(null, null, null).handle(new Callback[]{new TextInputCallback("prompt")});
+      });
    }
 
 }

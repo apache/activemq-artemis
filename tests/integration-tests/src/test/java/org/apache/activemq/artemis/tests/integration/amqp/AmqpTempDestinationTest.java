@@ -17,6 +17,10 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +38,8 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -46,12 +51,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicSenderToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicSenderToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -83,12 +90,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDynamicSenderLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDynamicSenderLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(false);
    }
@@ -115,12 +124,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicReceiverToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicReceiverToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -152,12 +163,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDynamicReceiverLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDynamicReceiverLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(false);
    }
@@ -184,12 +197,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void TestCreateDynamicQueueSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void TestCreateDynamicTopicSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(true);
    }
@@ -224,7 +239,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       sender.send(message);
 
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       received.accept();
 
       receiver.close();
@@ -233,12 +248,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicReceiverToTopicAndSend() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDynamicReceiverToQueueAndSend() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -272,7 +289,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       received.accept();
 
       sender.close();

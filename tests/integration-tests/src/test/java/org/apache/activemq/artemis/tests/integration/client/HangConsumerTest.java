@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.management.MBeanServer;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
@@ -75,9 +79,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +102,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -162,11 +165,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
          Wait.assertEquals(2, queue::getMessagesAdded);
 
          ClientMessage msg = consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
 
          msg = consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
 
          sessionProducer.commit();
@@ -310,7 +313,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       tDelete.start();
 
-      Assert.assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
 
       try {
          server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
@@ -395,7 +398,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
          session.start();
 
-         Assert.assertTrue(hangInt.reusableLatch.await(10, TimeUnit.SECONDS));
+         assertTrue(hangInt.reusableLatch.await(10, TimeUnit.SECONDS));
 
          hangInt.pendingException = new ActiveMQException();
 
@@ -409,7 +412,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
          consumer = session.createConsumer(QUEUE);
 
          ClientMessage msg = consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
 
          session.commit();

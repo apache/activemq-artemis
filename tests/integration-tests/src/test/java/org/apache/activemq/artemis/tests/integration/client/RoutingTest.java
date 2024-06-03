@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -30,9 +34,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RoutingTest extends ActiveMQTestBase {
 
@@ -48,7 +51,7 @@ public class RoutingTest extends ActiveMQTestBase {
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -76,18 +79,18 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          c2.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          c3.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
-      Assert.assertNull(c2.receiveImmediate());
-      Assert.assertNull(c3.receiveImmediate());
+      assertNull(c1.receiveImmediate());
+      assertNull(c2.receiveImmediate());
+      assertNull(c3.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -106,10 +109,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -128,10 +131,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -152,10 +155,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -186,18 +189,18 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages / 3; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          m = c2.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          m = c3.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
-      Assert.assertNull(c2.receiveImmediate());
-      Assert.assertNull(c3.receiveImmediate());
+      assertNull(c1.receiveImmediate());
+      assertNull(c2.receiveImmediate());
+      assertNull(c3.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -216,10 +219,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }

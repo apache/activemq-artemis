@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SimpleFutureTest {
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
+import org.junit.jupiter.api.Test;
 
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+public class SimpleFutureTest extends ArtemisTestCase {
 
    @Test
    public void testFuture() throws Exception {
@@ -37,7 +36,7 @@ public class SimpleFutureTest {
       };
       t.start();
 
-      Assert.assertEquals(randomStart, simpleFuture.get().longValue());
+      assertEquals(randomStart, simpleFuture.get().longValue());
    }
 
 
@@ -60,7 +59,7 @@ public class SimpleFutureTest {
       }
 
 
-      Assert.assertTrue(failed);
+      assertTrue(failed);
    }
 
 

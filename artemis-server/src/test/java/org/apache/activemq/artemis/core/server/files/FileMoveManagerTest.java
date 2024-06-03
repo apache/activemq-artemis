@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.files;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,36 +43,28 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class FileMoveManagerTest {
+public class FileMoveManagerTest extends ArtemisTestCase {
 
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
    private File dataLocation;
    private FileMoveManager manager;
 
-   @Before
+   @BeforeEach
    public void setUp() {
-      dataLocation = new File(temporaryFolder.getRoot(), "data");
+      dataLocation = new File(temporaryFolder, "data");
       dataLocation.mkdirs();
       manager = new FileMoveManager(dataLocation, 10);
-   }
-
-   public FileMoveManagerTest() {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
    }
 
    @Test
@@ -83,8 +79,8 @@ public class FileMoveManagerTest {
          bkp.mkdirs();
       }
 
-      Assert.assertEquals(12, manager.getFolders().length);
-      Assert.assertEquals(12, manager.getNumberOfFolders());
+      assertEquals(12, manager.getFolders().length);
+      assertEquals(12, manager.getNumberOfFolders());
 
       assertIDs(originalFiles, manager.getIDlist());
    }
@@ -110,21 +106,21 @@ public class FileMoveManagerTest {
          bkp.mkdirs();
       }
 
-      Assert.assertEquals(12, manager.getFolders().length);
-      Assert.assertEquals(12, manager.getNumberOfFolders());
+      assertEquals(12, manager.getFolders().length);
+      assertEquals(12, manager.getNumberOfFolders());
 
       int[] ids = manager.getIDlist();
 
       assertIDs(originalFiles, ids);
 
-      Assert.assertEquals(0, manager.getMinID());
-      Assert.assertEquals(13, manager.getMaxID());
+      assertEquals(0, manager.getMinID());
+      assertEquals(13, manager.getMaxID());
 
       manager.setMaxFolders(3).checkOldFolders();
 
-      Assert.assertEquals(3, manager.getNumberOfFolders());
-      Assert.assertEquals(13, manager.getMaxID());
-      Assert.assertEquals(11, manager.getMinID());
+      assertEquals(3, manager.getNumberOfFolders());
+      assertEquals(13, manager.getMaxID());
+      assertEquals(11, manager.getMinID());
 
    }
 
@@ -152,13 +148,13 @@ public class FileMoveManagerTest {
 
    @Test
    public void testNoFolders() {
-      Assert.assertEquals(0, manager.getFolders().length);
-      Assert.assertEquals(0, manager.getNumberOfFolders());
+      assertEquals(0, manager.getFolders().length);
+      assertEquals(0, manager.getNumberOfFolders());
 
-      Assert.assertTrue(dataLocation.delete());
+      assertTrue(dataLocation.delete());
 
-      Assert.assertEquals(0, manager.getFolders().length);
-      Assert.assertEquals(0, manager.getNumberOfFolders());
+      assertEquals(0, manager.getFolders().length);
+      assertEquals(0, manager.getNumberOfFolders());
    }
 
    @Test
@@ -166,7 +162,7 @@ public class FileMoveManagerTest {
       // nothing to be moved, so why to do a backup
       manager.doMove();
 
-      Assert.assertEquals(0, manager.getNumberOfFolders());
+      assertEquals(0, manager.getNumberOfFolders());
    }
 
    @Test
@@ -181,7 +177,7 @@ public class FileMoveManagerTest {
          manager.doMove();
 
          // We will always have maximum of 3 folders
-         Assert.assertEquals(Math.min(bkp, manager.getMaxFolders()), manager.getNumberOfFolders());
+         assertEquals(Math.min(bkp, manager.getMaxFolders()), manager.getNumberOfFolders());
 
          File bkpFolder = manager.getFolder(bkp);
 
@@ -193,17 +189,17 @@ public class FileMoveManagerTest {
          }
       }
 
-      Assert.assertEquals(manager.getMaxFolders(), manager.getNumberOfFolders());
+      assertEquals(manager.getMaxFolders(), manager.getNumberOfFolders());
 
       manager.setMaxFolders(-1).checkOldFolders();
 
-      Assert.assertEquals(3, manager.getNumberOfFolders());
+      assertEquals(3, manager.getNumberOfFolders());
 
       manager.setMaxFolders(1).checkOldFolders();
-      Assert.assertEquals(1, manager.getNumberOfFolders());
+      assertEquals(1, manager.getNumberOfFolders());
 
-      Assert.assertEquals(10, manager.getMaxID());
-      Assert.assertEquals(10, manager.getMinID());
+      assertEquals(10, manager.getMaxID());
+      assertEquals(10, manager.getMinID());
    }
 
    @Test
@@ -228,7 +224,7 @@ public class FileMoveManagerTest {
          manager.doMove();
 
          // We will always have maximum of 3 folders
-         Assert.assertEquals(Math.min(bkp, manager.getMaxFolders()), manager.getNumberOfFolders());
+         assertEquals(Math.min(bkp, manager.getMaxFolders()), manager.getNumberOfFolders());
 
          File bkpFolder = manager.getFolder(bkp);
 
@@ -237,7 +233,7 @@ public class FileMoveManagerTest {
 
             String[] filesOnFolder = fileTmp.list();
 
-            Assert.assertEquals(FILES_PER_FOLDER + f, filesOnFolder.length);
+            assertEquals(FILES_PER_FOLDER + f, filesOnFolder.length);
 
             for (String file : filesOnFolder) {
                checkFile(fileTmp, file);
@@ -246,17 +242,17 @@ public class FileMoveManagerTest {
 
       }
 
-      Assert.assertEquals(manager.getMaxFolders(), manager.getNumberOfFolders());
+      assertEquals(manager.getMaxFolders(), manager.getNumberOfFolders());
 
       manager.setMaxFolders(-1).checkOldFolders();
 
-      Assert.assertEquals(3, manager.getNumberOfFolders());
+      assertEquals(3, manager.getNumberOfFolders());
 
       manager.setMaxFolders(1).checkOldFolders();
-      Assert.assertEquals(1, manager.getNumberOfFolders());
+      assertEquals(1, manager.getNumberOfFolders());
 
-      Assert.assertEquals(10, manager.getMaxID());
-      Assert.assertEquals(10, manager.getMinID());
+      assertEquals(10, manager.getMaxID());
+      assertEquals(10, manager.getMinID());
    }
 
    @Test
@@ -284,11 +280,11 @@ public class FileMoveManagerTest {
 
          manager.doMove();
 
-         Assert.assertEquals(0, manager.getNumberOfFolders());
-         Assert.assertEquals(0, manager.getFiles().length);
+         assertEquals(0, manager.getNumberOfFolders());
+         assertEquals(0, manager.getFiles().length);
       }
 
-      Assert.assertEquals(0, manager.getMaxID());
+      assertEquals(0, manager.getMaxID());
    }
 
    @Test
@@ -321,10 +317,10 @@ public class FileMoveManagerTest {
 
             manager.doMove();
 
-            Assert.assertEquals(Math.min(i, manager.getMaxFolders()), manager.getNumberOfFolders());
+            assertEquals(Math.min(i, manager.getMaxFolders()), manager.getNumberOfFolders());
          }
 
-         Assert.assertFalse("The loggers are complaining about address.txt", loggerHandler.findText("address.txt"));
+         assertFalse(loggerHandler.findText("address.txt"), "The loggers are complaining about address.txt");
       } finally {
          threadPool.shutdown();
       }
@@ -332,16 +328,16 @@ public class FileMoveManagerTest {
    }
 
    private void assertIDs(int[] originalFiles, int[] ids) {
-      Assert.assertEquals(originalFiles.length, ids.length);
+      assertEquals(originalFiles.length, ids.length);
       for (int i = 0; i < ids.length; i++) {
-         Assert.assertEquals(originalFiles[i], ids[i]);
+         assertEquals(originalFiles[i], ids[i]);
       }
    }
 
    private void resetTmp() {
-      temporaryFolder.delete();
-      temporaryFolder.getRoot().mkdirs();
-      Assert.assertEquals(0, manager.getNumberOfFolders());
+      FileUtil.deleteDirectory(temporaryFolder);
+      temporaryFolder.mkdirs();
+      assertEquals(0, manager.getNumberOfFolders());
    }
 
    private void createFile(File folder, int i) throws FileNotFoundException {
@@ -357,7 +353,7 @@ public class FileMoveManagerTest {
          BufferedReader reader = new BufferedReader(stream);
          String valueRead = reader.readLine();
          int id = Integer.parseInt(file.substring(0, file.indexOf('.')));
-         Assert.assertEquals("content of the file wasn't the expected", id, Integer.parseInt(valueRead));
+         assertEquals(id, Integer.parseInt(valueRead), "content of the file wasn't the expected");
       }
    }
 

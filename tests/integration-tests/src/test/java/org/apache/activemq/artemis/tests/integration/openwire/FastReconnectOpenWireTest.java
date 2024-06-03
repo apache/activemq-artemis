@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -41,7 +43,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.tcp.TcpTransport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +65,8 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
    }
 
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testFastReconnectCreateConsumerNoErrors() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -124,7 +128,8 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
 
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testFastReconnectCreateConsumerNoErrorsNoClientId() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();

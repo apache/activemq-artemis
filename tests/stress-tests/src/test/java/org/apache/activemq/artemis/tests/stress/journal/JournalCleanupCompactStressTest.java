@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +49,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
@@ -87,7 +89,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -149,7 +151,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (journal.isStarted()) {
@@ -243,7 +245,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
          try {
             journal.appendDeleteRecord(id, false);
          } catch (Exception e) {
-            new RuntimeException(e);
+            throw new RuntimeException(e);
          }
       });
 

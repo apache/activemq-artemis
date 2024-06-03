@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanag
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class LockManagerReplicatedLargeMessageWithDelayFailoverTest extends LockManagerReplicatedLargeMessageFailoverTest {
 
@@ -32,7 +32,7 @@ public class LockManagerReplicatedLargeMessageWithDelayFailoverTest extends Lock
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
@@ -70,7 +70,7 @@ public class LockManagerReplicatedLargeMessageWithDelayFailoverTest extends Lock
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       syncDelay.deliverUpToDateMsg();
       super.tearDown();

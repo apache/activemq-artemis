@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -30,8 +35,8 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +44,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testProduceMessageAndCommit() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -61,7 +67,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Wait.assertEquals(10, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testProduceMessageAndRollback() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -82,7 +89,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Wait.assertEquals(0, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testProducedMessageAreRolledBackOnSessionClose() throws Exception {
       int numMessages = 10;
 
@@ -105,7 +113,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Wait.assertEquals(0, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeMessagesAndCommit() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -126,8 +135,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       for (int i = 0; i < 10; i++) {
          TextMessage message = (TextMessage) cons.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("Message:" + i, message.getText());
+         assertNotNull(message);
+         assertEquals("Message:" + i, message.getText());
       }
       session.commit();
       session.close();
@@ -136,7 +145,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Wait.assertEquals(0, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeMessagesAndRollback() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -156,8 +166,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       for (int i = 0; i < 10; i++) {
          TextMessage message = (TextMessage) cons.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("Message:" + i, message.getText());
+         assertNotNull(message);
+         assertEquals("Message:" + i, message.getText());
       }
 
       session.rollback();
@@ -166,7 +176,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Wait.assertEquals(10, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRollbackSomeThenReceiveAndCommit() throws Exception {
       final int MSG_COUNT = 5;
       final int consumeBeforeRollback = 2;
@@ -193,7 +204,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       for (int i = 1; i <= consumeBeforeRollback; i++) {
          Message message = consumer.receive(1000);
          assertNotNull(message);
-         assertEquals("Unexpected message number", i, message.getIntProperty("MESSAGE_NUMBER"));
+         assertEquals(i, message.getIntProperty("MESSAGE_NUMBER"), "Unexpected message number");
       }
 
       session.rollback();
@@ -215,7 +226,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       session.commit();
 
-      assertTrue("Did not consume all expected messages, missing messages: " + messageNumbers, messageNumbers.isEmpty());
-      assertEquals("Queue should have no messages left after commit", 0, queueView.getMessageCount());
+      assertTrue(messageNumbers.isEmpty(), "Did not consume all expected messages, missing messages: " + messageNumbers);
+      assertEquals(0, queueView.getMessageCount(), "Queue should have no messages left after commit");
    }
 }

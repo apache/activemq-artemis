@@ -17,12 +17,14 @@
 
 package org.apache.activemq.artemis.core.settings.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MatchTest {
 
@@ -32,11 +34,11 @@ public class MatchTest {
       final Match<?> underTest = new Match<>("test.#", null, new WildcardConfiguration());
       final Predicate<String> predicate = underTest.getPattern().asPredicate();
 
-      Assert.assertTrue(predicate.test("test"));
-      Assert.assertTrue(predicate.test("test.A"));
-      Assert.assertTrue(predicate.test("test.A.B"));
+      assertTrue(predicate.test("test"));
+      assertTrue(predicate.test("test.A"));
+      assertTrue(predicate.test("test.A.B"));
 
-      Assert.assertFalse(predicate.test("testing.A"));
+      assertFalse(predicate.test("testing.A"));
    }
 
    @Test
@@ -45,11 +47,11 @@ public class MatchTest {
       final Match<?> underTest = new Match<>("test.*", null, new WildcardConfiguration());
       final Predicate<String> predicate = underTest.getPattern().asPredicate();
 
-      Assert.assertTrue(predicate.test("test.A"));
+      assertTrue(predicate.test("test.A"));
 
-      Assert.assertFalse(predicate.test("testing.A"));
-      Assert.assertFalse(predicate.test("test"));
-      Assert.assertFalse(predicate.test("test.A.B"));
+      assertFalse(predicate.test("testing.A"));
+      assertFalse(predicate.test("test"));
+      assertFalse(predicate.test("test.A.B"));
    }
 
    @Test
@@ -58,12 +60,12 @@ public class MatchTest {
       final Pattern pattern = Match.createPattern("test.#", new WildcardConfiguration(), true);
       final Predicate<String> predicate = pattern.asPredicate();
 
-      Assert.assertTrue(predicate.test("test.A"));
-      Assert.assertTrue(predicate.test("test.A.B"));
+      assertTrue(predicate.test("test.A"));
+      assertTrue(predicate.test("test.A.B"));
 
-      Assert.assertFalse(predicate.test("testing.A"));
+      assertFalse(predicate.test("testing.A"));
       // see: org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets.PublishTests#testSubscriptionIdentifierMultiLevel
-      Assert.assertFalse(predicate.test("test"));
+      assertFalse(predicate.test("test"));
    }
 
    @Test
@@ -73,11 +75,11 @@ public class MatchTest {
       final Predicate<String> predicate = pattern.asPredicate();
 
       // no change with direct = true|false
-      Assert.assertTrue(predicate.test("test.A"));
+      assertTrue(predicate.test("test.A"));
 
-      Assert.assertFalse(predicate.test("testing.A"));
-      Assert.assertFalse(predicate.test("test"));
-      Assert.assertFalse(predicate.test("test.A.B"));
+      assertFalse(predicate.test("testing.A"));
+      assertFalse(predicate.test("test"));
+      assertFalse(predicate.test("test.A.B"));
    }
 
    @Test
@@ -85,11 +87,11 @@ public class MatchTest {
       final Pattern pattern = Match.createPattern("$test.#", new WildcardConfiguration(), true);
       final Predicate<String> predicate = pattern.asPredicate();
 
-      Assert.assertTrue(predicate.test("$test.A"));
-      Assert.assertTrue(predicate.test("$test.A.B"));
+      assertTrue(predicate.test("$test.A"));
+      assertTrue(predicate.test("$test.A.B"));
 
-      Assert.assertFalse(predicate.test("$testing.A"));
-      Assert.assertFalse(predicate.test("$test"));
+      assertFalse(predicate.test("$testing.A"));
+      assertFalse(predicate.test("$test"));
    }
 
    @Test
@@ -97,10 +99,10 @@ public class MatchTest {
       final Pattern pattern = Match.createPattern("$test.#", new WildcardConfiguration(), false);
       final Predicate<String> predicate = pattern.asPredicate();
 
-      Assert.assertTrue(predicate.test("$test"));
-      Assert.assertTrue(predicate.test("$test.A"));
-      Assert.assertTrue(predicate.test("$test.A.B"));
+      assertTrue(predicate.test("$test"));
+      assertTrue(predicate.test("$test.A"));
+      assertTrue(predicate.test("$test.A.B"));
 
-      Assert.assertFalse(predicate.test("$testing.A"));
+      assertFalse(predicate.test("$testing.A"));
    }
 }

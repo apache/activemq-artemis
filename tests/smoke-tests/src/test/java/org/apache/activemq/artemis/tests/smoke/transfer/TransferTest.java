@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.smoke.transfer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -29,18 +33,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class TransferTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "transfer1";
@@ -88,7 +92,7 @@ public class TransferTest extends SmokeTestBase {
     */
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -118,7 +122,7 @@ public class TransferTest extends SmokeTestBase {
       this.targetTransferProtocol = target;
    }
 
-   @Parameterized.Parameters(name = "sender={0}, consumer={1}, sourceOnTransfer={2}, targetOnTransfer={3}")
+   @Parameters(name = "sender={0}, consumer={1}, sourceOnTransfer={2}, targetOnTransfer={3}")
    public static Collection<Object[]> getParams() {
 
       String[] protocols = new String[]{"core", "amqp"};
@@ -146,7 +150,7 @@ public class TransferTest extends SmokeTestBase {
       return CFUtil.createConnectionFactory(senderProtocol, "tcp://localhost:61616");
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
@@ -155,12 +159,12 @@ public class TransferTest extends SmokeTestBase {
       startServer(SERVER_NAME_1, 100, 30000);
    }
 
-   @Test
+   @TestTemplate
    public void testTransferSimpleQueueCopy() throws Exception {
       internalTransferSimpleQueue(false);
    }
 
-   @Test
+   @TestTemplate
    public void testTransferSimpleQueue() throws Exception {
       internalTransferSimpleQueue(true);
    }
@@ -214,13 +218,13 @@ public class TransferTest extends SmokeTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage received = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(received);
-         Assert.assertEquals("hello " + i, received.getText());
+         assertNotNull(received);
+         assertEquals("hello " + i, received.getText());
       }
 
       sessionTarget.commit();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       MessageConsumer consumerSource = session.createConsumer(queue);
       connection.start();
@@ -228,18 +232,18 @@ public class TransferTest extends SmokeTestBase {
       if (copy) {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage received = (TextMessage) consumerSource.receive(1000);
-            Assert.assertNotNull(received);
-            Assert.assertEquals("hello " + i, received.getText());
+            assertNotNull(received);
+            assertEquals("hello " + i, received.getText());
          }
       }
 
-      Assert.assertNull(consumerSource.receiveNoWait());
+      assertNull(consumerSource.receiveNoWait());
 
       connection.close();
       connectionTarget.close();
    }
 
-   @Test
+   @TestTemplate
    public void testDurableSharedSubscrition() throws Exception {
       ConnectionFactory factory = createSenderCF();
       Connection connection = factory.createConnection();
@@ -270,18 +274,18 @@ public class TransferTest extends SmokeTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage received = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
       }
 
       sessionTarget.commit();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       connection.close();
       connectionTarget.close();
    }
 
-   @Test
+   @TestTemplate
    public void testSharedSubscrition() throws Exception {
       ConnectionFactory factory = createSenderCF();
       Connection connection = factory.createConnection();
@@ -322,7 +326,7 @@ public class TransferTest extends SmokeTestBase {
       // I'm not going to bother about being too strict about the content, just that some messages arrived
       for (int i = 0; i < PARTIAL_MESSAGES; i++) {
          TextMessage received = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
       }
 
       sessionTarget.commit();
@@ -331,7 +335,7 @@ public class TransferTest extends SmokeTestBase {
       connectionTarget.close();
    }
 
-   @Test
+   @TestTemplate
    public void testDurableConsumer() throws Exception {
       ConnectionFactory factory = createSenderCF();
       Connection connection = factory.createConnection();
@@ -366,7 +370,7 @@ public class TransferTest extends SmokeTestBase {
       // I'm not going to bother about being too strict about the content, just that some messages arrived
       for (int i = 0; i < PARTIAL_MESSAGES; i++) {
          TextMessage received = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
       }
 
       sessionTarget.commit();

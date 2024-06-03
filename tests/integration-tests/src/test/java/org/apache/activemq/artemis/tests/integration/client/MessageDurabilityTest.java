@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -29,9 +33,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageDurabilityTest extends ActiveMQTestBase {
 
@@ -86,7 +89,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
 
       session.start();
       ClientConsumer consumer = session.createConsumer(queue);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       consumer.close();
       session.deleteQueue(queue);
@@ -108,7 +111,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
 
       session.start();
       ClientConsumer consumer = session.createConsumer(queue);
-      Assert.assertNotNull(consumer.receive(500));
+      assertNotNull(consumer.receive(500));
 
       consumer.close();
       session.deleteQueue(queue);
@@ -170,7 +173,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.core.journal.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class JournalTransactionForgetTest {

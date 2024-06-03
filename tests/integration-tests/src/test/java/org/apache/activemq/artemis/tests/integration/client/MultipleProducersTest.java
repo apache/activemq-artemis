@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -32,9 +35,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultipleProducersTest extends JMSTestBase {
 
@@ -52,7 +54,7 @@ public class MultipleProducersTest extends JMSTestBase {
    public long queueOneMsgCount = 0;
    public long queueTwoMsgCount = 0;
 
-   @Before
+   @BeforeEach
    public void iniTest() throws Exception {
 
    }
@@ -113,7 +115,7 @@ public class MultipleProducersTest extends JMSTestBase {
       // result an exception
       try {
          sendMessage(queueOne, session);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (Exception t) {
       }
 
@@ -148,8 +150,8 @@ public class MultipleProducersTest extends JMSTestBase {
 
       queueTwoMsgCount = server.locateQueue(queueTwoName).getMessageCount();
 
-      Assert.assertEquals("queueTwo message count", 5, queueTwoMsgCount);
-      Assert.assertEquals("queueOne message count", 5, queueOneMsgCount);
+      assertEquals(5, queueTwoMsgCount, "queueTwo message count");
+      assertEquals(5, queueOneMsgCount, "queueOne message count");
 
    }
 

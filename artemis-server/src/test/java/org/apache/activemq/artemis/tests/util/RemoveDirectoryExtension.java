@@ -14,30 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.tests.util;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * This will remove a folder on a tearDown *
- */
-public class RemoveFolder extends ExternalResource {
+public class RemoveDirectoryExtension implements AfterEachCallback, Extension {
 
-   private final String folderName;
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public RemoveFolder(String folderName) {
-      this.folderName = folderName;
+   private final String directoryPath;
+
+   public RemoveDirectoryExtension(String directoryPath) {
+      Objects.requireNonNull(directoryPath, "Directory to delete must not be null");
+
+      this.directoryPath = directoryPath;
    }
 
-   /**
-    * Override to tear down your specific external resource.
-    */
    @Override
-   protected void after() {
-      FileUtil.deleteDirectory(new File(folderName));
+   public void afterEach(ExtensionContext context) throws Exception {
+      logger.trace("Removing directory: {}",  directoryPath);
+
+      FileUtil.deleteDirectory(new File(directoryPath));
    }
 }

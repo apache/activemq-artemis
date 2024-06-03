@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +52,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
    private Configuration configuration = null;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       configuration = createDefaultInVMConfig();
@@ -91,7 +95,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       try {
          session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress).setFilterString("").setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -100,7 +104,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       try {
          session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -109,7 +113,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       try {
          session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -137,7 +141,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(testAddress));
 
-      Assert.assertEquals(2, bindings.getBindings().size());
+      assertEquals(2, bindings.getBindings().size());
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -167,18 +171,18 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
    }
 
    @Test
@@ -251,24 +255,24 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer3.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
-      Assert.assertNull(consumer3.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
+      assertNull(consumer3.receiveImmediate());
    }
 
    @Test
@@ -338,17 +342,17 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer1.receiveImmediate();
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       for (int i = 0; i < numMessages; i++) {
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
    }
 
    @Test
@@ -397,12 +401,12 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -414,7 +418,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
          producer.send(message);
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
    }
 
 }

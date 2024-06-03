@@ -16,15 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class ScaleDownDeterminism extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       setupPrimaryServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
@@ -90,18 +91,18 @@ public class ScaleDownDeterminism extends ClusterTestBase {
       String server1connector1 = servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors().get(0);
 
       servers[0].getActiveMQServerControl().scaleDown("scaleDown");
-      Assert.assertEquals(messageCount, servers[1].getTotalMessageCount());
+      assertEquals(messageCount, servers[1].getTotalMessageCount());
       servers[0].start();
 
       waitForServerToStart(servers[0]);
-      Assert.assertEquals(0, servers[0].getTotalMessageCount());
+      assertEquals(0, servers[0].getTotalMessageCount());
 
       servers[1].getActiveMQServerControl().scaleDown(server1connector1);
-      Assert.assertEquals(messageCount, servers[0].getTotalMessageCount());
+      assertEquals(messageCount, servers[0].getTotalMessageCount());
       servers[1].start();
 
       waitForServerToStart(servers[1]);
       servers[0].getActiveMQServerControl().scaleDown(server0connector2);
-      Assert.assertEquals(messageCount, servers[2].getTotalMessageCount());
+      assertEquals(messageCount, servers[2].getTotalMessageCount());
    }
 }

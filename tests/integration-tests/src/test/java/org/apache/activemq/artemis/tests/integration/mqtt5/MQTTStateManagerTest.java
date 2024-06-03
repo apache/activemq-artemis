@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -33,21 +36,25 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTStateManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTStateManagerTest extends MQTT5TestSupport {
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testNullClientID() throws Exception {
       testBadStateMessage(null);
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testEmptyClientID() throws Exception {
       testBadStateMessage("");
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testEmptyStateMessage() throws Exception {
       testBadStateMessage(RandomUtil.randomString());
    }

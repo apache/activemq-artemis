@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,8 +37,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Transformer {
 
@@ -53,12 +56,14 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
    }
 
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
       runQueueReceiverReadMessageWithDivert(ComponentConfigurationRoutingType.ANYCAST.toString());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testQueueReceiverReadMessageWithDivertDefaultRouting() throws Exception {
       runQueueReceiverReadMessageWithDivert(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
    }
@@ -159,9 +164,9 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
       receiver.flow(2);
       for (int i = 0; i < 2; i++) {
          AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals("here", receivedMessage.getApplicationProperty("always"));
-         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         assertNotNull(receivedMessage);
+         assertEquals("here", receivedMessage.getApplicationProperty("always"));
+         assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
          receivedMessage.accept();
       }
 
@@ -170,8 +175,8 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
          receiver.flow(1);
          AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
          receivedMessage.accept();
-         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
-         Assert.assertEquals(largeString, receivedMessage.getApplicationProperty("largeString"));
+         assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         assertEquals(largeString, receivedMessage.getApplicationProperty("largeString"));
 
       }
 

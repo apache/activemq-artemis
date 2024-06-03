@@ -44,9 +44,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
@@ -58,7 +58,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -111,9 +111,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      Assertions.assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      Assertions.assertTrue(bridge.isStarted());
 
       // make sure the bridge is actually working first
       Connection targetConn = createConnectionFactory().createConnection();
@@ -134,9 +134,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> bridge.isFailed(), 2000, 50);
       targetConn.close();
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      Assertions.assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      Assertions.assertTrue(bridge.isStarted());
 
       // test the bridge again after it's been restarted to ensure it's working
       targetConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
@@ -154,6 +154,6 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       targetConn.close();
       sourceConn.get().close();
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      Assertions.assertFalse(bridge.isStarted());
    }
 }

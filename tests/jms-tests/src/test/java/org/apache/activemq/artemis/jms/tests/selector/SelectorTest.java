@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests.selector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -32,15 +36,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class SelectorTest extends ActiveMQServerTestCase {
 
@@ -192,7 +192,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertNotNull(m);
 
-            Assert.assertEquals(j, m.getIntProperty("wibble"));
+            assertEquals(j, m.getIntProperty("wibble"));
 
             ProxyAssertSupport.assertEquals("john", m.getStringProperty("beatle"));
 
@@ -212,7 +212,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertNotNull(m);
 
-            Assert.assertEquals(j, m.getIntProperty("wibble"));
+            assertEquals(j, m.getIntProperty("wibble"));
 
             ProxyAssertSupport.assertEquals("kermit the frog", m.getStringProperty("beatle"));
          }
@@ -660,7 +660,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -699,7 +699,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -740,7 +740,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -784,7 +784,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -825,7 +825,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -866,7 +866,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -881,7 +881,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
    // http://community.jboss.org/thread/153426?tstart=0
    // This test needs to be moved away
    @Test
-   @Ignore
+   @Disabled
    public void testMultipleConsumers() throws Exception {
       Connection conn = null;
 
@@ -948,8 +948,8 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(tm);
 
-         Assert.assertEquals("3", tm.getText());
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("3", tm.getText());
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm.acknowledge();
 
@@ -965,25 +965,25 @@ public class SelectorTest extends ActiveMQServerTestCase {
          msgConsumer = session.createConsumer(queue1);
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("1", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("1", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("2", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("2", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("4", tm.getText());
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("4", tm.getText());
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("5", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("5", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("6", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("6", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm.acknowledge();
 

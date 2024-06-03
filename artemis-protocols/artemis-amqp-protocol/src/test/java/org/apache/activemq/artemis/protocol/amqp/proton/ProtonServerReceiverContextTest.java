@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -58,8 +61,7 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -146,7 +148,7 @@ public class ProtonServerReceiverContextTest {
       verify(mockReceiver, times(1)).current();
       verify(mockReceiver, times(1)).advance();
 
-      Assert.assertTrue(clearLargeMessage.get() > 0);
+      assertTrue(clearLargeMessage.get() > 0);
    }
 
    private void doOnMessageWithAbortedDeliveryTestImpl(boolean drain) throws ActiveMQAMQPException {
@@ -190,7 +192,7 @@ public class ProtonServerReceiverContextTest {
       }
       verifyNoMoreInteractions(mockReceiver);
 
-      Assert.assertTrue(clearLargeMessage.get() > 0);
+      assertTrue(clearLargeMessage.get() > 0);
    }
 
    private void doOnMessageWithDeliveryException(List<Symbol> sourceSymbols,
@@ -248,11 +250,11 @@ public class ProtonServerReceiverContextTest {
 
    @Test
    public void calculateFlowControl() {
-      Assert.assertFalse(ProtonServerReceiverContext.isBellowThreshold(1000, 100, 1000));
-      Assert.assertTrue(ProtonServerReceiverContext.isBellowThreshold(1000, 0, 1000));
+      assertFalse(ProtonServerReceiverContext.isBellowThreshold(1000, 100, 1000));
+      assertTrue(ProtonServerReceiverContext.isBellowThreshold(1000, 0, 1000));
 
-      Assert.assertEquals(1000, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 0));
-      Assert.assertEquals(900, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 100));
+      assertEquals(1000, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 0));
+      assertEquals(900, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 100));
    }
 
    private ReadableBuffer createAMQPMessageBuffer() {

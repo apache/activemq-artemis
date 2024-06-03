@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.smoke.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -34,10 +39,9 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PagedMirrorSmokeTest extends SmokeTestBase {
 
@@ -47,7 +51,7 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
    public static final String SERVER_NAME_A = "brokerConnect/pagedA";
    public static final String SERVER_NAME_B = "brokerConnect/pagedB";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_A);
@@ -72,7 +76,7 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
    Process processB;
    Process processA;
 
-   @Before
+   @BeforeEach
    public  void beforeClass() throws Exception {
       cleanupData(SERVER_NAME_A);
       cleanupData(SERVER_NAME_B);
@@ -91,7 +95,7 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
 
       File countJournalLocation = new File(getServerLocation(SERVER_NAME_A), "data/journal");
       File countJournalLocationB = new File(getServerLocation(SERVER_NAME_B), "data/journal");
-      Assert.assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
+      assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
       String protocol = "amqp";
 
       ConnectionFactory sendCF = CFUtil.createConnectionFactory(protocol, sendURI);
@@ -135,7 +139,7 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
                message.acknowledge();
             }
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
       Wait.assertEquals(1, () -> acksCount(countJournalLocation), 5000, 1000);
       Wait.assertEquals(1, () -> acksCount(countJournalLocationB), 5000, 1000);
@@ -148,10 +152,10 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES - 1; i++) {
             TextMessage message = (TextMessage) consumer.receive(6000);
-            Assert.assertNotNull(message);
-            Assert.assertNotEquals(ACK_I, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertNotEquals(ACK_I, message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

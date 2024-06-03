@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmxrbac;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
@@ -35,10 +38,9 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 // clone of JmxRBACTest with jmx security settings in broker.xml and new guard that delegates to security settings
 // configured via -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder
@@ -56,7 +58,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
 
    public static final String ADDRESS_TEST = "TEST";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -71,7 +73,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -96,7 +98,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -116,9 +118,9 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
 
          try {
             mBeanServerConnection.invoke(memoryObjectName, "gc", null, null);
-            Assert.fail(SERVER_ADMIN + " should not access to " + memoryObjectName);
+            fail(SERVER_ADMIN + " should not access to " + memoryObjectName);
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();
@@ -132,7 +134,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
 
@@ -146,9 +148,9 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
 
          try {
             activeMQServerControl.getVersion();
-            Assert.fail(SERVER_USER + " should not access to " + objectNameBuilder.getActiveMQServerObjectName());
+            fail(SERVER_USER + " should not access to " + objectNameBuilder.getActiveMQServerObjectName());
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();
@@ -172,7 +174,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -203,7 +205,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -213,9 +215,9 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
 
          try {
             testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
-            Assert.fail(SERVER_USER + " should not have permissions to send a message to the address " + ADDRESS_TEST);
+            fail(SERVER_USER + " should not have permissions to send a message to the address " + ADDRESS_TEST);
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();

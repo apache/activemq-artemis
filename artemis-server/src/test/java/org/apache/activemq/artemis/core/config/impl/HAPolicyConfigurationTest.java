@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -52,13 +59,13 @@ import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 import org.apache.activemq.artemis.lockmanager.MutableLong;
 import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class HAPolicyConfigurationTest extends ServerTestBase {
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
 
@@ -73,7 +80,7 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       assertEquals(HAPolicyConfiguration.TYPE.PRIMARY_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
       try {
          server.start();
-         assertTrue(server.getNodeManager() + " is not an instance of FileLockNodeManager", server.getNodeManager() instanceof FileLockNodeManager);
+         assertTrue(server.getNodeManager() instanceof FileLockNodeManager, server.getNodeManager() + " is not an instance of FileLockNodeManager");
       } finally {
          server.stop();
       }
@@ -352,7 +359,7 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
          DistributedLockManager manager = ((ReplicationPrimaryActivation) activation).getDistributedManager();
          assertNotNull(manager);
          assertEquals(FakeDistributedLockManager.class.getName(), manager.getClass().getName());
-         assertTrue(manager + " is not an instance of FakeDistributedLockManager", manager instanceof FakeDistributedLockManager);
+         assertTrue(manager instanceof FakeDistributedLockManager, manager + " is not an instance of FakeDistributedLockManager");
          FakeDistributedLockManager forwardingManager = (FakeDistributedLockManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -26,7 +30,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.XmlProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -472,14 +476,14 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       for (int i = 0; i < nl.getLength(); i++) {
          Element el = (Element) nl.item(i);
          NodeList elementsByTagName = el.getElementsByTagName("config-property-name");
-         assertEquals(el.toString(), elementsByTagName.getLength(), 1);
+         assertEquals(elementsByTagName.getLength(), 1, el.toString());
          Node configPropertyNameNode = elementsByTagName.item(0);
          String configPropertyName = configPropertyNameNode.getTextContent();
          Method setter = methodList.remove("set" + configPropertyName);
-         assertNotNull("setter " + configPropertyName + " does not exist", setter);
+         assertNotNull(setter, "setter " + configPropertyName + " does not exist");
          Class c = lookupType(setter);
          elementsByTagName = el.getElementsByTagName("config-property-type");
-         assertEquals("setter " + configPropertyName + " has no type set", elementsByTagName.getLength(), 1);
+         assertEquals(elementsByTagName.getLength(), 1, "setter " + configPropertyName + " has no type set");
          Node configPropertyTypeNode = elementsByTagName.item(0);
          String configPropertyTypeName = configPropertyTypeNode.getTextContent();
          assertEquals(configPropertyTypeName, c.getName());

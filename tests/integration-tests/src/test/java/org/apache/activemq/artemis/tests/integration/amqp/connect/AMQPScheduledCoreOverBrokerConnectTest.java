@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -35,8 +37,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSupport {
 
@@ -88,6 +89,6 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       connection2.start();
 
       MessageConsumer consumer = session2.createConsumer(session2.createQueue(queueName));
-      Assert.assertNull(consumer.receive(500));
+      assertNull(consumer.receive(500));
    }
 }

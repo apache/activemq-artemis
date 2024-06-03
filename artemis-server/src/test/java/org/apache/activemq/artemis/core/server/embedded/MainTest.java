@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.embedded;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,8 @@ public class MainTest {
 
    /* Tests what happens when no workdir arg is given and the default can't
     * be accessed as not in container env, expect to throw IOE. */
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testNull() throws Exception {
       try {
          Main.main(new String[] {""});

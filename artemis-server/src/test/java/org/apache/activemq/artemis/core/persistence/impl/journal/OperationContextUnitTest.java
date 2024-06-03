@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -29,8 +35,7 @@ import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OperationContextUnitTest extends ServerTestBase {
 
@@ -237,11 +242,11 @@ public class OperationContextUnitTest extends ServerTestBase {
          assertTrue(latch2.await(10, TimeUnit.SECONDS));
 
          if (impl.storeOnlyTasks != null) {
-            Assert.assertEquals(0, impl.storeOnlyTasks.size());
+            assertEquals(0, impl.storeOnlyTasks.size());
          }
 
          if (impl.tasks != null) {
-            Assert.assertEquals(0, impl.tasks.size());
+            assertEquals(0, impl.tasks.size());
          }
 
       } finally {
@@ -279,7 +284,7 @@ public class OperationContextUnitTest extends ServerTestBase {
          Wait.assertEquals(N, ()-> completions.size());
 
          for (long i = 0; i < N; i++) {
-            assertEquals("ordered", i, (long) completions.poll());
+            assertEquals(i, (long) completions.poll(), "ordered");
          }
 
       } finally {
@@ -388,13 +393,13 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       // Need to wait complete to be called first or the test would be invalid.
       // We use a latch instead of forcing a sleep here
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       impl.done();
 
       t.join();
 
-      Assert.assertEquals(1, numberOfFailures.get());
+      assertEquals(1, numberOfFailures.get());
    }
 
    @Test
@@ -432,13 +437,13 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       // Need to wait complete to be called first or the test would be invalid.
       // We use a latch instead of forcing a sleep here
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       context.onError(ActiveMQExceptionType.UNSUPPORTED_PACKET.getCode(), "Poop happens!");
 
       t.join();
 
-      Assert.assertEquals(1, failures.get());
+      assertEquals(1, failures.get());
 
       failures.set(0);
 
@@ -459,8 +464,8 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       });
 
-      Assert.assertEquals(1, failures.get());
-      Assert.assertEquals(0, operations.get());
+      assertEquals(1, failures.get());
+      assertEquals(0, operations.get());
    }
 
    @Test
@@ -468,15 +473,15 @@ public class OperationContextUnitTest extends ServerTestBase {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       runAfter(executor::shutdownNow);
 
-      Assert.assertEquals(0, OperationContextImpl.getMaxDebugTrackers());
+      assertEquals(0, OperationContextImpl.getMaxDebugTrackers());
       OperationContextImpl context = new OperationContextImpl(executor);
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
 
       context.storeLineUp();
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
 
       context.done();
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
    }
 
    @Test
@@ -487,19 +492,19 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       OperationContextImpl.setMaxDebugTrackers(1);
       try {
-         Assert.assertEquals(1, OperationContextImpl.getMaxDebugTrackers());
+         assertEquals(1, OperationContextImpl.getMaxDebugTrackers());
          OperationContextImpl context = new OperationContextImpl(executor);
-         Assert.assertNotNull(context.getDebugTrackers());
+         assertNotNull(context.getDebugTrackers());
 
          context.storeLineUp();
-         Assert.assertEquals(1, context.getDebugTrackers().size());
-         Assert.assertEquals("storeLineUp", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
-         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+         assertEquals(1, context.getDebugTrackers().size());
+         assertEquals("storeLineUp", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
 
          context.done();
-         Assert.assertEquals(1, context.getDebugTrackers().size());
-         Assert.assertEquals("done", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
-         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+         assertEquals(1, context.getDebugTrackers().size());
+         assertEquals("done", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
       } finally {
          OperationContextImpl.setMaxDebugTrackers(maxStoreOperationTrackers);
       }

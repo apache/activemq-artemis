@@ -19,9 +19,14 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.JMSException;
@@ -47,14 +52,16 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test various behaviors of AMQP receivers with the broker.
  */
 public class AmqpReceiverTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateQueueReceiver() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -69,7 +76,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateTopicReceiver() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -85,7 +93,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateQueueReceiverWithNoLocalSet() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -118,7 +127,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateQueueReceiverWithJMSSelector() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -150,7 +160,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testInvalidFilter() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -167,17 +178,20 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeSettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.SETTLED);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeUnsettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.UNSETTLED);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSenderSettlementModeMixedIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.MIXED);
    }
@@ -201,12 +215,14 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverSettlementModeSetToFirst() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.FIRST);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverSettlementModeSetToSecond() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.SECOND);
    }
@@ -234,7 +250,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testClientIdIsSetInSubscriptionList() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("mytopic"), RoutingType.ANYCAST));
 
@@ -262,7 +279,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLinkDetachSentWhenQueueDeleted() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -279,7 +297,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
       AddressSettings value = new AddressSettings();
       value.setAutoCreateQueues(false);
@@ -308,7 +327,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testUnsupportedFiltersAreNotListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -353,7 +373,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverCloseSendsRemoteClose() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -386,7 +407,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
       receiver.close();
 
-      assertTrue("Did not process remote close as expected", closed.get());
+      assertTrue(closed.get(), "Did not process remote close as expected");
       connection.getStateInspector().assertValid();
 
       connection.close();

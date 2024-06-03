@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.MutableCapabilities;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class LoginTest extends ConsoleTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
 
@@ -33,14 +34,14 @@ public class LoginTest extends ConsoleTest {
       super(browserOptions);
    }
 
-   @Test
+   @TestTemplate
    public void testLogin() {
       driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       loginPage.loginValidUser(SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
    }
 
-   @Test
+   @TestTemplate
    public void testLoginBrand() {
       String expectedBrandImage = webServerUrl + System.getProperty(
          "artemis.console.login.brand.image", DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE);

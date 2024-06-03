@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -32,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
 

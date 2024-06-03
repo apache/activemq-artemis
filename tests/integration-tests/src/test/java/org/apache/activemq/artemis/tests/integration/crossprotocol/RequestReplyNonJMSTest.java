@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,6 +38,8 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -39,15 +47,11 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class RequestReplyNonJMSTest extends OpenWireTestBase {
 
    private static final SimpleString queueName = SimpleString.toSimpleString("RequestReplyQueueTest");
@@ -62,7 +66,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       this.protocolConsumer = protocolConsumer;
    }
 
-   @Parameterized.Parameters(name = "openWireOnSender={0}")
+   @Parameters(name = "openWireOnSender={0}")
    public static Iterable<Object[]> data() {
       return Arrays.asList(new Object[][] {
          {"OPENWIRE"},
@@ -71,13 +75,13 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       });
    }
 
-   @Before
-   public void setupCF() {
-      consumerCF = createConnectionFactory(protocolConsumer, urlString);
-   }
+   @BeforeEach
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
 
-   @Before
-   public void setupQueue() throws Exception {
+      consumerCF = createConnectionFactory(protocolConsumer, urlString);
+
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
       this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
@@ -86,7 +90,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       this.server.addAddressInfo(info);
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithInvalidTypeAnnotation() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -114,11 +118,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertNotNull(receivedMessage);
+         assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -136,7 +140,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithNoTypeOrOtherAnnotations() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -163,11 +167,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertNotNull(receivedMessage);
+         assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -185,7 +189,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithNoTypeButWithOtherAnnotations() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -213,11 +217,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertNotNull(receivedMessage);
+         assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -235,7 +239,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithQueueReplyToAddress() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -263,11 +267,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertNotNull(receivedMessage);
+         assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -285,7 +289,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithTopicReplyToAddress() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -313,11 +317,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals(replyTopic, receivedMessage.getJMSReplyTo());
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Topic);
+         assertNotNull(receivedMessage);
+         assertEquals(replyTopic, receivedMessage.getJMSReplyTo());
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Topic);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -335,7 +339,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithTempTopicReplyToAddress() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -364,11 +368,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryTopic);
-         Assert.assertEquals(replyToName, ((TemporaryTopic) receivedMessage.getJMSReplyTo()).getTopicName());
+         assertNotNull(receivedMessage);
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryTopic);
+         assertEquals(replyToName, ((TemporaryTopic) receivedMessage.getJMSReplyTo()).getTopicName());
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -386,7 +390,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplyToFromAMQPClientWithTempQueueReplyToAddress() throws Throwable {
       AmqpClient directClient = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
       AmqpConnection connection = null;
@@ -415,11 +419,11 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          MessageConsumer consumer = consumerSess.createConsumer(queue);
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryQueue);
-         Assert.assertEquals(replyToName, ((TemporaryQueue) receivedMessage.getJMSReplyTo()).getQueueName());
+         assertNotNull(receivedMessage);
+         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryQueue);
+         assertEquals(replyToName, ((TemporaryQueue) receivedMessage.getJMSReplyTo()).getQueueName());
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;

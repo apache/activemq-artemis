@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.interceptors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -57,9 +64,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +80,7 @@ public class InterceptorTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -430,7 +436,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
          assertEquals(i, message.getIntProperty("count").intValue());
 
-         Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
+         assertEquals("orange", message.getStringProperty(InterceptorTest.key));
       }
 
       server.getRemotingService().removeIncomingInterceptor(interceptor);
@@ -446,7 +452,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
+         assertEquals("apple", message.getStringProperty(InterceptorTest.key));
       }
 
       session.close();
@@ -588,7 +594,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receiveImmediate();
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -624,7 +630,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
+         assertEquals("orange", message.getStringProperty(InterceptorTest.key));
       }
 
       sf.getServerLocator().removeIncomingInterceptor(interceptor);
@@ -640,7 +646,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
+         assertEquals("apple", message.getStringProperty(InterceptorTest.key));
       }
 
       session.close();
@@ -677,7 +683,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
+         assertEquals("orange", message.getStringProperty(InterceptorTest.key));
       }
 
       sf.getServerLocator().removeOutgoingInterceptor(interceptor);
@@ -693,7 +699,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
+         assertEquals("apple", message.getStringProperty(InterceptorTest.key));
       }
 
       session.close();
@@ -727,7 +733,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receive(100);
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -761,7 +767,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receive(100);
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -786,10 +792,10 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       try {
          producer.send(message);
-         Assert.fail();
+         fail();
       } catch (ActiveMQException e) {
          // expected exception
-         Assert.assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
+         assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
       }
    }
 
@@ -828,10 +834,10 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals(1, message.getIntProperty("a").intValue());
-         Assert.assertEquals(2, message.getIntProperty("b").intValue());
-         Assert.assertEquals(3, message.getIntProperty("c").intValue());
-         Assert.assertEquals(4, message.getIntProperty("d").intValue());
+         assertEquals(1, message.getIntProperty("a").intValue());
+         assertEquals(2, message.getIntProperty("b").intValue());
+         assertEquals(3, message.getIntProperty("c").intValue());
+         assertEquals(4, message.getIntProperty("d").intValue());
       }
 
       server.getRemotingService().removeIncomingInterceptor(interceptor2);
@@ -845,10 +851,10 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals(1, message.getIntProperty("a").intValue());
-         Assert.assertFalse(message.containsProperty("b"));
-         Assert.assertEquals(3, message.getIntProperty("c").intValue());
-         Assert.assertEquals(4, message.getIntProperty("d").intValue());
+         assertEquals(1, message.getIntProperty("a").intValue());
+         assertFalse(message.containsProperty("b"));
+         assertEquals(3, message.getIntProperty("c").intValue());
+         assertEquals(4, message.getIntProperty("d").intValue());
 
       }
 
@@ -867,12 +873,12 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receiveImmediate();
 
-      Assert.assertNull(message);
+      assertNull(message);
 
-      Assert.assertTrue(interceptor1.wasCalled());
-      Assert.assertFalse(interceptor2.wasCalled());
-      Assert.assertTrue(interceptor3.wasCalled());
-      Assert.assertFalse(interceptor4.wasCalled());
+      assertTrue(interceptor1.wasCalled());
+      assertFalse(interceptor2.wasCalled());
+      assertTrue(interceptor3.wasCalled());
+      assertFalse(interceptor4.wasCalled());
 
       session.close();
    }
@@ -912,10 +918,10 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals(1, message.getIntProperty("a").intValue());
-         Assert.assertEquals(2, message.getIntProperty("b").intValue());
-         Assert.assertEquals(3, message.getIntProperty("c").intValue());
-         Assert.assertEquals(4, message.getIntProperty("d").intValue());
+         assertEquals(1, message.getIntProperty("a").intValue());
+         assertEquals(2, message.getIntProperty("b").intValue());
+         assertEquals(3, message.getIntProperty("c").intValue());
+         assertEquals(4, message.getIntProperty("d").intValue());
       }
 
       sf.getServerLocator().removeIncomingInterceptor(interceptor2);
@@ -929,10 +935,10 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals(1, message.getIntProperty("a").intValue());
-         Assert.assertFalse(message.containsProperty("b"));
-         Assert.assertEquals(3, message.getIntProperty("c").intValue());
-         Assert.assertEquals(4, message.getIntProperty("d").intValue());
+         assertEquals(1, message.getIntProperty("a").intValue());
+         assertFalse(message.containsProperty("b"));
+         assertEquals(3, message.getIntProperty("c").intValue());
+         assertEquals(4, message.getIntProperty("d").intValue());
 
       }
 
@@ -951,12 +957,12 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receive(100);
 
-      Assert.assertNull(message);
+      assertNull(message);
 
-      Assert.assertTrue(interceptor1.wasCalled());
-      Assert.assertFalse(interceptor2.wasCalled());
-      Assert.assertTrue(interceptor3.wasCalled());
-      Assert.assertFalse(interceptor4.wasCalled());
+      assertTrue(interceptor1.wasCalled());
+      assertFalse(interceptor2.wasCalled());
+      assertTrue(interceptor3.wasCalled());
+      assertFalse(interceptor4.wasCalled());
 
       session.close();
    }
@@ -998,7 +1004,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
          assertEquals(i, message.getIntProperty("count").intValue());
 
-         Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
+         assertEquals("orange", message.getStringProperty(InterceptorTest.key));
       }
 
       server.getRemotingService().removeOutgoingInterceptor(interceptor);
@@ -1014,7 +1020,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
-         Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
+         assertEquals("apple", message.getStringProperty(InterceptorTest.key));
       }
 
       session.close();
@@ -1050,7 +1056,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer.receiveImmediate();
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -1088,13 +1094,13 @@ public class InterceptorTest extends ActiveMQTestBase {
       MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE.toString()));
 
       TextMessage msg = (TextMessage) consumer.receive(5000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
-      Assert.assertEquals("HelloMessage", msg.getText());
+      assertEquals("HelloMessage", msg.getText());
 
-      Assert.assertEquals("was here", msg.getStringProperty("Incoming"));
+      assertEquals("was here", msg.getStringProperty("Incoming"));
 
-      Assert.assertEquals("sending", msg.getStringProperty("Outgoing"));
+      assertEquals("sending", msg.getStringProperty("Outgoing"));
 
       connection.close();
 

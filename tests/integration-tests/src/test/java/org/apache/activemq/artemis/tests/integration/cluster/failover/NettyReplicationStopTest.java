@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +40,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettyReplicationStopTest extends FailoverTestBase {
 
@@ -138,10 +140,10 @@ public class NettyReplicationStopTest extends FailoverTestBase {
          threads.add(t);
       }
 
-      Assert.assertTrue(alignedOnSend.await(10, TimeUnit.SECONDS));
+      assertTrue(alignedOnSend.await(10, TimeUnit.SECONDS));
       primaryServer.stop();
 
-      Assert.assertEquals(0, codesSent.size());
+      assertEquals(0, codesSent.size());
 
    }
 }

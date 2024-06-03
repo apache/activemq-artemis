@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -53,7 +57,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
 
 public class JMSUtil {
 
@@ -203,10 +206,10 @@ public class JMSUtil {
          Message m = null;
          for (int i = 0; i < expected; i++) {
             m = consumer.receive(500);
-            Assert.assertNotNull("expected to received " + expected + " messages, got only " + (i + 1), m);
+            assertNotNull(m, "expected to received " + expected + " messages, got only " + (i + 1));
          }
          m = consumer.receiveNoWait();
-         Assert.assertNull("received one more message than expected (" + expected + ")", m);
+         assertNull(m, "received one more message than expected (" + expected + ")");
       } finally {
          if (connection != null) {
             connection.close();
@@ -256,7 +259,7 @@ public class JMSUtil {
       // Wait to be informed of failure
       boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
 
-      Assert.assertTrue(ok);
+      assertTrue(ok);
    }
 
 

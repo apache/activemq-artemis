@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
@@ -23,8 +25,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfigu
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SharedStoreBackupTest extends FailoverTestBase {
 
@@ -32,7 +33,7 @@ public class SharedStoreBackupTest extends FailoverTestBase {
    public void testStartSharedBackupWithScalingDownPolicyDisabled() throws Exception {
       primaryServer.stop();
       // wait max 10s for backup to activate
-      Assert.assertTrue("Backup did not activate in 10s timeout.", waitForBackupToBecomeActive(backupServer, 10000));
+      assertTrue(waitForBackupToBecomeActive(backupServer, 10000), "Backup did not activate in 10s timeout.");
    }
 
    /**

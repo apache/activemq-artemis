@@ -35,10 +35,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.federation.FederatedTestBase;
 import org.apache.activemq.artemis.tests.integration.federation.FederatedTestUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_FEDERATED_QUEUE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CREATE_FEDERATED_QUEUE_CONSUMER;
@@ -50,17 +48,18 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.FEDERATED_QUEUE_CONDITIONAL_CREATE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.FEDERATION_STREAM_STARTED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.FEDERATION_STREAM_STOPPED;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FederationBrokerPluginTest extends FederatedTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private final Map<String, AtomicInteger> methodCalls = new ConcurrentHashMap<>();
    private final MethodCalledVerifier verifier0 = new MethodCalledVerifier(methodCalls);
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

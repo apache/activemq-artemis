@@ -26,16 +26,19 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompAuditLoggingTest extends StompTestBase {
 
    private static final String BASE_AUDIT_LOGGER_NAME = AuditLogger.BASE_LOGGER.getLogger().getName();
@@ -65,19 +68,19 @@ public class StompAuditLoggingTest extends StompTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       conn = StompClientConnectionFactory.createClientConnection(uri);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(BASE_AUDIT_LOGGER_NAME, LogLevel.INFO);
       loggerHandler = new AssertionLoggerHandler();
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() throws Exception {
       try {
          loggerHandler.close();
@@ -86,7 +89,7 @@ public class StompAuditLoggingTest extends StompTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testAuthzFailureAuditLogging() throws Exception {
       conn.connect(user, pass);
 

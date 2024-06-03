@@ -17,9 +17,13 @@
 
 package org.apache.activemq.artemis.tests.smoke.upgradeTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,8 +44,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Upgrade;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,31 +97,31 @@ public class CompareUpgradeTest {
    }
 
    private void verifyBackupFiles(String backupFolder, String referenceFolder, String... files) throws Exception {
-      assertTrue("Files to check must be specified", files.length > 0);
+      assertTrue(files.length > 0, "Files to check must be specified");
 
       File bck = new File(backupFolder);
       if (!(bck.exists() && bck.isDirectory())) {
-         Assert.fail("Backup folder does not exist at: " + bck.getAbsolutePath());
+         fail("Backup folder does not exist at: " + bck.getAbsolutePath());
       }
 
       File[] backupFiles = bck.listFiles();
-      assertNotNull("Some backup files must exist", backupFiles);
+      assertNotNull(backupFiles, "Some backup files must exist");
       int backupFilesCount = backupFiles.length;
-      assertTrue("Some backup files must exist", backupFilesCount > 0);
-      assertEquals("Different number of backup files found than specified for inspection, update test if backup procedure changed", files.length, backupFilesCount);
+      assertTrue(backupFilesCount > 0, "Some backup files must exist");
+      assertEquals(files.length, backupFilesCount, "Different number of backup files found than specified for inspection, update test if backup procedure changed");
 
       for (String f : files) {
          File bf = new File(backupFolder, f);
          if (!bf.exists()) {
-            Assert.fail("Expected backup file does not exist at: " + bf.getAbsolutePath());
+            fail("Expected backup file does not exist at: " + bf.getAbsolutePath());
          }
 
          File reference = new File(referenceFolder, bf.getName());
          if (!reference.exists()) {
-            Assert.fail("Reference file does not exist at: " + reference.getAbsolutePath());
+            fail("Reference file does not exist at: " + reference.getAbsolutePath());
          }
 
-         Assert.assertArrayEquals(bf.getName() + " backup contents do not match reference file", Files.readAllBytes(bf.toPath()), Files.readAllBytes(reference.toPath()));
+         assertArrayEquals(Files.readAllBytes(bf.toPath()), Files.readAllBytes(reference.toPath()), bf.getName() + " backup contents do not match reference file");
       }
    }
 
@@ -139,12 +142,12 @@ public class CompareUpgradeTest {
       for (File f : foundFiles) {
          File upgradeFile = new File(upgradeFolderFile, f.getName());
          if (!upgradeFile.exists()) {
-            Assert.fail(upgradeFile.getAbsolutePath() + " not does exist");
+            fail(upgradeFile.getAbsolutePath() + " not does exist");
          }
 
 
          if (f.getName().endsWith(".exe")) {
-            Assert.assertArrayEquals(f.getName() + " is different after upgrade", Files.readAllBytes(f.toPath()), Files.readAllBytes(upgradeFile.toPath()));
+            assertArrayEquals(Files.readAllBytes(f.toPath()), Files.readAllBytes(upgradeFile.toPath()), f.getName() + " is different after upgrade");
          } else {
             compareFiles(allowExpectedWord, f, upgradeFile);
          }
@@ -162,7 +165,7 @@ public class CompareUpgradeTest {
          int line = 1;
 
          while (expectedIterator.hasNext()) {
-            Assert.assertTrue(upgradeIterator.hasNext());
+            assertTrue(upgradeIterator.hasNext());
 
             String expectedString = expectedIterator.next().trim();
             String upgradeString = upgradeIterator.next().trim();
@@ -173,11 +176,11 @@ public class CompareUpgradeTest {
                expectedString = expectedString.replace("Expected", "");
             }
 
-            Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
+            assertEquals(expectedString, upgradeString, "error on line " + line + " at " + upgradeFile);
             line++;
          }
 
-         Assert.assertFalse(upgradeIterator.hasNext());
+         assertFalse(upgradeIterator.hasNext());
       }
    }
 
@@ -197,8 +200,8 @@ public class CompareUpgradeTest {
       );
 
       String home = result.get("<env name=\"ARTEMIS_HOME\" value=");
-      Assert.assertNotNull(home);
-      Assert.assertFalse("home value must be changed during upgrade", home.contains("must-change"));
+      assertNotNull(home);
+      assertFalse(home.contains("must-change"), "home value must be changed during upgrade");
 
       result = checkExpectedValues(windowsETC + "/artemis.profile.cmd",
                                    "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
@@ -210,8 +213,8 @@ public class CompareUpgradeTest {
                                    "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
 
       home = result.get("set ARTEMIS_HOME=");
-      Assert.assertNotNull(home);
-      Assert.assertFalse("home value must be changed during upgrade", home.contains("must-change"));
+      assertNotNull(home);
+      assertFalse(home.contains("must-change"), "home value must be changed during upgrade");
 
       checkExpectedValues(windowsETC + "/bootstrap.xml",
                           "<server configuration=", "\"file:" + windowsETC + "//broker.xml\"/>");
@@ -219,8 +222,8 @@ public class CompareUpgradeTest {
       File oldLogging = new File(windowsETC + "/logging.properties");
       File newLogging = new File(windowsETC + "/log4j2.properties");
 
-      Assert.assertFalse("Old logging must be removed by upgrade", oldLogging.exists());
-      Assert.assertTrue("New Logging must be installed by upgrade", newLogging.exists());
+      assertFalse(oldLogging.exists(), "Old logging must be removed by upgrade");
+      assertTrue(newLogging.exists(), "New Logging must be installed by upgrade");
    }
 
 
@@ -243,14 +246,14 @@ public class CompareUpgradeTest {
                                                        "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
 
       String home = result.get("ARTEMIS_HOME=");
-      Assert.assertNotNull(home);
-      Assert.assertNotEquals("'must-change'", home);
+      assertNotNull(home);
+      assertNotEquals("'must-change'", home);
 
       File oldLogging = new File(etc + "/logging.properties");
       File newLogging = new File(etc + "/log4j2.properties");
 
-      Assert.assertFalse("Old logging must be removed by upgrade", oldLogging.exists());
-      Assert.assertTrue("New Logging must be installed by upgrade", newLogging.exists());
+      assertFalse(oldLogging.exists(), "Old logging must be removed by upgrade");
+      assertTrue(newLogging.exists(), "New Logging must be installed by upgrade");
    }
 
    @Test
@@ -280,7 +283,7 @@ public class CompareUpgradeTest {
 
       // Calling upgrade on itself should not cause any changes to *any* file
       // output should be exactly the same
-      Assert.assertTrue(compareDirectories(false, originalConfig.toPath(), upgradeConfig.toPath()));
+      assertTrue(compareDirectories(false, originalConfig.toPath(), upgradeConfig.toPath()));
    }
 
    private void removeBackups(File upgradeConfig) {
@@ -322,12 +325,12 @@ public class CompareUpgradeTest {
    }
 
    private Map<String, String> checkExpectedValues(String fileName, String... expectedPairs) throws Exception {
-      Assert.assertTrue("You must pass a pair of expected values", expectedPairs.length > 0 && expectedPairs.length % 2 == 0);
+      assertTrue(expectedPairs.length > 0 && expectedPairs.length % 2 == 0, "You must pass a pair of expected values");
       HashMap<String, String> expectedValues = new HashMap<>();
       HashMap<String, String> matchingValues = new HashMap<>();
 
       for (int i = 0; i < expectedPairs.length; i += 2) {
-         Assert.assertFalse("Value duplicated on pairs ::" + expectedPairs[i], expectedValues.containsKey(expectedPairs[i]));
+         assertFalse(expectedValues.containsKey(expectedPairs[i]), "Value duplicated on pairs ::" + expectedPairs[i]);
          expectedValues.put(expectedPairs[i], expectedPairs[i + 1]);
       }
 
@@ -347,14 +350,14 @@ public class CompareUpgradeTest {
                      if (logger.isDebugEnabled()) {
                         logger.debug("prefix={}, expecting={}, actualValue={}", key, value, actualValue);
                      }
-                     Assert.assertEquals(key + " did not match", value, actualValue);
+                     assertEquals(value, actualValue, key + " did not match");
                   }
                }
             });
          });
       }
 
-      Assert.assertEquals("Some elements were not found in the output of " + fileName, matchingValues.size(), expectedValues.size());
+      assertEquals(matchingValues.size(), expectedValues.size(), "Some elements were not found in the output of " + fileName);
 
       return matchingValues;
    }

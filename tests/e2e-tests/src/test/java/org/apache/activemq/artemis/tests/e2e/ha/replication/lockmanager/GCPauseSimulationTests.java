@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.e2e.ha.replication.lockmanager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -36,10 +40,9 @@ import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
 import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.commons.io.FileUtils;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GCPauseSimulationTests extends LockManagerTestBase {
 
@@ -60,7 +63,7 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
    private ObjectNameBuilder artemisPrimaryJmxObjBuilder;
    private ObjectNameBuilder artemisBackupJmxObjBuilder;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       // Start artemis primary and backup
       artemisPrimary = service.newBrokerImage();
@@ -93,7 +96,7 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       artemisBackupJmxObjBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), ARTEMIS_BACKUP_NAME, true);
    }
 
-   @After
+   @AfterEach
    public void teardown() throws IOException {
       service.stop(artemisBackup);
       FileUtils.cleanDirectory(new File(BACKUP_LOCATION + "/data"));
@@ -115,50 +118,50 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       int totalMessages = 600;
 
       // ensure artemis-primary is the live
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client start to produce message on primary
       lastProducedMessage = produce(totalMessages / 2, lastProducedMessage);
-      Assert.assertEquals(totalMessages / 2, lastProducedMessage);
+      assertEquals(totalMessages / 2, lastProducedMessage);
 
       // ensure client can consume (just a few) messages from primary
       lastConsumedMessage = consume(lastProducedMessage / 3, lastConsumedMessage);
-      Assert.assertEquals(lastProducedMessage / 3, lastConsumedMessage);
+      assertEquals(lastProducedMessage / 3, lastConsumedMessage);
 
       // ensure replica is in sync
-      Assert.assertTrue(isReplicaInSync());
+      assertTrue(isReplicaInSync());
 
       // pause the artemis-primary
       service.pause(artemisPrimary);
-      Assert.assertEquals("paused", service.getStatus(artemisPrimary));
+      assertEquals("paused", service.getStatus(artemisPrimary));
 
       // wait artemis-backup start to accept connections and became the live
       service.waitForServerToStart(artemisBackup, CONNECTION_USER, CONNECTION_PASSWORD, 40_000);
       TimeUnit.SECONDS.sleep(10);
 
       // ensure artemis-backup is live
-      Assert.assertEquals(true, Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client should be able to produce messages to backup
       lastProducedMessage += produce(totalMessages / 2, lastProducedMessage);
-      Assert.assertEquals(totalMessages, lastProducedMessage);
+      assertEquals(totalMessages, lastProducedMessage);
 
       // client should be able to consume messages from backup
       lastConsumedMessage += consume(lastProducedMessage / 6, lastConsumedMessage);
-      Assert.assertEquals(lastProducedMessage / 3, lastConsumedMessage);
+      assertEquals(lastProducedMessage / 3, lastConsumedMessage);
 
       // unpause the artemis-primary
       service.unpause(artemisPrimary);
-      Assert.assertEquals("running", service.getStatus(artemisPrimary));
+      assertEquals("running", service.getStatus(artemisPrimary));
 
       // wait artemis-primary shutdown
       TimeUnit.SECONDS.sleep(5);
 
       // artemis-primary should shutdown yourself as the journal has changed since it was paused.
-      Assert.assertEquals("exited", service.getStatus(artemisPrimary));
+      assertEquals("exited", service.getStatus(artemisPrimary));
 
       // restart artemis-primary
       service.restartWithStop(artemisPrimary);
@@ -169,17 +172,17 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
 
       // ensure artemis-primary is the live
       artemisPrimaryJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisPrimary) + ":" + service.getPort(artemisPrimary, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // ensure replica is in sync
-      Assert.assertTrue(isReplicaInSync());
+      assertTrue(isReplicaInSync());
 
       // ensure all remaining produced messages were consumed from primary.
       lastConsumedMessage += consume((lastProducedMessage - lastConsumedMessage), lastConsumedMessage);
-      Assert.assertEquals(totalMessages, lastConsumedMessage);
+      assertEquals(totalMessages, lastConsumedMessage);
 
    }
 
@@ -191,50 +194,50 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       int totalMessages = 600;
 
       // ensure artemis-primary is the live
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client start to produce message on primary
       lastProducedMessage = produce(totalMessages / 2, lastProducedMessage);
-      Assert.assertEquals(totalMessages / 2, lastProducedMessage);
+      assertEquals(totalMessages / 2, lastProducedMessage);
 
       // ensure client can consume (just a few) messages from primary
       lastConsumedMessage = consume(lastProducedMessage / 3, lastConsumedMessage);
-      Assert.assertEquals(lastProducedMessage / 3, lastConsumedMessage);
+      assertEquals(lastProducedMessage / 3, lastConsumedMessage);
 
       // ensure replica is in sync
-      Assert.assertTrue(isReplicaInSync());
+      assertTrue(isReplicaInSync());
 
       // pause the artemis-primary
       service.pause(artemisPrimary);
-      Assert.assertEquals("paused", service.getStatus(artemisPrimary));
+      assertEquals("paused", service.getStatus(artemisPrimary));
 
       // wait artemis-backup start to accept connections and became the live
       service.waitForServerToStart(artemisBackup, CONNECTION_USER, CONNECTION_PASSWORD, 40_000);
       TimeUnit.SECONDS.sleep(10);
 
       // ensure artemis-backup is live
-      Assert.assertEquals(true, Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // client should be able to produce messages to backup
       lastProducedMessage += produce(totalMessages / 2, lastProducedMessage);
-      Assert.assertEquals(totalMessages, lastProducedMessage);
+      assertEquals(totalMessages, lastProducedMessage);
 
       // client should be able to consume messages from backup
       lastConsumedMessage += consume(lastProducedMessage / 6, lastConsumedMessage);
-      Assert.assertEquals(lastProducedMessage / 3, lastConsumedMessage);
+      assertEquals(lastProducedMessage / 3, lastConsumedMessage);
 
       // unpause the artemis-primary
       service.unpause(artemisPrimary);
-      Assert.assertEquals("running", service.getStatus(artemisPrimary));
+      assertEquals("running", service.getStatus(artemisPrimary));
 
       // wait artemis-primary shutdown
       TimeUnit.SECONDS.sleep(5);
 
       // artemis-primary should shutdown yourself as the journal has changed since it was paused.
-      Assert.assertEquals("exited", service.getStatus(artemisPrimary));
+      assertEquals("exited", service.getStatus(artemisPrimary));
 
       // kill artemis-backup
       service.kill(artemisBackup);
@@ -253,18 +256,18 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
 
       // ensure artemis-primary is the live
       artemisPrimaryJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisPrimary) + ":" + service.getPort(artemisPrimary, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isActive(artemisPrimaryJmxServiceURL, artemisPrimaryJmxObjBuilder).orElse(false));
 
       // ensure artemis-backup is the backup
       artemisBackupJmxServiceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service.getHost(artemisBackup) + ":" + service.getPort(artemisBackup, 1099) + "/jmxrmi");
-      Assert.assertEquals(true, Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
+      assertTrue(Jmx.isBackup(artemisBackupJmxServiceURL, artemisBackupJmxObjBuilder).orElse(false));
 
       // ensure replica is in sync
-      Assert.assertTrue(isReplicaInSync());
+      assertTrue(isReplicaInSync());
 
       // ensure all remaining produced messages were consumed from primary.
       lastConsumedMessage += consume((lastProducedMessage - lastConsumedMessage), lastConsumedMessage);
-      Assert.assertEquals(totalMessages, lastConsumedMessage);
+      assertEquals(totalMessages, lastConsumedMessage);
 
    }
 
@@ -312,8 +315,8 @@ public class GCPauseSimulationTests extends LockManagerTestBase {
       while (consumedCounter < numOfMessages) {
          TextMessage message = (TextMessage) consumer.receive(5000);
          consumedCounter++;
-         Assert.assertNotNull("expected message at " + (lastConsumed + consumedCounter), message);
-         Assert.assertEquals(TEXT_MESSAGE + (lastConsumed + consumedCounter), message.getText());
+         assertNotNull(message, "expected message at " + (lastConsumed + consumedCounter));
+         assertEquals(TEXT_MESSAGE + (lastConsumed + consumedCounter), message.getText());
          System.out.println("consumed " + message.getText());
          System.out.println("last consumed: " + (lastConsumed + consumedCounter));
       }

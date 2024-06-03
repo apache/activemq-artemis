@@ -40,8 +40,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    protected ConnectionSupplier CoreConnection = () -> createCoreConnection();
    protected ConnectionSupplier OpenWireConnection = () -> createOpenWireConnection();
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -84,7 +84,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       server = createServer();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       try {

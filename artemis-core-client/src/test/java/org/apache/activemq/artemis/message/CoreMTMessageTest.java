@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,8 +34,7 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CoreMTMessageTest {
 
@@ -86,14 +89,14 @@ public class CoreMTMessageTest {
             try {
                ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(10 * 1024);
                aligned.countDown();
-               Assert.assertTrue(startFlag.await(5, TimeUnit.SECONDS));
+               assertTrue(startFlag.await(5, TimeUnit.SECONDS));
                coreMessage.messageChanged();
                coreMessage.sendBuffer(buffer.byteBuf(), 0);
                CoreMessage recMessage = new CoreMessage();
                recMessage.receiveBuffer(buffer.byteBuf());
-               Assert.assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
-               Assert.assertEquals(33, recMessage.getMessageID());
-               Assert.assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.toSimpleString("str-prop")));
+               assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
+               assertEquals(33, recMessage.getMessageID());
+               assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.toSimpleString("str-prop")));
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
@@ -113,10 +116,10 @@ public class CoreMTMessageTest {
 
       for (Thread t : threads) {
          t.join(10000);
-         Assert.assertFalse(t.isAlive());
+         assertFalse(t.isAlive());
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 

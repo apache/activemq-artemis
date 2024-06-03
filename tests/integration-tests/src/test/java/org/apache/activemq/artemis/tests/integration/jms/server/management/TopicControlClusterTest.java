@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.Topic;
@@ -25,7 +27,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopicControlClusterTest extends JMSClusteredTestBase {
 
@@ -53,17 +55,17 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
          AddressControl topicControl1 = ManagementControlHelper.createAddressControl(simpleTopicName, mBeanServer1);
          AddressControl topicControl2 = ManagementControlHelper.createAddressControl(simpleTopicName, mBeanServer2);
 
-         assertTrue("There should be 2 local subscriptions on the topic.",
-                    Wait.waitFor(() -> topicControl1.getQueueNames().length == 2, 2000));
+         assertTrue(Wait.waitFor(() -> topicControl1.getQueueNames().length == 2, 2000),
+                    "There should be 2 local subscriptions on the topic.");
 
-         assertTrue("There should be 1 remote subscription on the topic.",
-                    Wait.waitFor(() -> topicControl1.getRemoteQueueNames().length == 1, 2000));
+         assertTrue(Wait.waitFor(() -> topicControl1.getRemoteQueueNames().length == 1, 2000),
+                    "There should be 1 remote subscription on the topic.");
 
-         assertTrue("There should be 1 local subscription on the topic.",
-                    Wait.waitFor(() -> topicControl2.getQueueNames().length == 1, 2000));
+         assertTrue(Wait.waitFor(() -> topicControl2.getQueueNames().length == 1, 2000),
+                    "There should be 1 local subscription on the topic.");
 
-         assertTrue("There should be 2 remote subscriptions on the topic.",
-                    Wait.waitFor(() -> topicControl2.getRemoteQueueNames().length == 2, 2000));
+         assertTrue(Wait.waitFor(() -> topicControl2.getRemoteQueueNames().length == 2, 2000),
+                    "There should be 2 remote subscriptions on the topic.");
       }
 
       jmsServer1.destroyTopic("t1");

@@ -23,9 +23,9 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Safeguards for previously detected TCK failures.
@@ -35,7 +35,7 @@ public class CTSMiscellaneousTest extends JMSTest {
    protected static ActiveMQConnectionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       try {
          super.setUp();
@@ -81,7 +81,7 @@ public class CTSMiscellaneousTest extends JMSTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +29,8 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -45,7 +49,8 @@ public class PubRelTests extends MQTT5TestSupport {
    /*
     * [MQTT-3.6.2-1] The Client or Server sending the PUBREL packet MUST use one of the PUBREL Reason Codes.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testPubRelReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(2);

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.plugin.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,18 +33,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.logging.log4j.core.util.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class ConnectionPeriodicExpiryPluginTest {
 
    ConnectionPeriodicExpiryPlugin underTest;
 
-   @Before
+   @BeforeEach
    public void initUnderTest() {
       underTest = new ConnectionPeriodicExpiryPlugin();
    }
@@ -61,26 +62,32 @@ public class ConnectionPeriodicExpiryPluginTest {
       assertEquals("rex", underTest.getAcceptorMatchRegex());
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void initError() {
-      Map<String, String> props = new HashMap<>();
-      props.put("accuracyWindowSeconds", "-2");
+      assertThrows(IllegalArgumentException.class, () -> {
+         Map<String, String> props = new HashMap<>();
+         props.put("accuracyWindowSeconds", "-2");
 
-      underTest.init(props);
+         underTest.init(props);
+      });
    }
 
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void initErrorAcceptorMatchRegex() {
-      Map<String, String> props = new HashMap<>();
-      props.put("accuracyWindowSeconds", "2");
+      assertThrows(IllegalArgumentException.class, () -> {
+         Map<String, String> props = new HashMap<>();
+         props.put("accuracyWindowSeconds", "2");
 
-      underTest.init(props);
+         underTest.init(props);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void testRegisterThrowsOnConfigError() {
-      underTest.registered(null);
+      assertThrows(IllegalArgumentException.class, () -> {
+         underTest.registered(null);
+      });
    }
 
    @Test

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.soak.replicaTxCheck;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -34,11 +36,10 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
       cliCreateServer.createServer();
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       createServer(SERVER_NAME_0);
       createServer(SERVER_NAME_1);
@@ -83,7 +84,7 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
    int NUMBER_OF_MESSAGES = 1000;
    int KILL_AT = 100;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
@@ -95,18 +96,18 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
 
       server0 = startServer(SERVER_NAME_0, 0, 0);
       server1 = startServer(SERVER_NAME_1, 0, 0);
-      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61000, null, null, 15000));
+      assertTrue(ServerUtil.waitForServerToStartOnPort(61000, null, null, 15000));
 
       server2 = startServer(SERVER_NAME_2, 0, 0);
       server3 = startServer(SERVER_NAME_3, 0, 0);
-      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61001, null, null, 15000));
+      assertTrue(ServerUtil.waitForServerToStartOnPort(61001, null, null, 15000));
 
       server4 = startServer(SERVER_NAME_4, 0, 0);
       server4 = startServer(SERVER_NAME_5, 0, 0);
-      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61002, null, null, 15000));
+      assertTrue(ServerUtil.waitForServerToStartOnPort(61002, null, null, 15000));
    }
 
-   @After
+   @AfterEach
    @Override
    public void after() throws Exception {
       super.after();
@@ -241,10 +242,10 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
          targetSession.commit();
 
          for (i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            Assert.assertTrue(received.contains(i));
+            assertTrue(received.contains(i));
          }
          // we could receive duplicates, but not lose messages
-         Assert.assertTrue(rec >= NUMBER_OF_MESSAGES);
+         assertTrue(rec >= NUMBER_OF_MESSAGES);
       }
    }
 }

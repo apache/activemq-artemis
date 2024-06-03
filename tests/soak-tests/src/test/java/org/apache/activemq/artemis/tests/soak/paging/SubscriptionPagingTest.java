@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -35,28 +40,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters
  * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
  * export TEST_FLOW_ZIP_LOCATION=a folder */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SubscriptionPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "SUBSCRIPTION";
@@ -83,7 +85,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "subscriptionPaging";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -99,7 +101,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
    }
 
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
@@ -131,9 +133,9 @@ public class SubscriptionPagingTest extends SoakTestBase {
       return "subscription-" + protocol +  "-" + MESSAGES + "-" + MESSAGE_SIZE + "-" + SLOW_SUBSCRIPTIONS + ".zip";
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       boolean useZip = ZIP_LOCATION != null;
@@ -181,7 +183,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
                   logger.info("Received {} on {}_{}", i, clientID, name);
                }
 
-               Assert.assertEquals(i, message.getIntProperty("m"));
+               assertEquals(i, message.getIntProperty("m"));
 
                if (txInterval > 0) {
                   commitPending++;
@@ -217,7 +219,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testSubscription() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       AtomicInteger errors = new AtomicInteger(0);
@@ -247,8 +249,8 @@ public class SubscriptionPagingTest extends SoakTestBase {
             service.execute(() -> receive(factoryClient, "slow_" + finalI, "slow_" + finalI, 0, errors, new AtomicInteger(0), 0, countDownLatch::countDown));
          }
 
-         Assert.assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
-         Assert.assertEquals(0, errors.get());
+         assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
+         assertEquals(0, errors.get());
       }
 
       if (!unzipped) {
@@ -304,12 +306,12 @@ public class SubscriptionPagingTest extends SoakTestBase {
          service.execute(() -> receive(factoryClient, "slow_" + finalI, "slow_" + finalI, RECEIVE_COMMIT_INTERVAL, errors, sleepInterval, MESSAGES, countDownLatch::countDown));
       }
 
-      Assert.assertTrue(countDownLatch.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(countDownLatch.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      assertEquals(0, errors.get());
 
       service.shutdown();
-      Assert.assertTrue("Test Timed Out", service.awaitTermination(1, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(service.awaitTermination(1, TimeUnit.MINUTES), "Test Timed Out");
+      assertEquals(0, errors.get());
 
    }
 

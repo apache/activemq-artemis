@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -39,8 +44,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,12 +101,12 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
          ClientConsumer browser = session.createConsumer(ADDRESS, null, true);
          for (int i = 0; i < 10; i++) {
             ClientMessage msg = browser.receive(1000);
-            Assert.assertNotNull("element i=" + i + " loopAck = " + loopAck + " was expected", msg);
+            assertNotNull(msg, "element i=" + i + " loopAck = " + loopAck + " was expected");
             msg.acknowledge();
-            Assert.assertEquals(Integer.toString(i), getTextMessage(msg));
+            assertEquals(Integer.toString(i), getTextMessage(msg));
 
             // We don't change the deliveryCounter on Browser, so this should be always 0
-            Assert.assertEquals(0, msg.getDeliveryCount());
+            assertEquals(0, msg.getDeliveryCount());
          }
 
          session.commit();
@@ -119,11 +123,11 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       for (int loopAck = 0; loopAck < 5; loopAck++) {
          for (int i = 0; i < 10; i++) {
             ClientMessage msg = consumer.receive(1000);
-            Assert.assertNotNull(msg);
-            Assert.assertEquals(Integer.toString(i), getTextMessage(msg));
+            assertNotNull(msg);
+            assertEquals(Integer.toString(i), getTextMessage(msg));
 
             // No ACK done, so deliveryCount should be always = 1
-            Assert.assertEquals(1, msg.getDeliveryCount());
+            assertEquals(1, msg.getDeliveryCount());
          }
          session.rollback();
       }
@@ -141,10 +145,10 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       for (int loopAck = 1; loopAck <= 5; loopAck++) {
          for (int i = 0; i < 10; i++) {
             ClientMessage msg = consumer.receive(1000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
-            Assert.assertEquals(Integer.toString(i), getTextMessage(msg));
-            Assert.assertEquals(loopAck, msg.getDeliveryCount());
+            assertEquals(Integer.toString(i), getTextMessage(msg));
+            assertEquals(loopAck, msg.getDeliveryCount());
          }
          if (loopAck < 5) {
             if (persistent) {
@@ -180,7 +184,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       ClientMessage msg = consumer.receive(1000);
-      Assert.assertEquals(1, msg.getDeliveryCount());
+      assertEquals(1, msg.getDeliveryCount());
       session.stop();
 
       // if strictUpdate == true, this will simulate a crash, where the server is stopped without closing/rolling back
@@ -206,8 +210,8 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       session.start();
       consumer = session.createConsumer(ADDRESS);
       msg = consumer.receive(1000);
-      Assert.assertNotNull(msg);
-      Assert.assertEquals(strictUpdate ? 2 : 2, msg.getDeliveryCount());
+      assertNotNull(msg);
+      assertEquals(strictUpdate ? 2 : 2, msg.getDeliveryCount());
       session.close();
    }
 
@@ -366,7 +370,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
          for (ConsumerThread t : threads) {
             t.join(60000);
             assertFalse(t.isAlive());
-            assertEquals("There are Errors on the test thread", 0, t.errors);
+            assertEquals(0, t.errors, "There are Errors on the test thread");
          }
       } finally {
          for (ConsumerThread t : threads) {

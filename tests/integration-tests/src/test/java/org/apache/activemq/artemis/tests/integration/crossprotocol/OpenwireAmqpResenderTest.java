@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.concurrent.TimeUnit;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -33,9 +37,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
 
@@ -49,7 +54,7 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
    private JmsConnectionFactory qpidFactory;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -69,7 +74,7 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (server != null) {
          server.stop();
@@ -77,7 +82,8 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 5_000)
+   @Test
+   @Timeout(value = 5_000, unit = TimeUnit.MILLISECONDS)
    public void internalOpenwireBinaryPropShouldBeConvertedAsByteArrays() throws Exception {
       openwireSender(factory);
       amqpResender(qpidFactory);

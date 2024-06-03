@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -29,7 +33,8 @@ import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +56,8 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
       server.getConfiguration().addAcceptorConfiguration(mqtt);
    }
 
-   @Test(timeout = 30 * 1000)
+   @Test
+   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testBadClient() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
@@ -86,7 +92,8 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
    }
 
 
-   @Test(timeout = 30 * 1000)
+   @Test
+   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testSlowSubscribeWontBlockKeepAlive() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");

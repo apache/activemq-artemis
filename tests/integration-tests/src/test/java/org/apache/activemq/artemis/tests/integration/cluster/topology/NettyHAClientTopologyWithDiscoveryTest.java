@@ -16,14 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,7 +74,7 @@ public class NettyHAClientTopologyWithDiscoveryTest extends HAClientTopologyWith
          failure = true;
       }
 
-      Assert.assertTrue(failure);
+      assertTrue(failure);
 
       ClientSessionFactory factory = serverLocator.createSessionFactory();
       ClientSession session = factory.createSession();
@@ -90,7 +93,7 @@ public class NettyHAClientTopologyWithDiscoveryTest extends HAClientTopologyWith
 
       try {
          serverLocator.createSessionFactory();
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (Exception e) {
       }
    }
@@ -144,7 +147,7 @@ public class NettyHAClientTopologyWithDiscoveryTest extends HAClientTopologyWith
          }
 
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
 
          serverLocator.close();
 

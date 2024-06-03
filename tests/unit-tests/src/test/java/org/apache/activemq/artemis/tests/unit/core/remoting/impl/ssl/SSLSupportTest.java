@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
@@ -23,20 +26,20 @@ import java.util.Collection;
 
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SSLSupportTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}")
+   @Parameters(name = "storeProvider={0}, storeType={1}")
    public static Collection getParameters() {
       if (System.getProperty("java.vendor").contains("IBM")) {
          return Arrays.asList(new Object[][]{
@@ -80,14 +83,14 @@ public class SSLSupportTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       keyStorePassword = "securepass";
       trustStorePassword = keyStorePassword;
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithRightParameters() throws Exception {
       new SSLSupport()
          .setKeystoreProvider(storeProvider)
@@ -102,12 +105,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    }
 
    // This is valid as it will create key and trust managers with system defaults
-   @Test
+   @TestTemplate
    public void testContextWithNullParameters() throws Exception {
       new SSLSupport().createContext();
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithKeyStorePathAsURL() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       new SSLSupport()
@@ -122,7 +125,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
          .createContext();
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithKeyStorePathAsFile() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       File file = new File(url.toURI());
@@ -138,7 +141,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
          .createContext();
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithBadKeyStorePath() throws Exception {
       try {
          new SSLSupport()
@@ -151,12 +154,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithNullKeyStorePath() throws Exception {
       try {
          new SSLSupport()
@@ -170,11 +173,11 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePassword(trustStorePassword)
             .createContext();
       } catch (Exception e) {
-         Assert.fail();
+         fail();
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithKeyStorePathAsRelativePath() throws Exception {
       // this test is dependent on a path relative to the tests directory.
       // it will fail if launch from somewhere else (or from an IDE)
@@ -195,7 +198,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
          .createContext();
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithBadKeyStorePassword() throws Exception {
       try {
          new SSLSupport()
@@ -208,12 +211,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithNullKeyStorePassword() throws Exception {
       try {
          new SSLSupport()
@@ -226,13 +229,13 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
-         Assert.fail();
+         fail();
       } catch (Exception e) {
          assertFalse(e instanceof NullPointerException);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithBadTrustStorePath() throws Exception {
       try {
          new SSLSupport()
@@ -245,12 +248,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePath("not a trust store")
             .setTruststorePassword(trustStorePassword)
             .createContext();
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithBadTrustStorePassword() throws Exception {
       try {
          new SSLSupport()
@@ -263,12 +266,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
             .setTruststorePath(trustStorePath)
             .setTruststorePassword("bad passord")
             .createContext();
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testContextWithTrustAll() throws Exception {
       //This is using a bad password but should not fail because the trust store should be ignored with
       //the trustAll flag set to true

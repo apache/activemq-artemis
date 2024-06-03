@@ -17,9 +17,10 @@
 
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class TestParameters {
       try {
          return Integer.parseInt(mandatoryProperty(testName, property));
       } catch (Throwable e) {
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
          return -1; // never happening, just to make it compile
       }
    }
@@ -85,7 +86,7 @@ public class TestParameters {
       }
 
       if (value == null) {
-         Assert.fail("mandatory System property '" + property + "' not defined");
+         fail("mandatory System property '" + property + "' not defined");
       }
 
       logger.info("{}={}", property, value);

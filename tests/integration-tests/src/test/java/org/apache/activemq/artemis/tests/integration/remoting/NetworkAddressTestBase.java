@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -35,8 +38,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
 
@@ -197,15 +199,15 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
             ClientSessionFactory sf = createSessionFactory(locator);
             if (localPort != 0) {
                Iterator<RemotingConnection> iterator = messagingService.getRemotingService().getConnections().iterator();
-               Assert.assertTrue("no connection created", iterator.hasNext());
+               assertTrue(iterator.hasNext(), "no connection created");
                String address = iterator.next().getTransportConnection().getRemoteAddress();
-               Assert.assertTrue(address.endsWith(":" + localPort));
+               assertTrue(address.endsWith(":" + localPort));
             }
             sf.close();
          } else {
             try {
                locator.createSessionFactory();
-               Assert.fail("session creation must fail because connector must not be able to connect to the server bound to another network interface");
+               fail("session creation must fail because connector must not be able to connect to the server bound to another network interface");
             } catch (Exception e) {
             }
          }

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +40,8 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -62,9 +68,10 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       server.getConfiguration().setJournalFileSize(2 * 1024 * 1024);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrokerAdvertisedDefaultMaxFrameSize() throws Exception {
-      assertFalse("maxFrameSize should not be explicitly configured", maxFrameSizeConfigSet);
+      assertFalse(maxFrameSizeConfigSet, "maxFrameSize should not be explicitly configured");
 
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -89,9 +96,10 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrokerAdvertisedConfiguredMaxFrameSize() throws Exception {
-      assertTrue("maxFrameSize should be explicitly configured", maxFrameSizeConfigSet);
+      assertTrue(maxFrameSizeConfigSet, "maxFrameSize should be explicitly configured");
 
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -116,24 +124,26 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testManyMultiFrameTransfersWithClientMaxFrameSizeSmallerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 1024;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int messageSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT + 5;
 
-      assertTrue("Client maxFrameSize should be smaller than brokers", clientMaxFrameSize < brokerMaxFrameSize);
+      assertTrue(clientMaxFrameSize < brokerMaxFrameSize, "Client maxFrameSize should be smaller than brokers");
 
       doManyMultiFrameTransfersTestImpl(clientMaxFrameSize, messageSize, brokerMaxFrameSize);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testManyMultiFrameTransfersWithClientMaxFrameSizeLargerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int messageSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT + 5;
 
-      assertTrue("Client maxFrameSize should be larger than brokers", clientMaxFrameSize > brokerMaxFrameSize);
+      assertTrue(clientMaxFrameSize > brokerMaxFrameSize, "Client maxFrameSize should be larger than brokers");
 
       doManyMultiFrameTransfersTestImpl(clientMaxFrameSize, messageSize, brokerMaxFrameSize);
    }
@@ -178,7 +188,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
          for (int i = 1; i <= numMsgs; ++i) {
             AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
-            assertNotNull("Did not recieve message " + i, receivedMessage);
+            assertNotNull(receivedMessage, "Did not recieve message " + i);
 
             verifyMessage(receivedMessage, payloadSize);
 
@@ -191,22 +201,24 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSingleAndMultiFrameTransferClientMaxFrameSizeSmallerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 1024;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
 
-      assertTrue("Client maxFrameSize should be smaller than brokers", clientMaxFrameSize < brokerMaxFrameSize);
+      assertTrue(clientMaxFrameSize < brokerMaxFrameSize, "Client maxFrameSize should be smaller than brokers");
 
       doSingleAndMultiFrameTransferTestImpl(clientMaxFrameSize, brokerMaxFrameSize);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSingleAndMultiFrameTransferWithClientMaxFrameSizeLargerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
 
-      assertTrue("Client maxFrameSize should be larger than brokers", clientMaxFrameSize > brokerMaxFrameSize);
+      assertTrue(clientMaxFrameSize > brokerMaxFrameSize, "Client maxFrameSize should be larger than brokers");
 
       doSingleAndMultiFrameTransferTestImpl(clientMaxFrameSize, brokerMaxFrameSize);
    }
@@ -215,10 +227,10 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       final int messageSize1 = 128;
       final int messageSize2 = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT + 5;
 
-      assertTrue("messageSize1 should be much smaller than both of the maxFrameSizes",
-                 messageSize1 < maxFrameSize / 2 && messageSize1 < brokerMaxFrameSize / 2);
-      assertTrue("messageSize2 should be larger than one of the maxFrameSizes",
-                 messageSize2 > maxFrameSize || messageSize2 > brokerMaxFrameSize);
+      assertTrue(messageSize1 < maxFrameSize / 2 && messageSize1 < brokerMaxFrameSize / 2,
+                 "messageSize1 should be much smaller than both of the maxFrameSizes");
+      assertTrue(messageSize2 > maxFrameSize || messageSize2 > brokerMaxFrameSize,
+                 "messageSize2 should be larger than one of the maxFrameSizes");
 
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -257,12 +269,12 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
          receiver.flow(2);
 
          AmqpMessage receivedMessage1 = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("Did not recieve message 1", receivedMessage1);
+         assertNotNull(receivedMessage1, "Did not recieve message 1");
          verifyMessage(receivedMessage1, messageSize1);
          receivedMessage1.accept();
 
          AmqpMessage receivedMessage2 = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("Did not recieve message 2", receivedMessage2);
+         assertNotNull(receivedMessage2, "Did not recieve message 2");
          verifyMessage(receivedMessage2, messageSize2);
 
          receivedMessage2.accept();
@@ -286,19 +298,19 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    private void verifyMessage(final AmqpMessage message, final int payloadSize) {
       MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
 
-      assertNotNull("Message has no body", wrapped.getBody());
-      assertTrue("Unexpected body type: " + wrapped.getBody().getClass(), wrapped.getBody() instanceof Data);
+      assertNotNull(wrapped.getBody(), "Message has no body");
+      assertTrue(wrapped.getBody() instanceof Data, "Unexpected body type: " + wrapped.getBody().getClass());
 
       Data data = (Data) wrapped.getBody();
       Binary binary = data.getValue();
-      assertNotNull("Data section has no content", binary);
-      assertEquals("Unexpected payload length", payloadSize, binary.getLength());
+      assertNotNull(binary, "Data section has no content");
+      assertEquals(payloadSize, binary.getLength(), "Unexpected payload length");
 
       byte[] binaryContent = binary.getArray();
       int offset = binary.getArrayOffset();
       for (int i = 0; i < payloadSize; i++) {
          byte expected = (byte) (48 + (i % 7));
-         assertEquals("Unexpected content at payload index " + i, expected, binaryContent[i + offset]);
+         assertEquals(expected, binaryContent[i + offset], "Unexpected content at payload index " + i);
       }
    }
 }

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -39,8 +43,7 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,14 +93,14 @@ public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
       Wait.assertEquals(1, queue::getConsumerCount, 5000);
 
       QueueControl queueControl = (QueueControl) server.getManagementService().getResource("queue." + queue.getName().toString());
-      Assert.assertNotNull(queueControl);
+      assertNotNull(queueControl);
 
       String result = queueControl.listConsumersAsJSON();
       logger.debug("json: {}", result);
 
       JsonArray resultArray = JsonUtil.readJsonArray(result);
-      Assert.assertEquals(1, resultArray.size());
-      Assert.assertEquals(ConsumerView.CONSUMER_STATUS_OK, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
+      assertEquals(1, resultArray.size());
+      assertEquals(ConsumerView.CONSUMER_STATUS_OK, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
 
       queue.getConsumers().forEach(c -> {
          ServerConsumerImpl serverConsumer = (ServerConsumerImpl) c;
@@ -110,13 +113,13 @@ public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
       logger.debug("json: {}", result);
 
       resultArray = JsonUtil.readJsonArray(result);
-      Assert.assertEquals(1, resultArray.size());
-      Assert.assertEquals(ConsumerView.CONSUMER_STATUS_ORPHANED, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
+      assertEquals(1, resultArray.size());
+      assertEquals(ConsumerView.CONSUMER_STATUS_ORPHANED, resultArray.getJsonObject(0).getString(ConsumerField.STATUS.getName()));
 
       ActiveMQServerControl serverControl = (ActiveMQServerControl) server.getManagementService().getResource(ResourceNames.BROKER);
       String sessionID = resultArray.getJsonObject(0).getString(ConsumerField.SESSION.getAlternativeName());
       int consumerID = resultArray.getJsonObject(0).getInt(ConsumerField.SEQUENTIAL_ID.getAlternativeName());
       logger.debug("SessionID{} ConsumerID::{}", sessionID, consumerID);
-      Assert.assertTrue(serverControl.closeConsumerWithID(sessionID, String.valueOf(consumerID)));
+      assertTrue(serverControl.closeConsumerWithID(sessionID, String.valueOf(consumerID)));
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.Xid;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
@@ -94,10 +97,9 @@ import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,8 +107,8 @@ public class SendAckFailTest extends SpawnedTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Before
-   @After
+   @BeforeEach
+   @AfterEach
    public void deleteDirectory() throws Exception {
       deleteDirectory(new File("./target/send-ack"));
    }
@@ -180,7 +182,7 @@ public class SendAckFailTest extends SpawnedTestBase {
 
          Wait.waitFor(() -> listSent.size() > 100, 5000, 10);
 
-         Assert.assertTrue(process.waitFor(1, TimeUnit.MINUTES));
+         assertTrue(process.waitFor(1, TimeUnit.MINUTES));
 
          server = startServer(false);
 

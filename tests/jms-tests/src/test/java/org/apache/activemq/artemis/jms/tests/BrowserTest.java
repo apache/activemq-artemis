@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
@@ -31,9 +33,8 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class BrowserTest extends JMSTestCase {
 
@@ -100,7 +101,7 @@ public class BrowserTest extends JMSTestCase {
       m.setIntProperty("cnt", 0);
       producer.send(m);
 
-      Assert.assertNotNull(browser.receiveImmediate());
+      assertNotNull(browser.receiveImmediate());
 
       coreSession.close();
 
@@ -130,7 +131,7 @@ public class BrowserTest extends JMSTestCase {
       producer.send(m);
       Message m2 = en.nextElement();
 
-      Assert.assertNotNull(m2);
+      assertNotNull(m2);
 
       drainDestination(getConnectionFactory(), queue1);
    }
@@ -203,7 +204,7 @@ public class BrowserTest extends JMSTestCase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (conn != null) {

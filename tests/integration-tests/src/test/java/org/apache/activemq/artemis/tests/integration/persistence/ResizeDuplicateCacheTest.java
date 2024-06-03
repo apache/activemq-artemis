@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ResizeDuplicateCacheTest extends ActiveMQTestBase {
 
@@ -69,8 +69,8 @@ public class ResizeDuplicateCacheTest extends ActiveMQTestBase {
          serverControl.addAddressSettings(randomString.toString(), settings.toJSON());
          String json = serverControl.getAddressSettingsAsJSON(randomString.toString());
          AddressSettings settingsFromJson = AddressSettings.fromJSON(json);
-         Assert.assertEquals(preExistingCacheValue, settingsFromJson.getIDCacheSize());
-         Assert.assertEquals(3333, settingsFromJson.getDefaultRingSize());
+         Assertions.assertEquals(preExistingCacheValue, settingsFromJson.getIDCacheSize());
+         Assertions.assertEquals(3333, settingsFromJson.getDefaultRingSize());
       }
 
       DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(randomString, duplicateSize);
@@ -86,22 +86,22 @@ public class ResizeDuplicateCacheTest extends ActiveMQTestBase {
 
       duplicateIDCache = server.getPostOffice().getDuplicateIDCache(randomString, duplicateSize);
 
-      Assert.assertEquals(duplicateSize, duplicateIDCache.getSize());
+      Assertions.assertEquals(duplicateSize, duplicateIDCache.getSize());
 
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
       HashMap<Integer, AtomicInteger> records = countJournal(server.getConfiguration());
 
       AtomicInteger duplicateRecordsCount = records.get((int) JournalRecordIds.DUPLICATE_ID);
-      Assert.assertNotNull(duplicateRecordsCount);
-      Assert.assertEquals(duplicateSize, duplicateRecordsCount.get());
+      Assertions.assertNotNull(duplicateRecordsCount);
+      Assertions.assertEquals(duplicateSize, duplicateRecordsCount.get());
 
       if (additionalSettings) {
          String json = serverControl.getAddressSettingsAsJSON(randomString.toString());
 
          // checking if the previous value was merged as expected
          AddressSettings settingsFromJson = AddressSettings.fromJSON(json);
-         Assert.assertEquals(Integer.valueOf(duplicateSize), settingsFromJson.getIDCacheSize());
-         Assert.assertEquals(3333, settingsFromJson.getDefaultRingSize());
+         Assertions.assertEquals(Integer.valueOf(duplicateSize), settingsFromJson.getIDCacheSize());
+         Assertions.assertEquals(3333, settingsFromJson.getDefaultRingSize());
       }
 
       server.stop();

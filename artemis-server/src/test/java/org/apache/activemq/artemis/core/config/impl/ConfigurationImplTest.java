@@ -16,10 +16,19 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -82,18 +91,15 @@ import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
-import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.commons.lang3.ClassUtils;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
@@ -106,57 +112,57 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    @Test
    public void testDefaults() {
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(), conf.getSecurityInvalidationInterval());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory(), conf.getBindingsDirectory());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir(), conf.isCreateBindingsDir());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalDir(), conf.getJournalDirectory());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateJournalDir(), conf.isCreateJournalDir());
-      Assert.assertEquals(ConfigurationImpl.DEFAULT_JOURNAL_TYPE, conf.getJournalType());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(), conf.isJournalSyncNonTransactional());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles(), conf.getJournalMinFiles());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), conf.getJournalMaxIO_AIO());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), conf.getJournalMaxIO_NIO());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled(), conf.isPersistenceEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery(), conf.isPersistDeliveryCountBeforeDelivery());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod(), conf.getFileDeployerScanPeriod());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled(), conf.isJMXManagementEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride(), conf.getConnectionTTLOverride());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled(), conf.isAsyncConnectionExecutionEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout(), conf.getJournalLockAcquisitionTimeout());
-      Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, conf.getJournalBufferTimeout_AIO());
-      Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, conf.getJournalBufferTimeout_NIO());
-      Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, conf.getJournalBufferSize_AIO());
-      Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, conf.getJournalBufferSize_NIO());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate(), conf.isLogJournalWriteRate());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory(), conf.getMessageCounterMaxDayHistory());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod(), conf.getMessageCounterSamplePeriod());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultIdCacheSize(), conf.getIDCacheSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistIdCache(), conf.isPersistIDCache());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval(), conf.getServerDumpInterval());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold(), conf.getMemoryWarningThreshold());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval(), conf.getMemoryMeasureInterval());
-      Assert.assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
-      Assert.assertNull(conf.getJournalDeviceBlockSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace(), conf.getTemporaryQueueNamespace());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(), conf.getSecurityInvalidationInterval());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory(), conf.getBindingsDirectory());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir(), conf.isCreateBindingsDir());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalDir(), conf.getJournalDirectory());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateJournalDir(), conf.isCreateJournalDir());
+      assertEquals(ConfigurationImpl.DEFAULT_JOURNAL_TYPE, conf.getJournalType());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(), conf.isJournalSyncNonTransactional());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles(), conf.getJournalMinFiles());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), conf.getJournalMaxIO_AIO());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), conf.getJournalMaxIO_NIO());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword()); // OK
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled(), conf.isPersistenceEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery(), conf.isPersistDeliveryCountBeforeDelivery());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod(), conf.getFileDeployerScanPeriod());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled(), conf.isJMXManagementEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride(), conf.getConnectionTTLOverride());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled(), conf.isAsyncConnectionExecutionEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout(), conf.getJournalLockAcquisitionTimeout());
+      assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, conf.getJournalBufferTimeout_AIO());
+      assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, conf.getJournalBufferTimeout_NIO());
+      assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, conf.getJournalBufferSize_AIO());
+      assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, conf.getJournalBufferSize_NIO());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate(), conf.isLogJournalWriteRate());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory(), conf.getMessageCounterMaxDayHistory());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod(), conf.getMessageCounterSamplePeriod());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultIdCacheSize(), conf.getIDCacheSize());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistIdCache(), conf.isPersistIDCache());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval(), conf.getServerDumpInterval());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold(), conf.getMemoryWarningThreshold());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval(), conf.getMemoryMeasureInterval());
+      assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
+      assertNull(conf.getJournalDeviceBlockSize());
+      assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace(), conf.getTemporaryQueueNamespace());
    }
 
    @Test
@@ -164,7 +170,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       ConfigurationImpl impl = new ConfigurationImpl();
       impl.setMaskPassword(null);
 
-      Assert.assertEquals(impl.hashCode(), impl.hashCode());
+      assertEquals(impl.hashCode(), impl.hashCode());
    }
 
    @Test
@@ -198,12 +204,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          ConfigurationImpl configuration = new ConfigurationImpl();
          configuration.setJournalDirectory("./data-journal");
          File journalLocation = configuration.getJournalLocation();
-         Assert.assertFalse("This path shouldn't resolve to a real folder", journalLocation.exists());
-         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
-         Assert.assertFalse(configuration.getNodeManagerLockLocation().exists());
+         assertFalse(journalLocation.exists(), "This path shouldn't resolve to a real folder");
+         assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         assertFalse(configuration.getNodeManagerLockLocation().exists());
          configuration.setNodeManagerLockDirectory("./lock-folder");
-         Assert.assertNotEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
-         Assert.assertFalse("This path shouldn't resolve to a real folder", configuration.getNodeManagerLockLocation().exists());
+         assertNotEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         assertFalse(configuration.getNodeManagerLockLocation().exists(), "This path shouldn't resolve to a real folder");
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
@@ -224,7 +230,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       File tempFolder = null;
       try {
          System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
-         tempFolder = File.createTempFile("journal-folder", "", temporaryFolder.getRoot());
+         tempFolder = File.createTempFile("journal-folder", "", temporaryFolder);
          tempFolder.delete();
 
          tempFolder = new File(tempFolder.getAbsolutePath());
@@ -236,11 +242,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          configuration.setJournalDirectory(tempFolder.getAbsolutePath());
          File journalLocation = configuration.getJournalLocation();
 
-         Assert.assertTrue(journalLocation.exists());
-         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
-         Assert.assertTrue(configuration.getNodeManagerLockLocation().exists());
+         assertTrue(journalLocation.exists());
+         assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         assertTrue(configuration.getNodeManagerLockLocation().exists());
 
-         tempFolder = File.createTempFile("lock-folder", "", temporaryFolder.getRoot());
+         tempFolder = File.createTempFile("lock-folder", "", temporaryFolder);
          tempFolder.delete();
 
          tempFolder.getAbsolutePath();
@@ -251,7 +257,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          logger.debug("TempFolder = {}", tempFolder.getAbsolutePath());
          configuration.setNodeManagerLockDirectory(tempFolder.getAbsolutePath());
          File lockLocation = configuration.getNodeManagerLockLocation();
-         Assert.assertTrue(lockLocation.exists());
+         assertTrue(lockLocation.exists());
 
       } finally {
          if (oldProperty == null) {
@@ -320,7 +326,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
          Method declaredMethod = ConfigurationImpl.class.getDeclaredMethod(methodName);
          Object value = declaredMethod.invoke(configuration);
-         Assert.assertEquals(value, properties.get(entry.getKey()));
+         assertEquals(value, properties.get(entry.getKey()));
       }
    }
 
@@ -333,8 +339,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, configuration.getSystemPropertyPrefix());
 
-      Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
-      Assert.assertEquals(4321, configuration.getGlobalMaxSize());
+      assertEquals(1234, configuration.getFileDeployerScanPeriod());
+      assertEquals(4321, configuration.getGlobalMaxSize());
    }
 
    @Test
@@ -365,29 +371,29 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
-      Assert.assertEquals("target", connectConfiguration.getName());
-      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
-      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
-      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
-      Assert.assertEquals("admin", connectConfiguration.getUser());
-      Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
-      Assert.assertEquals(1,connectConfiguration.getConnectionElements().size());
+      assertEquals("target", connectConfiguration.getName());
+      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals(55, connectConfiguration.getRetryInterval());
+      assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      assertEquals("admin", connectConfiguration.getUser());
+      assertEquals("password", connectConfiguration.getPassword());
+      assertFalse(connectConfiguration.isAutostart());
+      assertEquals(1,connectConfiguration.getConnectionElements().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
+      assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
       AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement;
-      Assert.assertEquals("mirror", amqpMirrorBrokerConnectionElement.getName());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueCreation());
-      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueRemoval());
-      Assert.assertEquals(sync, ((AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement).isSync());
-      Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
-      Assert.assertFalse(amqpMirrorBrokerConnectionElement.getProperties().isEmpty());
-      Assert.assertEquals("b", amqpMirrorBrokerConnectionElement.getProperties().get("a"));
+      assertEquals("mirror", amqpMirrorBrokerConnectionElement.getName());
+      assertTrue(amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
+      assertTrue(amqpMirrorBrokerConnectionElement.isQueueCreation());
+      assertTrue(amqpMirrorBrokerConnectionElement.isQueueRemoval());
+      assertEquals(sync, ((AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement).isSync());
+      assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
+      assertFalse(amqpMirrorBrokerConnectionElement.getProperties().isEmpty());
+      assertEquals("b", amqpMirrorBrokerConnectionElement.getProperties().get("a"));
    }
 
    @Test
@@ -429,27 +435,27 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
-      Assert.assertEquals("target", connectConfiguration.getName());
-      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
-      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
-      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
-      Assert.assertEquals("admin", connectConfiguration.getUser());
-      Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
-      Assert.assertEquals(1,connectConfiguration.getFederations().size());
+      assertEquals("target", connectConfiguration.getName());
+      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals(55, connectConfiguration.getRetryInterval());
+      assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      assertEquals("admin", connectConfiguration.getUser());
+      assertEquals("password", connectConfiguration.getPassword());
+      assertFalse(connectConfiguration.isAutostart());
+      assertEquals(1,connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
-      Assert.assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
+      assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
 
       if (local) {
-         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
-         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+         assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+         assertEquals(2, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
       } else {
-         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
-         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+         assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+         assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
       }
 
       final Set<AMQPFederationAddressPolicyElement> addressPolicies = local ? amqpFederationBrokerConnectionElement.getLocalAddressPolicies()
@@ -468,36 +474,36 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          }
       }
 
-      Assert.assertNotNull(addressPolicy1);
-      Assert.assertEquals(2, addressPolicy1.getMaxHops());
-      Assert.assertEquals(42L, addressPolicy1.getAutoDeleteMessageCount().longValue());
-      Assert.assertEquals(10000L, addressPolicy1.getAutoDeleteDelay().longValue());
-      Assert.assertNull(addressPolicy1.isEnableDivertBindings());
-      Assert.assertTrue(addressPolicy1.getProperties().isEmpty());
+      assertNotNull(addressPolicy1);
+      assertEquals(2, addressPolicy1.getMaxHops());
+      assertEquals(42L, addressPolicy1.getAutoDeleteMessageCount().longValue());
+      assertEquals(10000L, addressPolicy1.getAutoDeleteDelay().longValue());
+      assertNull(addressPolicy1.isEnableDivertBindings());
+      assertTrue(addressPolicy1.getProperties().isEmpty());
 
       addressPolicy1.getIncludes().forEach(match -> {
          if (match.getName().equals("m1")) {
-            Assert.assertEquals("a", match.getAddressMatch());
+            assertEquals("a", match.getAddressMatch());
          } else if (match.getName().equals("m2")) {
-            Assert.assertEquals("b", match.getAddressMatch());
+            assertEquals("b", match.getAddressMatch());
          } else if (match.getName().equals("m3")) {
-            Assert.assertEquals("c", match.getAddressMatch());
+            assertEquals("c", match.getAddressMatch());
          } else {
             throw new AssertionError("Found address match that was not expected: " + match.getName());
          }
       });
 
-      Assert.assertNotNull(addressPolicy2);
-      Assert.assertEquals(0, addressPolicy2.getMaxHops());
-      Assert.assertNull(addressPolicy2.getAutoDeleteMessageCount());
-      Assert.assertNull(addressPolicy2.getAutoDeleteDelay());
-      Assert.assertTrue(addressPolicy2.isEnableDivertBindings());
-      Assert.assertFalse(addressPolicy2.getProperties().isEmpty());
-      Assert.assertEquals("b", addressPolicy2.getProperties().get("a"));
+      assertNotNull(addressPolicy2);
+      assertEquals(0, addressPolicy2.getMaxHops());
+      assertNull(addressPolicy2.getAutoDeleteMessageCount());
+      assertNull(addressPolicy2.getAutoDeleteDelay());
+      assertTrue(addressPolicy2.isEnableDivertBindings());
+      assertFalse(addressPolicy2.getProperties().isEmpty());
+      assertEquals("b", addressPolicy2.getProperties().get("a"));
 
       addressPolicy2.getIncludes().forEach(match -> {
          if (match.getName().equals("m4")) {
-            Assert.assertEquals("y", match.getAddressMatch());
+            assertEquals("y", match.getAddressMatch());
          } else {
             throw new AssertionError("Found address match that was not expected: " + match.getName());
          }
@@ -505,14 +511,14 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       addressPolicy2.getExcludes().forEach(match -> {
          if (match.getName().equals("m5")) {
-            Assert.assertEquals("z", match.getAddressMatch());
+            assertEquals("z", match.getAddressMatch());
          } else {
             throw new AssertionError("Found address match that was not expected: " + match.getName());
          }
       });
 
-      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
-      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+      assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+      assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
    }
 
    @Test
@@ -525,7 +531,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       doTestAMQPFederationQueuePolicyConfiguration(false);
    }
 
-   public void doTestAMQPFederationQueuePolicyConfiguration(boolean local) throws Throwable {
+   private void doTestAMQPFederationQueuePolicyConfiguration(boolean local) throws Throwable {
       final ConfigurationImpl configuration = new ConfigurationImpl();
 
       final String policyType = local ? "localQueuePolicies" : "remoteQueuePolicies";
@@ -552,29 +558,29 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
-      Assert.assertEquals("target", connectConfiguration.getName());
-      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
-      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
-      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
-      Assert.assertEquals("admin", connectConfiguration.getUser());
-      Assert.assertEquals("password", connectConfiguration.getPassword());
-      Assert.assertEquals(false, connectConfiguration.isAutostart());
-      Assert.assertEquals(1,connectConfiguration.getFederations().size());
+      assertEquals("target", connectConfiguration.getName());
+      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals(55, connectConfiguration.getRetryInterval());
+      assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      assertEquals("admin", connectConfiguration.getUser());
+      assertEquals("password", connectConfiguration.getPassword());
+      assertFalse(connectConfiguration.isAutostart());
+      assertEquals(1,connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
-      Assert.assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
+      assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
 
       if (local) {
-         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
-         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+         assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+         assertEquals(2, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
       } else {
-         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
-         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+         assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+         assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
       }
 
       final Set<AMQPFederationQueuePolicyElement> addressPolicies = local ? amqpFederationBrokerConnectionElement.getLocalQueuePolicies() :
@@ -593,32 +599,32 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          }
       }
 
-      Assert.assertNotNull(queuePolicy1);
-      Assert.assertFalse(queuePolicy1.getIncludes().isEmpty());
-      Assert.assertTrue(queuePolicy1.getExcludes().isEmpty());
-      Assert.assertEquals(2, queuePolicy1.getIncludes().size());
-      Assert.assertEquals(0, queuePolicy1.getProperties().size());
+      assertNotNull(queuePolicy1);
+      assertFalse(queuePolicy1.getIncludes().isEmpty());
+      assertTrue(queuePolicy1.getExcludes().isEmpty());
+      assertEquals(2, queuePolicy1.getIncludes().size());
+      assertEquals(0, queuePolicy1.getProperties().size());
 
       queuePolicy1.getIncludes().forEach(match -> {
          if (match.getName().equals("m1")) {
-            Assert.assertEquals("#", match.getAddressMatch());
-            Assert.assertEquals("b", match.getQueueMatch());
+            assertEquals("#", match.getAddressMatch());
+            assertEquals("b", match.getQueueMatch());
          } else if (match.getName().equals("m2")) {
-            Assert.assertEquals("a", match.getAddressMatch());
-            Assert.assertEquals("c", match.getQueueMatch());
+            assertEquals("a", match.getAddressMatch());
+            assertEquals("c", match.getQueueMatch());
          } else {
             throw new AssertionError("Found queue match that was not expected: " + match.getName());
          }
       });
 
-      Assert.assertNotNull(queuePolicy2);
-      Assert.assertFalse(queuePolicy2.getIncludes().isEmpty());
-      Assert.assertFalse(queuePolicy2.getExcludes().isEmpty());
+      assertNotNull(queuePolicy2);
+      assertFalse(queuePolicy2.getIncludes().isEmpty());
+      assertFalse(queuePolicy2.getExcludes().isEmpty());
 
       queuePolicy2.getIncludes().forEach(match -> {
          if (match.getName().equals("m3")) {
-            Assert.assertNull(match.getAddressMatch());
-            Assert.assertEquals("d", match.getQueueMatch());
+            assertNull(match.getAddressMatch());
+            assertEquals("d", match.getQueueMatch());
          } else {
             throw new AssertionError("Found queue match that was not expected: " + match.getName());
          }
@@ -626,21 +632,21 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       queuePolicy2.getExcludes().forEach(match -> {
          if (match.getName().equals("m3")) {
-            Assert.assertEquals("e", match.getAddressMatch());
-            Assert.assertEquals("e", match.getQueueMatch());
+            assertEquals("e", match.getAddressMatch());
+            assertEquals("e", match.getQueueMatch());
          } else {
             throw new AssertionError("Found queue match that was not expected: " + match.getName());
          }
       });
 
-      Assert.assertEquals(2, queuePolicy2.getProperties().size());
-      Assert.assertTrue(queuePolicy2.getProperties().containsKey("p1"));
-      Assert.assertTrue(queuePolicy2.getProperties().containsKey("p2"));
-      Assert.assertEquals("value1", queuePolicy2.getProperties().get("p1"));
-      Assert.assertEquals("value2", queuePolicy2.getProperties().get("p2"));
+      assertEquals(2, queuePolicy2.getProperties().size());
+      assertTrue(queuePolicy2.getProperties().containsKey("p1"));
+      assertTrue(queuePolicy2.getProperties().containsKey("p2"));
+      assertEquals("value1", queuePolicy2.getProperties().get("p1"));
+      assertEquals("value2", queuePolicy2.getProperties().get("p2"));
 
-      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
-      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+      assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+      assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
    }
 
    @Test
@@ -653,7 +659,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
-      Assert.assertFalse(connectConfiguration.getTransportConfigurations().get(0).getParams().get("trustStorePassword").toString().contains("ENC"));
+      assertFalse(connectConfiguration.getTransportConfigurations().get(0).getParams().get("trustStorePassword").toString().contains("ENC"));
    }
 
    @Test
@@ -676,22 +682,22 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getBridgeConfigurations().size());
-      Assert.assertEquals(queueName, configuration.getBridgeConfigurations().get(0).getQueueName());
+      assertEquals(1, configuration.getBridgeConfigurations().size());
+      assertEquals(queueName, configuration.getBridgeConfigurations().get(0).getQueueName());
 
-      Assert.assertEquals(forwardingAddress, configuration.getBridgeConfigurations().get(0).getForwardingAddress());
-      Assert.assertEquals(10, configuration.getBridgeConfigurations().get(0).getConfirmationWindowSize());
-      Assert.assertEquals(2, configuration.getBridgeConfigurations().get(0).getStaticConnectors().size());
-      Assert.assertEquals("a", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(0));
-      Assert.assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
+      assertEquals(forwardingAddress, configuration.getBridgeConfigurations().get(0).getForwardingAddress());
+      assertEquals(10, configuration.getBridgeConfigurations().get(0).getConfirmationWindowSize());
+      assertEquals(2, configuration.getBridgeConfigurations().get(0).getStaticConnectors().size());
+      assertEquals("a", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(0));
+      assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
 
-      Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
+      assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
 
       properties = new ConfigurationImpl.InsertionOrderedProperties();
       // validate out of bound is trapped as error
       properties.put("bridgeConfigurations.b1.staticConnectors[5]", "d");
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("IndexOutOfBoundsException"));
+      assertTrue(configuration.getStatus().contains("IndexOutOfBoundsException"), configuration.getStatus());
    }
 
    @Test
@@ -704,7 +710,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(LiveOnlyPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(LiveOnlyPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       checkScaleDownConfiguration(((LiveOnlyPolicyConfiguration)haPolicyConfiguration).getScaleDownConfiguration());
    }
@@ -728,20 +734,20 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(ReplicatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(ReplicatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       ReplicatedPolicyConfiguration replicatedPolicyConfiguration =
          (ReplicatedPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, replicatedPolicyConfiguration.isCheckForActiveServer());
-      Assert.assertEquals("g0", replicatedPolicyConfiguration.getGroupName());
-      Assert.assertEquals("c0", replicatedPolicyConfiguration.getClusterName());
-      Assert.assertEquals(3, replicatedPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
-      Assert.assertEquals(true, replicatedPolicyConfiguration.getVoteOnReplicationFailure());
-      Assert.assertEquals(9, replicatedPolicyConfiguration.getQuorumSize());
-      Assert.assertEquals(6, replicatedPolicyConfiguration.getVoteRetries());
-      Assert.assertEquals(1, replicatedPolicyConfiguration.getVoteRetryWait());
-      Assert.assertEquals(2, replicatedPolicyConfiguration.getQuorumVoteWait());
-      Assert.assertEquals(Long.valueOf(4), replicatedPolicyConfiguration.getRetryReplicationWait());
+      assertTrue(replicatedPolicyConfiguration.isCheckForActiveServer());
+      assertEquals("g0", replicatedPolicyConfiguration.getGroupName());
+      assertEquals("c0", replicatedPolicyConfiguration.getClusterName());
+      assertEquals(3, replicatedPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      assertTrue(replicatedPolicyConfiguration.getVoteOnReplicationFailure());
+      assertEquals(9, replicatedPolicyConfiguration.getQuorumSize());
+      assertEquals(6, replicatedPolicyConfiguration.getVoteRetries());
+      assertEquals(1, replicatedPolicyConfiguration.getVoteRetryWait());
+      assertEquals(2, replicatedPolicyConfiguration.getQuorumVoteWait());
+      assertEquals(Long.valueOf(4), replicatedPolicyConfiguration.getRetryReplicationWait());
    }
 
    @Test
@@ -766,22 +772,22 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(ReplicaPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(ReplicaPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       ReplicaPolicyConfiguration replicaPolicyConfiguration =
          (ReplicaPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals("c0", replicaPolicyConfiguration.getClusterName());
-      Assert.assertEquals(3, replicaPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
-      Assert.assertEquals("g0", replicaPolicyConfiguration.getGroupName());
-      Assert.assertEquals(false, replicaPolicyConfiguration.isRestartBackup());
-      Assert.assertEquals(true, replicaPolicyConfiguration.isAllowFailBack());
-      Assert.assertEquals(7, replicaPolicyConfiguration.getInitialReplicationSyncTimeout());
-      Assert.assertEquals(true, replicaPolicyConfiguration.getVoteOnReplicationFailure());
-      Assert.assertEquals(9, replicaPolicyConfiguration.getQuorumSize());
-      Assert.assertEquals(6, replicaPolicyConfiguration.getVoteRetries());
-      Assert.assertEquals(1, replicaPolicyConfiguration.getVoteRetryWait());
-      Assert.assertEquals(2, replicaPolicyConfiguration.getQuorumVoteWait());
-      Assert.assertEquals(4, replicaPolicyConfiguration.getRetryReplicationWait());
+      assertEquals("c0", replicaPolicyConfiguration.getClusterName());
+      assertEquals(3, replicaPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      assertEquals("g0", replicaPolicyConfiguration.getGroupName());
+      assertFalse(replicaPolicyConfiguration.isRestartBackup());
+      assertTrue(replicaPolicyConfiguration.isAllowFailBack());
+      assertEquals(7, replicaPolicyConfiguration.getInitialReplicationSyncTimeout());
+      assertTrue(replicaPolicyConfiguration.getVoteOnReplicationFailure());
+      assertEquals(9, replicaPolicyConfiguration.getQuorumSize());
+      assertEquals(6, replicaPolicyConfiguration.getVoteRetries());
+      assertEquals(1, replicaPolicyConfiguration.getVoteRetryWait());
+      assertEquals(2, replicaPolicyConfiguration.getQuorumVoteWait());
+      assertEquals(4, replicaPolicyConfiguration.getRetryReplicationWait());
 
       checkScaleDownConfiguration(replicaPolicyConfiguration.getScaleDownConfiguration());
    }
@@ -797,12 +803,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(SharedStorePrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(SharedStorePrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       SharedStorePrimaryPolicyConfiguration sharedStorePrimaryPolicyConfiguration =
          (SharedStorePrimaryPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, sharedStorePrimaryPolicyConfiguration.isFailoverOnServerShutdown());
-      Assert.assertEquals(false, sharedStorePrimaryPolicyConfiguration.isWaitForActivation());
+      assertTrue(sharedStorePrimaryPolicyConfiguration.isFailoverOnServerShutdown());
+      assertFalse(sharedStorePrimaryPolicyConfiguration.isWaitForActivation());
    }
 
    @Test
@@ -818,13 +824,13 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(SharedStoreBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(SharedStoreBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       SharedStoreBackupPolicyConfiguration sharedStoreBackupPolicyConfiguration =
          (SharedStoreBackupPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, sharedStoreBackupPolicyConfiguration.isFailoverOnServerShutdown());
-      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isRestartBackup());
-      Assert.assertEquals(false, sharedStoreBackupPolicyConfiguration.isAllowFailBack());
+      assertTrue(sharedStoreBackupPolicyConfiguration.isFailoverOnServerShutdown());
+      assertFalse(sharedStoreBackupPolicyConfiguration.isRestartBackup());
+      assertFalse(sharedStoreBackupPolicyConfiguration.isAllowFailBack());
 
       checkScaleDownConfiguration(sharedStoreBackupPolicyConfiguration.getScaleDownConfiguration());
    }
@@ -847,19 +853,19 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(ColocatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(ColocatedPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       ColocatedPolicyConfiguration colocatedPolicyConfiguration =
          (ColocatedPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals(true, colocatedPolicyConfiguration.isRequestBackup());
-      Assert.assertEquals(5, colocatedPolicyConfiguration.getBackupRequestRetries());
-      Assert.assertEquals(3, colocatedPolicyConfiguration.getBackupRequestRetryInterval());
-      Assert.assertEquals(9, colocatedPolicyConfiguration.getMaxBackups());
-      Assert.assertEquals(2, colocatedPolicyConfiguration.getBackupPortOffset());
-      Assert.assertEquals(3, colocatedPolicyConfiguration.getExcludedConnectors().size());
-      Assert.assertEquals(4, colocatedPolicyConfiguration.getPortOffset());
-      Assert.assertEquals(SharedStorePrimaryPolicyConfiguration.class, colocatedPolicyConfiguration.getPrimaryConfig().getClass());
-      Assert.assertEquals(SharedStoreBackupPolicyConfiguration.class, colocatedPolicyConfiguration.getBackupConfig().getClass());
+      assertTrue(colocatedPolicyConfiguration.isRequestBackup());
+      assertEquals(5, colocatedPolicyConfiguration.getBackupRequestRetries());
+      assertEquals(3, colocatedPolicyConfiguration.getBackupRequestRetryInterval());
+      assertEquals(9, colocatedPolicyConfiguration.getMaxBackups());
+      assertEquals(2, colocatedPolicyConfiguration.getBackupPortOffset());
+      assertEquals(3, colocatedPolicyConfiguration.getExcludedConnectors().size());
+      assertEquals(4, colocatedPolicyConfiguration.getPortOffset());
+      assertEquals(SharedStorePrimaryPolicyConfiguration.class, colocatedPolicyConfiguration.getPrimaryConfig().getClass());
+      assertEquals(SharedStoreBackupPolicyConfiguration.class, colocatedPolicyConfiguration.getBackupConfig().getClass());
    }
 
    @Test
@@ -879,18 +885,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(ReplicationPrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(ReplicationPrimaryPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       ReplicationPrimaryPolicyConfiguration replicationPrimaryPolicyConfiguration =
          (ReplicationPrimaryPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals("g0", replicationPrimaryPolicyConfiguration.getGroupName());
-      Assert.assertEquals("c0", replicationPrimaryPolicyConfiguration.getClusterName());
-      Assert.assertEquals(5, replicationPrimaryPolicyConfiguration.getInitialReplicationSyncTimeout());
-      Assert.assertEquals(Long.valueOf(2), replicationPrimaryPolicyConfiguration.getRetryReplicationWait());
-      Assert.assertEquals("class0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
-      Assert.assertEquals("v0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
-      Assert.assertEquals("cid0", replicationPrimaryPolicyConfiguration.getCoordinationId());
-      Assert.assertEquals(3, replicationPrimaryPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      assertEquals("g0", replicationPrimaryPolicyConfiguration.getGroupName());
+      assertEquals("c0", replicationPrimaryPolicyConfiguration.getClusterName());
+      assertEquals(5, replicationPrimaryPolicyConfiguration.getInitialReplicationSyncTimeout());
+      assertEquals(Long.valueOf(2), replicationPrimaryPolicyConfiguration.getRetryReplicationWait());
+      assertEquals("class0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
+      assertEquals("v0", replicationPrimaryPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
+      assertEquals("cid0", replicationPrimaryPolicyConfiguration.getCoordinationId());
+      assertEquals(3, replicationPrimaryPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
    }
 
    @Test
@@ -910,18 +916,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       HAPolicyConfiguration haPolicyConfiguration = configuration.getHAPolicyConfiguration();
-      Assert.assertEquals(ReplicationBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
+      assertEquals(ReplicationBackupPolicyConfiguration.class, haPolicyConfiguration.getClass());
 
       ReplicationBackupPolicyConfiguration replicationBackupPolicyConfiguration =
          (ReplicationBackupPolicyConfiguration)haPolicyConfiguration;
-      Assert.assertEquals("c0", replicationBackupPolicyConfiguration.getClusterName());
-      Assert.assertEquals(3, replicationBackupPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
-      Assert.assertEquals("g0", replicationBackupPolicyConfiguration.getGroupName());
-      Assert.assertEquals(true, replicationBackupPolicyConfiguration.isAllowFailBack());
-      Assert.assertEquals(5, replicationBackupPolicyConfiguration.getInitialReplicationSyncTimeout());
-      Assert.assertEquals(2, replicationBackupPolicyConfiguration.getRetryReplicationWait());
-      Assert.assertEquals("class0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
-      Assert.assertEquals("v0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
+      assertEquals("c0", replicationBackupPolicyConfiguration.getClusterName());
+      assertEquals(3, replicationBackupPolicyConfiguration.getMaxSavedReplicatedJournalsSize());
+      assertEquals("g0", replicationBackupPolicyConfiguration.getGroupName());
+      assertTrue(replicationBackupPolicyConfiguration.isAllowFailBack());
+      assertEquals(5, replicationBackupPolicyConfiguration.getInitialReplicationSyncTimeout());
+      assertEquals(2, replicationBackupPolicyConfiguration.getRetryReplicationWait());
+      assertEquals("class0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getClassName());
+      assertEquals("v0", replicationBackupPolicyConfiguration.getDistributedManagerConfiguration().getProperties().get("k0"));
    }
 
    private void addScaleDownConfigurationProperties(Properties properties) {
@@ -933,12 +939,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    private void checkScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
-      Assert.assertNotNull(scaleDownConfiguration);
-      Assert.assertEquals(3, scaleDownConfiguration.getConnectors().size());
-      Assert.assertEquals("dg0", scaleDownConfiguration.getDiscoveryGroup());
-      Assert.assertEquals("g0", scaleDownConfiguration.getGroupName());
-      Assert.assertEquals("c0", scaleDownConfiguration.getClusterName());
-      Assert.assertEquals(false, scaleDownConfiguration.isEnabled());
+      assertNotNull(scaleDownConfiguration);
+      assertEquals(3, scaleDownConfiguration.getConnectors().size());
+      assertEquals("dg0", scaleDownConfiguration.getDiscoveryGroup());
+      assertEquals("g0", scaleDownConfiguration.getGroupName());
+      assertEquals("c0", scaleDownConfiguration.getClusterName());
+      assertFalse(scaleDownConfiguration.isEnabled());
    }
 
    @Test
@@ -967,28 +973,28 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getFederationConfigurations().size());
-      Assert.assertEquals(1, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getReconnectAttempts());
-      Assert.assertEquals(3, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getStaticConnectors().size());
+      assertEquals(1, configuration.getFederationConfigurations().size());
+      assertEquals(1, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getReconnectAttempts());
+      assertEquals(3, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getStaticConnectors().size());
 
-      Assert.assertEquals(2, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getPolicyRefs().size());
+      assertEquals(2, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getPolicyRefs().size());
 
-      Assert.assertEquals(4, configuration.getFederationConfigurations().get(0).getFederationPolicyMap().size());
-      Assert.assertEquals("qp1", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1").getName());
+      assertEquals(4, configuration.getFederationConfigurations().get(0).getFederationPolicyMap().size());
+      assertEquals("qp1", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1").getName());
 
-      Assert.assertEquals("combined", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined").getName());
-      Assert.assertEquals(3, ((FederationPolicySet)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined")).getPolicyRefs().size());
+      assertEquals("combined", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined").getName());
+      assertEquals(3, ((FederationPolicySet)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined")).getPolicyRefs().size());
 
-      Assert.assertEquals("simpleTransform", ((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1")).getTransformerRef());
+      assertEquals("simpleTransform", ((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1")).getTransformerRef());
 
-      Assert.assertEquals("N#", ((FederationQueuePolicyConfiguration.Matcher)((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp2")).getIncludes().toArray()[0]).getQueueMatch());
-      Assert.assertEquals("b", ((FederationAddressPolicyConfiguration.Matcher)((FederationAddressPolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("a1")).getExcludes().toArray()[0]).getAddressMatch());
+      assertEquals("N#", ((FederationQueuePolicyConfiguration.Matcher)((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp2")).getIncludes().toArray()[0]).getQueueMatch());
+      assertEquals("b", ((FederationAddressPolicyConfiguration.Matcher)((FederationAddressPolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("a1")).getExcludes().toArray()[0]).getAddressMatch());
 
-      Assert.assertEquals("b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getProperties().get("a"));
-      Assert.assertEquals("a.b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getClassName());
+      assertEquals("b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getProperties().get("a"));
+      assertEquals("a.b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getClassName());
 
-      Assert.assertEquals("u", configuration.getFederationConfigurations().get(0).getCredentials().getUser());
-      Assert.assertEquals("secureexample", configuration.getFederationConfigurations().get(0).getCredentials().getPassword());
+      assertEquals("u", configuration.getFederationConfigurations().get(0).getCredentials().getUser());
+      assertEquals("secureexample", configuration.getFederationConfigurations().get(0).getCredentials().getPassword());
    }
 
 
@@ -1006,14 +1012,14 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(2, configuration.getAMQPConnection().size());
+      assertEquals(2, configuration.getAMQPConnection().size());
       for (AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration : configuration.getAMQPConnection()) {
          if ("brokerB".equals(amqpBrokerConnectConfiguration.getName())) {
-            Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+            assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
          } else if ("brokerA".equals(amqpBrokerConnectConfiguration.getName())) {
-            Assert.assertEquals(AMQPBrokerConnectionAddressType.FEDERATION, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+            assertEquals(AMQPBrokerConnectionAddressType.FEDERATION, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
          } else {
             fail("unexpected amqp broker connection configuration: " + amqpBrokerConnectConfiguration.getName());
          }
@@ -1037,9 +1043,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getAMQPConnection().size());
+      assertEquals(1, configuration.getAMQPConnection().size());
 
       Set<AMQPBrokerConnectionAddressType> typesToFind = new HashSet<>();
       for (AMQPBrokerConnectionAddressType t : AMQPBrokerConnectionAddressType.values()) {
@@ -1083,40 +1089,40 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getConnectionRouters().size());
-      Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
-      Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
-      Assert.assertEquals(KeyType.SOURCE_IP, configuration.getConnectionRouters().get(0).getKeyType());
+      assertEquals(1, configuration.getConnectionRouters().size());
+      assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
+      assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
+      assertEquals(KeyType.SOURCE_IP, configuration.getConnectionRouters().get(0).getKeyType());
 
-      Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
+      assertEquals(2, configuration.getAcceptorConfigurations().size());
 
       for (TransportConfiguration acceptor : configuration.getAcceptorConfigurations()) {
          if ("tcp".equals(acceptor.getName())) {
-            Assert.assertEquals("61616", acceptor.getParams().get("PORT"));
-            Assert.assertEquals(NETTY_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
+            assertEquals("61616", acceptor.getParams().get("PORT"));
+            assertEquals(NETTY_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
          }
          if ("invm".equals(acceptor.getName())) {
-            Assert.assertEquals("0", acceptor.getParams().get("ID"));
-            Assert.assertEquals(INVM_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
+            assertEquals("0", acceptor.getParams().get("ID"));
+            assertEquals(INVM_ACCEPTOR_FACTORY, acceptor.getFactoryClassName());
          }
       }
 
-      Assert.assertEquals(2, configuration.getAMQPConnection().size());
+      assertEquals(2, configuration.getAMQPConnection().size());
       for (AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration : configuration.getAMQPConnection()) {
          if ("brokerB".equals(amqpBrokerConnectConfiguration.getName())) {
-            Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR.toString(), amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType().toString());
-            Assert.assertEquals("mirrorSNFQueue", ((AMQPMirrorBrokerConnectionElement)amqpBrokerConnectConfiguration.getConnectionElements().get(0)).getMirrorSNF().toString());
+            assertEquals(AMQPBrokerConnectionAddressType.MIRROR.toString(), amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType().toString());
+            assertEquals("mirrorSNFQueue", ((AMQPMirrorBrokerConnectionElement)amqpBrokerConnectConfiguration.getConnectionElements().get(0)).getMirrorSNF().toString());
 
          } else if ("other-server".equals(amqpBrokerConnectConfiguration.getName())) {
-            Assert.assertEquals(100, amqpBrokerConnectConfiguration.getReconnectAttempts());
+            assertEquals(100, amqpBrokerConnectConfiguration.getReconnectAttempts());
          } else {
             fail("unexpected amqp broker connection configuration: " + amqpBrokerConnectConfiguration.getName());
          }
       }
 
-      Assert.assertEquals(100, configuration.getResourceLimitSettings().get("joe").getMaxConnections());
+      assertEquals(100, configuration.getResourceLimitSettings().get("joe").getMaxConnections());
    }
 
    @Test
@@ -1129,20 +1135,20 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("connectionRouters(bob).keyFilter", "TF");
 
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertTrue(configuration.getStatus().contains("does not exist"));
-      Assert.assertTrue(configuration.getStatus().contains("mapped key: bob"));
+      assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("does not exist"));
+      assertTrue(configuration.getStatus().contains("mapped key: bob"));
 
       properties = new Properties();
       // update existing
       properties.put("connectionRouters(joe).keyFilter", "TF");
 
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
-      Assert.assertEquals(1, configuration.getConnectionRouters().size());
-      Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
-      Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
+      assertEquals(1, configuration.getConnectionRouters().size());
+      assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
+      assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
    }
 
 
@@ -1157,10 +1163,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressConfigurations().size());
-      Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
-      Assert.assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
-      Assert.assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+      assertEquals(1, configuration.getAddressConfigurations().size());
+      assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
+      assertNotNull(configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+      assertFalse(configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
    }
 
    @Test
@@ -1172,16 +1179,16 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressConfigurations().size());
-      Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertEquals(1, configuration.getAddressConfigurations().size());
+      assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       properties.clear();
       properties.put("addressConfigurations.\"LB.TEST\"", "-");
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(0, configuration.getAddressConfigurations().size());
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertEquals(0, configuration.getAddressConfigurations().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -1192,30 +1199,30 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       properties.put("securityRoles.TEST.users.send", "true");
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertEquals(1, configuration.getSecurityRoles().size());
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertEquals(1, configuration.getSecurityRoles().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       properties.clear();
       properties.put(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_REMOVE_VALUE_PROPERTY, "^");
       properties.put("securityRoles.TEST", "^");
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertEquals(0, configuration.getSecurityRoles().size());
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertEquals(0, configuration.getSecurityRoles().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
    public void testIDCacheSizeViaProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Assert.assertTrue(configuration.isPersistIDCache());
+      assertTrue(configuration.isPersistIDCache());
       Properties properties = new Properties();
 
       properties.put("iDCacheSize", "50");
       properties.put("persistIDCache", false);
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(50, configuration.getIDCacheSize());
-      Assert.assertFalse(configuration.isPersistIDCache());
+      assertEquals(50, configuration.getIDCacheSize());
+      assertFalse(configuration.isPersistIDCache());
    }
 
    @Test
@@ -1232,30 +1239,30 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
+      assertEquals(2, configuration.getAcceptorConfigurations().size());
 
       TransportConfiguration artemisTransportConfiguration = configuration.getAcceptorConfigurations().stream().filter(
          transportConfiguration -> transportConfiguration.getName().equals("artemis")).findFirst().get();
-      Assert.assertTrue(artemisTransportConfiguration.getParams().containsKey("protocols"));
-      Assert.assertEquals("CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE", artemisTransportConfiguration.getParams().get("protocols"));
-      Assert.assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
-      Assert.assertEquals("true", artemisTransportConfiguration.getExtraParams().get("supportAdvisory"));
-      Assert.assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("suppressInternalManagementObjects"));
-      Assert.assertEquals("false", artemisTransportConfiguration.getExtraParams().get("suppressInternalManagementObjects"));
+      assertTrue(artemisTransportConfiguration.getParams().containsKey("protocols"));
+      assertEquals("CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE", artemisTransportConfiguration.getParams().get("protocols"));
+      assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
+      assertEquals("true", artemisTransportConfiguration.getExtraParams().get("supportAdvisory"));
+      assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("suppressInternalManagementObjects"));
+      assertEquals("false", artemisTransportConfiguration.getExtraParams().get("suppressInternalManagementObjects"));
 
       TransportConfiguration newTransportConfiguration = configuration.getAcceptorConfigurations().stream().filter(
          transportConfiguration -> transportConfiguration.getName().equals("new")).findFirst().get();
-      Assert.assertTrue(newTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
-      Assert.assertEquals("true", newTransportConfiguration.getExtraParams().get("supportAdvisory"));
-      Assert.assertEquals("null", newTransportConfiguration.getFactoryClassName());
+      assertTrue(newTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
+      assertEquals("true", newTransportConfiguration.getExtraParams().get("supportAdvisory"));
+      assertEquals("null", newTransportConfiguration.getFactoryClassName());
 
       // update with correct factoryClassName
       properties.put("acceptorConfigurations.new.factoryClassName", NETTY_ACCEPTOR_FACTORY);
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertEquals(NETTY_ACCEPTOR_FACTORY, newTransportConfiguration.getFactoryClassName());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+      assertEquals(NETTY_ACCEPTOR_FACTORY, newTransportConfiguration.getFactoryClassName());
    }
 
 
@@ -1330,69 +1337,69 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(4, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoCreateExpiryResources());
-      Assert.assertEquals(SimpleString.toSimpleString("iamDeadLetterAdd"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("add1Expiry"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueuePrefix());
-      Assert.assertEquals(20000000, configuration.getAddressSettings().get("NeedToSet").getMaxReadPageBytes());
-      Assert.assertEquals(512, configuration.getAddressSettings().get("NeedToSet").getManagementMessageAttributeSizeLimit());
-      Assert.assertEquals(SimpleString.toSimpleString("iamDeadLetterQueuePre"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueuePrefix());
-      Assert.assertEquals(12345, configuration.getAddressSettings().get("NeedToSet").getPageSizeBytes());
-      Assert.assertEquals(SimpleString.toSimpleString("add1ExpirySuffix"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueueSuffix());
-      Assert.assertEquals(Long.valueOf(44), configuration.getAddressSettings().get("NeedToSet").getExpiryDelay());
-      Assert.assertEquals(Long.valueOf(5), configuration.getAddressSettings().get("NeedToSet").getMinExpiryDelay());
-      Assert.assertEquals(Long.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getMaxExpiryDelay());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isEnableIngressTimestamp());
-      Assert.assertEquals(300, configuration.getAddressSettings().get("NeedToSet").getManagementBrowsePageSize());
-      Assert.assertEquals(-1, configuration.getAddressSettings().get("NeedToSet").getRetroactiveMessageCount());
-      Assert.assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getMaxDeliveryAttempts());
-      Assert.assertEquals(SimpleString.toSimpleString("add1Key"), configuration.getAddressSettings().get("NeedToSet").getDefaultGroupFirstKey());
-      Assert.assertEquals(100, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerCheckPeriod());
-      Assert.assertEquals(SimpleString.toSimpleString("add1Lvk"), configuration.getAddressSettings().get("NeedToSet").getDefaultLastValueKey());
-      Assert.assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteDiverts());
-      Assert.assertEquals(1000, configuration.getAddressSettings().get("NeedToSet").getDefaultConsumerWindowSize());
-      Assert.assertEquals(7, configuration.getAddressSettings().get("NeedToSet").getMessageCounterHistoryDayLimit());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultGroupRebalance());
-      Assert.assertEquals(RoutingType.ANYCAST, configuration.getAddressSettings().get("NeedToSet").getDefaultQueueRoutingType());
-      Assert.assertEquals(6789, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteQueuesMessageCount());
-      Assert.assertEquals(AddressFullMessagePolicy.DROP, configuration.getAddressSettings().get("NeedToSet").getAddressFullMessagePolicy());
-      Assert.assertEquals(6666, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytes());
-      Assert.assertEquals(22, configuration.getAddressSettings().get("NeedToSet").getRedistributionDelay());
-      Assert.assertEquals(12334, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytesRejectThreshold());
-      Assert.assertEquals(RoutingType.ANYCAST, configuration.getAddressSettings().get("NeedToSet").getDefaultAddressRoutingType());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoCreateDeadLetterResources());
-      Assert.assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getPageCacheMaxSize());
-      Assert.assertEquals(66, configuration.getAddressSettings().get("NeedToSet").getMaxRedeliveryDelay());
-      Assert.assertEquals(10000000, configuration.getAddressSettings().get("NeedToSet").getMaxSizeMessages());
-      Assert.assertEquals(2.1, configuration.getAddressSettings().get("NeedToSet").getRedeliveryMultiplier(), .01);
-      Assert.assertEquals(-2, configuration.getAddressSettings().get("NeedToSet").getDefaultRingSize());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultLastValueQueue());
-      Assert.assertEquals(5.0, configuration.getAddressSettings().get("NeedToSet").getRedeliveryCollisionAvoidanceFactor(), .01);
-      Assert.assertEquals(3, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteQueuesDelay());
-      Assert.assertEquals(33, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteAddressesDelay());
-      Assert.assertFalse(configuration.getAddressSettings().get("NeedToSet").isEnableMetrics());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isSendToDLAOnNoRoute());
-      Assert.assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThresholdMeasurementUnit());
-      Assert.assertEquals(900, configuration.getAddressSettings().get("NeedToSet").getQueuePrefetch());
-      Assert.assertEquals(SimpleString.toSimpleString("iamDeadLetterQueueSuf"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueueSuffix());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultNonDestructive());
-      Assert.assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteAddresses());
-      Assert.assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThreshold());
-      Assert.assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteQueues());
-      Assert.assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoCreateAddresses());
-      Assert.assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteQueues());
-      Assert.assertEquals(Integer.valueOf(1), configuration.getAddressSettings().get("NeedToSet").getDefaultConsumersBeforeDispatch());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultPurgeOnNoConsumers());
-      Assert.assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoCreateQueues());
-      Assert.assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteAddresses());
-      Assert.assertEquals(Long.valueOf(77), configuration.getAddressSettings().get("NeedToSet").getDefaultDelayBeforeDispatch());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteCreatedQueues());
-      Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultExclusiveQueue());
-      Assert.assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getDefaultMaxConsumers());
-      Assert.assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getIDCacheSize());
+      assertEquals(4, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoCreateExpiryResources());
+      assertEquals(SimpleString.toSimpleString("iamDeadLetterAdd"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterAddress());
+      assertEquals(SimpleString.toSimpleString("add1Expiry"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueuePrefix());
+      assertEquals(20000000, configuration.getAddressSettings().get("NeedToSet").getMaxReadPageBytes());
+      assertEquals(512, configuration.getAddressSettings().get("NeedToSet").getManagementMessageAttributeSizeLimit());
+      assertEquals(SimpleString.toSimpleString("iamDeadLetterQueuePre"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueuePrefix());
+      assertEquals(12345, configuration.getAddressSettings().get("NeedToSet").getPageSizeBytes());
+      assertEquals(SimpleString.toSimpleString("add1ExpirySuffix"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueueSuffix());
+      assertEquals(Long.valueOf(44), configuration.getAddressSettings().get("NeedToSet").getExpiryDelay());
+      assertEquals(Long.valueOf(5), configuration.getAddressSettings().get("NeedToSet").getMinExpiryDelay());
+      assertEquals(Long.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getMaxExpiryDelay());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isEnableIngressTimestamp());
+      assertEquals(300, configuration.getAddressSettings().get("NeedToSet").getManagementBrowsePageSize());
+      assertEquals(-1, configuration.getAddressSettings().get("NeedToSet").getRetroactiveMessageCount());
+      assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getMaxDeliveryAttempts());
+      assertEquals(SimpleString.toSimpleString("add1Key"), configuration.getAddressSettings().get("NeedToSet").getDefaultGroupFirstKey());
+      assertEquals(100, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerCheckPeriod());
+      assertEquals(SimpleString.toSimpleString("add1Lvk"), configuration.getAddressSettings().get("NeedToSet").getDefaultLastValueKey());
+      assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteDiverts());
+      assertEquals(1000, configuration.getAddressSettings().get("NeedToSet").getDefaultConsumerWindowSize());
+      assertEquals(7, configuration.getAddressSettings().get("NeedToSet").getMessageCounterHistoryDayLimit());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultGroupRebalance());
+      assertEquals(RoutingType.ANYCAST, configuration.getAddressSettings().get("NeedToSet").getDefaultQueueRoutingType());
+      assertEquals(6789, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteQueuesMessageCount());
+      assertEquals(AddressFullMessagePolicy.DROP, configuration.getAddressSettings().get("NeedToSet").getAddressFullMessagePolicy());
+      assertEquals(6666, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytes());
+      assertEquals(22, configuration.getAddressSettings().get("NeedToSet").getRedistributionDelay());
+      assertEquals(12334, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytesRejectThreshold());
+      assertEquals(RoutingType.ANYCAST, configuration.getAddressSettings().get("NeedToSet").getDefaultAddressRoutingType());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoCreateDeadLetterResources());
+      assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getPageCacheMaxSize());
+      assertEquals(66, configuration.getAddressSettings().get("NeedToSet").getMaxRedeliveryDelay());
+      assertEquals(10000000, configuration.getAddressSettings().get("NeedToSet").getMaxSizeMessages());
+      assertEquals(2.1, configuration.getAddressSettings().get("NeedToSet").getRedeliveryMultiplier(), .01);
+      assertEquals(-2, configuration.getAddressSettings().get("NeedToSet").getDefaultRingSize());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultLastValueQueue());
+      assertEquals(5.0, configuration.getAddressSettings().get("NeedToSet").getRedeliveryCollisionAvoidanceFactor(), .01);
+      assertEquals(3, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteQueuesDelay());
+      assertEquals(33, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteAddressesDelay());
+      assertFalse(configuration.getAddressSettings().get("NeedToSet").isEnableMetrics());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isSendToDLAOnNoRoute());
+      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThresholdMeasurementUnit());
+      assertEquals(900, configuration.getAddressSettings().get("NeedToSet").getQueuePrefetch());
+      assertEquals(SimpleString.toSimpleString("iamDeadLetterQueueSuf"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueueSuffix());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultNonDestructive());
+      assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteAddresses());
+      assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThreshold());
+      assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteQueues());
+      assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoCreateAddresses());
+      assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteQueues());
+      assertEquals(Integer.valueOf(1), configuration.getAddressSettings().get("NeedToSet").getDefaultConsumersBeforeDispatch());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultPurgeOnNoConsumers());
+      assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoCreateQueues());
+      assertFalse(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteAddresses());
+      assertEquals(Long.valueOf(77), configuration.getAddressSettings().get("NeedToSet").getDefaultDelayBeforeDispatch());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteCreatedQueues());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultExclusiveQueue());
+      assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getDefaultMaxConsumers());
+      assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getIDCacheSize());
    }
 
    @Test
@@ -1410,17 +1417,17 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(300L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
-      Assert.assertEquals(300000L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
-      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(300L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
+      assertEquals(300000L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
+      assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(300L, storeImpl.getPageLimitMessages().longValue());
-      Assert.assertEquals(300000L, storeImpl.getPageLimitBytes().longValue());
-      Assert.assertEquals("DROP", storeImpl.getPageFullMessagePolicy().toString());
+      assertEquals(300L, storeImpl.getPageLimitMessages().longValue());
+      assertEquals(300000L, storeImpl.getPageLimitBytes().longValue());
+      assertEquals("DROP", storeImpl.getPageFullMessagePolicy().toString());
    }
 
    @Test
@@ -1440,18 +1447,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
+      assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
+      assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
-      Assert.assertTrue(loggerHandler.findText("AMQ224125"));
+      assertNull(storeImpl.getPageLimitMessages());
+      assertNull(storeImpl.getPageLimitBytes());
+      assertNull(storeImpl.getPageFullMessagePolicy());
+      assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
 
@@ -1471,18 +1478,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
+      assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
+      assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
-      Assert.assertTrue(loggerHandler.findText("AMQ224125"));
+      assertNull(storeImpl.getPageLimitMessages());
+      assertNull(storeImpl.getPageLimitBytes());
+      assertNull(storeImpl.getPageFullMessagePolicy());
+      assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
    @Test
@@ -1501,18 +1508,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
+      assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
+      assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
-      Assert.assertTrue(loggerHandler.findText("AMQ224125"));
+      assertNull(storeImpl.getPageLimitMessages());
+      assertNull(storeImpl.getPageLimitBytes());
+      assertNull(storeImpl.getPageFullMessagePolicy());
+      assertTrue(loggerHandler.findText("AMQ224125"));
    }
 
    @Test
@@ -1531,18 +1538,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitMessages());
-      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitBytes());
-      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
+      assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
+      assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
-      Assert.assertTrue(loggerHandler.findText("AMQ224124"));
+      assertNull(storeImpl.getPageLimitMessages());
+      assertNull(storeImpl.getPageLimitBytes());
+      assertNull(storeImpl.getPageFullMessagePolicy());
+      assertTrue(loggerHandler.findText("AMQ224124"));
    }
 
 
@@ -1561,17 +1568,17 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
-      Assert.assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
-      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
+      assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
+      assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
-      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
-      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+      assertNull(storeImpl.getPageLimitMessages());
+      assertNull(storeImpl.getPageLimitBytes());
+      assertNull(storeImpl.getPageFullMessagePolicy());
    }
 
    @Test
@@ -1588,15 +1595,15 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
-      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
+      assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(333, storeImpl.getPrefetchPageMessages());
-      Assert.assertEquals(777, storeImpl.getPrefetchPageBytes());
+      assertEquals(333, storeImpl.getPrefetchPageMessages());
+      assertEquals(777, storeImpl.getPrefetchPageBytes());
    }
 
    @Test
@@ -1612,18 +1619,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getAddressSettings().size());
-      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
-      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
-      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getMaxReadPageMessages());
-      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getMaxReadPageBytes());
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
+      assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
+      assertEquals(333, configuration.getAddressSettings().get("#").getMaxReadPageMessages());
+      assertEquals(777, configuration.getAddressSettings().get("#").getMaxReadPageBytes());
 
       PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
-      Assert.assertEquals(333, storeImpl.getPrefetchPageMessages());
-      Assert.assertEquals(777, storeImpl.getPrefetchPageBytes());
-      Assert.assertEquals(333, storeImpl.getMaxPageReadMessages());
-      Assert.assertEquals(777, storeImpl.getMaxPageReadBytes());
+      assertEquals(333, storeImpl.getPrefetchPageMessages());
+      assertEquals(777, storeImpl.getPrefetchPageBytes());
+      assertEquals(333, storeImpl.getMaxPageReadMessages());
+      assertEquals(777, storeImpl.getMaxPageReadBytes());
    }
 
 
@@ -1648,16 +1655,16 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getDivertConfigurations().size());
-      Assert.assertEquals(routingName, configuration.getDivertConfigurations().get(0).getRoutingName());
-      Assert.assertEquals(address, configuration.getDivertConfigurations().get(0).getAddress());
-      Assert.assertEquals(forwardAddress, configuration.getDivertConfigurations().get(0).getForwardingAddress());
+      assertEquals(1, configuration.getDivertConfigurations().size());
+      assertEquals(routingName, configuration.getDivertConfigurations().get(0).getRoutingName());
+      assertEquals(address, configuration.getDivertConfigurations().get(0).getAddress());
+      assertEquals(forwardAddress, configuration.getDivertConfigurations().get(0).getForwardingAddress());
 
-      Assert.assertEquals(className, configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getClassName());
-      Assert.assertEquals("va", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("a"));
-      Assert.assertEquals("vb", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("b"));
+      assertEquals(className, configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getClassName());
+      assertEquals("va", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("a"));
+      assertEquals("vb", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("b"));
    }
 
    @Test
@@ -1671,20 +1678,20 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getSecurityRoles().size());
-      Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
+      assertEquals(1, configuration.getSecurityRoles().size());
+      assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
 
       Role role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
-      Assert.assertNotNull(role);
-      Assert.assertTrue(role.isConsume());
+      assertNotNull(role);
+      assertTrue(role.isConsume());
 
       role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
-      Assert.assertNotNull(role);
-      Assert.assertTrue(role.isSend());
+      assertNotNull(role);
+      assertTrue(role.isSend());
 
       role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
-      Assert.assertNotNull(role);
-      Assert.assertFalse(role.isCreateAddress());
+      assertNotNull(role);
+      assertFalse(role.isCreateAddress());
    }
 
    @Test
@@ -1720,19 +1727,19 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       // verify new addition
-      Assert.assertEquals(2, configuration.getSecurityRoles().size());
-      Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
+      assertEquals(2, configuration.getSecurityRoles().size());
+      assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
 
       Role role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
-      Assert.assertNotNull(role);
-      Assert.assertFalse(role.isConsume());
+      assertNotNull(role);
+      assertFalse(role.isConsume());
 
       role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
-      Assert.assertNotNull(role);
-      Assert.assertTrue(role.isSend());
+      assertNotNull(role);
+      assertTrue(role.isSend());
 
       // verify augmentation
-      Assert.assertEquals(2, configuration.getSecurityRoles().get("#").size());
+      assertEquals(2, configuration.getSecurityRoles().get("#").size());
       Set roles = configuration.getSecurityRoles().get("#");
       class RolePredicate implements Predicate<Role> {
          final String roleName;
@@ -1744,8 +1751,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
             return roleName.equals(role.getName()) && !role.isConsume() && role.isSend() && !role.isCreateAddress();
          }
       }
-      Assert.assertEquals(1L, roles.stream().filter(new RolePredicate("guest")).count());
-      Assert.assertEquals(1L, roles.stream().filter(new RolePredicate("users")).count());
+      assertEquals(1L, roles.stream().filter(new RolePredicate("guest")).count());
+      assertEquals(1L, roles.stream().filter(new RolePredicate("users")).count());
    }
 
    @Test
@@ -1758,7 +1765,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(25 * 1024, configuration.getGlobalMaxSize());
+      assertEquals(25 * 1024, configuration.getGlobalMaxSize());
    }
 
    @Test
@@ -1770,8 +1777,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertEquals(TimeUnit.DAYS.toMillis(1), configuration.getJournalRetentionPeriod());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+      assertEquals(TimeUnit.DAYS.toMillis(1), configuration.getJournalRetentionPeriod());
    }
 
    @Test
@@ -1783,10 +1790,10 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("name", "${HOME:" + homeFromDefault + "}");
       configuration.parsePrefixedProperties(properties, null);
       if (homeFromEnv != null) {
-         Assert.assertEquals(homeFromEnv, configuration.getName());
+         assertEquals(homeFromEnv, configuration.getName());
       } else {
          // if $HOME is not set for some platform
-         Assert.assertEquals(homeFromDefault, configuration.getName());
+         assertEquals(homeFromDefault, configuration.getName());
       }
    }
 
@@ -1796,7 +1803,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       Properties properties = new Properties();
       properties.put("name", "vv-${SOME_RANDOM_VV}");
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertEquals("vv-", configuration.getName());
+      assertEquals("vv-", configuration.getName());
    }
 
    @Test
@@ -1805,7 +1812,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       Properties properties = new Properties();
       properties.put("name", "vv-${SOME_RANDOM_VV:y}");
       configuration.parsePrefixedProperties(properties, null);
-      Assert.assertEquals("vv-y", configuration.getName());
+      assertEquals("vv-y", configuration.getName());
    }
 
 
@@ -1821,8 +1828,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       try {
          properties.put("connectorConfigurations.KEY-${" + newKeyName + "}.name", "y");
          configuration.parsePrefixedProperties(properties, null);
-         Assert.assertNotNull("configured new key from prop", configuration.connectorConfigs.get("KEY-" + valueFromSysProp));
-         Assert.assertEquals("y", configuration.connectorConfigs.get("KEY-" + valueFromSysProp).getName());
+         assertNotNull(configuration.connectorConfigs.get("KEY-" + valueFromSysProp), "configured new key from prop");
+         assertEquals("y", configuration.connectorConfigs.get("KEY-" + valueFromSysProp).getName());
       } finally {
          System.clearProperty(newKeyName);
       }
@@ -1850,24 +1857,24 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("storeConfiguration.jdbcPassword", "pass");
       insertionOrderedProperties.put("storeConfiguration.jdbcUser", "user");
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
-      Assert.assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
+      assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
       DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-      Assert.assertEquals(dsc.getLargeMessageTableName(), "lmtn");
-      Assert.assertEquals(dsc.getMessageTableName(), "mtn");
-      Assert.assertEquals(dsc.getBindingsTableName(), "btn");
-      Assert.assertEquals(dsc.getDataSourceClassName(), "dscn");
-      Assert.assertEquals(dsc.getJdbcAllowedTimeDiff(), 123);
-      Assert.assertEquals(dsc.getJdbcConnectionUrl(), "url");
-      Assert.assertEquals(dsc.getJdbcDriverClassName(), "dcn");
-      Assert.assertEquals(dsc.getJdbcJournalSyncPeriodMillis(), 456);
-      Assert.assertEquals(dsc.getJdbcLockAcquisitionTimeoutMillis(), 789);
-      Assert.assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
-      Assert.assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
-      Assert.assertEquals(dsc.getJdbcNetworkTimeout(), 987);
-      Assert.assertEquals(dsc.getJdbcPassword(), "pass");
-      Assert.assertEquals(dsc.getJdbcUser(), "user");
-      Assert.assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
-      Assert.assertEquals(dsc.getPageStoreTableName(), "pstn");
+      assertEquals(dsc.getLargeMessageTableName(), "lmtn");
+      assertEquals(dsc.getMessageTableName(), "mtn");
+      assertEquals(dsc.getBindingsTableName(), "btn");
+      assertEquals(dsc.getDataSourceClassName(), "dscn");
+      assertEquals(dsc.getJdbcAllowedTimeDiff(), 123);
+      assertEquals(dsc.getJdbcConnectionUrl(), "url");
+      assertEquals(dsc.getJdbcDriverClassName(), "dcn");
+      assertEquals(dsc.getJdbcJournalSyncPeriodMillis(), 456);
+      assertEquals(dsc.getJdbcLockAcquisitionTimeoutMillis(), 789);
+      assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
+      assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
+      assertEquals(dsc.getJdbcNetworkTimeout(), 987);
+      assertEquals(dsc.getJdbcPassword(), "pass");
+      assertEquals(dsc.getJdbcUser(), "user");
+      assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
+      assertEquals(dsc.getPageStoreTableName(), "pstn");
    }
 
    @Test
@@ -1878,7 +1885,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
       String status = configuration.getStatus();
       //test for exception code
-      Assert.assertTrue(status.contains("AMQ229249"));
+      assertTrue(status.contains("AMQ229249"));
    }
 
    @Test
@@ -1891,15 +1898,15 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
-      Assert.assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
-      Assert.assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
+      assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
+      assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
+      assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
    }
 
    @Test
    public void testPropertiesReaderRespectsOrderFromFile() throws Exception {
 
-      File tmpFile = File.createTempFile("ordered-props-test", "", temporaryFolder.getRoot());
+      File tmpFile = File.createTempFile("ordered-props-test", "", temporaryFolder);
 
       FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
       PrintWriter printWriter = new PrintWriter(fileOutputStream);
@@ -1930,7 +1937,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          }
       });
       configuration.parseProperties(tmpFile.getAbsolutePath());
-      assertNull("no errors in insertion order, errorAt:" + errorAt.get(), errorAt.get());
+      assertNull(errorAt.get(), "no errors in insertion order, errorAt:" + errorAt.get());
    }
 
 
@@ -1943,7 +1950,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       names.addLast("two");
 
       for (String suffix : names) {
-         File tmpFile = File.createTempFile("props-test", suffix, temporaryFolder.getRoot());
+         File tmpFile = File.createTempFile("props-test", suffix, temporaryFolder);
 
          FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
          PrintWriter printWriter = new PrintWriter(fileOutputStream);
@@ -1966,7 +1973,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          }
       };
       configuration.parseProperties(files.stream().collect(Collectors.joining(",")));
-      assertEquals("second won", "two", configuration.getName());
+      assertEquals("two", configuration.getName(), "second won");
    }
 
    @Test
@@ -1978,7 +1985,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       names.addLast("b_two");
 
       for (String name : names) {
-         File tmpFile = File.createTempFile(name, ".properties", temporaryFolder.getRoot());
+         File tmpFile = File.createTempFile(name, ".properties", temporaryFolder);
 
          FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
          PrintWriter printWriter = new PrintWriter(fileOutputStream);
@@ -1999,9 +2006,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
             return super.setName(name);
          }
       };
-      configuration.parseProperties(temporaryFolder.getRoot() + "/");
-      assertEquals("second won", "b_two", configuration.getName());
-      assertTrue("all names applied", names.isEmpty());
+      configuration.parseProperties(temporaryFolder + "/");
+      assertEquals("b_two", configuration.getName(), "second won");
+      assertTrue(names.isEmpty(), "all names applied");
    }
 
    @Test
@@ -2018,12 +2025,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(3, configuration.getAddressSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+      assertEquals(3, configuration.getAddressSettings().size());
+      assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
 
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -2087,18 +2094,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
-      Assert.assertTrue(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogAll());
-      Assert.assertFalse(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogSessionEvents());
+      assertEquals(1, configuration.getBrokerPlugins().size());
+      assertTrue(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogAll());
+      assertFalse(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogSessionEvents());
 
       // mimic server initialisePart1
       configuration.registerBrokerPlugins(configuration.getBrokerPlugins());
 
-      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
-      Assert.assertEquals(1, configuration.getBrokerMessagePlugins().size());
-      Assert.assertEquals(1, configuration.getBrokerConnectionPlugins().size());
+      assertEquals(1, configuration.getBrokerPlugins().size());
+      assertEquals(1, configuration.getBrokerMessagePlugins().size());
+      assertEquals(1, configuration.getBrokerConnectionPlugins().size());
 
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
@@ -2109,9 +2116,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
       // verify error
-      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
-      Assert.assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
+      assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
+      assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    @Test
@@ -2129,12 +2136,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
-      Assert.assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
-      Assert.assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
-      Assert.assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
+      assertEquals(1, configuration.getBrokerPlugins().size());
+      assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
+      assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
+      assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
    }
 
    @Test
@@ -2148,12 +2155,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
-      Assert.assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
-      Assert.assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
-      Assert.assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
+      assertEquals(1, configuration.getBrokerPlugins().size());
+      assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
+      assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
+      assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
    }
 
    @Test
@@ -2165,9 +2172,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest.FakeMetricPlugin.class");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
-      Assert.assertFalse(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertTrue(configuration.getStatus().contains("NotFound"));
-      Assert.assertTrue(configuration.getStatus().contains("FakeMetricPlugin"));
+      assertFalse(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+      assertTrue(configuration.getStatus().contains("NotFound"));
+      assertTrue(configuration.getStatus().contains("FakeMetricPlugin"));
 
       // fix the typo error
       insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin.class");
@@ -2176,11 +2183,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertTrue(configuration.getStatus(), configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
-      Assert.assertNotNull(configuration.getMetricsConfiguration());
-      Assert.assertNotNull(configuration.getMetricsConfiguration().getPlugin());
-      Assert.assertNull(configuration.getMetricsConfiguration().getPlugin().getRegistry());
+      assertNotNull(configuration.getMetricsConfiguration());
+      assertNotNull(configuration.getMetricsConfiguration().getPlugin());
+      assertNull(configuration.getMetricsConfiguration().getPlugin().getRegistry());
    }
 
    @Test
@@ -2193,11 +2200,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertEquals(1, configuration.getSecuritySettingPlugins().size());
-      Assert.assertEquals("com.sun.jndi.ldap.LdapCtxFactory", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getInitialContextFactory());
-      Assert.assertEquals("ldap://localhost:1024", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getConnectionURL());
+      assertEquals(1, configuration.getSecuritySettingPlugins().size());
+      assertEquals("com.sun.jndi.ldap.LdapCtxFactory", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getInitialContextFactory());
+      assertEquals("ldap://localhost:1024", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getConnectionURL());
 
-      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
@@ -2207,9 +2214,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
-      Assert.assertTrue(configuration.getStatus().contains("initialContextFactory"));
-      Assert.assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
+      assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      assertTrue(configuration.getStatus().contains("initialContextFactory"));
+      assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    /**
@@ -2262,8 +2269,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          thread.join();
       }
 
-      Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
-      Assert.assertEquals(4321, configuration.getGlobalMaxSize());
+      assertEquals(1234, configuration.getFileDeployerScanPeriod());
+      assertEquals(4321, configuration.getGlobalMaxSize());
    }
 
    @Test
@@ -2277,11 +2284,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       Configuration configuration = new ConfigurationImpl();
       configuration.parsePrefixedProperties(dummyConfig, "dummy", properties, dummyPropertyPrefix);
 
-      Assert.assertNotNull(dummyConfig.getChildConfig());
-      Assert.assertNotNull(dummyConfig.getChildConfig().getChildConfig());
-      Assert.assertNotNull(dummyConfig.getChildConfig().getChildConfig().getChildConfig());
-      Assert.assertNull(dummyConfig.getChildConfig().getChildConfig().getChildConfig().getChildConfig());
-      Assert.assertEquals(1, dummyConfig.getChildConfig().getChildConfig().getChildConfig().getIntProperty());
+      assertNotNull(dummyConfig.getChildConfig());
+      assertNotNull(dummyConfig.getChildConfig().getChildConfig());
+      assertNotNull(dummyConfig.getChildConfig().getChildConfig().getChildConfig());
+      assertNull(dummyConfig.getChildConfig().getChildConfig().getChildConfig().getChildConfig());
+      assertEquals(1, dummyConfig.getChildConfig().getChildConfig().getChildConfig().getIntProperty());
    }
 
    public static class DummyConfig {

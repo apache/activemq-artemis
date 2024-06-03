@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class OpenWireTestBase extends ActiveMQTestBase {
 
@@ -53,7 +53,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    protected MBeanServer mbeanServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = this.createServer(realStore, true);
@@ -130,7 +130,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       mbeanServer = null;
       server.stop();

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +28,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,13 +36,14 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ExtremeCancelsTest extends JMSClientTestSupport {
 
    private SimpleString anycastAddress = new SimpleString("theQueue");
@@ -57,7 +61,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    }
 
 
-   @Parameterized.Parameters(name = "{index}: isAMQP={0}")
+   @Parameters(name = "{index}: isAMQP={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
@@ -65,7 +69,8 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    }
 
 
-   @Test(timeout = 120000)
+   @TestTemplate
+   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
    public void testLotsOfCloseOpenConsumer() throws Exception {
 
       server.createQueue(new QueueConfiguration(anycastAddress).setRoutingType(RoutingType.ANYCAST));
@@ -131,7 +136,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
          c.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    private ConnectionFactory createCF() {

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -33,9 +36,8 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -44,7 +46,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -145,14 +147,14 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
          }
 
          logger.debug("Waiting for message to be received...");
-         Assert.assertTrue(onMessageReceived.await(5, TimeUnit.SECONDS));
+         assertTrue(onMessageReceived.await(5, TimeUnit.SECONDS));
 
          client2JmsConsumer.close();
-         Assert.assertFalse(error.get());
+         assertFalse(error.get());
 
          Thread.sleep(100); // I couldn't make it to fail without a minimal sleep here
-         Assert.assertFalse(loggerHandler.findText("java.lang.IllegalStateException"));
-         Assert.assertFalse(loggerHandler.findText("Cannot find binding"));
+         assertFalse(loggerHandler.findText("java.lang.IllegalStateException"));
+         assertFalse(loggerHandler.findText("Cannot find binding"));
       }
    }
 

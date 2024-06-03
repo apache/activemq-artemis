@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -59,10 +67,9 @@ import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * ActiveMQConnectionFactoryTest
@@ -87,7 +94,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       }
    }
 
-   @After
+   @AfterEach
    public void closeCFs() {
       factories.forEach(cf -> {
          cf.close();
@@ -156,7 +163,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(JMSFactoryType.XA_CF.intValue(), connectionFactory.getFactoryType());
+      assertEquals(JMSFactoryType.XA_CF.intValue(), connectionFactory.getFactoryType());
    }
 
    @Test
@@ -168,7 +175,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(JMSFactoryType.QUEUE_CF.intValue(), connectionFactory.getFactoryType());
+      assertEquals(JMSFactoryType.QUEUE_CF.intValue(), connectionFactory.getFactoryType());
    }
 
    @Test
@@ -180,7 +187,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(JMSFactoryType.QUEUE_XA_CF.intValue(), connectionFactory.getFactoryType());
+      assertEquals(JMSFactoryType.QUEUE_XA_CF.intValue(), connectionFactory.getFactoryType());
    }
 
    @Test
@@ -192,7 +199,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(JMSFactoryType.TOPIC_CF.intValue(), connectionFactory.getFactoryType());
+      assertEquals(JMSFactoryType.TOPIC_CF.intValue(), connectionFactory.getFactoryType());
    }
 
    @Test
@@ -204,7 +211,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(JMSFactoryType.TOPIC_XA_CF.intValue(), connectionFactory.getFactoryType());
+      assertEquals(JMSFactoryType.TOPIC_XA_CF.intValue(), connectionFactory.getFactoryType());
    }
 
    @Test
@@ -228,7 +235,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
-      Assert.assertEquals(true, cf.isHA());
+      assertTrue(cf.isHA());
    }
 
    @Test
@@ -254,11 +261,11 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
 
       DiscoveryGroupConfiguration discoveryGroupConfiguration = cf.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
-      Assert.assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
+      assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
 
       BroadcastEndpoint broadcastEndpoint = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory().createBroadcastEndpoint();
-      Assert.assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpoint);
+      assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpoint);
       broadcastEndpoint.close(false);
    }
 
@@ -291,15 +298,15 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       addCF(cf);
 
       DiscoveryGroupConfiguration discoveryGroupConfiguration = cf.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
-      Assert.assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
+      assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
 
       UDPBroadcastEndpointFactory udpBroadcastEndpointFactory = (UDPBroadcastEndpointFactory) discoveryGroupConfiguration.getBroadcastEndpointFactory();
       //these 2 are transient so are ignored
-      Assert.assertNotEquals("Server1", udpBroadcastEndpointFactory.getLocalBindAddress());
-      Assert.assertNotEquals(1198, udpBroadcastEndpointFactory.getLocalBindPort());
-      Assert.assertEquals(getUDPDiscoveryAddress(), udpBroadcastEndpointFactory.getGroupAddress());
-      Assert.assertEquals(getUDPDiscoveryPort(), udpBroadcastEndpointFactory.getGroupPort());
+      assertNotEquals("Server1", udpBroadcastEndpointFactory.getLocalBindAddress());
+      assertNotEquals(1198, udpBroadcastEndpointFactory.getLocalBindPort());
+      assertEquals(getUDPDiscoveryAddress(), udpBroadcastEndpointFactory.getGroupAddress());
+      assertEquals(getUDPDiscoveryPort(), udpBroadcastEndpointFactory.getGroupPort());
       ctx.close();
    }
 
@@ -358,42 +365,42 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       Map<String, Object> parametersFromJNDI = cf.getServerLocator().getStaticTransportConfigurations()[0].getParams();
 
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.SSL_ENABLED_PROP_NAME), "mySSLEnabledPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_ENABLED_PROP_NAME), "myHTTPEnabledPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME), "myHTTPClientIdlePropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD), "myHTTPClientIdleScanPeriodValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_REQUIRES_SESSION_ID), "myHTTPRequiresSessionIDValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME), "myHTTPUpgradeEnabledPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME), "myHTTPUpgradeEndpointPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.USE_SERVLET_PROP_NAME), "myUseServletPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.SERVLET_PATH), "myServletPathValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_PROP_NAME), "myUseNIOPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME), "myUseNIOGlobalWorkerPoolPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "myLocalAddressPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_PORT_PROP_NAME), "myLocalPortPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME), "myKeystoreProviderPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_TYPE_PROP_NAME), "myKeystoreTypePropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PATH_PROP_NAME), "myKeystorePathPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), "myKeystorePasswordPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME), "myTruststoreProviderPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME), "myTruststoreTypePropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME), "myTruststorePathPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME), "myTruststorePasswordPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME), "myEnabledCipherSuitesPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME), "myEnabledProtocolsPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TCP_NODELAY_PROPNAME), "myTCPNoDelayPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME), "myTCPSendbufferSizePropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME), "myTCPReceivebufferSizePropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.NIO_REMOTING_THREADS_PROPNAME), "myNIORemotingThreadsPropValue");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.BATCH_DELAY), "myBatchDelay");
-      Assert.assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropMaskPassword()), "myPropMaskPassword");
-      Assert.assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropPasswordCodec()), "myPropPasswordCodec");
-      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.NETTY_CONNECT_TIMEOUT), "myNettyConnectTimeout");
+      assertEquals(parametersFromJNDI.get(TransportConstants.SSL_ENABLED_PROP_NAME), "mySSLEnabledPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_ENABLED_PROP_NAME), "myHTTPEnabledPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME), "myHTTPClientIdlePropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD), "myHTTPClientIdleScanPeriodValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_REQUIRES_SESSION_ID), "myHTTPRequiresSessionIDValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME), "myHTTPUpgradeEnabledPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME), "myHTTPUpgradeEndpointPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.USE_SERVLET_PROP_NAME), "myUseServletPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.SERVLET_PATH), "myServletPathValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_PROP_NAME), "myUseNIOPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME), "myUseNIOGlobalWorkerPoolPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "myLocalAddressPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_PORT_PROP_NAME), "myLocalPortPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME), "myKeystoreProviderPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_TYPE_PROP_NAME), "myKeystoreTypePropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PATH_PROP_NAME), "myKeystorePathPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), "myKeystorePasswordPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME), "myTruststoreProviderPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME), "myTruststoreTypePropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME), "myTruststorePathPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME), "myTruststorePasswordPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME), "myEnabledCipherSuitesPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME), "myEnabledProtocolsPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_NODELAY_PROPNAME), "myTCPNoDelayPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME), "myTCPSendbufferSizePropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME), "myTCPReceivebufferSizePropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.NIO_REMOTING_THREADS_PROPNAME), "myNIORemotingThreadsPropValue");
+      assertEquals(parametersFromJNDI.get(TransportConstants.BATCH_DELAY), "myBatchDelay");
+      assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropMaskPassword()), "myPropMaskPassword");
+      assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropPasswordCodec()), "myPropPasswordCodec");
+      assertEquals(parametersFromJNDI.get(TransportConstants.NETTY_CONNECT_TIMEOUT), "myNettyConnectTimeout");
       ctx.close();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -439,10 +446,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myQueue");
-      Assert.assertTrue(destination instanceof Queue);
+      assertTrue(destination instanceof Queue);
 
       destination = (Destination) ctx.lookup("queues/myQueue");
-      Assert.assertTrue(destination instanceof Queue);
+      assertTrue(destination instanceof Queue);
    }
 
    @Test
@@ -455,7 +462,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup(QUEUE);
-      Assert.assertTrue(destination instanceof Queue);
+      assertTrue(destination instanceof Queue);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -475,7 +482,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myQueue");
-      Assert.assertTrue(destination instanceof Queue);
+      assertTrue(destination instanceof Queue);
    }
 
    @Test
@@ -487,7 +494,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myAddress::" + QUEUE);
-      Assert.assertTrue(destination instanceof Queue);
+      assertTrue(destination instanceof Queue);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -509,10 +516,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      Assert.assertTrue(destination instanceof Topic);
+      assertTrue(destination instanceof Topic);
 
       destination = (Destination) ctx.lookup("topics/myTopic");
-      Assert.assertTrue(destination instanceof Topic);
+      assertTrue(destination instanceof Topic);
    }
 
    @Test
@@ -525,7 +532,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      Assert.assertTrue(destination instanceof Topic);
+      assertTrue(destination instanceof Topic);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
@@ -544,7 +551,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic");
-      Assert.assertTrue(destination instanceof Topic);
+      assertTrue(destination instanceof Topic);
    }
 
    @Test
@@ -557,7 +564,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic::" + SUBSCRIPTION);
-      Assert.assertTrue(destination instanceof Topic);
+      assertTrue(destination instanceof Topic);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
@@ -589,8 +596,8 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       //create a connection factory
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
-      Assert.assertEquals("ensure user is set", "myUser", connectionFactory.getUser());
-      Assert.assertEquals("ensure password is set", "myPassword", connectionFactory.getPassword());
+      assertEquals("myUser", connectionFactory.getUser(), "ensure user is set");
+      assertEquals("myPassword", connectionFactory.getPassword(), "ensure password is set");
 
       //Connect to broker to verify credentials are used with connection
       Connection connection = connectionFactory.createConnection();
@@ -604,7 +611,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
          try {
             MessageProducer producer = session.createProducer(queue);
             producer.send(session.createTextMessage("test Msg"));
-            Assert.fail("Sending message should throw a JMSSecurityException");
+            fail("Sending message should throw a JMSSecurityException");
          } catch (JMSSecurityException e) {
             //expected
          }
@@ -620,12 +627,12 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       try {
          ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup(jndiName);
          if (expectedFactoryType == null) {
-            Assert.fail("expected no factory, should have thrown NamingException");
+            fail("expected no factory, should have thrown NamingException");
          } else {
-            Assert.assertEquals(expectedFactoryType.intValue(), connectionFactory.getFactoryType());
+            assertEquals(expectedFactoryType.intValue(), connectionFactory.getFactoryType());
          }
       } catch (NamingException namingException) {
-         Assert.assertNull("NamingException should only occur when no ExpectedFactoryType, but one existed", expectedFactoryType);
+         assertNull(expectedFactoryType, "NamingException should only occur when no ExpectedFactoryType, but one existed");
       }
    }
 

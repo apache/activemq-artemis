@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -41,11 +46,11 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+
 import java.util.function.BiConsumer;
 
 /**
@@ -81,7 +86,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
          e.printStackTrace();
       }
 
-      assertEquals("Exception happened during the process", 0, errors);
+      assertEquals(0, errors, "Exception happened during the process");
    }
 
    @Test
@@ -111,7 +116,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
          e.printStackTrace();
       }
 
-      assertEquals("Exception happened during the process", 0, errors);
+      assertEquals(0, errors, "Exception happened during the process");
    }
 
    /**
@@ -143,7 +148,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
 
       BindingFake bindingFake = new BindingFake("Queue1.#", "one");
-      Assert.assertTrue(ad.addBinding(bindingFake));
+      assertTrue(ad.addBinding(bindingFake));
 
       assertEquals(1, ad.getBindingsForRoutingAddress(address).getBindings().size());
 
@@ -154,12 +159,14 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    }
 
 
-   @Test(expected = ActiveMQQueueExistsException.class)
+   @Test
    public void testWildCardAddAlreadyExistingBindingShouldThrowException() throws Exception {
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
-      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
-      ad.addBinding(new BindingFake("Queue1.#", "one"));
-      ad.addBinding(new BindingFake("Queue1.#", "one"));
+      assertThrows(ActiveMQQueueExistsException.class, () -> {
+         WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+         ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
+         ad.addBinding(new BindingFake("Queue1.#", "one"));
+         ad.addBinding(new BindingFake("Queue1.#", "one"));
+      });
    }
 
    @Test
@@ -369,8 +376,8 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       executorService.shutdown();
-      assertTrue("finished on time", executorService.awaitTermination(10, TimeUnit.MINUTES));
-      assertNull("no exceptions", oops.get());
+      assertTrue(executorService.awaitTermination(10, TimeUnit.MINUTES), "finished on time");
+      assertNull(oops.get(), "no exceptions");
    }
 
    static class BindingFactoryFake implements BindingsFactory {

@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.utils.BufferHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BufferHelperTest {
    @Test
@@ -33,9 +34,9 @@ public class BufferHelperTest {
          buffer.writeNullableString(s);
          int size = BufferHelper.sizeOfNullableString(s);
          int written = buffer.writerIndex();
-         Assert.assertEquals(written, size);
+         assertEquals(written, size);
          String readString = buffer.readNullableString();
-         Assert.assertEquals(s, readString);
+         assertEquals(s, readString);
       }
    }
 }

@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import org.apache.activemq.artemis.core.server.routing.targets.MockTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -45,10 +47,10 @@ public class ConsistentHashPolicyTest extends PolicyTestBase {
       previousTarget = selectedTarget;
 
       selectedTarget = policy.selectTarget(targets, "test");
-      Assert.assertEquals(previousTarget, selectedTarget);
+      assertEquals(previousTarget, selectedTarget);
 
       targets.remove(previousTarget);
       selectedTarget = policy.selectTarget(targets, "test");
-      Assert.assertNotEquals(previousTarget, selectedTarget);
+      assertNotEquals(previousTarget, selectedTarget);
    }
 }

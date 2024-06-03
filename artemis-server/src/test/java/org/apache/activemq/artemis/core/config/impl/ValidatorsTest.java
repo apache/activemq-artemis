@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ValidatorsTest extends Assert {
+public class ValidatorsTest {
 
    private static void success(final Validators.Validator validator, final Object value) {
       validator.validate(RandomUtil.randomString(), value);
@@ -30,7 +31,7 @@ public class ValidatorsTest extends Assert {
    private static void failure(final Validators.Validator validator, final Object value) {
       try {
          validator.validate(RandomUtil.randomString(), value);
-         Assert.fail(validator + " must not validate '" + value + "'");
+         fail(validator + " must not validate '" + value + "'");
       } catch (IllegalArgumentException e) {
 
       }

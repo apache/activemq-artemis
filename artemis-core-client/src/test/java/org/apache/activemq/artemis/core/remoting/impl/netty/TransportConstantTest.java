@@ -17,8 +17,9 @@
 
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class TransportConstantTest {
 
@@ -26,7 +27,7 @@ public class TransportConstantTest {
     * This is just validating the pom still works */
    @Test
    public void testDefaultOnPom() {
-      Assert.assertEquals("It is expected to have the default at 0 on the testsuite", 0, TransportConstants.DEFAULT_QUIET_PERIOD);
-      Assert.assertEquals("It is expected to have the default at 0 on the testsuite", 0, TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT);
+      assertEquals(0, TransportConstants.DEFAULT_QUIET_PERIOD, "It is expected to have the default at 0 on the testsuite");
+      assertEquals(0, TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT, "It is expected to have the default at 0 on the testsuite");
    }
 }

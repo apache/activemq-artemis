@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,11 +52,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.network.NetUtil;
-import org.apache.activemq.artemis.utils.network.NetUtilResource;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,10 +69,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public NetUtilResource netUtilResource = new NetUtilResource();
-
-   @BeforeClass
+   @BeforeAll
    public static void start() {
       NetUtil.skipIfNotSudo();
    }
@@ -81,15 +79,21 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    private int beforeTime;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       NetUtil.netUp(LIVE_IP);
       super.setUp();
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
-      super.tearDown();
+      try {
+         super.tearDown();
+      } finally {
+         NetUtil.cleanup();
+      }
    }
 
    @Override
@@ -161,7 +165,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -296,7 +300,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          latchReceived.countDown();
       }
 
-      Assert.assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
+      assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
 
       running.set(false);
 
@@ -321,7 +325,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -438,7 +442,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          latchReceived.countDown();
       }
 
-      Assert.assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
+      assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
 
       running.set(false);
 
@@ -450,7 +454,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -538,7 +542,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       t.start();
 
-      Assert.assertTrue(latchDown.await(1, TimeUnit.MINUTES));
+      assertTrue(latchDown.await(1, TimeUnit.MINUTES));
 
       Thread.sleep(1000);
 
@@ -547,7 +551,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       primaryServer.crash(true, false);
 
       try {
-         Assert.assertTrue(latchCreated.await(5, TimeUnit.MINUTES));
+         assertTrue(latchCreated.await(5, TimeUnit.MINUTES));
 
       } finally {
          running.set(false);
@@ -561,7 +565,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -673,9 +677,9 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       t.start();
 
-      Assert.assertTrue(latchBlocked.await(1, TimeUnit.MINUTES));
+      assertTrue(latchBlocked.await(1, TimeUnit.MINUTES));
 
-      Assert.assertTrue(failing.await(1, TimeUnit.MINUTES));
+      assertTrue(failing.await(1, TimeUnit.MINUTES));
 
       for (int i = 0; i < 5; i++) {
          for (Thread tint : setThread) {
@@ -686,7 +690,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       primaryServer.crash(true, false);
 
-      Assert.assertTrue(messagesSentlatch.await(3, TimeUnit.MINUTES));
+      assertTrue(messagesSentlatch.await(3, TimeUnit.MINUTES));
 
       running.set(false);
 

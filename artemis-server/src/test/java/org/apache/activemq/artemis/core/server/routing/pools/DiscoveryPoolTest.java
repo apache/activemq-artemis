@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.core.server.routing.pools;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.server.routing.targets.MockTargetFactory;
 import org.apache.activemq.artemis.core.server.routing.targets.MockTargetProbe;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetFactory;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +79,9 @@ public class DiscoveryPoolTest extends PoolTestBase {
          targetFactory.getCreatedTargets().forEach(mockTarget -> mockTarget.setReady(true));
 
          Wait.assertEquals(initialEntries, () -> pool.getTargets().size(), CHECK_TIMEOUT);
-         Assert.assertEquals(initialEntries, pool.getAllTargets().size());
-         Assert.assertEquals(initialEntries, targetFactory.getCreatedTargets().size());
-         initialNodeIDs.forEach(nodeID -> Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID))));
+         assertEquals(initialEntries, pool.getAllTargets().size());
+         assertEquals(initialEntries, targetFactory.getCreatedTargets().size());
+         initialNodeIDs.forEach(nodeID -> Assertions.assertTrue(pool.isTargetReady(pool.getTarget(nodeID))));
 
          // Simulate adding entries.
          List<String> addedNodeIDs = new ArrayList<>();
@@ -84,41 +89,41 @@ public class DiscoveryPoolTest extends PoolTestBase {
             addedNodeIDs.add(discoveryService.addEntry().getNodeID());
          }
 
-         Assert.assertEquals(initialEntries, pool.getTargets().size());
-         Assert.assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
-         Assert.assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
+         assertEquals(initialEntries, pool.getTargets().size());
+         assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
+         assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
          initialNodeIDs.forEach(nodeID -> {
-            Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
-            Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
+            assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
+            assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
          });
          addedNodeIDs.forEach(nodeID -> {
-            Assert.assertFalse(pool.isTargetReady(pool.getTarget(nodeID)));
-            Assert.assertEquals(0, targetProbe.getTargetExecutions(pool.getTarget(nodeID)));
+            assertFalse(pool.isTargetReady(pool.getTarget(nodeID)));
+            assertEquals(0, targetProbe.getTargetExecutions(pool.getTarget(nodeID)));
          });
 
 
          targetFactory.getCreatedTargets().forEach(mockTarget -> mockTarget.setConnectable(true));
 
-         Assert.assertEquals(initialEntries, pool.getTargets().size());
-         Assert.assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
-         Assert.assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
+         assertEquals(initialEntries, pool.getTargets().size());
+         assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
+         assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
          initialNodeIDs.forEach(nodeID -> {
-            Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
-            Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
+            assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
+            assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
          });
          addedNodeIDs.forEach(nodeID -> {
-            Assert.assertFalse(pool.isTargetReady(pool.getTarget(nodeID)));
-            Assert.assertEquals(0, targetProbe.getTargetExecutions(pool.getTarget(nodeID)));
+            assertFalse(pool.isTargetReady(pool.getTarget(nodeID)));
+            assertEquals(0, targetProbe.getTargetExecutions(pool.getTarget(nodeID)));
          });
 
          targetFactory.getCreatedTargets().forEach(mockTarget -> mockTarget.setReady(true));
 
          Wait.assertEquals(initialEntries + addingEntries, () -> pool.getTargets().size(), CHECK_TIMEOUT);
-         Assert.assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
-         Assert.assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
+         assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
+         assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
          Stream.concat(initialNodeIDs.stream(), addedNodeIDs.stream()).forEach(nodeID -> {
-            Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
-            Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
+            assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
+            assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
          });
 
          if (removingEntries > 0) {
@@ -129,24 +134,24 @@ public class DiscoveryPoolTest extends PoolTestBase {
                   getCreatedTargets().get(i).getNodeID()).getNodeID());
             }
 
-            Assert.assertEquals(initialEntries + addingEntries - removingEntries, pool.getTargets().size());
-            Assert.assertEquals(initialEntries + addingEntries - removingEntries, pool.getAllTargets().size());
-            Assert.assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
+            assertEquals(initialEntries + addingEntries - removingEntries, pool.getTargets().size());
+            assertEquals(initialEntries + addingEntries - removingEntries, pool.getAllTargets().size());
+            assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
             Stream.concat(initialNodeIDs.stream(), addedNodeIDs.stream()).forEach(nodeID -> {
                if (removingNodeIDs.contains(nodeID)) {
-                  Assert.assertNull(pool.getTarget(nodeID));
+                  assertNull(pool.getTarget(nodeID));
                } else {
-                  Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
-                  Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
+                  assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
+                  assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
                }
             });
          } else {
-            Assert.assertEquals(initialEntries + addingEntries, pool.getTargets().size());
-            Assert.assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
-            Assert.assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
+            assertEquals(initialEntries + addingEntries, pool.getTargets().size());
+            assertEquals(initialEntries + addingEntries, pool.getAllTargets().size());
+            assertEquals(initialEntries + addingEntries, targetFactory.getCreatedTargets().size());
             Stream.concat(initialNodeIDs.stream(), addedNodeIDs.stream()).forEach(nodeID -> {
-               Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
-               Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
+               assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
+               assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
             });
          }
       } finally {

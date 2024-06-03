@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionMetaData;
 import javax.jms.ExceptionListener;
@@ -27,8 +29,7 @@ import javax.jms.Session;
 import javax.jms.TopicConnection;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -80,7 +81,7 @@ public class ConnectionTest extends JMSTestCase {
       Connection connection2 = createConnection();
       try {
          connection2.setClientID(clientID);
-         Assert.fail("setClientID was expected to throw an exception");
+         fail("setClientID was expected to throw an exception");
       } catch (JMSException e) {
          // expected
       }

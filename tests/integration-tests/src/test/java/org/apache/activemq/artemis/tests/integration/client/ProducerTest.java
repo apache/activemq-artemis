@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -37,9 +40,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ public class ProducerTest extends ActiveMQTestBase {
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -81,7 +83,7 @@ public class ProducerTest extends ActiveMQTestBase {
       byte[] body = new byte[1000];
       message.getBodyBuffer().writeBytes(body);
       producer.send(message);
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       session.close();
       locator.close();
    }

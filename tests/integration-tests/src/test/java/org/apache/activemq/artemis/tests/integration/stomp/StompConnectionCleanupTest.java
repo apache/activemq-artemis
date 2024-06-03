@@ -16,19 +16,26 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompConnectionCleanupTest extends StompTest {
 
    private static final long CONNECTION_TTL = 2000;
 
    // ARTEMIS-231
-   @Test
+   @TestTemplate
    public void testConnectionCleanupWithTopicSubscription() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -58,7 +65,7 @@ public class StompConnectionCleanupTest extends StompTest {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testConnectionCleanup() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -95,7 +102,7 @@ public class StompConnectionCleanupTest extends StompTest {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testConnectionNotCleanedUp() throws Exception {
       conn.connect(defUser, defPass);
 

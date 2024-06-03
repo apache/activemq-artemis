@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -44,10 +48,10 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,27 +128,29 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
          insert = insertWriter.toString();
       }
 
-      Assert.assertTrue(FileUtil.findReplace(new File(getServerLocation(serverName), "./etc/broker.xml"), "</core>", insert));
+      assertTrue(FileUtil.findReplace(new File(getServerLocation(serverName), "./etc/broker.xml"), "</core>", insert));
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       createServer(DC1_NODE_A, "mirror", DC2_NODEA_URI, 0);
       createServer(DC2_NODE_A, "mirror", DC1_NODEA_URI, 2);
    }
 
-   @Before
+   @BeforeEach
    public void cleanupServers() {
       cleanupData(DC1_NODE_A);
       cleanupData(DC2_NODE_A);
    }
 
-   @Test(timeout = 240_000L)
+   @Test
+   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
    public void testAMQP() throws Exception {
       testInterrupt("AMQP");
    }
 
-   @Test(timeout = 240_000L)
+   @Test
+   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
    public void testCORE() throws Exception {
       testInterrupt("CORE");
    }
@@ -246,8 +252,8 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("id"));
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("id"));
             if (i % 10 == 0) {
                session.commit();
                logger.debug("Received {} messages", i);
@@ -267,7 +273,7 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
 
    int getNumberOfLargeMessages(String serverName) throws Exception {
       File lmFolder = new File(getServerLocation(serverName) + "/data/large-messages");
-      Assert.assertTrue(lmFolder.exists());
+      assertTrue(lmFolder.exists());
       return lmFolder.list().length;
    }
 
@@ -278,12 +284,12 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
 
    private void stopDC1() throws Exception {
       processDC1_node_A.destroyForcibly();
-      Assert.assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
    }
 
    private void stopDC2() throws Exception {
       processDC2_node_A.destroyForcibly();
-      Assert.assertTrue(processDC2_node_A.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(processDC2_node_A.waitFor(10, TimeUnit.SECONDS));
    }
 
    private void startDC2() throws Exception {

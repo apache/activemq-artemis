@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -25,7 +27,7 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsCreateConsumerInOnMessageTest

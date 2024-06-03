@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -121,34 +131,25 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.junit.Assume.assumeFalse;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(0);
-
 
    protected boolean legacyCreateQueue;
 
@@ -161,7 +162,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    private TransportConfiguration connectorConfig;
 
-   @Parameterized.Parameters(name = "legacyCreateQueue={0}")
+   @Parameters(name = "legacyCreateQueue={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -188,59 +189,59 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return false;
    }
 
-   @Test
+   @TestTemplate
    public void testGetAttributes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertEquals(server.getConfiguration().getName(), serverControl.getName());
+      assertEquals(server.getConfiguration().getName(), serverControl.getName());
 
-      Assert.assertEquals(server.getVersion().getFullVersion(), serverControl.getVersion());
+      assertEquals(server.getVersion().getFullVersion(), serverControl.getVersion());
 
-      Assert.assertEquals(conf.isClustered(), serverControl.isClustered());
-      Assert.assertEquals(conf.isPersistDeliveryCountBeforeDelivery(), serverControl.isPersistDeliveryCountBeforeDelivery());
-      Assert.assertEquals(conf.getScheduledThreadPoolMaxSize(), serverControl.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(conf.getThreadPoolMaxSize(), serverControl.getThreadPoolMaxSize());
-      Assert.assertEquals(conf.getSecurityInvalidationInterval(), serverControl.getSecurityInvalidationInterval());
-      Assert.assertEquals(conf.isSecurityEnabled(), serverControl.isSecurityEnabled());
-      Assert.assertEquals(conf.isAsyncConnectionExecutionEnabled(), serverControl.isAsyncConnectionExecutionEnabled());
-      Assert.assertEquals(conf.getIncomingInterceptorClassNames().size(), serverControl.getIncomingInterceptorClassNames().length);
-      Assert.assertEquals(conf.getIncomingInterceptorClassNames().size(), serverControl.getIncomingInterceptorClassNames().length);
-      Assert.assertEquals(conf.getOutgoingInterceptorClassNames().size(), serverControl.getOutgoingInterceptorClassNames().length);
-      Assert.assertEquals(conf.getConnectionTTLOverride(), serverControl.getConnectionTTLOverride());
-      //Assert.assertEquals(conf.getBackupConnectorName(), serverControl.getBackupConnectorName());
-      Assert.assertEquals(conf.getManagementAddress().toString(), serverControl.getManagementAddress());
-      Assert.assertEquals(conf.getManagementNotificationAddress().toString(), serverControl.getManagementNotificationAddress());
-      Assert.assertEquals(conf.getIDCacheSize(), serverControl.getIDCacheSize());
-      Assert.assertEquals(conf.isPersistIDCache(), serverControl.isPersistIDCache());
-      Assert.assertEquals(conf.getBindingsDirectory(), serverControl.getBindingsDirectory());
-      Assert.assertEquals(conf.getJournalDirectory(), serverControl.getJournalDirectory());
-      Assert.assertEquals(conf.getJournalType().toString(), serverControl.getJournalType());
-      Assert.assertEquals(conf.isJournalSyncTransactional(), serverControl.isJournalSyncTransactional());
-      Assert.assertEquals(conf.isJournalSyncNonTransactional(), serverControl.isJournalSyncNonTransactional());
-      Assert.assertEquals(conf.getJournalFileSize(), serverControl.getJournalFileSize());
-      Assert.assertEquals(conf.getJournalMinFiles(), serverControl.getJournalMinFiles());
+      assertEquals(conf.isClustered(), serverControl.isClustered());
+      assertEquals(conf.isPersistDeliveryCountBeforeDelivery(), serverControl.isPersistDeliveryCountBeforeDelivery());
+      assertEquals(conf.getScheduledThreadPoolMaxSize(), serverControl.getScheduledThreadPoolMaxSize());
+      assertEquals(conf.getThreadPoolMaxSize(), serverControl.getThreadPoolMaxSize());
+      assertEquals(conf.getSecurityInvalidationInterval(), serverControl.getSecurityInvalidationInterval());
+      assertEquals(conf.isSecurityEnabled(), serverControl.isSecurityEnabled());
+      assertEquals(conf.isAsyncConnectionExecutionEnabled(), serverControl.isAsyncConnectionExecutionEnabled());
+      assertEquals(conf.getIncomingInterceptorClassNames().size(), serverControl.getIncomingInterceptorClassNames().length);
+      assertEquals(conf.getIncomingInterceptorClassNames().size(), serverControl.getIncomingInterceptorClassNames().length);
+      assertEquals(conf.getOutgoingInterceptorClassNames().size(), serverControl.getOutgoingInterceptorClassNames().length);
+      assertEquals(conf.getConnectionTTLOverride(), serverControl.getConnectionTTLOverride());
+      //assertEquals(conf.getBackupConnectorName(), serverControl.getBackupConnectorName());
+      assertEquals(conf.getManagementAddress().toString(), serverControl.getManagementAddress());
+      assertEquals(conf.getManagementNotificationAddress().toString(), serverControl.getManagementNotificationAddress());
+      assertEquals(conf.getIDCacheSize(), serverControl.getIDCacheSize());
+      assertEquals(conf.isPersistIDCache(), serverControl.isPersistIDCache());
+      assertEquals(conf.getBindingsDirectory(), serverControl.getBindingsDirectory());
+      assertEquals(conf.getJournalDirectory(), serverControl.getJournalDirectory());
+      assertEquals(conf.getJournalType().toString(), serverControl.getJournalType());
+      assertEquals(conf.isJournalSyncTransactional(), serverControl.isJournalSyncTransactional());
+      assertEquals(conf.isJournalSyncNonTransactional(), serverControl.isJournalSyncNonTransactional());
+      assertEquals(conf.getJournalFileSize(), serverControl.getJournalFileSize());
+      assertEquals(conf.getJournalMinFiles(), serverControl.getJournalMinFiles());
       if (LibaioContext.isLoaded()) {
-         Assert.assertEquals(conf.getJournalMaxIO_AIO(), serverControl.getJournalMaxIO());
-         Assert.assertEquals(conf.getJournalBufferSize_AIO(), serverControl.getJournalBufferSize());
-         Assert.assertEquals(conf.getJournalBufferTimeout_AIO(), serverControl.getJournalBufferTimeout());
+         assertEquals(conf.getJournalMaxIO_AIO(), serverControl.getJournalMaxIO());
+         assertEquals(conf.getJournalBufferSize_AIO(), serverControl.getJournalBufferSize());
+         assertEquals(conf.getJournalBufferTimeout_AIO(), serverControl.getJournalBufferTimeout());
       }
-      Assert.assertEquals(conf.isCreateBindingsDir(), serverControl.isCreateBindingsDir());
-      Assert.assertEquals(conf.isCreateJournalDir(), serverControl.isCreateJournalDir());
-      Assert.assertEquals(conf.getPagingDirectory(), serverControl.getPagingDirectory());
-      Assert.assertEquals(conf.getLargeMessagesDirectory(), serverControl.getLargeMessagesDirectory());
-      Assert.assertEquals(conf.isWildcardRoutingEnabled(), serverControl.isWildcardRoutingEnabled());
-      Assert.assertEquals(conf.getTransactionTimeout(), serverControl.getTransactionTimeout());
-      Assert.assertEquals(conf.isMessageCounterEnabled(), serverControl.isMessageCounterEnabled());
-      Assert.assertEquals(conf.getTransactionTimeoutScanPeriod(), serverControl.getTransactionTimeoutScanPeriod());
-      Assert.assertEquals(conf.getMessageExpiryScanPeriod(), serverControl.getMessageExpiryScanPeriod());
-      Assert.assertEquals(conf.getJournalCompactMinFiles(), serverControl.getJournalCompactMinFiles());
-      Assert.assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
-      Assert.assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
-      Assert.assertEquals(conf.getJournalPoolFiles(), serverControl.getJournalPoolFiles());
-      Assert.assertTrue(serverControl.isActive());
+      assertEquals(conf.isCreateBindingsDir(), serverControl.isCreateBindingsDir());
+      assertEquals(conf.isCreateJournalDir(), serverControl.isCreateJournalDir());
+      assertEquals(conf.getPagingDirectory(), serverControl.getPagingDirectory());
+      assertEquals(conf.getLargeMessagesDirectory(), serverControl.getLargeMessagesDirectory());
+      assertEquals(conf.isWildcardRoutingEnabled(), serverControl.isWildcardRoutingEnabled());
+      assertEquals(conf.getTransactionTimeout(), serverControl.getTransactionTimeout());
+      assertEquals(conf.isMessageCounterEnabled(), serverControl.isMessageCounterEnabled());
+      assertEquals(conf.getTransactionTimeoutScanPeriod(), serverControl.getTransactionTimeoutScanPeriod());
+      assertEquals(conf.getMessageExpiryScanPeriod(), serverControl.getMessageExpiryScanPeriod());
+      assertEquals(conf.getJournalCompactMinFiles(), serverControl.getJournalCompactMinFiles());
+      assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
+      assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
+      assertEquals(conf.getJournalPoolFiles(), serverControl.getJournalPoolFiles());
+      assertTrue(serverControl.isActive());
    }
 
-   @Test
+   @TestTemplate
    public void testBrokerPluginClassNames() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -251,18 +252,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
       });
 
-      Assert.assertEquals(2, conf.getBrokerPlugins().size());
-      Assert.assertEquals(2, serverControl.getBrokerPluginClassNames().length);
-      Assert.assertEquals(
+      assertEquals(2, conf.getBrokerPlugins().size());
+      assertEquals(2, serverControl.getBrokerPluginClassNames().length);
+      assertEquals(
          "org.apache.activemq.artemis.tests.integration.management.ActiveMQServerControlTest.TestBrokerPlugin",
          serverControl.getBrokerPluginClassNames()[0]);
-      Assert.assertTrue(Pattern.matches(
+      assertTrue(Pattern.matches(
          "org.apache.activemq.artemis.tests.integration.management.ActiveMQServerControlTest\\$\\d+$",
          serverControl.getBrokerPluginClassNames()[1]
       ));
    }
 
-   @Test
+   @TestTemplate
    public void testSecurityCacheSizes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -284,18 +285,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       m.putStringProperty("hello", "world");
       producer.send(m);
 
-      Assert.assertEquals(usingCore() ? 2 : 1, serverControl.getAuthenticationCacheSize());
+      assertEquals(usingCore() ? 2 : 1, serverControl.getAuthenticationCacheSize());
       Wait.assertEquals(1, () -> serverControl.getAuthorizationCacheSize());
    }
 
-   @Test
+   @TestTemplate
    public void testCurrentTime() throws Exception {
       long time = System.currentTimeMillis();
       ActiveMQServerControl serverControl = createManagementControl();
-      Assert.assertTrue("serverControl returned an invalid time.", serverControl.getCurrentTimeMillis() >= time);
+      assertTrue(serverControl.getCurrentTimeMillis() >= time, "serverControl returned an invalid time.");
    }
 
-   @Test
+   @TestTemplate
    public void testClearingSecurityCaches() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -311,27 +312,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       m.putStringProperty("hello", "world");
       producer.send(m);
 
-      Assert.assertTrue(serverControl.getAuthenticationCacheSize() > 0);
+      assertTrue(serverControl.getAuthenticationCacheSize() > 0);
       Wait.assertTrue(() -> serverControl.getAuthorizationCacheSize() > 0);
 
       serverControl.clearAuthenticationCache();
       serverControl.clearAuthorizationCache();
 
-      Assert.assertEquals(usingCore() ? 1 : 0, serverControl.getAuthenticationCacheSize());
-      Assert.assertEquals(0, serverControl.getAuthorizationCacheSize());
+      assertEquals(usingCore() ? 1 : 0, serverControl.getAuthenticationCacheSize());
+      assertEquals(0, serverControl.getAuthorizationCacheSize());
    }
 
-   @Test
+   @TestTemplate
    public void testAuthCounts() throws Exception {
       // don't test this with management messages as it completely throws off the auth counts
       assumeFalse(usingCore());
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertEquals(0, serverControl.getAuthenticationSuccessCount());
-      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
-      Assert.assertEquals(0, serverControl.getAuthorizationSuccessCount());
-      Assert.assertEquals(0, serverControl.getAuthorizationFailureCount());
+      assertEquals(0, serverControl.getAuthenticationSuccessCount());
+      assertEquals(0, serverControl.getAuthenticationFailureCount());
+      assertEquals(0, serverControl.getAuthorizationSuccessCount());
+      assertEquals(0, serverControl.getAuthorizationFailureCount());
 
       ServerLocator loc = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(loc);
@@ -345,10 +346,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       m.putStringProperty("hello", "world");
       producer.send(m);
 
-      Assert.assertEquals(1, serverControl.getAuthenticationSuccessCount());
-      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
-      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
-      Assert.assertEquals(0, serverControl.getAuthorizationFailureCount());
+      assertEquals(1, serverControl.getAuthenticationSuccessCount());
+      assertEquals(0, serverControl.getAuthenticationFailureCount());
+      assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      assertEquals(0, serverControl.getAuthorizationFailureCount());
 
       final String queue = "QUEUE";
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
@@ -359,42 +360,42 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          // expected
       }
 
-      Assert.assertEquals(2, serverControl.getAuthenticationSuccessCount());
-      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
-      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
-      Assert.assertEquals(1, serverControl.getAuthorizationFailureCount());
+      assertEquals(2, serverControl.getAuthenticationSuccessCount());
+      assertEquals(0, serverControl.getAuthenticationFailureCount());
+      assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      assertEquals(1, serverControl.getAuthorizationFailureCount());
 
       try {
          csf.createSession("none", "badpassword", false, true, false, false, 0);
       } catch (ActiveMQSecurityException e) {
          // expected
       }
-      Assert.assertEquals(2, serverControl.getAuthenticationSuccessCount());
-      Assert.assertEquals(1, serverControl.getAuthenticationFailureCount());
-      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
-      Assert.assertEquals(1, serverControl.getAuthorizationFailureCount());
+      assertEquals(2, serverControl.getAuthenticationSuccessCount());
+      assertEquals(1, serverControl.getAuthenticationFailureCount());
+      assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      assertEquals(1, serverControl.getAuthorizationFailureCount());
    }
 
-   @Test
+   @TestTemplate
    public void testGetConnectors() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Object[] connectorData = serverControl.getConnectors();
-      Assert.assertNotNull(connectorData);
-      Assert.assertEquals(1, connectorData.length);
+      assertNotNull(connectorData);
+      assertEquals(1, connectorData.length);
 
       Object[] config = (Object[]) connectorData[0];
 
-      Assert.assertEquals(connectorConfig.getName(), config[0]);
+      assertEquals(connectorConfig.getName(), config[0]);
    }
 
-   @Test
+   @TestTemplate
    public void testGetAcceptors() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Object[] acceptors = serverControl.getAcceptors();
-      Assert.assertNotNull(acceptors);
-      Assert.assertEquals(2, acceptors.length);
+      assertNotNull(acceptors);
+      assertEquals(2, acceptors.length);
 
       for (int i = 0; i < acceptors.length; i++) {
          Object[] acceptor = (Object[]) acceptors[i];
@@ -403,40 +404,40 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testIsReplicaSync() throws Exception {
-      Assert.assertFalse(createManagementControl().isReplicaSync());
+      assertFalse(createManagementControl().isReplicaSync());
    }
 
-   @Test
+   @TestTemplate
    public void testGetConnectorsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       String jsonString = serverControl.getConnectorsAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(1, array.size());
+      assertEquals(1, array.size());
       JsonObject data = array.getJsonObject(0);
-      Assert.assertEquals(connectorConfig.getName(), data.getString("name"));
-      Assert.assertEquals(connectorConfig.getFactoryClassName(), data.getString("factoryClassName"));
-      Assert.assertEquals(connectorConfig.getParams().size(), data.getJsonObject("params").size());
+      assertEquals(connectorConfig.getName(), data.getString("name"));
+      assertEquals(connectorConfig.getFactoryClassName(), data.getString("factoryClassName"));
+      assertEquals(connectorConfig.getParams().size(), data.getJsonObject("params").size());
    }
 
-   @Test
+   @TestTemplate
    public void testGetAcceptorsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       String jsonString = serverControl.getAcceptorsAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2, array.size());
+      assertEquals(2, array.size());
       for (int i = 0; i < array.size(); i++) {
          String name = ((JsonObject)array.get(i)).getString("name");
          assertTrue(name.equals("netty") || name.equals("invm"));
       }
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueue() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -453,18 +454,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertTrue(queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateQueueWithNullAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = address;
@@ -480,18 +481,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(name, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertTrue(queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueue_2() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -510,18 +511,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertEquals(filter, queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertEquals(filter, queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueue_3() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -539,18 +540,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueue_4() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -577,17 +578,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
-      Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
+      assertEquals(maxConsumers, queueControl.getMaxConsumers());
+      assertFalse(queueControl.isTemporary());
 
       checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
-      Assert.assertEquals(address.toString(), addressControl.getAddress());
+      assertEquals(address.toString(), addressControl.getAddress());
 
       serverControl.destroyQueue(name.toString(), true, true);
 
@@ -595,7 +596,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueue_5() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -648,30 +649,30 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
-      Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
-      Assert.assertEquals(false, queueControl.isTemporary());
-      Assert.assertEquals(exclusive, queueControl.isExclusive());
-      Assert.assertEquals(groupRebalance, queueControl.isGroupRebalance());
-      Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
-      Assert.assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
-      Assert.assertEquals(lastValue, queueControl.isLastValue());
-//      Assert.assertEquals(lastValueKey, queueControl.getLastValueKey());
-//      Assert.assertEquals(nonDestructive, queueControl.isNonDestructive());
-//      Assert.assertEquals(consumersBeforeDispatch, queueControl.getConsumersBeforeDispatch());
-//      Assert.assertEquals(delayBeforeDispatch, queueControl.getDelayBeforeDispatch());
-//      Assert.assertEquals(autoDelete, queueControl.isAutoDelete());
-//      Assert.assertEquals(autoDeleteDelay, queueControl.getAutoDeleteDelay());
-//      Assert.assertEquals(autoDeleteMessageCount, queueControl.autoDeleteMessageCount());
-      Assert.assertEquals(ringSize, queueControl.getRingSize());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertEquals(maxConsumers, queueControl.getMaxConsumers());
+      assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
+      assertFalse(queueControl.isTemporary());
+      assertEquals(exclusive, queueControl.isExclusive());
+      assertEquals(groupRebalance, queueControl.isGroupRebalance());
+      assertEquals(groupBuckets, queueControl.getGroupBuckets());
+      assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
+      assertEquals(lastValue, queueControl.isLastValue());
+//      assertEquals(lastValueKey, queueControl.getLastValueKey());
+//      assertEquals(nonDestructive, queueControl.isNonDestructive());
+//      assertEquals(consumersBeforeDispatch, queueControl.getConsumersBeforeDispatch());
+//      assertEquals(delayBeforeDispatch, queueControl.getDelayBeforeDispatch());
+//      assertEquals(autoDelete, queueControl.isAutoDelete());
+//      assertEquals(autoDeleteDelay, queueControl.getAutoDeleteDelay());
+//      assertEquals(autoDeleteMessageCount, queueControl.autoDeleteMessageCount());
+      assertEquals(ringSize, queueControl.getRingSize());
 
       checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
-      Assert.assertEquals(address.toString(), addressControl.getAddress());
+      assertEquals(address.toString(), addressControl.getAddress());
 
       serverControl.destroyQueue(name.toString(), true, true);
 
@@ -679,7 +680,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueueWithAutoDeleteAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false));
       SimpleString address = RandomUtil.randomSimpleString();
@@ -696,11 +697,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(true, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertTrue(queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString(), false, true);
 
@@ -708,7 +709,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
    }
 
-   @Test
+   @TestTemplate
    public void testRemoveQueueFilter() throws Exception {
 
       String address = RandomUtil.randomString();
@@ -755,7 +756,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertNotNull(consumer2.receive(1000));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueueClosingConsumers() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -776,7 +777,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
       final ClientConsumer consumer = receiveClientSession.createConsumer(name);
 
-      Assert.assertFalse(consumer.isClosed());
+      assertFalse(consumer.isClosed());
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       serverControl.destroyQueue(name.toString(), true);
@@ -786,12 +787,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             return consumer.isClosed();
          }
       }, 1000, 100);
-      Assert.assertTrue(consumer.isClosed());
+      assertTrue(consumer.isClosed());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueueWithNullFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -810,18 +811,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyQueueWithEmptyStringForFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -840,18 +841,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(false, queueControl.isTemporary());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(durable, queueControl.isDurable());
+      assertFalse(queueControl.isTemporary());
 
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndUpdateQueueWithoutFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -862,15 +863,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.updateQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).toJSON());
 
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertNull(queueControl.getFilter());
-      Assert.assertEquals(1, queueControl.getMaxConsumers());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertNull(queueControl.getFilter());
+      assertEquals(1, queueControl.getMaxConsumers());
 
       serverControl.destroyQueue(name.toString());
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndLegacyUpdateQueueRingSize() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -894,14 +895,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                 101L);
 
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
-      Assert.assertEquals(address.toString(), queueControl.getAddress());
-      Assert.assertEquals(name.toString(), queueControl.getName());
-      Assert.assertEquals(101, queueControl.getRingSize());
+      assertEquals(address.toString(), queueControl.getAddress());
+      assertEquals(name.toString(), queueControl.getName());
+      assertEquals(101, queueControl.getRingSize());
 
       serverControl.destroyQueue(name.toString());
    }
 
-   @Test
+   @TestTemplate
    public void testGetQueueCount() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -910,7 +911,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // due to replication, there can be another queue created for replicating
       // management operations
-      Assert.assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
 
       int countBeforeCreate = serverControl.getQueueCount();
 
@@ -921,13 +922,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          serverControl.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(true).setAutoCreateAddress(false).toJSON());
       }
 
-      Assert.assertTrue(countBeforeCreate < serverControl.getQueueCount());
+      assertTrue(countBeforeCreate < serverControl.getQueueCount());
 
       serverControl.destroyQueue(name.toString());
-      Assert.assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetQueueNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -937,20 +938,20 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // due to replication, there can be another queue created for replicating
       // management operations
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
       serverControl.createAddress(address.toString(), "ANYCAST");
       if (legacyCreateQueue) {
          serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, false);
       } else {
          serverControl.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(true).setAutoCreateAddress(false).toJSON());
       }
-      Assert.assertTrue(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
+      assertTrue(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
 
       serverControl.destroyQueue(name.toString());
-      Assert.assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetQueueNamesWithRoutingType() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString anycastName = RandomUtil.randomSimpleString();
@@ -961,40 +962,40 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // due to replication, there can be another queue created for replicating
       // management operations
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames()));
-      Assert.assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames()));
 
       if (legacyCreateQueue) {
          serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), anycastName.toString(), null, true, -1, false, true);
       } else {
          serverControl.createQueue(new QueueConfiguration(anycastName).setAddress(address).setRoutingType(RoutingType.ANYCAST).toJSON());
       }
-      Assert.assertTrue(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames(RoutingType.ANYCAST.toString())));
-      Assert.assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames(RoutingType.MULTICAST.toString())));
+      assertTrue(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames(RoutingType.ANYCAST.toString())));
+      assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames(RoutingType.MULTICAST.toString())));
 
       if (legacyCreateQueue) {
          serverControl.createQueue(address.toString(), RoutingType.MULTICAST.toString(), multicastName.toString(), null, true, -1, false, true);
       } else {
          serverControl.createQueue(new QueueConfiguration(multicastName).setAddress(address).setRoutingType(RoutingType.MULTICAST).toJSON());
       }
-      Assert.assertTrue(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames(RoutingType.MULTICAST.toString())));
-      Assert.assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames(RoutingType.ANYCAST.toString())));
+      assertTrue(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames(RoutingType.MULTICAST.toString())));
+      assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames(RoutingType.ANYCAST.toString())));
 
       serverControl.destroyQueue(anycastName.toString());
       serverControl.destroyQueue(multicastName.toString());
-      Assert.assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames()));
-      Assert.assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames()));
+      assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetClusterConnectionNames() throws Exception {
       String clusterConnection1 = RandomUtil.randomString();
       String clusterConnection2 = RandomUtil.randomString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
-      Assert.assertFalse(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
+      assertFalse(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
+      assertFalse(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
 
       server.stop();
       server
@@ -1003,11 +1004,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          .addClusterConfiguration(new ClusterConnectionConfiguration().setName(clusterConnection2).setConnectorName(connectorConfig.getName()));
       server.start();
 
-      Assert.assertTrue(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
-      Assert.assertTrue(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
+      assertTrue(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
+      assertTrue(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetAddressCount() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -1016,7 +1017,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // due to replication, there can be another queue created for replicating
       // management operations
-      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
 
       int countBeforeCreate = serverControl.getAddressCount();
 
@@ -1026,13 +1027,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          serverControl.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).toJSON());
       }
 
-      Assert.assertTrue(countBeforeCreate < serverControl.getAddressCount());
+      assertTrue(countBeforeCreate < serverControl.getAddressCount());
 
       serverControl.destroyQueue(name.toString(), true, true);
       Wait.assertFalse(() -> ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetAddressNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -1042,19 +1043,19 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // due to replication, there can be another queue created for replicating
       // management operations
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
       if (legacyCreateQueue) {
          serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, true);
       } else {
          serverControl.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).toJSON());
       }
-      Assert.assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
 
       serverControl.destroyQueue(name.toString(), true, true);
       Wait.assertFalse(() -> ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testGetAddressDeletedFromJournal() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -1064,9 +1065,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // due to replication, there can be another queue created for replicating
       // management operations
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
       serverControl.createAddress(address.toString(), "ANYCAST");
-      Assert.assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
 
       restartServer();
 
@@ -1074,62 +1075,62 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       restartServer();
 
-      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
    }
 
-   @Test
+   @TestTemplate
    public void testMessageCounterMaxDayCount() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertEquals(MessageCounterManagerImpl.DEFAULT_MAX_DAY_COUNT, serverControl.getMessageCounterMaxDayCount());
+      assertEquals(MessageCounterManagerImpl.DEFAULT_MAX_DAY_COUNT, serverControl.getMessageCounterMaxDayCount());
 
       int newCount = 100;
       serverControl.setMessageCounterMaxDayCount(newCount);
 
-      Assert.assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
+      assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
 
       try {
          serverControl.setMessageCounterMaxDayCount(-1);
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
 
       try {
          serverControl.setMessageCounterMaxDayCount(0);
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
 
-      Assert.assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
+      assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
    }
 
-   @Test
+   @TestTemplate
    public void testGetMessageCounterSamplePeriod() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertEquals(MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, serverControl.getMessageCounterSamplePeriod());
+      assertEquals(MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, serverControl.getMessageCounterSamplePeriod());
 
       long newSample = 20000;
       serverControl.setMessageCounterSamplePeriod(newSample);
 
-      Assert.assertEquals(newSample, serverControl.getMessageCounterSamplePeriod());
+      assertEquals(newSample, serverControl.getMessageCounterSamplePeriod());
 
       try {
          serverControl.setMessageCounterSamplePeriod(-1);
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
 
       try {
          serverControl.setMessageCounterSamplePeriod(0);
-         Assert.fail();
+         fail();
       } catch (Exception e) {
       }
 
       //this only gets warning now and won't cause exception.
       serverControl.setMessageCounterSamplePeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD - 1);
 
-      Assert.assertEquals(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD - 1, serverControl.getMessageCounterSamplePeriod());
+      assertEquals(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD - 1, serverControl.getMessageCounterSamplePeriod());
    }
 
    protected void restartServer() throws Exception {
@@ -1137,7 +1138,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.start();
    }
 
-   @Test
+   @TestTemplate
    public void testSecuritySettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addressMatch = "test.#";
@@ -1197,8 +1198,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          fooRole = (Object[]) roles[1];
          barRole = (Object[]) roles[0];
       }
-      Assert.assertEquals(CheckType.values().length + 1, fooRole.length);
-      Assert.assertEquals(CheckType.values().length + 1, barRole.length);
+      assertEquals(CheckType.values().length + 1, fooRole.length);
+      assertEquals(CheckType.values().length + 1, barRole.length);
 
       assertTrue((boolean)fooRole[1]);
       assertTrue((boolean)fooRole[2]);
@@ -1226,7 +1227,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(2, serverControl.getRoles(exactAddress).length);
    }
 
-   @Test
+   @TestTemplate
    public void mergeAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       AddressSettings addressSettings = new AddressSettings();
@@ -1251,7 +1252,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryAddress(), info.getExpiryAddress());
       assertEquals(addressSettings.getRedeliveryDelay(), info.getRedeliveryDelay());
    }
-   @Test
+   @TestTemplate
    public void emptyAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       AddressSettings addressSettings = new AddressSettings();
@@ -1312,7 +1313,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryQueueSuffix(), info.getExpiryQueueSuffix());
       assertEquals(addressSettings.isEnableMetrics(), info.isEnableMetrics());
    }
-   @Test
+   @TestTemplate
    public void testAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addressMatch = "test.#";
@@ -1439,7 +1440,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          ex = true;
       }
 
-      assertTrue("Exception expected", ex);
+      assertTrue(ex, "Exception expected");
       restartServer();
       serverControl = createManagementControl();
 
@@ -1570,11 +1571,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          ex = true;
       }
 
-      assertTrue("Supposed to have an exception called", ex);
+      assertTrue(ex, "Supposed to have an exception called");
 
    }
 
-   @Test
+   @TestTemplate
    public void testRemoveAddressSettingsEffective() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addr = "test";
@@ -1705,18 +1706,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.addAddressSettings(addr, addressSettings.toJSON());
       AddressSettingsInfo addrInfo = AddressSettingsInfo.fromJSON(serverControl.getAddressSettingsAsJSON(addr));
 
-      assertEquals("settings for addr should carry update", addrMinExpiryDelay, addrInfo.getMinExpiryDelay());
-      assertEquals("settings for addr should carry update", addrMaxExpiryDelay, addrInfo.getMaxExpiryDelay());
+      assertEquals(addrMinExpiryDelay, addrInfo.getMinExpiryDelay(), "settings for addr should carry update");
+      assertEquals(addrMaxExpiryDelay, addrInfo.getMaxExpiryDelay(), "settings for addr should carry update");
 
       serverControl.removeAddressSettings(addr);
 
       AddressSettingsInfo rereadAddrInfo = AddressSettingsInfo.fromJSON(serverControl.getAddressSettingsAsJSON(addr));
 
-      assertEquals("settings for addr should have reverted to original value after removal", rootInfo.getMinExpiryDelay(), rereadAddrInfo.getMinExpiryDelay());
-      assertEquals("settings for addr should have reverted to original value after removal", rootInfo.getMaxExpiryDelay(), rereadAddrInfo.getMaxExpiryDelay());
+      assertEquals(rootInfo.getMinExpiryDelay(), rereadAddrInfo.getMinExpiryDelay(), "settings for addr should have reverted to original value after removal");
+      assertEquals(rootInfo.getMaxExpiryDelay(), rereadAddrInfo.getMaxExpiryDelay(), "settings for addr should have reverted to original value after removal");
    }
 
-   @Test
+   @TestTemplate
    public void testNullRouteNameOnDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
@@ -1732,7 +1733,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
@@ -1817,7 +1818,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyDivertServerRestart() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
@@ -1845,7 +1846,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(0, serverControl.getDivertNames().length);
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndUpdateDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
@@ -1952,7 +1953,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyBridge() throws Exception {
       String name = RandomUtil.randomString();
       String sourceAddress = RandomUtil.randomString();
@@ -2038,12 +2039,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyBridgeFromJson() throws Exception {
       internalTestCreateAndDestroyBridgeFromJson(false);
    }
 
-   @Test
+   @TestTemplate
    public void testCreateAndDestroyBridgeFromJsonDynamicConnector() throws Exception {
       internalTestCreateAndDestroyBridgeFromJson(true);
    }
@@ -2143,7 +2144,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testAddAndRemoveConnector() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String connectorName = RandomUtil.randomString();
@@ -2153,7 +2154,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertNull(server.getConfiguration().getConnectorConfigurations().get(connectorName));
    }
 
-   @Test
+   @TestTemplate
    public void testListPreparedTransactionDetails() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
@@ -2218,17 +2219,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String txDetails = serverControl.listPreparedTransactionDetailsAsJSON();
 
-      Assert.assertTrue(txDetails.matches(".*m1.*"));
-      Assert.assertTrue(txDetails.matches(".*m2.*"));
-      Assert.assertTrue(txDetails.matches(".*m3.*"));
-      Assert.assertTrue(txDetails.matches(".*m4.*"));
-      Assert.assertFalse(txDetails.matches(".*m5.*"));
-      Assert.assertFalse(txDetails.matches(".*m6.*"));
-      Assert.assertFalse(txDetails.matches(".*m7.*"));
-      Assert.assertFalse(txDetails.matches(".*m8.*"));
+      assertTrue(txDetails.matches(".*m1.*"));
+      assertTrue(txDetails.matches(".*m2.*"));
+      assertTrue(txDetails.matches(".*m3.*"));
+      assertTrue(txDetails.matches(".*m4.*"));
+      assertFalse(txDetails.matches(".*m5.*"));
+      assertFalse(txDetails.matches(".*m6.*"));
+      assertFalse(txDetails.matches(".*m7.*"));
+      assertFalse(txDetails.matches(".*m8.*"));
    }
 
-   @Test
+   @TestTemplate
    public void testListPreparedTransactionDetailsOnConsumer() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
@@ -2265,7 +2266,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       xid = newXID();
       clientSession.start(xid, XAResource.TMNOFLAGS);
       m1 = consumer.receive(1000);
-      Assert.assertNotNull(m1);
+      assertNotNull(m1);
       m1.acknowledge();
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
@@ -2273,15 +2274,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String jsonOutput = serverControl.listPreparedTransactionDetailsAsJSON();
 
       // just one message is pending, and it should be listed on the output
-      Assert.assertTrue(jsonOutput.lastIndexOf("valuem1") > 0);
-      Assert.assertTrue(jsonOutput.lastIndexOf("valuem2") < 0);
-      Assert.assertTrue(jsonOutput.lastIndexOf("valuem3") < 0);
-      Assert.assertTrue(jsonOutput.lastIndexOf("valuem4") < 0);
+      assertTrue(jsonOutput.lastIndexOf("valuem1") > 0);
+      assertTrue(jsonOutput.lastIndexOf("valuem2") < 0);
+      assertTrue(jsonOutput.lastIndexOf("valuem3") < 0);
+      assertTrue(jsonOutput.lastIndexOf("valuem4") < 0);
       clientSession.close();
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testListPreparedTransactionDetailsAsHTML() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
@@ -2318,13 +2319,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
       String html = serverControl.listPreparedTransactionDetailsAsHTML();
 
-      Assert.assertTrue(html.matches(".*m1.*"));
-      Assert.assertTrue(html.matches(".*m2.*"));
-      Assert.assertTrue(html.matches(".*m3.*"));
-      Assert.assertTrue(html.matches(".*m4.*"));
+      assertTrue(html.matches(".*m1.*"));
+      assertTrue(html.matches(".*m2.*"));
+      assertTrue(html.matches(".*m3.*"));
+      assertTrue(html.matches(".*m4.*"));
    }
 
-   @Test
+   @TestTemplate
    public void testCommitPreparedTransactions() throws Exception {
       SimpleString recQueue = new SimpleString("BasicXaTestqRec");
       SimpleString sendQueue = new SimpleString("BasicXaTestqSend");
@@ -2383,7 +2384,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       success = serverControl.commitPreparedTransaction(XidImpl.toBase64String(xid));
    }
 
-   @Test
+   @TestTemplate
    public void testScaleDownWithConnector() throws Exception {
       scaleDown(new ScaleDownHandler() {
          @Override
@@ -2393,7 +2394,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       });
    }
 
-   @Test
+   @TestTemplate
    public void testScaleDownWithOutConnector() throws Exception {
       scaleDown(new ScaleDownHandler() {
          @Override
@@ -2403,7 +2404,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       });
    }
 
-   @Test
+   @TestTemplate
    public void testForceFailover() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
@@ -2417,7 +2418,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertFalse(server.isStarted());
    }
 
-   @Test
+   @TestTemplate
    public void testTotalMessageCount() throws Exception {
       String random1 = RandomUtil.randomString();
       String random2 = RandomUtil.randomString();
@@ -2460,7 +2461,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testTotalConnectionCount() throws Exception {
       final int CONNECTION_COUNT = 100;
 
@@ -2477,7 +2478,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testTotalMessagesAdded() throws Exception {
       String random1 = RandomUtil.randomString();
       String random2 = RandomUtil.randomString();
@@ -2529,7 +2530,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testTotalMessagesAcknowledged() throws Exception {
       String random1 = RandomUtil.randomString();
       String random2 = RandomUtil.randomString();
@@ -2580,7 +2581,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testTotalConsumerCount() throws Exception {
       String random1 = RandomUtil.randomString();
       String random2 = RandomUtil.randomString();
@@ -2619,7 +2620,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testListConnectionsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       List<ClientSessionFactory> factories = new ArrayList<>();
@@ -2631,9 +2632,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listConnectionsAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(usingCore() ? 3 : 2, array.size());
+      assertEquals(usingCore() ? 3 : 2, array.size());
 
       JsonObject[] sorted = new JsonObject[array.size()];
       for (int i = 0; i < array.size(); i++) {
@@ -2653,21 +2654,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
       }
 
-      Assert.assertNotNull(first);
-      Assert.assertNotNull(second);
+      assertNotNull(first);
+      assertNotNull(second);
 
-      Assert.assertTrue(first.getString("connectionID").length() > 0);
-      Assert.assertTrue(first.getString("clientAddress").length() > 0);
-      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(0, first.getJsonNumber("sessionCount").longValue());
+      assertTrue(first.getString("connectionID").length() > 0);
+      assertTrue(first.getString("clientAddress").length() > 0);
+      assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(0, first.getJsonNumber("sessionCount").longValue());
 
-      Assert.assertTrue(second.getString("connectionID").length() > 0);
-      Assert.assertTrue(second.getString("clientAddress").length() > 0);
-      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(1, second.getJsonNumber("sessionCount").longValue());
+      assertTrue(second.getString("connectionID").length() > 0);
+      assertTrue(second.getString("clientAddress").length() > 0);
+      assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(1, second.getJsonNumber("sessionCount").longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListConsumersAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       final String filter = "x = 1";
@@ -2688,9 +2689,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listConsumersAsJSON(factory.getConnection().getID().toString());
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2, array.size());
+      assertEquals(2, array.size());
       JsonObject first;
       JsonObject second;
       if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
@@ -2701,34 +2702,34 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          second = array.getJsonObject(0);
       }
 
-      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
-      Assert.assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
-      Assert.assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
+      assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
+      assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
+      assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
+      assertFalse(first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
       // test the old version that has been replaced for backward compatibility
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getAlternativeName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getAlternativeName()).longValue());
 
-      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(factory.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
-      Assert.assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(true, second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
-      Assert.assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertTrue(second.getString(ConsumerField.FILTER.getName()).length() > 0);
-      Assert.assertEquals(filter, second.getString(ConsumerField.FILTER.getName()));
+      assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
+      assertEquals(factory.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
+      assertEquals(((ClientSessionImpl) session).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
+      assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
+      assertTrue(second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
+      assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertTrue(second.getString(ConsumerField.FILTER.getName()).length() > 0);
+      assertEquals(filter, second.getString(ConsumerField.FILTER.getName()));
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -2753,9 +2754,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(usingCore() ? 3 : 2, array.size());
+      assertEquals(usingCore() ? 3 : 2, array.size());
 
       String key = "creationTime";
       JsonObject[] sorted = new JsonObject[array.size()];
@@ -2784,40 +2785,39 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject first = sorted[0];
       JsonObject second = sorted[1];
 
-      Assert.assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
-      Assert.assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
-      Assert.assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.LAST_DELIVERED_TIME.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue());
+      assertTrue(first.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
+      assertNotNull(first.getJsonNumber(ConsumerField.ID.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
+      assertEquals(factory.getConnection().getID().toString(), first.getString(ConsumerField.CONNECTION.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
+      assertEquals(((ClientSessionImpl) session).getName(), first.getString(ConsumerField.SESSION.getAlternativeName()));
+      assertTrue(first.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
+      assertEquals(queueName.toString(), first.getString(ConsumerField.QUEUE.getAlternativeName()));
+      assertFalse(first.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.LAST_DELIVERED_TIME.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue());
 
-      Assert.assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
-      Assert.assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(factory2.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
-      Assert.assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
-      Assert.assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
-      Assert.assertEquals(false, second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.LAST_DELIVERED_TIME.getName()).longValue());
-      Assert.assertEquals(0, second.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue());
+      assertTrue(second.getJsonNumber(ConsumerField.CREATION_TIME.getName()).longValue() > 0);
+      assertNotNull(second.getJsonNumber(ConsumerField.ID.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.CONNECTION.getAlternativeName()).length() > 0);
+      assertEquals(factory2.getConnection().getID().toString(), second.getString(ConsumerField.CONNECTION.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.SESSION.getAlternativeName()).length() > 0);
+      assertEquals(((ClientSessionImpl) session2).getName(), second.getString(ConsumerField.SESSION.getAlternativeName()));
+      assertTrue(second.getString(ConsumerField.QUEUE.getAlternativeName()).length() > 0);
+      assertEquals(queueName.toString(), second.getString(ConsumerField.QUEUE.getAlternativeName()));
+      assertFalse(second.getBoolean(ConsumerField.BROWSE_ONLY.getName()));
+      assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(0, second.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, second.getJsonNumber(ConsumerField.LAST_DELIVERED_TIME.getName()).longValue());
+      assertEquals(0, second.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue());
 
    }
 
-
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONTXCommit() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -2851,35 +2851,35 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       receive.acknowledge();
       session.commit();
 
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       int allSize = size;
       for (int i = 0; i < 100; i++) {
@@ -2892,21 +2892,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONTXCommitAck() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -2943,39 +2943,39 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       session.commit();
 
       Wait.assertEquals(0, () -> JsonUtil.readJsonArray(serverControl.listAllConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
 
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONTXRollback() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -3009,50 +3009,50 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       receive.acknowledge();   //stop the session so we dont receive the same messages
       session.stop();
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       session.rollback();
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       int allSize = size * 2;
       session.start();
@@ -3062,18 +3062,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       receive.acknowledge();
       //stop the session so we dont receive the same messages
@@ -3081,21 +3081,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.rollback();
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(allSize, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(200, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONCancel() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -3129,18 +3129,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       receive.acknowledge();
       //close the consumer to cancel messages and recreate
       consumer.close();
@@ -3152,21 +3152,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientConsumer(consumer);
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONNoTX() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -3203,21 +3203,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONXACommit() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -3256,53 +3256,53 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       session.end(xid, XAResource.TMSUCCESS);
       session.prepare(xid);
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       session.commit(xid, false);
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListAllConsumersAsJSONXARollback() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
@@ -3341,54 +3341,54 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       JsonObject first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
 
       session.end(xid, XAResource.TMSUCCESS);
       session.prepare(xid);
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
       session.stop();
       session.rollback(xid);
       jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       array = JsonUtil.readJsonArray(jsonString);
       first = (JsonObject) array.get(0);
       if (!first.getString(ConsumerField.QUEUE.getAlternativeName()).equalsIgnoreCase(queueName.toString())) {
          first = (JsonObject) array.get(1);
       }
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
-      Assert.assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
-      Assert.assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
-      Assert.assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED.getName()).longValue());
+      assertEquals(size, first.getJsonNumber(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()).longValue());
+      assertEquals(100, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()).longValue());
+      assertEquals(0, first.getJsonNumber(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()).longValue());
    }
 
-   @Test
+   @TestTemplate
    public void testListSessionsAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
@@ -3407,25 +3407,25 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listSessionsAsJSON(factory.getConnection().getID().toString());
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2, array.size());
+      assertEquals(2, array.size());
       JsonObject first = lookupSession(array, session1);
       JsonObject second = lookupSession(array, session2);
 
-      Assert.assertTrue(first.getString("sessionID").length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
-      Assert.assertTrue(first.getString("principal").length() > 0);
-      Assert.assertEquals("guest", first.getString("principal"));
-      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(0, first.getJsonNumber("consumerCount").longValue());
+      assertTrue(first.getString("sessionID").length() > 0);
+      assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
+      assertTrue(first.getString("principal").length() > 0);
+      assertEquals("guest", first.getString("principal"));
+      assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(0, first.getJsonNumber("consumerCount").longValue());
 
-      Assert.assertTrue(second.getString("sessionID").length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
-      Assert.assertTrue(second.getString("principal").length() > 0);
-      Assert.assertEquals("myUser", second.getString("principal"));
-      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+      assertTrue(second.getString("sessionID").length() > 0);
+      assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
+      assertTrue(second.getString("principal").length() > 0);
+      assertEquals("myUser", second.getString("principal"));
+      assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(1, second.getJsonNumber("consumerCount").longValue());
    }
 
    private JsonObject lookupSession(JsonArray jsonArray, ClientSession session) throws Exception {
@@ -3434,20 +3434,20 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       for (int i = 0; i < jsonArray.size(); i++) {
          JsonObject obj = jsonArray.getJsonObject(i);
          String sessionID = obj.getString("sessionID");
-         Assert.assertNotNull(sessionID);
+         assertNotNull(sessionID);
 
          if (sessionID.equals(name)) {
             return obj;
          }
       }
 
-      Assert.fail("Sesison not found for session id " + name);
+      fail("Sesison not found for session id " + name);
 
       // not going to happen, fail will throw an exception but it won't compile without this
       return null;
    }
 
-   @Test
+   @TestTemplate
    public void testListAllSessionsAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
@@ -3471,30 +3471,30 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllSessionsAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
+      assertEquals(2 + (usingCore() ? 1 : 0), array.size());
       JsonObject first = lookupSession(array, session1);
       JsonObject second = lookupSession(array, session2);
 
-      Assert.assertTrue(first.getString("sessionID").length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
-      Assert.assertTrue(first.getString("principal").length() > 0);
-      Assert.assertEquals("guest", first.getString("principal"));
-      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(0, first.getJsonNumber("consumerCount").longValue());
+      assertTrue(first.getString("sessionID").length() > 0);
+      assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
+      assertTrue(first.getString("principal").length() > 0);
+      assertEquals("guest", first.getString("principal"));
+      assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(0, first.getJsonNumber("consumerCount").longValue());
 
-      Assert.assertTrue(second.getString("sessionID").length() > 0);
-      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
-      Assert.assertTrue(second.getString("principal").length() > 0);
-      Assert.assertEquals("myUser", second.getString("principal"));
-      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
-      Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
-      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
-      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
+      assertTrue(second.getString("sessionID").length() > 0);
+      assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
+      assertTrue(second.getString("principal").length() > 0);
+      assertEquals("myUser", second.getString("principal"));
+      assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+      assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
+      assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
    }
 
-   @Test
+   @TestTemplate
    public void testListAllSessionsAsJSONWithJMS() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
@@ -3512,15 +3512,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.listAllSessionsAsJSON();
       logger.debug(jsonString);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
+      assertEquals(1 + (usingCore() ? 1 : 0), array.size());
       JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
-      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
-      Assert.assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
+      assertEquals(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
+      assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
-   @Test
+   @TestTemplate
    public void testListQueues() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
@@ -3557,9 +3557,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 2, array.size());
-      Assert.assertTrue(array.getJsonObject(0).getString("name").contains("my_queue"));
-      Assert.assertTrue(array.getJsonObject(1).getString("name").contains("my_queue"));
+      assertEquals(2, array.size(), "number of queues returned from query");
+      assertTrue(array.getJsonObject(0).getString("name").contains("my_queue"));
+      assertTrue(array.getJsonObject(1).getString("name").contains("my_queue"));
 
       //test with an empty filter
       filterString = createJsonFilter("internalQueue", "NOT_CONTAINS", "true");
@@ -3570,7 +3570,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) queuesAsJsonObject.get("data");
 
       // at least 3 queues or more
-      Assert.assertTrue("number of queues returned from query", 3 <= array.size());
+      assertTrue(3 <= array.size(), "number of queues returned from query");
 
       //test with small page size
       queuesAsJsonString = serverControl.listQueues(filterString, 1, 1);
@@ -3578,36 +3578,36 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      assertEquals(1, array.size(), "number of queues returned from query");
       //check all field names are available
-      Assert.assertNotEquals("name", "", array.getJsonObject(0).getString("name"));
-      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
-      Assert.assertNotEquals("address", "", array.getJsonObject(0).getString("address"));
-      Assert.assertEquals("filter", "", array.getJsonObject(0).getString("filter"));
-      Assert.assertEquals("durable", "false", array.getJsonObject(0).getString("durable"));
-      Assert.assertEquals("paused", "false", array.getJsonObject(0).getString("paused"));
-      Assert.assertNotEquals("temporary", "", array.getJsonObject(0).getString("temporary"));
-      Assert.assertEquals("purgeOnNoConsumers", "false", array.getJsonObject(0).getString("purgeOnNoConsumers"));
-      Assert.assertNotEquals("consumerCount", "", array.getJsonObject(0).getString("consumerCount"));
-      Assert.assertEquals("maxConsumers", "-1", array.getJsonObject(0).getString("maxConsumers"));
-      Assert.assertEquals("autoCreated", "false", array.getJsonObject(0).getString("autoCreated"));
-      Assert.assertEquals("user", usingCore() ? "guest" : "", array.getJsonObject(0).getString("user"));
-      Assert.assertNotEquals("routingType", "", array.getJsonObject(0).getString("routingType"));
-      Assert.assertEquals("messagesAdded", "0", array.getJsonObject(0).getString("messagesAdded"));
-      Assert.assertEquals("messageCount", "0", array.getJsonObject(0).getString("messageCount"));
-      Assert.assertEquals("messagesAcked", "0", array.getJsonObject(0).getString("messagesAcked"));
-      Assert.assertEquals("deliveringCount", "0", array.getJsonObject(0).getString("deliveringCount"));
-      Assert.assertEquals("messagesKilled", "0", array.getJsonObject(0).getString("messagesKilled"));
-      Assert.assertEquals("exclusive", "false", array.getJsonObject(0).getString("exclusive"));
-      Assert.assertEquals("lastValue", "false", array.getJsonObject(0).getString("lastValue"));
-      Assert.assertEquals("scheduledCount", "0", array.getJsonObject(0).getString("scheduledCount"));
-      Assert.assertEquals("groupRebalance", "false", array.getJsonObject(0).getString("groupRebalance"));
-      Assert.assertEquals("groupBuckets", "-1", array.getJsonObject(0).getString("groupBuckets"));
-      Assert.assertEquals("groupFirstKey", "", array.getJsonObject(0).getString("groupFirstKey"));
-      Assert.assertEquals("autoDelete", "false", array.getJsonObject(0).getString("autoDelete"));
+      assertNotEquals("", array.getJsonObject(0).getString("name"), "name");
+      assertNotEquals("", array.getJsonObject(0).getString("id"), "id");
+      assertNotEquals("", array.getJsonObject(0).getString("address"), "address");
+      assertEquals("", array.getJsonObject(0).getString("filter"), "filter");
+      assertEquals("false", array.getJsonObject(0).getString("durable"), "durable");
+      assertEquals("false", array.getJsonObject(0).getString("paused"), "paused");
+      assertNotEquals("", array.getJsonObject(0).getString("temporary"), "temporary");
+      assertEquals("false", array.getJsonObject(0).getString("purgeOnNoConsumers"), "purgeOnNoConsumers");
+      assertNotEquals("", array.getJsonObject(0).getString("consumerCount"), "consumerCount");
+      assertEquals("-1", array.getJsonObject(0).getString("maxConsumers"), "maxConsumers");
+      assertEquals("false", array.getJsonObject(0).getString("autoCreated"), "autoCreated");
+      assertEquals(usingCore() ? "guest" : "", array.getJsonObject(0).getString("user"), "user");
+      assertNotEquals("", array.getJsonObject(0).getString("routingType"), "routingType");
+      assertEquals("0", array.getJsonObject(0).getString("messagesAdded"), "messagesAdded");
+      assertEquals("0", array.getJsonObject(0).getString("messageCount"), "messageCount");
+      assertEquals("0", array.getJsonObject(0).getString("messagesAcked"), "messagesAcked");
+      assertEquals("0", array.getJsonObject(0).getString("deliveringCount"), "deliveringCount");
+      assertEquals("0", array.getJsonObject(0).getString("messagesKilled"), "messagesKilled");
+      assertEquals("false", array.getJsonObject(0).getString("exclusive"), "exclusive");
+      assertEquals("false", array.getJsonObject(0).getString("lastValue"), "lastValue");
+      assertEquals("0", array.getJsonObject(0).getString("scheduledCount"), "scheduledCount");
+      assertEquals("false", array.getJsonObject(0).getString("groupRebalance"), "groupRebalance");
+      assertEquals("-1", array.getJsonObject(0).getString("groupBuckets"), "groupBuckets");
+      assertEquals("", array.getJsonObject(0).getString("groupFirstKey"), "groupFirstKey");
+      assertEquals("false", array.getJsonObject(0).getString("autoDelete"), "autoDelete");
    }
 
-   @Test
+   @TestTemplate
    public void testListQueuesOrder() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_1");
       SimpleString queueName2 = new SimpleString("my_queue_2");
@@ -3645,10 +3645,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("queue1 default Order", queueName1.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("queue2 default Order", queueName2.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("queue3 default Order", queueName3.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "queue1 default Order");
+      assertEquals(queueName2.toString(), array.getJsonObject(1).getString("name"), "queue2 default Order");
+      assertEquals(queueName3.toString(), array.getJsonObject(2).getString("name"), "queue3 default Order");
 
       //test ordered by id desc
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "id", "desc");
@@ -3656,10 +3656,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("queue3 ordered by id", queueName3.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("queue2 ordered by id", queueName2.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("queue1 ordered by id", queueName1.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals(queueName3.toString(), array.getJsonObject(0).getString("name"), "queue3 ordered by id");
+      assertEquals(queueName2.toString(), array.getJsonObject(1).getString("name"), "queue2 ordered by id");
+      assertEquals(queueName1.toString(), array.getJsonObject(2).getString("name"), "queue1 ordered by id");
 
       //ordered by address desc
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
@@ -3667,10 +3667,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("queue3 ordered by address", queueName3.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("queue2 ordered by address", queueName2.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("queue1 ordered by address", queueName1.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals(queueName3.toString(), array.getJsonObject(0).getString("name"), "queue3 ordered by address");
+      assertEquals(queueName2.toString(), array.getJsonObject(1).getString("name"), "queue2 ordered by address");
+      assertEquals(queueName1.toString(), array.getJsonObject(2).getString("name"), "queue1 ordered by address");
 
       //ordered by auto create desc
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "autoCreated", "asc");
@@ -3678,10 +3678,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("pos1 ordered by autocreate", "false", array.getJsonObject(0).getString("autoCreated"));
-      Assert.assertEquals("pos2 ordered by autocreate", "false", array.getJsonObject(1).getString("autoCreated"));
-      Assert.assertEquals("pos3 ordered by autocreate", "true", array.getJsonObject(2).getString("autoCreated"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals("false", array.getJsonObject(0).getString("autoCreated"), "pos1 ordered by autocreate");
+      assertEquals("false", array.getJsonObject(1).getString("autoCreated"), "pos2 ordered by autocreate");
+      assertEquals("true", array.getJsonObject(2).getString("autoCreated"), "pos3 ordered by autocreate");
 
       //ordered by filter desc
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "filter", "desc");
@@ -3689,10 +3689,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals(queueName2.toString(), array.getJsonObject(0).getString("name"), "queue2 ordered by filter");
+      assertEquals(queueName1.toString(), array.getJsonObject(1).getString("name"), "queue1 ordered by filter");
+      assertEquals(queueName3.toString(), array.getJsonObject(2).getString("name"), "queue3 ordered by filter");
 
       //ordered by max consumers asc
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "maxConsumers", "asc");
@@ -3700,10 +3700,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 3, array.size());
-      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number of queues returned from query");
+      assertEquals(queueName3.toString(), array.getJsonObject(0).getString("name"), "queue3 ordered by filter");
+      assertEquals(queueName1.toString(), array.getJsonObject(1).getString("name"), "queue1 ordered by filter");
+      assertEquals(queueName2.toString(), array.getJsonObject(2).getString("name"), "queue2 ordered by filter");
 
       //ordering between the pages
       //page 1
@@ -3711,28 +3711,28 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       queuesAsJsonString = serverControl.listQueues(filterString, 1, 1);
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
-      Assert.assertEquals("number of queues returned from query", 1, array.size());
-      Assert.assertEquals("queue3 ordered by page", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      assertEquals(1, array.size(), "number of queues returned from query");
+      assertEquals(queueName3.toString(), array.getJsonObject(0).getString("name"), "queue3 ordered by page");
 
       //page 2
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
       queuesAsJsonString = serverControl.listQueues(filterString, 2, 1);
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
-      Assert.assertEquals("number of queues returned from query", 1, array.size());
-      Assert.assertEquals("queue2 ordered by page", queueName2.toString(), array.getJsonObject(0).getString("name"));
+      assertEquals(1, array.size(), "number of queues returned from query");
+      assertEquals(queueName2.toString(), array.getJsonObject(0).getString("name"), "queue2 ordered by page");
 
       //page 3
       filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
       queuesAsJsonString = serverControl.listQueues(filterString, 3, 1);
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
-      Assert.assertEquals("number of queues returned from query", 1, array.size());
-      Assert.assertEquals("queue1 ordered by page", queueName1.toString(), array.getJsonObject(0).getString("name"));
+      assertEquals(1, array.size(), "number of queues returned from query");
+      assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "queue1 ordered by page");
 
    }
 
-   @Test
+   @TestTemplate
    public void testListQueuesNumericFilter() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
@@ -3802,7 +3802,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from query");
 
          //test with LESS_THAN returns 1 queue
          filterString = createJsonFilter("CONSUMER_COUNT", "LESS_THAN", "1");
@@ -3810,8 +3810,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from LESS_THAN query", 2, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName4.toString(), array.getJsonObject(1).getString("name"));
+         assertEquals(2, array.size(), "number of queues returned from LESS_THAN query");
+         assertEquals(queueName4.toString(), array.getJsonObject(1).getString("name"), "correct queue returned from query");
 
          //test with GREATER_THAN returns 2 queue
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "2");
@@ -3819,8 +3819,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from GREATER_THAN query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName2.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from GREATER_THAN query");
+         assertEquals(queueName2.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with GREATER_THAN returns 2 queue
          filterString = createJsonFilter("CONSUMER_COUNT", "EQUALS", "3");
@@ -3828,8 +3828,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from EQUALS query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName2.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from EQUALS query");
+         assertEquals(queueName2.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with MESSAGE_COUNT returns 2 queue
          filterString = createJsonFilter("MESSAGE_COUNT", "GREATER_THAN", "5");
@@ -3837,8 +3837,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from MESSAGE_COUNT query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from MESSAGE_COUNT query");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with MESSAGE_ADDED returns 1 queue
          filterString = createJsonFilter("MESSAGES_ADDED", "GREATER_THAN", "5");
@@ -3846,8 +3846,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from MESSAGE_COUNT query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from MESSAGE_COUNT query");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with DELIVERING_COUNT returns 1 queue
          filterString = createJsonFilter("DELIVERING_COUNT", "GREATER_THAN", "5");
@@ -3855,8 +3855,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from DELIVERING_COUNT query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from DELIVERING_COUNT query");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with MESSAGE_ACKED returns 1 queue
          filterString = createJsonFilter("MESSAGES_ACKED", "GREATER_THAN", "0");
@@ -3864,8 +3864,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from MESSAGES_ACKED query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from MESSAGES_ACKED query");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with MAX_CONSUMERS returns 1 queue
          filterString = createJsonFilter("MAX_CONSUMERS", "GREATER_THAN", "9");
@@ -3873,8 +3873,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from MAX_CONSUMERS query", 1, array.size());
-         Assert.assertEquals("correct queue returned from query", queueName3.toString(), array.getJsonObject(0).getString("name"));
+         assertEquals(1, array.size(), "number of queues returned from MAX_CONSUMERS query");
+         assertEquals(queueName3.toString(), array.getJsonObject(0).getString("name"), "correct queue returned from query");
 
          //test with MESSAGES_KILLED returns 0 queue
          filterString = createJsonFilter("MESSAGES_KILLED", "GREATER_THAN", "0");
@@ -3882,13 +3882,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from MESSAGES_KILLED query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from MESSAGES_KILLED query");
 
       }
 
    }
 
-   @Test
+   @TestTemplate
    public void testListQueuesNumericFilterInvalid() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("one_consumer_queue_two");
@@ -3940,7 +3940,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from query");
 
          //test with LESS_THAN and not a number
          filterString = createJsonFilter("CONSUMER_COUNT", "LESS_THAN", "NOT_NUMBER");
@@ -3948,7 +3948,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from LESS_THAN query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from LESS_THAN query");
 
          //test with GREATER_THAN and not a number
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "NOT_NUMBER");
@@ -3956,7 +3956,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from GREATER_THAN query");
 
          //test with EQUALS and not number
          filterString = createJsonFilter("CONSUMER_COUNT", "EQUALS", "NOT_NUMBER");
@@ -3964,7 +3964,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from EQUALS query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from EQUALS query");
 
          //test with LESS_THAN on string value returns no queue
          filterString = createJsonFilter("name", "LESS_THAN", "my_queue");
@@ -3972,7 +3972,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from LESS_THAN on non numeric field", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from LESS_THAN on non numeric field");
 
          //test with GREATER_THAN on string value returns no queue
          filterString = createJsonFilter("name", "GREATER_THAN", "my_queue");
@@ -3980,7 +3980,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from GREATER_THAN on non numeric field", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from GREATER_THAN on non numeric field");
 
          //test with GREATER_THAN and empty string
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", " ");
@@ -3988,7 +3988,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from GREATER_THAN query");
 
          //test with CONSUMER_COUNT against a float value
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "0.12");
@@ -3996,13 +3996,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
          array = (JsonArray) queuesAsJsonObject.get("data");
-         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+         assertEquals(0, array.size(), "number of queues returned from GREATER_THAN query");
 
       }
 
    }
 
-   @Test
+   @TestTemplate
    public void testListAddresses() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
@@ -4042,9 +4042,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of addresses returned from query", 2, array.size());
-      Assert.assertTrue("address name check", array.getJsonObject(0).getString("name").contains("my_address"));
-      Assert.assertTrue("address name check", array.getJsonObject(1).getString("name").contains("my_address"));
+      assertEquals(2, array.size(), "number of addresses returned from query");
+      assertTrue(array.getJsonObject(0).getString("name").contains("my_address"), "address name check");
+      assertTrue(array.getJsonObject(1).getString("name").contains("my_address"), "address name check");
 
       //test with EQUALS filter
       filterString = createJsonFilter("name", "EQUALS", addressName1.toString());
@@ -4052,12 +4052,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of addresses returned from query", 1, array.size());
+      assertEquals(1, array.size(), "number of addresses returned from query");
       //check all field names
-      Assert.assertEquals("address name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
-      Assert.assertTrue("routingTypes", array.getJsonObject(0).getString("routingTypes").contains(RoutingType.ANYCAST.name()));
-      Assert.assertEquals("queueCount", "1", array.getJsonObject(0).getString("queueCount"));
+      assertEquals(addressName1.toString(), array.getJsonObject(0).getString("name"), "address name check");
+      assertNotEquals("", array.getJsonObject(0).getString("id"), "id");
+      assertTrue(array.getJsonObject(0).getString("routingTypes").contains(RoutingType.ANYCAST.name()), "routingTypes");
+      assertEquals("1", array.getJsonObject(0).getString("queueCount"), "queueCount");
 
       //test with empty filter - all addresses should be returned
       filterString = createJsonFilter("", "", "");
@@ -4065,14 +4065,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertTrue("number of addresses returned from query", 3 <= array.size());
+      assertTrue(3 <= array.size(), "number of addresses returned from query");
 
       //test with small page size
       addressesAsJsonString = serverControl.listAddresses(filterString, 1, 1);
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      assertEquals(1, array.size(), "number of queues returned from query");
 
       //test with QUEUE_COUNT with GREATER_THAN filter
       filterString = createJsonFilter("QUEUE_COUNT", "GREATER_THAN", "1");
@@ -4080,8 +4080,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of addresses returned from query", 1, array.size());
-      Assert.assertEquals("address name check", addressName3.toString(), array.getJsonObject(0).getString("name"));
+      assertEquals(1, array.size(), "number of addresses returned from query");
+      assertEquals(addressName3.toString(), array.getJsonObject(0).getString("name"), "address name check");
 
       //test with QUEUE_COUNT with LESS_THAN filter
       filterString = createJsonFilter("QUEUE_COUNT", "LESS_THAN", "0");
@@ -4089,11 +4089,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number of addresses returned from query", 0, array.size());
+      assertEquals(0, array.size(), "number of addresses returned from query");
 
    }
 
-   @Test
+   @TestTemplate
    public void testListAddressOrder() throws Exception {
 
       SimpleString queueName1 = new SimpleString("my_queue_one");
@@ -4129,10 +4129,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number addresses returned", 3, array.size());
-      Assert.assertEquals("address1 default order", addressName1.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("address2 default order", addressName2.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("address3 default order", addressName3.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number addresses returned");
+      assertEquals(addressName1.toString(), array.getJsonObject(0).getString("name"), "address1 default order");
+      assertEquals(addressName2.toString(), array.getJsonObject(1).getString("name"), "address2 default order");
+      assertEquals(addressName3.toString(), array.getJsonObject(2).getString("name"), "address3 default order");
 
       //test  ordered by name desc
       filterString = createJsonFilter("name", "CONTAINS", "my", "name", "desc");
@@ -4140,10 +4140,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number addresses returned", 3, array.size());
-      Assert.assertEquals("address3 ordered by name", addressName3.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("address2 ordered by name", addressName2.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("address1 ordered by name", addressName1.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number addresses returned");
+      assertEquals(addressName3.toString(), array.getJsonObject(0).getString("name"), "address3 ordered by name");
+      assertEquals(addressName2.toString(), array.getJsonObject(1).getString("name"), "address2 ordered by name");
+      assertEquals(addressName1.toString(), array.getJsonObject(2).getString("name"), "address1 ordered by name");
 
       //test  ordered by queue count asc
       filterString = createJsonFilter("name", "CONTAINS", "my", "queueCount", "asc");
@@ -4151,13 +4151,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
 
-      Assert.assertEquals("number addresses returned", 3, array.size());
-      Assert.assertEquals("address2 ordered by queue count", addressName2.toString(), array.getJsonObject(0).getString("name"));
-      Assert.assertEquals("address1 ordered by queue count", addressName1.toString(), array.getJsonObject(1).getString("name"));
-      Assert.assertEquals("address3 ordered by queue count", addressName3.toString(), array.getJsonObject(2).getString("name"));
+      assertEquals(3, array.size(), "number addresses returned");
+      assertEquals(addressName2.toString(), array.getJsonObject(0).getString("name"), "address2 ordered by queue count");
+      assertEquals(addressName1.toString(), array.getJsonObject(1).getString("name"), "address1 ordered by queue count");
+      assertEquals(addressName3.toString(), array.getJsonObject(2).getString("name"), "address3 ordered by queue count");
    }
 
-   @Test
+   @TestTemplate
    public void testListConsumers() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
@@ -4199,9 +4199,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of consumers returned from query", 2, array.size());
-         Assert.assertEquals("check consumer's queue", queueName1.toString(), array.getJsonObject(0).getString(ConsumerField.QUEUE.getName()));
-         Assert.assertEquals("check consumer's queue", queueName1.toString(), array.getJsonObject(0).getString(ConsumerField.QUEUE.getName()));
+         assertEquals(2, array.size(), "number of consumers returned from query");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString(ConsumerField.QUEUE.getName()), "check consumer's queue");
+         assertEquals(queueName1.toString(), array.getJsonObject(0).getString(ConsumerField.QUEUE.getName()), "check consumer's queue");
 
          // test with a CONTAINS operation
          filterString = createJsonFilter(ConsumerField.QUEUE.getName(), "CONTAINS", "my_queue");
@@ -4209,7 +4209,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+         assertEquals(3, array.size(), "number of consumers returned from query");
 
          // filter by address
          filterString = createJsonFilter(ConsumerField.ADDRESS.getName(),  "EQUALS", addressName1.toString());
@@ -4217,9 +4217,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of consumers returned from query", 2, array.size());
-         Assert.assertEquals("check consumers address", addressName1.toString(), array.getJsonObject(0).getString(ConsumerField.ADDRESS.getName()));
-         Assert.assertEquals("check consumers address", addressName1.toString(), array.getJsonObject(1).getString(ConsumerField.ADDRESS.getName()));
+         assertEquals(2, array.size(), "number of consumers returned from query");
+         assertEquals(addressName1.toString(), array.getJsonObject(0).getString(ConsumerField.ADDRESS.getName()), "check consumers address");
+         assertEquals(addressName1.toString(), array.getJsonObject(1).getString(ConsumerField.ADDRESS.getName()), "check consumers address");
 
          //test with empty filter - all consumers should be returned
          filterString = createJsonFilter("", "", "");
@@ -4227,14 +4227,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertTrue("at least 4 consumers returned from query", 4 <= array.size());
+         assertTrue(4 <= array.size(), "at least 4 consumers returned from query");
 
          //test with small page size
          consumersAsJsonString = serverControl.listConsumers(filterString, 1, 1);
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of consumers returned from query", 1, array.size());
+         assertEquals(1, array.size(), "number of consumers returned from query");
 
          //test contents of returned consumer
          filterString = createJsonFilter(ConsumerField.QUEUE.getName(), "EQUALS", queueName3.toString());
@@ -4242,31 +4242,31 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of consumers returned from query", 1, array.size());
+         assertEquals(1, array.size(), "number of consumers returned from query");
          JsonObject jsonConsumer = array.getJsonObject(0);
-         Assert.assertEquals("queue name in consumer", queueName3.toString(), jsonConsumer.getString(ConsumerField.QUEUE.getName()));
-         Assert.assertEquals("address name in consumer", addressName2.toString(), jsonConsumer.getString(ConsumerField.ADDRESS.getName()));
-         Assert.assertEquals("consumer protocol ", "CORE", jsonConsumer.getString(ConsumerField.PROTOCOL.getName()));
-         Assert.assertEquals("queue type", "anycast", jsonConsumer.getString(ConsumerField.QUEUE_TYPE.getName()));
-         Assert.assertNotEquals("id", "", jsonConsumer.getString(ConsumerField.ID.getName()));
-         Assert.assertNotEquals("session", "", jsonConsumer.getString(ConsumerField.SESSION.getName()));
-         Assert.assertEquals("clientID", "", jsonConsumer.getString(ConsumerField.CLIENT_ID.getName()));
-         Assert.assertEquals("user", "", jsonConsumer.getString(ConsumerField.USER.getName()));
-         Assert.assertNotEquals("localAddress", "", jsonConsumer.getString(ConsumerField.LOCAL_ADDRESS.getName()));
-         Assert.assertNotEquals("remoteAddress", "", jsonConsumer.getString(ConsumerField.REMOTE_ADDRESS.getName()));
-         Assert.assertNotEquals("creationTime", "", jsonConsumer.getString(ConsumerField.CREATION_TIME.getName()));
-         Assert.assertNotEquals("messagesInTransit", "", jsonConsumer.getString(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
-         Assert.assertNotEquals("messagesInTransitSize", "", jsonConsumer.getString(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
-         Assert.assertNotEquals("messagesDelivered", "", jsonConsumer.getString(ConsumerField.MESSAGES_DELIVERED.getName()));
-         Assert.assertNotEquals("messagesDeliveredSize", "", jsonConsumer.getString(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()));
-         Assert.assertNotEquals("messagesAcknowledged", "", jsonConsumer.getString(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
-         Assert.assertEquals("lastDeliveredTime", 0, jsonConsumer.getInt(ConsumerField.LAST_DELIVERED_TIME.getName()));
-         Assert.assertEquals("lastAcknowledgedTime", 0, jsonConsumer.getInt(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()));
+         assertEquals(queueName3.toString(), jsonConsumer.getString(ConsumerField.QUEUE.getName()), "queue name in consumer");
+         assertEquals(addressName2.toString(), jsonConsumer.getString(ConsumerField.ADDRESS.getName()), "address name in consumer");
+         assertEquals("CORE", jsonConsumer.getString(ConsumerField.PROTOCOL.getName()), "consumer protocol ");
+         assertEquals("anycast", jsonConsumer.getString(ConsumerField.QUEUE_TYPE.getName()), "queue type");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.ID.getName()), "id");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.SESSION.getName()), "session");
+         assertEquals("", jsonConsumer.getString(ConsumerField.CLIENT_ID.getName()), "clientID");
+         assertEquals("", jsonConsumer.getString(ConsumerField.USER.getName()), "user");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.LOCAL_ADDRESS.getName()), "localAddress");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.REMOTE_ADDRESS.getName()), "remoteAddress");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.CREATION_TIME.getName()), "creationTime");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.MESSAGES_IN_TRANSIT.getName()), "messagesInTransit");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()), "messagesInTransitSize");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.MESSAGES_DELIVERED.getName()), "messagesDelivered");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()), "messagesDeliveredSize");
+         assertNotEquals("", jsonConsumer.getString(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()), "messagesAcknowledged");
+         assertEquals(0, jsonConsumer.getInt(ConsumerField.LAST_DELIVERED_TIME.getName()), "lastDeliveredTime");
+         assertEquals(0, jsonConsumer.getInt(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()), "lastAcknowledgedTime");
       }
 
    }
 
-   @Test
+   @TestTemplate
    public void testListConsumersOrder() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4299,27 +4299,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          String consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
          JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
-         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+         assertEquals(3, array.size(), "number of consumers returned from query");
 
-         Assert.assertEquals("Consumer1 default order", session1.getName(), array.getJsonObject(0).getString(ConsumerField.SESSION.getName()));
-         Assert.assertEquals("Consumer2 default order", session2.getName(), array.getJsonObject(1).getString(ConsumerField.SESSION.getName()));
-         Assert.assertEquals("Consumer3 default order", session3.getName(), array.getJsonObject(2).getString(ConsumerField.SESSION.getName()));
+         assertEquals(session1.getName(), array.getJsonObject(0).getString(ConsumerField.SESSION.getName()), "Consumer1 default order");
+         assertEquals(session2.getName(), array.getJsonObject(1).getString(ConsumerField.SESSION.getName()), "Consumer2 default order");
+         assertEquals(session3.getName(), array.getJsonObject(2).getString(ConsumerField.SESSION.getName()), "Consumer3 default order");
 
          //test ordered by creationTime
          filterString = createJsonFilter(ConsumerField.QUEUE.getName(), "EQUALS", queueName1.toString(), "creationTime", "desc");
          consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
          consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
          array = (JsonArray) consumersAsJsonObject.get("data");
-         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+         assertEquals(3, array.size(), "number of consumers returned from query");
 
-         Assert.assertEquals("Consumer3 creation time", session3.getName(), array.getJsonObject(0).getString(ConsumerField.SESSION.getName()));
-         Assert.assertEquals("Consumer2 creation time", session2.getName(), array.getJsonObject(1).getString(ConsumerField.SESSION.getName()));
-         Assert.assertEquals("Consumer1 creation time", session1.getName(), array.getJsonObject(2).getString(ConsumerField.SESSION.getName()));
+         assertEquals(session3.getName(), array.getJsonObject(0).getString(ConsumerField.SESSION.getName()), "Consumer3 creation time");
+         assertEquals(session2.getName(), array.getJsonObject(1).getString(ConsumerField.SESSION.getName()), "Consumer2 creation time");
+         assertEquals(session1.getName(), array.getJsonObject(2).getString(ConsumerField.SESSION.getName()), "Consumer1 creation time");
 
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListSessions() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4360,21 +4360,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonArray array = (JsonArray) sessionsAsJsonObject.get("data");
 
 
-         Assert.assertEquals("number of sessions returned from query", 3, array.size());
+         assertEquals(3, array.size(), "number of sessions returned from query");
          JsonObject jsonSession = array.getJsonObject(0);
 
          //check all fields
-         Assert.assertNotEquals("id", "", jsonSession.getString("id"));
-         Assert.assertEquals("user", "", jsonSession.getString("user"));
-         Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
-         Assert.assertEquals("consumerCount", 2, jsonSession.getInt("consumerCount"));
-         Assert.assertTrue("producerCount", 0 <= jsonSession.getInt("producerCount"));
-         Assert.assertNotEquals("connectionID", "", jsonSession.getString("connectionID"));
+         assertNotEquals("", jsonSession.getString("id"), "id");
+         assertEquals("", jsonSession.getString("user"), "user");
+         assertNotEquals("", jsonSession.getString("creationTime"), "creationTime");
+         assertEquals(2, jsonSession.getInt("consumerCount"), "consumerCount");
+         assertTrue(0 <= jsonSession.getInt("producerCount"), "producerCount");
+         assertNotEquals("", jsonSession.getString("connectionID"), "connectionID");
 
          //check default order
-         Assert.assertEquals("session1 location", session1.getName(), array.getJsonObject(0).getString("id"));
-         Assert.assertEquals("session2 location", session2.getName(), array.getJsonObject(1).getString("id"));
-         Assert.assertEquals("session3 location", session3.getName(), array.getJsonObject(2).getString("id"));
+         assertEquals(session1.getName(), array.getJsonObject(0).getString("id"), "session1 location");
+         assertEquals(session2.getName(), array.getJsonObject(1).getString("id"), "session2 location");
+         assertEquals(session3.getName(), array.getJsonObject(2).getString("id"), "session3 location");
 
          //bring back session ordered by consumer count
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
@@ -4382,10 +4382,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
-         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
-         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
-         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(session1.getName(), array.getJsonObject(0).getString("id"), "session1 ordered by consumer");
+         assertEquals(session3.getName(), array.getJsonObject(1).getString("id"), "session3 ordered by consumer");
+         assertEquals(session2.getName(), array.getJsonObject(2).getString("id"), "session2 ordered by consumer");
 
          //bring back session ordered by consumer Count
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
@@ -4393,10 +4393,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
-         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
-         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
-         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(session1.getName(), array.getJsonObject(0).getString("id"), "session1 ordered by consumer");
+         assertEquals(session3.getName(), array.getJsonObject(1).getString("id"), "session3 ordered by consumer");
+         assertEquals(session2.getName(), array.getJsonObject(2).getString("id"), "session2 ordered by consumer");
 
          //bring back session ordered by creation time (desc)
          filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
@@ -4404,15 +4404,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
-         Assert.assertEquals("session3 ordered by creationTime", session3.getName(), array.getJsonObject(0).getString("id"));
-         Assert.assertEquals("session2 ordered by creationTime", session2.getName(), array.getJsonObject(1).getString("id"));
-         Assert.assertEquals("session1 ordered by creationTime", session1.getName(), array.getJsonObject(2).getString("id"));
+         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(session3.getName(), array.getJsonObject(0).getString("id"), "session3 ordered by creationTime");
+         assertEquals(session2.getName(), array.getJsonObject(1).getString("id"), "session2 ordered by creationTime");
+         assertEquals(session1.getName(), array.getJsonObject(2).getString("id"), "session1 ordered by creationTime");
 
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListSessionsJmsClientID() throws Exception {
       final String clientId = RandomUtil.randomString();
 
@@ -4428,15 +4428,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject sessions = JsonUtil.readJsonObject(json);
          JsonArray array = (JsonArray) sessions.get("data");
 
-         Assert.assertEquals("number of sessions returned from query", 2, array.size());
+         assertEquals(2, array.size(), "number of sessions returned from query");
          JsonObject jsonSession = array.getJsonObject(0);
 
-         Assert.assertEquals("wrong client ID returned", clientId, jsonSession.getString(SessionField.CLIENT_ID.getName()));
+         assertEquals(clientId, jsonSession.getString(SessionField.CLIENT_ID.getName()), "wrong client ID returned");
       }
    }
 
-   @RetryMethod(retries = 2) // the list of connections eventually comes from a hashmap on a different order. Which is fine but makes the test fail. a Retry is ok
-   @Test
+   @TestTemplate
    public void testListConnections() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4482,24 +4481,24 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         assertEquals(3, array.size(), "number of connections returned from query");
          JsonObject jsonConnection = array.getJsonObject(0);
 
          //check all fields
-         Assert.assertNotEquals("connectionID", "", jsonConnection.getString("connectionID"));
-         Assert.assertNotEquals("remoteAddress", "", jsonConnection.getString("remoteAddress"));
-         Assert.assertEquals("users", "guest", jsonConnection.getString("users"));
-         Assert.assertNotEquals("creationTime", "", jsonConnection.getString("creationTime"));
-         Assert.assertNotEquals("implementation", "", jsonConnection.getString("implementation"));
-         Assert.assertNotEquals("protocol", "", jsonConnection.getString("protocol"));
-         Assert.assertEquals("clientID", "", jsonConnection.getString("clientID"));
-         Assert.assertNotEquals("localAddress", "", jsonConnection.getString("localAddress"));
-         Assert.assertEquals("sessionCount", 2, jsonConnection.getInt("sessionCount"));
+         assertNotEquals("", jsonConnection.getString("connectionID"), "connectionID");
+         assertNotEquals("", jsonConnection.getString("remoteAddress"), "remoteAddress");
+         assertEquals("guest", jsonConnection.getString("users"), "users");
+         assertNotEquals("", jsonConnection.getString("creationTime"), "creationTime");
+         assertNotEquals("", jsonConnection.getString("implementation"), "implementation");
+         assertNotEquals("", jsonConnection.getString("protocol"), "protocol");
+         assertEquals("", jsonConnection.getString("clientID"), "clientID");
+         assertNotEquals("", jsonConnection.getString("localAddress"), "localAddress");
+         assertEquals(2, jsonConnection.getInt("sessionCount"), "sessionCount");
 
          //check default order
-         Assert.assertEquals("connection1 default Order", csf.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
-         Assert.assertEquals("connection2 default Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
-         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+         assertEquals(csf.getConnection().getID(), array.getJsonObject(0).getString("connectionID"), "connection1 default Order");
+         assertEquals(csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"), "connection2 default Order");
+         assertEquals(csf3.getConnection().getID(), array.getJsonObject(2).getString("connectionID"), "connection3 session Order");
 
          //check order by users asc
          filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "asc");
@@ -4507,10 +4506,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 3, array.size());
-         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(0).getString("users"));
-         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
-         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(2).getString("users"));
+         assertEquals(3, array.size(), "number of connections returned from query");
+         assertEquals("guest", array.getJsonObject(0).getString("users"), "connection1 users Order");
+         assertEquals("guest,myUser", array.getJsonObject(1).getString("users"), "connection3 users Order");
+         assertEquals("myUser", array.getJsonObject(2).getString("users"), "connection2 users Order");
 
          //check order by users desc
          filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "desc");
@@ -4518,10 +4517,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 3, array.size());
-         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(0).getString("users"));
-         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
-         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(2).getString("users"));
+         assertEquals(3, array.size(), "number of connections returned from query");
+         assertEquals("myUser", array.getJsonObject(0).getString("users"), "connection2 users Order");
+         assertEquals("guest,myUser", array.getJsonObject(1).getString("users"), "connection3 users Order");
+         assertEquals("guest", array.getJsonObject(2).getString("users"), "connection1 users Order");
 
          //check order by session count desc
          filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "sessionCount", "desc");
@@ -4529,10 +4528,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 3, array.size());
-         Assert.assertEquals("connection2 session Order", csf2.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
-         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
-         Assert.assertEquals("connection1 session Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+         assertEquals(3, array.size(), "number of connections returned from query");
+         assertEquals(csf2.getConnection().getID(), array.getJsonObject(0).getString("connectionID"), "connection2 session Order");
+         assertEquals(csf3.getConnection().getID(), array.getJsonObject(1).getString("connectionID"), "connection3 session Order");
+         assertEquals(csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"), "connection1 session Order");
 
          //check order by creationTime desc
          filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
@@ -4540,10 +4539,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 3, array.size());
-         Assert.assertEquals("connection3 creationTime Order", csf3.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
-         Assert.assertEquals("connection2 creationTime Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
-         Assert.assertEquals("connection1 creationTime Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+         assertEquals(3, array.size(), "number of connections returned from query");
+         assertEquals(csf3.getConnection().getID(), array.getJsonObject(0).getString("connectionID"), "connection3 creationTime Order");
+         assertEquals(csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"), "connection2 creationTime Order");
+         assertEquals(csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"), "connection1 creationTime Order");
       } finally {
          if (csf != null) {
             csf.close();
@@ -4557,7 +4556,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListConnectionsJmsClientID() throws Exception {
       final String clientId = RandomUtil.randomString();
 
@@ -4567,18 +4566,19 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       try (Connection c = cf.createConnection()) {
          c.setClientID(clientId);
          String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), "EQUALS", clientId);
+
          String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
          JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
          JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
 
-         Assert.assertEquals("number of connections returned from query", 1, array.size());
+         assertEquals(1, array.size(), "number of connections returned from query");
          JsonObject jsonConnection = array.getJsonObject(0);
 
-         Assert.assertEquals("wrong client ID returned", clientId, jsonConnection.getString(ConnectionField.CLIENT_ID.getName()));
+         assertEquals(clientId, jsonConnection.getString(ConnectionField.CLIENT_ID.getName()), "wrong client ID returned");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducers() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4610,7 +4610,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -4623,23 +4623,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.CLIENT_ID.getName(), "", jsonSession.getString(ProducerField.CLIENT_ID.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.CLIENT_ID.getName()), ProducerField.CLIENT_ID.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersLargeMessages() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4671,7 +4671,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -4684,23 +4684,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.CLIENT_ID.getName(), "", jsonSession.getString(ProducerField.CLIENT_ID.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.CLIENT_ID.getName()), ProducerField.CLIENT_ID.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersAsJSONAgainstServer() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4727,7 +4727,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          String producersAsJsonString = serverControl.listProducersInfoAsJSON();
          JsonArray array = JsonUtil.readJsonArray(producersAsJsonString);
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
          JsonObject jsonSession = array.getJsonObject(0);
          if (!jsonSession.getString(ProducerField.ADDRESS.getAlternativeName()).equalsIgnoreCase(addressName1.toString())) {
@@ -4737,13 +4737,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          //get the only server producer
          ServerProducer producer = server.getSessionByID(jsonSession.getString(ProducerField.SESSION.getAlternativeName())).getServerProducers().iterator().next();
          //check all fields
-         Assert.assertEquals(ProducerField.ID.getName(), String.valueOf(producer.getID()), jsonSession.getString(ProducerField.ID.getName()));
-         Assert.assertEquals(ProducerField.NAME.getName(), producer.getName(), jsonSession.getString(ProducerField.NAME.getName()));
-         Assert.assertEquals(ProducerField.SESSION.getName(), producer.getSessionID(), jsonSession.getString(ProducerField.SESSION.getAlternativeName()));
-         Assert.assertEquals(ProducerField.ADDRESS.getName(), producer.getAddress(), jsonSession.getString(ProducerField.ADDRESS.getAlternativeName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), producer.getMessagesSent(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT.getName()).longValue());
-         Assert.assertEquals(ProducerField.MESSAGE_SENT_SIZE.getName(), producer.getMessagesSentSize(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT_SIZE.getName()).longValue());
-         Assert.assertEquals(ProducerField.CREATION_TIME.getName(), String.valueOf(producer.getCreationTime()), jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+         assertEquals(String.valueOf(producer.getID()), jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+         assertEquals(producer.getName(), jsonSession.getString(ProducerField.NAME.getName()), ProducerField.NAME.getName());
+         assertEquals(producer.getSessionID(), jsonSession.getString(ProducerField.SESSION.getAlternativeName()), ProducerField.SESSION.getName());
+         assertEquals(producer.getAddress(), jsonSession.getString(ProducerField.ADDRESS.getAlternativeName()), ProducerField.ADDRESS.getName());
+         assertEquals(producer.getMessagesSent(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT.getName()).longValue(), ProducerField.MESSAGE_SENT.getName());
+         assertEquals(producer.getMessagesSentSize(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT_SIZE.getName()).longValue(), ProducerField.MESSAGE_SENT_SIZE.getName());
+         assertEquals(String.valueOf(producer.getCreationTime()), jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
       }
    }
 
@@ -4755,7 +4755,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return producers.get();
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersAgainstServer() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -4786,7 +4786,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
          JsonObject jsonSession = array.getJsonObject(0);
 
@@ -4794,26 +4794,26 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          //get the only server producer
          ServerProducer producer = server.getSessionByID(jsonSession.getString(ProducerField.SESSION.getName())).getServerProducers().iterator().next();
          //check all fields
-         Assert.assertEquals(ProducerField.ID.getName(), String.valueOf(producer.getID()), jsonSession.getString(ProducerField.ID.getName()));
-         Assert.assertEquals(ProducerField.SESSION.getName(), producer.getSessionID(), jsonSession.getString(ProducerField.SESSION.getName()));
-         Assert.assertEquals(ProducerField.PROTOCOL.getName(), producer.getProtocol(), jsonSession.getString(ProducerField.PROTOCOL.getName()));
-         Assert.assertEquals(ProducerField.ADDRESS.getName(), producer.getAddress(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), producer.getMessagesSent(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT.getName()).longValue());
-         Assert.assertEquals(ProducerField.MESSAGE_SENT_SIZE.getName(), producer.getMessagesSentSize(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT_SIZE.getName()).longValue());
-         Assert.assertEquals(ProducerField.CREATION_TIME.getName(), String.valueOf(producer.getCreationTime()), jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+         assertEquals(String.valueOf(producer.getID()), jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+         assertEquals(producer.getSessionID(), jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+         assertEquals(producer.getProtocol(), jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+         assertEquals(producer.getAddress(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+         assertEquals(producer.getMessagesSent(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT.getName()).longValue(), ProducerField.MESSAGE_SENT.getName());
+         assertEquals(producer.getMessagesSentSize(), jsonSession.getJsonNumber(ProducerField.MESSAGE_SENT_SIZE.getName()).longValue(), ProducerField.MESSAGE_SENT_SIZE.getName());
+         assertEquals(String.valueOf(producer.getCreationTime()), jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
       }
    }
-   @Test
+   @TestTemplate
    public void testListProducersJMSCore() throws Exception {
       testListProducersJMS(ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY)), "CORE");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSAMQP() throws Exception {
       testListProducersJMS(new JmsConnectionFactory("amqp://localhost:61616"), "AMQP");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSOW() throws Exception {
       testListProducersJMS(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "CORE");
    }
@@ -4846,7 +4846,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -4859,21 +4859,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), queueName, jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(queueName, jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSLegacy() throws Exception {
       String queueName = "my_queue_one";
       SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
@@ -4925,7 +4925,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2, array.size());
+         assertEquals(2, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -4938,17 +4938,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), queueName, jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(queueName, jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
 
          session1.close();
 
@@ -4957,7 +4957,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1, array.size());
+         assertEquals(1, array.size(), "number of producers returned from query");
 
          session2.close();
 
@@ -4966,11 +4966,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 0, array.size());
+         assertEquals(0, array.size(), "number of producers returned from query");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListFqqnProducersJMSLegacy() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -5020,7 +5020,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
          //this is testing that the producers tracked hasnt exceededd the max of 100
-         Assert.assertEquals("number of producers returned from query", 1, array.size());
+         assertEquals(1, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5033,21 +5033,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), FQQNName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(FQQNName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListAnonProducersJMSLegacy() throws Exception {
       String queueName = "my_queue_one";
       SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
@@ -5100,7 +5100,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
          //this is testing that the producers tracked hasnt exceededd the max of 100
-         Assert.assertEquals("number of producers returned from query", 100, array.size());
+         assertEquals(100, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5113,16 +5113,16 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
 
          session1.close();
 
@@ -5131,21 +5131,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 0, array.size());
+         assertEquals(0, array.size(), "number of producers returned from query");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSCoreMultipleProducers() throws Exception {
       testListProducersJMSMultipleProducers(ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY)), "CORE");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSAMQPMultipleProducers() throws Exception {
       testListProducersJMSMultipleProducers(new JmsConnectionFactory("amqp://localhost:61616"), "AMQP");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSOpenWireMultipleProducers() throws Exception {
       testListProducersJMSMultipleProducers(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "OPENWIRE");
    }
@@ -5174,7 +5174,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5187,14 +5187,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), queueName, jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(queueName, jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
          MessageProducer producer2 = session1.createProducer(session1.createQueue(queueName));
@@ -5204,7 +5204,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          producer1.close();
 
@@ -5214,23 +5214,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSAnonCore() throws Exception {
       testListProducersJMSAnon(ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY)), "CORE");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSAnonAMQP() throws Exception {
       testListProducersJMSAnon(new JmsConnectionFactory("amqp://localhost:61616"), "AMQP");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSAnonOW() throws Exception {
       testListProducersJMSAnon(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "OPENWIRE");
    }
@@ -5279,7 +5279,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5292,30 +5292,30 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSTopicCore() throws Exception {
       testListProducersJMSTopic(ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY)), "CORE");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSTopicAMQP() throws Exception {
       testListProducersJMSTopic(new JmsConnectionFactory("amqp://localhost:61616"), "AMQP");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersJMSTopicOW() throws Exception {
       testListProducersJMSTopic(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "OPENWIRE");
    }
@@ -5349,7 +5349,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5362,14 +5362,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), topicName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(topicName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
          //remove the subs and make sure producers still exist
@@ -5381,11 +5381,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          array = (JsonArray) producersAsJsonObject.get("data");
          assertEquals(2 + extraProducers, array.size());
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersFQQN() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -5417,7 +5417,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 2 + extraProducers, array.size());
+         assertEquals(2 + extraProducers, array.size(), "number of producers returned from query");
 
          boolean foundElement = false;
          for (int i = 0; i < array.size(); i++) {
@@ -5430,14 +5430,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             foundElement = true;
 
             //check all fields
-            Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-            Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-            Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-            Assert.assertNotEquals(ProducerField.PROTOCOL.getName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-            Assert.assertEquals(ProducerField.ADDRESS.getName(), FQQNName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-            Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
+            assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+            assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getName());
+            assertEquals(FQQNName.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+            assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
          }
 
          session1.deleteQueue(queueName1);
@@ -5449,21 +5449,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          //make sure both producers still exist as we dont tie them to an address which would only be recreated on another send
          assertEquals(2 + extraProducers, array.size());
 
-         Assert.assertTrue("Valid session not found", foundElement);
+         assertTrue(foundElement, "Valid session not found");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersMessageCountsJMSCore() throws Exception {
       testListProducersMessageCountsJMS(ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY)), "CORE");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersMessageCountsAMQPJMS() throws Exception {
       testListProducersMessageCountsJMS(new JmsConnectionFactory("amqp://localhost:61616"), "AMQP");
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersMessageCountsOWJMS() throws Exception {
       testListProducersMessageCountsJMS(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "OPENWIRE");
    }
@@ -5498,26 +5498,26 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
          JsonObject jsonSession = array.getJsonObject(0);
 
          //check all fields
-         Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-         Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-         Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-         Assert.assertEquals(ProducerField.PROTOCOL.getAlternativeName(), protocol, jsonSession.getString(ProducerField.PROTOCOL.getName()));
-         Assert.assertEquals(ProducerField.ADDRESS.getName(), addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()));
-         Assert.assertNotEquals(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), "", jsonSession.getString(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()));
+         assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+         assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+         assertEquals(protocol, jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getAlternativeName());
+         assertEquals(addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
+         assertEquals(numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()), ProducerField.MESSAGE_SENT.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()), ProducerField.LAST_PRODUCED_MESSAGE_ID.getName());
       }
    }
 
 
-   @Test
+   @TestTemplate
    public void testListProducersMessageCounts() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -5553,27 +5553,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
          JsonArray array = (JsonArray) producersAsJsonObject.get("data");
 
-         Assert.assertEquals("number of producers returned from query", 1 + extraProducers, array.size());
+         assertEquals(1 + extraProducers, array.size(), "number of producers returned from query");
 
          JsonObject jsonSession = array.getJsonObject(0);
 
          //check all fields
-         Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-         Assert.assertNotEquals(ProducerField.SESSION.getName(), "", jsonSession.getString(ProducerField.SESSION.getName()));
-         Assert.assertEquals(ProducerField.CLIENT_ID.getName(), "", jsonSession.getString(ProducerField.CLIENT_ID.getName()));
-         Assert.assertEquals(ProducerField.USER.getName(), "", jsonSession.getString(ProducerField.USER.getName()));
-         Assert.assertNotEquals(ProducerField.PROTOCOL.getAlternativeName(), "", jsonSession.getString(ProducerField.PROTOCOL.getName()));
-         Assert.assertEquals(ProducerField.ADDRESS.getName(), addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()));
-         Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT_SIZE.getName(), messagesSize, jsonSession.getInt(ProducerField.MESSAGE_SENT_SIZE.getName()));
-         Assert.assertEquals(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), "", jsonSession.getString(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()));
+         assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getName()), ProducerField.SESSION.getName());
+         assertEquals("", jsonSession.getString(ProducerField.CLIENT_ID.getName()), ProducerField.CLIENT_ID.getName());
+         assertEquals("", jsonSession.getString(ProducerField.USER.getName()), ProducerField.USER.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.PROTOCOL.getName()), ProducerField.PROTOCOL.getAlternativeName());
+         assertEquals(addressName1.toString(), jsonSession.getString(ProducerField.ADDRESS.getName()), ProducerField.ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.LOCAL_ADDRESS.getName()), ProducerField.LOCAL_ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.REMOTE_ADDRESS.getName()), ProducerField.REMOTE_ADDRESS.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
+         assertEquals(numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()), ProducerField.MESSAGE_SENT.getName());
+         assertEquals(messagesSize, jsonSession.getInt(ProducerField.MESSAGE_SENT_SIZE.getName()), ProducerField.MESSAGE_SENT_SIZE.getName());
+         assertEquals("", jsonSession.getString(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()), ProducerField.LAST_PRODUCED_MESSAGE_ID.getName());
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListProducersMessageCounts2() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString addressName1 = new SimpleString("my_address_one");
@@ -5613,17 +5613,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
 
          //check all fields
-         Assert.assertNotEquals(ProducerField.ID.getName(), "", jsonSession.getString(ProducerField.ID.getName()));
-         Assert.assertNotEquals(ProducerField.NAME.getName(), "", jsonSession.getString(ProducerField.NAME.getName()));
-         Assert.assertNotEquals(ProducerField.SESSION.getAlternativeName(), "", jsonSession.getString(ProducerField.SESSION.getAlternativeName()));
-         Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", jsonSession.getString(ProducerField.CREATION_TIME.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()));
-         Assert.assertEquals(ProducerField.MESSAGE_SENT_SIZE.getName(), messagesSize, jsonSession.getInt(ProducerField.MESSAGE_SENT_SIZE.getName()));
-         Assert.assertEquals(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), JsonValue.NULL, jsonSession.get(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()));
+         assertNotEquals("", jsonSession.getString(ProducerField.ID.getName()), ProducerField.ID.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.NAME.getName()), ProducerField.NAME.getName());
+         assertNotEquals("", jsonSession.getString(ProducerField.SESSION.getAlternativeName()), ProducerField.SESSION.getAlternativeName());
+         assertNotEquals("", jsonSession.getString(ProducerField.CREATION_TIME.getName()), ProducerField.CREATION_TIME.getName());
+         assertEquals(numMessages, jsonSession.getInt(ProducerField.MESSAGE_SENT.getName()), ProducerField.MESSAGE_SENT.getName());
+         assertEquals(messagesSize, jsonSession.getInt(ProducerField.MESSAGE_SENT_SIZE.getName()), ProducerField.MESSAGE_SENT_SIZE.getName());
+         assertEquals(JsonValue.NULL, jsonSession.get(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()), ProducerField.LAST_PRODUCED_MESSAGE_ID.getName());
       }
    }
 
-   @Test
+   @TestTemplate
    public void testMemoryUsagePercentage() throws Exception {
       //messages size 100K
       final int MESSAGE_SIZE = 100000;
@@ -5636,8 +5636,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
       // check before adding messages
-      assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
-      assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+      assertEquals(0, serverControl.getAddressMemoryUsage(), "Memory Usage before adding messages");
+      assertEquals(0, serverControl.getAddressMemoryUsagePercentage(), "MemoryUsagePercentage");
 
       try (ServerLocator locator = createInVMNonHALocator();
            ClientSessionFactory csf = createSessionFactory(locator);
@@ -5649,18 +5649,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
 
          Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
-         Assert.assertFalse(serverQueue.isDurable());
+         assertFalse(serverQueue.isDurable());
          ClientProducer producer1 = session.createProducer(name1);
          sendMessagesWithPredefinedSize(30, session, producer1, MESSAGE_SIZE);
 
          //it is hard to predict an exact number so checking if it falls in a certain range: totalSizeOfMessageSent < X > totalSizeofMessageSent + 100k
-         assertTrue("Memory Usage within range ", ((30 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((30 * MESSAGE_SIZE) + 100000)));
+         assertTrue(((30 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((30 * MESSAGE_SIZE) + 100000)), "Memory Usage within range ");
          // no globalMaxSize set so it should return zero
-         assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+         assertEquals(0, serverControl.getAddressMemoryUsagePercentage(), "MemoryUsagePercentage");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testMemoryUsage() throws Exception {
       //messages size 100K
       final int MESSAGE_SIZE = 100000;
@@ -5674,8 +5674,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
       // check before adding messages
-      assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
-      assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+      assertEquals(0, serverControl.getAddressMemoryUsage(), "Memory Usage before adding messages");
+      assertEquals(0, serverControl.getAddressMemoryUsagePercentage(), "MemoryUsagePercentage");
 
       try (ServerLocator locator = createInVMNonHALocator();
            ClientSessionFactory csf = createSessionFactory(locator);
@@ -5689,7 +5689,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
 
          Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
-         Assert.assertFalse(serverQueue.isDurable());
+         assertFalse(serverQueue.isDurable());
 
          ClientProducer producer1 = session.createProducer(name1);
          ClientProducer producer2 = session.createProducer(name2);
@@ -5697,27 +5697,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sendMessagesWithPredefinedSize(10, session, producer2, MESSAGE_SIZE);
 
          //it is hard to predict an exact number so checking if it falls in a certain range: totalSizeOfMessageSent < X > totalSizeofMessageSent + 100k
-         assertTrue("Memory Usage within range ", ((20 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((20 * MESSAGE_SIZE) + 100000)));
-         assertTrue("MemoryUsagePercentage", (40 <= serverControl.getAddressMemoryUsagePercentage()) && (42 >= serverControl.getAddressMemoryUsagePercentage()));
+         assertTrue(((20 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((20 * MESSAGE_SIZE) + 100000)), "Memory Usage within range ");
+         assertTrue((40 <= serverControl.getAddressMemoryUsagePercentage()) && (42 >= serverControl.getAddressMemoryUsagePercentage()), "MemoryUsagePercentage");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testConnectorServiceManagement() throws Exception {
       ActiveMQServerControl managementControl = createManagementControl();
       managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
 
-      Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
+      assertEquals(1, server.getConnectorsService().getConnectors().size());
 
       managementControl.createConnectorService("myconn2", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
-      Assert.assertEquals(2, server.getConnectorsService().getConnectors().size());
+      assertEquals(2, server.getConnectorsService().getConnectors().size());
 
       managementControl.destroyConnectorService("myconn");
-      Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
-      Assert.assertEquals("myconn2", managementControl.getConnectorServices()[0]);
+      assertEquals(1, server.getConnectorsService().getConnectors().size());
+      assertEquals("myconn2", managementControl.getConnectorServices()[0]);
    }
 
-   @Test
+   @TestTemplate
    public void testCloseCOREclient() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -5741,13 +5741,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerSession ss = server.getSessions().iterator().next();
       ServerConsumer sc = ss.getServerConsumers().iterator().next();
 
-      Assert.assertFalse(COREclient.isClosed());
+      assertFalse(COREclient.isClosed());
       serverControl.closeConsumerWithID(((ClientSessionImpl)receiveClientSession).getName(), Long.toString(sc.sequentialID()));
       Wait.waitFor(() -> COREclient.isClosed());
-      Assert.assertTrue(COREclient.isClosed());
+      assertTrue(COREclient.isClosed());
    }
 
-   @Test
+   @TestTemplate
    public void testCloseJMSclient() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -5772,23 +5772,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          }
       }
 
-      Assert.assertFalse(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      assertFalse(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
       serverControl.closeConsumerWithID(sessionID, Long.toString(clientID));
       Wait.waitFor(() -> ((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
-      Assert.assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
    }
 
-   @Test
+   @TestTemplate
    public void testForceCloseSession() throws Exception {
       testForceCloseSession(false, false);
    }
 
-   @Test
+   @TestTemplate
    public void testForceCloseSessionWithError() throws Exception {
       testForceCloseSession(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testForceCloseSessionWithPendingStoreOperation() throws Exception {
       testForceCloseSession(false, true);
    }
@@ -5813,10 +5813,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
       final ClientConsumer clientConsumer = receiveClientSession.createConsumer(name);
 
-      Assert.assertEquals(1, server.getSessions().size());
+      assertEquals(1, server.getSessions().size());
 
       ServerSession serverSession = server.getSessions().iterator().next();
-      Assert.assertEquals(((ClientSessionImpl)receiveClientSession).getName(), serverSession.getName());
+      assertEquals(((ClientSessionImpl)receiveClientSession).getName(), serverSession.getName());
 
       if (error) {
          serverSession.getSessionContext().onError(0, "error");
@@ -5832,7 +5832,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Wait.assertTrue(() -> server.getSessions().size() == 0, 500);
    }
 
-   @Test
+   @TestTemplate
    public void testAddUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
@@ -5842,7 +5842,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testRemoveUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
@@ -5852,7 +5852,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testListUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
@@ -5862,7 +5862,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testResetUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
@@ -5872,12 +5872,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReplayWithoutDate() throws Exception {
       testReplaySimple(false);
    }
 
-   @Test
+   @TestTemplate
    public void testReplayWithDate() throws Exception {
       testReplaySimple(true);
    }
@@ -5897,12 +5897,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          connection.start();
          MessageConsumer consumer = session.createConsumer(jmsQueue);
-         Assert.assertNotNull(consumer.receive(5000));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(consumer.receive(5000));
+         assertNull(consumer.receiveNoWait());
 
          serverControl.replay(queue, queue, null);
-         Assert.assertNotNull(consumer.receive(5000));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(consumer.receive(5000));
+         assertNull(consumer.receiveNoWait());
 
          if (useDate) {
             serverControl.replay("dontexist", "dontexist", null); // just to force a move next file, and copy stuff into place
@@ -5917,30 +5917,30 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                producer.send(session.createTextMessage("after receiving"));
             }
             for (int i = 0; i < 100; i++) {
-               Assert.assertNotNull(consumer.receive());
+               assertNotNull(consumer.receive());
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             serverControl.replay(dateStart, dateEnd, queue, queue, null);
             for (int i = 0; i < 2; i++) { // replay of the replay will contain two messages
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("before", message.getText());
+               assertNotNull(message);
+               assertEquals("before", message.getText());
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          } else {
             serverControl.replay(queue, queue, null);
 
             // replay of the replay, there will be two messages
             for (int i = 0; i < 2; i++) {
-               Assert.assertNotNull(consumer.receive(5000));
+               assertNotNull(consumer.receive(5000));
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
       }
    }
 
 
-   @Test
+   @TestTemplate
    public void testReplayFilter() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String queue = "testQueue" + RandomUtil.randomString();
@@ -5961,21 +5961,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          connection.start();
          MessageConsumer consumer = session.createConsumer(jmsQueue);
          for (int i = 0; i < 10; i++) {
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          serverControl.replay(queue, queue, "i=5");
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(5, message.getIntProperty("i"));
-         Assert.assertEquals("message 5", message.getText());
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(message);
+         assertEquals(5, message.getIntProperty("i"));
+         assertEquals("message 5", message.getText());
+         assertNull(consumer.receiveNoWait());
       }
    }
 
 
-   @Test
+   @TestTemplate
    public void testBrokerConnections() throws Exception {
       class Fake implements BrokerConnection {
          String name;
@@ -5984,6 +5984,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Fake(String name) {
             this.name = name;
          }
+
          @Override
          public String getName() {
             return name;
@@ -6021,46 +6022,46 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
          String result = serverControl.listBrokerConnections();
-         Assert.assertTrue(result.contains(fake.getName()));
+         assertTrue(result.contains(fake.getName()));
          serverControl.startBrokerConnection(fake.getName());
-         Assert.assertTrue(fake.isStarted());
+         assertTrue(fake.isStarted());
          serverControl.stopBrokerConnection(fake.getName());
-         Assert.assertFalse(fake.isStarted());
+         assertFalse(fake.isStarted());
       } catch (Exception expected) {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testManualStopStartEmbeddedWebServer() throws Exception {
       FakeWebServerComponent fake = new FakeWebServerComponent();
       server.addExternalComponent(fake, true);
-      Assert.assertTrue(fake.isStarted());
+      assertTrue(fake.isStarted());
 
       ActiveMQServerControl serverControl = createManagementControl();
       serverControl.stopEmbeddedWebServer();
-      Assert.assertFalse(fake.isStarted());
+      assertFalse(fake.isStarted());
       serverControl.startEmbeddedWebServer();
-      Assert.assertTrue(fake.isStarted());
+      assertTrue(fake.isStarted());
    }
 
-   @Test
+   @TestTemplate
    public void testRestartEmbeddedWebServer() throws Exception {
       FakeWebServerComponent fake = new FakeWebServerComponent();
       server.addExternalComponent(fake, true);
-      Assert.assertTrue(fake.isStarted());
+      assertTrue(fake.isStarted());
 
       ActiveMQServerControl serverControl = createManagementControl();
       long time = System.currentTimeMillis();
-      Assert.assertTrue(time >= fake.getStartTime());
-      Assert.assertTrue(time > fake.getStopTime());
+      assertTrue(time >= fake.getStartTime());
+      assertTrue(time > fake.getStopTime());
       Thread.sleep(5);
       serverControl.restartEmbeddedWebServer();
-      Assert.assertTrue(serverControl.isEmbeddedWebServerStarted());
-      Assert.assertTrue(time < fake.getStartTime());
-      Assert.assertTrue(time < fake.getStopTime());
+      assertTrue(serverControl.isEmbeddedWebServerStarted());
+      assertTrue(time < fake.getStartTime());
+      assertTrue(time < fake.getStopTime());
    }
 
-   @Test
+   @TestTemplate
    public void testRestartEmbeddedWebServerTimeout() throws Exception {
       final CountDownLatch startDelay = new CountDownLatch(1);
       FakeWebServerComponent fake = new FakeWebServerComponent(startDelay);
@@ -6078,7 +6079,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Wait.waitFor(() -> fake.isStarted());
    }
 
-   @Test
+   @TestTemplate
    public void testRestartEmbeddedWebServerException() throws Exception {
       final String message = RandomUtil.randomString();
       final Exception startException = new ActiveMQIllegalStateException(message);
@@ -6090,7 +6091,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          serverControl.restartEmbeddedWebServer(1000);
          fail();
       } catch (ActiveMQException e) {
-         assertSame("Unexpected cause", startException, e.getCause());
+         assertSame(startException, e.getCause(), "Unexpected cause");
       }
    }
 
@@ -6207,7 +6208,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -34,10 +37,9 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsume
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueImplTest extends ActiveMQTestBase {
 
@@ -50,7 +52,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    private ExecutorService executor;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -59,7 +61,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       scheduledExecutor.shutdownNow();
       executor.shutdown();
@@ -193,31 +195,31 @@ public class QueueImplTest extends ActiveMQTestBase {
       consumer.getReferences().clear();
 
       MessageReference ref = consumer.waitForNextReference(QueueImplTest.TIMEOUT);
-      Assert.assertEquals(ref7, ref);
+      assertEquals(ref7, ref);
       long now2 = System.currentTimeMillis();
-      Assert.assertTrue(now2 - now >= 300);
+      assertTrue(now2 - now >= 300);
 
       ref = consumer.waitForNextReference(QueueImplTest.TIMEOUT);
-      Assert.assertEquals(ref6, ref);
+      assertEquals(ref6, ref);
       now2 = System.currentTimeMillis();
-      Assert.assertTrue(now2 - now >= 400);
+      assertTrue(now2 - now >= 400);
 
       ref = consumer.waitForNextReference(QueueImplTest.TIMEOUT);
-      Assert.assertEquals(ref5, ref);
+      assertEquals(ref5, ref);
       now2 = System.currentTimeMillis();
-      Assert.assertTrue(now2 - now >= 500);
+      assertTrue(now2 - now >= 500);
 
       ref = consumer.waitForNextReference(QueueImplTest.TIMEOUT);
-      Assert.assertEquals(ref8, ref);
+      assertEquals(ref8, ref);
       now2 = System.currentTimeMillis();
-      Assert.assertTrue(now2 - now >= 600);
+      assertTrue(now2 - now >= 600);
 
       ref = consumer.waitForNextReference(QueueImplTest.TIMEOUT);
-      Assert.assertEquals(ref1, ref);
+      assertEquals(ref1, ref);
       now2 = System.currentTimeMillis();
-      Assert.assertTrue(now2 - now >= 700);
+      assertTrue(now2 - now >= 700);
 
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertTrue(consumer.getReferences().isEmpty());
    }
 
    @Test
@@ -242,7 +244,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addHead(messageReference, false);
 
       boolean gotLatch = countDownLatch.await(3000, TimeUnit.MILLISECONDS);
-      Assert.assertTrue(gotLatch);
+      assertTrue(gotLatch);
    }
 
 }

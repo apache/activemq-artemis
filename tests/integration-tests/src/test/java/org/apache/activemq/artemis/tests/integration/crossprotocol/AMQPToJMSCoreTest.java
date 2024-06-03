@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -40,10 +43,9 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.Header;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AMQPToJMSCoreTest extends ActiveMQTestBase {
 
@@ -52,7 +54,7 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
    private SimpleString coreQueue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -69,7 +71,7 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       server.stop();
       super.tearDown();
@@ -99,9 +101,9 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
          connection.start();
          Message message = consumer.receive(2000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          ActiveMQDestination jmsDestination = (ActiveMQDestination) message.getJMSDestination();
-         Assert.assertEquals(queueName, jmsDestination.getAddress());
+         assertEquals(queueName, jmsDestination.getAddress());
       } finally {
          if (connection != null) {
             connection.close();

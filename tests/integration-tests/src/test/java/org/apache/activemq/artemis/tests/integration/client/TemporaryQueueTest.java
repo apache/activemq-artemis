@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -54,10 +62,9 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
 
@@ -181,7 +188,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session.close();
       sf.close();
       // wait for the closing listeners to be fired
-      assertTrue("connection close listeners not fired", latch.await(2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS), "connection close listeners not fired");
 
       sf = addSessionFactory(createSessionFactory(locator));
       session = sf.createSession(false, true, true);
@@ -484,7 +491,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session = sf.createSession(false, true, true);
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
-      assertTrue("server has not received any ping from the client", pingOnServerLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS));
+      assertTrue(pingOnServerLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS), "server has not received any ping from the client");
       assertEquals(1, server.getConnectionCount());
 
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
@@ -499,7 +506,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
       // let some time for the server to clean the connections
-      assertTrue("server has not closed the connection", serverCloseLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval() + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      assertTrue(serverCloseLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval() + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS), "server has not closed the connection");
 
       // The next getCount will be asynchronously done at the end of failure. We will wait some time until it has reached there.
       for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && server.getConnectionCount() > 0; ) {

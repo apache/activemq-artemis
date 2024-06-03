@@ -25,19 +25,20 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AddressPauseJournalCompatibilityTest extends VersionedBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
@@ -61,13 +62,13 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void removeFolder() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
    }
 
-   @After
+   @AfterEach
    public void tearDown() {
       try {
          stopServer(serverClassloader);
@@ -79,30 +80,30 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveTopic() throws Throwable {
       internal("topic");
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveQueue() throws Throwable {
       internal("queue");
    }
 
    public void internal(String destinationName) throws Throwable {
       setVariable(senderClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), senderClassloader, "journalTest", null, true);
+      startServer(serverFolder, senderClassloader, "journalTest", null, true);
       evaluate(senderClassloader, "addresspause/beforestop.groovy", destinationName);
       stopServer(senderClassloader);
 
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
       evaluate(receiverClassloader, "addresspause/afterstop.groovy", destinationName);
       stopServer(receiverClassloader);
 
       // on a third try, we run the beforestop again, as the address should been in regular conditions when aftertop.groovy is finished
       setVariable(receiverClassloader, "persistent", true);
-      startServer(serverFolder.getRoot(), receiverClassloader, "journalTest", null, false);
+      startServer(serverFolder, receiverClassloader, "journalTest", null, false);
       evaluate(receiverClassloader, "addresspause/beforestop.groovy", destinationName);
       stopServer(receiverClassloader);
    }

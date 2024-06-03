@@ -16,42 +16,53 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPContentTypeSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInvalidContentTypeException;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
 
 public class AMQPContentTypeSupportTest {
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeWithOnlyType() throws Exception {
-      doParseContentTypeTestImpl("type", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("type", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeEndsWithSlash() throws Exception {
-      doParseContentTypeTestImpl("type/", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("type/", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeMissingSubtype() throws Exception {
-      doParseContentTypeTestImpl("type/;", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("type/;", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeEmptyString() throws Exception {
-      doParseContentTypeTestImpl("", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeNullString() throws Exception {
-      doParseContentTypeTestImpl(null, null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl(null, null);
+      });
    }
 
    @Test
@@ -95,24 +106,32 @@ public class AMQPContentTypeSupportTest {
       doParseContentTypeTestImpl("text/plain;charset=\"us-ascii\"", StandardCharsets.US_ASCII);
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeWithCharsetQuotedEmpty() throws Exception {
-      doParseContentTypeTestImpl("text/plain;charset=\"\"", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("text/plain;charset=\"\"", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeWithCharsetQuoteNotClosed() throws Exception {
-      doParseContentTypeTestImpl("text/plain;charset=\"unclosed", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("text/plain;charset=\"unclosed", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeWithCharsetQuoteNotClosedEmpty() throws Exception {
-      doParseContentTypeTestImpl("text/plain;charset=\"", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("text/plain;charset=\"", null);
+      });
    }
 
-   @Test(expected = ActiveMQAMQPInvalidContentTypeException.class)
+   @Test
    public void testParseContentTypeWithNoCharsetValue() throws Exception {
-      doParseContentTypeTestImpl("text/plain;charset=", null);
+      assertThrows(ActiveMQAMQPInvalidContentTypeException.class, () -> {
+         doParseContentTypeTestImpl("text/plain;charset=", null);
+      });
    }
 
    @Test
@@ -224,9 +243,9 @@ public class AMQPContentTypeSupportTest {
    private void doParseContentTypeTestImpl(String contentType, Charset expected) throws ActiveMQAMQPInvalidContentTypeException {
       Charset charset = AMQPContentTypeSupport.parseContentTypeForTextualCharset(contentType);
       if (expected == null) {
-         assertNull("Expected no charset, but got:" + charset, charset);
+         assertNull(charset, "Expected no charset, but got:" + charset);
       } else {
-         assertEquals("Charset not as expected", expected, charset);
+         assertEquals(expected, charset, "Charset not as expected");
       }
    }
 }

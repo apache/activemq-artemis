@@ -23,6 +23,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.junit.jupiter.api.Test;
 
 public class PreACKPerf extends AbstractSendReceivePerfTest {
 
@@ -74,4 +75,8 @@ public class PreACKPerf extends AbstractSendReceivePerfTest {
 
    }
 
+   @Test
+   public void testSendReceive() throws Exception {
+      super.doSendReceiveTestImpl();
+   }
 }

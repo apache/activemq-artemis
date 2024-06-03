@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.db.invalid;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.db.common.DBTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +39,10 @@ public class JdbcStartupInvalidTest extends DBTestBase {
       Process p = startServer(SERVER_NAME, 0, 0);
       try {
          p.waitFor(20, TimeUnit.SECONDS);
-         Assert.assertFalse(p.isAlive());
+         assertFalse(p.isAlive());
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
    }
 }

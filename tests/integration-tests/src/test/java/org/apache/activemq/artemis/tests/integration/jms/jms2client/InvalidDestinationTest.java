@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.InvalidDestinationException;
@@ -31,8 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InvalidDestinationTest extends JMSTestBase {
 
@@ -40,7 +42,7 @@ public class InvalidDestinationTest extends JMSTestBase {
    private Queue queue1;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       context = createContext();

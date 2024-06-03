@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.util.Arrays;
@@ -45,21 +51,21 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
@@ -79,7 +85,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    private AssertionLoggerHandler loggerHandler;
 
-   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}, generateWarning={2}, useKeystoreAlias={3}")
+   @Parameters(name = "storeProvider={0}, storeType={1}, generateWarning={2}, useKeystoreAlias={3}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{
          {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE, false, false},
@@ -107,25 +113,28 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore." + suffix;
    }
 
-   @Before
-   public void validateLogging() {
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
       loggerHandler = new AssertionLoggerHandler();
+
+      super.setUp();
    }
 
-   @After
+   @AfterEach
    public void afterValidateLogging() throws Exception {
       try {
          if (this.generateWarning) {
-            Assert.assertTrue(loggerHandler.findText("AMQ212080"));
+            assertTrue(loggerHandler.findText("AMQ212080"));
          } else {
-            Assert.assertFalse(loggerHandler.findText("AMQ212080"));
+            assertFalse(loggerHandler.findText("AMQ212080"));
          }
       } finally {
          loggerHandler.close();
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSL() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -149,11 +158,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithSNI() throws Exception {
       createCustomSslServer("myhost\\.com");
       String text = RandomUtil.randomString();
@@ -178,11 +187,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithSNINegative() throws Exception {
       createCustomSslServer("myhost\\.com");
 
@@ -202,7 +211,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithSNINegativeAndURL() throws Exception {
       createCustomSslServer("myhost\\.com");
 
@@ -222,7 +231,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithSNIOnlyOnTheClient() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -247,11 +256,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithSNIOnlyOnTheBroker() throws Exception {
       createCustomSslServer("myhost\\.com");
       String text = RandomUtil.randomString();
@@ -275,11 +284,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithTrustManagerPlugin() throws Exception {
       createCustomSslServer(null, null, false, null, TestTrustManagerFactoryPlugin.class.getName());
       String text = RandomUtil.randomString();
@@ -306,11 +315,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithURL() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -336,11 +345,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithURLandMaskedPasswordProperty() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -370,11 +379,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLwithURLandMaskedPasswordENCSyntax() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -406,11 +415,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLUsingDefaultSslContext() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -439,11 +448,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLVerifyHost() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -468,11 +477,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLVerifyHostNegative() throws Exception {
       createCustomSslServer(true);
       String text = RandomUtil.randomString();
@@ -494,7 +503,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLReloaded() throws Exception {
       createCustomSslServer();
       server.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(false));
@@ -549,18 +558,18 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
       session.start();
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
       consumer.close();
 
       // use the existing connection to prove it wasn't lost when the acceptor was reloaded
       existingSession.start();
       m = existingConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithBadClientCipherSuite() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -573,13 +582,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithBadServerCipherSuite() throws Exception {
       createCustomSslServer("myBadCipherSuite", null);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -591,13 +600,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithMismatchedCipherSuites() throws Exception {
       createCustomSslServer(getEnabledCipherSuites()[0], "TLSv1.2");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -611,13 +620,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithBadClientProtocol() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -630,13 +639,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithBadServerProtocol() throws Exception {
       createCustomSslServer(null, "myBadProtocol");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -648,13 +657,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithMismatchedProtocols() throws Exception {
       createCustomSslServer(null, "TLSv1");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -667,13 +676,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    // http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html
    public void testPOODLE() throws Exception {
       createCustomSslServer(null, "SSLv3");
@@ -687,13 +696,13 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException e) {
-         Assert.assertTrue(true);
+         assertTrue(true);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithGoodClientCipherSuite() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -711,7 +720,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       try {
          sf = createSessionFactory(locator);
       } catch (ActiveMQNotConnectedException e) {
-         Assert.fail();
+         fail();
       }
 
       ClientSession session = sf.createSession(false, true, true);
@@ -725,11 +734,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithGoodServerCipherSuite() throws Exception {
       createCustomSslServer(getSuitableCipherSuite(), null);
       String text = RandomUtil.randomString();
@@ -746,7 +755,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       try {
          sf = createSessionFactory(locator);
       } catch (ActiveMQNotConnectedException e) {
-         Assert.fail();
+         fail();
       }
 
       ClientSession session = sf.createSession(false, true, true);
@@ -760,11 +769,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithGoodClientProtocol() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
@@ -780,9 +789,9 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ClientSessionFactory sf = null;
       try {
          sf = createSessionFactory(locator);
-         Assert.assertTrue(true);
+         assertTrue(true);
       } catch (ActiveMQNotConnectedException e) {
-         Assert.fail();
+         fail();
       }
 
       ClientSession session = sf.createSession(false, true, true);
@@ -796,11 +805,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithGoodServerProtocol() throws Exception {
       createCustomSslServer(null, "TLSv1.2");
       String text = RandomUtil.randomString();
@@ -815,9 +824,9 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ClientSessionFactory sf = null;
       try {
          sf = createSessionFactory(locator);
-         Assert.assertTrue(true);
+         assertTrue(true);
       } catch (ActiveMQNotConnectedException e) {
-         Assert.fail();
+         fail();
       }
 
       ClientSession session = sf.createSession(false, true, true);
@@ -831,8 +840,8 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
    public String getSuitableCipherSuite() throws Exception {
@@ -880,7 +889,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       return engine.getEnabledCipherSuites();
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithoutTrustStore() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -888,7 +897,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -896,7 +905,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithIncorrectTrustStorePassword() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -908,7 +917,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -916,7 +925,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOneWaySSLWithIncorrectTrustStorePath() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -926,7 +935,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -935,7 +944,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    // see https://jira.jboss.org/jira/browse/HORNETQ-234
-   @Test
+   @TestTemplate
    public void testPlainConnectionToSSLEndpoint() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, false);
@@ -951,12 +960,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
-   }
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
    }
 
    private void createCustomSslServer() throws Exception {

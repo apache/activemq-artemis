@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.largemessage;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -34,9 +38,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue1 = createQueue("queue1");
@@ -90,13 +93,13 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
       for (int i = 0; i < 1024 * 1024; i += 1024) {
          int numberOfBytes = rm.readBytes(data);
-         Assert.assertEquals(1024, numberOfBytes);
+         assertEquals(1024, numberOfBytes);
          for (int j = 0; j < 1024; j++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i + j), data[j]);
+            assertEquals(ActiveMQTestBase.getSamplebyte(i + j), data[j]);
          }
       }
 
-      Assert.assertNotNull(rm);
+      assertNotNull(rm);
    }
 
    @Test
@@ -128,12 +131,12 @@ public class JMSLargeMessageTest extends JMSTestBase {
       byte[] data = new byte[1024];
 
       int numberOfBytes = rm.readBytes(data);
-      Assert.assertEquals(10, numberOfBytes);
+      assertEquals(10, numberOfBytes);
       for (int j = 0; j < numberOfBytes; j++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), data[j]);
+         assertEquals(ActiveMQTestBase.getSamplebyte(j), data[j]);
       }
 
-      Assert.assertNotNull(rm);
+      assertNotNull(rm);
    }
 
    @Test
@@ -146,7 +149,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
       try {
          msg.setObjectProperty("JMS_AMQ_InputStream", ActiveMQTestBase.createFakeLargeStream(10));
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (JMSException e) {
       }
 
@@ -176,13 +179,13 @@ public class JMSLargeMessageTest extends JMSTestBase {
             }
 
          });
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (JMSException e) {
       }
 
-      Assert.assertEquals("hello", rm.getText());
+      assertEquals("hello", rm.getText());
 
-      Assert.assertNotNull(rm);
+      assertNotNull(rm);
 
    }
 
@@ -213,7 +216,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
       conn.start();
 
       BytesMessage rm = (BytesMessage) cons.receive(10000);
-      Assert.assertNotNull(rm);
+      assertNotNull(rm);
 
       final AtomicLong numberOfBytes = new AtomicLong(0);
 
@@ -236,15 +239,15 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
       try {
          rm.setObjectProperty("JMS_AMQ_InputStream", ActiveMQTestBase.createFakeLargeStream(100));
-         Assert.fail("Exception expected!");
+         fail("Exception expected!");
       } catch (MessageNotWriteableException expected) {
       }
 
       rm.setObjectProperty("JMS_AMQ_SaveStream", out);
 
-      Assert.assertEquals(msgSize, numberOfBytes.get());
+      assertEquals(msgSize, numberOfBytes.get());
 
-      Assert.assertEquals(0, numberOfErrors.get());
+      assertEquals(0, numberOfErrors.get());
 
    }
 
@@ -286,10 +289,10 @@ public class JMSLargeMessageTest extends JMSTestBase {
       conn.start();
 
       TextMessage rm = (TextMessage) cons.receive(10000);
-      Assert.assertNotNull(rm);
+      assertNotNull(rm);
 
       String str = rm.getText();
-      Assert.assertEquals(originalString, str);
+      assertEquals(originalString, str);
       conn.close();
       validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
 

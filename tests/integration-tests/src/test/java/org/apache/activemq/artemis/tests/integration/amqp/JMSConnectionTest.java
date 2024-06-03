@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,11 +31,13 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class JMSConnectionTest extends JMSClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConnection() throws Exception {
       Connection connection = createConnection();
 
@@ -56,7 +62,8 @@ public class JMSConnectionTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testClientIDsAreExclusive() throws Exception {
       Connection testConn1 = createConnection(false);
       Connection testConn2 = createConnection(false);
@@ -92,7 +99,8 @@ public class JMSConnectionTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testParallelConnections() throws Exception {
       final int numThreads = 40;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
@@ -102,7 +110,7 @@ public class JMSConnectionTest extends JMSClientTestSupport {
             public void run() {
 
                try {
-                  Connection connection = createConnection(fullUser, fullPass);
+                  Connection connection = createConnection(fullPass, fullUser);
                   connection.start();
                   connection.close();
                } catch (JMSException e) {
@@ -113,6 +121,6 @@ public class JMSConnectionTest extends JMSClientTestSupport {
       }
 
       executorService.shutdown();
-      assertTrue("executor done on time", executorService.awaitTermination(30, TimeUnit.SECONDS));
+      assertTrue(executorService.awaitTermination(30, TimeUnit.SECONDS), "executor done on time");
    }
 }

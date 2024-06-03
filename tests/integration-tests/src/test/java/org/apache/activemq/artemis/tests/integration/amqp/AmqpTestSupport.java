@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 /**
  * Base test support class providing client support methods to aid in
@@ -68,7 +68,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
 
    protected MBeanServer mBeanServer = createMBeanServer();
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       for (AmqpConnection conn : connections) {

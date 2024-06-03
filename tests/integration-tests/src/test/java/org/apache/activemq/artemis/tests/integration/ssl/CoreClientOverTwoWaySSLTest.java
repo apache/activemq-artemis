@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,23 +49,22 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import io.netty.handler.ssl.SslHandler;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}, clientSSLProvider={2}, serverSSLProvider={3}")
+   @Parameters(name = "storeProvider={0}, storeType={1}, clientSSLProvider={2}, serverSSLProvider={3}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{
          {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE, TransportConstants.OPENSSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER},
@@ -130,19 +133,19 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
                if (connection.getTransportConnection() instanceof NettyConnection) {
                   NettyConnection nettyConnection = (NettyConnection) connection.getTransportConnection();
                   SslHandler sslHandler = (SslHandler) nettyConnection.getChannel().pipeline().get("ssl");
-                  Assert.assertNotNull(sslHandler);
-                  Assert.assertNotNull(sslHandler.engine().getSession());
-                  Assert.assertNotNull(sslHandler.engine().getSession().getPeerCertificates());
+                  assertNotNull(sslHandler);
+                  assertNotNull(sslHandler.engine().getSession());
+                  assertNotNull(sslHandler.engine().getSession().getPeerCertificates());
                }
             } catch (SSLPeerUnverifiedException e) {
-               Assert.fail(e.getMessage());
+               fail(e.getMessage());
             }
          }
          return true;
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSL() throws Exception {
       String text = RandomUtil.randomString();
 
@@ -174,11 +177,11 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLChooseAliasPositive() throws Exception {
       String text = RandomUtil.randomString();
 
@@ -213,11 +216,11 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLChooseAliasNegative() throws Exception {
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -246,7 +249,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLVerifyClientHost() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.VERIFY_HOST_PROP_NAME, true);
@@ -285,11 +288,11 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLVerifyClientHostNegative() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.VERIFY_HOST_PROP_NAME, true);
@@ -320,7 +323,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLVerifyClientTrustAllTrue() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
@@ -345,7 +348,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       sf.close();
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLVerifyClientTrustAllTrueByURI() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
@@ -376,7 +379,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       sf.close();
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLVerifyClientTrustAllFalse() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
@@ -404,7 +407,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTwoWaySSLWithoutClientKeyStore() throws Exception {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
@@ -418,18 +421,18 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       locator.setCallTimeout(1000);
       try {
          createSessionFactory(locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQNotConnectedException se) {
          //ok
       } catch (ActiveMQConnectionTimedOutException te) {
          //ok
       } catch (ActiveMQException e) {
-         Assert.fail("Invalid Exception type:" + e.getType());
+         fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Map<String, Object> params = new HashMap<>();

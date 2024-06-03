@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,17 +32,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(0);
 
    @Override
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
@@ -66,15 +63,15 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
    }
 
    @Override
-   @RetryMethod(retries = 2)
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
    public void testReplicatedFailback() throws Exception {
       super.testReplicatedFailback();
    }
 
    @Override
-   @RetryMethod(retries = 2)
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
    public void testFailoverOnInitialConnection() throws Exception {
       super.testFailoverOnInitialConnection();
    }
@@ -99,7 +96,7 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
       for (int j = 0; j < iterations; j++) {
          System.err.println("#iteration " + j);
          queue.getPageSubscription().getPagingStore().startPaging();
-         Assert.assertNotNull(queue);
+         assertNotNull(queue);
 
          for (int i = 0; i < numMessages; i++) {
             // some are durable, some are not!

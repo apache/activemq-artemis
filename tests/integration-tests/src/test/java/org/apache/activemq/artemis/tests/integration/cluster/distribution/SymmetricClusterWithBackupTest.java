@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
 

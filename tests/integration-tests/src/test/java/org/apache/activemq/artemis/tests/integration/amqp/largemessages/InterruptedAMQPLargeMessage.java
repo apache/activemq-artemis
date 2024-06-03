@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,8 +44,7 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Data;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +123,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
 
       Queue serverQueue = server.locateQueue(getQueueName());
 
-      Assert.assertTrue(serverQueue.getMessageCount() >= MINIMAL_SEND * NUMBER_OF_THREADS);
+      assertTrue(serverQueue.getMessageCount() >= MINIMAL_SEND * NUMBER_OF_THREADS);
 
       LinkedListIterator<MessageReference> browserIterator = serverQueue.browserIterator();
 
@@ -127,8 +131,8 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
          MessageReference ref = browserIterator.next();
          Message message = ref.getMessage();
 
-         Assert.assertNotNull(message);
-         Assert.assertTrue(message instanceof LargeServerMessage);
+         assertNotNull(message);
+         assertTrue(message instanceof LargeServerMessage);
       }
       browserIterator.close();
 
@@ -147,7 +151,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
       for (int m = 0; m < messageCount; m++) {
          receiver.flow(1);
          AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.accept(true);
          received++;
 
@@ -155,14 +159,14 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
          Data data = (Data)message.getWrappedMessage().getBody();
          byte[] byteArray = data.getValue().getArray();
 
-         Assert.assertEquals(MESSAGE_SIZE, byteArray.length);
+         assertEquals(MESSAGE_SIZE, byteArray.length);
          for (int i = 0; i < byteArray.length; i++) {
-            Assert.assertEquals((byte)'z', byteArray[i]);
+            assertEquals((byte)'z', byteArray[i]);
          }
       }
 
 
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       validateNoFilesOnLargeDir();
    }

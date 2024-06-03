@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,8 +35,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PagedSNFTopicDistributionTest extends ClusterTestBase {
 
@@ -105,9 +107,9 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
 
       // verifying if everything is actually paged, nothing should be routed on the journal
       HashMap<Integer, AtomicInteger> counters =  countJournal(servers[0].getConfiguration());
-      Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_REF, counters));
-      Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_MESSAGE, counters));
-      Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters));
+      assertEquals(0, getCounter(JournalRecordIds.ADD_REF, counters), "There are routed messages on the journal");
+      assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE, counters), "There are routed messages on the journal");
+      assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters), "There are routed messages on the journal");
 
       // consume remotely on server1
       try (Connection connection = factoryServer1.createConnection()) {
@@ -118,8 +120,8 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
          connection.start();
          for (int i = 0; i < nmessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("msg " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("msg " + i, message.getText());
          }
       }
 
@@ -132,8 +134,8 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
          connection.start();
          for (int i = 0; i < nmessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("msg " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("msg " + i, message.getText());
          }
       }
 

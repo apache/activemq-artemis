@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
@@ -24,7 +30,8 @@ import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttUnsubAck;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * The broker doesn't send any "Reason String" or "User Property" in the UNSUBACK packet for any reason. Therefore, these are not tested here:
@@ -42,7 +49,8 @@ public class UnsubAckTests extends MQTT5TestSupport {
     * [MQTT-3.11.3-2] The Server sending the UNSUBACK packet MUST use one of the UNSUBSCRIBE Reason Code values for each
     * Topic Filter received.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testUnsubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 10;
       final String TOPIC = RandomUtil.randomString();

@@ -16,9 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -28,28 +33,29 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
 
-   @Parameterized.Parameter()
+   @Parameter(index = 0)
    public boolean useModified;
 
-   @Parameterized.Parameter(1)
+   @Parameter(index = 1)
    public Symbol[] outcomes;
 
-   @Parameterized.Parameter(2)
+   @Parameter(index = 2)
    public String expectedMessage;
 
-   @Parameterized.Parameters(name = "useModified={0}")
+   @Parameters(name = "useModified={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
             {true, new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL}, "failure at remote"},
@@ -72,8 +78,8 @@ public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
       params.put("amqpUseModifiedForTransientDeliveryErrors", useModified);
    }
 
-
-   @Test(timeout = 10_000)
+   @TestTemplate
+   @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
    public void testAddressFullDisposition() throws Exception {
       AmqpClient client = createAmqpClient(getBrokerAmqpConnectionURI());
       AmqpConnection connection = client.connect();
@@ -89,13 +95,13 @@ public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
                sender.send(message);
             } catch (IOException e) {
                rejected = true;
-               assertTrue(String.format("Unexpected message expected %s to contain %s", e.getMessage(), expectedMessage),
-                          e.getMessage().contains(expectedMessage));
+               assertTrue(e.getMessage().contains(expectedMessage),
+                          String.format("Unexpected message expected %s to contain %s", e.getMessage(), expectedMessage));
                break;
             }
          }
 
-         assertTrue("Expected messages to be refused by broker", rejected);
+         assertTrue(rejected, "Expected messages to be refused by broker");
       } finally {
          connection.close();
       }

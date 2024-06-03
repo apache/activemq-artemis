@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -28,15 +31,15 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BackupAuthenticationTest extends FailoverTestBase {
 
    private static CountDownLatch latch;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       latch = new CountDownLatch(1);
@@ -56,7 +59,7 @@ public class BackupAuthenticationTest extends FailoverTestBase {
        * live.
        */
       Wait.waitFor(() -> !backupServer.isStarted());
-      assertFalse("backup should have stopped", backupServer.isStarted());
+      assertFalse(backupServer.isStarted(), "backup should have stopped");
       Wait.assertFalse(fakeServiceComponent::isStarted);
       backupServer.stop();
       primaryServer.stop();

@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class FileFactoryTestBase extends ActiveMQTestBase {
 
@@ -31,7 +32,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase {
    protected SequentialFileFactory factory;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -53,7 +54,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase {
 
       int bytesRead = file.read(bb);
 
-      Assert.assertEquals(size, bytesRead);
+      assertEquals(size, bytesRead);
 
       bb.rewind();
 
@@ -63,7 +64,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < size; i++) {
          // log.debug(" i is {}", i);
-         Assert.assertEquals(0, bytes[i]);
+         assertEquals(0, bytes[i]);
       }
 
    }

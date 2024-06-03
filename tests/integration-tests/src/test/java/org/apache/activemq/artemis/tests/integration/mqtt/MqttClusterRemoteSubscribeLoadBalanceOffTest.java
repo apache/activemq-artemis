@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -30,7 +32,7 @@ import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MqttClusterRemoteSubscribeLoadBalanceOffTest extends ClusterTestBase {
 
@@ -57,8 +59,8 @@ public class MqttClusterRemoteSubscribeLoadBalanceOffTest extends ClusterTestBas
       final BlockingConnection connection1 = retrieveMQTTConnection("tcp://localhost:61616", clientId1);
       final BlockingConnection connection2 = retrieveMQTTConnection("tcp://localhost:61617", clientId2);
 
-      assertTrue("Should be connected", Wait.waitFor(() -> connection1.isConnected(), 5000, 100));
-      assertTrue("Should be connected", Wait.waitFor(() -> connection2.isConnected(), 5000, 100));
+      assertTrue(Wait.waitFor(() -> connection1.isConnected(), 5000, 100), "Should be connected");
+      assertTrue(Wait.waitFor(() -> connection2.isConnected(), 5000, 100), "Should be connected");
 
       waitForTopology(servers[0], "cluster0", 2, 5000);
       waitForTopology(servers[1], "cluster1", 2, 5000);

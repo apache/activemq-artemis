@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.lang.management.ManagementFactory;
@@ -43,8 +47,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MQTTRedirectTest extends RoutingTestBase {
 
@@ -77,8 +80,8 @@ public class MQTTRedirectTest extends RoutingTestBase {
       QueueControl queueControl1 = (QueueControl)getServer(1).getManagementService()
          .getResource(ResourceNames.QUEUE + topicName);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages());
+      assertEquals(0, queueControl1.countMessages());
 
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
@@ -88,9 +91,9 @@ public class MQTTRedirectTest extends RoutingTestBase {
       MqttClient client0 = new MqttClient("tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_PORT, "TEST", new MemoryPersistence());
       try {
          client0.connect(connOpts);
-         Assert.fail();
+         fail();
       } catch (MqttException e) {
-         Assert.assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
+         assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
       }
       client0.close();
 
@@ -111,8 +114,8 @@ public class MQTTRedirectTest extends RoutingTestBase {
       MqttClient client1 = new MqttClient("tcp://" + host + ":" + port, "TEST", new MemoryPersistence());
       client1.connect(connOpts);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages());
+      assertEquals(0, queueControl1.countMessages());
 
       client1.subscribe(topicName, (s, mqttMessage) -> {
          messages.add(mqttMessage);
@@ -121,13 +124,13 @@ public class MQTTRedirectTest extends RoutingTestBase {
 
       client1.publish(topicName, new MqttMessage("TEST".getBytes()));
 
-      Assert.assertTrue(latch.await(3000, TimeUnit.MILLISECONDS));
-      Assert.assertEquals("TEST", new String(messages.get(0).getPayload()));
+      assertTrue(latch.await(3000, TimeUnit.MILLISECONDS));
+      assertEquals("TEST", new String(messages.get(0).getPayload()));
 
       client1.disconnect();
       client1.close();
 
-      Assert.assertEquals(0, queueControl0.countMessages());
+      assertEquals(0, queueControl0.countMessages());
       Wait.assertEquals(0, (Wait.LongCondition) queueControl1::countMessages);
    }
 
@@ -150,7 +153,7 @@ public class MQTTRedirectTest extends RoutingTestBase {
          client0.connect(connOpts);
          fail("Expect to be rejected as not in role b");
       } catch (MqttException e) {
-         Assert.assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
+         assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
       }
       client0.close();
 

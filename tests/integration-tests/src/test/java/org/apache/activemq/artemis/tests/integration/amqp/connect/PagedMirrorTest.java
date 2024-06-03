@@ -17,6 +17,12 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -36,9 +42,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PagedMirrorTest extends ActiveMQTestBase {
 
@@ -46,7 +51,7 @@ public class PagedMirrorTest extends ActiveMQTestBase {
 
    ActiveMQServer server2;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -79,13 +84,13 @@ public class PagedMirrorTest extends ActiveMQTestBase {
       Wait.waitFor(() -> server2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other") != null);
 
       org.apache.activemq.artemis.core.server.Queue snf1 = server2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other");
-      Assert.assertNotNull(snf1);
+      assertNotNull(snf1);
 
       org.apache.activemq.artemis.core.server.Queue snf2 = server1.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other");
-      Assert.assertNotNull(snf2);
+      assertNotNull(snf2);
 
       File countJournalLocation = server2.getConfiguration().getJournalLocation();
-      Assert.assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
+      assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
       String protocol = "amqp";
 
       ConnectionFactory sendCF = CFUtil.createConnectionFactory(protocol, sendURI);
@@ -131,7 +136,7 @@ public class PagedMirrorTest extends ActiveMQTestBase {
                message.acknowledge();
             }
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
       Wait.assertEquals(0, snf1::getMessageCount);
       Wait.assertEquals(0, snf2::getMessageCount);
@@ -152,18 +157,18 @@ public class PagedMirrorTest extends ActiveMQTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES - 1; i++) {
             TextMessage message = (TextMessage) consumer.receive(6000);
-            Assert.assertNotNull(message);
-            Assert.assertNotEquals(ACK_I, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertNotEquals(ACK_I, message.getIntProperty("i"));
             receivedIDs.add(message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
 
-         Assert.assertEquals(NUMBER_OF_MESSAGES - 1, receivedIDs.size());
+         assertEquals(NUMBER_OF_MESSAGES - 1, receivedIDs.size());
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             if (i != ACK_I) {
-               Assert.assertTrue(receivedIDs.contains(i));
+               assertTrue(receivedIDs.contains(i));
             }
          }
       }

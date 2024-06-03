@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -34,8 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AcceptorControlTest extends ManagementTestBase {
 
@@ -57,10 +63,10 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
 
-      Assert.assertEquals(acceptorConfig.getName(), acceptorControl.getName());
-      Assert.assertEquals(acceptorConfig.getFactoryClassName(), acceptorControl.getFactoryClassName());
-      Assert.assertNotEquals(acceptorConfig.getParams().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
-      Assert.assertEquals("****", acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      assertEquals(acceptorConfig.getName(), acceptorControl.getName());
+      assertEquals(acceptorConfig.getFactoryClassName(), acceptorControl.getFactoryClassName());
+      assertNotEquals(acceptorConfig.getParams().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      assertEquals("****", acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
    }
 
    @Test
@@ -74,40 +80,40 @@ public class AcceptorControlTest extends ManagementTestBase {
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
 
       // started by the server
-      Assert.assertTrue(acceptorControl.isStarted());
+      assertTrue(acceptorControl.isStarted());
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      Assert.assertNotNull(session);
+      assertNotNull(session);
       session.close();
 
       acceptorControl.stop();
 
-      Assert.assertFalse(acceptorControl.isStarted());
+      assertFalse(acceptorControl.isStarted());
 
       try {
          sf.createSession(false, true, true);
-         Assert.fail("acceptor must not accept connections when stopped accepting");
+         fail("acceptor must not accept connections when stopped accepting");
       } catch (ActiveMQException e) {
       }
 
       acceptorControl.start();
 
-      Assert.assertTrue(acceptorControl.isStarted());
+      assertTrue(acceptorControl.isStarted());
 
       locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
-      Assert.assertNotNull(session);
+      assertNotNull(session);
       session.close();
 
       acceptorControl.stop();
 
-      Assert.assertFalse(acceptorControl.isStarted());
+      assertFalse(acceptorControl.isStarted());
 
       try {
          sf.createSession(false, true, true);
-         Assert.fail("acceptor must not accept connections when stopped accepting");
+         fail("acceptor must not accept connections when stopped accepting");
       } catch (ActiveMQException e) {
       }
 
@@ -128,24 +134,24 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       service.getManagementService().addNotificationListener(notifListener);
 
-      Assert.assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.getNotifications().size());
 
       acceptorControl.stop();
 
-      Assert.assertEquals(usingCore() ? 7 : 1, notifListener.getNotifications().size());
+      assertEquals(usingCore() ? 7 : 1, notifListener.getNotifications().size());
 
       int i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STOPPED);
 
       Notification notif = notifListener.getNotifications().get(i);
-      Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
-      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
+      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
 
       acceptorControl.start();
 
       i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STARTED);
       notif = notifListener.getNotifications().get(i);
-      Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
-      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
+      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
    }
 
    private int findNotification(SimpleNotificationService.Listener notifListener, CoreNotificationType type) {
@@ -155,7 +161,7 @@ public class AcceptorControlTest extends ManagementTestBase {
             break;
          }
       }
-      Assert.assertTrue(i < notifListener.getNotifications().size());
+      assertTrue(i < notifListener.getNotifications().size());
       return i;
    }
 

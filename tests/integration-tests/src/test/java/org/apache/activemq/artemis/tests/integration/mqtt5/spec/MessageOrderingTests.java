@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -34,6 +34,6 @@ import org.junit.Ignore;
  * [MQTT-4.6.0-6] A Server MUST treat every, Topic as an Ordered Topic when it is forwarding messages on Non‑shared Subscriptions.
  */
 
-@Ignore
+@Disabled
 public class MessageOrderingTests extends MQTT5TestSupport {
 }

@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -24,18 +28,15 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
 
-   @Rule
-   public ErrorCollector collector = new ErrorCollector();
-
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRejectedMQTTMessage() throws Exception {
-      final String addressQueue = name.getMethodName();
+      final String addressQueue = name;
       final String msgText = "Test rejected message";
 
       final MQTTClientProvider subscribeProvider = getMQTTClientProvider();
@@ -64,7 +65,8 @@ public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
       publishProvider.disconnect();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRejectedMqttConnectMessage() throws Exception {
       CountDownLatch publishThreadReady = new CountDownLatch(1);
 

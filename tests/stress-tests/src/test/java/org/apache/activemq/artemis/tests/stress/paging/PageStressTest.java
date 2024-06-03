@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -32,9 +34,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is an integration-tests that will take some time to run.
@@ -129,7 +130,7 @@ public class PageStressTest extends ActiveMQTestBase {
 
       System.out.println("msgs second time: " + msgs);
 
-      Assert.assertEquals(NUMBER_OF_MESSAGES, msgs);
+      assertEquals(NUMBER_OF_MESSAGES, msgs);
    }
 
    @Test
@@ -190,8 +191,8 @@ public class PageStressTest extends ActiveMQTestBase {
       consumers[0].close();
       consumers[1].close();
 
-      Assert.assertEquals(NUMBER_OF_MESSAGES, counters[0]);
-      Assert.assertEquals(NUMBER_OF_MESSAGES, counters[1]);
+      assertEquals(NUMBER_OF_MESSAGES, counters[0]);
+      assertEquals(NUMBER_OF_MESSAGES, counters[1]);
    }
 
    private int readMessages(final ClientSession session,
@@ -228,7 +229,7 @@ public class PageStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setBlockOnDurableSend(false).setBlockOnNonDurableSend(false);

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +34,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.tests.integration.cluster.util.MultiServerTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BridgeFailoverTest extends MultiServerTestBase {
 
@@ -178,7 +181,7 @@ public class BridgeFailoverTest extends MultiServerTestBase {
 
       locatorConsumer.close();
 
-      assertTrue("Backup server didn't activate.", backupServers[4].waitForActivation(5, TimeUnit.SECONDS));
+      assertTrue(backupServers[4].waitForActivation(5, TimeUnit.SECONDS), "Backup server didn't activate.");
 
       for (int i = 100; i < 200; i++) {
          ClientMessage msg = session.createMessage(true);

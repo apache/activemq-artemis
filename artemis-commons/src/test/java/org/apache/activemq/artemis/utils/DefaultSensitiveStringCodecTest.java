@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class DefaultSensitiveStringCodecTest {
 
@@ -68,7 +68,7 @@ public class DefaultSensitiveStringCodecTest {
          String decoded = codec.decode(maskedText);
          logger.debug("encoded value: {}", maskedText);
 
-         assertEquals("decoded result not match: " + decoded, decoded, plainText);
+         assertEquals(decoded, plainText, "decoded result not match: " + decoded);
       }
 
       assertTrue(codec.verify(plainText.toCharArray(), maskedText));

@@ -25,11 +25,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -39,14 +38,14 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 /**
  * WebSocketServerHandlerTest
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebSocketServerHandlerTest {
 
    private int maxFramePayloadLength;
    private List<String> supportedProtocols;
    private WebSocketServerHandler spy;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       maxFramePayloadLength = 8192;
       supportedProtocols = Arrays.asList("STOMP");

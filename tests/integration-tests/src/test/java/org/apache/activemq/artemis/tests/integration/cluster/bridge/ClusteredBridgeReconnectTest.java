@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -37,9 +41,8 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This will simulate a failure of a failure.
@@ -86,10 +89,10 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       int NUMBER_OF_MESSAGES = 100;
       int REPEATS = 5;
 
-      Assert.assertEquals(1, servers[0].getClusterManager().getClusterConnections().size());
+      assertEquals(1, servers[0].getClusterManager().getClusterConnections().size());
 
       ClusterConnectionImpl connection = servers[0].getClusterManager().getClusterConnections().toArray(new ClusterConnectionImpl[0])[0];
-      Assert.assertEquals(1, connection.getRecords().size());
+      assertEquals(1, connection.getRecords().size());
 
       MessageFlowRecord record = connection.getRecords().values().toArray(new MessageFlowRecord[1])[0];
       ClusterConnectionBridge bridge = (ClusterConnectionBridge) record.getBridge();
@@ -123,7 +126,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
          Executor executorFail = servers[0].getExecutorFactory().getExecutor();
 
-         Assert.assertTrue(latchSent.await(10, TimeUnit.SECONDS));
+         assertTrue(latchSent.await(10, TimeUnit.SECONDS));
 
          Wait.waitFor(() -> BridgeTestAccessor.withinRefs(bridge, (refs) -> {
             synchronized (refs) {
@@ -145,7 +148,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       }
 
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
       Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
 
       ArrayList<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
@@ -166,7 +169,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          }
       }
 
-      Assert.assertTrue("The topology is slightly different after a reconnect", allFound);
+      assertTrue(allFound, "The topology is slightly different after a reconnect");
 
       int cons0Count = 0, cons1Count = 0;
 
@@ -190,14 +193,14 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          session1.commit();
       }
 
-      Assert.assertEquals("cons0 = " + cons0Count + ", cons1 = " + cons1Count, NUMBER_OF_MESSAGES * REPEATS, cons0Count + cons1Count);
+      assertEquals(NUMBER_OF_MESSAGES * REPEATS, cons0Count + cons1Count, "cons0 = " + cons0Count + ", cons1 = " + cons1Count);
 
       session0.commit();
       session1.commit();
 
       connection = servers[0].getClusterManager().getClusterConnections().toArray(new ClusterConnectionImpl[0])[0];
-      Assert.assertEquals(1, connection.getRecords().size());
-      Assert.assertNotNull(bridge.getSessionFactory());
+      assertEquals(1, connection.getRecords().size());
+      assertNotNull(bridge.getSessionFactory());
 
       stopServers(0, 1);
 
@@ -304,7 +307,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       closeAllConsumers();
       closeAllSessionFactories();

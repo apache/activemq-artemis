@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -24,6 +28,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import java.io.File;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
@@ -37,8 +42,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,11 +107,11 @@ public class MultiMirrorSoakTest extends SoakTestBase {
       saveProperties(brokerProperties, brokerPropertiesFile);
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
-      Assert.assertTrue(brokerXml.exists());
+      assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
-      Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
       if (paging) {
-         Assert.assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>1</max-size-messages>"));
+         assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>1</max-size-messages>"));
       }
    }
 
@@ -141,7 +145,7 @@ public class MultiMirrorSoakTest extends SoakTestBase {
    public void internalMirror(String producerURI, String consumerURi) throws Exception {
       final int numberOfMessages = 200;
 
-      Assert.assertTrue("numberOfMessages must be even", numberOfMessages % 2 == 0);
+      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
 
       ConnectionFactory producerCF = CFUtil.createConnectionFactory("amqp", producerURI);
 
@@ -202,9 +206,9 @@ public class MultiMirrorSoakTest extends SoakTestBase {
                large = false;
             }
             message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("i"));
-            Assert.assertEquals(large, message.getBooleanProperty("large"));
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("i"));
+            assertEquals(large, message.getBooleanProperty("large"));
             if (i % 100 == 0) {
                logger.debug("commit {}", i);
                session.commit();

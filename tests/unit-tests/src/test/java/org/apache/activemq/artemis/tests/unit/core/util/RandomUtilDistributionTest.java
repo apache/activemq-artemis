@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
 
-import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
+import org.apache.activemq.artemis.tests.extensions.SpawnedVMCheckExtension;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -34,8 +35,8 @@ import java.lang.invoke.MethodHandles;
 public class RandomUtilDistributionTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public SpawnedVMCheck check = new SpawnedVMCheck();
+   @RegisterExtension
+   public SpawnedVMCheckExtension check = new SpawnedVMCheckExtension();
 
    public static void main(String[] arg) {
 
@@ -71,7 +72,7 @@ public class RandomUtilDistributionTest {
       int minimumExpected = (int) ((iterations * numberOfStarts) * 0.80);
 
       logger.debug("values = {}, minimum expected = {}", value, minimumExpected);
-      Assert.assertTrue("The Random distribution is pretty bad. Many tries have returned duplicated randoms. Number of different values=" + value + ", minimum expected = " + minimumExpected, value >= minimumExpected);
+      assertTrue(value >= minimumExpected, "The Random distribution is pretty bad. Many tries have returned duplicated randoms. Number of different values=" + value + ", minimum expected = " + minimumExpected);
    }
 
    private int internalDistributionTest(int numberOfTries) throws Exception {
@@ -87,7 +88,7 @@ public class RandomUtilDistributionTest {
 
          for (int i = 0; i < numberOfTries; i++) {
             value[i] = process[i].waitFor();
-            Assert.assertTrue(value[i] >= 0);
+            assertTrue(value[i] >= 0);
             valueSet.add(process[i].exitValue());
          }
 

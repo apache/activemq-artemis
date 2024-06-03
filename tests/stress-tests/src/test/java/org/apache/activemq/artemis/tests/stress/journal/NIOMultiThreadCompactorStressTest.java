@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -42,9 +46,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
@@ -64,7 +67,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -90,8 +93,8 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
          journal.start();
          journal.load(committedRecords, preparedTransactions, null);
 
-         Assert.assertEquals(0, committedRecords.size());
-         Assert.assertEquals(0, preparedTransactions.size());
+         assertEquals(0, committedRecords.size());
+         assertEquals(0, preparedTransactions.size());
 
          System.out.println("DataFiles = " + journal.getDataFilesCount());
 
@@ -105,7 +108,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
             if (journal.getDataFilesCount() != 0) {
                System.out.println("DebugJournal:" + journal.debug());
             }
-            Assert.assertEquals(0, journal.getDataFilesCount());
+            assertEquals(0, journal.getDataFilesCount());
          }
 
          journal.stop();
@@ -142,8 +145,8 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, false, false);
 
       Xid[] xids = session.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(1, xids.length);
-      Assert.assertEquals(xid, xids[0]);
+      assertEquals(1, xids.length);
+      assertEquals(xid, xids[0]);
 
       session.rollback(xid);
 
@@ -237,7 +240,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numberOfMessagesExpected; i++) {
          ClientMessage msg = consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          if (i % 100 == 0) {
             // System.out.println("Received #" + i + "  on thread after start");
@@ -245,7 +248,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
          msg.acknowledge();
       }
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       sess.close();
    }
@@ -271,7 +274,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       session.start();
 
       ClientConsumer cons = session.createConsumer(queue);
-      Assert.assertNotNull(cons.receive(1000));
+      assertNotNull(cons.receive(1000));
       session.rollback();
       session.close();
    }

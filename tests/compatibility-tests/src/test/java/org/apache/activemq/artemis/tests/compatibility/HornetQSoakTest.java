@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,14 +29,9 @@ import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HornetQSoakTest extends ClasspathBase {
 
@@ -39,19 +39,19 @@ public class HornetQSoakTest extends ClasspathBase {
    ClassLoader artemis1XClassLoader;
    ClassLoader hornetqClassLoader;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
 
       this.artemisClassLoader = getClasspath(SNAPSHOT);
       this.artemis1XClassLoader = getClasspath(ONE_FIVE);
       this.hornetqClassLoader = getClasspath(HORNETQ_235);
 
-      FileUtil.deleteDirectory(serverFolder.getRoot());
+      FileUtil.deleteDirectory(serverFolder);
       setVariable(artemisClassLoader, "persistent", Boolean.FALSE);
-      startServer(serverFolder.getRoot(), artemisClassLoader, "live", null, true, "hqsoak/artemisServer.groovy", SNAPSHOT, SNAPSHOT, SNAPSHOT);
+      startServer(serverFolder, artemisClassLoader, "live", null, true, "hqsoak/artemisServer.groovy", SNAPSHOT, SNAPSHOT, SNAPSHOT);
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Throwable {
       if (artemisClassLoader != null && hornetqClassLoader != null) {
          stopServer(artemisClassLoader);
@@ -109,7 +109,7 @@ public class HornetQSoakTest extends ClasspathBase {
 
    protected void checkErrors(ClassLoader loader, String variable) throws Throwable {
       AtomicInteger errors = (AtomicInteger) execute(loader, "return " + variable);
-      Assert.assertEquals("the script finished with errors", 0, errors.get());
+      assertEquals(0, errors.get(), "the script finished with errors");
    }
 
 }

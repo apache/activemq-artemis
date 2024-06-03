@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.remoting;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DestroyConsumerTest extends ActiveMQTestBase {
 

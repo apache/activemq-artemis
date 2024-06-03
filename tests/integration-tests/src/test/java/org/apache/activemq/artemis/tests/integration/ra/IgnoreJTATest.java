@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
@@ -25,9 +29,9 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.IllegalStateException;
 import javax.jms.Message;
@@ -47,7 +51,7 @@ public class IgnoreJTATest extends ActiveMQRATestBase {
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       useDummyTransactionManager();
       super.setUp();
@@ -64,7 +68,7 @@ public class IgnoreJTATest extends ActiveMQRATestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = null;
       if (resourceAdapter != null) {
@@ -75,9 +79,11 @@ public class IgnoreJTATest extends ActiveMQRATestBase {
       super.tearDown();
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void testIgnoreJTA() throws Exception {
-      testSendAndReceive(true);
+      assertThrows(IllegalStateException.class, () -> {
+         testSendAndReceive(true);
+      });
    }
 
    @Test

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
@@ -38,7 +41,8 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test that the broker can pass through an AMQP message with a described type in the message
@@ -46,7 +50,8 @@ import org.junit.Test;
  */
 public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendMessageWithDescribedTypeInBody() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -71,7 +76,8 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendMessageWithDescribedTypeInBodyReceiveOverOpenWire() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -104,7 +110,8 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDescribedTypeMessageRoundTrips() throws Exception {
 
       AmqpClient client = createAmqpClient();

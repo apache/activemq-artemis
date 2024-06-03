@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -35,21 +38,14 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessAct
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A PagingFailoverTest
  * <br>
  */
 public class PagingFailoverTest extends FailoverTestBase {
-
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
@@ -61,7 +57,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
@@ -127,12 +123,12 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < MIDDLE; i++) {
          ClientMessage msg = cons.receive(20000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
          if (transacted && i % 10 == 0) {
             session.commit();
          }
-         Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
       }
 
       session.commit();
@@ -154,11 +150,11 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = MIDDLE; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          msg.acknowledge();
          int result = (Integer) msg.getObjectProperty(new SimpleString("key"));
-         Assert.assertEquals(i, result);
+         assertEquals(i, result);
       }
    }
 

@@ -15,22 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.rules;
+package org.apache.activemq.artemis.tests.extensions;
 
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class SpawnedVMCheck extends ExternalResource {
+public class SpawnedVMCheckExtension implements Extension, BeforeEachCallback, AfterEachCallback {
 
    @Override
-   protected void after() {
-      super.after();
-      SpawnedVMSupport.checkProcess();
+   public void beforeEach(ExtensionContext context) throws Exception {
+      SpawnedVMSupport.enableCheck();
    }
 
    @Override
-   public void before() throws Throwable {
-      super.before();
-      SpawnedVMSupport.enableCheck();
+   public void afterEach(ExtensionContext context) throws Exception {
+      SpawnedVMSupport.checkProcess();
    }
 }

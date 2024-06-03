@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -45,9 +51,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +68,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
    public SimpleString lmDropAddress = new SimpleString("LargeMessageDropAddress");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       this.realStore = true;
       super.setUp();
@@ -169,11 +174,11 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
                      producer.send(message);
                   }
                   final long messageCount = server.locateQueue(lmDropAddress).getMessageCount();
-                  Assert.assertTrue("The queue cannot be empty", messageCount > 0);
+                  assertTrue(messageCount > 0, "The queue cannot be empty");
                   try (MessageConsumer messageConsumer = session.createConsumer(queue)) {
                      for (long m = 0; m < messageCount; m++) {
                         if (messageConsumer.receive(2000) == null) {
-                           Assert.fail("The messages are not finished yet");
+                           fail("The messages are not finished yet");
                         }
                      }
                   }
@@ -181,8 +186,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             }
          }
          server.stop();
-         Assert.assertFalse(loggerHandler.findTrace("NullPointerException"));
-         Assert.assertFalse(loggerHandler.findText("It was not possible to delete message"));
+         assertFalse(loggerHandler.findTrace("NullPointerException"));
+         assertFalse(loggerHandler.findText("It was not possible to delete message"));
       }
    }
 
@@ -220,7 +225,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             MessageConsumer consumer = session.createConsumer(queue);
             for (int received = 0; received < NUMBER_OF_MESSAGES; received++) {
                Message m = consumer.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
                if (m instanceof TextMessage) {
                   assertEquals(largeString, ((TextMessage) m).getText());
                }
@@ -267,7 +272,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       }
 
       latch.await(1, TimeUnit.MINUTES);
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 

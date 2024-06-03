@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.isolated.critical;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -39,15 +41,14 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
    @Test
    public void testSimplyDownAfterError() throws Exception {
       disableCheckThread();
-      ActiveMQServer server = createServer(temporaryFolder.getRoot().getAbsolutePath() + "/server");
+      ActiveMQServer server = createServer(temporaryFolder.getAbsolutePath() + "/server");
 
       server.start();
 
@@ -67,7 +68,7 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
       Wait.waitFor(() -> !server.isStarted());
 
-      Assert.assertFalse(server.isStarted());
+      assertFalse(server.isStarted());
    }
 
    ActiveMQServer createServer(String folder) throws Exception {

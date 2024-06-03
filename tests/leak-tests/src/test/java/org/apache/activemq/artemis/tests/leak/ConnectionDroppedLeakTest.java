@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -41,17 +46,12 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
 
 public class ConnectionDroppedLeakTest extends AbstractLeakTest {
 
@@ -71,12 +71,12 @@ public class ConnectionDroppedLeakTest extends AbstractLeakTest {
 
    Queue serverQueue;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
-   @After
+   @AfterEach
    public void validateServer() throws Exception {
       CheckLeak checkLeak = new CheckLeak();
 
@@ -96,7 +96,7 @@ public class ConnectionDroppedLeakTest extends AbstractLeakTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       server = createServer(true, createDefaultConfig(1, true));
       server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
@@ -185,13 +185,13 @@ public class ConnectionDroppedLeakTest extends AbstractLeakTest {
          }
       });
 
-      Assert.assertTrue(latchReceived.await(10, TimeUnit.SECONDS));
+      assertTrue(latchReceived.await(10, TimeUnit.SECONDS));
 
       server.getRemotingService().getConnections().forEach(r -> {
          r.fail(new ActiveMQException("it's a simulation"));
       });
 
-      Assert.assertTrue(latchDone.await(30, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(30, TimeUnit.SECONDS));
       running.set(false);
 
       serverQueue.deleteAllReferences();

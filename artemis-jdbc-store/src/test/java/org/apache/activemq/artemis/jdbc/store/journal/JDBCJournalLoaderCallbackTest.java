@@ -16,24 +16,20 @@
  */
 package org.apache.activemq.artemis.jdbc.store.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.sql.DriverManager;
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class JDBCJournalLoaderCallbackTest {
-
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+public class JDBCJournalLoaderCallbackTest extends ArtemisTestCase {
 
    @Test
    public void testAddDeleteRecord() throws Exception {
@@ -54,7 +50,7 @@ public class JDBCJournalLoaderCallbackTest {
       assertTrue(committedRecords.isEmpty());
    }
 
-   @After
+   @AfterEach
    public void shutdownDerby() {
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");

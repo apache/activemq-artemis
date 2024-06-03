@@ -22,8 +22,8 @@ import javax.jms.ObjectMessage;
 
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSObjectMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -38,7 +38,7 @@ public class ForeignObjectMessageTest extends ForeignMessageTest {
    private ForeignTestObject testObj;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       testObj = new ForeignTestObject("hello", 2.2D);
       super.setUp();
@@ -46,7 +46,7 @@ public class ForeignObjectMessageTest extends ForeignMessageTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
       testObj = null;

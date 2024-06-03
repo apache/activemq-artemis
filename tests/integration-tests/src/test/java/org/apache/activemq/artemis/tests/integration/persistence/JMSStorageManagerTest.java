@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +38,8 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSStorageManagerTest extends ActiveMQTestBase {
 
@@ -51,7 +52,7 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -182,15 +183,15 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
 
       List<PersistedBindings> jndiList = jmsJournal.recoverPersistedBindings();
 
-      Assert.assertEquals(1, destinations.size());
+      assertEquals(1, destinations.size());
 
-      Assert.assertEquals(1, jndiList.size());
+      assertEquals(1, jndiList.size());
 
       jmsJournal.deleteDestination(PersistedType.Queue, "jndiPersistQueue");
 
       destinations = jmsJournal.recoverDestinations();
 
-      Assert.assertEquals(0, destinations.size());
+      assertEquals(0, destinations.size());
 
       jmsJournal.stop();
 
@@ -198,19 +199,19 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
 
       destinations = jmsJournal.recoverDestinations();
 
-      Assert.assertEquals(0, destinations.size());
+      assertEquals(0, destinations.size());
 
       jndiList = jmsJournal.recoverPersistedBindings();
 
-      Assert.assertEquals(1, jndiList.size());
+      assertEquals(1, jndiList.size());
 
       PersistedBindings jndi = jndiList.get(0);
 
       List<String> jndis = jndi.getBindings();
 
-      Assert.assertEquals(1, jndis.size());
+      assertEquals(1, jndis.size());
 
-      Assert.assertEquals("jndi-1", jndis.get(0));
+      assertEquals("jndi-1", jndis.get(0));
 
    }
 

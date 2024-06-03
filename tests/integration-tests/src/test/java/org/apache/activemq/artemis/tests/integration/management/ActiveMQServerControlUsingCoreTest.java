@@ -22,11 +22,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+// Parameters set by super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
 
@@ -35,8 +37,9 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       extraProducers = 1;
    }
 
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
    public void testListProducersAgainstServer() throws Exception {
       // testListProducersAgainstServer is measuring the number of producers in the server
       // however the management controller itself will include producers
@@ -44,15 +47,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // hence this test needs to be ignored when using the core protocol for management
    }
 
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
    public void testListProducersMessageCounts() throws Exception {
       // invalid test when using core protocol (noise from itself)
    }
 
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testListSessions() throws Exception {
       // similarly to testListProducersAgainstServer test,
       // this test will have different objects created when running over core,
@@ -60,32 +65,37 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // for that reason this test is ignored on the UsingCoreTest
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testScaleDownWithOutConnector() throws Exception {
       // test would be invalid over core protocol
    }
 
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
    public void testScaleDownWithConnector() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testRestartEmbeddedWebServerException() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testRestartEmbeddedWebServerTimeout() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testListProducersMessageCountsJMSCore() throws Exception {
       // test would be invalid over core protocol
    }

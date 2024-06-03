@@ -14,35 +14,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.rules;
+package org.apache.activemq.artemis.tests.extensions;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.management.UnixOperatingSystemMXBean;
 
 /**
  * This is useful to make sure you won't have leaking process files between tests
  */
-public class NoProcessFilesBehind extends TestWatcher {
+public class OpenFilesCheckExtension implements Extension, AfterAllCallback {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
    private long maxFiles;
 
-   public NoProcessFilesBehind(long maxFiles) {
+   public OpenFilesCheckExtension(long maxFiles) {
       this.maxFiles = maxFiles;
    }
 
-   static OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+   @Override
+   public void afterAll(ExtensionContext context) throws Exception {
+      String testName = context.getRequiredTestClass().getName();
+
+      logger.debug("Checking open files after {}", testName);
+
+      if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 10000, 0)) {
+         String fileList = getOpenList();
+         fail("Too many files open (" + getOpenFD()  + ">" + maxFiles + ") after " + testName + ". A possible list: " + fileList);
+      }
+   }
 
    public static long getOpenFD() {
       if (os instanceof UnixOperatingSystemMXBean) {
@@ -82,14 +102,6 @@ public class NoProcessFilesBehind extends TestWatcher {
       java.lang.reflect.Method getProcessIdMethod = jvm.getClass().getDeclaredMethod("getProcessId");
       getProcessIdMethod.setAccessible(true);
       return (Integer) getProcessIdMethod.invoke(jvm);
-   }
-
-   @Override
-   protected void finished(Description description) {
-      if (!Wait.waitFor(() -> getOpenFD() < maxFiles, 10000, 0)) {
-         String fileList = getOpenList();
-         Assert.fail("Too many files open (" + getOpenFD()  + ">" + maxFiles + "). A possible list: " + fileList);
-      }
    }
 
    private String getOpenList() {

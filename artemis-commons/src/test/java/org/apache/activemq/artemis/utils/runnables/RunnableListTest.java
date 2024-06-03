@@ -17,12 +17,13 @@
 
 package org.apache.activemq.artemis.utils.runnables;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RunnableListTest {
 
@@ -50,16 +51,16 @@ public class RunnableListTest {
          }
       }
 
-      Assert.assertEquals(30, masterList.size());
+      assertEquals(30, masterList.size());
 
       runList(listA);
 
-      Assert.assertEquals(10, result.get());
+      assertEquals(10, result.get());
 
-      Assert.assertEquals(20, masterList.size());
-      Assert.assertEquals(0, listA.size());
-      Assert.assertEquals(10, listB.size());
-      Assert.assertEquals(10, listC.size());
+      assertEquals(20, masterList.size());
+      assertEquals(0, listA.size());
+      assertEquals(10, listB.size());
+      assertEquals(10, listC.size());
 
       HashSet<AtomicRunnable> copyList = new HashSet<>();
       copyList.addAll(masterList);
@@ -67,10 +68,10 @@ public class RunnableListTest {
       copyList.forEach(r -> r.run());
 
       for (RunnableList l : lists) {
-         Assert.assertEquals(0, l.size());
+         assertEquals(0, l.size());
       }
 
-      Assert.assertEquals(30, result.get());
+      assertEquals(30, result.get());
    }
 
    @Test
@@ -95,25 +96,25 @@ public class RunnableListTest {
          }
       }
 
-      Assert.assertEquals(30, masterList.size());
+      assertEquals(30, masterList.size());
 
       listA.cancel();
 
-      Assert.assertEquals(0, result.get());
+      assertEquals(0, result.get());
 
-      Assert.assertEquals(20, masterList.size());
-      Assert.assertEquals(0, listA.size());
-      Assert.assertEquals(10, listB.size());
-      Assert.assertEquals(10, listC.size());
+      assertEquals(20, masterList.size());
+      assertEquals(0, listA.size());
+      assertEquals(10, listB.size());
+      assertEquals(10, listC.size());
 
       listB.cancel();
       listC.cancel();
 
       for (RunnableList l : lists) {
-         Assert.assertEquals(0, l.size());
+         assertEquals(0, l.size());
       }
 
-      Assert.assertEquals(0, masterList.size());
+      assertEquals(0, masterList.size());
    }
 
    // runs all AtomicRunnables inside the list

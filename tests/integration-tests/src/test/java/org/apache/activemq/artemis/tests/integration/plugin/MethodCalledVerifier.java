@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
@@ -51,9 +54,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.tests.util.Wait;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class MethodCalledVerifier implements ActiveMQServerPlugin {
 
@@ -466,7 +466,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
             Wait.waitFor(() -> count == methodCalls.getOrDefault(name, new AtomicInteger()).get(), timeout, sleepMillis);
          } catch (Throwable ignored) {
          }
-         assertEquals("validating method " + name, count, methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         assertEquals(count, methodCalls.getOrDefault(name, new AtomicInteger()).get(), "validating method " + name);
       });
    }
 
@@ -478,7 +478,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
          } catch (Exception e) {
             e.printStackTrace();
          }
-         assertTrue("validating method " + name + " expected less than " + count, count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         assertTrue(count <= methodCalls.getOrDefault(name, new AtomicInteger()).get(), "validating method " + name + " expected less than " + count);
       });
    }
 

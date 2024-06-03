@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,10 +31,8 @@ import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RemotingServiceImplTest {
 
@@ -42,7 +42,7 @@ public class RemotingServiceImplTest {
 
    private Configuration configuration;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
       configuration = new ConfigurationImpl();

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -40,9 +42,8 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,14 +112,14 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
       conn.close();
 
       boolean gotException = exceptionLatch.await(10, SECONDS);
-      Assert.assertTrue(gotException);
+      assertTrue(gotException);
 
       boolean clientReconnected = reconnectionLatch.await(10, SECONDS);
 
-      Assert.assertTrue("client did not reconnect after server was restarted", clientReconnected);
+      assertTrue(clientReconnected, "client did not reconnect after server was restarted");
 
       boolean gotAllMessages = allMessagesReceived.await(10, SECONDS);
-      Assert.assertTrue(gotAllMessages);
+      assertTrue(gotAllMessages);
 
       connection.close();
 
@@ -127,7 +128,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

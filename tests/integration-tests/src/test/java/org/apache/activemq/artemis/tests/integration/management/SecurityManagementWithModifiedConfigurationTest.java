@@ -20,34 +20,32 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+//Parameters set in parent class
+@ExtendWith(ParameterizedTestExtension.class)
 public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase {
-
-
 
    private final String configuredClusterPassword = "this is not the default password";
 
-
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithModifiedClusterAdminUser() throws Exception {
       doSendBrokerManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), configuredClusterPassword, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception {
       doSendBrokerManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), ActiveMQDefaultConfiguration.getDefaultClusterPassword(), false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithGuest() throws Exception {
       doSendBrokerManagementMessage("guest", "guest", false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithoutUserCredentials() throws Exception {
       doSendBrokerManagementMessage(null, null, false);
    }

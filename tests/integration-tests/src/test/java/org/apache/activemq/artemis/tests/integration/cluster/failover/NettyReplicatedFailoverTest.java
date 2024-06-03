@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessAct
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
          session.commit();
 
          org.apache.activemq.artemis.core.server.Queue serverQueue = primaryServer.getServer().locateQueue(queueName);
-         Assert.assertNotNull(serverQueue);
+         Assertions.assertNotNull(serverQueue);
 
          serverQueue.getPagingStore().startPaging();
 
@@ -120,7 +120,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
             logger.info("depage :: {} and currentPageID={}", depaged.getPageId(), currentPage.getPageId());
          }
 
-         Assert.assertNotNull(depaged);
+         Assertions.assertNotNull(depaged);
 
          logger.info("Depaged:: {}", depaged.getPageId());
 

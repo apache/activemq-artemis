@@ -16,8 +16,9 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import org.junit.Assume;
-import org.junit.Before;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import org.junit.jupiter.api.BeforeEach;
 
 public class FileXIncludeConfigurationTest extends FileConfigurationTest {
 
@@ -31,9 +32,9 @@ public class FileXIncludeConfigurationTest extends FileConfigurationTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
-      Assume.assumeTrue(xxeEnabled);
+      assumeTrue(xxeEnabled);
 
       super.setUp();
    }

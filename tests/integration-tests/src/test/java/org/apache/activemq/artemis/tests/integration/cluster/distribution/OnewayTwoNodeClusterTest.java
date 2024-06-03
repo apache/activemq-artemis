@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -30,7 +31,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -164,7 +165,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase {
       // We time how long it takes to restart, since it has been known to hang in the past and wait for a timeout
       // Shutting down and restarting should be pretty quick
 
-      Assert.assertTrue("Took too long to restart", end - start <= 5000);
+      assertTrue(end - start <= 5000, "Took too long to restart");
 
       setupSessionFactory(1, isNetty(), true);
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.addressing;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -26,8 +28,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class SendDLQNoRouteTest extends ActiveMQTestBase {
 
@@ -35,14 +38,15 @@ public class SendDLQNoRouteTest extends ActiveMQTestBase {
 
    private ClientSessionFactory sessionFactory;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       server = createServer(true);
       server.start();
    }
 
 
-   @Test(timeout = 20_000)
+   @Test
+   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
    public void testDLQNoRoute() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setSendToDLAOnNoRoute(true);
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -24,9 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class SizeAwareMetricTest {
 
@@ -38,11 +41,11 @@ public class SizeAwareMetricTest {
       }
    }
 
-   @After
+   @AfterEach
    public void shutdownExecutor() throws Exception {
       if (executor != null) {
          executor.shutdownNow();
-         Assert.assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+         assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
          executor = null;
       }
    }
@@ -66,53 +69,53 @@ public class SizeAwareMetricTest {
          child.addSize(1, true);
       }
 
-      Assert.assertEquals(4, child.getSize());
-      Assert.assertEquals(4, parent.getSize());
-      Assert.assertEquals(0, child.getElements());
-      Assert.assertEquals(0, parent.getElements());
-      Assert.assertFalse(childBoolean.get());
-      Assert.assertFalse(parentBoolean.get());
+      assertEquals(4, child.getSize());
+      assertEquals(4, parent.getSize());
+      assertEquals(0, child.getElements());
+      assertEquals(0, parent.getElements());
+      assertFalse(childBoolean.get());
+      assertFalse(parentBoolean.get());
 
       child.addSize(1, true);
-      Assert.assertEquals(5, child.getSize());
-      Assert.assertTrue(childBoolean.get());
-      Assert.assertFalse(parentBoolean.get());
-      Assert.assertEquals(0, child.getElements());
-      Assert.assertEquals(0, parent.getElements());
+      assertEquals(5, child.getSize());
+      assertTrue(childBoolean.get());
+      assertFalse(parentBoolean.get());
+      assertEquals(0, child.getElements());
+      assertEquals(0, parent.getElements());
 
 
       child.addSize(-5, true);
 
-      Assert.assertEquals(0, child.getSize());
-      Assert.assertEquals(0, parent.getSize());
+      assertEquals(0, child.getSize());
+      assertEquals(0, parent.getSize());
 
 
       for (int i = 0; i < 5; i++) {
          child.addSize(1, false);
       }
 
-      Assert.assertEquals(5, child.getSize());
-      Assert.assertEquals(5, parent.getSize());
-      Assert.assertEquals(5, child.getElements());
-      Assert.assertEquals(5, parent.getElements());
-      Assert.assertTrue(childBoolean.get());
-      Assert.assertFalse(parentBoolean.get());
-      Assert.assertTrue(child.isOverElements());
+      assertEquals(5, child.getSize());
+      assertEquals(5, parent.getSize());
+      assertEquals(5, child.getElements());
+      assertEquals(5, parent.getElements());
+      assertTrue(childBoolean.get());
+      assertFalse(parentBoolean.get());
+      assertTrue(child.isOverElements());
 
       for (int i = 0; i < 5; i++) {
          child.addSize(1, false);
       }
 
-      Assert.assertEquals(10, child.getSize());
-      Assert.assertEquals(10, parent.getSize());
-      Assert.assertEquals(10, child.getElements());
-      Assert.assertEquals(10, parent.getElements());
+      assertEquals(10, child.getSize());
+      assertEquals(10, parent.getSize());
+      assertEquals(10, child.getElements());
+      assertEquals(10, parent.getElements());
 
-      Assert.assertTrue(childBoolean.get());
-      Assert.assertTrue(parentBoolean.get());
-      Assert.assertTrue(child.isOverElements());
-      Assert.assertFalse(parent.isOverElements());
-      Assert.assertTrue(parent.isOverSize());
+      assertTrue(childBoolean.get());
+      assertTrue(parentBoolean.get());
+      assertTrue(child.isOverElements());
+      assertFalse(parent.isOverElements());
+      assertTrue(parent.isOverSize());
 
    }
 
@@ -174,27 +177,27 @@ public class SizeAwareMetricTest {
       }
 
       flagStart.await(10, TimeUnit.SECONDS);
-      Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
-      Assert.assertTrue(metricOver.get());
-      Assert.assertTrue(metric.isOver());
-      Assert.assertTrue(metric.isOverSize());
-      Assert.assertFalse(metric.isOverElements());
+      assertTrue(metricOver.get());
+      assertTrue(metric.isOver());
+      assertTrue(metric.isOverSize());
+      assertFalse(metric.isOverElements());
 
-      Assert.assertTrue(globalMetricOver.get());
-      Assert.assertTrue(globalMetric.isOver());
+      assertTrue(globalMetricOver.get());
+      assertTrue(globalMetric.isOver());
 
-      Assert.assertEquals(1, metricOverCalls.get());
-      Assert.assertEquals(1, globalMetricOverCalls.get());
-      Assert.assertEquals(0, metricUnderCalls.get());
-      Assert.assertEquals(0, globalMetricUnderCalls.get());
+      assertEquals(1, metricOverCalls.get());
+      assertEquals(1, globalMetricOverCalls.get());
+      assertEquals(0, metricUnderCalls.get());
+      assertEquals(0, globalMetricUnderCalls.get());
 
-      Assert.assertEquals(ELEMENTS * THREADS, metric.getSize());
-      Assert.assertEquals(ELEMENTS * THREADS, metric.getElements());
-      Assert.assertEquals(ELEMENTS * THREADS, globalMetric.getSize());
-      Assert.assertEquals(ELEMENTS * THREADS, globalMetric.getElements());
+      assertEquals(ELEMENTS * THREADS, metric.getSize());
+      assertEquals(ELEMENTS * THREADS, metric.getElements());
+      assertEquals(ELEMENTS * THREADS, globalMetric.getSize());
+      assertEquals(ELEMENTS * THREADS, globalMetric.getElements());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
       latchDone.setCount(10);
 
@@ -215,14 +218,14 @@ public class SizeAwareMetricTest {
       }
 
       flagStart.await(10, TimeUnit.SECONDS);
-      Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, globalMetric.getSize());
-      Assert.assertEquals(0, globalMetric.getElements());
-      Assert.assertEquals(0, metric.getSize());
-      Assert.assertEquals(0, metric.getElements());
-      Assert.assertFalse(globalMetricOver.get());
-      Assert.assertFalse(globalMetric.isOver());
+      assertEquals(0, globalMetric.getSize());
+      assertEquals(0, globalMetric.getElements());
+      assertEquals(0, metric.getSize());
+      assertEquals(0, metric.getElements());
+      assertFalse(globalMetricOver.get());
+      assertFalse(globalMetric.isOver());
    }
 
 
@@ -238,16 +241,16 @@ public class SizeAwareMetricTest {
          metric.addSize(10, false);
       }
 
-      Assert.assertTrue(over.get());
-      Assert.assertEquals(110, metric.getSize());
-      Assert.assertEquals(11, metric.getElements());
+      assertTrue(over.get());
+      assertEquals(110, metric.getSize());
+      assertEquals(11, metric.getElements());
       metric.addSize(1000, false);
 
       for (int i = 0; i < 12; i++) {
          metric.addSize(-10, false);
       }
 
-      Assert.assertFalse(over.get());
+      assertFalse(over.get());
 
    }
    @Test
@@ -266,35 +269,35 @@ public class SizeAwareMetricTest {
       }
       metric.addSize(1000, true);
 
-      Assert.assertEquals(1110L, metricMain.getSize());
-      Assert.assertEquals(11, metricMain.getElements());
-      Assert.assertEquals(1110L, metric.getSize());
-      Assert.assertEquals(11, metric.getElements());
-      Assert.assertTrue(metricMain.isOverElements());
-      Assert.assertFalse(metricMain.isOverSize());
-      Assert.assertFalse(metric.isOverElements());
-      Assert.assertFalse(metric.isOverSize());
-      Assert.assertTrue(over.get());
+      assertEquals(1110L, metricMain.getSize());
+      assertEquals(11, metricMain.getElements());
+      assertEquals(1110L, metric.getSize());
+      assertEquals(11, metric.getElements());
+      assertTrue(metricMain.isOverElements());
+      assertFalse(metricMain.isOverSize());
+      assertFalse(metric.isOverElements());
+      assertFalse(metric.isOverSize());
+      assertTrue(over.get());
 
       metric.addSize(-1000, true);
 
-      Assert.assertEquals(110L, metricMain.getSize());
-      Assert.assertEquals(11, metricMain.getElements());
-      Assert.assertTrue(metricMain.isOverElements());
-      Assert.assertFalse(metricMain.isOverSize());
-      Assert.assertTrue(over.get());
+      assertEquals(110L, metricMain.getSize());
+      assertEquals(11, metricMain.getElements());
+      assertTrue(metricMain.isOverElements());
+      assertFalse(metricMain.isOverSize());
+      assertTrue(over.get());
 
       for (int i = 0; i < 11; i++) {
          metric.addSize(-10);
       }
 
-      Assert.assertEquals(0L, metricMain.getSize());
-      Assert.assertEquals(0L, metricMain.getElements());
-      Assert.assertFalse(metricMain.isOver());
-      Assert.assertEquals(0L, metric.getSize());
-      Assert.assertEquals(0L, metric.getElements());
-      Assert.assertFalse(metric.isOver());
-      Assert.assertFalse(over.get());
+      assertEquals(0L, metricMain.getSize());
+      assertEquals(0L, metricMain.getElements());
+      assertFalse(metricMain.isOver());
+      assertEquals(0L, metric.getSize());
+      assertEquals(0L, metric.getElements());
+      assertFalse(metric.isOver());
+      assertFalse(over.get());
    }
 
 
@@ -311,28 +314,28 @@ public class SizeAwareMetricTest {
       }
       metric.addSize(1000, true);
 
-      Assert.assertEquals(1110L, metric.getSize());
-      Assert.assertEquals(11, metric.getElements());
-      Assert.assertTrue(metric.isOverElements());
-      Assert.assertFalse(metric.isOverSize());
-      Assert.assertTrue(over.get());
+      assertEquals(1110L, metric.getSize());
+      assertEquals(11, metric.getElements());
+      assertTrue(metric.isOverElements());
+      assertFalse(metric.isOverSize());
+      assertTrue(over.get());
 
       metric.addSize(-1000, true);
 
-      Assert.assertEquals(110L, metric.getSize());
-      Assert.assertEquals(11, metric.getElements());
-      Assert.assertTrue(metric.isOverElements());
-      Assert.assertFalse(metric.isOverSize());
-      Assert.assertTrue(over.get());
+      assertEquals(110L, metric.getSize());
+      assertEquals(11, metric.getElements());
+      assertTrue(metric.isOverElements());
+      assertFalse(metric.isOverSize());
+      assertTrue(over.get());
 
       for (int i = 0; i < 11; i++) {
          metric.addSize(-10);
       }
 
-      Assert.assertEquals(0L, metric.getSize());
-      Assert.assertEquals(0L, metric.getElements());
-      Assert.assertFalse(metric.isOver());
-      Assert.assertFalse(over.get());
+      assertEquals(0L, metric.getSize());
+      assertEquals(0L, metric.getElements());
+      assertFalse(metric.isOver());
+      assertFalse(over.get());
    }
 
    @Test
@@ -397,30 +400,30 @@ public class SizeAwareMetricTest {
       }
 
       flagStart.await(10, TimeUnit.SECONDS);
-      Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
       for (SizeAwareMetric theMetric : metric) {
-         Assert.assertTrue(theMetric.isOver());
-         Assert.assertEquals(ELEMENTS, theMetric.getSize());
-         Assert.assertEquals(ELEMENTS, theMetric.getElements());
+         assertTrue(theMetric.isOver());
+         assertEquals(ELEMENTS, theMetric.getSize());
+         assertEquals(ELEMENTS, theMetric.getElements());
       }
 
       for (AtomicBoolean theBool : metricOverArray) {
-         Assert.assertTrue(theBool.get());
+         assertTrue(theBool.get());
       }
 
-      Assert.assertTrue(globalMetricOver.get());
-      Assert.assertTrue(globalMetric.isOver());
+      assertTrue(globalMetricOver.get());
+      assertTrue(globalMetric.isOver());
 
-      Assert.assertEquals(10, metricOverCalls.get());
-      Assert.assertEquals(1, globalMetricOverCalls.get());
-      Assert.assertEquals(0, metricUnderCalls.get());
-      Assert.assertEquals(0, globalMetricUnderCalls.get());
+      assertEquals(10, metricOverCalls.get());
+      assertEquals(1, globalMetricOverCalls.get());
+      assertEquals(0, metricUnderCalls.get());
+      assertEquals(0, globalMetricUnderCalls.get());
 
-      Assert.assertEquals(ELEMENTS * THREADS, globalMetric.getSize());
-      Assert.assertEquals(ELEMENTS * THREADS, globalMetric.getElements());
+      assertEquals(ELEMENTS * THREADS, globalMetric.getSize());
+      assertEquals(ELEMENTS * THREADS, globalMetric.getElements());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
       latchDone.setCount(10);
 
@@ -442,23 +445,23 @@ public class SizeAwareMetricTest {
       }
 
       flagStart.await(10, TimeUnit.SECONDS);
-      Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, globalMetric.getSize());
-      Assert.assertEquals(0, globalMetric.getElements());
+      assertEquals(0, globalMetric.getSize());
+      assertEquals(0, globalMetric.getElements());
       for (SizeAwareMetric theMetric : metric) {
-         Assert.assertEquals(0, theMetric.getSize());
-         Assert.assertEquals(0, theMetric.getElements());
+         assertEquals(0, theMetric.getSize());
+         assertEquals(0, theMetric.getElements());
       }
 
-      Assert.assertEquals(10, metricOverCalls.get());
-      Assert.assertEquals(1, globalMetricOverCalls.get());
-      Assert.assertEquals(10, metricUnderCalls.get());
-      Assert.assertEquals(1, globalMetricUnderCalls.get());
-      Assert.assertFalse(globalMetricOver.get());
-      Assert.assertFalse(globalMetric.isOver());
+      assertEquals(10, metricOverCalls.get());
+      assertEquals(1, globalMetricOverCalls.get());
+      assertEquals(10, metricUnderCalls.get());
+      assertEquals(1, globalMetricUnderCalls.get());
+      assertFalse(globalMetricOver.get());
+      assertFalse(globalMetric.isOver());
       for (AtomicBoolean theBool : metricOverArray) {
-         Assert.assertFalse(theBool.get());
+         assertFalse(theBool.get());
       }
    }
 
@@ -470,13 +473,13 @@ public class SizeAwareMetricTest {
       metric.setUnderCallback(() -> over.set(false));
 
       metric.addSize(900);
-      Assert.assertFalse(over.get());
+      assertFalse(over.get());
 
       metric.setMax(800, 700, -1, -1);
-      Assert.assertTrue(over.get());
+      assertTrue(over.get());
 
       metric.addSize(-201);
-      Assert.assertFalse(over.get());
+      assertFalse(over.get());
    }
 
    @Test
@@ -486,9 +489,9 @@ public class SizeAwareMetricTest {
       metric.setOverCallback(() -> over.set(true));
       metric.addSize(100);
 
-      Assert.assertEquals(100, metric.getSize());
-      Assert.assertEquals(1, metric.getElements());
-      Assert.assertFalse(over.get());
+      assertEquals(100, metric.getSize());
+      assertEquals(1, metric.getElements());
+      assertFalse(over.get());
    }
 
    @Test
@@ -503,21 +506,21 @@ public class SizeAwareMetricTest {
          metric.addSize(10, true);
       }
 
-      Assert.assertEquals(100, metricMain.getSize());
-      Assert.assertEquals(100, metric.getSize());
-      Assert.assertEquals(0, metricMain.getElements());
-      Assert.assertEquals(0, metric.getElements());
+      assertEquals(100, metricMain.getSize());
+      assertEquals(100, metric.getSize());
+      assertEquals(0, metricMain.getElements());
+      assertEquals(0, metric.getElements());
 
       for (int i = 0; i  < 10; i++) {
          metric.addSize(10, false);
       }
 
-      Assert.assertEquals(200, metricMain.getSize());
-      Assert.assertEquals(200, metric.getSize());
-      Assert.assertEquals(10, metricMain.getElements());
-      Assert.assertEquals(10, metric.getElements());
+      assertEquals(200, metricMain.getSize());
+      assertEquals(200, metric.getSize());
+      assertEquals(10, metricMain.getElements());
+      assertEquals(10, metric.getElements());
 
-      Assert.assertFalse(over.get());
+      assertFalse(over.get());
    }
 
    @Test
@@ -528,8 +531,8 @@ public class SizeAwareMetricTest {
       metric.setOverCallback(() -> over.set(true));
       metric.setMax(0, 0, 0, 0);
 
-      Assert.assertFalse(over.get());
-      Assert.assertFalse(metric.isOver());
+      assertFalse(over.get());
+      assertFalse(metric.isOver());
    }
 
    @Test
@@ -542,36 +545,36 @@ public class SizeAwareMetricTest {
 
       metric.addSize(2500, true);
 
-      Assert.assertTrue(over.get());
+      assertTrue(over.get());
 
       metric.addSize(1000);
 
-      Assert.assertTrue(metric.isOverSize());
+      assertTrue(metric.isOverSize());
 
       metric.addSize(-2500, true);
 
       // Even though we are free from maxSize, we are still bound by maxElements, it should still be over
-      Assert.assertTrue(over.get());
-      Assert.assertTrue("Switch did not work", metric.isOverElements());
+      assertTrue(over.get());
+      assertTrue(metric.isOverElements(), "Switch did not work");
 
-      Assert.assertEquals(1, metric.getElements());
-      Assert.assertEquals(1000, metric.getSize());
+      assertEquals(1, metric.getElements());
+      assertEquals(1000, metric.getSize());
 
       metric.addSize(5000, true);
 
-      Assert.assertTrue(metric.isOverElements());
-      Assert.assertEquals(6000, metric.getSize());
+      assertTrue(metric.isOverElements());
+      assertEquals(6000, metric.getSize());
 
       metric.addSize(-1000);
 
-      Assert.assertTrue(metric.isOverSize());
-      Assert.assertEquals(0, metric.getElements());
-      Assert.assertEquals(5000, metric.getSize());
+      assertTrue(metric.isOverSize());
+      assertEquals(0, metric.getElements());
+      assertEquals(5000, metric.getSize());
 
       metric.addSize(-5000, true);
-      Assert.assertFalse(metric.isOver());
-      Assert.assertEquals(0, metric.getSize());
-      Assert.assertEquals(0, metric.getElements());
+      assertFalse(metric.isOver());
+      assertEquals(0, metric.getSize());
+      assertEquals(0, metric.getElements());
    }
 
 
@@ -630,20 +633,20 @@ public class SizeAwareMetricTest {
          });
       }
 
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, metric.getSize());
-      Assert.assertEquals(0, metric.getElements());
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, metric.getSize());
+      assertEquals(0, metric.getElements());
+      assertEquals(0, errors.get());
    }
 
    @Test
    public void testConsistency() {
       SizeAwareMetric metric = new SizeAwareMetric(-1, -1, -1, -1);
-      Assert.assertFalse(metric.isSizeEnabled());
-      Assert.assertFalse(metric.isElementsEnabled());
+      assertFalse(metric.isSizeEnabled());
+      assertFalse(metric.isElementsEnabled());
       metric.setMax(1, 1, 1, 1);
-      Assert.assertTrue(metric.isSizeEnabled());
-      Assert.assertTrue(metric.isElementsEnabled());
+      assertTrue(metric.isSizeEnabled());
+      assertTrue(metric.isElementsEnabled());
    }
 }

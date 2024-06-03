@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +32,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IsolatedTopologyTest extends ActiveMQTestBase {
 
@@ -76,8 +77,8 @@ public class IsolatedTopologyTest extends ActiveMQTestBase {
 
       TopologyMemberImpl member1 = topology.getMember(nodeId1);
       TopologyMemberImpl member2 = topology.getMember(nodeId2);
-      Assert.assertEquals(member1.getPrimary().getParams().toString(), cfg1.getParams().toString());
-      Assert.assertEquals(member2.getPrimary().getParams().toString(), cfg2.getParams().toString());
+      assertEquals(member1.getPrimary().getParams().toString(), cfg1.getParams().toString());
+      assertEquals(member2.getPrimary().getParams().toString(), cfg2.getParams().toString());
    }
 
    private ActiveMQServer createServer1() throws Exception {

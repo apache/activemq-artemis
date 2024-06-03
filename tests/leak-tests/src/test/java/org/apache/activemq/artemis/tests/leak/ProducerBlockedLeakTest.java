@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -41,11 +44,9 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,13 +59,13 @@ public class ProducerBlockedLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, createDefaultConfig(1, true));
@@ -113,7 +114,7 @@ public class ProducerBlockedLeakTest extends AbstractLeakTest {
          Wait.assertTrue(() -> loggerHandler.findText("AMQ222183"), 5000, 10);
 
          process.destroyForcibly();
-         Assert.assertTrue(process.waitFor(10, TimeUnit.SECONDS));
+         assertTrue(process.waitFor(10, TimeUnit.SECONDS));
 
          // Making sure there are no connections anywhere in Acceptors or RemotingService.
          // Just to speed up the test especially in OpenWire

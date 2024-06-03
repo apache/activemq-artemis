@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -32,8 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MixRoutingTest extends SingleServerTestBase {
 
@@ -74,16 +77,16 @@ public class MixRoutingTest extends SingleServerTestBase {
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage tmpMessage = (TextMessage) consumerTemp.receive(5000);
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(tmpMessage);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("tmp", tmpMessage.getText());
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, tmpMessage.getIntProperty("i"));
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(tmpMessage);
+         assertNotNull(permanent);
+         assertEquals("tmp", tmpMessage.getText());
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, tmpMessage.getIntProperty("i"));
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
-      Assert.assertNull(consumerTemp.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerTemp.receiveNoWait());
       connection.close();
       factory.close();
    }
@@ -124,16 +127,16 @@ public class MixRoutingTest extends SingleServerTestBase {
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage tmpMessage = (TextMessage) consumerTemp.receive(5000);
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(tmpMessage);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("tmp", tmpMessage.getText());
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, tmpMessage.getIntProperty("i"));
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(tmpMessage);
+         assertNotNull(permanent);
+         assertEquals("tmp", tmpMessage.getText());
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, tmpMessage.getIntProperty("i"));
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
-      Assert.assertNull(consumerTemp.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerTemp.receiveNoWait());
       connection.close();
       factory.close();
    }
@@ -171,12 +174,12 @@ public class MixRoutingTest extends SingleServerTestBase {
 
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(permanent);
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
       connection.close();
       factory.close();
    }

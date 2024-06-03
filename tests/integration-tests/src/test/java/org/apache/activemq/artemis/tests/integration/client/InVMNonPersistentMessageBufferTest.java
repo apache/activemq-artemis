@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,9 +34,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
@@ -66,9 +70,9 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       ClientMessage received = sendAndReceive(message);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
-      Assert.assertEquals(body, received.getBodyBuffer().readString());
+      assertEquals(body, received.getBodyBuffer().readString());
    }
 
    @Test
@@ -77,9 +81,9 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       ClientMessage received = sendAndReceive(message);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
-      Assert.assertEquals(0, received.getBodySize());
+      assertEquals(0, received.getBodySize());
    }
 
    @Test
@@ -95,13 +99,13 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
       for (int i = 0; i < 10; i++) {
          ClientMessage received = sendAndReceive(message);
 
-         Assert.assertNotNull(received);
+         assertNotNull(received);
 
-         Assert.assertEquals(bodySize, received.getBodySize());
+         assertEquals(bodySize, received.getBodySize());
 
-         Assert.assertEquals(body, received.getBodyBuffer().readString());
+         assertEquals(body, received.getBodyBuffer().readString());
 
-         Assert.assertFalse(received.getBodyBuffer().readable());
+         assertFalse(received.getBodyBuffer().readable());
       }
    }
 
@@ -121,19 +125,19 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
          ClientMessage received = sendAndReceive(message);
 
-         Assert.assertNotNull(received);
+         assertNotNull(received);
 
-         Assert.assertEquals(bodySize, received.getBodySize());
+         assertEquals(bodySize, received.getBodySize());
 
-         Assert.assertEquals(body, received.getBodyBuffer().readString());
+         assertEquals(body, received.getBodyBuffer().readString());
 
-         Assert.assertFalse(received.getBodyBuffer().readable());
+         assertFalse(received.getBodyBuffer().readable());
 
          message.getBodyBuffer().clear();
 
-         Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().writerIndex());
+         assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().writerIndex());
 
-         Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+         assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
       }
    }
 
@@ -147,37 +151,37 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       ClientMessage received = sendAndReceive(message);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       ActiveMQBuffer buffer = received.getReadOnlyBodyBuffer();
 
-      Assert.assertEquals(body, buffer.readString());
+      assertEquals(body, buffer.readString());
 
       try {
          buffer.readByte();
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
 
-      Assert.assertEquals(body, received.getBodyBuffer().readString());
+      assertEquals(body, received.getBodyBuffer().readString());
 
       try {
          received.getBodyBuffer().readByte();
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       buffer = received.getReadOnlyBodyBuffer();
 
-      Assert.assertEquals(body, buffer.readString());
+      assertEquals(body, buffer.readString());
 
       try {
          buffer.readByte();
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IndexOutOfBoundsException e) {
          // OK
       }
@@ -192,33 +196,33 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       message.getBodyBuffer().writeString(body);
 
-      Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+      assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body2 = message.getBodyBuffer().readString();
 
-      Assert.assertEquals(body, body2);
+      assertEquals(body, body2);
 
       message.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+      assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body3 = message.getBodyBuffer().readString();
 
-      Assert.assertEquals(body, body3);
+      assertEquals(body, body3);
 
       ClientMessage received = sendAndReceive(message);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
-      Assert.assertEquals(body, received.getBodyBuffer().readString());
+      assertEquals(body, received.getBodyBuffer().readString());
 
       received.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(DataConstants.SIZE_INT, received.getBodyBuffer().readerIndex());
+      assertEquals(DataConstants.SIZE_INT, received.getBodyBuffer().readerIndex());
 
       String body4 = received.getBodyBuffer().readString();
 
-      Assert.assertEquals(body, body4);
+      assertEquals(body, body4);
 
    }
 
@@ -239,7 +243,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

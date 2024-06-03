@@ -29,9 +29,9 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -48,14 +48,14 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queueFactory = new FakeQueueFactory();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       queueFactory.stop();
       super.tearDown();

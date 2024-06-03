@@ -17,14 +17,16 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A simple test-case used for documentation purposes.
@@ -44,8 +46,8 @@ public class ActivationCallbackTest extends ActiveMQTestBase {
          }
       });
       server.start();
-      Assert.assertEquals(1, latch.getCount());
+      assertEquals(1, latch.getCount());
       server.stop();
-      Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+      assertTrue(latch.await(30, TimeUnit.SECONDS));
    }
 }

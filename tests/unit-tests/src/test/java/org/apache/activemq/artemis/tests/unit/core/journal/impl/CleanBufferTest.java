@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 
@@ -25,8 +27,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CleanBufferTest extends ActiveMQTestBase {
 
@@ -67,7 +68,7 @@ public class CleanBufferTest extends ActiveMQTestBase {
          buffer.rewind();
 
          for (byte b = 0; b < 100; b++) {
-            Assert.assertEquals(b, buffer.get());
+            assertEquals(b, buffer.get());
          }
 
          buffer.limit(10);
@@ -78,9 +79,9 @@ public class CleanBufferTest extends ActiveMQTestBase {
 
          for (byte b = 0; b < 100; b++) {
             if (b < 10) {
-               Assert.assertEquals(0, buffer.get());
+               assertEquals(0, buffer.get());
             } else {
-               Assert.assertEquals(b, buffer.get());
+               assertEquals(b, buffer.get());
             }
          }
       } finally {

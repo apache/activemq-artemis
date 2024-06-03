@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -44,9 +49,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +64,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
 
    private static final String SNF_NAME = "$ACTIVEMQ_ARTEMIS_MIRROR_other";
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -131,9 +135,9 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       Wait.waitFor(() -> server2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other") != null);
 
       org.apache.activemq.artemis.core.server.Queue snf1 = server1.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other");
-      Assert.assertNotNull(snf1);
+      assertNotNull(snf1);
 
-      Assert.assertEquals(2, AckManagerProvider.getSize());
+      assertEquals(2, AckManagerProvider.getSize());
 
       server1.addAddressInfo(new AddressInfo(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST));
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server1.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
@@ -179,7 +183,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       Wait.waitFor(() -> server2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other") != null);
 
       org.apache.activemq.artemis.core.server.Queue snf1 = server1.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other");
-      Assert.assertNotNull(snf1);
+      assertNotNull(snf1);
 
       logger.info("I currently have {} ACk Managers", AckManagerProvider.getSize());
 
@@ -197,7 +201,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       logger.info("I currently have {} ACk Managers", AckManagerProvider.getSize());
 
       File countJournalLocation = server1.getConfiguration().getJournalLocation();
-      Assert.assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
+      assertTrue(countJournalLocation.exists() && countJournalLocation.isDirectory());
 
       ConnectionFactory server1CF = CFUtil.createConnectionFactory(protocol, sendURI);
       ConnectionFactory server2CF = CFUtil.createConnectionFactory(protocol, consumerURI);
@@ -237,38 +241,38 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       }
 
       if (pageQueue) {
-         Assert.assertTrue(queueOnServer1.getPagingStore().isPaging());
+         assertTrue(queueOnServer1.getPagingStore().isPaging());
       } else {
-         Assert.assertFalse(queueOnServer1.getPagingStore().isPaging());
+         assertFalse(queueOnServer1.getPagingStore().isPaging());
       }
 
       if (pageSNF) {
-         Assert.assertTrue(snf1.getPagingStore().isPaging());
+         assertTrue(snf1.getPagingStore().isPaging());
       } else {
-         Assert.assertFalse(snf1.getPagingStore().isPaging());
+         assertFalse(snf1.getPagingStore().isPaging());
       }
 
       if (pageSNF && pageQueue) {
          journalStorageManager.getMessageJournal().scheduleCompactAndBlock(60_000); // to remove previous sent records during the startup
          // verifying if everything is actually paged, nothing should be routed on the journal
          HashMap<Integer, AtomicInteger> counters = countJournal(server1.getConfiguration());
-         Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_REF, counters));
-         Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_MESSAGE, counters));
-         Assert.assertEquals("There are routed messages on the journal", 0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters));
+         assertEquals(0, getCounter(JournalRecordIds.ADD_REF, counters), "There are routed messages on the journal");
+         assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE, counters), "There are routed messages on the journal");
+         assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters), "There are routed messages on the journal");
       }
 
       server2.start();
 
-      Assert.assertEquals(2, AckManagerProvider.getSize());
+      assertEquals(2, AckManagerProvider.getSize());
 
       if (pageTarget) {
          org.apache.activemq.artemis.core.server.Queue queue2 = server2.locateQueue(QUEUE_NAME);
-         Assert.assertNotNull(queue2);
+         assertNotNull(queue2);
          queue2.getPagingStore().startPaging();
       }
 
       org.apache.activemq.artemis.core.server.Queue snf2 = server2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other");
-      Assert.assertNotNull(snf2);
+      assertNotNull(snf2);
 
       Wait.assertEquals(0, snf1::getMessageCount);
       Wait.assertEquals(0, snf2::getMessageCount);
@@ -277,8 +281,8 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       Wait.assertEquals((long) NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount, 5000);
       Wait.assertEquals((long) NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount, 5000);
 
-      Assert.assertEquals(0, queueOnServer1.getConsumerCount());
-      Assert.assertEquals(0, queueOnServer1.getDeliveringCount());
+      assertEquals(0, queueOnServer1.getConsumerCount());
+      assertEquals(0, queueOnServer1.getDeliveringCount());
 
       try (Connection connection = server2CF.createConnection()) {
          connection.start();
@@ -287,14 +291,14 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(jmsQueue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("i"));
             System.out.println("Message " + message.getIntProperty("i"));
          }
          session.commit();
       }
 
-      Assert.assertEquals(2, AckManagerProvider.getSize());
+      assertEquals(2, AckManagerProvider.getSize());
 
       Wait.assertEquals(0, snf2::getMessageCount, 15_000);
       Wait.assertEquals(0, queueOnServer2::getMessageCount, 15_000);

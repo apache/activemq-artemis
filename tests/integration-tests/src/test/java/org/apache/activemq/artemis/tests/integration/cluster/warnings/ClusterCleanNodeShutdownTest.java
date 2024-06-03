@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.warnings;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.lang.invoke.MethodHandles;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +74,8 @@ public class ClusterCleanNodeShutdownTest extends ClusterTestBase {
          // Waiting some time after stopped
          Wait.assertTrue(() -> !getServer(0).isStarted() && !getServer(0).isActive(), 2000L);
          logger.debug("*****************************************************************************");
-         Assert.assertFalse("Connection failure detected for an expected DISCONNECT event", loggerHandler.findText("AMQ212037", " [code=DISCONNECTED]"));
-         Assert.assertFalse("WARN found", loggerHandler.hasLevel(AssertionLoggerHandler.LogLevel.WARN));
+         assertFalse(loggerHandler.findText("AMQ212037", " [code=DISCONNECTED]"), "Connection failure detected for an expected DISCONNECT event");
+         assertFalse(loggerHandler.hasLevel(AssertionLoggerHandler.LogLevel.WARN), "WARN found");
       }
       startServers(0);
 

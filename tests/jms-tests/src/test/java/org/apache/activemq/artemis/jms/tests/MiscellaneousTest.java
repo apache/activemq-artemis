@@ -28,8 +28,8 @@ import javax.jms.TextMessage;
 import java.util.Enumeration;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Various use cases, added here while trying things or fixing forum issues.
@@ -37,7 +37,7 @@ import org.junit.Test;
 public class MiscellaneousTest extends JMSTestCase {
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       removeAllMessages(queue1.getQueueName(), true);
 

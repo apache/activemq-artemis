@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -70,9 +76,8 @@ import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -234,14 +239,14 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       conn.close();
 
@@ -308,14 +313,14 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          TextMessage tm = (TextMessage) consumerBackup.receive(1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
-         Assert.assertEquals("message" + i, tm.getText());
+         assertEquals("message" + i, tm.getText());
       }
 
       TextMessage tm = (TextMessage) consumerBackup.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       connBackup.close();
    }
@@ -427,7 +432,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
          try {
             sess.commit();
          } catch (Exception e) {
-            new Exception("Exception during commit", e);
+            logger.debug("Exception during commit", e);
             sess.rollback();
          }
 
@@ -510,7 +515,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       startServers();

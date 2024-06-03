@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
@@ -27,19 +32,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSUsecaseTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSUsecaseTest extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
+   @Parameters(name = "deliveryMode={0} destinationType={1}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}});
    }
@@ -52,7 +58,7 @@ public class JMSUsecaseTest extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testQueueBrowser() throws Exception {
       // Send a message to the broker.
       connection.start();

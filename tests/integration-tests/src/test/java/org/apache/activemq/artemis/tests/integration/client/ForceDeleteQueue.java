@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -38,17 +40,17 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ForceDeleteQueue extends ActiveMQTestBase {
 
    ActiveMQServer server;
@@ -59,14 +61,14 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
       this.protocol = protocol;
    }
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{"openwire"}, {"core"}, {"amqp"}};
       return Arrays.asList(params);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -81,7 +83,7 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
       server.start();
    }
 
-   @Test
+   @TestTemplate
    public void testForceDelete() throws Exception {
       SimpleString queueName = SimpleString.toSimpleString("testForceDelete");
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
@@ -138,7 +140,7 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
          }
 
 
-         Assert.assertFalse(loggerHandler.findText("Cannot find add info"));
+         assertFalse(loggerHandler.findText("Cannot find add info"));
 
 
       } finally {

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -50,8 +57,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -119,7 +125,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 30; i++) {
          message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
       }
       session.commit();
@@ -147,8 +153,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
-      Assert.assertTrue(globalSizeMetric.isOverElements());
-      Assert.assertFalse(globalSizeMetric.isOverSize());
+      assertTrue(globalSizeMetric.isOverElements());
+      assertFalse(globalSizeMetric.isOverSize());
 
       session.close();
    }
@@ -210,8 +216,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
-      Assert.assertTrue(globalSizeMetric.isOverElements());
-      Assert.assertFalse(globalSizeMetric.isOverSize());
+      assertTrue(globalSizeMetric.isOverElements());
+      assertFalse(globalSizeMetric.isOverSize());
 
       session.close();
    }
@@ -265,7 +271,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
             if (i >= 4) {
                Wait.assertTrue(queue.getPagingStore()::isPaging);
             } else {
-               Assert.assertFalse(queue.getPagingStore().isPaging());
+               assertFalse(queue.getPagingStore().isPaging());
             }
          }
       }
@@ -318,7 +324,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          if (adr >= 9) {
             Wait.assertTrue(queue.getPagingStore()::isPaging);
          } else {
-            Assert.assertFalse(queue.getPagingStore().isPaging());
+            assertFalse(queue.getPagingStore().isPaging());
          }
       }
    }
@@ -397,7 +403,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
             producer.send(session.createTextMessage("should fail"));
             if (durable) {
-               Assert.fail(("supposed to fail"));
+               fail(("supposed to fail"));
             } else {
                // in case of async send, the exception will not propagate to the client, and we should still check the logger on that case
                Wait.assertTrue(() -> loggerHandler.findTrace("is full")); // my intention was to assert for "AMQ229102" howerver openwire is not using the code here
@@ -409,11 +415,11 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("OK", message.getText());
+            assertNotNull(message);
+            assertEquals("OK", message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          consumer.close();
          producer.close();
@@ -510,9 +516,9 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          });
 
          Wait.assertTrue(() -> loggerHandler.findText("AMQ222183"), 5000, 10); //unblock
-         Assert.assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
+         assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
 
-         Assert.assertFalse(done.await(200, TimeUnit.MILLISECONDS));
+         assertFalse(done.await(200, TimeUnit.MILLISECONDS));
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -520,8 +526,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
          for (int i = 0; i < MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("OK!" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("OK!" + i, message.getText());
          }
          sessionReceive.close();
 
@@ -607,16 +613,16 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
             if (repeat == 0) {
                // the server will only log it on the first repeat as expected
-               Assert.assertTrue(loggerHandler.findText("AMQ222039")); // dropped messages
+               assertTrue(loggerHandler.findText("AMQ222039")); // dropped messages
             }
 
             Session sessionReceive = connReceive.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
             for (int i = 0; i < 10; i++) {
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             sessionReceive.close();
          }
       }

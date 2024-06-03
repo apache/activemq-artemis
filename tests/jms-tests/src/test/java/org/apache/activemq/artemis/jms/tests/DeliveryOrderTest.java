@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -27,10 +30,7 @@ import javax.jms.TextMessage;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import org.junit.jupiter.api.Test;
 
 public class DeliveryOrderTest extends JMSTestCase {
 
@@ -69,7 +69,7 @@ public class DeliveryOrderTest extends JMSTestCase {
       // need extra commit for cases in which the last message index is not a multiple of 10
       sess.commit();
 
-      Assert.assertTrue(latch.await(20000, MILLISECONDS));
+      assertTrue(latch.await(20000, MILLISECONDS));
 
       if (listener.failed) {
          ProxyAssertSupport.fail("listener failed: " + listener.getError());

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -33,20 +35,20 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AutoDeleteClusteredDestinationTest extends ClusterTestBase {
-
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public MessageLoadBalancingType loadBalancingType = MessageLoadBalancingType.OFF;
 
-   @Parameterized.Parameters(name = "loadBalancingType = {0}")
+   @Parameters(name = "loadBalancingType = {0}")
    public static Iterable<? extends Object> loadBalancingType() {
       return Arrays.asList(new Object[][]{
          {MessageLoadBalancingType.OFF},
@@ -56,14 +58,14 @@ public class AutoDeleteClusteredDestinationTest extends ClusterTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
    }
 
-   @Test
+   @TestTemplate
    public void testConnectionLoadBalancingAnonRun() throws Exception {
       final String queueName = "queue";
       final String url0 = "tcp://localhost:61616?useTopologyForLoadBalancing=false";
@@ -133,7 +135,7 @@ public class AutoDeleteClusteredDestinationTest extends ClusterTestBase {
             }
          }
 
-         Assert.assertTrue(latch.await(TIMEOUT, TimeUnit.MILLISECONDS));
+         assertTrue(latch.await(TIMEOUT, TimeUnit.MILLISECONDS));
 
       }
    }

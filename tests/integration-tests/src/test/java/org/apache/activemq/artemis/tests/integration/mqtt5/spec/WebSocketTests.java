@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Fulfilled by client (i.e. not tested here):
@@ -37,6 +37,6 @@ import org.junit.Ignore;
  *
  */
 
-@Ignore
+@Disabled
 public class WebSocketTests extends MQTT5TestSupport {
 }

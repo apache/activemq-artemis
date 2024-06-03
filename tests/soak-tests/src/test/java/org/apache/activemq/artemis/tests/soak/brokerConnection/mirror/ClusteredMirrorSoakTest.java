@@ -17,6 +17,13 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -52,8 +59,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,11 +119,11 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       saveProperties(brokerProperties, brokerPropertiesFile);
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
-      Assert.assertTrue(brokerXml.exists());
+      assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
-      Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by ClusteredMirrorSoakTest.java --> \n"));
       if (paging) {
-         Assert.assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>1</max-size-messages>"));
+         assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>1</max-size-messages>"));
       }
    }
 
@@ -174,18 +180,18 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
          logger.info("DC2B={}", simpleManagementDC2B.getMessageAddedOnQueue(snfQueue));
 
          // no load generated.. just initial queues should have been sent
-         Assert.assertTrue(simpleManagementDC1A.getMessageAddedOnQueue(snfQueue) < 20);
-         Assert.assertTrue(simpleManagementDC2A.getMessageAddedOnQueue(snfQueue) < 20);
-         Assert.assertTrue(simpleManagementDC1B.getMessageAddedOnQueue(snfQueue) < 20);
-         Assert.assertTrue(simpleManagementDC2B.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC1A.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC2A.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC1B.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC2B.getMessageAddedOnQueue(snfQueue) < 20);
          Thread.sleep(100);
       }
 
-      Assert.assertEquals(0, simpleManagementDC2A.getMessageCountOnQueue(queueName));
-      Assert.assertEquals(0, simpleManagementDC1A.getMessageCountOnQueue(internalQueue));
+      assertEquals(0, simpleManagementDC2A.getMessageCountOnQueue(queueName));
+      assertEquals(0, simpleManagementDC1A.getMessageCountOnQueue(internalQueue));
       try {
          simpleManagementDC2A.getMessageCountOnQueue(internalQueue);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (Exception expected) {
       }
 
@@ -242,7 +248,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
          for (MessageConsumer c : consumers) {
             for (int i = 0; i < numberOfMessages; i++) {
-               Assert.assertNotNull(c.receive(5000));
+               assertNotNull(c.receive(5000));
                if (i % 100 == 0) {
                   session.commit();
                }
@@ -263,12 +269,12 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       for (int i = 0; i < 10; i++) {
          // DC1 should be quiet and nothing moving out of it
-         Assert.assertEquals(countDC1A, simpleManagementDC1A.getMessageAddedOnQueue(snfQueue));
-         Assert.assertEquals(countDC1B, simpleManagementDC1B.getMessageAddedOnQueue(snfQueue));
+         assertEquals(countDC1A, simpleManagementDC1A.getMessageAddedOnQueue(snfQueue));
+         assertEquals(countDC1B, simpleManagementDC1B.getMessageAddedOnQueue(snfQueue));
 
          // DC2 is totally passive, nothing should have been generated
-         Assert.assertTrue(simpleManagementDC2A.getMessageAddedOnQueue(snfQueue) < 20);
-         Assert.assertTrue(simpleManagementDC2B.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC2A.getMessageAddedOnQueue(snfQueue) < 20);
+         assertTrue(simpleManagementDC2B.getMessageAddedOnQueue(snfQueue) < 20);
          // we take intervals, allowing to make sure it doesn't grow
          Thread.sleep(100);
          logger.info("DC1A={}", simpleManagementDC1A.getMessageAddedOnQueue(snfQueue));
@@ -285,7 +291,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 200;
 
-      Assert.assertTrue("numberOfMessages must be even", numberOfMessages % 2 == 0);
+      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
 
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", DC1_NODEA_URI);
       ConnectionFactory connectionFactoryDC2A = CFUtil.createConnectionFactory("amqp", DC2_NODEA_URI);
@@ -329,7 +335,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
          for (int i = 0; i < numberOfMessages / 2; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {}, large={}", message.getIntProperty("i"), message.getBooleanProperty("large"));
          }
          session.commit();
@@ -349,7 +355,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
          for (int i = 0; i < numberOfMessages / 2; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {}, large={}", message.getIntProperty("i"), message.getBooleanProperty("large"));
          }
          session.commit();
@@ -456,14 +462,14 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
            SimpleManagement simpleManagementDC2A = new SimpleManagement(DC2_NODEA_URI, null, null);
            SimpleManagement simpleManagementDC2B = new SimpleManagement(DC2_NODEB_URI, null, null)) {
 
-         Assert.assertFalse(findQueue(simpleManagementDC1A, queueName));
-         Assert.assertFalse(findQueue(simpleManagementDC1B, queueName));
-         Assert.assertFalse(findQueue(simpleManagementDC2A, queueName));
-         Assert.assertFalse(findQueue(simpleManagementDC2B, queueName));
+         assertFalse(findQueue(simpleManagementDC1A, queueName));
+         assertFalse(findQueue(simpleManagementDC1B, queueName));
+         assertFalse(findQueue(simpleManagementDC2A, queueName));
+         assertFalse(findQueue(simpleManagementDC2B, queueName));
 
          // just to allow auto-creation to kick in....
-         Assert.assertTrue(startConsumer(executorService, connectionFactoryDC2A, queueName, new AtomicBoolean(false), errors, receiverCount).await(1, TimeUnit.MINUTES));
-         Assert.assertTrue(startConsumer(executorService, connectionFactoryDC2B, queueName, new AtomicBoolean(false), errors, receiverCount).await(1, TimeUnit.MINUTES));
+         assertTrue(startConsumer(executorService, connectionFactoryDC2A, queueName, new AtomicBoolean(false), errors, receiverCount).await(1, TimeUnit.MINUTES));
+         assertTrue(startConsumer(executorService, connectionFactoryDC2B, queueName, new AtomicBoolean(false), errors, receiverCount).await(1, TimeUnit.MINUTES));
 
          Wait.assertTrue(() -> findQueue(simpleManagementDC1A, queueName));
          Wait.assertTrue(() -> findQueue(simpleManagementDC1B, queueName));
@@ -496,8 +502,8 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
          runningConsumers.set(false);
 
-         Assert.assertTrue(doneDC2B.await(5, TimeUnit.SECONDS));
-         Assert.assertEquals(0, errors.get());
+         assertTrue(doneDC2B.await(5, TimeUnit.SECONDS));
+         assertEquals(0, errors.get());
       }
    }
 
@@ -508,7 +514,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 200;
 
-      Assert.assertTrue("numberOfMessages must be even", numberOfMessages % 2 == 0);
+      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
 
       String clientIDA = "nodeA";
       String clientIDB = "nodeB";
@@ -585,25 +591,25 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
          for (int i = start; i < start + numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(10_000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {}, large={}", message.getIntProperty("i"), message.getBooleanProperty("large"));
             if (message.getIntProperty("i") != i) {
                failed = true;
                logger.warn("Expected message {} but got {}", i, message.getIntProperty("i"));
             }
             if (message.getBooleanProperty("large")) {
-               Assert.assertEquals(largeBody, message.getText());
+               assertEquals(largeBody, message.getText());
             } else {
-               Assert.assertEquals(smallBody, message.getText());
+               assertEquals(smallBody, message.getText());
             }
             logger.debug("Consumed {}, large={}", i, message.getBooleanProperty("large"));
          }
          session.commit();
 
-         Assert.assertFalse(failed);
+         assertFalse(failed);
 
          if (expectEmpty) {
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
       }
 

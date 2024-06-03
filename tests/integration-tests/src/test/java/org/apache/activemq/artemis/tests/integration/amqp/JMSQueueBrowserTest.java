@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +36,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -43,7 +49,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrowseAllInQueueZeroPrefetch() throws Exception {
 
       final int MSG_COUNT = 5;
@@ -56,7 +63,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), MSG_COUNT, false);
+      sendMessages(name, MSG_COUNT, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
@@ -77,7 +84,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertEquals(5, count);
    }
 
-   @Test(timeout = 40000)
+   @Test
+   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
    public void testCreateQueueBrowser() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -94,7 +102,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertEquals(0, queueView.getMessageCount());
    }
 
-   @Test(timeout = 40000)
+   @Test
+   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
    public void testNoMessagesBrowserHasNoElements() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -114,7 +123,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertFalse(enumeration.hasMoreElements());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testBroseOneInQueue() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -141,7 +151,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertTrue(msg instanceof TextMessage);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrowseAllInQueue() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -149,7 +160,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), 5, false);
+      sendMessages(name, 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(5, queueView::getMessageCount);
@@ -169,7 +180,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertEquals(5, count);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrowseAllInQueuePrefetchOne() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -177,7 +189,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), 5, false);
+      sendMessages(name, 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(5, queueView::getMessageCount);
@@ -196,7 +208,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertEquals(5, count);
    }
 
-   @Test(timeout = 40000)
+   @Test
+   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
    public void testBrowseAllInQueueTxSession() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -204,7 +217,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), 5, false);
+      sendMessages(name, 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(5, queueView::getMessageCount);
@@ -223,7 +236,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       assertEquals(5, count);
    }
 
-   @Test(timeout = 40000)
+   @Test
+   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
    public void testQueueBrowserInTxSessionLeavesOtherWorkUnaffected() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -231,7 +245,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), 5, false);
+      sendMessages(name, 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(5, queueView::getMessageCount);
@@ -266,7 +280,8 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Wait.assertEquals(10, queueView::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testBrowseAllInQueueSmallPrefetch() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -276,7 +291,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       assertNotNull(session);
       javax.jms.Queue queue = session.createQueue(getQueueName());
-      sendMessages(name.getMethodName(), MSG_COUNT, false);
+      sendMessages(name, MSG_COUNT, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);

@@ -16,25 +16,25 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.cli.test.TestActionContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ProducerThreadTest {
 
    ProducerThread producer;
    Message mockMessage;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       producer = new ProducerThread(null, ActiveMQDestination.createQueue(RandomUtil.randomString()), 0, null);
       mockMessage = Mockito.mock(Message.class);

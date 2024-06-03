@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.interop;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -23,6 +26,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,7 +44,9 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsTopic;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +59,14 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       return "AMQP,OPENWIRE,CORE";
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMultipleCoreReceiving() throws Exception {
 
       Connection coreJmsConn = this.createCoreConnection();
@@ -92,7 +100,8 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAmqpFailedConversionFromCore() throws Exception {
       final SimpleString message = RandomUtil.randomSimpleString();
       Connection coreJmsConn = this.createCoreConnection();

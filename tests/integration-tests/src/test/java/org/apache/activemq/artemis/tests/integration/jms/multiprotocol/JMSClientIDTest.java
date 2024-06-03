@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSClientIDTest extends MultiprotocolJMSClientTestSupport {
 

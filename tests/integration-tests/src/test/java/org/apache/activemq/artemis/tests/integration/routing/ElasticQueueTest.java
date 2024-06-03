@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -64,8 +66,9 @@ import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionListener;
 import org.apache.qpid.jms.message.JmsInboundMessageDispatch;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ElasticQueueTest extends ActiveMQTestBase {
 
@@ -78,7 +81,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    private final String roleNameSharder = "role_name_sharder";
 
    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
-   @After
+   @AfterEach
    public void cleanup() {
       for (EmbeddedActiveMQ activeMQ : nodes) {
          try {
@@ -446,7 +449,8 @@ public class ElasticQueueTest extends ActiveMQTestBase {
       nodes.get(0).start();
    }
 
-   @Test (timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testScale0_1() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();
@@ -483,7 +487,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
 
       // auto created address when producer connects
       AddressControl addressControl1 = (AddressControl) ManagementControlHelper.createProxy(node1NameBuilder.getAddressObjectName(qNameSimple), AddressControl.class, mBeanServer);
-      assertTrue("Producer is on Head, Node1", Wait.waitFor(() -> {
+      assertTrue(Wait.waitFor(() -> {
          try {
             int usage = addressControl1.getAddressLimitPercent();
             System.out.println("Node1 (head) usage % " + usage);
@@ -491,7 +495,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
          }
          return false;
-      },5000, 200));
+      },5000, 200), "Producer is on Head, Node1");
 
       // wait for Node0 to drain
       eqConsumer.delayMillis.set(0); // fast
@@ -510,11 +514,11 @@ public class ElasticQueueTest extends ActiveMQTestBase {
 
       eqConsumer.delayMillis.set(500); // slow
 
-      assertTrue("New head&tail, Node1 full", Wait.waitFor(() -> {
+      assertTrue(Wait.waitFor(() -> {
          int usage = addressControl1.getAddressLimitPercent();
          System.out.println("Node1 usage % " + usage);
          return usage == 100;
-      },10000, 200));
+      },10000, 200), "New head&tail, Node1 full");
 
       // stop the producer
       eqProducer.done.set(true);
@@ -528,9 +532,9 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          return usage == 0;
       }, 10000, 200));
 
-      assertTrue("Got all produced", Wait.waitFor(() -> {
+      assertTrue(Wait.waitFor(() -> {
          return pidInRange("head&tail", eqProducer.getLastProduced(), eqConsumer.getLastConsumed());
-      }, 4000, 100));
+      }, 4000, 100), "Got all produced");
 
       eqConsumer.done.set(true);
 
@@ -541,7 +545,8 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    // A: we can limit it to a PRODUCER role, and it can only send, with addressControl.pause() the consumer
    // will get nothing to avoid out of order messages, b/c it is connected to the head broker, not the tail!
    // Some pure CONSUMER role needs to drain the tail in this case.
-   @Test (timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testScale0_1_CombinedProducerConsumerConnectionWithProducerRole() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();
@@ -560,7 +565,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          return false;
       },10000, 200));
 
-      assertTrue("producer got full error and reconnected", Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 2));
+      assertTrue(Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 2), "producer got full error and reconnected");
 
       long lastProducedToHeadTail = eqProducerConsumer.getLastProduced();
 
@@ -639,7 +644,8 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    // it to have both roles. With both roles, we need to be able to turn off production and best with credit.
    // blocking credit takes effect for new links, existing producers will see the FAIL exception.
    // Blocked producers make use of jms.sendTimeout to error out.
-   @Test (timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testScale0_1_CombinedRoleConnection() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();
@@ -658,7 +664,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          return false;
       },20000, 200));
 
-      assertTrue("producer got full error and reconnected", Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 0));
+      assertTrue(Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 0), "producer got full error and reconnected");
 
       // stop producer on Node0, only accept consumers. make it a tail broker
       ConnectionRouterControl routerControl0 = (ConnectionRouterControl) ManagementControlHelper.createProxy(node0NameBuilder.getConnectionRouterObjectName(roleNameSharder), ConnectionRouterControl.class, mBeanServer);

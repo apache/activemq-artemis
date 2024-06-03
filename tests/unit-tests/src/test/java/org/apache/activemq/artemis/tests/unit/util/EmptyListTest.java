@@ -16,32 +16,35 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.utils.collections.EmptyList;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EmptyListTest {
 
    @Test
    public void testEmpty() {
       LinkedList<String> stringEmpty = EmptyList.getEmptyList();
-      Assert.assertEquals(0, stringEmpty.size());
+      assertEquals(0, stringEmpty.size());
       Iterator<String> stringIterator = stringEmpty.iterator();
-      Assert.assertFalse(stringIterator.hasNext());
+      assertFalse(stringIterator.hasNext());
 
       try {
          stringIterator.next();
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (NoSuchElementException e) {
       }
 
       try {
          stringEmpty.get(0);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (IndexOutOfBoundsException e) {
       }
    }

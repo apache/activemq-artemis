@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -26,8 +29,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicSendReceiveTest
@@ -43,12 +46,10 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
    protected Destination producerDestination2;
 
    /**
-    * Set up a durable suscriber test.
-    *
-    * @see junit.framework.TestCase#setUp()
+    * Set up a durable subscriber test.
     */
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       this.durable = true;
       super.setUp();

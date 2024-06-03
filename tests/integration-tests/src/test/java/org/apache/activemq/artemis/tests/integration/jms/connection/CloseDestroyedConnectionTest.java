@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -34,9 +37,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CloseDestroyedConnectionTest extends JMSTestBase {
 
@@ -46,7 +48,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
    private ActiveMQSession session2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -59,7 +61,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
    public void testClosingTemporaryTopicDeletesQueue() throws JMSException, ActiveMQException {
       conn = cf.createConnection();
 
-      Assert.assertEquals(1, server.getRemotingService().getConnections().size());
+      assertEquals(1, server.getRemotingService().getConnections().size());
 
       session1 = (ActiveMQSession) conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic) session1.createTemporaryTopic();
@@ -74,7 +76,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
          cs.createConsumer(address);
          fail("the address from the TemporaryTopic still exists!");
       } catch (ActiveMQException e) {
-         assertEquals("expecting 'queue does not exist'", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType());
+         assertEquals(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType(), "expecting 'queue does not exist'");
       }
    }
 
@@ -90,7 +92,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
 
       conn = cf.createConnection();
 
-      Assert.assertEquals(1, server.getRemotingService().getConnections().size());
+      assertEquals(1, server.getRemotingService().getConnections().size());
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

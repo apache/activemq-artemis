@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -34,9 +36,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * ExceptionListenerTest
@@ -48,7 +49,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
    private ActiveMQConnectionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -90,7 +91,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
       latch.await(5, TimeUnit.SECONDS);
 
-      Assert.assertEquals(1, listener.numCalls);
+      assertEquals(1, listener.numCalls);
 
       conn.close();
    }
@@ -128,7 +129,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
       latch.await(5, TimeUnit.SECONDS);
       // Listener should only be called once even if all sessions connections die
-      Assert.assertEquals(1, listener.numCalls);
+      assertEquals(1, listener.numCalls);
 
       conn.close();
    }

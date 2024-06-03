@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 
@@ -30,23 +32,27 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class NetworkTimeoutCheckTest extends ParameterDBTestBase {
 
    private static final int TIMEOUT = 33_333;
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -59,7 +65,7 @@ public class NetworkTimeoutCheckTest extends ParameterDBTestBase {
    }
 
    // check if the sync timeout is propated to the page file
-   @Test
+   @TestTemplate
    public void testDBTimeoutPropagated() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.start();
@@ -71,7 +77,7 @@ public class NetworkTimeoutCheckTest extends ParameterDBTestBase {
       PagingStoreImpl store = (PagingStoreImpl) queue.getPagingStore();
       Page page = store.getCurrentPage();
       JDBCSequentialFile file = (JDBCSequentialFile) page.getFile();
-      Assert.assertEquals(TIMEOUT, file.getNetworkTimeoutMillis());
+      assertEquals(TIMEOUT, file.getNetworkTimeoutMillis());
 
       server.stop();
    }

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +35,8 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -48,7 +52,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -81,17 +85,17 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       session.stop();
       ClientMessage cm = consumer.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
 
       session.start();
       for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
 
@@ -122,20 +126,20 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       session.stop();
       long time = System.currentTimeMillis();
       ClientMessage cm = consumer.receive(1000);
       long taken = System.currentTimeMillis() - time;
-      Assert.assertTrue(taken >= 1000);
-      Assert.assertNull(cm);
+      assertTrue(taken >= 1000);
+      assertNull(cm);
 
       session.start();
       for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
 
@@ -204,19 +208,19 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       waitForLatch(latch);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       session.start();
       for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         Assert.assertNotNull("message " + i, msg);
+         assertNotNull(msg, "message " + i);
          msg.acknowledge();
       }
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       session.close();
    }
@@ -288,19 +292,19 @@ public class SessionStopStartTest extends ActiveMQTestBase {
          throw e;
       }
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       session.start();
       for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         Assert.assertNotNull("message " + i, msg);
+         assertNotNull(msg, "message " + i);
          msg.acknowledge();
       }
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       session.close();
    }
@@ -382,20 +386,20 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       latch = new CountDownLatch(90);
       handler = new MyHandler(latch, false);
       consumer.setMessageHandler(handler);
       session.start();
-      Assert.assertTrue("message received " + handler.messageReceived, latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "message received " + handler.messageReceived);
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
-      Assert.assertNull(consumer.getLastException());
+      assertFalse(handler.failed);
+      assertNull(consumer.getLastException());
       session.close();
    }
 
@@ -476,20 +480,20 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       latch = new CountDownLatch(90);
       handler = new MyHandler(latch, false);
       consumer.setMessageHandler(handler);
       session.start();
-      Assert.assertTrue("message received " + handler.messageReceived, latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "message received " + handler.messageReceived);
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
-      Assert.assertNull(consumer.getLastException());
+      assertFalse(handler.failed);
+      assertNull(consumer.getLastException());
       session.close();
    }
 
@@ -532,30 +536,30 @@ public class SessionStopStartTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage cm = consumer.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       cm.acknowledge();
       cm = consumer2.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       cm.acknowledge();
       cm = consumer3.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       cm.acknowledge();
 
       session.stop();
       cm = consumer.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
       cm = consumer2.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
       cm = consumer3.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
 
       session.start();
       cm = consumer.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       cm = consumer2.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       cm = consumer3.receive(5000);
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       session.close();
    }
 
@@ -583,14 +587,14 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
 
       session.start();
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
 
@@ -621,21 +625,21 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       session.stop();
       ClientMessage cm = consumer.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
 
       session.stop();
       cm = consumer.receiveImmediate();
-      Assert.assertNull(cm);
+      assertNull(cm);
 
       session.start();
       for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
 

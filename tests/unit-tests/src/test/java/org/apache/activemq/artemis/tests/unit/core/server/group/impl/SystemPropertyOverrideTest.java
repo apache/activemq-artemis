@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.group.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SystemPropertyOverrideTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testSystemPropertyOverride() throws Exception {

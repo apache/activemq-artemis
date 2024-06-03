@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,8 +33,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePac
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropertiesConversionTest {
 
@@ -105,8 +107,8 @@ public class PropertiesConversionTest {
                         // I only validate half of the messages
                         // to give it a chance of Races and Exceptions
                         // that could happen from reusing the same message on these conversions
-                        Assert.assertNotSame(packetRec.getMessage(), coreMessage);
-                        Assert.assertNotSame(packetSend.getMessage(), coreMessage);
+                        assertNotSame(packetRec.getMessage(), coreMessage);
+                        assertNotSame(packetSend.getMessage(), coreMessage);
                      }
                   }
                } catch (Throwable e) {
@@ -122,9 +124,9 @@ public class PropertiesConversionTest {
          thread.join();
       }
 
-      Assert.assertEquals(threads * conversions, counts.get());
+      assertEquals(threads * conversions, counts.get());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 
@@ -196,9 +198,9 @@ public class PropertiesConversionTest {
          thread.join();
       }
 
-      Assert.assertEquals(threads * conversions, counts.get());
+      assertEquals(threads * conversions, counts.get());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 

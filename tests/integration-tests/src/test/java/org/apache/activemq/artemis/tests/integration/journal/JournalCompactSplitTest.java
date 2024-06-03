@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -35,8 +37,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Authored by Fabio Nascimento Brandao through https://issues.apache.org/jira/browse/ARTEMIS-3868
@@ -95,10 +96,10 @@ public class JournalCompactSplitTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertEquals(RECORDS_TO_CREATE, recordCount.get());
+      assertEquals(RECORDS_TO_CREATE, recordCount.get());
 
       journalImpl.compact();
-      Assert.assertEquals(2, journalImpl.getDataFilesCount());
+      assertEquals(2, journalImpl.getDataFilesCount());
    }
 
    private void createFileWithRecords(SequentialFileFactory fileFactory) throws Exception {

@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.VersionLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VersionLoaderTest extends ActiveMQTestBase {
 
@@ -35,12 +36,12 @@ public class VersionLoaderTest extends ActiveMQTestBase {
       Properties props = new Properties();
       props.load(ClassLoader.getSystemResourceAsStream(VersionLoader.DEFAULT_PROP_FILE_NAME));
 
-      Assert.assertEquals(props.get("activemq.version.versionName"), version.getVersionName());
+      assertEquals(props.get("activemq.version.versionName"), version.getVersionName());
 
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.majorVersion")), version.getMajorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.minorVersion")), version.getMinorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.microVersion")), version.getMicroVersion());
-      Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()), version.getIncrementingVersion());
+      assertEquals(Integer.parseInt(props.getProperty("activemq.version.majorVersion")), version.getMajorVersion());
+      assertEquals(Integer.parseInt(props.getProperty("activemq.version.minorVersion")), version.getMinorVersion());
+      assertEquals(Integer.parseInt(props.getProperty("activemq.version.microVersion")), version.getMicroVersion());
+      assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()), version.getIncrementingVersion());
    }
 
 }

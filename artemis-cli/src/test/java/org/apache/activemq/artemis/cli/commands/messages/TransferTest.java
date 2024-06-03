@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.cli.commands.ActionAbstractAccessor;
 import org.apache.activemq.cli.test.TestActionContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.JMSException;
 import java.io.File;
@@ -40,10 +41,10 @@ public class TransferTest {
          try {
             transfer.execute(new TestActionContext());
          } catch (Exception e) {
-            Assert.assertEquals(JMSException.class, e.getClass());
+            assertEquals(JMSException.class, e.getClass());
          }
 
-         Assert.assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, transfer.getSourceURL());
+         assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, transfer.getSourceURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }
@@ -67,10 +68,10 @@ public class TransferTest {
             transfer.execute(new TestActionContext());
          } catch (Exception e) {
             e.printStackTrace();
-            Assert.assertEquals(JMSException.class, e.getClass());
+            assertEquals(JMSException.class, e.getClass());
          }
 
-         Assert.assertEquals("tcp://localhost:3344", transfer.getSourceURL());
+         assertEquals("tcp://localhost:3344", transfer.getSourceURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }
@@ -91,10 +92,10 @@ public class TransferTest {
          try {
             transfer.execute(new TestActionContext());
          } catch (Exception e) {
-            Assert.assertEquals(JMSException.class, e.getClass());
+            assertEquals(JMSException.class, e.getClass());
          }
 
-         Assert.assertEquals("tcp://localhost:5672", transfer.getSourceURL());
+         assertEquals("tcp://localhost:5672", transfer.getSourceURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }

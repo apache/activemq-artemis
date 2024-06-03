@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,18 +43,18 @@ import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfig
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
 
    private final boolean replicated;
 
-   @Parameterized.Parameters(name = "replicated={0}")
+   @Parameters(name = "replicated={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -60,7 +63,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
       this.replicated = replicated;
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleDistributionBackupStrategyFull() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, false);
       ActiveMQServer server1 = createServer(1, 0, false);
@@ -79,49 +82,49 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          waitForRemoteBackup(sessionFactory1, 10);
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
-         Assert.assertEquals(members.size(), 2);
+         assertEquals(members.size(), 2);
          Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers0.size(), 1);
+         assertEquals(backupServers0.size(), 1);
          Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers1.size(), 1);
+         assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
-         Assert.assertEquals(server0.getNodeID(), backupServer1.getNodeID());
-         Assert.assertEquals(server1.getNodeID(), backupServer0.getNodeID());
+         assertEquals(server0.getNodeID(), backupServer1.getNodeID());
+         assertEquals(server1.getNodeID(), backupServer0.getNodeID());
          Set<TransportConfiguration> backupAcceptors0 = backupServer0.getConfiguration().getAcceptorConfigurations();
-         Assert.assertEquals(1, backupAcceptors0.size());
-         Assert.assertEquals("61716", backupAcceptors0.iterator().next().getParams().get("port"));
+         assertEquals(1, backupAcceptors0.size());
+         assertEquals("61716", backupAcceptors0.iterator().next().getParams().get("port"));
          Set<TransportConfiguration> backupAcceptors1 = backupServer1.getConfiguration().getAcceptorConfigurations();
-         Assert.assertEquals(1, backupAcceptors1.size());
-         Assert.assertEquals("61717", backupAcceptors1.iterator().next().getParams().get("port"));
+         assertEquals(1, backupAcceptors1.size());
+         assertEquals("61717", backupAcceptors1.iterator().next().getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations0 = backupServer0.getConfiguration().getConnectorConfigurations();
-         Assert.assertEquals(2, connectorConfigurations0.size());
-         Assert.assertEquals("61716", connectorConfigurations0.get("primaryConnector0").getParams().get("port"));
-         Assert.assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
+         assertEquals(2, connectorConfigurations0.size());
+         assertEquals("61716", connectorConfigurations0.get("primaryConnector0").getParams().get("port"));
+         assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations1 = backupServer1.getConfiguration().getConnectorConfigurations();
-         Assert.assertEquals(2, connectorConfigurations1.size());
-         Assert.assertEquals("61717", connectorConfigurations1.get("primaryConnector1").getParams().get("port"));
-         Assert.assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
+         assertEquals(2, connectorConfigurations1.size());
+         assertEquals("61717", connectorConfigurations1.get("primaryConnector1").getParams().get("port"));
+         assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
          if (!replicated) {
-            Assert.assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
-            Assert.assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
-            Assert.assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
-            Assert.assertEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
-            Assert.assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
-            Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
+            assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
+            assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
+            assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
+            assertEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
+            assertEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
+            assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
+            assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
+            assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          } else {
-            Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
+            assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
+            assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
+            assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
+            assertNotEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
+            assertNotEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
+            assertNotEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
+            assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
+            assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
       } finally {
          try {
@@ -133,7 +136,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleDistributionBackupStrategyScaleDown() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, true);
       ActiveMQServer server1 = createServer(1, 0, true);
@@ -152,47 +155,47 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          waitForRemoteBackup(sessionFactory1, 10);
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
-         Assert.assertEquals(members.size(), 2);
+         assertEquals(members.size(), 2);
          Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers0.size(), 1);
+         assertEquals(backupServers0.size(), 1);
          Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers1.size(), 1);
+         assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
-         Assert.assertEquals(server0.getNodeID(), backupServer1.getNodeID());
-         Assert.assertEquals(server1.getNodeID(), backupServer0.getNodeID());
+         assertEquals(server0.getNodeID(), backupServer1.getNodeID());
+         assertEquals(server1.getNodeID(), backupServer0.getNodeID());
          Set<TransportConfiguration> backupAcceptors0 = backupServer0.getConfiguration().getAcceptorConfigurations();
-         Assert.assertEquals(0, backupAcceptors0.size());
+         assertEquals(0, backupAcceptors0.size());
          Set<TransportConfiguration> backupAcceptors1 = backupServer1.getConfiguration().getAcceptorConfigurations();
-         Assert.assertEquals(0, backupAcceptors1.size());
+         assertEquals(0, backupAcceptors1.size());
          Map<String, TransportConfiguration> connectorConfigurations0 = backupServer0.getConfiguration().getConnectorConfigurations();
-         Assert.assertEquals(2, connectorConfigurations0.size());
-         Assert.assertEquals("61616", connectorConfigurations0.get("primaryConnector0").getParams().get("port"));
-         Assert.assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
+         assertEquals(2, connectorConfigurations0.size());
+         assertEquals("61616", connectorConfigurations0.get("primaryConnector0").getParams().get("port"));
+         assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations1 = backupServer1.getConfiguration().getConnectorConfigurations();
-         Assert.assertEquals(2, connectorConfigurations1.size());
-         Assert.assertEquals("61617", connectorConfigurations1.get("primaryConnector1").getParams().get("port"));
-         Assert.assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
+         assertEquals(2, connectorConfigurations1.size());
+         assertEquals("61617", connectorConfigurations1.get("primaryConnector1").getParams().get("port"));
+         assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
          if (!replicated) {
-            Assert.assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
-            Assert.assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
-            Assert.assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
-            Assert.assertEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
-            Assert.assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
-            Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
+            assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
+            assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
+            assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
+            assertEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
+            assertEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
+            assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
+            assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
+            assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          } else {
-            Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertNotEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
-            Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
+            assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
+            assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
+            assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
+            assertNotEquals(server0.getConfiguration().getPagingDirectory(), backupServer1.getConfiguration().getPagingDirectory());
+            assertNotEquals(server1.getConfiguration().getJournalDirectory(), backupServer0.getConfiguration().getJournalDirectory());
+            assertNotEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
+            assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
+            assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
       } finally {
          try {
@@ -204,7 +207,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleDistributionOfBackupsMaxBackupsExceeded() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, false);
       ActiveMQServer server1 = createServer(1, 0, false);
@@ -227,17 +230,17 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          waitForRemoteBackup(sessionFactory1, 10);
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
-         Assert.assertEquals(members.size(), 2);
+         assertEquals(members.size(), 2);
          Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers0.size(), 1);
+         assertEquals(backupServers0.size(), 1);
          Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers1.size(), 1);
+         assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
-         Assert.assertEquals(server0.getNodeID(), backupServer1.getNodeID());
-         Assert.assertEquals(server1.getNodeID(), backupServer0.getNodeID());
+         assertEquals(server0.getNodeID(), backupServer1.getNodeID());
+         assertEquals(server1.getNodeID(), backupServer0.getNodeID());
          server2.start();
          //just give server2 time to try both server 0 and 1
          ClientSessionFactory sessionFactory2 = serverLocator.createSessionFactory(primaryConnector2);
@@ -245,19 +248,19 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          ClientSessionFactory sessionFactory3 = serverLocator.createSessionFactory(primaryConnector3);
          waitForRemoteBackup(sessionFactory2, 10);
          waitForRemoteBackup(sessionFactory3, 10);
-         Assert.assertEquals(members.size(), 2);
+         assertEquals(members.size(), 2);
          Map<String, ActiveMQServer> backupServers2 = server2.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers2.size(), 1);
+         assertEquals(backupServers2.size(), 1);
          Map<String, ActiveMQServer> backupServers3 = server3.getClusterManager().getHAManager().getBackupServers();
-         Assert.assertEquals(backupServers3.size(), 1);
+         assertEquals(backupServers3.size(), 1);
          ActiveMQServer backupServer2 = backupServers2.values().iterator().next();
          ActiveMQServer backupServer3 = backupServers3.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer2);
          waitForRemoteBackupSynchronization(backupServer3);
-         Assert.assertEquals(server0.getNodeID(), backupServer1.getNodeID());
-         Assert.assertEquals(server1.getNodeID(), backupServer0.getNodeID());
-         Assert.assertEquals(server2.getNodeID(), backupServer3.getNodeID());
-         Assert.assertEquals(server3.getNodeID(), backupServer2.getNodeID());
+         assertEquals(server0.getNodeID(), backupServer1.getNodeID());
+         assertEquals(server1.getNodeID(), backupServer0.getNodeID());
+         assertEquals(server2.getNodeID(), backupServer3.getNodeID());
+         assertEquals(server3.getNodeID(), backupServer2.getNodeID());
       } finally {
          server0.stop();
          server1.stop();

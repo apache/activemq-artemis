@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +29,8 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * The broker doesn't send any "Reason String" or "User Property" in the PUBREL packet for any reason. Therefore, these are not tested here:
@@ -40,7 +44,8 @@ public class PubRecTests extends MQTT5TestSupport {
    /*
     * [MQTT-3.5.2-1] The Client or Server sending the PUBREC packet MUST use one of the PUBREC Reason Codes.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testPubRecReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);

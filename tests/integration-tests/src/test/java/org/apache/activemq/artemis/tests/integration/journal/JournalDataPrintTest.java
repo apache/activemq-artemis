@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -28,9 +30,8 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class JournalDataPrintTest extends ActiveMQTestBase {
    protected ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -70,7 +71,7 @@ public class JournalDataPrintTest extends ActiveMQTestBase {
          File[] files = dirFile.listFiles();
          for (int i = 0; i < files.length; i++) {
             File journalFile = files[i];
-            Assert.assertEquals(30 * 1024 * 1024L, journalFile.length());
+            assertEquals(30 * 1024 * 1024L, journalFile.length());
          }
 
          server.start();

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -37,7 +40,8 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
 
@@ -46,7 +50,8 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
       return "AMQP,OPENWIRE,CORE";
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testQueueReceiverReadMessage() throws Exception {
       AmqpConnection connection = null;
       String queue = "purgeQueue";
@@ -103,7 +108,8 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
 
 
    // I'm adding the core test here to compare semantics between AMQP and core on this test.
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testPurgeQueueCoreRollback() throws Exception {
       String queue = "purgeQueue";
       SimpleString ssQueue = new SimpleString(queue);

@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQActivationTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testValidateJNDIParameters() throws Exception {
@@ -37,7 +37,6 @@ public class ActiveMQActivationTest extends ActiveMQTestBase {
       assertEquals("b", spec.getParsedJndiParams().get("a"));
       assertEquals("d", spec.getParsedJndiParams().get("c"));
       assertEquals("a1,a2,a3", spec.getParsedJndiParams().get("url"));
-
    }
 
 }

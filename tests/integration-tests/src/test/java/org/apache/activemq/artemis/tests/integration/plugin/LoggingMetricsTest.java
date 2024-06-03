@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 
 import io.micrometer.core.instrument.Meter;
@@ -27,15 +30,15 @@ import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlug
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoggingMetricsTest extends ActiveMQTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }

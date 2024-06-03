@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
 
@@ -34,7 +34,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
    protected TransportConfiguration secondaryConnector;
    protected TransportConfiguration primaryConnector;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();

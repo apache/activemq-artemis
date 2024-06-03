@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.utils.actors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,8 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ThresholdActorTest {
 
@@ -55,27 +58,27 @@ public class ThresholdActorTest {
          for (int i = 0; i < 10; i++) {
             actor.act(i);
          }
-         Assert.assertTrue(open.get());
-         Assert.assertEquals(0, timesClose.get());
+         assertTrue(open.get());
+         assertEquals(0, timesClose.get());
 
          actor.act(99);
-         Assert.assertEquals(1, timesClose.get());
-         Assert.assertEquals(0, timesOpen.get());
+         assertEquals(1, timesClose.get());
+         assertEquals(0, timesOpen.get());
 
-         Assert.assertFalse(open.get());
+         assertFalse(open.get());
 
          actor.act(1000);
 
          actor.flush(); // a flush here shuld not change anything, as it was already called once on the previous overflow
-         Assert.assertEquals(1, timesClose.get());
-         Assert.assertEquals(0, timesOpen.get());
-         Assert.assertFalse(open.get());
+         assertEquals(1, timesClose.get());
+         assertEquals(0, timesOpen.get());
+         assertFalse(open.get());
 
          semaphore.release();
          Wait.assertTrue(open::get);
 
-         Assert.assertEquals(1, timesClose.get());
-         Assert.assertEquals(1, timesOpen.get());
+         assertEquals(1, timesClose.get());
+         assertEquals(1, timesOpen.get());
          Wait.assertEquals(1000, lastProcessed::get, 5000, 1);
 
          actor.flush();
@@ -174,10 +177,10 @@ public class ThresholdActorTest {
             latchDone.countDown();
          });
 
-         Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+         assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
          Wait.assertEquals(LAST_ELEMENT, lastProcessed::get);
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       } finally {
          executorService.shutdown();
       }

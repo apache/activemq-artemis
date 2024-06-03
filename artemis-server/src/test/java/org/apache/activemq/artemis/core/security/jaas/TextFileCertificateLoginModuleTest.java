@@ -34,12 +34,12 @@ import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TextFileCertificateLoginModuleTest {
 
@@ -70,12 +70,12 @@ public class TextFileCertificateLoginModuleTest {
 
    private CertificateLoginModule loginModule;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       loginModule = new TextFileCertificateLoginModule();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       PropertiesLoader.resetUsersAndGroupsCache();
    }

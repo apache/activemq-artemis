@@ -16,19 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.tests.integration.routing.RoutingTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonValue;
+
 import javax.management.MBeanServer;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -39,7 +44,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
    private MBeanServer mbeanServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -47,7 +52,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }
@@ -58,31 +63,32 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       ConnectionRouterControl connectionRouterControl = getConnectionRouterControlForTarget();
 
       CompositeData targetData = connectionRouterControl.getTarget("admin");
-      Assert.assertNotNull(targetData);
+      assertNotNull(targetData);
 
       String nodeID = (String)targetData.get("nodeID");
-      Assert.assertEquals(getServer(1).getNodeID().toString(), nodeID);
+      assertEquals(getServer(1).getNodeID().toString(), nodeID);
 
       Boolean local = (Boolean)targetData.get("local");
-      Assert.assertEquals(false, local);
+      assertNotNull(local);
+      assertFalse(local);
 
       CompositeData connectorData = (CompositeData)targetData.get("connector");
-      Assert.assertNotNull(connectorData);
+      assertNotNull(connectorData);
 
       TransportConfiguration connector = getDefaultServerConnector(1);
 
       String connectorName = (String)connectorData.get("name");
-      Assert.assertEquals(connector.getName(), connectorName);
+      assertEquals(connector.getName(), connectorName);
 
       String connectorFactoryClassName = (String)connectorData.get("factoryClassName");
-      Assert.assertEquals(connector.getFactoryClassName(), connectorFactoryClassName);
+      assertEquals(connector.getFactoryClassName(), connectorFactoryClassName);
 
       TabularData connectorParams = (TabularData)connectorData.get("params");
-      Assert.assertNotNull(connectorParams);
+      assertNotNull(connectorParams);
 
       for (Map.Entry<String, Object> param : connector.getParams().entrySet()) {
          CompositeData paramData = connectorParams.get(new Object[]{param.getKey()});
-         Assert.assertEquals(String.valueOf(param.getValue()), paramData.get("value"));
+         assertEquals(String.valueOf(param.getValue()), paramData.get("value"));
       }
    }
    @Test
@@ -90,34 +96,35 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       ConnectionRouterControl connectionRouterControl = getConnectionRouterControlForTarget();
 
       String targetJSON = connectionRouterControl.getTargetAsJSON("admin");
-      Assert.assertNotNull(targetJSON);
+      assertNotNull(targetJSON);
 
       JsonObject targetData = JsonUtil.readJsonObject(targetJSON);
-      Assert.assertNotNull(targetData);
+      assertNotNull(targetData);
 
       String nodeID = targetData.getString("nodeID");
-      Assert.assertEquals(getServer(1).getNodeID().toString(), nodeID);
+      assertEquals(getServer(1).getNodeID().toString(), nodeID);
 
       Boolean local = targetData.getBoolean("local");
-      Assert.assertEquals(false, local);
+      assertNotNull(local);
+      assertFalse(local);
 
       JsonObject connectorData = targetData.getJsonObject("connector");
-      Assert.assertNotNull(connectorData);
+      assertNotNull(connectorData);
 
       TransportConfiguration connector = getDefaultServerConnector(1);
 
       String connectorName = connectorData.getString("name");
-      Assert.assertEquals(connector.getName(), connectorName);
+      assertEquals(connector.getName(), connectorName);
 
       String connectorFactoryClassName = connectorData.getString("factoryClassName");
-      Assert.assertEquals(connector.getFactoryClassName(), connectorFactoryClassName);
+      assertEquals(connector.getFactoryClassName(), connectorFactoryClassName);
 
       JsonObject connectorParams = connectorData.getJsonObject("params");
-      Assert.assertNotNull(connectorParams);
+      assertNotNull(connectorParams);
 
       for (Map.Entry<String, Object> param : connector.getParams().entrySet()) {
          JsonValue paramData = connectorParams.get(param.getKey());
-         Assert.assertEquals(String.valueOf(param.getValue()), paramData.toString());
+         assertEquals(String.valueOf(param.getValue()), paramData.toString());
       }
    }
 
@@ -127,16 +134,17 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       ConnectionRouterControl connectionRouterControl = getConnectionRouterControlForLocalTarget();
 
       CompositeData targetData = connectionRouterControl.getTarget("admin");
-      Assert.assertNotNull(targetData);
+      assertNotNull(targetData);
 
       String nodeID = (String)targetData.get("nodeID");
-      Assert.assertEquals(getServer(0).getNodeID().toString(), nodeID);
+      assertEquals(getServer(0).getNodeID().toString(), nodeID);
 
-      Boolean local = (Boolean)targetData.get("local");
-      Assert.assertEquals(true, local);
+      Boolean local = (Boolean) targetData.get("local");
+      assertNotNull(local);
+      assertTrue(local);
 
       CompositeData connectorData = (CompositeData)targetData.get("connector");
-      Assert.assertNull(connectorData);
+      assertNull(connectorData);
    }
 
    @Test
@@ -169,18 +177,19 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
       ConnectionRouterControl connectionRouterControl = getConnectionRouterControlForLocalTarget();
 
       String targetJSON = connectionRouterControl.getTargetAsJSON("admin");
-      Assert.assertNotNull(targetJSON);
+      assertNotNull(targetJSON);
 
       JsonObject targetData = JsonUtil.readJsonObject(targetJSON);
-      Assert.assertNotNull(targetData);
+      assertNotNull(targetData);
 
       String nodeID = targetData.getString("nodeID");
-      Assert.assertEquals(getServer(0).getNodeID().toString(), nodeID);
+      assertEquals(getServer(0).getNodeID().toString(), nodeID);
 
       Boolean local = targetData.getBoolean("local");
-      Assert.assertEquals(true, local);
+      assertNotNull(local);
+      assertTrue(local);
 
-      Assert.assertTrue(targetData.isNull("connector"));
+      assertTrue(targetData.isNull("connector"));
    }
 
    private ConnectionRouterControl getConnectionRouterControlForTarget() throws Exception {

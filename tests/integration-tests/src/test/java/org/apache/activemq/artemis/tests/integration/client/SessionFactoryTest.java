@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -31,9 +36,8 @@ import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfig
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionFactoryTest extends ActiveMQTestBase {
 
@@ -44,7 +48,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
    private TransportConfiguration liveTC;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -67,7 +71,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      Assert.assertNotNull(session);
+      assertNotNull(session);
       session.close();
       testSettersThrowException(cf);
 
@@ -85,7 +89,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      Assert.assertNotNull(session);
+      assertNotNull(session);
       session.close();
       testSettersThrowException(cf);
 
@@ -120,27 +124,27 @@ public class SessionFactoryTest extends ActiveMQTestBase {
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(tc).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setCallTimeout(callTimeout).setMinLargeMessageSize(minLargeMessageSize).setConsumerWindowSize(consumerWindowSize).setConsumerMaxRate(consumerMaxRate).setConfirmationWindowSize(confirmationWindowSize).setProducerMaxRate(producerMaxRate).setBlockOnAcknowledge(blockOnAcknowledge).setBlockOnDurableSend(blockOnDurableSend).setBlockOnNonDurableSend(blockOnNonDurableSend).setAutoGroup(autoGroup).setPreAcknowledge(preAcknowledge).setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName).setAckBatchSize(ackBatchSize).setUseGlobalPools(useGlobalPools).setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize).setThreadPoolMaxSize(threadPoolMaxSize).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setReconnectAttempts(reconnectAttempts);
 
       assertEqualsTransportConfigurations(tc, locator.getStaticTransportConfigurations());
-      Assert.assertEquals(clientFailureCheckPeriod, locator.getClientFailureCheckPeriod());
-      Assert.assertEquals(connectionTTL, locator.getConnectionTTL());
-      Assert.assertEquals(callTimeout, locator.getCallTimeout());
-      Assert.assertEquals(minLargeMessageSize, locator.getMinLargeMessageSize());
-      Assert.assertEquals(consumerWindowSize, locator.getConsumerWindowSize());
-      Assert.assertEquals(consumerMaxRate, locator.getConsumerMaxRate());
-      Assert.assertEquals(confirmationWindowSize, locator.getConfirmationWindowSize());
-      Assert.assertEquals(producerMaxRate, locator.getProducerMaxRate());
-      Assert.assertEquals(blockOnAcknowledge, locator.isBlockOnAcknowledge());
-      Assert.assertEquals(blockOnDurableSend, locator.isBlockOnDurableSend());
-      Assert.assertEquals(blockOnNonDurableSend, locator.isBlockOnNonDurableSend());
-      Assert.assertEquals(autoGroup, locator.isAutoGroup());
-      Assert.assertEquals(preAcknowledge, locator.isPreAcknowledge());
-      Assert.assertEquals(loadBalancingPolicyClassName, locator.getConnectionLoadBalancingPolicyClassName());
-      Assert.assertEquals(ackBatchSize, locator.getAckBatchSize());
-      Assert.assertEquals(useGlobalPools, locator.isUseGlobalPools());
-      Assert.assertEquals(scheduledThreadPoolMaxSize, locator.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(threadPoolMaxSize, locator.getThreadPoolMaxSize());
-      Assert.assertEquals(retryInterval, locator.getRetryInterval());
-      Assert.assertEquals(retryIntervalMultiplier, locator.getRetryIntervalMultiplier(), 0.000001);
-      Assert.assertEquals(reconnectAttempts, locator.getReconnectAttempts());
+      assertEquals(clientFailureCheckPeriod, locator.getClientFailureCheckPeriod());
+      assertEquals(connectionTTL, locator.getConnectionTTL());
+      assertEquals(callTimeout, locator.getCallTimeout());
+      assertEquals(minLargeMessageSize, locator.getMinLargeMessageSize());
+      assertEquals(consumerWindowSize, locator.getConsumerWindowSize());
+      assertEquals(consumerMaxRate, locator.getConsumerMaxRate());
+      assertEquals(confirmationWindowSize, locator.getConfirmationWindowSize());
+      assertEquals(producerMaxRate, locator.getProducerMaxRate());
+      assertEquals(blockOnAcknowledge, locator.isBlockOnAcknowledge());
+      assertEquals(blockOnDurableSend, locator.isBlockOnDurableSend());
+      assertEquals(blockOnNonDurableSend, locator.isBlockOnNonDurableSend());
+      assertEquals(autoGroup, locator.isAutoGroup());
+      assertEquals(preAcknowledge, locator.isPreAcknowledge());
+      assertEquals(loadBalancingPolicyClassName, locator.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ackBatchSize, locator.getAckBatchSize());
+      assertEquals(useGlobalPools, locator.isUseGlobalPools());
+      assertEquals(scheduledThreadPoolMaxSize, locator.getScheduledThreadPoolMaxSize());
+      assertEquals(threadPoolMaxSize, locator.getThreadPoolMaxSize());
+      assertEquals(retryInterval, locator.getRetryInterval());
+      assertEquals(retryIntervalMultiplier, locator.getRetryIntervalMultiplier(), 0.000001);
+      assertEquals(reconnectAttempts, locator.getReconnectAttempts());
    }
 
    private void testSettersThrowException(final ClientSessionFactory cf) {
@@ -168,127 +172,127 @@ public class SessionFactoryTest extends ActiveMQTestBase {
 
       try {
          cf.getServerLocator().setClientFailureCheckPeriod(clientFailureCheckPeriod);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConnectionTTL(connectionTTL);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setCallTimeout(callTimeout);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setMinLargeMessageSize(minLargeMessageSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConsumerWindowSize(consumerWindowSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConsumerMaxRate(consumerMaxRate);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConfirmationWindowSize(confirmationWindowSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setProducerMaxRate(producerMaxRate);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnAcknowledge(blockOnAcknowledge);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnDurableSend(blockOnDurableSend);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnNonDurableSend(blockOnNonDurableSend);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setAutoGroup(autoGroup);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setPreAcknowledge(preAcknowledge);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setAckBatchSize(ackBatchSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setUseGlobalPools(useGlobalPools);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setThreadPoolMaxSize(threadPoolMaxSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setRetryInterval(retryInterval);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setRetryIntervalMultiplier(retryIntervalMultiplier);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setReconnectAttempts(reconnectAttempts);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
@@ -343,32 +347,32 @@ public class SessionFactoryTest extends ActiveMQTestBase {
                                     final double retryIntervalMultiplier,
                                     final int reconnectAttempts) {
       if (staticConnectors == null) {
-         Assert.assertTrue("no static connectors", Arrays.equals(new String[]{}, locator.getStaticTransportConfigurations()));
+         assertTrue(Arrays.equals(new String[]{}, locator.getStaticTransportConfigurations()), "no static connectors");
       } else {
          assertEqualsTransportConfigurations(staticConnectors, locator.getStaticTransportConfigurations());
       }
-      Assert.assertEquals(locator.getDiscoveryGroupConfiguration(), discoveryGroupConfiguration);
-      Assert.assertEquals(locator.getClientFailureCheckPeriod(), clientFailureCheckPeriod);
-      Assert.assertEquals(locator.getConnectionTTL(), connectionTTL);
-      Assert.assertEquals(locator.getCallTimeout(), callTimeout);
-      Assert.assertEquals(locator.getMinLargeMessageSize(), minLargeMessageSize);
-      Assert.assertEquals(locator.getConsumerWindowSize(), consumerWindowSize);
-      Assert.assertEquals(locator.getConsumerMaxRate(), consumerMaxRate);
-      Assert.assertEquals(locator.getConfirmationWindowSize(), confirmationWindowSize);
-      Assert.assertEquals(locator.getProducerMaxRate(), producerMaxRate);
-      Assert.assertEquals(locator.isBlockOnAcknowledge(), blockOnAcknowledge);
-      Assert.assertEquals(locator.isBlockOnDurableSend(), blockOnDurableSend);
-      Assert.assertEquals(locator.isBlockOnNonDurableSend(), blockOnNonDurableSend);
-      Assert.assertEquals(locator.isAutoGroup(), autoGroup);
-      Assert.assertEquals(locator.isPreAcknowledge(), preAcknowledge);
-      Assert.assertEquals(locator.getConnectionLoadBalancingPolicyClassName(), loadBalancingPolicyClassName);
-      Assert.assertEquals(locator.getAckBatchSize(), ackBatchSize);
-      Assert.assertEquals(locator.isUseGlobalPools(), useGlobalPools);
-      Assert.assertEquals(locator.getScheduledThreadPoolMaxSize(), scheduledThreadPoolMaxSize);
-      Assert.assertEquals(locator.getThreadPoolMaxSize(), threadPoolMaxSize);
-      Assert.assertEquals(locator.getRetryInterval(), retryInterval);
-      Assert.assertEquals(locator.getRetryIntervalMultiplier(), retryIntervalMultiplier, 0.000001);
-      Assert.assertEquals(locator.getReconnectAttempts(), reconnectAttempts);
+      assertEquals(locator.getDiscoveryGroupConfiguration(), discoveryGroupConfiguration);
+      assertEquals(locator.getClientFailureCheckPeriod(), clientFailureCheckPeriod);
+      assertEquals(locator.getConnectionTTL(), connectionTTL);
+      assertEquals(locator.getCallTimeout(), callTimeout);
+      assertEquals(locator.getMinLargeMessageSize(), minLargeMessageSize);
+      assertEquals(locator.getConsumerWindowSize(), consumerWindowSize);
+      assertEquals(locator.getConsumerMaxRate(), consumerMaxRate);
+      assertEquals(locator.getConfirmationWindowSize(), confirmationWindowSize);
+      assertEquals(locator.getProducerMaxRate(), producerMaxRate);
+      assertEquals(locator.isBlockOnAcknowledge(), blockOnAcknowledge);
+      assertEquals(locator.isBlockOnDurableSend(), blockOnDurableSend);
+      assertEquals(locator.isBlockOnNonDurableSend(), blockOnNonDurableSend);
+      assertEquals(locator.isAutoGroup(), autoGroup);
+      assertEquals(locator.isPreAcknowledge(), preAcknowledge);
+      assertEquals(locator.getConnectionLoadBalancingPolicyClassName(), loadBalancingPolicyClassName);
+      assertEquals(locator.getAckBatchSize(), ackBatchSize);
+      assertEquals(locator.isUseGlobalPools(), useGlobalPools);
+      assertEquals(locator.getScheduledThreadPoolMaxSize(), scheduledThreadPoolMaxSize);
+      assertEquals(locator.getThreadPoolMaxSize(), threadPoolMaxSize);
+      assertEquals(locator.getRetryInterval(), retryInterval);
+      assertEquals(locator.getRetryIntervalMultiplier(), retryIntervalMultiplier, 0.000001);
+      assertEquals(locator.getReconnectAttempts(), reconnectAttempts);
    }
 
    private void startServer() throws Exception {

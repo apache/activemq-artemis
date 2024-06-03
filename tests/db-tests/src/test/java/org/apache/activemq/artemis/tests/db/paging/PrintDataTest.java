@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -35,21 +37,25 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class PrintDataTest extends ParameterDBTestBase {
 
    ActiveMQServer server;
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -58,7 +64,7 @@ public class PrintDataTest extends ParameterDBTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testData() throws Exception {
 
       String queueName = RandomUtil.randomString();
@@ -92,11 +98,11 @@ public class PrintDataTest extends ParameterDBTestBase {
       String printDataOutput = byteArrayOutputStream.toString();
 
       for (int i = 0; i < numberOfMessages; i++) {
-         Assert.assertTrue(printDataOutput.lastIndexOf("message " + i) >= 0);
+         assertTrue(printDataOutput.lastIndexOf("message " + i) >= 0);
       }
       // I know this is a bit fragile, but the queues routed portion of the report was not working.
       // if the report ever changes, so the test will need to be changed.
-      Assert.assertTrue(printDataOutput.lastIndexOf("queues routed") >= 0);
+      assertTrue(printDataOutput.lastIndexOf("queues routed") >= 0);
 
    }
 

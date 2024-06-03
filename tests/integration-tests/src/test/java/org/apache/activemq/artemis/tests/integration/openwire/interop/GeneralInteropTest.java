@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -52,8 +57,8 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.Command;
 import org.apache.activemq.transport.TransportListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test covers interactions between core clients and
@@ -62,7 +67,7 @@ import org.junit.Test;
  */
 public class GeneralInteropTest extends BasicOpenWireTest {
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -155,7 +160,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       bytesMessage.readBytes(rawBytes);
 
       for (int i = 0; i < bytesData.length; i++) {
-         assertEquals("failed at " + i, bytesData[i], rawBytes[i]);
+         assertEquals(bytesData[i], rawBytes[i], "failed at " + i);
       }
       assertTrue(bytesMessage.readBoolean());
       assertEquals(99999L, bytesMessage.readLong());

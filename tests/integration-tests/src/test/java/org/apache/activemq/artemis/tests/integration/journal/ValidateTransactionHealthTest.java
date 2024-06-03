@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -33,8 +35,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -147,7 +148,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
             if (externalProcess) {
                Process process = SpawnedVMSupport.spawnVM(ValidateTransactionHealthTest.class.getCanonicalName(), type, journalDir, Long.toString(numberOfRecords), Integer.toString(transactionSize), Integer.toString(numberOfThreads));
                process.waitFor();
-               Assert.assertEquals(ValidateTransactionHealthTest.OK, process.exitValue());
+               assertEquals(ValidateTransactionHealthTest.OK, process.exitValue());
             } else {
                JournalImpl journal = ValidateTransactionHealthTest.appendData(type, journalDir, numberOfRecords, transactionSize, numberOfThreads);
                journal.stop();
@@ -171,10 +172,10 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
       try {
          Loader loadTest = new Loader(numberOfRecords);
          journal.load(loadTest);
-         Assert.assertEquals(numberOfRecords * numberOfThreads, loadTest.numberOfAdds);
-         Assert.assertEquals(0, loadTest.numberOfPreparedTransactions);
-         Assert.assertEquals(0, loadTest.numberOfUpdates);
-         Assert.assertEquals(0, loadTest.numberOfDeletes);
+         assertEquals(numberOfRecords * numberOfThreads, loadTest.numberOfAdds);
+         assertEquals(0, loadTest.numberOfPreparedTransactions);
+         assertEquals(0, loadTest.numberOfUpdates);
+         assertEquals(0, loadTest.numberOfDeletes);
 
          if (loadTest.ex != null) {
             throw loadTest.ex;

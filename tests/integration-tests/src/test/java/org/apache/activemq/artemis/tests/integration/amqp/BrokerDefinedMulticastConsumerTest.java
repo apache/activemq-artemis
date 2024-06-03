@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
 import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +35,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Source;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
 
@@ -50,7 +54,8 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
       return false;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
       server.createQueue(new QueueConfiguration(address));
@@ -71,7 +76,8 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeWhenOnlyAnycast() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(address).setAddress(address).setRoutingType(RoutingType.ANYCAST));
@@ -93,7 +99,8 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testConsumeWhenNoAddressHasBothRoutingTypesButDefaultQueueIsAnyCast() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);

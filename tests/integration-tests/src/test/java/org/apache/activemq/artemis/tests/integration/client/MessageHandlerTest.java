@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +35,8 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageHandlerTest extends ActiveMQTestBase {
 
@@ -45,7 +49,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
    private ClientSessionFactory sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -108,7 +112,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
       Thread.sleep(500);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
 
       session.close();
    }
@@ -186,20 +190,20 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       latch = new CountDownLatch(50);
       handler = new MyHandler(latch);
       consumer.setMessageHandler(handler);
       session.start();
-      Assert.assertTrue("message received " + handler.messageReceived, latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "message received " + handler.messageReceived);
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
-      Assert.assertNull(consumer.getLastException());
+      assertFalse(handler.failed);
+      assertNull(consumer.getLastException());
       session.close();
    }
 
@@ -271,13 +275,13 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       ClientMessage cm = consumer.receiveImmediate();
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
 
       session.close();
    }
@@ -350,23 +354,23 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
+      assertFalse(handler.failed);
 
       // Make sure no exceptions were thrown from onMessage
-      Assert.assertNull(consumer.getLastException());
+      assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       ClientMessage cm = consumer.receiveImmediate();
-      Assert.assertNotNull(cm);
+      assertNotNull(cm);
       latch = new CountDownLatch(49);
       handler = new MyHandler(latch);
       consumer.setMessageHandler(handler);
       session.start();
-      Assert.assertTrue("message received " + handler.messageReceived, latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "message received " + handler.messageReceived);
 
       Thread.sleep(100);
 
-      Assert.assertFalse(handler.failed);
-      Assert.assertNull(consumer.getLastException());
+      assertFalse(handler.failed);
+      assertNull(consumer.getLastException());
       session.close();
    }
 }

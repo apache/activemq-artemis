@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,9 +48,8 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +109,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
    protected abstract boolean isNetty() throws Exception;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -118,9 +122,9 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
     * Check that the actual list of received nodeIDs correspond to the expected order of nodes
     */
    protected void checkOrder(int[] expected, String[] nodeIDs, List<String> actual) {
-      Assert.assertEquals(expected.length, actual.size());
+      assertEquals(expected.length, actual.size());
       for (int i = 0; i < expected.length; i++) {
-         Assert.assertEquals("did not receive expected nodeID at " + i, nodeIDs[expected[i]], actual.get(i));
+         assertEquals(nodeIDs[expected[i]], actual.get(i), "did not receive expected nodeID at " + i);
       }
    }
 
@@ -139,7 +143,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
          }
       }
       while (System.currentTimeMillis() - start < 5000);
-      Assert.fail("did not contain all expected node ID: " + actual);
+      fail("did not contain all expected node ID: " + actual);
    }
 
    protected String[] getNodeIDs(int... nodes) {
@@ -198,7 +202,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       logger.error(clusterDescription(servers[node]));
-      Assert.assertEquals("Timed out waiting for cluster connections for server " + node, expected, nodesCount);
+      assertEquals(expected, nodesCount, "Timed out waiting for cluster connections for server " + node);
    }
 
    @Test
@@ -220,7 +224,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       startServers(1, 4, 3, 2);
       String[] nodeIDs = getNodeIDs(0, 1, 2, 3, 4);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 4, 3, 2}, nodeIDs, nodes);
 
       waitForClusterConnections(0, 4);
@@ -231,7 +235,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       stopServers(2, 3, 1, 4);
 
-      Assert.assertTrue("Was not notified that all servers are DOWN", downLatch.await(10, SECONDS));
+      assertTrue(downLatch.await(10, SECONDS), "Was not notified that all servers are DOWN");
       checkContains(new int[]{0}, nodeIDs, nodes);
 
       sf.close();
@@ -263,7 +267,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       ClientSession session = sf.createSession();
@@ -286,7 +290,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       stopServers(1);
 
-      Assert.assertTrue("Was not notified that all servers are DOWN", downLatch.await(10, SECONDS));
+      assertTrue(downLatch.await(10, SECONDS), "Was not notified that all servers are DOWN");
       checkContains(new int[]{}, nodeIDs, nodes);
 
       sf.close();
@@ -311,39 +315,39 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, new CountDownLatch(0)));
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       ClientSession session = sf.createSession();
 
       stopServers(0);
-      Assert.assertFalse(servers[0].isStarted());
+      assertFalse(servers[0].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 2, 3, 4}, nodeIDs, nodes);
 
       stopServers(2);
-      Assert.assertFalse(servers[2].isStarted());
+      assertFalse(servers[2].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 3, 4}, nodeIDs, nodes);
 
       stopServers(4);
-      Assert.assertFalse(servers[4].isStarted());
+      assertFalse(servers[4].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 3}, nodeIDs, nodes);
 
       stopServers(3);
-      Assert.assertFalse(servers[3].isStarted());
+      assertFalse(servers[3].isStarted());
 
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1}, nodeIDs, nodes);
 
       stopServers(1);
-      Assert.assertFalse(servers[1].isStarted());
+      assertFalse(servers[1].isStarted());
       try {
          session = checkSessionOrReconnect(session, locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQException expected) {
-         Assert.assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
+         assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
       }
    }
 
@@ -355,10 +359,10 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
             s.getConfiguration().setSecurityEnabled(true);
          }
       }
-      Assert.assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
+      assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
       config.setClusterPassword(config.getClusterPassword() + "-1-2-3-");
       startServers(0, 4);
-      Assert.assertTrue("one or the other cluster managers should stop", Wait.waitFor(() -> !servers[4].getClusterManager().isStarted() || !servers[0].getClusterManager().isStarted(), 5000));
+      assertTrue(Wait.waitFor(() -> !servers[4].getClusterManager().isStarted() || !servers[0].getClusterManager().isStarted(), 5000), "one or the other cluster managers should stop");
       final String address = "foo1235";
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -392,7 +396,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, downLatch));
 
       ClientSessionFactory[] sfs = new ClientSessionFactory[]{locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory()};
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       // we can't close all of the servers, we need to leave one up to notify us
@@ -402,7 +406,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       if (!ok) {
          logger.warn("TopologyClusterTestBase.testMultipleClientSessionFactories will fail");
       }
-      Assert.assertTrue("Was not notified that all servers are Down", ok);
+      assertTrue(ok, "Was not notified that all servers are Down");
       checkContains(new int[]{0}, nodeIDs, nodes);
 
       for (ClientSessionFactory sf : sfs) {

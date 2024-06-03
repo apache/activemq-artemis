@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -28,8 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReplicationOrderTest extends FailoverTestBase {
 
@@ -87,8 +89,8 @@ public class ReplicationOrderTest extends FailoverTestBase {
       ClientConsumer consumer = session.createConsumer(queue);
       for (int i = 0; i < ReplicationOrderTest.NUM; i++) {
          ClientMessage message = consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("counter").intValue());
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("counter").intValue());
       }
 
       consumer.close();
