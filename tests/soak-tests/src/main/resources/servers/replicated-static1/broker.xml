@@ -104,8 +104,10 @@ under the License.
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>10MB</max-size-bytes>
             <page-size-bytes>1MB</page-size-bytes>
+
             <max-read-page-messages>-1</max-read-page-messages>
-            <max-read-page-bytes>-1</max-read-page-bytes>
+            <max-read-page-bytes>20M</max-read-page-bytes>
+            <prefetch-page-bytes>2MB</prefetch-page-bytes>
 
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>

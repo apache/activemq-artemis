@@ -171,7 +171,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
          if (arg.length != 4) {
             System.err.println("You need to pass in protocol, consumerType, Time, transaction");
-            exit(0, "invalid arguments");
+            exit(2, "invalid arguments");
          }
 
          String protocol = arg[0];
@@ -217,13 +217,13 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          logger.debug("Awaiting producers...");
          if (!producersLatch.await(60000, TimeUnit.MILLISECONDS)) {
             System.out.println("Awaiting producers timeout");
-            exit(-1, "awaiting producers timeout");
+            exit(3, "awaiting producers timeout");
          }
 
          logger.debug("Awaiting consumers...");
          if (!consumersLatch.await(60000, TimeUnit.MILLISECONDS)) {
             System.out.println("Awaiting consumers timeout");
-            exit(-2, "Consumer did not start");
+            exit(4, "Consumer did not start");
          }
 
          logger.debug("Awaiting timeout...");
@@ -234,14 +234,14 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
             Wait.assertTrue(() -> consumed.get() > 0, 15_000, 100);
          }
 
-         int exitStatus = consumed.get() > 0 ? OK : -3;
+         int exitStatus = consumed.get() > 0 ? OK : 5;
          logger.debug("Exiting with the status: {}", exitStatus);
 
          exit(exitStatus, "Consumed " + consumed.get() + " messages");
       } catch (Throwable t) {
          System.err.println("Exiting with the status 0. Reason: " + t);
          t.printStackTrace();
-         exit(-4, t.getMessage());
+         exit(6, t.getMessage());
       }
    }
 
