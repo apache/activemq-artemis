@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExpiryAddressTest extends ActiveMQTestBase {
 
@@ -65,17 +69,17 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
-      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
@@ -112,16 +116,16 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
          queueQ1.expireReferences(latch::countDown);
       }
 
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(eq);
       ClientMessage m = clientConsumer.receive(5000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
-      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
@@ -154,24 +158,24 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       // make sure the message has expired from the original queue
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       // make sure the message wasn't sent to the original expiry address
       clientConsumer = clientSession.createConsumer(expiryQueue1);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       // make sure the message was sent to the expected expected expiry address
       clientConsumer = clientSession.createConsumer(expiryQueue2);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
@@ -196,7 +200,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
 
-      Assert.assertNull(m);
+      assertNull(m);
 
       clientConsumer.close();
 
@@ -204,14 +208,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m = clientConsumer.receive(500);
 
-      Assert.assertNotNull(m);
+      assertNotNull(m);
 
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       m.acknowledge();
 
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
 
       clientConsumer.close();
 
@@ -219,14 +223,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m = clientConsumer.receive(500);
 
-      Assert.assertNotNull(m);
+      assertNotNull(m);
 
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       m.acknowledge();
 
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
 
       clientConsumer.close();
 
@@ -249,7 +253,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
 
       clientConsumer.close();
    }
@@ -281,7 +285,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       // All the messages should now be in the EQ
 
       ClientConsumer cc3 = clientSession.createConsumer(eq);
@@ -289,14 +293,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = cc3.receive(1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          String text = tm.getBodyBuffer().readString();
-         Assert.assertEquals("Message:" + i, text);
+         assertEquals("Message:" + i, text);
 
          // Check the headers
          Long actualExpiryTime = (Long) tm.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME);
-         Assert.assertTrue(actualExpiryTime >= expiration);
+         assertTrue(actualExpiryTime >= expiration);
       }
 
       sendSession.close();
@@ -323,13 +327,13 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
@@ -351,13 +355,13 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
@@ -387,23 +391,23 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(defaultExpiryQueue);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(specificExpiryQueue);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));

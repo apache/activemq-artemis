@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -30,9 +34,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * There is a bug in JDK1.3, 1.4 whereby writeUTF fails if more than 64K bytes are written
@@ -100,27 +103,27 @@ public class String64KLimitTest extends ActiveMQTestBase {
 
       ClientMessage rm1 = consumer.receive(1000);
 
-      Assert.assertNotNull(rm1);
+      assertNotNull(rm1);
 
-      Assert.assertEquals(s1, rm1.getBodyBuffer().readString());
+      assertEquals(s1, rm1.getBodyBuffer().readString());
 
       ClientMessage rm2 = consumer.receive(1000);
 
-      Assert.assertNotNull(rm2);
+      assertNotNull(rm2);
 
-      Assert.assertEquals(s2, rm2.getBodyBuffer().readString());
+      assertEquals(s2, rm2.getBodyBuffer().readString());
 
       ClientMessage rm3 = consumer.receive(1000);
 
-      Assert.assertEquals(s3, rm3.getBodyBuffer().readString());
+      assertEquals(s3, rm3.getBodyBuffer().readString());
 
-      Assert.assertNotNull(rm3);
+      assertNotNull(rm3);
 
       ClientMessage rm4 = consumer.receive(1000);
 
-      Assert.assertEquals(s4, rm4.getBodyBuffer().readString());
+      assertEquals(s4, rm4.getBodyBuffer().readString());
 
-      Assert.assertNotNull(rm4);
+      assertNotNull(rm4);
    }
 
    @Test
@@ -152,14 +155,14 @@ public class String64KLimitTest extends ActiveMQTestBase {
       try {
          ClientMessage tm3 = session.createMessage(false);
          tm3.getBodyBuffer().writeUTF(s3);
-         Assert.fail("can not write UTF string bigger than 64K");
+         fail("can not write UTF string bigger than 64K");
       } catch (Exception e) {
       }
 
       try {
          ClientMessage tm4 = session.createMessage(false);
          tm4.getBodyBuffer().writeUTF(s4);
-         Assert.fail("can not write UTF string bigger than 64K");
+         fail("can not write UTF string bigger than 64K");
       } catch (Exception e) {
       }
 
@@ -168,14 +171,14 @@ public class String64KLimitTest extends ActiveMQTestBase {
 
       ClientMessage rm1 = consumer.receive(1000);
 
-      Assert.assertNotNull(rm1);
+      assertNotNull(rm1);
 
       ClientMessage rm2 = consumer.receive(1000);
 
-      Assert.assertNotNull(rm2);
+      assertNotNull(rm2);
 
-      Assert.assertEquals(s1, rm1.getBodyBuffer().readUTF());
-      Assert.assertEquals(s2, rm2.getBodyBuffer().readUTF());
+      assertEquals(s1, rm1.getBodyBuffer().readUTF());
+      assertEquals(s2, rm2.getBodyBuffer().readUTF());
    }
 
    // Protected -----------------------------------------------------
@@ -183,7 +186,7 @@ public class String64KLimitTest extends ActiveMQTestBase {
    private ClientSessionFactory sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

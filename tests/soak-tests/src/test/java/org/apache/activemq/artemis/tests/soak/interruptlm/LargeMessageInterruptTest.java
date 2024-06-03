@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.interruptlm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -40,10 +44,9 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,7 @@ public class LargeMessageInterruptTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "interruptlm";
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -79,7 +82,7 @@ public class LargeMessageInterruptTest extends SoakTestBase {
       return CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       serverProcess = startServer(SERVER_NAME_0, 0, 30000);
@@ -236,13 +239,13 @@ public class LargeMessageInterruptTest extends SoakTestBase {
          });
       }
 
-      Assert.assertTrue(killAt.await(60, TimeUnit.SECONDS));
+      assertTrue(killAt.await(60, TimeUnit.SECONDS));
       killProcess(serverProcess);
-      Assert.assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
+      assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
       serverProcess = startServer(SERVER_NAME_0, 0, 0);
 
-      Assert.assertTrue(done.await(60, TimeUnit.SECONDS));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(60, TimeUnit.SECONDS));
+      assertEquals(0, errors.get());
 
       QueueControl queueControl = getQueueControl(liveURI, nameBuilder, queueName, queueName, RoutingType.ANYCAST, 5000);
 
@@ -255,13 +258,13 @@ public class LargeMessageInterruptTest extends SoakTestBase {
          connection.start();
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertTrue(message.getText().equals("forcePage") || message.getText().equals(largebody));
+            assertNotNull(message);
+            assertTrue(message.getText().equals("forcePage") || message.getText().equals(largebody));
          }
       }
 
       File lmFolder = new File(getServerLocation(SERVER_NAME_0) + "/data/large-messages");
-      Assert.assertTrue(lmFolder.exists());
+      assertTrue(lmFolder.exists());
       Wait.assertEquals(0, () -> lmFolder.listFiles().length);
 
    }

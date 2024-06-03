@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -63,23 +73,15 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyByte;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
 public class BackupActivationNoReconnectTest {
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void verifyReplicationBackupActivation() throws Exception {
       ReplicationBackupPolicy policy = Mockito.mock(ReplicationBackupPolicy.class);
       ReplicationPrimaryPolicy replicationPrimaryPolicy = Mockito.mock(ReplicationPrimaryPolicy.class);
@@ -92,7 +94,8 @@ public class BackupActivationNoReconnectTest {
       verifySingleAttemptToLocatePrimary(server, replicationBackupActivation);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void verifySharedNothingBackupActivation() throws Exception {
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
       when(server.isStarted()).thenReturn(true);
@@ -249,7 +252,7 @@ public class BackupActivationNoReconnectTest {
          Socket clientSocket = serverSocket.accept();
 
          // wait till failure listener is installed, then close
-         assertTrue("Replication observer in play", gotReplicationObserverListener.await(5, TimeUnit.SECONDS));
+         assertTrue(gotReplicationObserverListener.await(5, TimeUnit.SECONDS), "Replication observer in play");
          clientSocket.close();
 
          // propagate the failure
@@ -261,7 +264,7 @@ public class BackupActivationNoReconnectTest {
          if (activationThread.isAlive()) {
             String dump = ThreadDumpUtil.threadDump("Activation thread is still alive!");
             activationThread.interrupt();
-            Assert.fail(dump);
+            fail(dump);
          }
 
          assertTrue(failure.await(5, TimeUnit.SECONDS));

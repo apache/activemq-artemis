@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,16 +46,16 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "isNetty={0}")
+   @Parameters(name = "isNetty={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -68,7 +72,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
       return netty;
    }
 
-   @Test
+   @TestTemplate
    public void testStartStop() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
@@ -163,14 +167,14 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(BridgeWithDiscoveryGroupStartTest.TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          Bridge bridge = server0.getClusterManager().getBridges().get(bridgeName);
 
@@ -185,21 +189,21 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
             producer0.send(message);
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          bridge.start();
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(BridgeWithDiscoveryGroupStartTest.TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          session0.close();
 

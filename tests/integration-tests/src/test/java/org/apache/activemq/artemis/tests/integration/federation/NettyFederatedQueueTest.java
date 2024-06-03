@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.federation;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,8 +28,7 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettyFederatedQueueTest extends FederatedTestBase {
 
@@ -72,7 +74,7 @@ public class NettyFederatedQueueTest extends FederatedTestBase {
       producer1.send(session1.createTextMessage("Test"));
       session1.commit();
 
-      Assert.assertNotNull(consumer2.receive(5000));
+      assertNotNull(consumer2.receive(5000));
 
       for (int i = 0; i < 1000; i++) {
          producer1.send(session1.createTextMessage("test"));
@@ -82,13 +84,13 @@ public class NettyFederatedQueueTest extends FederatedTestBase {
       final MessageConsumer consumer1 = session1.createConsumer(session1.createQueue(queueName));
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertNotNull(consumer1.receive(5000));
+         assertNotNull(consumer1.receive(5000));
          session1.commit();
-         Assert.assertNotNull(consumer2.receive(5000));
+         assertNotNull(consumer2.receive(5000));
       }
 
-      Assert.assertNotNull(consumer2.receive(5000));
+      assertNotNull(consumer2.receive(5000));
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222153"));
+      assertFalse(loggerHandler.findText("AMQ222153"));
    }
 }

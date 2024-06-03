@@ -16,20 +16,22 @@
  */
 package org.apache.activemq.artemis.dto.test;
 
-import org.apache.activemq.artemis.dto.BindingDTO;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class BindingDTOTest extends Assert {
+import org.apache.activemq.artemis.dto.BindingDTO;
+import org.junit.jupiter.api.Test;
+
+public class BindingDTOTest {
 
    @Test
    public void testDefault() {
       BindingDTO binding = new BindingDTO();
 
-      Assert.assertNull(binding.getIncludedTLSProtocols());
-      Assert.assertNull(binding.getExcludedTLSProtocols());
-      Assert.assertNull(binding.getIncludedCipherSuites());
-      Assert.assertNull(binding.getExcludedCipherSuites());
+      assertNull(binding.getIncludedTLSProtocols());
+      assertNull(binding.getExcludedTLSProtocols());
+      assertNull(binding.getIncludedCipherSuites());
+      assertNull(binding.getExcludedCipherSuites());
    }
 
    @Test
@@ -37,16 +39,16 @@ public class BindingDTOTest extends Assert {
       BindingDTO binding = new BindingDTO();
 
       binding.setIncludedTLSProtocols("TLSv1.2");
-      Assert.assertArrayEquals(new String[] {"TLSv1.2"}, binding.getIncludedTLSProtocols());
+      assertArrayEquals(new String[] {"TLSv1.2"}, binding.getIncludedTLSProtocols());
 
       binding.setExcludedTLSProtocols("TLSv1,TLSv1.1");
-      Assert.assertArrayEquals(new String[] {"TLSv1", "TLSv1.1"}, binding.getExcludedTLSProtocols());
+      assertArrayEquals(new String[] {"TLSv1", "TLSv1.1"}, binding.getExcludedTLSProtocols());
 
       binding.setIncludedCipherSuites( "^SSL_.*$");
-      Assert.assertArrayEquals(new String[] {"^SSL_.*$"}, binding.getIncludedCipherSuites());
+      assertArrayEquals(new String[] {"^SSL_.*$"}, binding.getIncludedCipherSuites());
 
       binding.setExcludedCipherSuites( "^.*_(MD5|SHA|SHA1)$,^TLS_RSA_.*$,^.*_NULL_.*$,^.*_anon_.*$");
-      Assert.assertArrayEquals(new String[] {"^.*_(MD5|SHA|SHA1)$", "^TLS_RSA_.*$", "^.*_NULL_.*$", "^.*_anon_.*$"}, binding.getExcludedCipherSuites());
+      assertArrayEquals(new String[] {"^.*_(MD5|SHA|SHA1)$", "^TLS_RSA_.*$", "^.*_NULL_.*$", "^.*_anon_.*$"}, binding.getExcludedCipherSuites());
    }
 
    @Test
@@ -54,16 +56,16 @@ public class BindingDTOTest extends Assert {
       BindingDTO binding = new BindingDTO();
 
       binding.setIncludedTLSProtocols("");
-      Assert.assertArrayEquals(new String[] {""}, binding.getIncludedTLSProtocols());
+      assertArrayEquals(new String[] {""}, binding.getIncludedTLSProtocols());
 
       binding.setExcludedTLSProtocols("");
-      Assert.assertArrayEquals(new String[] {""}, binding.getExcludedTLSProtocols());
+      assertArrayEquals(new String[] {""}, binding.getExcludedTLSProtocols());
 
       binding.setIncludedCipherSuites("");
-      Assert.assertArrayEquals(new String[] {""}, binding.getIncludedCipherSuites());
+      assertArrayEquals(new String[] {""}, binding.getIncludedCipherSuites());
 
       binding.setExcludedCipherSuites("");
-      Assert.assertArrayEquals(new String[] {""}, binding.getExcludedCipherSuites());
+      assertArrayEquals(new String[] {""}, binding.getExcludedCipherSuites());
    }
 
    @Test
@@ -71,15 +73,15 @@ public class BindingDTOTest extends Assert {
       BindingDTO binding = new BindingDTO();
 
       binding.setIncludedTLSProtocols(null);
-      Assert.assertNull(binding.getIncludedTLSProtocols());
+      assertNull(binding.getIncludedTLSProtocols());
 
       binding.setExcludedTLSProtocols(null);
-      Assert.assertNull(binding.getExcludedTLSProtocols());
+      assertNull(binding.getExcludedTLSProtocols());
 
       binding.setIncludedCipherSuites(null);
-      Assert.assertNull(binding.getIncludedCipherSuites());
+      assertNull(binding.getIncludedCipherSuites());
 
       binding.setExcludedCipherSuites(null);
-      Assert.assertNull(binding.getExcludedCipherSuites());
+      assertNull(binding.getExcludedCipherSuites());
    }
 }

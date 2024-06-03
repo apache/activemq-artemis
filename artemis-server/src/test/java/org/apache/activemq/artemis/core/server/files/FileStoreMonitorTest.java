@@ -16,10 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.files;
 
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,15 +35,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;
 
 public class FileStoreMonitorTest extends ServerTestBase {
 
@@ -46,13 +48,13 @@ public class FileStoreMonitorTest extends ServerTestBase {
    private ScheduledExecutorService scheduledExecutorService;
    private ExecutorService executorService;
 
-   @Before
+   @BeforeEach
    public void startScheduled() {
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
       executorService = Executors.newSingleThreadExecutor();
    }
 
-   @After
+   @AfterEach
    public void stopScheduled() {
       scheduledExecutorService.shutdown();
       scheduledExecutorService = null;
@@ -93,17 +95,17 @@ public class FileStoreMonitorTest extends ServerTestBase {
 
       storeMonitor.tick();
 
-      Assert.assertEquals(0, overMaxUsage.get());
-      Assert.assertEquals(1, tick.get());
-      Assert.assertEquals(1, underMaxUsage.get());
+      assertEquals(0, overMaxUsage.get());
+      assertEquals(1, tick.get());
+      assertEquals(1, underMaxUsage.get());
 
       storeMonitor.setMaxUsage(0);
 
       storeMonitor.tick();
 
-      Assert.assertEquals(1, overMaxUsage.get());
-      Assert.assertEquals(2, tick.get());
-      Assert.assertEquals(1, underMaxUsage.get());
+      assertEquals(1, overMaxUsage.get());
+      assertEquals(2, tick.get());
+      assertEquals(1, underMaxUsage.get());
    }
 
    @Test
@@ -139,17 +141,17 @@ public class FileStoreMonitorTest extends ServerTestBase {
 
       storeMonitor.tick();
 
-      Assert.assertEquals(0, underMinDiskFree.get());
-      Assert.assertEquals(1, tick.get());
-      Assert.assertEquals(1, overMinDiskFree.get());
+      assertEquals(0, underMinDiskFree.get());
+      assertEquals(1, tick.get());
+      assertEquals(1, overMinDiskFree.get());
 
       storeMonitor.setMinDiskFree(Long.MAX_VALUE);
 
       storeMonitor.tick();
 
-      Assert.assertEquals(1, underMinDiskFree.get());
-      Assert.assertEquals(2, tick.get());
-      Assert.assertEquals(1, overMinDiskFree.get());
+      assertEquals(1, underMinDiskFree.get());
+      assertEquals(2, tick.get());
+      assertEquals(1, overMinDiskFree.get());
    }
 
    @Test
@@ -165,13 +167,13 @@ public class FileStoreMonitorTest extends ServerTestBase {
       });
       storeMonitor.start();
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      assertTrue(latch.await(1, TimeUnit.SECONDS));
 
       storeMonitor.stop();
 
       latch.setCount(1);
 
-      Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
+      assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
    }
 
@@ -188,13 +190,13 @@ public class FileStoreMonitorTest extends ServerTestBase {
       });
       storeMonitor.start();
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      assertTrue(latch.await(1, TimeUnit.SECONDS));
 
       storeMonitor.stop();
 
       latch.setCount(1);
 
-      Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
+      assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
    }
 }

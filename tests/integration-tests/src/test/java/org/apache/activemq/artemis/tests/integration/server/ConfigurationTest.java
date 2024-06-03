@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -34,8 +37,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurationTest extends ActiveMQTestBase {
 
@@ -94,7 +96,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
          config.store(outStream, null);
       }
 
-      Assert.assertTrue(propsFile.exists());
+      assertTrue(propsFile.exists());
 
       ActiveMQServer server = getActiveMQServer("duplicate-queues.xml");
       server.setProperties(propsFile.getAbsolutePath());
@@ -124,11 +126,11 @@ public class ConfigurationTest extends ActiveMQTestBase {
          });
 
          // verify round trip apply
-         Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("2"));
+         assertTrue(server.getActiveMQServerControl().getStatus().contains("2"));
 
          // verify some server attributes
-         Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("version"));
-         Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("uptime"));
+         assertTrue(server.getActiveMQServerControl().getStatus().contains("version"));
+         assertTrue(server.getActiveMQServerControl().getStatus().contains("uptime"));
 
       } finally {
          try {

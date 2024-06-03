@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.smoke.upgradeTest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -29,9 +32,8 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** This test is making sure the upgrade command would be able to upgrade a test I created with artemis 2.25.0 */
 public class UpgradeTest extends SmokeTestBase {
@@ -40,7 +42,7 @@ public class UpgradeTest extends SmokeTestBase {
 
    Process processServer;
 
-   @Before
+   @BeforeEach
    public void beforeTest() throws Exception {
       upgradedServer = new File(basedir + "/target/classes/servers/linuxUpgrade");
       deleteDirectory(new File(upgradedServer, "data"));
@@ -63,8 +65,8 @@ public class UpgradeTest extends SmokeTestBase {
          String randomString = "Hello " + RandomUtil.randomString();
          producer.send(session.createTextMessage(randomString));
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(randomString, message.getText());
+         assertNotNull(message);
+         assertEquals(randomString, message.getText());
       }
 
    }

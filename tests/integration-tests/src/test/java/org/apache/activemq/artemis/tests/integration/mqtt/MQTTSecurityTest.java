@@ -16,8 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.EOFException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -26,9 +32,8 @@ import org.fusesource.mqtt.client.MQTTException;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
 import org.fusesource.mqtt.codec.CONNACK;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTSecurityTest extends MQTTTestSupport {
 
@@ -37,7 +42,8 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       return true;
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testConnection() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
 
@@ -51,14 +57,15 @@ public class MQTTSecurityTest extends MQTTTestSupport {
             connection = mqtt.blockingConnection();
             connection.connect();
             BlockingConnection finalConnection = connection;
-            assertTrue("Should be connected", Wait.waitFor(() -> finalConnection.isConnected(), 5000, 100));
+            assertTrue(Wait.waitFor(() -> finalConnection.isConnected(), 5000, 100), "Should be connected");
          } finally {
             if (connection != null && connection.isConnected()) connection.disconnect();
          }
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testConnectionWithNullPassword() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
 
@@ -83,7 +90,8 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPublishAuthorizationFailOn311WithDisconnect() throws Exception {
       String version = "3.1.1";
 
@@ -109,7 +117,8 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPublishAuthorizationFailOn311WithoutDisconnect() throws Exception {
       setAcceptorProperty("closeMqttConnectionOnPublishAuthorizationFailure=false");
       String version = "3.1.1";
@@ -134,7 +143,8 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPublishAuthorizationFailOn31() throws Exception {
       String version = "3.1";
 
@@ -158,7 +168,8 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testSubscribeAuthorizationFail() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
          BlockingConnection connection = null;

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,15 +37,13 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class WildcardAddressManagerPerfTest {
 
    @Test
-   @Ignore
+   @Disabled
    public void testConcurrencyAndEfficiency() throws Exception {
 
       System.out.println("Type so we can go on..");
@@ -104,7 +104,7 @@ public class WildcardAddressManagerPerfTest {
       }
 
       executorService.shutdown();
-      assertTrue("finished on time", executorService.awaitTermination(10, TimeUnit.MINUTES));
+      assertTrue(executorService.awaitTermination(10, TimeUnit.MINUTES), "finished on time");
 
 
       final AtomicLong addresses = new AtomicLong();

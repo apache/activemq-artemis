@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.jms.tests.message;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSTypeHeaderTest extends MessageHeaderTestBase {
 
@@ -39,7 +39,7 @@ public class JMSTypeHeaderTest extends MessageHeaderTestBase {
    public void testNULLJMSType() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m);
-      ProxyAssertSupport.assertEquals(null, queueConsumer.receive(1000).getJMSType());
+      ProxyAssertSupport.assertNull(queueConsumer.receive(1000).getJMSType());
    }
 
 }

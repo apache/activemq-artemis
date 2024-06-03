@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.logs;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,12 @@ public class AssertionLoggerHandlerTest {
 
    private static LogLevel origLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origLevel = AssertionLoggerHandler.setLevel(LOGGER_NAME, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(LOGGER_NAME, origLevel);
    }
@@ -53,77 +53,77 @@ public class AssertionLoggerHandlerTest {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
          // Try without logging anything
-         assertFalse("should not have found prefix, not yet logged", loggerHandler.findText(prefix));
-         assertFalse("should not have found middle, not yet logged", loggerHandler.findText(middle));
-         assertFalse("should not have found suffix, not yet logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertFalse(loggerHandler.findText(prefix), "should not have found prefix, not yet logged");
+         assertFalse(loggerHandler.findText(middle), "should not have found middle, not yet logged");
+         assertFalse(loggerHandler.findText(suffix), "should not have found suffix, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found combination, not yet logged");
 
          // Now log only the prefix.
          logger.info("{} -after", prefix);
 
-         assertTrue("should have found prefix logged", loggerHandler.findText(prefix));
-         assertFalse("should not have found middle, not yet logged", loggerHandler.findText(middle));
-         assertFalse("should not have found suffix, not yet logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertTrue(loggerHandler.findText(prefix), "should have found prefix logged");
+         assertFalse(loggerHandler.findText(middle), "should not have found middle, not yet logged");
+         assertFalse(loggerHandler.findText(suffix), "should not have found suffix, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found combination, not yet logged");
 
          // Now log only the middle.
          logger.info("before- {} -after", middle);
 
-         assertTrue("should have found prefix logged", loggerHandler.findText(prefix));
-         assertTrue("should have found middle logged", loggerHandler.findText(middle));
-         assertFalse("should not have found suffix, not yet logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found full combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertTrue(loggerHandler.findText(prefix), "should have found prefix logged");
+         assertTrue(loggerHandler.findText(middle), "should have found middle logged");
+         assertFalse(loggerHandler.findText(suffix), "should not have found suffix, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found full combination, not yet logged");
 
          // Now log only the suffix.
          logger.info("before- {}", suffix);
 
-         assertTrue("should have found prefix logged", loggerHandler.findText(prefix));
-         assertTrue("should have found middle logged", loggerHandler.findText(middle));
-         assertTrue("should have found suffix logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found alternative combination, not yet logged", loggerHandler.findText(prefix, suffix));
-         assertFalse("should not have found alternative combination, not yet logged", loggerHandler.findText(prefix, middle));
-         assertFalse("should not have found alternative combination, not yet logged", loggerHandler.findText(middle, suffix));
-         assertFalse("should not have found full combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertTrue(loggerHandler.findText(prefix), "should have found prefix logged");
+         assertTrue(loggerHandler.findText(middle), "should have found middle logged");
+         assertTrue(loggerHandler.findText(suffix), "should have found suffix logged");
+         assertFalse(loggerHandler.findText(prefix, suffix), "should not have found alternative combination, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle), "should not have found alternative combination, not yet logged");
+         assertFalse(loggerHandler.findText(middle, suffix), "should not have found alternative combination, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found full combination, not yet logged");
       }
 
       // Use a new AssertionLoggerHandler to start fresh
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
          // Try again without logging anything
-         assertFalse("should not have found prefix, not yet logged", loggerHandler.findText(prefix));
-         assertFalse("should not have found middle, not yet logged", loggerHandler.findText(middle));
-         assertFalse("should not have found suffix, not yet logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found full combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertFalse(loggerHandler.findText(prefix), "should not have found prefix, not yet logged");
+         assertFalse(loggerHandler.findText(middle), "should not have found middle, not yet logged");
+         assertFalse(loggerHandler.findText(suffix), "should not have found suffix, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found full combination, not yet logged");
 
          // Now log the prefix AND suffix, but NOT middle.
          logger.info("{} -inbetween- {}", prefix, suffix);
 
-         assertTrue("should have found prefix logged", loggerHandler.findText(prefix));
-         assertFalse("should not have found middle, not yet logged", loggerHandler.findText(middle));
-         assertTrue("should have found suffix logged", loggerHandler.findText(suffix));
-         assertTrue("should have found combination logged", loggerHandler.findText(prefix, suffix));
-         assertFalse("should not have found alternative combination, not yet logged", loggerHandler.findText(prefix, middle));
-         assertFalse("should not have found alternative combination, not yet logged", loggerHandler.findText(middle, suffix));
-         assertFalse("should not have found full combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertTrue(loggerHandler.findText(prefix), "should have found prefix logged");
+         assertFalse(loggerHandler.findText(middle), "should not have found middle, not yet logged");
+         assertTrue(loggerHandler.findText(suffix), "should have found suffix logged");
+         assertTrue(loggerHandler.findText(prefix, suffix), "should have found combination logged");
+         assertFalse(loggerHandler.findText(prefix, middle), "should not have found alternative combination, not yet logged");
+         assertFalse(loggerHandler.findText(middle, suffix), "should not have found alternative combination, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found full combination, not yet logged");
       }
 
       // Use a new AssertionLoggerHandler to start fresh
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
          // Try again without logging anything
-         assertFalse("should not have found prefix, not yet logged", loggerHandler.findText(prefix));
-         assertFalse("should not have found middle, not yet logged", loggerHandler.findText(middle));
-         assertFalse("should not have found suffix, not yet logged", loggerHandler.findText(suffix));
-         assertFalse("should not have found combination, not yet logged", loggerHandler.findText(prefix, middle, suffix));
+         assertFalse(loggerHandler.findText(prefix), "should not have found prefix, not yet logged");
+         assertFalse(loggerHandler.findText(middle), "should not have found middle, not yet logged");
+         assertFalse(loggerHandler.findText(suffix), "should not have found suffix, not yet logged");
+         assertFalse(loggerHandler.findText(prefix, middle, suffix), "should not have found combination, not yet logged");
 
          // Now log the prefix AND middle AND suffix.
          logger.info("{} - {} - {}", prefix, middle, suffix);
 
-         assertTrue("should have found prefix logged", loggerHandler.findText(prefix));
-         assertTrue("should have found middle logged", loggerHandler.findText(middle));
-         assertTrue("should have found suffix logged", loggerHandler.findText(suffix));
-         assertTrue("should have found combination logged", loggerHandler.findText(prefix, suffix));
-         assertTrue("should have found combination logged", loggerHandler.findText(prefix, middle));
-         assertTrue("should have found combination logged", loggerHandler.findText(middle, suffix));
-         assertTrue("should have found full combination logged", loggerHandler.findText(prefix, middle, suffix));
+         assertTrue(loggerHandler.findText(prefix), "should have found prefix logged");
+         assertTrue(loggerHandler.findText(middle), "should have found middle logged");
+         assertTrue(loggerHandler.findText(suffix), "should have found suffix logged");
+         assertTrue(loggerHandler.findText(prefix, suffix), "should have found combination logged");
+         assertTrue(loggerHandler.findText(prefix, middle), "should have found combination logged");
+         assertTrue(loggerHandler.findText(middle, suffix), "should have found combination logged");
+         assertTrue(loggerHandler.findText(prefix, middle, suffix), "should have found full combination logged");
       }
    }
 

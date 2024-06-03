@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.server.routing.targets.MockTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,7 +52,7 @@ public class LeastConnectionsPolicyTest extends PolicyTestBase {
          selectedTarget = policy.selectTarget(targets, "test");
          selectedTargets.add(selectedTarget);
       }
-      Assert.assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
+      assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
 
 
       targets.forEach(target -> {
@@ -63,7 +65,7 @@ public class LeastConnectionsPolicyTest extends PolicyTestBase {
          selectedTarget = policy.selectTarget(targets, "test");
          selectedTargets.add(selectedTarget);
       }
-      Assert.assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
+      assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
 
 
       ((MockTarget)targets.get(0)).setAttributeValue("broker", "ConnectionCount", 2);
@@ -74,8 +76,8 @@ public class LeastConnectionsPolicyTest extends PolicyTestBase {
          selectedTarget = policy.selectTarget(targets, "test");
          selectedTargets.add(selectedTarget);
       }
-      Assert.assertEquals(1, selectedTargets.size());
-      Assert.assertTrue(selectedTargets.contains(targets.get(0)));
+      assertEquals(1, selectedTargets.size());
+      assertTrue(selectedTargets.contains(targets.get(0)));
 
 
       ((MockTarget)targets.get(1)).setAttributeValue("broker", "ConnectionCount", 1);
@@ -87,8 +89,8 @@ public class LeastConnectionsPolicyTest extends PolicyTestBase {
          selectedTarget = policy.selectTarget(targets, "test");
          selectedTargets.add(selectedTarget);
       }
-      Assert.assertEquals(2, selectedTargets.size());
-      Assert.assertTrue(selectedTargets.contains(targets.get(1)));
-      Assert.assertTrue(selectedTargets.contains(targets.get(2)));
+      assertEquals(2, selectedTargets.size());
+      assertTrue(selectedTargets.contains(targets.get(1)));
+      assertTrue(selectedTargets.contains(targets.get(2)));
    }
 }

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
@@ -34,9 +38,8 @@ import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageBufferTest extends ActiveMQTestBase {
 
@@ -46,7 +49,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -74,7 +77,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
          message.getBodyBuffer().resetReaderIndex();
          producer.send(message);
          session.commit();
-         Assert.assertTrue("Message body growing indefinitely and unexpectedly", message.getBodySize() < 1000);
+         assertTrue(message.getBodySize() < 1000, "Message body growing indefinitely and unexpectedly");
 
       }
 
@@ -102,7 +105,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
 
       {
          ClientMessage message = (ClientMessageImpl) session.createMessage(true);
-         Assert.assertEquals(1024, buf.readableBytes());
+         assertEquals(1024, buf.readableBytes());
          message.getBodyBuffer().writeBytes(buf, 0, buf.readableBytes());
          producer.send(message);
       }
@@ -116,18 +119,18 @@ public class MessageBufferTest extends ActiveMQTestBase {
 
       {
          ClientMessage message = consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(1024, message.getBodySize());
+         assertNotNull(message);
+         assertEquals(1024, message.getBodySize());
          ActiveMQBuffer buffer = message.getDataBuffer();
-         Assert.assertEquals(1024, message.getBodySize());
+         assertEquals(1024, message.getBodySize());
          ActiveMQBuffer bodyBuffer = message.getBodyBuffer();
-         Assert.assertEquals(1024, message.getBodySize());
+         assertEquals(1024, message.getBodySize());
 
          ActiveMQBuffer result = ActiveMQBuffers.fixedBuffer(message.getBodyBufferSize());
          buffer.readBytes(result);
-         Assert.assertEquals(1024, result.readableBytes());
+         assertEquals(1024, result.readableBytes());
          for (int i = 0; i < 1024; i++) {
-            Assert.assertEquals(getSamplebyte(i), result.readByte());
+            assertEquals(getSamplebyte(i), result.readByte());
          }
          assertNotNull(message);
          message.acknowledge();

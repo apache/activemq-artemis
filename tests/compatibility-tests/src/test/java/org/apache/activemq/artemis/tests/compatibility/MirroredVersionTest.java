@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_THIRTYTHREE_ZERO;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,20 +36,18 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_THIRTYTHREE_ZERO;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class MirroredVersionTest extends ClasspathBase {
 
    private static final String QUEUE_NAME = "MirroredQueue";
@@ -60,7 +61,7 @@ public class MirroredVersionTest extends ClasspathBase {
 
    private final boolean useDual;
 
-   @Parameterized.Parameters(name = "BrokerA={0}, BrokerB={1}, dualMirror={2}")
+   @Parameters(name = "BrokerA={0}, BrokerB={1}, dualMirror={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
       combinations.add(new Object[]{TWO_THIRTYTHREE_ZERO, SNAPSHOT, true});
@@ -77,7 +78,12 @@ public class MirroredVersionTest extends ClasspathBase {
       this.useDual = useDual;
    }
 
-   @After
+   @BeforeEach
+   private void beforeEach() {
+      deleteFolders();
+   }
+
+   @AfterEach
    public void cleanupServers() {
       try {
          evaluate(mainClassloader, "multiVersionMirror/mainServerStop.groovy");
@@ -87,13 +93,13 @@ public class MirroredVersionTest extends ClasspathBase {
          evaluate(backupClassLoader, "multiVersionMirror/backupServerStop.groovy");
       } catch (Exception ignored) {
       }
+
+      deleteFolders();
    }
 
-   @Before
-   @After
-   public void deleteFolders() {
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "1"));
-      FileUtil.deleteDirectory(new File(serverFolder.getRoot().getAbsolutePath(), "2"));
+   private void deleteFolders() {
+      FileUtil.deleteDirectory(new File(serverFolder.getAbsolutePath(), "1"));
+      FileUtil.deleteDirectory(new File(serverFolder.getAbsolutePath(), "2"));
    }
 
    private String createBody(int size) {
@@ -106,12 +112,12 @@ public class MirroredVersionTest extends ClasspathBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testMirrorReplica() throws Throwable {
       testMirrorReplica(100);
    }
 
-   @Test
+   @TestTemplate
    public void testMirrorReplicaLM() throws Throwable {
       testMirrorReplica(300 * 1024);
    }
@@ -174,14 +180,14 @@ public class MirroredVersionTest extends ClasspathBase {
    }
 
    private void startMainBroker() throws Exception {
-      evaluate(mainClassloader, "multiVersionMirror/mainServer.groovy", serverFolder.getRoot().getAbsolutePath(), "1", QUEUE_NAME, TOPIC_NAME);
+      evaluate(mainClassloader, "multiVersionMirror/mainServer.groovy", serverFolder.getAbsolutePath(), "1", QUEUE_NAME, TOPIC_NAME);
    }
 
    private void startBackupBroker() throws Exception {
-      evaluate(backupClassLoader, "multiVersionMirror/backupServer.groovy", serverFolder.getRoot().getAbsolutePath(), "2", QUEUE_NAME, TOPIC_NAME, String.valueOf(useDual));
+      evaluate(backupClassLoader, "multiVersionMirror/backupServer.groovy", serverFolder.getAbsolutePath(), "2", QUEUE_NAME, TOPIC_NAME, String.valueOf(useDual));
    }
 
-   @Test
+   @TestTemplate
    public void testTopic() throws Throwable {
       int stringSize = 100;
       String body = createBody(stringSize);

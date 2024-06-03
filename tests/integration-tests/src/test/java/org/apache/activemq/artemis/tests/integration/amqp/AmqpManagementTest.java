@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.UUID;
@@ -36,16 +41,15 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpManagementTest extends AmqpClientTestSupport {
 
    private static final Binary BINARY_CORRELATION_ID = new Binary("mystring".getBytes(StandardCharsets.UTF_8));
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testManagementQueryOverAMQP() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -66,7 +70,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
          sender.send(request);
          AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(response);
+         assertNotNull(response);
          assertNotNull(response);
          Object section = response.getWrappedMessage().getBody();
          assertTrue(section instanceof AmqpValue);
@@ -84,7 +88,8 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
     * Some clients use Unsigned types from org.apache.qpid.proton.amqp
     * @throws Exception
     */
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testUnsignedValues() throws Exception {
       int sequence = 42;
       LinkedHashMap<String, Object> map = new LinkedHashMap<>();
@@ -108,32 +113,38 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
       assertEquals(msg.getByte("sequence"), sequence);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByMessageIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByMessageIDString() throws Throwable {
       doTestReplyCorrelation("mystring", false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByMessageIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByCorrelationIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByCorrelationIDString() throws Throwable {
       doTestReplyCorrelation("mystring", true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCorrelationByCorrelationIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, true);
    }
@@ -163,8 +174,8 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
          sender.send(request);
          AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(response);
-         Assert.assertEquals(correlationId, response.getRawCorrelationId());
+         assertNotNull(response);
+         assertEquals(correlationId, response.getRawCorrelationId());
          response.accept();
       } finally {
          connection.close();

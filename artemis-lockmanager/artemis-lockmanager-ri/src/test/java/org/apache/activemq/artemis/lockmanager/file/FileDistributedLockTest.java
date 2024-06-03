@@ -16,29 +16,33 @@
  */
 package org.apache.activemq.artemis.lockmanager.file;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
 
 import org.apache.activemq.artemis.lockmanager.DistributedLockTest;
 import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class FileDistributedLockTest extends DistributedLockTest {
 
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File tmpFolder;
 
    private File locksFolder;
 
-   @Before
+   @BeforeEach
    @Override
    public void setupEnv() throws Throwable {
-      locksFolder = tmpFolder.newFolder("locks-folder");
+      locksFolder = newFolder(tmpFolder, "locks-folder");
       super.setupEnv();
    }
 
@@ -57,14 +61,26 @@ public class FileDistributedLockTest extends DistributedLockTest {
       DistributedLockManager.newInstanceOf(managerClassName(), Collections.singletonMap("locks-folder", locksFolder.toString()));
    }
 
-   @Test(expected = InvocationTargetException.class)
+   @Test
    public void reflectiveManagerCreationFailWithoutLocksFolder() throws Exception {
-      DistributedLockManager.newInstanceOf(managerClassName(), Collections.emptyMap());
+      assertThrows(InvocationTargetException.class, () -> {
+         DistributedLockManager.newInstanceOf(managerClassName(), Collections.emptyMap());
+      });
    }
 
-   @Test(expected = InvocationTargetException.class)
+   @Test
    public void reflectiveManagerCreationFailIfLocksFolderIsNotFolder() throws Exception {
-      DistributedLockManager.newInstanceOf(managerClassName(), Collections.singletonMap("locks-folder", tmpFolder.newFile().toString()));
+      assertThrows(InvocationTargetException.class, () -> {
+         DistributedLockManager.newInstanceOf(managerClassName(), Collections.singletonMap("locks-folder", File.createTempFile("junit", null, tmpFolder).toString()));
+      });
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 
 }

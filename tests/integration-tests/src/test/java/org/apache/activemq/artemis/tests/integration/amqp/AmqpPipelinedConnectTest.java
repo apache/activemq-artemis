@@ -16,12 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,7 +40,8 @@ import org.apache.qpid.proton.amqp.transport.FrameBody;
 import org.apache.qpid.proton.codec.AMQPDefinedTypes;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +54,8 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testPipelinedOpenWhenAnonymousWillFail() throws Exception {
 
       // Frame data for: SaslInit

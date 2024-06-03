@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.smoke.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -32,16 +34,16 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DualFederationTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_A = "brokerConnect/federationA";
    public static final String SERVER_NAME_B = "brokerConnect/federationB";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_A);
@@ -66,7 +68,7 @@ public class DualFederationTest extends SmokeTestBase {
    Process processB;
    Process processA;
 
-   @Before
+   @BeforeEach
    public void beforeClass() throws Exception {
       cleanupData(SERVER_NAME_A);
       cleanupData(SERVER_NAME_B);

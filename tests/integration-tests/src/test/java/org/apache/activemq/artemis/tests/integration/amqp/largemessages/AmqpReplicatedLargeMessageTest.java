@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -37,8 +41,9 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Data;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
 
@@ -55,6 +60,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -77,7 +83,8 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
    }
 
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testSimpleSend() throws Exception {
       try {
 
@@ -136,17 +143,17 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
          receiver.flow(100);
          for (int i = 0; i < 100; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(msgReceived);
+            assertNotNull(msgReceived);
             Data body = (Data)msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte)'z', bodyArray[bI]);
+               assertEquals((byte)'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
 
          receiver.close();
@@ -161,7 +168,8 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       }
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testCloseFilesOnTarget() throws Exception {
       try {
 
@@ -209,17 +217,17 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
          receiver.flow(100);
          for (int i = 0; i < 100; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
-            Assert.assertNotNull(msgReceived);
+            assertNotNull(msgReceived);
             Data body = (Data)msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte)'z', bodyArray[bI]);
+               assertEquals((byte)'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          receiver.close();
 

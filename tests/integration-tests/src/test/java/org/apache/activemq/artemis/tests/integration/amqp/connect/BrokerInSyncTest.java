@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -54,10 +61,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -69,30 +75,30 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    ActiveMQServer server_2;
    private AssertionLoggerHandler loggerHandler;
 
-   @After
+   @AfterEach
    public void stopServer1() throws Exception {
       if (server != null) {
          server.stop();
       }
    }
 
-   @After
+   @AfterEach
    public void stopServer2() throws Exception {
       if (server_2 != null) {
          server_2.stop();
       }
    }
 
-   @Before
+   @BeforeEach
    public void startLogging() {
       loggerHandler = new AssertionLoggerHandler();
 
    }
 
-   @After
+   @AfterEach
    public void stopLogging() throws Exception {
       try {
-         Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+         assertFalse(loggerHandler.findText("AMQ222214"));
       } finally {
          loggerHandler.close();
       }
@@ -204,8 +210,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(1, queueOnServer1::getMessageCount);
       Wait.assertEquals(1, queueOnServer2::getMessageCount);
@@ -234,7 +240,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    private org.apache.activemq.artemis.core.server.Queue locateQueueWithWait(ActiveMQServer server, String queueName) throws Exception {
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
       org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(queueName);
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       return queue;
    }
 
@@ -418,11 +424,11 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 2; i++) {
          TextMessage messageToCancel = (TextMessage) consumer1.receive(1000);
-         Assert.assertNotNull(messageToCancel);
+         assertNotNull(messageToCancel);
          session1.rollback();
       }
 
-      Assert.assertNull(consumer1.receiveNoWait());
+      assertNull(consumer1.receiveNoWait());
 
       Wait.assertEquals(0L, queueOnServer1::getMessageCount, 1000, 100);
       Wait.assertEquals(0L, queueOnServer2::getMessageCount, 1000, 100);
@@ -503,7 +509,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       org.apache.activemq.artemis.core.server.Queue to1 = locateQueueWithWait(server_2, "$ACTIVEMQ_ARTEMIS_MIRROR_to_1");
-      Assert.assertNotNull(to1);
+      assertNotNull(to1);
 
       long messagesAddedOnS2 = to1.getMessagesAdded();
 
@@ -516,10 +522,10 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null, 5000);
-      Assert.assertTrue(server_2.getAddressInfo(SimpleString.toSimpleString(internalQueueName)) == null);
-      Assert.assertTrue(server_2.locateQueue(internalQueueName) == null);
+      assertTrue(server_2.getAddressInfo(SimpleString.toSimpleString(internalQueueName)) == null);
+      assertTrue(server_2.locateQueue(internalQueueName) == null);
 
-      Assert.assertEquals(messagesAddedOnS2, to1.getMessagesAdded());
+      assertEquals(messagesAddedOnS2, to1.getMessagesAdded());
 
       server_2.stop();
       server.stop();
@@ -573,12 +579,12 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       org.apache.activemq.artemis.core.server.Queue lvqQueue1 = locateQueueWithWait(server, lvqName);
       org.apache.activemq.artemis.core.server.Queue lvqQueue2 = locateQueueWithWait(server, lvqName);
 
-      Assert.assertTrue(lvqQueue1.isLastValue());
-      Assert.assertTrue(lvqQueue2.isLastValue());
-      Assert.assertTrue(lvqQueue1 instanceof LastValueQueue);
-      Assert.assertTrue(lvqQueue2 instanceof LastValueQueue);
-      Assert.assertEquals("KEY", lvqQueue1.getQueueConfiguration().getLastValueKey().toString());
-      Assert.assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
+      assertTrue(lvqQueue1.isLastValue());
+      assertTrue(lvqQueue2.isLastValue());
+      assertTrue(lvqQueue1 instanceof LastValueQueue);
+      assertTrue(lvqQueue2 instanceof LastValueQueue);
+      assertEquals("KEY", lvqQueue1.getQueueConfiguration().getLastValueKey().toString());
+      assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
 
       ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       Connection connection1 = cf1.createConnection();
@@ -604,7 +610,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.stop();
       server.stop();
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222153"));
+      assertFalse(loggerHandler.findText("AMQ222153"));
    }
 
 
@@ -661,8 +667,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
@@ -686,9 +692,9 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
          logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
-         Assert.assertEquals("test " + i, message.getText());
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
+         assertEquals("test " + i, message.getText());
          session1.commit();
       }
 
@@ -702,23 +708,23 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       if (logger.isDebugEnabled() && !bothConsumed) {
          debugData();
-         Assert.fail("q1 = " + queueOnServer1.getMessageCount() + ", q2 = " + queueOnServer2.getMessageCount());
+         fail("q1 = " + queueOnServer1.getMessageCount() + ", q2 = " + queueOnServer2.getMessageCount());
       }
 
-      Assert.assertEquals(0, queueOnServer1.getMessageCount());
-      Assert.assertEquals(0, queueOnServer2.getConsumerCount());
+      assertEquals(0, queueOnServer1.getMessageCount());
+      assertEquals(0, queueOnServer2.getConsumerCount());
 
       System.out.println("Queue on Server 1 = " + queueOnServer1.getMessageCount());
       System.out.println("Queue on Server 2 = " + queueOnServer2.getMessageCount());
 
-      Assert.assertEquals(0, queueOnServer1.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringCount());
+      assertEquals(0, queueOnServer2.getDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer2.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer2.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       server_2.stop();
       server.stop();
@@ -779,36 +785,36 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
 
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       MessageConsumer consumerOn1 = session1.createConsumer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
          logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
-         Assert.assertEquals("test " + i, message.getText());
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
+         assertEquals("test " + i, message.getText());
          session1.commit();
          int fi = i;
       }
 
       Wait.assertEquals(0L, queueOnServer1::getMessageCount, 2000, 100);
       Wait.assertEquals(0L, queueOnServer2::getMessageCount, 2000, 100);
-      Assert.assertEquals(0, queueOnServer1.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringCount());
+      assertEquals(0, queueOnServer2.getDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer2.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer2.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       server_2.stop();
       server.stop();
@@ -885,8 +891,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
@@ -905,9 +911,9 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       consumerOn1.flow(NUMBER_OF_MESSAGES * 2 + 1);
       for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
          AmqpMessage message = consumerOn1.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.accept();
-         Assert.assertEquals(i, (int) message.getApplicationProperty("i"));
+         assertEquals(i, (int) message.getApplicationProperty("i"));
       }
 
       Wait.assertEquals(0, queueOnServer1::getMessageCount);
@@ -978,8 +984,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(bigString, message.getText());
+         assertNotNull(message);
+         assertEquals(bigString, message.getText());
          Wait.assertEquals(0, () -> getNumberOfFiles(server_2.getConfiguration().getLargeMessagesLocation()), 5000, 100);
       }
 
@@ -993,7 +999,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          TextMessage message = (TextMessage)consumer.receiveNoWait();
-         Assert.assertNull(message);
+         assertNull(message);
          server.stop();
          server_2.stop();
          Wait.assertEquals(0, () -> getNumberOfFiles(server.getConfiguration().getLargeMessagesLocation()), 1000, 100);

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +28,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
@@ -178,6 +179,6 @@ public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBa
       threadRead.join();
 
       // An interrupt exception shouldn't issue a shutdown
-      Assert.assertEquals(0, calls.get());
+      assertEquals(0, calls.get());
    }
 }

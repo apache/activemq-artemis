@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -39,20 +43,18 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class XAJMSOrderTest extends JMSTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -71,12 +73,12 @@ public class XAJMSOrderTest extends JMSTestBase {
       this.exclusive = exclusive;
    }
 
-   @Before
+   @BeforeEach
    public void setupCF() {
       protocolCF = createConnectionFactory(protocol, "tcp://localhost:61616");
    }
 
-   @Parameterized.Parameters(name = "protocol={0}&exclusive={1}")
+   @Parameters(name = "protocol={0}&exclusive={1}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"CORE", true}, {"CORE", false}});
    }
@@ -88,7 +90,7 @@ public class XAJMSOrderTest extends JMSTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testPreparedRollbackACKWithRestart() throws Exception {
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
@@ -118,10 +120,10 @@ public class XAJMSOrderTest extends JMSTestBase {
 
          for (int i = 0; i < 5; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("message {} received", message.getText());
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
 
          session.getXAResource().end(xid, XAResource.TMSUCCESS);
@@ -142,10 +144,10 @@ public class XAJMSOrderTest extends JMSTestBase {
 
          for (int i = 5; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("message {} received", message.getText());
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
          session.rollback();
       }
@@ -162,10 +164,10 @@ public class XAJMSOrderTest extends JMSTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("message {} received", message.getText());
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
          session.commit();
       }

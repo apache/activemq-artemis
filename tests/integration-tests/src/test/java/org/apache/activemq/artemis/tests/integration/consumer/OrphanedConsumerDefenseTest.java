@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.consumer;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,8 +59,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +85,7 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
 
       try {
          new ServerConsumerImpl(1, null, null, null, 1, true, false, new NullStorageManager(), sessionCallback, true, true, managementService, false, 0, server);
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (NullPointerException e) {
          logger.debug("Expected exception", e);
       }
@@ -120,10 +122,10 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
 
       try {
          new ServerConsumerImpl(1, session, null, null, 1, true, false, new NullStorageManager(), sessionCallback, true, true, managementService, false, 0, server);
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (ActiveMQException activeMQException) {
          logger.info("Expected exception", activeMQException);
-         Assert.assertTrue(activeMQException.getMessage().contains("AMQ229250"));
+         assertTrue(activeMQException.getMessage().contains("AMQ229250"));
       }
    }
 
@@ -162,7 +164,7 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
          ProtonServerSenderContext serverSenderContext = new ProtonServerSenderContext(connectionContext, sender, sessionContext, sessionCallback);
          serverSenderContext.initialize();
       } catch (ActiveMQException e) {
-         Assert.assertTrue(e.getMessage().contains("AMQ119027"));
+         assertTrue(e.getMessage().contains("AMQ119027"));
          logger.warn(e.getMessage(), e);
       }
    }

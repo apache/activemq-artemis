@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.group.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.management.ObjectName;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,8 +64,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * this is testing the case for resending notifications from RemotingGroupHandler
@@ -94,7 +95,7 @@ public class ClusteredResetMockTest extends ServerTestBase {
       try {
 
          // Waiting two requests to arrive
-         Assert.assertTrue(latchSends.await(1, TimeUnit.MINUTES));
+         assertTrue(latchSends.await(1, TimeUnit.MINUTES));
 
          // we will ask a resend.. need to add 2 back
          for (int i = 0; i < NUMBER_OF_SENDERS; i++) {

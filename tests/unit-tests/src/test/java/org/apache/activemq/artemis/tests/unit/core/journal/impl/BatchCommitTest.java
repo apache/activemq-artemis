@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -44,10 +47,8 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,8 +142,8 @@ public class BatchCommitTest extends ActiveMQTestBase {
 
       existingRecords.forEach(l -> logger.warn("id {} still in the list", l));
 
-      Assert.assertEquals(0, errors.get());
-      Assert.assertEquals(0, existingRecords.size());
+      assertEquals(0, errors.get());
+      assertEquals(0, existingRecords.size());
 
       return journal;
 
@@ -173,7 +174,7 @@ public class BatchCommitTest extends ActiveMQTestBase {
       internalTest(JournalType.NIO, "testRunNIO", false);
    }
 
-   @Ignore // TODO: We should fix Mapped eventually for this case
+   @Disabled // TODO: We should fix Mapped eventually for this case
    public void testMapped() throws Exception {
       internalTest(JournalType.MAPPED, "testRunMapped", true);
    }
@@ -185,13 +186,13 @@ public class BatchCommitTest extends ActiveMQTestBase {
 
    @Test
    public void testAIO() throws Exception {
-      Assume.assumeTrue(LibaioContext.isLoaded());
+      assumeTrue(LibaioContext.isLoaded());
       internalTest(JournalType.ASYNCIO, "testRunAIO", true);
    }
 
    @Test
    public void testAIONoSync() throws Exception {
-      Assume.assumeTrue(LibaioContext.isLoaded());
+      assumeTrue(LibaioContext.isLoaded());
       internalTest(JournalType.ASYNCIO, "testRunAIO", false);
    }
 
@@ -219,13 +220,13 @@ public class BatchCommitTest extends ActiveMQTestBase {
          String dataAsString = new String(r.data);
          logger.debug("data={}, isUpdate={}, id={}", dataAsString, r.isUpdate, r.id);
          if (r.isUpdate) {
-            Assert.assertEquals("up " + r.id, dataAsString);
+            assertEquals("up " + r.id, dataAsString);
          } else {
-            Assert.assertEquals("add " + r.id, dataAsString);
+            assertEquals("add " + r.id, dataAsString);
          }
       });
-      Assert.assertEquals(RECORDS * 2, commited.size());
-      Assert.assertEquals(0, failedTX.get());
+      assertEquals(RECORDS * 2, commited.size());
+      assertEquals(0, failedTX.get());
 
 
 

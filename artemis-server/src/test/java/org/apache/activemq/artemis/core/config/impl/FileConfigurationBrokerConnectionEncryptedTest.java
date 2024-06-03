@@ -16,13 +16,18 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FileConfigurationBrokerConnectionEncryptedTest extends AbstractConfigurationTestBase {
 
@@ -43,8 +48,8 @@ public class FileConfigurationBrokerConnectionEncryptedTest extends AbstractConf
    public void testAMQPBrokerConfigEncryptedUserAndPassword() {
 
       List<AMQPBrokerConnectConfiguration> brokerConnections = conf.getAMQPConnection();
-      Assert.assertNotNull("brokerConnections is null", brokerConnections);
-      Assert.assertFalse("brokerConnections is empty", brokerConnections.isEmpty());
+      assertNotNull(brokerConnections, "brokerConnections is null");
+      assertFalse(brokerConnections.isEmpty(), "brokerConnections is empty");
 
       boolean encTest = false;
       boolean plainTest = false;
@@ -59,21 +64,21 @@ public class FileConfigurationBrokerConnectionEncryptedTest extends AbstractConf
          if ("empty-test".equals(brokerConnection.getName())) {
 
             // Empty configuration should have null user and password
-            Assert.assertNull(brokerConnection.getUser());
-            Assert.assertNull(brokerConnection.getPassword());
+            assertNull(brokerConnection.getUser());
+            assertNull(brokerConnection.getPassword());
 
          } else {
 
             // Both the encrypted and plain user and password use the same expected value
-            Assert.assertEquals("testuser", brokerConnection.getUser());
-            Assert.assertEquals("testpassword", brokerConnection.getPassword());
+            assertEquals("testuser", brokerConnection.getUser());
+            assertEquals("testpassword", brokerConnection.getPassword());
 
          }
       }
 
-      Assert.assertTrue("enc-test configuration is not present", encTest);
-      Assert.assertTrue("plain-test configuration is not present", plainTest);
-      Assert.assertTrue("empty-test configuration is not present", emptyTest);
+      assertTrue(encTest, "enc-test configuration is not present");
+      assertTrue(plainTest, "plain-test configuration is not present");
+      assertTrue(emptyTest, "empty-test configuration is not present");
    }
 
    @Test

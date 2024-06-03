@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.dto.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,26 +33,26 @@ public class WebServerDTOTest {
    public void testDefault() throws Exception {
       WebServerDTO webServer = new WebServerDTO();
 
-      Assert.assertNotNull(webServer.getAllBindings());
-      Assert.assertEquals(1, webServer.getAllBindings().size());
-      Assert.assertNotNull(webServer.getDefaultBinding());
+      assertNotNull(webServer.getAllBindings());
+      assertEquals(1, webServer.getAllBindings().size());
+      assertNotNull(webServer.getDefaultBinding());
 
       BindingDTO defaultBinding = webServer.getDefaultBinding();
-      Assert.assertNull(defaultBinding.uri);
-      Assert.assertNull(defaultBinding.apps);
-      Assert.assertNull(defaultBinding.clientAuth);
-      Assert.assertNull(defaultBinding.passwordCodec);
-      Assert.assertNull(defaultBinding.keyStorePath);
-      Assert.assertNull(defaultBinding.trustStorePath);
-      Assert.assertNull(defaultBinding.getIncludedTLSProtocols());
-      Assert.assertNull(defaultBinding.getExcludedTLSProtocols());
-      Assert.assertNull(defaultBinding.getIncludedCipherSuites());
-      Assert.assertNull(defaultBinding.getExcludedCipherSuites());
-      Assert.assertNull(defaultBinding.getKeyStorePassword());
-      Assert.assertNull(defaultBinding.getTrustStorePassword());
-      Assert.assertNull(defaultBinding.getSniHostCheck());
-      Assert.assertNull(defaultBinding.getSniRequired());
-      Assert.assertNull(defaultBinding.getSslAutoReload());
+      assertNull(defaultBinding.uri);
+      assertNull(defaultBinding.apps);
+      assertNull(defaultBinding.clientAuth);
+      assertNull(defaultBinding.passwordCodec);
+      assertNull(defaultBinding.keyStorePath);
+      assertNull(defaultBinding.trustStorePath);
+      assertNull(defaultBinding.getIncludedTLSProtocols());
+      assertNull(defaultBinding.getExcludedTLSProtocols());
+      assertNull(defaultBinding.getIncludedCipherSuites());
+      assertNull(defaultBinding.getExcludedCipherSuites());
+      assertNull(defaultBinding.getKeyStorePassword());
+      assertNull(defaultBinding.getTrustStorePassword());
+      assertNull(defaultBinding.getSniHostCheck());
+      assertNull(defaultBinding.getSniRequired());
+      assertNull(defaultBinding.getSslAutoReload());
    }
 
    @Test
@@ -57,10 +60,10 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.bind = "http://localhost:0";
 
-      Assert.assertNotNull(webServer.getAllBindings());
-      Assert.assertEquals(1, webServer.getAllBindings().size());
-      Assert.assertNotNull(webServer.getDefaultBinding());
-      Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
+      assertNotNull(webServer.getAllBindings());
+      assertEquals(1, webServer.getAllBindings().size());
+      assertNotNull(webServer.getDefaultBinding());
+      assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }
 
    @Test
@@ -71,10 +74,10 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.setBindings(Collections.singletonList(binding));
 
-      Assert.assertNotNull(webServer.getAllBindings());
-      Assert.assertEquals(1, webServer.getAllBindings().size());
-      Assert.assertNotNull(webServer.getDefaultBinding());
-      Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
+      assertNotNull(webServer.getAllBindings());
+      assertEquals(1, webServer.getAllBindings().size());
+      assertNotNull(webServer.getDefaultBinding());
+      assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }
 
    @Test
@@ -87,12 +90,12 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.setBindings(List.of(binding1, binding2));
 
-      Assert.assertNotNull(webServer.getAllBindings());
-      Assert.assertEquals(2, webServer.getAllBindings().size());
-      Assert.assertNotNull(webServer.getDefaultBinding());
-      Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
-      Assert.assertEquals("http://localhost:0", webServer.getAllBindings().get(0).uri);
-      Assert.assertEquals("http://localhost:1", webServer.getAllBindings().get(1).uri);
+      assertNotNull(webServer.getAllBindings());
+      assertEquals(2, webServer.getAllBindings().size());
+      assertNotNull(webServer.getDefaultBinding());
+      assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
+      assertEquals("http://localhost:0", webServer.getAllBindings().get(0).uri);
+      assertEquals("http://localhost:1", webServer.getAllBindings().get(1).uri);
    }
 
    @Test
@@ -104,10 +107,10 @@ public class WebServerDTOTest {
       webServer.bind = "http://localhost:1";
       webServer.setBindings(Collections.singletonList(binding));
 
-      Assert.assertNotNull(webServer.getAllBindings());
-      Assert.assertEquals(1, webServer.getAllBindings().size());
-      Assert.assertNotNull(webServer.getDefaultBinding());
-      Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
+      assertNotNull(webServer.getAllBindings());
+      assertEquals(1, webServer.getAllBindings().size());
+      assertNotNull(webServer.getDefaultBinding());
+      assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }
 
 }

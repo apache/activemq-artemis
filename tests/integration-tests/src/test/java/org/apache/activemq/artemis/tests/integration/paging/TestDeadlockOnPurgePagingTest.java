@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -34,9 +36,8 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
 
@@ -49,7 +50,7 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
    protected static final int PAGE_SIZE = 10 * 1024;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -108,7 +109,7 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          Message message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
       session.commit();
 

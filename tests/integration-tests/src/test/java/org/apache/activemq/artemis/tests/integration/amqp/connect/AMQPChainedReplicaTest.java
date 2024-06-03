@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -30,8 +34,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
 
@@ -79,13 +82,13 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> server_3.locateQueue(getQueueName()) != null);
 
       Queue q1 = server.locateQueue(getQueueName());
-      Assert.assertNotNull(q1);
+      assertNotNull(q1);
 
       Queue q2 = server.locateQueue(getQueueName());
-      Assert.assertNotNull(q2);
+      assertNotNull(q2);
 
       Queue q3 = server.locateQueue(getQueueName());
-      Assert.assertNotNull(q3);
+      assertNotNull(q3);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       ConnectionFactory factory2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
@@ -110,8 +113,8 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -126,8 +129,8 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 10; i < 20; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -142,8 +145,8 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 20; i < 30; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -158,8 +161,8 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 30; i < 40; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -172,7 +175,7 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 
@@ -180,7 +183,7 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 
@@ -188,7 +191,7 @@ public class AMQPChainedReplicaTest extends AmqpClientTestSupport {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 

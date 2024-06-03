@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
@@ -38,8 +43,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +62,7 @@ public class QueueCommandTest extends JMSTestBase {
       server.getConfiguration().setAddressQueueScanPeriod(100);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -91,7 +96,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
+      assertFalse(queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -115,7 +120,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
+      assertFalse(queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -279,9 +284,9 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionPassed(updateQueue);
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", newMaxConsumers, queueQueryResult.getMaxConsumers());
-      assertEquals("routingType", newRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("purgeOnNoConsumers", newPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
+      assertEquals(newMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
+      assertEquals(newRoutingType, queueQueryResult.getRoutingType(), "routingType");
+      assertTrue(newPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test
@@ -309,9 +314,9 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionFailure(updateQueue, "AMQ229211");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
-      assertEquals("routingType", oldRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("purgeOnNoConsumers", oldPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
+      assertEquals(oldMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
+      assertEquals(oldRoutingType, queueQueryResult.getRoutingType(), "routingType");
+      assertTrue(oldPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test
@@ -339,7 +344,7 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionFailure(updateQueue, "AMQ229210");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
+      assertEquals(oldMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
    }
 
    @Test
@@ -385,12 +390,12 @@ public class QueueCommandTest extends JMSTestBase {
    private void checkExecutionPassed(ConnectionAbstract command) throws Exception {
       String fullMessage = output.toString();
       logger.debug("output: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains("successfully"));
+      assertTrue(fullMessage.contains("successfully"), fullMessage);
    }
 
    private void checkExecutionFailure(ConnectionAbstract command, String message) throws Exception {
       String fullMessage = error.toString();
       logger.debug("error: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains(message));
+      assertTrue(fullMessage.contains(message), fullMessage);
    }
 }

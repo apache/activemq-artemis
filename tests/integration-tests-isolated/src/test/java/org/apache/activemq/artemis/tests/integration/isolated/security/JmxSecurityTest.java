@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.isolated.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.JMX;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -48,17 +53,11 @@ import org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServer
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.apache.activemq.artemis.utils.SubjectDotDoAsRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.activemq.artemis.tests.extensions.SubjectDotDoAsExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class JmxSecurityTest {
 
@@ -70,12 +69,12 @@ public class JmxSecurityTest {
       subject.getPrincipals().add(new RolePrincipal("programmers"));
    }
 
-   @Rule
-   public SubjectDotDoAsRule doAs = new SubjectDotDoAsRule(subject);
+   @RegisterExtension
+   public SubjectDotDoAsExtension doAs = new SubjectDotDoAsExtension(subject);
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       Configuration configuration = new ConfigurationImpl().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()));
@@ -83,7 +82,7 @@ public class JmxSecurityTest {
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       server.stop();
    }
@@ -324,7 +323,7 @@ public class JmxSecurityTest {
                return queueControlA.countMessages();
             }
          }));
-         Assert.fail("should throw exception here");
+         fail("should throw exception here");
       } catch (Exception e) {
          assertTrue(e instanceof SecurityException);
       }
@@ -346,7 +345,7 @@ public class JmxSecurityTest {
                return queueControlB.countMessages();
             }
          }));
-         Assert.fail("should throw exception here");
+         fail("should throw exception here");
       } catch (Exception e) {
          assertTrue(e instanceof SecurityException);
       }

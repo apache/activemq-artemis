@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -26,10 +28,9 @@ import java.util.zip.Deflater;
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.InflaterReader;
 import org.apache.activemq.artemis.utils.InflaterWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CompressionUtilTest extends Assert {
+public class CompressionUtilTest {
 
    @Test
    public void testDeflaterReader() throws Exception {

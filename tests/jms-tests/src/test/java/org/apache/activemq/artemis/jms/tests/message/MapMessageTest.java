@@ -21,9 +21,9 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test that sends/receives map messages to the JMS provider and verifies their integrity.
@@ -32,7 +32,7 @@ public class MapMessageTest extends MessageTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -40,7 +40,7 @@ public class MapMessageTest extends MessageTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
 
@@ -89,7 +89,7 @@ public class MapMessageTest extends MessageTestBase {
 
       MapMessage mm = (MapMessage) m;
 
-      ProxyAssertSupport.assertEquals(true, mm.getBoolean("boolean"));
+      ProxyAssertSupport.assertTrue(mm.getBoolean("boolean"));
       ProxyAssertSupport.assertEquals((byte) 3, mm.getByte("byte"));
       byte[] bytes = mm.getBytes("bytes");
       ProxyAssertSupport.assertEquals((byte) 3, bytes[0]);

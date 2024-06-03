@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Message;
 import javax.resource.ResourceException;
 import javax.resource.spi.ApplicationServerInternalException;
@@ -38,7 +43,7 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
 

@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -36,8 +39,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClusterConnectionImplMockTest extends ServerTestBase {
 
@@ -87,9 +89,9 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
                 0 //final int clusterNotificationAttempts)
       );
 
-      Assert.assertEquals(1, cci.allowableConnections.size());
-      Assert.assertFalse("Local address can not be part of allowable connection.", cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_ADDRESS_PROP_NAME));
-      Assert.assertFalse("Local port can not be part of allowable connection.", cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_PORT_PROP_NAME));
+      assertEquals(1, cci.allowableConnections.size());
+      assertFalse(cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "Local address can not be part of allowable connection.");
+      assertFalse(cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_PORT_PROP_NAME), "Local port can not be part of allowable connection.");
 
    }
 

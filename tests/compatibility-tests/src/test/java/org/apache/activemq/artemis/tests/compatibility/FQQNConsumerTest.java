@@ -17,18 +17,6 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
-import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
@@ -36,10 +24,23 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVE
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SIX_THREE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
 
-@RunWith(Parameterized.class)
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.FileUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class FQQNConsumerTest extends ServerBase {
 
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
@@ -53,20 +54,20 @@ public class FQQNConsumerTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      evaluate(serverClassloader, "fqqnconsumertest/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath());
+      FileUtil.deleteDirectory(serverFolder);
+      evaluate(serverClassloader, "fqqnconsumertest/artemisServer.groovy", serverFolder.getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Throwable {
       execute(serverClassloader, "server.stop();");
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
       evaluate(senderClassloader,  "fqqnconsumertest/fqqnConsumerProducer.groovy", server, sender, "sendMessage");
       evaluate(receiverClassloader,  "fqqnconsumertest/fqqnConsumerProducer.groovy", server, receiver, "receiveMessage");

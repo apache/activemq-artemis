@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,8 +35,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CompressedInteropTest extends BasicOpenWireTest {
 
@@ -50,7 +53,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       LARGE_TEXT = TEXT + TEXT + TEXT + TEXT + TEXT;
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();

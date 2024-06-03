@@ -18,8 +18,8 @@
 package org.apache.activemq.artemis.tests.compatibility.base;
 
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ServerBase extends VersionedBase {
 
@@ -27,14 +27,14 @@ public class ServerBase extends VersionedBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
+      FileUtil.deleteDirectory(serverFolder);
       setVariable(serverClassloader, "persistent", Boolean.FALSE);
-      startServer(serverFolder.getRoot(), serverClassloader, "live");
+      startServer(serverFolder, serverClassloader, "live");
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Throwable {
       stopServer(serverClassloader);
    }

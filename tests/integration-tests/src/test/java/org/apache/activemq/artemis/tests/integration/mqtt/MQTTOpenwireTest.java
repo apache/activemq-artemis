@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.util.ByteSequence;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -79,7 +82,7 @@ public class MQTTOpenwireTest extends MQTTTestSupport {
 
          // check whether we received retained message on JMS subscribe
          ActiveMQMessage message = (ActiveMQMessage) consumer.receive(2000);
-         assertNotNull("Should get retained message " + mqttTopic + "->" + jmsDestination, message);
+         assertNotNull(message, "Should get retained message " + mqttTopic + "->" + jmsDestination);
          ByteSequence bs = message.getContent();
          assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
 
@@ -87,7 +90,7 @@ public class MQTTOpenwireTest extends MQTTTestSupport {
             String payload = "Test Message: " + i;
             provider.publish(mqttTopic, payload.getBytes(), AT_LEAST_ONCE);
             message = (ActiveMQMessage) consumer.receive(1000);
-            assertNotNull("Should get a message " + mqttTopic + "->" + jmsDestination, message);
+            assertNotNull(message, "Should get a message " + mqttTopic + "->" + jmsDestination);
             bs = message.getContent();
             assertEquals(payload, new String(bs.data, bs.offset, bs.length));
          }
@@ -121,7 +124,7 @@ public class MQTTOpenwireTest extends MQTTTestSupport {
          producer.send(sendMessage);
 
          byte[] message = provider.receive(2000);
-         assertNotNull("Should get retained message " + jmsDestination + "->" + mqttTopic, message);
+         assertNotNull(message, "Should get retained message " + jmsDestination + "->" + mqttTopic);
          assertEquals(RETAINED, new String(message));
 
          for (int i = 0; i < 1; i++) {
@@ -129,7 +132,7 @@ public class MQTTOpenwireTest extends MQTTTestSupport {
             sendMessage = s.createTextMessage(payload);
             producer.send(sendMessage);
             message = provider.receive(1000);
-            assertNotNull("Should get a message " + jmsDestination + "->" + mqttTopic, message);
+            assertNotNull(message, "Should get a message " + jmsDestination + "->" + mqttTopic);
 
             assertEquals(payload, new String(message));
          }

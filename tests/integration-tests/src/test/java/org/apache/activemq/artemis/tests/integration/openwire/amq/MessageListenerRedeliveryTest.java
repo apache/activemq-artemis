@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -39,9 +44,9 @@ import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.MessageListenerRedeliveryTest
@@ -51,17 +56,14 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
    private Connection redeliverConnection;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       redeliverConnection = createRetryConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (redeliverConnection != null) {
          redeliverConnection.close();
@@ -283,13 +285,13 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
          }
       });
 
-      assertTrue("got message before retry expiry", gotMessage.await(20, TimeUnit.SECONDS));
+      assertTrue(gotMessage.await(20, TimeUnit.SECONDS), "got message before retry expiry");
 
       for (int i = 0; i < maxDeliveries; i++) {
-         assertEquals("got first redelivered: " + i, "1", received.get(i));
+         assertEquals("1", received.get(i), "got first redelivered: " + i);
       }
       for (int i = maxDeliveries; i < maxDeliveries * 2; i++) {
-         assertEquals("got first redelivered: " + i, "2", received.get(i));
+         assertEquals("2", received.get(i), "got first redelivered: " + i);
       }
       session.close();
    }
@@ -332,20 +334,20 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
          }
       });
 
-      assertTrue("got message before retry expiry", gotMessage.await(20, TimeUnit.SECONDS));
+      assertTrue(gotMessage.await(20, TimeUnit.SECONDS), "got message before retry expiry");
 
       // check DLQ
-      assertTrue("got dlq message", gotDlqMessage.await(20, TimeUnit.SECONDS));
+      assertTrue(gotDlqMessage.await(20, TimeUnit.SECONDS), "got dlq message");
 
       // check DLQ message cause is captured
       message = dlqMessage[0];
-      assertNotNull("dlq message captured", message);
+      assertNotNull(message, "dlq message captured");
       String cause = message.getStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
 
-      assertTrue("cause 'cause' exception is remembered", cause.contains("RuntimeException"));
-      assertTrue("is correct exception", cause.contains(getName()));
-      assertTrue("cause exception is remembered", cause.contains("Throwable"));
-      assertTrue("cause policy is remembered", cause.contains("RedeliveryPolicy"));
+      assertTrue(cause.contains("RuntimeException"), "cause 'cause' exception is remembered");
+      assertTrue(cause.contains(getName()), "is correct exception");
+      assertTrue(cause.contains("Throwable"), "cause exception is remembered");
+      assertTrue(cause.contains("RedeliveryPolicy"), "cause policy is remembered");
 
       session.close();
    }

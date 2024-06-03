@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -37,9 +42,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class OpenWireToAMQPTest extends ActiveMQTestBase {
 
@@ -55,7 +61,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    private SimpleString coreQueue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -69,7 +75,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (server != null) {
          server.stop();
@@ -78,7 +84,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    }
 
    @SuppressWarnings("unchecked")
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testObjectMessage() throws Exception {
       Connection connection = null;
       try {
@@ -122,7 +129,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    }
 
    @SuppressWarnings("unchecked")
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testByteArrayProperties() throws Exception {
       Connection connection = null;
       try {

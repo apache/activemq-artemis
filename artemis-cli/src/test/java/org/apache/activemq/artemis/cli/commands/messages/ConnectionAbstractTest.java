@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.cli.commands.ActionAbstractAccessor;
 import org.apache.activemq.cli.test.TestActionContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -40,7 +41,7 @@ public class ConnectionAbstractTest {
 
          connectionAbstract.execute(new TestActionContext());
 
-         Assert.assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, connectionAbstract.getBrokerURL());
+         assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, connectionAbstract.getBrokerURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }
@@ -62,10 +63,10 @@ public class ConnectionAbstractTest {
             connectionAbstract.execute(new TestActionContext());
          } catch (Exception e) {
             e.printStackTrace();
-            Assert.assertEquals(JMSException.class, e.getClass());
+            assertEquals(JMSException.class, e.getClass());
          }
 
-         Assert.assertEquals("tcp://localhost:3344", connectionAbstract.getBrokerURL());
+         assertEquals("tcp://localhost:3344", connectionAbstract.getBrokerURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }
@@ -86,7 +87,7 @@ public class ConnectionAbstractTest {
 
          connectionAbstract.execute(new TestActionContext());
 
-         Assert.assertEquals("tcp://localhost:5672", connectionAbstract.getBrokerURL());
+         assertEquals("tcp://localhost:5672", connectionAbstract.getBrokerURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }

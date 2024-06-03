@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WaitTest {
 
@@ -27,9 +29,9 @@ public class WaitTest {
    public void testWait() {
       AtomicInteger intValue = new AtomicInteger(0);
 
-      Assert.assertFalse(Wait.waitFor(() -> intValue.get() == 1, 100, 10));
+      assertFalse(Wait.waitFor(() -> intValue.get() == 1, 100, 10));
       intValue.set(1);
-      Assert.assertTrue(Wait.waitFor(() -> intValue.get() == 1, 100, 10));
+      assertTrue(Wait.waitFor(() -> intValue.get() == 1, 100, 10));
    }
 
 }

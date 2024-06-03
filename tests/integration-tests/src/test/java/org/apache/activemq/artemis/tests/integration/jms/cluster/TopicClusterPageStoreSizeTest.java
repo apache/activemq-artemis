@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -27,7 +31,7 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
 
@@ -105,19 +109,19 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
       conn2.close();
 
       for (SimpleString psName : server1.getPagingManager().getStoreNames()) {
-         assertTrue("non negative size: " + psName, server1.getPagingManager().getPageStore(psName).getAddressSize() >= 0);
+         assertTrue(server1.getPagingManager().getPageStore(psName).getAddressSize() >= 0, "non negative size: " + psName);
       }
 
       for (SimpleString psName : server2.getPagingManager().getStoreNames()) {
          System.err.println("server2: size of pages store: " + psName + " :" + server2.getPagingManager().getPageStore(psName).getAddressSize());
-         assertTrue("non negative size: " + psName, server2.getPagingManager().getPageStore(psName).getAddressSize() >= 0);
+         assertTrue(server2.getPagingManager().getPageStore(psName).getAddressSize() >= 0, "non negative size: " + psName);
       }
 
       if (forcePaging) {
          // message in the store, should have getPagedSize or is there some such thing?
-         assertTrue("size on 2", server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getNumberOfPages() > 0);
+         assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getNumberOfPages() > 0, "size on 2");
       } else {
-         assertTrue("size on 2", server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0);
+         assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0, "size on 2");
       }
 
       // reconnect
@@ -146,8 +150,8 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
       prod1.send(topic1, session1.createTextMessage("someOtherMessage"));
 
       // stays on server 1
-      assertTrue("some size on 1", server1.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0);
-      assertTrue("no size on 2", server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() == 0);
+      assertTrue(server1.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0, "some size on 1");
+      assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() == 0, "no size on 2");
 
       // duplicate this sub on 2
       conn2 = cf2.createConnection();
@@ -163,11 +167,11 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
 
       // should not be able to consume yet
       m2 = (TextMessage) cons2.receiveNoWait();
-      assertNull("did not get message", m2);
+      assertNull(m2, "did not get message");
 
       // still available on cons1
       m2 = (TextMessage) cons1.receive(5000);
-      assertNotNull("got message", m2);
+      assertNotNull(m2, "got message");
       assertTrue(m2.getJMSDestination().toString().contains(TOPIC));
       System.err.println("sub2 on 1, message txt:" + m2.getText());
       m2.acknowledge();
@@ -176,7 +180,7 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
       prod1.send(topic1, session1.createTextMessage("someOtherOtherMessage"));
 
       m2 = (TextMessage) cons2.receive(5000);
-      assertNotNull("got message", m2);
+      assertNotNull(m2, "got message");
       assertTrue(m2.getJMSDestination().toString().contains(TOPIC));
 
       System.err.println("sub2 on 2: message txt:" + m2.getText());
@@ -184,7 +188,7 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
 
       // no duplicate, not available on cons1
       m2 = (TextMessage) cons1.receiveNoWait();
-      assertNull("non null message", m2);
+      assertNull(m2, "non null message");
 
       conn1.close();
       conn2.close();
@@ -200,7 +204,7 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
          cons2 = session2.createDurableSubscriber(topic1, "sub1");
 
          m2 = (TextMessage) cons2.receive(5000);
-         assertNotNull("got message", m2);
+         assertNotNull(m2, "got message");
          assertTrue(m2.getJMSDestination().toString().contains(TOPIC));
          System.err.println("sub1 on: " + cf + " - message txt:" + m2.getText());
          m2.acknowledge();

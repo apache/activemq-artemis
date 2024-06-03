@@ -17,14 +17,19 @@
 
 package org.apache.activemq.artemis.utils.bean;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,27 +54,27 @@ public class MetaBeanTest {
 
 
       JsonObject jsonObject = MYClass.metaBean.toJSON(sourceObject, false);
-      Assert.assertFalse(jsonObject.containsKey("gated"));
+      assertFalse(jsonObject.containsKey("gated"));
 
       logger.debug("Result::" + jsonObject.toString());
 
       MYClass result = new MYClass();
       MYClass.metaBean.fromJSON(result, jsonObject.toString());
-      Assert.assertEquals(sourceObject, result);
+      assertEquals(sourceObject, result);
 
 
-      Assert.assertEquals(null, result.getD());
-      Assert.assertNotNull(result.getIdCacheSize());
-      Assert.assertEquals(333, result.getIdCacheSize().intValue());
-      Assert.assertEquals(33.33f, result.getFloatValue().floatValue(), 0);
-      Assert.assertEquals(11.11, result.getDoubleValue().doubleValue(), 0);
-      Assert.assertEquals(MyEnum.TWO, result.getMyEnum());
-      Assert.assertTrue(result.getBoolValue());
+      assertNull(result.getD());
+      assertNotNull(result.getIdCacheSize());
+      assertEquals(333, result.getIdCacheSize().intValue());
+      assertEquals(33.33f, result.getFloatValue().floatValue(), 0);
+      assertEquals(11.11, result.getDoubleValue().doubleValue(), 0);
+      assertEquals(MyEnum.TWO, result.getMyEnum());
+      assertTrue(result.getBoolValue());
 
       sourceObject.setGated(SimpleString.toSimpleString("gated-now-has-value"));
       jsonObject = MYClass.metaBean.toJSON(sourceObject, false);
-      Assert.assertTrue(jsonObject.containsKey("gated"));
-      Assert.assertEquals("gated-now-has-value", jsonObject.getString("gated"));
+      assertTrue(jsonObject.containsKey("gated"));
+      assertEquals("gated-now-has-value", jsonObject.getString("gated"));
    }
 
    @Test
@@ -79,10 +84,10 @@ public class MetaBeanTest {
       String json = MYClass.metaBean.toJSON(randomObject, false).toString();
       MYClass target = new MYClass();
       MYClass.metaBean.fromJSON(target, json);
-      Assert.assertEquals(randomObject, target);
+      assertEquals(randomObject, target);
       MYClass copy = new MYClass();
       MYClass.metaBean.copy(randomObject, copy);
-      Assert.assertEquals(randomObject, copy);
+      assertEquals(randomObject, copy);
    }
 
    public enum MyEnum {

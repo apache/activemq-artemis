@@ -64,10 +64,8 @@ import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,9 +139,6 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    protected String noDeleteUser = "noDelete";
    protected String noDeletePass = "noDelete";
 
-   @Rule
-   public TestName name = new TestName();
-
    public MQTT5TestSupport() {
       this.protocolScheme = "mqtt";
    }
@@ -153,17 +148,12 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
    }
 
-   @Override
-   public String getName() {
-      return name.getMethodName();
-   }
-
    public ActiveMQServer getServer() {
       return server;
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       exceptions.clear();
       startBroker();
@@ -171,7 +161,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       stopBroker();
       super.tearDown();
@@ -284,11 +274,11 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    }
 
    protected String getQueueName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + getTestMethodName();
    }
 
    protected String getTopicName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + getTestMethodName();
    }
 
    public boolean isPersistent() {

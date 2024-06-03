@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.ArrayList;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TableOutTest {
 
@@ -29,10 +29,10 @@ public class TableOutTest {
       String bigCell = "1234554321321";
       TableOut tableOut = new TableOut("|", 0, new int[] {10, 3, 3});
       ArrayList<String> lines = tableOut.splitLine(bigCell, 5);
-      Assert.assertEquals(3, lines.size());
-      Assert.assertEquals("12345", lines.get(0));
-      Assert.assertEquals("54321", lines.get(1));
-      Assert.assertEquals("321", lines.get(2));
+      Assertions.assertEquals(3, lines.size());
+      Assertions.assertEquals("12345", lines.get(0));
+      Assertions.assertEquals("54321", lines.get(1));
+      Assertions.assertEquals("321", lines.get(2));
    }
 
    @Test
@@ -40,10 +40,10 @@ public class TableOutTest {
       String bigCell = "1234532132";
       TableOut tableOut = new TableOut("|", 2, new int[] {10, 3, 3});
       ArrayList<String> lines = tableOut.splitLine(bigCell, 5);
-      Assert.assertEquals(3, lines.size());
-      Assert.assertEquals("12345", lines.get(0));
-      Assert.assertEquals("  321", lines.get(1));
-      Assert.assertEquals("  32", lines.get(2));
+      Assertions.assertEquals(3, lines.size());
+      Assertions.assertEquals("12345", lines.get(0));
+      Assertions.assertEquals("  321", lines.get(1));
+      Assertions.assertEquals("  32", lines.get(2));
    }
 
    @Test

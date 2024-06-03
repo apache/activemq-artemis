@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Queue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,10 +39,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.jgroups.JChannel;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
 
@@ -48,7 +52,7 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
    Queue testQueue = null;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       try {
          super.setUp();
@@ -107,13 +111,13 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
 
    @Test
    public void testCopyConfiguration() throws Exception {
-      Assert.assertEquals(2, jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().size());
+      assertEquals(2, jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().size());
       Configuration copiedconfig = jmsServer.getActiveMQServer().getConfiguration().copy();
-      Assert.assertEquals(2, copiedconfig.getDiscoveryGroupConfigurations().size());
+      assertEquals(2, copiedconfig.getDiscoveryGroupConfigurations().size());
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       // small hack, the channel here is cached, so checking that it's not closed by any endpoint
       BroadcastEndpoint broadcastEndpoint = jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().get("dg1").getBroadcastEndpointFactory().createBroadcastEndpoint();

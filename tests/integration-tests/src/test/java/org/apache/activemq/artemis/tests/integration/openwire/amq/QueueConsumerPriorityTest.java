@@ -16,23 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueConsumerPriorityTest extends BasicOpenWireTest {
 
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       this.makeSureCoreQueueExist("QUEUE.A");
@@ -58,7 +59,7 @@ public class QueueConsumerPriorityTest extends BasicOpenWireTest {
       Message msg = senderSession.createTextMessage("test");
       for (int i = 0; i < 1000; i++) {
          producer.send(msg);
-         assertNotNull("null on iteration: " + i, highConsumer.receive(1000));
+         assertNotNull(highConsumer.receive(1000), "null on iteration: " + i);
       }
       assertNull(lowConsumer.receive(250));
    }

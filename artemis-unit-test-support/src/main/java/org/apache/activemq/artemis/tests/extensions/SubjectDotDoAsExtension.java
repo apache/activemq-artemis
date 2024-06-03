@@ -15,41 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.tests.extensions;
 
 import javax.security.auth.Subject;
 
+import java.lang.reflect.Method;
 import java.security.PrivilegedExceptionAction;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 
-public class SubjectDotDoAsRule implements TestRule {
+public class SubjectDotDoAsExtension implements InvocationInterceptor {
 
    final Subject subject;
 
-   public SubjectDotDoAsRule(Subject subject) {
+   public SubjectDotDoAsExtension(Subject subject) {
       this.subject = subject;
    }
 
    @Override
-   public Statement apply(final Statement base, Description description) {
-      return new Statement() {
-         @Override
-         public void evaluate() throws Throwable {
-            Exception e = Subject.doAs(subject, (PrivilegedExceptionAction<Exception>) () -> {
-               try {
-                  base.evaluate();
-               } catch (Throwable e1) {
-                  return new Exception(e1);
-               }
-               return null;
-            });
-            if (e != null) {
-               throw e;
-            }
+   public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+      Exception e = Subject.doAs(subject, (PrivilegedExceptionAction<Exception>) () -> {
+         try {
+            invocation.proceed();
+         } catch (Throwable e1) {
+            return new Exception(e1);
          }
-      };
+         return null;
+      });
+      if (e != null) {
+         throw e;
+      }
    }
 }

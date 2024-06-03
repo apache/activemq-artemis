@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -23,8 +27,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueConfigPersistenceTest extends ActiveMQTestBase {
 
@@ -44,7 +47,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
          server.stop();
          server.start();
          queue = server.locateQueue(SimpleString.toSimpleString("q1"));
-         Assert.assertTrue(queue.isPaused());
+         assertTrue(queue.isPaused());
       }
 
       queue.resume();
@@ -53,7 +56,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
          server.stop();
          server.start();
          queue = server.locateQueue(SimpleString.toSimpleString("q1"));
-         Assert.assertFalse(queue.isPaused());
+         assertFalse(queue.isPaused());
       }
 
       server.stop();
@@ -68,8 +71,8 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       server.stop();
       server.start();
       Queue queue = server.locateQueue(getName());
-      Assert.assertTrue(queue.isInternalQueue());
-      Assert.assertNotNull(server.getManagementService().getResource(ResourceNames.QUEUE + getName()));
+      assertTrue(queue.isInternalQueue());
+      assertNotNull(server.getManagementService().getResource(ResourceNames.QUEUE + getName()));
 
       server.stop();
    }

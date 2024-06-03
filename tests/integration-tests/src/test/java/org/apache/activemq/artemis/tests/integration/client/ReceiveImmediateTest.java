@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -31,9 +37,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReceiveImmediateTest extends ActiveMQTestBase {
 
@@ -46,7 +51,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
@@ -90,15 +95,15 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       session.start();
 
       session.stop();
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       session.start();
       long start = System.currentTimeMillis();
       ClientMessage msg = consumer.receive(2000);
       long end = System.currentTimeMillis();
-      Assert.assertNull(msg);
+      assertNull(msg);
       // we waited for at least 2000ms
-      Assert.assertTrue("waited only " + (end - start), end - start >= 2000);
+      assertTrue(end - start >= 2000, "waited only " + (end - start));
 
       consumer.close();
 
@@ -194,7 +199,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       session.start();
 
       ClientMessage message = consumer.receiveImmediate();
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -221,20 +226,20 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receiveImmediate();
-         Assert.assertNotNull("did not receive message " + i, message2);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertNotNull(message2, "did not receive message " + i);
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          if (!browser) {
             message2.acknowledge();
          }
       }
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
       int messagesOnServer = browser ? numMessages : 0;
-      Assert.assertEquals(messagesOnServer, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(messagesOnServer, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       consumer.close();
 

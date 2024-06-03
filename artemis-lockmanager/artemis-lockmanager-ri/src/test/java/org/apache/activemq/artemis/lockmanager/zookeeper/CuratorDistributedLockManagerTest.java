@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.lockmanager.zookeeper;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +28,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
@@ -31,14 +37,12 @@ import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class CuratorDistributedLockManagerTest {
+public class CuratorDistributedLockManagerTest extends ArtemisTestCase {
 
    private final ArrayList<AutoCloseable> autoCloseables = new ArrayList<>();
 
@@ -51,24 +55,25 @@ public class CuratorDistributedLockManagerTest {
    private static final int RETRIES = 1;
 
    public int nodes = 1;
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
    private TestingCluster testingServer;
    private String connectString;
 
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File tmpFolder;
 
-   @Before
+   @BeforeEach
    public void setupEnv() throws Throwable {
       InstanceSpec[] clusterSpecs = new InstanceSpec[nodes];
       for (int i = 0; i < nodes; i++) {
-         clusterSpecs[i] = new InstanceSpec(tmpFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
+         clusterSpecs[i] = new InstanceSpec(newFolder(tmpFolder, getTestMethodName() + "_node" + i), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
       connectString = testingServer.getConnectString();
    }
 
-   @After
+   @AfterEach
    public void tearDownEnv() throws Throwable {
       autoCloseables.forEach(closeables -> {
          try {
@@ -110,15 +115,15 @@ public class CuratorDistributedLockManagerTest {
    public void verifyLayoutInZK() throws Exception {
       final DistributedLockManager manager = createManagedDistributeManager(config -> config.put("namespace", "activemq-artemis"));
       manager.start();
-      Assert.assertTrue(manager.getDistributedLock("journal-identity-000-111").tryLock());
+      assertTrue(manager.getDistributedLock("journal-identity-000-111").tryLock());
 
-      Assert.assertTrue(manager.getMutableLong("journal-identity-000-111").compareAndSet(0, 1));
+      assertTrue(manager.getMutableLong("journal-identity-000-111").compareAndSet(0, 1));
 
       CuratorFramework curatorFramework = ((CuratorDistributedLockManager)manager).getCurator();
       List<String> entries =  new LinkedList<>();
       dumpZK(curatorFramework.getZookeeperClient().getZooKeeper(), "/", entries);
 
-      Assert.assertTrue(entries.get(2).contains("activation-sequence"));
+      assertTrue(entries.get(2).contains("activation-sequence"));
 
       for (String entry: entries) {
          System.err.println("ZK: " + entry);
@@ -136,5 +141,13 @@ public class CuratorDistributedLockManagerTest {
             dumpZK(zooKeeper, qualifiedPath, entries);
          }
       }
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

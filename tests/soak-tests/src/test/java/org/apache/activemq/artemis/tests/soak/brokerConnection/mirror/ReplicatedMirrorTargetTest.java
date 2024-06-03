@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -48,9 +53,8 @@ import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +104,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
    volatile Process processDC2;
    volatile Process processDC2_REPLICA;
 
-   @After
+   @AfterEach
    public void destroyServers() throws Exception {
       if (processDC1 != null) {
          processDC1.destroyForcibly();
@@ -171,9 +175,9 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       saveProperties(brokerProperties, brokerPropertiesFile);
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
-      Assert.assertTrue(brokerXml.exists());
+      assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
-      Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -183,7 +187,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
 
    private static void replaceLogs(File serverLocation) throws Exception {
       File log4j = new File(serverLocation, "/etc/log4j2.properties");
-      Assert.assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", "logger.artemis_utils.level=INFO\n" +
+      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", "logger.artemis_utils.level=INFO\n" +
          "\n" + "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n"
          + "logger.endpoint.level=DEBUG\n"
          + "appender.console.filter.threshold.type = ThresholdFilter\n"
@@ -210,9 +214,9 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       cliCreateServer.createServer();
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
-      Assert.assertTrue(brokerXml.exists());
+      assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
-      Assert.assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -243,7 +247,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       startServers();
 
 
-      Assert.assertTrue(KILL_INTERVAL > SEND_COMMIT || KILL_INTERVAL < 0);
+      assertTrue(KILL_INTERVAL > SEND_COMMIT || KILL_INTERVAL < 0);
 
       String clientIDA = "nodeA";
       String clientIDB = "nodeB";
@@ -353,9 +357,9 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
       HashMap<Integer, AtomicInteger> records = countJournal(server.getConfiguration());
       AtomicInteger duplicateRecordsCount = records.get((int) JournalRecordIds.DUPLICATE_ID);
-      Assert.assertNotNull(duplicateRecordsCount);
+      assertNotNull(duplicateRecordsCount);
       // 1000 credits by default
-      Assert.assertTrue(duplicateRecordsCount.get() <= 1000);
+      assertTrue(duplicateRecordsCount.get() <= 1000);
 
    }
 
@@ -379,7 +383,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
 
          for (int i = start; i < start + numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(10_000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {}, large={}", message.getIntProperty("i"), message.getBooleanProperty("large"));
             if (message.getIntProperty("i") != i) {
                failed = true;
@@ -398,10 +402,10 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
          }
          session.commit();
 
-         Assert.assertFalse(failed);
+         assertFalse(failed);
 
          if (expectEmpty) {
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
       }
    }

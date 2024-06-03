@@ -17,6 +17,9 @@
 
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,8 +28,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.check.ClusterNodeVerifier;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClusterVerifyTest {
 
@@ -103,9 +105,9 @@ public class ClusterVerifyTest {
       };
 
       if (fail) {
-         Assert.assertFalse(fakeVerifier.verify(new ActionContext()));
+         assertFalse(fakeVerifier.verify(new ActionContext()));
       } else {
-         Assert.assertTrue(fakeVerifier.verify(new ActionContext()));
+         assertTrue(fakeVerifier.verify(new ActionContext()));
       }
    }
 
@@ -152,7 +154,7 @@ public class ClusterVerifyTest {
          }
       };
 
-      Assert.assertTrue(fakeVerifier.verify(new ActionContext()));
+      assertTrue(fakeVerifier.verify(new ActionContext()));
 
    }
 

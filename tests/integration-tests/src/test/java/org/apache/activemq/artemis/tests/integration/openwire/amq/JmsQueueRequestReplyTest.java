@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * adapted from: org.apache.activemq.JMSQueueRedeliverTest
@@ -25,11 +25,9 @@ public class JmsQueueRequestReplyTest extends JmsTopicRequestReplyTest {
 
    /**
     * Set up the test with a queue.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       topic = false;
       super.setUp();

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 import java.util.Arrays;
 import java.util.Collection;
 import javax.jms.Connection;
@@ -38,39 +44,38 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SecureConfigurationTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "{index}: protocol={0}")
+   @Parameters(name = "{index}: protocol={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
             {"CORE"}, {"AMQP"}, {"OPENWIRE"}
       });
    }
 
-   /* NOT private @see https://github.com/junit-team/junit4/wiki/parameterized-tests */
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public String protocol;
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void startSever() throws Exception {
       server = getActiveMQServer("multicast_topic.xml");
       server.start();
    }
 
-   @After
+   @AfterEach
    public void stopServer() throws Exception {
       try {
          if (server != null) {
@@ -81,142 +86,142 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSecureSharedDurableSubscriber() throws Exception {
       //This is because OpenWire does not support JMS 2.0
-      Assume.assumeFalse(protocol.equals("OPENWIRE"));
+      assumeFalse(protocol.equals("OPENWIRE"));
       ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveTextUsingTopic(connectionFactory, null, message, "secured_topic_shared_durable", (t, s) -> s.createSharedDurableConsumer(t, "secured_topic_shared_durable/queue"));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       try {
          sendAndReceiveTextUsingTopic(connectionFactory, null, message, "secured_topic_shared_durable", (t, s) -> s.createSharedDurableConsumer(t, "secured_topic_shared_durable/non-existant-queue"));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSecureSharedSubscriber() throws Exception {
       //This is because OpenWire does not support JMS 2.0
-      Assume.assumeFalse(protocol.equals("OPENWIRE"));
+      assumeFalse(protocol.equals("OPENWIRE"));
       ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveTextUsingTopic(connectionFactory, null, message, "secured_topic_shared", (t, s) -> s.createSharedConsumer(t, "secured_topic_shared/queue"));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       try {
          sendAndReceiveTextUsingTopic(connectionFactory, null, message, "secured_topic_shared", (t, s) -> s.createSharedConsumer(t, "secured_topic_shared/non-existant-queue"));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }
    }
 
-   @Test
+   @TestTemplate
    public void testCreateSecureDurableSubscriber() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/queue"));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       try {
          sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue"));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }
    }
 
-   @Test
+   @TestTemplate
    public void testDeleteSecureDurableSubscriber() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("c", "c");
       String message = "blah";
 
       //Expect to be able to create durable queue for subscription
       String messageRecieved = sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue"));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       try {
          sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue", "age > 10", false));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically delete queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically delete queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTemporaryQueue() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("a", "a");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveText(connectionFactory, "clientId", message, s -> s.createTemporaryQueue(), (d, s) -> s.createConsumer(d));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       connectionFactory = getConnectionFactory("c", "c");
       try {
          sendAndReceiveText(connectionFactory, "clientId", message, s -> s.createTemporaryQueue(), (d, s) -> s.createConsumer(d));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
       } catch (JMSSecurityException jmsse) {
       } catch (JMSException e) {
          e.printStackTrace();
-         Assert.fail("thrown a JMSEXception instead of a JMSSEcurityException");
+         fail("thrown a JMSEXception instead of a JMSSEcurityException");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTemporaryTopic() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("a", "a");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveText(connectionFactory, "clientId", message, s -> s.createTemporaryTopic(), (d, s) -> s.createConsumer(d));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       connectionFactory = getConnectionFactory("c", "c");
       try {
          sendAndReceiveText(connectionFactory, "clientId", message, s -> s.createTemporaryTopic(), (d, s) -> s.createConsumer(d));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to create a temporary queue");
       } catch (JMSSecurityException jmsse) {
       } catch (JMSException e) {
          e.printStackTrace();
-         Assert.fail("thrown a JMSEXception instead of a JMSSEcurityException");
+         fail("thrown a JMSEXception instead of a JMSSEcurityException");
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSecureQueue() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
       //Expect to be able to create subscriber on pre-defined/existing queue.
       String messageRecieved = sendAndReceiveTextUsingQueue(connectionFactory, "clientId", message, "secured_queue", (q, s) -> s.createConsumer(q));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       connectionFactory = getConnectionFactory("a", "a");
       messageRecieved = sendAndReceiveTextUsingQueue(connectionFactory, "clientId", message, "new-queue-1", (q, s) -> s.createConsumer(q));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
       connectionFactory = getConnectionFactory("b", "b");
       try {
          sendAndReceiveTextUsingQueue(connectionFactory, "clientId", message, "new-queue-2", (q, s) -> s.createConsumer(q));
-         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create address, or queue");
+         fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create address, or queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }
 
       connectionFactory = getConnectionFactory("a", "a");
       messageRecieved = sendAndReceiveTextUsingQueue(connectionFactory, "clientId", message, "new-queue-2", (q, s) -> s.createConsumer(q));
-      Assert.assertEquals(message, messageRecieved);
+      assertEquals(message, messageRecieved);
 
    }
 
@@ -224,11 +229,11 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    private ConnectionFactory getConnectionFactory(String user, String password) {
       switch (protocol) {
          case "CORE":
-            return getActiveMQConnectionFactory(user, password);
+            return getActiveMQConnectionFactory(password, user);
          case "AMQP":
-            return getAMQPConnectionFactory(user, password);
+            return getAMQPConnectionFactory(password, user);
          case "OPENWIRE":
-            return getOpenWireConnectionFactory(user, password);
+            return getOpenWireConnectionFactory(password, user);
          default:
             throw new IllegalStateException("Unsupported Protocol");
       }
@@ -277,7 +282,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
          try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             D destination = destinationSupplier.create(session);
             MessageConsumer messageConsumer = consumerSupplier.create(destination, session);
-            Assert.assertNull(messageConsumer.receiveNoWait());
+            assertNull(messageConsumer.receiveNoWait());
 
             TextMessage messageToSend = session.createTextMessage(message);
             session.createProducer(destination).send(messageToSend);

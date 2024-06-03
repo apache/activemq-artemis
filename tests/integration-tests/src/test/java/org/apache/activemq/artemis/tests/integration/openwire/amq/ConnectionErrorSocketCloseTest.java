@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.concurrent.TimeUnit;
+
 import javax.jms.Connection;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ConnectionErrorSocketCloseTest extends BasicOpenWireTest {
 
@@ -33,7 +38,8 @@ public class ConnectionErrorSocketCloseTest extends BasicOpenWireTest {
 
    //We want to make sure that the socket will be closed if there as an error on broker.addConnection
    //even if the client doesn't close the connection to prevent dangling open sockets
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDuplicateClientIdCloseConnection() throws Exception {
       connection.start();
       Wait.waitFor(() -> server.getRemotingService().getConnections().size() == 1, 10000, 500);

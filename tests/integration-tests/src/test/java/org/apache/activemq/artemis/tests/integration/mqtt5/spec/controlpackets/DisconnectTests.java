@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +35,8 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -61,7 +67,8 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * Currently the only way to trigger a DISCONNECT from the broker is to "take over" an existing session at which
     * point the broker will disconnect the existing session.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testDisconnectReasonCode() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -91,7 +98,8 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * [MQTT-3.14.4-3] On receipt of DISCONNECT with a Reason Code of 0x00 (Success) the Server MUST discard any Will
     * Message associated with the current Connection without publishing it.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
       final String CLIENT_ID = org.apache.activemq.artemis.tests.util.RandomUtil.randomString();
       final byte[] WILL = RandomUtil.randomBytes();

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -32,8 +39,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +82,7 @@ public class MessageTest extends JMSTestBase {
 
          StreamMessage received = (StreamMessage) sendAndConsumeMessage(msg, prod, cons);
 
-         Assert.assertNotNull(received);
+         assertNotNull(received);
 
          assertEquals(1, received.readObject());
          assertEquals(2, received.readObject());
@@ -188,7 +194,7 @@ public class MessageTest extends JMSTestBase {
 
       msg.setStringProperty("Test", null);
 
-      assertEquals(null, msg.getStringProperty("Test"));
+      assertNull(msg.getStringProperty("Test"));
 
       msg.setObjectProperty(MessageTest.propName1, null);
 
@@ -204,7 +210,7 @@ public class MessageTest extends JMSTestBase {
 
       Message received = sendAndConsumeMessage(msg, prod, cons);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       checkProperties(received);
    }
@@ -213,16 +219,16 @@ public class MessageTest extends JMSTestBase {
 
 
    private void checkProperties(final Message message) throws Exception {
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName1));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName1));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName2));
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName2));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName3));
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
+      assertNull(message.getObjectProperty(MessageTest.propName1));
+      assertNull(message.getStringProperty(MessageTest.propName1));
+      assertNull(message.getStringProperty(MessageTest.propName2));
+      assertNull(message.getObjectProperty(MessageTest.propName2));
+      assertNull(message.getStringProperty(MessageTest.propName3));
+      assertNull(message.getObjectProperty(MessageTest.propName3));
 
       try {
          logger.debug("{}", message.getIntProperty(MessageTest.propName1));
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (NumberFormatException e) {
          // Ok
       }
@@ -237,7 +243,7 @@ public class MessageTest extends JMSTestBase {
       } catch (NumberFormatException e) {
          // Ok
       }
-      Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
+      assertFalse(message.getBooleanProperty(MessageTest.propName1));
       try {
          logger.debug("{}", message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {

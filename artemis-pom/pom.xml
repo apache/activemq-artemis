@@ -43,26 +43,11 @@
 
          <!-- ## Test Dependencies ## -->
          <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <groupId>org.junit</groupId>
+            <artifactId>junit-bom</artifactId>
             <version>${junit5.version}</version>
-            <!-- Eclipse Public License - v 2.0 -->
-         </dependency>
-
-         <!-- ## Test Dependencies ## Note: Run Junit5 test. -->
-         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
-            <scope>test</scope>
-            <!-- Eclipse Public License - v 2.0 -->
-         </dependency>
-
-         <!-- ## Test Dependencies ## Note: Run Junit4 tests. -->
-         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit5.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
             <!-- Eclipse Public License - v 2.0 -->
          </dependency>
 
@@ -136,6 +121,13 @@
          <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+            <!-- License: MIT -->
+         </dependency>
+         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
             <!-- License: MIT -->

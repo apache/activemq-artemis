@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmxmultiplefailback;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import javax.management.MBeanServerInvocationHandler;
@@ -45,10 +48,9 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -178,7 +180,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
    private static final int BACKUP_1_PORT_ID = PRIMARY_3_PORT_ID + 100;
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(PRIMARY_1_DATA_FOLDER);
@@ -257,7 +259,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() {
       Stream.of(Broker.values()).forEach(Broker::cleanupData);
       disableCheckThread();
@@ -292,10 +294,10 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       }
 
       final String urlBackup1 = backupOf(nodeIDprimary1, decodeNetworkTopologyJson(Broker.backup1.listNetworkTopology().get()));
-      Assert.assertNotNull(urlBackup1);
+      assertNotNull(urlBackup1);
       final String urlPrimary1 = primaryOf(nodeIDprimary1, decodeNetworkTopologyJson(Broker.primary1.listNetworkTopology().get()));
-      Assert.assertNotNull(urlPrimary1);
-      Assert.assertNotEquals(urlPrimary1, urlBackup1);
+      assertNotNull(urlPrimary1);
+      assertNotEquals(urlPrimary1, urlBackup1);
 
       logger.info("Node ID primary 1 is {}", nodeIDprimary1);
       logger.info("Node ID primary 2 is {}", nodeIDprimary2);

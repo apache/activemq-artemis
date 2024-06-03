@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 

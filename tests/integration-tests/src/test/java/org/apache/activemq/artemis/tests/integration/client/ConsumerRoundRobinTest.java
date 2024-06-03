@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -26,8 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -73,8 +75,8 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
          for (int j = 0; j < 5; j++) {
             logger.debug("j is {}", j);
             ClientMessage cm = consumers[j].receive(5000);
-            Assert.assertNotNull(cm);
-            Assert.assertEquals(currMessage++, cm.getBodyBuffer().readInt());
+            assertNotNull(cm);
+            assertEquals(currMessage++, cm.getBodyBuffer().readInt());
             cm.acknowledge();
          }
       }

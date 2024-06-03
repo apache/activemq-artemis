@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -46,20 +50,16 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class RetroactiveAddressTest extends ActiveMQTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    protected ActiveMQServer server;
 
@@ -75,7 +75,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    String delimiter;
 
-   @Parameterized.Parameters(name = "delimiterChar={0}")
+   @Parameters(name = "delimiterChar={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][] {{'/'}, {'.'}});
    }
@@ -86,7 +86,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, createDefaultInVMConfig(), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, -1, -1, new HashMap<>());
@@ -100,12 +100,12 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
    }
 
-   @Test
+   @TestTemplate
    public void testRetroactiveResourceCreationWithExactMatch() throws Exception {
       internalTestRetroactiveResourceCreation("myAddress", "myAddress");
    }
 
-   @Test
+   @TestTemplate
    public void testRetroactiveResourceCreationWithWildcardMatch() throws Exception {
       internalTestRetroactiveResourceCreation("myAddress", "#");
    }
@@ -126,7 +126,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       assertNotNull(server.getPostOffice().getBinding(divert));
    }
 
-   @Test
+   @TestTemplate
    public void testRetroactiveResourceRemoval() throws Exception {
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
@@ -148,7 +148,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       assertNull(server.getPostOffice().getBinding(divert));
    }
 
-   @Test
+   @TestTemplate
    public void testRetroactiveAddress() throws Exception {
       final int COUNT = 15;
       final int LOOPS = 25;
@@ -187,7 +187,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testRestart() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
@@ -240,7 +240,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertMulticastQueue).getMessageCount() == 2);
    }
 
-   @Test
+   @TestTemplate
    public void testUpdateAfterRestart() throws Exception {
       final int COUNT = 10;
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
@@ -260,7 +260,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertMulticastQueue).getRingSize() == COUNT);
    }
 
-   @Test
+   @TestTemplate
    public void testMulticast() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
@@ -293,7 +293,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == 1);
    }
 
-   @Test
+   @TestTemplate
    public void testJMSTopicSubscribers() throws Exception {
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
       final int COUNT = 10;
@@ -325,7 +325,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testUpdateAddressSettings() throws Exception {
       final int COUNT = 10;
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
@@ -341,7 +341,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertMulticastQueue).getRingSize() == COUNT);
    }
 
-   @Test
+   @TestTemplate
    public void testRoutingTypes() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final SimpleString multicastQueue = SimpleString.toSimpleString("multicastQueue");
@@ -400,7 +400,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertAnycastQueue).getMessageCount() == 1);
    }
 
-   @Test
+   @TestTemplate
    public void testFilter() throws Exception {
       final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
@@ -433,7 +433,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == 2);
    }
 
-   @Test
+   @TestTemplate
    public void testAddressSettingOnRetroactiveResource() throws Exception {
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
@@ -444,7 +444,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       assertEquals(13, server.getAddressSettingsRepository().getMatch(divertAddress.toString()).getMaxSizeBytes());
    }
 
-   @Test
+   @TestTemplate
    public void testPaging() throws Exception {
       final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
       final SimpleString randomQueueName = SimpleString.toSimpleString(UUID.randomUUID().toString());

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
@@ -38,10 +45,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -101,7 +106,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
 
    @Test
    public void testLoadBalanceGroups() throws Exception {
-      Assume.assumeFalse("only makes sense withOUT auto-group", clientSessionFactory.getServerLocator().isAutoGroup());
+      assumeFalse(clientSessionFactory.getServerLocator().isAutoGroup(), "only makes sense withOUT auto-group");
 
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer1 = clientSession.createConsumer(qName);
@@ -132,8 +137,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          }
 
          for (int count : counts) {
-            Assert.assertNotEquals("You shouldn't have all messages bound to a single consumer", 30, count);
-            Assert.assertNotEquals("But you shouldn't have also a single consumer bound to none", 0, count);
+            assertNotEquals(30, count, "You shouldn't have all messages bound to a single consumer");
+            assertNotEquals(0, count, "But you shouldn't have also a single consumer bound to none");
          }
       } finally {
          consumer1.close();
@@ -161,9 +166,9 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(100, dummyMessageHandler.list.size());
-      Assert.assertEquals(0, dummyMessageHandler2.list.size());
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(100, dummyMessageHandler.list.size());
+      assertEquals(0, dummyMessageHandler2.list.size());
       consumer.close();
       consumer2.close();
    }
@@ -193,12 +198,12 @@ public class MessageGroupingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(500);
-         Assert.assertNotNull(cm);
-         Assert.assertEquals(cm.getBodyBuffer().readString(), "m" + i);
+         assertNotNull(cm);
+         assertEquals(cm.getBodyBuffer().readString(), "m" + i);
          i++;
          cm = consumer2.receive(500);
-         Assert.assertNotNull(cm);
-         Assert.assertEquals(cm.getBodyBuffer().readString(), "m" + i);
+         assertNotNull(cm);
+         assertEquals(cm.getBodyBuffer().readString(), "m" + i);
       }
 
       logger.debug("closing consumer2");
@@ -232,11 +237,11 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       CountDownLatch latch = new CountDownLatch(numMessages);
       DummyMessageHandler dummyMessageHandler = new DummyMessageHandler(latch, true);
       consumer.setMessageHandler(dummyMessageHandler);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(dummyMessageHandler.list.size(), 100);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(dummyMessageHandler.list.size(), 100);
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 1;
       }
       consumer.close();
@@ -273,24 +278,24 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.commit();
-      Assert.assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       consumer.close();
       consumer2.close();
       consumer = this.clientSession.createConsumer(qName);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
       clientSession.close();
       locator.close();
    }
@@ -326,38 +331,38 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(50, dummyMessageHandler.list.size(), dummyMessageHandler.list.size());
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(50, dummyMessageHandler.list.size(), dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       latch = new CountDownLatch(numMessages);
       dummyMessageHandler.reset(latch);
       dummyMessageHandler2.reset(latch);
       clientSession.rollback();
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(dummyMessageHandler.list.size(), 50);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(dummyMessageHandler.list.size(), 50);
       i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       consumer = this.clientSession.createConsumer(qName);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
       clientSession.close();
       locator.close();
    }
@@ -391,26 +396,26 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       clientSession.commit(xid, false);
-      Assert.assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       consumer.close();
       consumer2.close();
       consumer = this.clientSession.createConsumer(qName);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
       clientSession.close();
       locator.close();
    }
@@ -446,18 +451,18 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.end(xid, XAResource.TMSUCCESS);
-      Assert.assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       latch = new CountDownLatch(numMessages);
@@ -465,24 +470,24 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       dummyMessageHandler2.reset(latch);
       clientSession.rollback(xid);
       clientSession.start(xid, XAResource.TMNOFLAGS);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       clientSession.commit(xid, false);
-      Assert.assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(dummyMessageHandler.list.size(), 50);
       i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       consumer = this.clientSession.createConsumer(qName);
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
       clientSession.close();
       locator.close();
    }
@@ -511,17 +516,17 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(numMessages / 2, dummyMessageHandler.list.size());
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(numMessages / 2, dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      Assert.assertEquals(numMessages / 2, dummyMessageHandler2.list.size());
+      assertEquals(numMessages / 2, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
-         Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
+         assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       consumer.close();
@@ -529,7 +534,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration configuration = createDefaultInVMConfig();

@@ -16,19 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TemporaryQueueClusterTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -73,7 +74,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase {
       for (int j = 0; j < 10; j++) {
          ClientMessage message = consumer.receive(5000);
          if (message == null) {
-            Assert.assertNotNull("consumer did not receive message on temp queue " + j, message);
+            assertNotNull(message, "consumer did not receive message on temp queue " + j);
          }
          message.acknowledge();
       }

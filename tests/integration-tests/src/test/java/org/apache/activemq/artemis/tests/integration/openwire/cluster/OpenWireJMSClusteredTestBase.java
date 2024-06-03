@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class OpenWireJMSClusteredTestBase extends ClusterTestBase {
 
@@ -28,7 +28,7 @@ public class OpenWireJMSClusteredTestBase extends ClusterTestBase {
    protected ActiveMQConnectionFactory openWireCf2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

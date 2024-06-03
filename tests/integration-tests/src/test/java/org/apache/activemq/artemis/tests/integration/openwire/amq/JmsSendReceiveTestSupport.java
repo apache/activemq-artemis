@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -33,8 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsSendReceiveTestSupport
@@ -57,7 +59,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    protected boolean useSeparateSession;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String temp = System.getProperty("messageCount");
@@ -113,7 +115,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
          }
       }
 
-      assertEquals("Not enough messages received", data.length, receivedMessages.size());
+      assertEquals(data.length, receivedMessages.size(), "Not enough messages received");
 
       for (int i = 0; i < data.length; i++) {
          TextMessage received = (TextMessage) receivedMessages.get(i);
@@ -121,7 +123,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
          String stringProperty = received.getStringProperty("stringProperty");
          int intProperty = received.getIntProperty("intProperty");
 
-         assertEquals("Message: " + i, data[i], text);
+         assertEquals(data[i], text, "Message: " + i);
          assertEquals(data[i], stringProperty);
          assertEquals(i, intProperty);
       }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -39,6 +42,8 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -46,21 +51,19 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "protocol={0}, useCLI={1}")
+   @Parameters(name = "protocol={0}, useCLI={1}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"CORE", true}, {"AMQP", false}, {"OPENWIRE", false}});
    }
@@ -116,7 +119,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -138,12 +141,12 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       Wait.waitFor(primaryServer.getServer()::isReplicaSync);
    }
 
-   @Test
+   @TestTemplate
    public void testInifinteRedeliveryWithScheduling() throws Exception {
       testInifinteRedeliveryWithScheduling(true);
    }
 
-   @Test
+   @TestTemplate
    public void testInifinteRedeliveryWithoutScheduling() throws Exception {
       testInifinteRedeliveryWithScheduling(false);
    }
@@ -164,7 +167,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       Connection connection = factory.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue("test");
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       MessageProducer  producer = session.createProducer(queue);
 
       producer.send(session.createTextMessage("hello"));
@@ -175,7 +178,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       connection.start();
       for (int i = 0; i < 100; i++) {
          Message message = consumer.receive(10000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          session.rollback();
       }
       connection.close();
@@ -195,12 +198,12 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
       HashMap<Integer, AtomicInteger> counts = countJournal(primaryServer.getServer().getConfiguration());
       counts.forEach((k, v) -> logger.debug("{}={}", k, v));
-      counts.forEach((k, v) -> Assert.assertTrue("Record type " + k + " has a lot of records:" +  v, v.intValue() < 20));
+      counts.forEach((k, v) -> assertTrue(v.intValue() < 20, "Record type " + k + " has a lot of records:" +  v));
 
       HashMap<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
-      Assert.assertTrue(backupCounts.size() > 0);
+      assertTrue(backupCounts.size() > 0);
       backupCounts.forEach((k, v) -> logger.debug("On Backup:{}={}", k, v));
-      backupCounts.forEach((k, v) -> Assert.assertTrue("Backup Record type " + k + " has a lot of records:" +  v, v.intValue() < 10));
+      backupCounts.forEach((k, v) -> assertTrue(v.intValue() < 10, "Backup Record type " + k + " has a lot of records:" +  v));
 
 
    }

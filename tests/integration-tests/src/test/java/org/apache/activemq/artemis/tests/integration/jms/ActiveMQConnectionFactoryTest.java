@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -52,9 +58,8 @@ import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * ActiveMQConnectionFactoryTest
@@ -80,7 +85,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
          conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (JMSException e) {
          // Ok
       }
@@ -193,26 +198,26 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       cf.setRetryInterval(retryInterval);
       cf.setRetryIntervalMultiplier(retryIntervalMultiplier);
       cf.setReconnectAttempts(reconnectAttempts);
-      Assert.assertEquals(clientFailureCheckPeriod, cf.getClientFailureCheckPeriod());
-      Assert.assertEquals(connectionTTL, cf.getConnectionTTL());
-      Assert.assertEquals(callTimeout, cf.getCallTimeout());
-      Assert.assertEquals(minLargeMessageSize, cf.getMinLargeMessageSize());
-      Assert.assertEquals(consumerWindowSize, cf.getConsumerWindowSize());
-      Assert.assertEquals(consumerMaxRate, cf.getConsumerMaxRate());
-      Assert.assertEquals(confirmationWindowSize, cf.getConfirmationWindowSize());
-      Assert.assertEquals(producerMaxRate, cf.getProducerMaxRate());
-      Assert.assertEquals(blockOnAcknowledge, cf.isBlockOnAcknowledge());
-      Assert.assertEquals(blockOnDurableSend, cf.isBlockOnDurableSend());
-      Assert.assertEquals(blockOnNonDurableSend, cf.isBlockOnNonDurableSend());
-      Assert.assertEquals(autoGroup, cf.isAutoGroup());
-      Assert.assertEquals(preAcknowledge, cf.isPreAcknowledge());
-      Assert.assertEquals(loadBalancingPolicyClassName, cf.getConnectionLoadBalancingPolicyClassName());
-      Assert.assertEquals(useGlobalPools, cf.isUseGlobalPools());
-      Assert.assertEquals(scheduledThreadPoolMaxSize, cf.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(threadPoolMaxSize, cf.getThreadPoolMaxSize());
-      Assert.assertEquals(retryInterval, cf.getRetryInterval());
-      Assert.assertEquals(retryIntervalMultiplier, cf.getRetryIntervalMultiplier(), 0.0001);
-      Assert.assertEquals(reconnectAttempts, cf.getReconnectAttempts());
+      assertEquals(clientFailureCheckPeriod, cf.getClientFailureCheckPeriod());
+      assertEquals(connectionTTL, cf.getConnectionTTL());
+      assertEquals(callTimeout, cf.getCallTimeout());
+      assertEquals(minLargeMessageSize, cf.getMinLargeMessageSize());
+      assertEquals(consumerWindowSize, cf.getConsumerWindowSize());
+      assertEquals(consumerMaxRate, cf.getConsumerMaxRate());
+      assertEquals(confirmationWindowSize, cf.getConfirmationWindowSize());
+      assertEquals(producerMaxRate, cf.getProducerMaxRate());
+      assertEquals(blockOnAcknowledge, cf.isBlockOnAcknowledge());
+      assertEquals(blockOnDurableSend, cf.isBlockOnDurableSend());
+      assertEquals(blockOnNonDurableSend, cf.isBlockOnNonDurableSend());
+      assertEquals(autoGroup, cf.isAutoGroup());
+      assertEquals(preAcknowledge, cf.isPreAcknowledge());
+      assertEquals(loadBalancingPolicyClassName, cf.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(useGlobalPools, cf.isUseGlobalPools());
+      assertEquals(scheduledThreadPoolMaxSize, cf.getScheduledThreadPoolMaxSize());
+      assertEquals(threadPoolMaxSize, cf.getThreadPoolMaxSize());
+      assertEquals(retryInterval, cf.getRetryInterval());
+      assertEquals(retryIntervalMultiplier, cf.getRetryIntervalMultiplier(), 0.0001);
+      assertEquals(reconnectAttempts, cf.getReconnectAttempts());
 
       cf.close();
    }
@@ -247,64 +252,64 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       String denyList = null;
       String allowList = null;
       Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof TestClass1);
+      assertTrue(obj instanceof TestClass1, "Object is " + obj);
 
       //not in the allow list
       denyList = "java.lang";
       allowList = "some.other.package1";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
       //but String always trusted
       obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), useJndi, useBrowser);
-      assertTrue("java.lang.String always trusted ", "hello".equals(obj));
+      assertTrue("hello".equals(obj), "java.lang.String always trusted ");
 
       //in the denylist
       denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
 
       //deny list parent package
       denyList = "org.apache.activemq.artemis";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
 
       //in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof TestClass1);
+      assertTrue(obj instanceof TestClass1, "Object is " + obj);
 
       //parent in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof TestClass1);
+      assertTrue(obj instanceof TestClass1, "Object is " + obj);
 
       //sub package in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables.pkg1";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
 
       //wild card allow list but deny listed
       denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
 
       //wild card allow list and not deny listed
       denyList = "some.other.package";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof TestClass1);
+      assertTrue(obj instanceof TestClass1, "Object is " + obj);
 
       //wild card deny list
       denyList = "*";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue("Object is " + obj, obj instanceof JMSException);
+      assertTrue(obj instanceof JMSException, "Object is " + obj);
    }
 
    @Test
@@ -320,19 +325,19 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          String denyList = null;
          String allowList = null;
          Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue("Object is " + obj, obj instanceof JMSException);
+         assertTrue(obj instanceof JMSException, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
 
          //override
          denyList = "some.other.package";
          allowList = "org.apache.activemq.artemis.tests.integration";
          obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue("Object is " + obj, obj instanceof TestClass1);
+         assertTrue(obj instanceof TestClass1, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
@@ -352,19 +357,19 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          String denyList = null;
          String allowList = null;
          Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue("Object is " + obj, obj instanceof JMSException);
+         assertTrue(obj instanceof JMSException, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
 
          //override
          denyList = "some.other.package";
          allowList = "org.apache.activemq.artemis.tests.integration";
          obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue("Object is " + obj, obj instanceof TestClass1);
+         assertTrue(obj instanceof TestClass1, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.DENYLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY);
@@ -476,139 +481,139 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
       try {
          cf.setClientID(clientID);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setClientFailureCheckPeriod(clientFailureCheckPeriod);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConnectionTTL(connectionTTL);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setCallTimeout(callTimeout);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setMinLargeMessageSize(minLargeMessageSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConsumerWindowSize(consumerWindowSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConsumerMaxRate(consumerMaxRate);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConfirmationWindowSize(confirmationWindowSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setProducerMaxRate(producerMaxRate);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnAcknowledge(blockOnAcknowledge);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnDurableSend(blockOnDurableSend);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnNonDurableSend(blockOnNonDurableSend);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setAutoGroup(autoGroup);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setPreAcknowledge(preAcknowledge);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setDupsOKBatchSize(dupsOKBatchSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setTransactionBatchSize(transactionBatchSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setUseGlobalPools(useGlobalPools);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setThreadPoolMaxSize(threadPoolMaxSize);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setRetryInterval(retryInterval);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setRetryIntervalMultiplier(retryIntervalMultiplier);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setReconnectAttempts(reconnectAttempts);
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (IllegalStateException e) {
          // OK
       }
@@ -671,42 +676,42 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
                                     final int reconnectAttempts) {
       TransportConfiguration[] cfStaticConnectors = cf.getStaticConnectors();
       if (staticConnectors == null) {
-         Assert.assertNull(staticConnectors);
+         assertNull(staticConnectors);
       } else {
-         Assert.assertEquals(staticConnectors.length, cfStaticConnectors.length);
+         assertEquals(staticConnectors.length, cfStaticConnectors.length);
 
          for (int i = 0; i < staticConnectors.length; i++) {
-            Assert.assertEquals(staticConnectors[i], cfStaticConnectors[i]);
+            assertEquals(staticConnectors[i], cfStaticConnectors[i]);
          }
       }
-      Assert.assertEquals(cf.getClientID(), clientID);
-      Assert.assertEquals(cf.getClientFailureCheckPeriod(), clientFailureCheckPeriod);
-      Assert.assertEquals(cf.getConnectionTTL(), connectionTTL);
-      Assert.assertEquals(cf.getCallTimeout(), callTimeout);
-      Assert.assertEquals(cf.getCallFailoverTimeout(), callFailoverTimeout);
-      Assert.assertEquals(cf.getMinLargeMessageSize(), minLargeMessageSize);
-      Assert.assertEquals(cf.getConsumerWindowSize(), consumerWindowSize);
-      Assert.assertEquals(cf.getConsumerMaxRate(), consumerMaxRate);
-      Assert.assertEquals(cf.getConfirmationWindowSize(), confirmationWindowSize);
-      Assert.assertEquals(cf.getProducerMaxRate(), producerMaxRate);
-      Assert.assertEquals(cf.isBlockOnAcknowledge(), blockOnAcknowledge);
-      Assert.assertEquals(cf.isBlockOnDurableSend(), blockOnDurableSend);
-      Assert.assertEquals(cf.isBlockOnNonDurableSend(), blockOnNonDurableSend);
-      Assert.assertEquals(cf.isAutoGroup(), autoGroup);
-      Assert.assertEquals(cf.isPreAcknowledge(), preAcknowledge);
-      Assert.assertEquals(cf.getConnectionLoadBalancingPolicyClassName(), loadBalancingPolicyClassName);
-      Assert.assertEquals(cf.getDupsOKBatchSize(), dupsOKBatchSize);
-      Assert.assertEquals(cf.getTransactionBatchSize(), transactionBatchSize);
-      Assert.assertEquals(cf.isUseGlobalPools(), useGlobalPools);
-      Assert.assertEquals(cf.getScheduledThreadPoolMaxSize(), scheduledThreadPoolMaxSize);
-      Assert.assertEquals(cf.getThreadPoolMaxSize(), threadPoolMaxSize);
-      Assert.assertEquals(cf.getRetryInterval(), retryInterval);
-      Assert.assertEquals(cf.getRetryIntervalMultiplier(), retryIntervalMultiplier, 0.00001);
-      Assert.assertEquals(cf.getReconnectAttempts(), reconnectAttempts);
+      assertEquals(cf.getClientID(), clientID);
+      assertEquals(cf.getClientFailureCheckPeriod(), clientFailureCheckPeriod);
+      assertEquals(cf.getConnectionTTL(), connectionTTL);
+      assertEquals(cf.getCallTimeout(), callTimeout);
+      assertEquals(cf.getCallFailoverTimeout(), callFailoverTimeout);
+      assertEquals(cf.getMinLargeMessageSize(), minLargeMessageSize);
+      assertEquals(cf.getConsumerWindowSize(), consumerWindowSize);
+      assertEquals(cf.getConsumerMaxRate(), consumerMaxRate);
+      assertEquals(cf.getConfirmationWindowSize(), confirmationWindowSize);
+      assertEquals(cf.getProducerMaxRate(), producerMaxRate);
+      assertEquals(cf.isBlockOnAcknowledge(), blockOnAcknowledge);
+      assertEquals(cf.isBlockOnDurableSend(), blockOnDurableSend);
+      assertEquals(cf.isBlockOnNonDurableSend(), blockOnNonDurableSend);
+      assertEquals(cf.isAutoGroup(), autoGroup);
+      assertEquals(cf.isPreAcknowledge(), preAcknowledge);
+      assertEquals(cf.getConnectionLoadBalancingPolicyClassName(), loadBalancingPolicyClassName);
+      assertEquals(cf.getDupsOKBatchSize(), dupsOKBatchSize);
+      assertEquals(cf.getTransactionBatchSize(), transactionBatchSize);
+      assertEquals(cf.isUseGlobalPools(), useGlobalPools);
+      assertEquals(cf.getScheduledThreadPoolMaxSize(), scheduledThreadPoolMaxSize);
+      assertEquals(cf.getThreadPoolMaxSize(), threadPoolMaxSize);
+      assertEquals(cf.getRetryInterval(), retryInterval);
+      assertEquals(cf.getRetryIntervalMultiplier(), retryIntervalMultiplier, 0.00001);
+      assertEquals(cf.getReconnectAttempts(), reconnectAttempts);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

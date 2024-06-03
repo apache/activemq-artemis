@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModule.K8S_ROLE_FILE_PROP_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,7 +40,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.TokenCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.client.KubernetesClient;
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model.TokenReview;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class KubernetesLoginModuleTest {
 

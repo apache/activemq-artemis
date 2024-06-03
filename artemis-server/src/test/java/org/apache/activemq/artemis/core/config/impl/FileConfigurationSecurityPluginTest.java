@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -47,9 +47,9 @@ public class FileConfigurationSecurityPluginTest extends AbstractConfigurationTe
    @Test
    public void testDefaults() {
       List<SecuritySettingPlugin> securitySettingPlugins = conf.getSecuritySettingPlugins();
-      Assert.assertEquals(1, securitySettingPlugins.size());
-      Assert.assertEquals("secret", MyPlugin.options.get("setting1"));
-      Assert.assertEquals("hello", MyPlugin.options.get("setting2"));
+      assertEquals(1, securitySettingPlugins.size());
+      assertEquals("secret", MyPlugin.options.get("setting1"));
+      assertEquals("hello", MyPlugin.options.get("setting2"));
    }
 
    @Test

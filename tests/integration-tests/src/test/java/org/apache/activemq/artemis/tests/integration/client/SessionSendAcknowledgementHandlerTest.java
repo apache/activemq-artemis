@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,9 +34,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
 
@@ -45,7 +46,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
    private final SimpleString queueName = new SimpleString("queue");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -73,7 +74,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
          failed = true;
       }
 
-      assertTrue("Expected a failure on setting ACK Handler", failed);
+      assertTrue(failed, "Expected a failure on setting ACK Handler");
 
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
    }
@@ -126,8 +127,8 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
          prod.send(address, msg2, producerHandler);
       }
 
-      Assert.assertTrue("session must have acked, " + handler, handler.latch.await(5, TimeUnit.SECONDS));
-      Assert.assertTrue("producer specific handler must have acked, " + producerHandler, producerHandler.latch.await(5, TimeUnit.SECONDS));
+      assertTrue(handler.latch.await(5, TimeUnit.SECONDS), "session must have acked, " + handler);
+      assertTrue(producerHandler.latch.await(5, TimeUnit.SECONDS), "producer specific handler must have acked, " + producerHandler);
    }
 
    public void verifySendAcknowledgementsProducerOnly(int windowSize) throws Exception {
@@ -152,7 +153,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
          prod.send(address, msg2, producerHandler);
       }
 
-      Assert.assertTrue("producer specific handler must have acked, " + producerHandler, producerHandler.latch.await(5, TimeUnit.SECONDS));
+      assertTrue(producerHandler.latch.await(5, TimeUnit.SECONDS), "producer specific handler must have acked, " + producerHandler);
    }
 
    @Test

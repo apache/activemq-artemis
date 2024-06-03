@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -24,15 +29,16 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
-import org.junit.Test;
-
 import org.apache.qpid.proton.amqp.messaging.Terminus;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.engine.Receiver;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpNonDurableReceiverTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLinkDetachReleasesResources() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -48,8 +54,9 @@ public class AmqpNonDurableReceiverTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getTopicName());
 
       AtomicBoolean remoteLinkClosed = new AtomicBoolean();
-      assertEquals("Unexpected source expiry policy", TerminusExpiryPolicy.LINK_DETACH,
-                   ((Terminus) receiver.getEndpoint().getSource()).getExpiryPolicy());
+      assertEquals(TerminusExpiryPolicy.LINK_DETACH,
+                   ((Terminus) receiver.getEndpoint().getSource()).getExpiryPolicy(),
+                   "Unexpected source expiry policy");
 
       receiver.setStateInspector(new AmqpValidator() {
          @Override
@@ -65,16 +72,15 @@ public class AmqpNonDurableReceiverTest extends AmqpClientTestSupport {
          }
       });
 
-      assertEquals("Unexpected number of bindings before attach",
-                   bindingsBefore + 1, server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().size());
+      assertEquals(bindingsBefore + 1, server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().size(), "Unexpected number of bindings before attach");
 
       receiver.detach();
 
-      assertEquals("Unexpected number of bindings after detach",
-                   bindingsBefore,
-                   server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().size());
+      assertEquals(bindingsBefore,
+                   server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().size(),
+                   "Unexpected number of bindings after detach");
 
-      assertTrue("Remote link was not closed", remoteLinkClosed.get());
+      assertTrue(remoteLinkClosed.get(), "Remote link was not closed");
 
       receiver.getStateInspector().assertValid();
    }

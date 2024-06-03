@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SimpleStartStopTest extends ActiveMQTestBase {
 
@@ -49,7 +53,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
          }
 
          // There shouldn't be any error from starting / stopping the server
-         assertFalse("There shouldn't be any error for just starting / stopping the server", loggerHandler.hasLevel(LogLevel.ERROR));
+         assertFalse(loggerHandler.hasLevel(LogLevel.ERROR), "There shouldn't be any error for just starting / stopping the server");
          assertFalse(loggerHandler.findText("AMQ224008"));
 
          HashMap<Integer, AtomicInteger> records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
@@ -59,8 +63,8 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
          assertNotNull(recordCount);
 
          // The server should remove old IDs from the journal
-         assertTrue("The server should cleanup after IDs on the bindings record. It left " + recordCount +
-                       " ids on the journal", recordCount.intValue() < 5);
+         assertTrue(recordCount.intValue() < 5, "The server should cleanup after IDs on the bindings record. It left " + recordCount +
+                       " ids on the journal");
 
          server.start();
 
@@ -70,7 +74,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
 
          assertNotNull(recordCount);
 
-         assertTrue("If this is zero it means we are removing too many records", recordCount.intValue() != 0);
+         assertTrue(recordCount.intValue() != 0, "If this is zero it means we are removing too many records");
 
          server.stop();
 

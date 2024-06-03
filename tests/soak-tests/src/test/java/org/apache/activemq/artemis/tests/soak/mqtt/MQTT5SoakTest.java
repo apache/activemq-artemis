@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.soak.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
@@ -37,10 +40,9 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ public class MQTT5SoakTest extends SoakTestBase {
 
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -72,7 +74,7 @@ public class MQTT5SoakTest extends SoakTestBase {
       return new MqttClient("tcp://localhost:1883", clientId, new MemoryPersistence());
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
 
@@ -141,7 +143,7 @@ public class MQTT5SoakTest extends SoakTestBase {
 
       consumer.close();
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    protected interface DefaultMqttCallback extends MqttCallback {

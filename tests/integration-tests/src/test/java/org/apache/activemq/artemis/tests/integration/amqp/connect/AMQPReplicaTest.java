@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -62,10 +69,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,15 +87,15 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
    private AssertionLoggerHandler loggerHandler;
 
-   @Before
+   @BeforeEach
    public void startLogging() {
       loggerHandler = new AssertionLoggerHandler();
    }
 
-   @After
+   @AfterEach
    public void stopLogging() throws Exception {
       try {
-         Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+         assertFalse(loggerHandler.findText("AMQ222214"));
       } finally {
          loggerHandler.close();
       }
@@ -126,7 +132,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.stop();
 
       server.start();
-      Assert.assertTrue(server.locateQueue("sometest") == null);
+      assertTrue(server.locateQueue("sometest") == null);
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
@@ -159,7 +165,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       Wait.waitFor(() -> server_2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_test") != null);
       Queue mirrorQueue = server_2.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_test");
-      Assert.assertNotNull(mirrorQueue);
+      assertNotNull(mirrorQueue);
 
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -175,7 +181,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          server_2.getPostOffice().route(message, false);
 
          Wait.assertEquals(0L, mirrorQueue::getMessageCount, 2000, 100);
-         Assert.assertFalse(loggerHandler.findText("AMQ224041"));
+         assertFalse(loggerHandler.findText("AMQ224041"));
       }
 
       server_2.stop();
@@ -209,7 +215,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> server_2.locateQueue(queueName) == null);
       Thread.sleep(100);
 
-      Assert.assertTrue("Queue was removed when it was configured to not remove it", server.locateQueue(queueName) != null);
+      assertTrue(server.locateQueue(queueName) != null, "Queue was removed when it was configured to not remove it");
 
       server_2.stop();
       server.stop();
@@ -255,8 +261,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> server.getAddressInfo(ADDRESS_NAME) != null);
       } else {
          Thread.sleep(250); // things are asynchronous, I need to wait some time to make sure things are transferred over
-         Assert.assertTrue(server.locateQueue(ADDRESS_NAME) == null);
-         Assert.assertTrue(server.getAddressInfo(ADDRESS_NAME) == null);
+         assertTrue(server.locateQueue(ADDRESS_NAME) == null);
+         assertTrue(server.getAddressInfo(ADDRESS_NAME) == null);
       }
       server_2.stop();
       server.stop();
@@ -295,8 +301,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
       server.start();
-      Assert.assertTrue(server.locateQueue("sometest") == null);
-      Assert.assertTrue(server.locateQueue("ToBeGone") != null);
+      assertTrue(server.locateQueue("sometest") == null);
+      assertTrue(server.locateQueue("ToBeGone") != null);
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
@@ -337,7 +343,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
       server.start();
-      Assert.assertTrue(server.locateQueue("sometest") == null);
+      assertTrue(server.locateQueue("sometest") == null);
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
@@ -430,7 +436,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
       // Get the Queue View early to avoid racing the delivery.
       final Queue queueView = locateQueue(server_2, getQueueName());
@@ -467,10 +473,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
             assertNotNull(received);
-            Assert.assertEquals(getText(true, i), received.getText());
-            Assert.assertNull(received.getDeliveryAnnotation("gone"));
+            assertEquals(getText(true, i), received.getText());
+            assertNull(received.getDeliveryAnnotation("gone"));
          }
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          connection.close();
       }
@@ -500,7 +506,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
       { // sender
          AmqpClient client = new AmqpClient(new URI("tcp://localhost:" + AMQP_PORT_2), null, null);
@@ -530,10 +536,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
             assertNotNull(received);
-            Assert.assertEquals(getText(false, i), received.getText());
-            Assert.assertNull(received.getDeliveryAnnotation("gone"));
+            assertEquals(getText(false, i), received.getText());
+            assertNull(received.getDeliveryAnnotation("gone"));
          }
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
          connection.close();
       }
@@ -571,7 +577,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          }
 
          // Check nothing was added to SnF queue
-         Assert.assertEquals(0, server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded());
+         assertEquals(0, server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded());
 
          // Send to replicated address
          try (MessageProducer producer = session.createProducer(session.createQueue(REPLICATED))) {
@@ -582,7 +588,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          }
 
          // Check some messages were sent to SnF queue
-         Assert.assertTrue(server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded() > 0);
+         assertTrue(server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded() > 0);
       }
 
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:" + AMQP_PORT_2, null, null);
@@ -595,12 +601,12 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
          try (MessageConsumer consumer = session.createConsumer(session.createQueue(REPLICATED))) {
             Message message = consumer.receive(3000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(MSG, message.getBody(String.class));
+            assertNotNull(message);
+            assertEquals(MSG, message.getBody(String.class));
          }
 
          try (MessageConsumer consumer = session.createConsumer(session.createQueue(NON_REPLICATED))) {
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
       }
 
@@ -733,7 +739,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          queueOnServer2.getPagingStore().startPaging();
       }
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -742,7 +748,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          producer.send(message);
       }
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
       Queue queueOnServer1;
       if (deferredStart) {
@@ -758,7 +764,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       }
       Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
 
-      Assert.assertNotNull(snfreplica);
+      assertNotNull(snfreplica);
 
       Wait.assertEquals(0, snfreplica::getMessageCount);
 
@@ -774,7 +780,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          server_2.startBrokerConnection(brokerConnectionName);
       }
 
-      Assert.assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
+      assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
 
       if (pagingTarget) {
          assertTrue(queueOnServer1.getPagingStore().isPaging());
@@ -853,8 +859,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    }
 
    public Queue locateQueue(ActiveMQServer server, String queueName) throws Exception {
-      Assert.assertNotNull(queueName);
-      Assert.assertNotNull(server);
+      assertNotNull(queueName);
+      assertNotNull(server);
       Wait.waitFor(() -> server.locateQueue(queueName) != null);
       return server.locateQueue(queueName);
    }
@@ -941,12 +947,12 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertEquals(0L, replica1Queue.getPagingStore()::getAddressSize, 1000, 100);
 
       if (pagingTarget) {
-         Assert.assertTrue(queue_server_1.getPagingStore().isPaging());
-         Assert.assertTrue(queue_server_3.getPagingStore().isPaging());
+         assertTrue(queue_server_1.getPagingStore().isPaging());
+         assertTrue(queue_server_3.getPagingStore().isPaging());
       }
 
       if (pagingSource) {
-         Assert.assertTrue(queue_server_2.getPagingStore().isPaging());
+         assertTrue(queue_server_2.getPagingStore().isPaging());
       }
 
       consumeMessages(largeMessage, 0, NUMBER_OF_MESSAGES / 2 - 1, AMQP_PORT_2, false);
@@ -1080,21 +1086,21 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       MessageConsumer consumer = sess.createConsumer(sess.createQueue(getQueueName()));
       for (int i = START_ID; i <= LAST_ID; i++) {
          Message message = consumer.receive(3000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          Integer id = message.getIntProperty("i");
-         Assert.assertNotNull(id);
-         Assert.assertTrue(idsReceived.add(id));
+         assertNotNull(id);
+         assertTrue(idsReceived.add(id));
       }
 
       if (assertNull) {
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       for (int i = START_ID; i <= LAST_ID; i++) {
-         Assert.assertTrue(idsReceived.remove(i));
+         assertTrue(idsReceived.remove(i));
       }
 
-      Assert.assertTrue(idsReceived.isEmpty());
+      assertTrue(idsReceived.isEmpty());
       conn.close();
    }
 
@@ -1118,21 +1124,21 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       MessageConsumer consumer = sess.createDurableConsumer(topic, subscriptionName);
       for (int i = START_ID; i <= LAST_ID; i++) {
          Message message = consumer.receive(3000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          Integer id = message.getIntProperty("i");
-         Assert.assertNotNull(id);
-         Assert.assertTrue(idsReceived.add(id));
+         assertNotNull(id);
+         assertTrue(idsReceived.add(id));
       }
 
       if (assertNull) {
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       for (int i = START_ID; i <= LAST_ID; i++) {
-         Assert.assertTrue(idsReceived.remove(i));
+         assertTrue(idsReceived.remove(i));
       }
 
-      Assert.assertTrue(idsReceived.isEmpty());
+      assertTrue(idsReceived.isEmpty());
       conn.close();
    }
 
@@ -1211,13 +1217,13 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       Queue subs0Server1 = locateQueue(server, subs0Name);
       Queue subs1Server1 = locateQueue(server, subs1Name);
-      Assert.assertNotNull(subs0Server1);
-      Assert.assertNotNull(subs1Server1);
+      assertNotNull(subs0Server1);
+      assertNotNull(subs1Server1);
 
       Queue subs0Server2 = locateQueue(server_2, subs0Name);
       Queue subs1Server2 = locateQueue(server_2, subs1Name);
-      Assert.assertNotNull(subs0Server2);
-      Assert.assertNotNull(subs1Server2);
+      assertNotNull(subs0Server2);
+      assertNotNull(subs1Server2);
 
       if (pagingTarget) {
          subs0Server1.getPagingStore().startPaging();
@@ -1239,7 +1245,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
 
-      Assert.assertNotNull(snfreplica);
+      assertNotNull(snfreplica);
 
       Wait.assertEquals(0, snfreplica::getMessageCount);
 
@@ -1256,7 +1262,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          server_2.startBrokerConnection(brokerConnectionName);
       }
 
-      Assert.assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
+      assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
 
       if (pagingTarget) {
          assertTrue(subs0Server1.getPagingStore().isPaging());
@@ -1288,8 +1294,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          }
       }
 
-      Assert.assertTrue(done.await(60, TimeUnit.SECONDS));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(60, TimeUnit.SECONDS));
+      assertEquals(0, errors.get());
 
       // Replica is async, so we need to wait acks to arrive before we finish consuming there
       Wait.assertEquals(0, snfreplica::getMessageCount);
@@ -1346,7 +1352,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       Queue queueOnServer1 = locateQueue(server, getQueueName());
       Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
-      Assert.assertNotNull(snfreplica);
+      assertNotNull(snfreplica);
 
       Wait.assertEquals(0, snfreplica::getMessageCount);
 
@@ -1360,7 +1366,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          Message m = consumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
       session.commit();
 

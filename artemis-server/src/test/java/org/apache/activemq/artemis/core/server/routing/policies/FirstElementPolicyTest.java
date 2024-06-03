@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.core.server.routing.targets.MockTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -41,6 +42,6 @@ public class FirstElementPolicyTest extends PolicyTestBase {
 
       Target selectedTarget = policy.selectTarget(targets, "test");
 
-      Assert.assertEquals(selectedTarget, targets.get(0));
+      assertEquals(selectedTarget, targets.get(0));
    }
 }

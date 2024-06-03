@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.utils.network;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -28,18 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This utility class will use sudo commands to start "fake" network cards on a given address.
  * It's used on tests that need to emmulate network outages and split brains.
  *
  * If you write a new test using this class, please make special care on undoing the config,
- * especially in case of failures.
- *
- * Usually the class {@link NetUtilResource} is pretty accurate on undoing this, but you also need to *test your test* well.
+ * especially in case of failures, by calling the {@link #cleanup()} method.
  *
  * You need special sudo authorizations on your system to let this class work:
  *
@@ -105,12 +106,12 @@ public class NetUtil extends ExecuteUtil {
 
          System.out.println(writer.toString());
 
-         Assume.assumeTrue("Not able to sudo ifconfig", canSudo);
+         assumeTrue(canSudo, "Not able to sudo ifconfig");
       }
    }
 
    public static void skipIfNotSupportedOS() {
-      Assume.assumeTrue("non supported OS", osUsed != OS.NON_SUPORTED);
+      assumeTrue(osUsed != OS.NON_SUPORTED, "non supported OS");
    }
 
    public static void cleanup() {
@@ -136,16 +137,16 @@ public class NetUtil extends ExecuteUtil {
    public static void netUp(String ip, String deviceID) throws Exception {
       if (osUsed == OS.MAC) {
          if (runCommand(false, "sudo", "-n", "ifconfig", "lo0", "alias", ip) != 0) {
-            Assert.fail("Cannot sudo ifconfig for ip " + ip);
+            fail("Cannot sudo ifconfig for ip " + ip);
          }
          networks.put(ip, "lo0");
       } else if (osUsed == OS.LINUX) {
          if (runCommand(false, "sudo", "-n", "ifconfig", deviceID, ip, "netmask", "255.0.0.0") != 0) {
-            Assert.fail("Cannot sudo ifconfig for ip " + ip);
+            fail("Cannot sudo ifconfig for ip " + ip);
          }
          networks.put(ip, deviceID);
       } else {
-         Assert.fail("OS not supported");
+         fail("OS not supported");
       }
    }
 
@@ -158,7 +159,7 @@ public class NetUtil extends ExecuteUtil {
       String device = networks.remove(ip);
       if (!force) {
          // in case the netDown is coming from a different VM (spawned tests)
-         Assert.assertNotNull("ip " + ip + "wasn't set up before", device);
+         assertNotNull(device, "ip " + ip + "wasn't set up before");
       }
       netDown(ip, device, force);
    }
@@ -169,17 +170,17 @@ public class NetUtil extends ExecuteUtil {
       if (osUsed == OS.MAC) {
          if (runCommand(false, "sudo", "-n", "ifconfig", "lo0", "-alias", ip) != 0) {
             if (!force) {
-               Assert.fail("Cannot sudo ifconfig for ip " + ip);
+               fail("Cannot sudo ifconfig for ip " + ip);
             }
          }
       } else if (osUsed == OS.LINUX) {
          if (runCommand(false, "sudo", "-n", "ifconfig", device, "down") != 0) {
             if (!force) {
-               Assert.fail("Cannot sudo ifconfig for ip " + ip);
+               fail("Cannot sudo ifconfig for ip " + ip);
             }
          }
       } else {
-         Assert.fail("OS not supported");
+         fail("OS not supported");
       }
    }
 
@@ -194,6 +195,6 @@ public class NetUtil extends ExecuteUtil {
 
    @Test
    public void testCanSudo() throws Exception {
-      Assert.assertTrue(canSudo());
+      assertTrue(canSudo());
    }
 }

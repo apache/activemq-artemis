@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -30,11 +33,8 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -42,8 +42,6 @@ import java.lang.invoke.MethodHandles;
 public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private Timer timer;
 
@@ -54,14 +52,14 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
    protected abstract ServerLocator createLocator() throws Exception;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       timer = new Timer();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       timer.cancel();
       timer = null;
@@ -151,9 +149,9 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
          locator.close();
 
-         Assert.assertEquals(0, sf.numSessions());
+         assertEquals(0, sf.numSessions());
 
-         Assert.assertEquals(0, sf.numConnections());
+         assertEquals(0, sf.numConnections());
 
          sf.close();
 
@@ -190,7 +188,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
             logger.error("Test failed: {}", failReason, throwable);
          }
          if (failReason != null) {
-            Assert.fail(failReason);
+            fail(failReason);
          }
       }
 

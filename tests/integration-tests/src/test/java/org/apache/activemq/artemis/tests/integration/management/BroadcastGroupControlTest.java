@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.json.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +34,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BroadcastGroupControlTest extends ManagementTestBase {
 
@@ -42,36 +46,36 @@ public class BroadcastGroupControlTest extends ManagementTestBase {
    @Test
    public void testAttributes() throws Exception {
       UDPBroadcastEndpointFactory udpCfg = (UDPBroadcastEndpointFactory) broadcastGroupConfig.getEndpointFactory();
-      Assert.assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
-      Assert.assertEquals(udpCfg.getGroupAddress(), broadcastGroupControl.getGroupAddress());
-      Assert.assertEquals(udpCfg.getGroupPort(), broadcastGroupControl.getGroupPort());
-      Assert.assertEquals(udpCfg.getLocalBindPort(), broadcastGroupControl.getLocalBindPort());
-      Assert.assertEquals(broadcastGroupConfig.getBroadcastPeriod(), broadcastGroupControl.getBroadcastPeriod());
+      assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
+      assertEquals(udpCfg.getGroupAddress(), broadcastGroupControl.getGroupAddress());
+      assertEquals(udpCfg.getGroupPort(), broadcastGroupControl.getGroupPort());
+      assertEquals(udpCfg.getLocalBindPort(), broadcastGroupControl.getLocalBindPort());
+      assertEquals(broadcastGroupConfig.getBroadcastPeriod(), broadcastGroupControl.getBroadcastPeriod());
 
       Object[] connectorPairs = broadcastGroupControl.getConnectorPairs();
-      Assert.assertEquals(1, connectorPairs.length);
+      assertEquals(1, connectorPairs.length);
 
       String connectorPairData = (String) connectorPairs[0];
-      Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
+      assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
       String jsonString = broadcastGroupControl.getConnectorPairsAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(1, array.size());
-      Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), array.getString(0));
+      assertEquals(1, array.size());
+      assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), array.getString(0));
 
-      Assert.assertTrue(broadcastGroupControl.isStarted());
+      assertTrue(broadcastGroupControl.isStarted());
    }
 
    @Test
    public void testStartStop() throws Exception {
       // started by the server
-      Assert.assertTrue(broadcastGroupControl.isStarted());
+      assertTrue(broadcastGroupControl.isStarted());
 
       broadcastGroupControl.stop();
-      Assert.assertFalse(broadcastGroupControl.isStarted());
+      assertFalse(broadcastGroupControl.isStarted());
 
       broadcastGroupControl.start();
-      Assert.assertTrue(broadcastGroupControl.isStarted());
+      assertTrue(broadcastGroupControl.isStarted());
    }
 
    protected BroadcastGroupControl createManagementControl(final String name) throws Exception {
@@ -79,7 +83,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

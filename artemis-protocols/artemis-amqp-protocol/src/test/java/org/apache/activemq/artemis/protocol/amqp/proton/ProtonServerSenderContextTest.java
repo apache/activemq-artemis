@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -26,48 +32,44 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class ProtonServerSenderContextTest {
 
-   @Test(expected = ActiveMQAMQPNotFoundException.class)
+   @Test
    public void testAcceptsNullSourceAddressWhenInitialising() throws Exception {
-      ProtonProtocolManager mock = mock(ProtonProtocolManager.class);
-      when(mock.getServer()).thenReturn(mock(ActiveMQServer.class));
-      Sender mockSender = mock(Sender.class);
-      AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
+      assertThrows(ActiveMQAMQPNotFoundException.class, () -> {
+         ProtonProtocolManager mock = mock(ProtonProtocolManager.class);
+         when(mock.getServer()).thenReturn(mock(ActiveMQServer.class));
+         Sender mockSender = mock(Sender.class);
+         AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
 
-      ProtonHandler handler = mock(ProtonHandler.class);
-      Connection connection = mock(Connection.class);
-      when(connection.getRemoteState()).thenReturn(EndpointState.ACTIVE);
-      when(mockConnContext.getHandler()).thenReturn(handler);
-      when(handler.getConnection()).thenReturn(connection);
+         ProtonHandler handler = mock(ProtonHandler.class);
+         Connection connection = mock(Connection.class);
+         when(connection.getRemoteState()).thenReturn(EndpointState.ACTIVE);
+         when(mockConnContext.getHandler()).thenReturn(handler);
+         when(handler.getConnection()).thenReturn(connection);
 
-      when(mockConnContext.getProtocolManager()).thenReturn(mock);
+         when(mockConnContext.getProtocolManager()).thenReturn(mock);
 
-      AMQPSessionCallback mockSessionCallback = mock(AMQPSessionCallback.class);
+         AMQPSessionCallback mockSessionCallback = mock(AMQPSessionCallback.class);
 
-      AMQPSessionContext mockSessionContext = mock(AMQPSessionContext.class);
-      when(mockSessionContext.getSessionSPI()).thenReturn(mockSessionCallback);
-      when(mockSessionContext.getAMQPConnectionContext()).thenReturn(mockConnContext);
+         AMQPSessionContext mockSessionContext = mock(AMQPSessionContext.class);
+         when(mockSessionContext.getSessionSPI()).thenReturn(mockSessionCallback);
+         when(mockSessionContext.getAMQPConnectionContext()).thenReturn(mockConnContext);
 
-      AddressQueryResult queryResult = new AddressQueryResult(null, Collections.emptySet(), 0, false, false, false, false, 0);
-      when(mockSessionCallback.addressQuery(any(), any(), anyBoolean())).thenReturn(queryResult);
-      ProtonServerSenderContext sc = new ProtonServerSenderContext(
-         mockConnContext, mockSender, mockSessionContext, mockSessionCallback);
+         AddressQueryResult queryResult = new AddressQueryResult(null, Collections.emptySet(), 0, false, false, false, false, 0);
+         when(mockSessionCallback.addressQuery(any(), any(), anyBoolean())).thenReturn(queryResult);
+         ProtonServerSenderContext sc = new ProtonServerSenderContext(
+            mockConnContext, mockSender, mockSessionContext, mockSessionCallback);
 
-      Source source = new Source();
-      source.setAddress(null);
-      when(mockSender.getRemoteSource()).thenReturn(source);
+         Source source = new Source();
+         source.setAddress(null);
+         when(mockSender.getRemoteSource()).thenReturn(source);
 
-      sc.initialize();
+         sc.initialize();
+      });
    }
 }

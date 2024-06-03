@@ -22,9 +22,11 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
@@ -35,9 +37,10 @@ import java.util.Map;
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
+@ExtendWith(ParameterizedTestExtension.class)
 public abstract class SSLTestBase extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "sslProvider={0},clientProvider={1}")
+   @Parameters(name = "sslProvider={0},clientProvider={1}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{TransportConstants.OPENSSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
                                           {TransportConstants.OPENSSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER},
@@ -66,7 +69,7 @@ public abstract class SSLTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Map<String, Object> params = new HashMap<>();

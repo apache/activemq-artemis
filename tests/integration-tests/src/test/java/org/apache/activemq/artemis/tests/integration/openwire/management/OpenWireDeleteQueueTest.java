@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.management;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -42,8 +44,8 @@ import org.apache.activemq.artemis.tests.integration.management.ManagementContro
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.TransportListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
@@ -52,7 +54,7 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
    private ConnectionFactory factory;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -138,10 +140,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          // the test op, will force a disconnect, failover will kick in..
          serverControl.destroyQueue(queueName1.toString(), true);
 
-         assertTrue("Binding gone!", Wait.waitFor(() -> {
+         assertTrue(Wait.waitFor(() -> {
             String bindings = serverControl.listBindingsForAddress(queueName1.toString());
             return !bindings.contains(queueName1);
-         }));
+         }), "Binding gone!");
 
 
          assertTrue(failoverStart.await(5, TimeUnit.SECONDS));
@@ -151,10 +153,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          producer.send(session.createTextMessage("two"));
          assertTrue(two.await(5, TimeUnit.SECONDS));
 
-         assertTrue("binding auto created for message two", Wait.waitFor(() -> {
+         assertTrue(Wait.waitFor(() -> {
             String bindings = serverControl.listBindingsForAddress(queueName1.toString());
             return bindings.contains(queueName1);
-         }, 5000));
+         }, 5000), "binding auto created for message two");
 
          // sanity check on third
          producer.send(session.createTextMessage("three"));

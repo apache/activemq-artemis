@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -29,8 +32,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A simple test-case used for documentation purposes.
@@ -46,7 +49,7 @@ public class SimpleTest extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       /**
        * Invoke org.apache.activemq.artemis.tests.util.ActiveMQTestBase's setUp() to bootstrap everything properly.

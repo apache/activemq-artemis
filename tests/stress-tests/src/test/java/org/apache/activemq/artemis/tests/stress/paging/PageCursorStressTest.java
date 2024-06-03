@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.stress.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,9 +57,8 @@ import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQue
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PageCursorStressTest extends ActiveMQTestBase {
 
@@ -366,7 +371,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
          msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
 
-         Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+         assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
 
          PagedReference readMessage = iterator.next();
 
@@ -399,7 +404,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
             msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
 
-            Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+            assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
          }
 
          PagedReference readMessage = iterator.next();
@@ -429,7 +434,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
             msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
 
-            Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+            assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
          }
 
          PagedReference readMessage = iterator.next();
@@ -514,7 +519,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
                      msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
 
-                     Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+                     assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
                   }
 
                   if (tx != null) {
@@ -582,7 +587,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
          Thread.sleep(100);
       }
 
-      assertTrue("expected " + lookupPageStore(ADDRESS).getNumberOfPages(), lookupPageStore(ADDRESS).getNumberOfPages() <= 2);
+      assertTrue(lookupPageStore(ADDRESS).getNumberOfPages() <= 2, "expected " + lookupPageStore(ADDRESS).getNumberOfPages());
    }
 
    @Test
@@ -616,7 +621,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       // First consume what's already there without any tx as nothing was committed
       for (int i = 100; i < 200; i++) {
          PagedReference pos = iterator.next();
-         assertNotNull("Null at position " + i, pos);
+         assertNotNull(pos, "Null at position " + i);
          assertEquals(i, pos.getMessage().getIntProperty("key").intValue());
          cursor.ack(pos);
       }
@@ -629,7 +634,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          PagedReference pos = iterator.next();
-         assertNotNull("Null at position " + i, pos);
+         assertNotNull(pos, "Null at position " + i);
          assertEquals(i, pos.getMessage().getIntProperty("key").intValue());
          cursor.ack(pos);
       }
@@ -733,7 +738,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
          msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
 
-         Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+         assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
       }
 
       return pageStore.getNumberOfPages();
@@ -750,7 +755,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       OperationContextImpl.clearContext();

@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test that sends/receives object messages to the JMS provider and verifies their integrity.
@@ -37,14 +37,14 @@ import org.junit.Test;
 public class ObjectMessageTest extends MessageTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       message = session.createObjectMessage();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
       super.tearDown();

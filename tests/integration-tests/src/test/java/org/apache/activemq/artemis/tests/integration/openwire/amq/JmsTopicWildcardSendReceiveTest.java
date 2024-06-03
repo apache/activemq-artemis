@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -26,14 +30,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicWildcardSendReceiveTest
  */
-@Ignore
+@Disabled
 public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private String destination1String = "TEST.ONE.ONE";
@@ -42,7 +46,7 @@ public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
    private String destination4String = "TEST.TWO.ONE";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       topic = true;
       durable = false;

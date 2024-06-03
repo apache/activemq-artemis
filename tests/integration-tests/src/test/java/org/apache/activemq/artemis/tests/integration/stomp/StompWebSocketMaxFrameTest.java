@@ -16,20 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompWebSocketMaxFrameTest extends StompTestBase {
 
    private final int wsPortWithStompMaxFrame = 61614;
@@ -43,11 +50,12 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
 
    private final int stompWSMaxFrameSize = 131072; // 128kb
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"ws+v11.stomp"}, {"ws+v12.stomp"}});
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -62,7 +70,7 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
       wsURIForBothMaxFrameButFails = createStompClientUri(scheme, hostname, wsPortWithBothMaxFrameButFails);
    }
 
-   @Test
+   @TestTemplate
    public void testStompSendReceiveWithMaxFramePayloadLength() throws Exception {
       // Assert that sending message > default 64kb fails
       int size = 65536;

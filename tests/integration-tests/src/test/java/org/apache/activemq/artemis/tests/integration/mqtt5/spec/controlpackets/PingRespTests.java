@@ -17,13 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * There were no normative statements in the specification for this control packet. See
  * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901200.
  */
 
-@Ignore
+@Disabled
 public class PingRespTests  extends MQTT5TestSupport {
 }

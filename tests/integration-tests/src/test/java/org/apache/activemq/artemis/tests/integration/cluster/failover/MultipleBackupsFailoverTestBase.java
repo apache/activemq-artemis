@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +42,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +80,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
             // ignore
          }
          if (System.currentTimeMillis() > (time + toWait)) {
-            Assert.fail("backup server never started");
+            fail("backup server never started");
          }
       }
    }
@@ -105,18 +110,18 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(10000);
 
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
 
-         Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
+         assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         Assert.assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
 
          message2.acknowledge();
       }
 
       ClientMessage message3 = consumer.receiveImmediate();
 
-      Assert.assertNull(message3);
+      assertNull(message3);
 
       return session;
    }
@@ -145,7 +150,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
             logger.warn("failed topology, Topology on server = {}", server.getClusterManager().describe());
          }
       }
-      Assert.assertTrue("expected " + topologyMembers + " members", ok);
+      assertTrue(ok, "expected " + topologyMembers + " members");
       return sf;
    }
 

@@ -26,8 +26,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+// This subclass is NOT parameterised, sets its config in setupAndStartActiveMQServer method
 public class SecurityManagementMessageRbacTest extends SecurityManagementTestBase {
 
    private final String password = "bla";

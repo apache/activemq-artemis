@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -37,11 +41,10 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +59,18 @@ public class RedistributorLeakTest extends AbstractLeakTest {
       server.start();
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startServer();
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -102,7 +106,7 @@ public class RedistributorLeakTest extends AbstractLeakTest {
          for (int i = 0; i < NUMBER_OF_MESSAGES / 10; i++) {
             MessageConsumer consumer = session.createConsumer(jmsQueue);
             Message message = consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             queue.flushExecutor();
             consumer.close();
          }
@@ -110,7 +114,7 @@ public class RedistributorLeakTest extends AbstractLeakTest {
       }
 
       int numberOfIterators = checkLeak.getAllObjects(LinkedListImpl.Iterator.class).length;
-      Assert.assertEquals(0, numberOfIterators);
+      assertEquals(0, numberOfIterators);
 
       // Adding and cancelling a few redistributors
       for (int i = 0; i < 10; i++) {
@@ -121,7 +125,7 @@ public class RedistributorLeakTest extends AbstractLeakTest {
       }
 
       numberOfIterators = checkLeak.getAllObjects(LinkedListImpl.Iterator.class).length;
-      Assert.assertEquals("Redistributors are leaking " + LinkedListImpl.Iterator.class.getName(), 0, numberOfIterators);
+      assertEquals(0, numberOfIterators, "Redistributors are leaking " + LinkedListImpl.Iterator.class.getName());
 
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -130,14 +134,14 @@ public class RedistributorLeakTest extends AbstractLeakTest {
          MessageConsumer consumer = session.createConsumer(destination);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("hello " + i, message.getText());
          }
          session.commit();
       }
 
-      Assert.assertEquals(0, checkLeak.getAllObjects(MessageReferenceImpl.class).length);
-      Assert.assertEquals(0, checkLeak.getAllObjects(CoreMessage.class).length);
+      assertEquals(0, checkLeak.getAllObjects(MessageReferenceImpl.class).length);
+      assertEquals(0, checkLeak.getAllObjects(CoreMessage.class).length);
    }
 
 }

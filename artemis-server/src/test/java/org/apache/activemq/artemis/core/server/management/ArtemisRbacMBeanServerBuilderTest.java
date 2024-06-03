@@ -17,6 +17,13 @@
 
 package org.apache.activemq.artemis.core.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerDelegate;
@@ -51,8 +58,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
@@ -61,7 +68,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
    MBeanServerDelegate mBeanServerDelegate;
    ArtemisRbacMBeanServerBuilder underTest;
 
-   @Before
+   @BeforeEach
    public void setUnderTest() throws Exception {
       underTest = new ArtemisRbacMBeanServerBuilder();
       mbeanServer = Mockito.mock(MBeanServer.class);
@@ -216,69 +223,77 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       assertEquals(CheckType.EDIT, handler.permissionFrom("setA"));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void testUninitialised() throws Exception {
+      assertThrows(IllegalStateException.class, () -> {
 
-      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+         MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
 
-      ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
-      RuntimeMXBean runtime = JMX.newMBeanProxy(
-         proxy, runtimeName, RuntimeMXBean.class, false);
-      runtime.getVmVersion();
+         ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
+         RuntimeMXBean runtime = JMX.newMBeanProxy(
+            proxy, runtimeName, RuntimeMXBean.class, false);
+         runtime.getVmVersion();
+      });
    }
 
-   @Test(expected = UndeclaredThrowableException.class)
+   @Test
    public void testUnCheckedDomain() throws Exception {
+      assertThrows(UndeclaredThrowableException.class, () -> {
 
-      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+         MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
 
-      ObjectName unchecked = new ObjectName("hawtio", "type", "Runtime");
-      RuntimeMXBean runtime = JMX.newMBeanProxy(
-         proxy, unchecked, RuntimeMXBean.class, false);
-      runtime.getVmVersion();
+         ObjectName unchecked = new ObjectName("hawtio", "type", "Runtime");
+         RuntimeMXBean runtime = JMX.newMBeanProxy(
+            proxy, unchecked, RuntimeMXBean.class, false);
+         runtime.getVmVersion();
+      });
    }
 
-   @Test(expected = SecurityException.class)
+   @Test
    public void testNotLoggedIn() throws Exception {
+      assertThrows(SecurityException.class, () -> {
 
-      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+         MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
 
-      final ActiveMQServer server = createServer(false);
-      server.setMBeanServer(proxy);
-      server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
-      server.start();
+         final ActiveMQServer server = createServer(false);
+         server.setMBeanServer(proxy);
+         server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
+         server.start();
 
-      ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
-      RuntimeMXBean runtime = JMX.newMBeanProxy(
-         proxy, runtimeName, RuntimeMXBean.class, false);
-      runtime.getVmVersion();
+         ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
+         RuntimeMXBean runtime = JMX.newMBeanProxy(
+            proxy, runtimeName, RuntimeMXBean.class, false);
+         runtime.getVmVersion();
+      });
    }
 
-   @Test(expected = SecurityException.class)
+   @Test
    public void testNoPermission() throws Exception {
+      assertThrows(SecurityException.class, () -> {
 
-      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+         MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
 
-      final ActiveMQServer server = createServer(false);
-      server.setMBeanServer(proxy);
-      server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
-      server.start();
+         final ActiveMQServer server = createServer(false);
+         server.setMBeanServer(proxy);
+         server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
+         server.start();
 
-      ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
-      final RuntimeMXBean runtime = JMX.newMBeanProxy(
-         proxy, runtimeName, RuntimeMXBean.class, false);
+         ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
+         final RuntimeMXBean runtime = JMX.newMBeanProxy(
+            proxy, runtimeName, RuntimeMXBean.class, false);
 
-      Subject viewSubject = new Subject();
-      viewSubject.getPrincipals().add(new UserPrincipal("v"));
-      viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
+         Subject viewSubject = new Subject();
+         viewSubject.getPrincipals().add(new UserPrincipal("v"));
+         viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      throw Subject.doAs(viewSubject, (PrivilegedExceptionAction<Exception>) () -> {
-         try {
-            runtime.getVmVersion();
-            return null;
-         } catch (Exception e1) {
-            return e1;
-         }
+         throw Subject.doAs(viewSubject, (PrivilegedExceptionAction<Exception>) () -> {
+            try {
+               runtime.getVmVersion();
+               return null;
+            } catch (Exception e1) {
+               return e1;
+            }
+         });
       });
    }
 
@@ -649,7 +664,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(result);
-      assertFalse("in the absence of an operation to check, update required", (Boolean) result);
+      assertFalse((Boolean) result, "in the absence of an operation to check, update required");
 
       result = Subject.doAs(viewSubject, (PrivilegedAction<Object>) () -> {
          try {

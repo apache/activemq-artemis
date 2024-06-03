@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -26,20 +28,20 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
 
    private boolean replicated;
 
-   @Parameterized.Parameters(name = "replicated={0}")
+   @Parameters(name = "replicated={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -135,7 +137,7 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-   @Test
+   @TestTemplate
    public void testFailover() throws Exception {
 
       primaryServer.getServer().getActiveMQServerControl().addUser("foo", "bar", "baz", false);
@@ -147,7 +149,7 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
          session = cf.createSession("foo", "bar", false, true, true, false, 0);
       } catch (ActiveMQException e) {
          e.printStackTrace();
-         Assert.fail("should not throw exception");
+         fail("should not throw exception");
       }
 
       crash(session);
@@ -158,7 +160,7 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
          session = cf.createSession("foo", "bar", false, true, true, false, 0);
       } catch (ActiveMQException e) {
          e.printStackTrace();
-         Assert.fail("should not throw exception");
+         fail("should not throw exception");
       }
    }
 }

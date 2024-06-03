@@ -60,8 +60,8 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
 import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILITY;
@@ -78,7 +78,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -86,7 +86,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       server = createServer();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       for (AmqpConnection conn : connections) {

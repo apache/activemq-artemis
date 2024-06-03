@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -31,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsConsumerResetActiveListenerTest
@@ -78,15 +81,15 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
       producer.send(session.createTextMessage("First"));
       producer.send(session.createTextMessage("Second"));
 
-      assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "we did not timeout");
 
-      assertEquals("we have a result", 2, results.size());
+      assertEquals(2, results.size(), "we have a result");
       Object result = results.get(0);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "First", ((TextMessage) result).getText());
+      assertEquals("First", ((TextMessage) result).getText(), "result is first");
       result = results.get(1);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "Second", ((TextMessage) result).getText());
+      assertEquals("Second", ((TextMessage) result).getText(), "result is first");
    }
 
    /**
@@ -129,15 +132,15 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
       producer.send(session.createTextMessage("First"));
       producer.send(session.createTextMessage("Second"));
 
-      assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS), "we did not timeout");
 
-      assertEquals("we have a result", 2, results.size());
+      assertEquals(2, results.size(), "we have a result");
       Object result = results.get(0);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "First", ((TextMessage) result).getText());
+      assertEquals("First", ((TextMessage) result).getText(), "result is first");
       result = results.get(1);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "Second", ((TextMessage) result).getText());
+      assertEquals("Second", ((TextMessage) result).getText(), "result is first");
    }
 
 }

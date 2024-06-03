@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -27,8 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BodyIsAssignableFromTest extends MessageBodyTestCase {
 
@@ -74,26 +80,26 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
     * @throws JMSException
     */
    private void bodyAssignableFrom(final JmsMessageType type, final boolean bool, Class... clazz) throws JMSException {
-      Assert.assertNotNull("clazz!=null", clazz);
-      Assert.assertTrue("clazz[] not empty", clazz.length > 0);
+      assertNotNull(clazz, "clazz!=null");
+      assertTrue(clazz.length > 0, "clazz[] not empty");
       Object body = createBodySendAndReceive(type);
       Message msg = queueConsumer.receive(500);
-      Assert.assertNotNull("must have a msg", msg);
-      Assert.assertEquals(type.toString(), msg.getStringProperty("type"));
+      assertNotNull(msg, "must have a msg");
+      assertEquals(type.toString(), msg.getStringProperty("type"));
       for (Class<?> c : clazz) {
-         Assert.assertEquals(msg + " " + type + " & " + c + ": " + bool, bool, msg.isBodyAssignableTo(c));
+         assertEquals(bool, msg.isBodyAssignableTo(c), msg + " " + type + " & " + c + ": " + bool);
          if (bool) {
             Object receivedBody = msg.getBody(c);
-            Assert.assertTrue("correct type " + c, c.isInstance(receivedBody));
+            assertTrue(c.isInstance(receivedBody), "correct type " + c);
             if (body.getClass().isAssignableFrom(byte[].class)) {
-               Assert.assertArrayEquals(byte[].class.cast(body), (byte[]) receivedBody);
+               assertArrayEquals(byte[].class.cast(body), (byte[]) receivedBody);
             } else {
-               Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body, receivedBody);
+               assertEquals(body, receivedBody, "clazz=" + c + ", bodies must match.. " + body.equals(receivedBody));
             }
          } else {
             try {
                Object foo = msg.getBody(c);
-               Assert.assertNull("body should be null", foo);
+               assertNull(foo, "body should be null");
             } catch (MessageFormatException e) {
                // expected
             }
@@ -144,9 +150,9 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             res = map;
             break;
          default:
-            Assert.fail("no default...");
+            fail("no default...");
       }
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.setStringProperty("type", type.toString());
       queueProducer.send(msg);
       return res;

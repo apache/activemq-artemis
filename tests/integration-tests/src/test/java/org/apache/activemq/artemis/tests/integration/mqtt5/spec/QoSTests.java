@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +44,8 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -66,7 +72,8 @@ public class QoSTests extends MQTT5TestSupport {
     *
     * This test looks at the PUBLISH packet coming from *the broker* to the client
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS1andDupFlag() throws Exception {
       final String TOPIC = RandomUtil.randomString();
 
@@ -98,7 +105,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.2-3] In the QoS 1 delivery protocol, the sender MUST treat the PUBLISH packet as “unacknowledged” until
     * it has received the corresponding PUBACK packet from the receiver.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS1PubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -153,7 +161,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.2-4] In the QoS 1 delivery protocol, the receiver MUST respond with a PUBACK packet containing the
     * Packet Identifier from the incoming PUBLISH packet, having accepted ownership of the Application Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS1PubAckId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -239,7 +248,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.3-3] In the QoS 2 delivery protocol, the sender MUST treat the PUBLISH packet as “unacknowledged” until
     * it has received the corresponding PUBREC packet from the receiver.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2PubRec() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -295,7 +305,8 @@ public class QoSTests extends MQTT5TestSupport {
     * packet from the receiver with a Reason Code value less than 0x80. This PUBREL packet MUST contain the same Packet
     * Identifier as the original PUBLISH packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2PubRelId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -347,7 +358,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.3-5] In the QoS 2 delivery protocol, the sender MUST treat the PUBREL packet as “unacknowledged” until
     * it has received the corresponding PUBCOMP packet from the receiver.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2PubRel() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -411,7 +423,8 @@ public class QoSTests extends MQTT5TestSupport {
     * Due to the nature of the underlying queue semantics once a message is "in delivery" it's no longer available for
     * expiration. This test demonstrates that.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2WithExpiration() throws Exception {
       final String TOPIC = "myTopic";
       final String CONSUMER_ID = "consumer";
@@ -476,7 +489,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.3-8] In the QoS 2 delivery protocol, the receiver MUST respond with a PUBREC containing the Packet
     * Identifier from the incoming PUBLISH packet, having accepted ownership of the Application Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2PubRecId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -526,7 +540,8 @@ public class QoSTests extends MQTT5TestSupport {
     * PUBREC. When the client connects again it resends the message, but the broker does not duplicate it. It simply
     * responds withe appropriate PUBREC and the client completes the QoS process.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2DuplicatePub() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -583,7 +598,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.3-11] In the QoS 2 delivery protocol, the receiver MUST respond to a PUBREL packet by sending a PUBCOMP
     * packet containing the same Packet Identifier as the PUBREL.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2PubCompId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -628,7 +644,8 @@ public class QoSTests extends MQTT5TestSupport {
     * [MQTT-4.3.3-13] In the QoS 2 delivery protocol, the receiver MUST continue the QoS 2 acknowledgement sequence even
     * if it has applied Application Message expiry.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testQoS2WithExpiration2() throws Exception {
       final String TOPIC = "myTopic";
       final String CONSUMER_ID = "consumer";

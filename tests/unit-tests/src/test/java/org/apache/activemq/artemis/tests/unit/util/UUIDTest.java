@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UUIDTest extends ActiveMQTestBase {
 
@@ -39,7 +40,7 @@ public class UUIDTest extends ActiveMQTestBase {
       }
 
       // we put them in a set to check duplicates
-      Assert.assertEquals(getTimes(), uuidsSet.size());
+      assertEquals(getTimes(), uuidsSet.size());
    }
 
    protected int getTimes() {
@@ -55,8 +56,8 @@ public class UUIDTest extends ActiveMQTestBase {
          byte[] data2 = UUID.stringToBytes(uuidString);
          final UUID uuid2 = new UUID(UUID.TYPE_TIME_BASED, data2);
          assertEqualsByteArrays(uuid.asBytes(), data2);
-         assertEquals(uuidString, uuid, uuid2);
-         assertEquals(uuidString, uuidString, uuid2.toString());
+         assertEquals(uuid, uuid2, uuidString);
+         assertEquals(uuidString, uuid2.toString(), uuidString);
       }
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -26,8 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TransactionDurabilityTest extends ActiveMQTestBase {
 
@@ -86,11 +88,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       ClientMessage m1 = consumer1.receive(1000);
 
-      Assert.assertNotNull(m1);
+      assertNotNull(m1);
 
       ClientMessage m2 = consumer2.receive(1000);
 
-      Assert.assertNotNull(m2);
+      assertNotNull(m2);
 
       m2.acknowledge();
 
@@ -124,11 +126,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       m1 = consumer1.receiveImmediate();
 
-      Assert.assertNull(m1);
+      assertNull(m1);
 
       m2 = consumer2.receive(1000);
 
-      Assert.assertNotNull(m2);
+      assertNotNull(m2);
 
       m2.acknowledge();
 
@@ -156,11 +158,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       m1 = consumer1.receiveImmediate();
 
-      Assert.assertNull(m1);
+      assertNull(m1);
 
       m2 = consumer2.receiveImmediate();
 
-      Assert.assertNull(m2);
+      assertNull(m2);
 
       session1.close();
 

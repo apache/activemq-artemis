@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -31,8 +36,8 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * QueueAutoDeleteTest this tests that we can configure at the queue level auto-delete behaviour of auto created queues.
@@ -41,7 +46,7 @@ public class QueueAutoDeleteTest extends JMSTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -75,8 +80,10 @@ public class QueueAutoDeleteTest extends JMSTestBase {
 
 
          assertEquals(testQueueName, queue.getQueueName());
-         assertEquals(true, activeMQDestination.getQueueAttributes().getAutoDelete());
-         assertEquals(true, activeMQDestination.getQueueConfiguration().isAutoDelete());
+         assertNotNull(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertTrue(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertNotNull(activeMQDestination.getQueueConfiguration().isAutoDelete());
+         assertTrue(activeMQDestination.getQueueConfiguration().isAutoDelete());
 
          MessageProducer producer = session.createProducer(queue);
          producer.send(session.createTextMessage("hello1"));
@@ -127,9 +134,10 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          ActiveMQDestination activeMQDestination = (ActiveMQDestination) topic;
 
          assertEquals(testQueueName, topic.getTopicName());
-         assertEquals(true, activeMQDestination.getQueueAttributes().getAutoDelete());
-         assertEquals(true, activeMQDestination.getQueueConfiguration().isAutoDelete());
-
+         assertNotNull(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertTrue(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertNotNull(activeMQDestination.getQueueConfiguration().isAutoDelete());
+         assertTrue(activeMQDestination.getQueueConfiguration().isAutoDelete());
 
          MessageConsumer consumer = session.createSharedDurableConsumer(topic, sub);
 
@@ -245,8 +253,10 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
 
          assertEquals(testQueueName, queue.getQueueName());
-         assertEquals(false, activeMQDestination.getQueueAttributes().getAutoDelete());
-         assertEquals(false, activeMQDestination.getQueueConfiguration().isAutoDelete());
+         assertNotNull(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertFalse(activeMQDestination.getQueueAttributes().getAutoDelete());
+         assertNotNull(activeMQDestination.getQueueConfiguration().isAutoDelete());
+         assertFalse(activeMQDestination.getQueueConfiguration().isAutoDelete());
 
          MessageProducer producer = session.createProducer(queue);
          producer.send(session.createTextMessage("hello1"));

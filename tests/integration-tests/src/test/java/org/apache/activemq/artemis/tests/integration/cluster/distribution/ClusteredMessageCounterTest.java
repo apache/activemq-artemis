@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -29,9 +32,9 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +55,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
    private List<MessageCounterInfo> results = new ArrayList<>();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -63,7 +66,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       timer1.cancel();
       timer2.cancel();
@@ -194,7 +197,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
          sendThread.join();
          //checking
          for (MessageCounterInfo info : results) {
-            assertTrue("countDelta should be positive " + info.getCountDelta() + dumpResults(results), info.getCountDelta() >= 0);
+            assertTrue(info.getCountDelta() >= 0, "countDelta should be positive " + info.getCountDelta() + dumpResults(results));
          }
       } finally {
          timer1.cancel();

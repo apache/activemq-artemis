@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,15 +33,14 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -46,7 +50,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       factory.stop();
 
@@ -54,7 +58,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       ActiveMQTestBase.forceGC();
 
-      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
+      assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();
    }
@@ -67,8 +71,8 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
    public void listFilesOnNonExistentFolder() throws Exception {
       SequentialFileFactory fileFactory = createFactory("./target/dontexist");
       List<String> list = fileFactory.listFiles("tmp");
-      Assert.assertNotNull(list);
-      Assert.assertEquals(0, list.size());
+      assertNotNull(list);
+      assertEquals(0, list.size());
    }
 
    @Test
@@ -86,7 +90,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
          sf.open();
 
-         Assert.assertEquals(fileName, sf.getFileName());
+         assertEquals(fileName, sf.getFileName());
 
          sf.close();
       }
@@ -102,23 +106,23 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       List<String> fileNames = factory.listFiles("amq");
 
-      Assert.assertEquals(expectedFiles.size(), fileNames.size());
+      assertEquals(expectedFiles.size(), fileNames.size());
 
       for (String fileName : expectedFiles) {
-         Assert.assertTrue(fileNames.contains(fileName));
+         assertTrue(fileNames.contains(fileName));
       }
 
       fileNames = factory.listFiles("file");
 
-      Assert.assertEquals(1, fileNames.size());
+      assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("different.file"));
+      assertTrue(fileNames.contains("different.file"));
 
       fileNames = factory.listFiles("cheese");
 
-      Assert.assertEquals(1, fileNames.size());
+      assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("different.cheese"));
+      assertTrue(fileNames.contains("different.cheese"));
 
       sf1.close();
       sf2.close();
@@ -154,19 +158,19 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       List<String> fileNames = factory.listFiles("amq");
 
-      Assert.assertEquals(2, fileNames.size());
+      assertEquals(2, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("delete-me.amq"));
+      assertTrue(fileNames.contains("delete-me.amq"));
 
-      Assert.assertTrue(fileNames.contains("delete-me2.amq"));
+      assertTrue(fileNames.contains("delete-me2.amq"));
 
       sf.delete();
 
       fileNames = factory.listFiles("amq");
 
-      Assert.assertEquals(1, fileNames.size());
+      assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("delete-me2.amq"));
+      assertTrue(fileNames.contains("delete-me2.amq"));
 
       sf2.close();
 
@@ -180,27 +184,27 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       List<String> fileNames = factory.listFiles("amq");
 
-      Assert.assertEquals(1, fileNames.size());
+      assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("test1.amq"));
+      assertTrue(fileNames.contains("test1.amq"));
 
       sf.renameTo("test1.cmp");
 
       fileNames = factory.listFiles("cmp");
 
-      Assert.assertEquals(1, fileNames.size());
+      assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("test1.cmp"));
+      assertTrue(fileNames.contains("test1.cmp"));
 
       sf.delete();
 
       fileNames = factory.listFiles("amq");
 
-      Assert.assertEquals(0, fileNames.size());
+      assertEquals(0, fileNames.size());
 
       fileNames = factory.listFiles("cmp");
 
-      Assert.assertEquals(0, fileNames.size());
+      assertEquals(0, fileNames.size());
 
    }
 
@@ -226,19 +230,19 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       sf.write(bb1, true);
       long bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
+      assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
       initialPos = sf.position();
       sf.write(bb2, true);
       bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
+      assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
 
       initialPos = sf.position();
       sf.write(bb3, true);
       bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
+      assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
 
       sf.position(0);
 
@@ -247,22 +251,22 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       ByteBuffer rb3 = factory.newBuffer(bytes3.length);
 
       int bytesRead = sf.read(rb1);
-      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesRead);
+      assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesRead);
 
       for (int i = 0; i < bytes1.length; i++) {
-         Assert.assertEquals(bytes1[i], rb1.get(i));
+         assertEquals(bytes1[i], rb1.get(i));
       }
 
       bytesRead = sf.read(rb2);
-      Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesRead);
+      assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesRead);
       for (int i = 0; i < bytes2.length; i++) {
-         Assert.assertEquals(bytes2[i], rb2.get(i));
+         assertEquals(bytes2[i], rb2.get(i));
       }
 
       bytesRead = sf.read(rb3);
-      Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesRead);
+      assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesRead);
       for (int i = 0; i < bytes3.length; i++) {
-         Assert.assertEquals(bytes3[i], rb3.get(i));
+         assertEquals(bytes3[i], rb3.get(i));
       }
 
       sf.close();
@@ -291,19 +295,19 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          sf.write(wrapBuffer(bytes1), true);
          long bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
+         assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
          initialPos = sf.position();
          sf.write(wrapBuffer(bytes2), true);
          bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
+         assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
 
          initialPos = sf.position();
          sf.write(wrapBuffer(bytes3), true);
          bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
+         assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
 
          byte[] rbytes1 = new byte[bytes1.length];
 
@@ -318,7 +322,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          sf.position(calculateRecordSize(bytes1.length, factory.getAlignment()) + calculateRecordSize(bytes2.length, factory.getAlignment()));
 
          int bytesRead = sf.read(rb3);
-         Assert.assertEquals(rb3.limit(), bytesRead);
+         assertEquals(rb3.limit(), bytesRead);
          rb3.rewind();
          rb3.get(rbytes3);
          ActiveMQTestBase.assertEqualsByteArrays(bytes3, rbytes3);
@@ -326,14 +330,14 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          sf.position(rb1.limit());
 
          bytesRead = sf.read(rb2);
-         Assert.assertEquals(rb2.limit(), bytesRead);
+         assertEquals(rb2.limit(), bytesRead);
          rb2.get(rbytes2);
          ActiveMQTestBase.assertEqualsByteArrays(bytes2, rbytes2);
 
          sf.position(0);
 
          bytesRead = sf.read(rb1);
-         Assert.assertEquals(rb1.limit(), bytesRead);
+         assertEquals(rb1.limit(), bytesRead);
          rb1.get(rbytes1);
 
          ActiveMQTestBase.assertEqualsByteArrays(bytes1, rbytes1);
@@ -361,7 +365,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       sf.write(wrapBuffer(bytes1), true);
       long bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
+      assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
       sf.close();
 
@@ -369,7 +373,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
          sf.write(wrapBuffer(bytes1), true);
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (Exception e) {
       }
 
@@ -397,11 +401,11 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       int bytesRead = file.read(bb);
 
-      Assert.assertEquals(calculateRecordSize(size, factory.getAlignment()), bytesRead);
+      assertEquals(calculateRecordSize(size, factory.getAlignment()), bytesRead);
 
       for (int i = 0; i < size; i++) {
          // log.debug(" i is {}", i);
-         Assert.assertEquals(0, bb.get(i));
+         assertEquals(0, bb.get(i));
       }
 
    }

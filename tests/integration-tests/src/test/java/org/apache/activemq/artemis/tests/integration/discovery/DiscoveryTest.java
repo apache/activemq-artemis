@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
@@ -41,10 +47,9 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,13 +81,13 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    BroadcastGroup bg = null, bg1 = null, bg2 = null, bg3 = null;
    DiscoveryGroup dg = null, dg1 = null, dg2 = null, dg3 = null;
 
-   @Before
+   @BeforeEach
    public void prepareLoopback() {
       JChannelManager.getInstance().setLoopbackMessages(true);
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       JChannelManager.getInstance().clear().setLoopbackMessages(false);
       /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
@@ -487,9 +492,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       verifyNonBroadcast(bg, dg);
       List<DiscoveryEntry> entries = dg.getDiscoveryEntries();
 
-      Assert.assertNotNull(entries);
+      assertNotNull(entries);
 
-      Assert.assertEquals(0, entries.size());
+      assertEquals(0, entries.size());
 
    }
 
@@ -598,17 +603,17 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       bg3.broadcastConnectors();
 
       boolean ok = dg1.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       List<DiscoveryEntry> entries = dg1.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg2.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg2.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live2), entries);
 
       ok = dg3.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg3.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live3), entries);
    }
@@ -654,7 +659,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    //
    // boolean ok = dg.waitForBroadcast(1000);
    //
-   // Assert.assertTrue(ok);
+   // Assertions.assertTrue(ok);
    // }
 
    @Test
@@ -687,9 +692,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       verifyBroadcast(bg, dg);
 
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
-      Assert.assertTrue(listener3.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
+      assertTrue(listener3.called);
 
       listener1.called = false;
       listener2.called = false;
@@ -698,9 +703,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       verifyBroadcast(bg, dg);
 
       // Won't be called since connectors haven't changed
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
-      Assert.assertFalse(listener3.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
+      assertFalse(listener3.called);
    }
 
    @Test
@@ -743,48 +748,48 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       verifyBroadcast(bg1, dg);
       List<DiscoveryEntry> entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg2, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg3, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg1, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg2, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg3, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -795,8 +800,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -811,8 +816,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live3), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -829,10 +834,10 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       ok = dg.waitForBroadcast(1000);
 
       entries = dg.getDiscoveryEntries();
-      Assert.assertNotNull(entries);
-      Assert.assertEquals(0, entries.size());
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertNotNull(entries);
+      assertEquals(0, entries.size());
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -844,10 +849,10 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       ok = dg.waitForBroadcast(1000);
 
       entries = dg.getDiscoveryEntries();
-      Assert.assertNotNull(entries);
-      Assert.assertEquals(0, entries.size());
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertNotNull(entries);
+      assertEquals(0, entries.size());
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
    }
 
    @Test
@@ -879,17 +884,17 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       bg.broadcastConnectors();
 
       boolean ok = dg1.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       List<DiscoveryEntry> entries = dg1.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg2.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg2.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg3.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg3.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
@@ -912,21 +917,21 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout, notifService);
 
-      Assert.assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.getNotifications().size());
 
       dg.start();
 
-      Assert.assertEquals(1, notifListener.getNotifications().size());
+      assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
 
       dg.stop();
 
-      Assert.assertEquals(2, notifListener.getNotifications().size());
+      assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
    }
 
    @Test
@@ -942,20 +947,20 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.setNotificationService(notifService);
 
-      Assert.assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.getNotifications().size());
 
       bg.start();
 
-      Assert.assertEquals(1, notifListener.getNotifications().size());
+      assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
 
       bg.stop();
 
-      Assert.assertEquals(2, notifListener.getNotifications().size());
+      assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
    }
 }

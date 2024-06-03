@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.routing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.security.auth.Subject;
 
 import java.util.HashSet;
@@ -25,8 +27,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.commons.collections.set.ListOrderedSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class KeyResolverTest {
@@ -50,9 +51,9 @@ public class KeyResolverTest {
    private void testClientIDKey(String expected, String clientID, String filter) {
       KeyResolver keyResolver = new KeyResolver(KeyType.CLIENT_ID, filter);
 
-      Assert.assertEquals(expected, keyResolver.resolve(null, clientID, null));
+      assertEquals(expected, keyResolver.resolve(null, clientID, null));
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
    }
 
    @Test
@@ -76,12 +77,12 @@ public class KeyResolverTest {
       KeyResolver keyResolver = new KeyResolver(KeyType.SNI_HOST, filter);
 
       Mockito.when(connection.getSNIHostName()).thenReturn(sniHost);
-      Assert.assertEquals(expected, keyResolver.resolve(connection, null, null));
+      assertEquals(expected, keyResolver.resolve(connection, null, null));
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
 
       Mockito.when(connection.getSNIHostName()).thenReturn(null);
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
    }
 
    @Test
@@ -105,12 +106,12 @@ public class KeyResolverTest {
       KeyResolver keyResolver = new KeyResolver(KeyType.SOURCE_IP, filter);
 
       Mockito.when(connection.getRemoteAddress()).thenReturn(remoteAddress);
-      Assert.assertEquals(expected, keyResolver.resolve(connection, null, null));
+      assertEquals(expected, keyResolver.resolve(connection, null, null));
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
 
       Mockito.when(connection.getRemoteAddress()).thenReturn(null);
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
    }
 
    @Test
@@ -131,9 +132,9 @@ public class KeyResolverTest {
    private void testUserNameKey(String expected, String username, String filter) {
       KeyResolver keyResolver = new KeyResolver(KeyType.USER_NAME, filter);
 
-      Assert.assertEquals(expected, keyResolver.resolve(null, null, username));
+      assertEquals(expected, keyResolver.resolve(null, null, username));
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(null, null, null));
    }
 
    @Test
@@ -141,27 +142,27 @@ public class KeyResolverTest {
       KeyResolver keyResolver = new KeyResolver(KeyType.ROLE_NAME, "B");
 
       Connection connection = Mockito.mock(Connection.class);
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
       Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
       Subject subject = Mockito.mock(Subject.class);
       Mockito.when(protocolConnection.getSubject()).thenReturn(subject);
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       Set<RolePrincipal> rolePrincipals = new HashSet<>();
       Mockito.when(subject.getPrincipals(RolePrincipal.class)).thenReturn(rolePrincipals);
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       rolePrincipals.add(new RolePrincipal("A"));
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       rolePrincipals.add(new RolePrincipal("B"));
 
-      Assert.assertEquals("B", keyResolver.resolve(connection, null, null));
+      assertEquals("B", keyResolver.resolve(connection, null, null));
    }
 
    @Test
@@ -169,31 +170,31 @@ public class KeyResolverTest {
       KeyResolver keyResolver = new KeyResolver(KeyType.ROLE_NAME, null);
 
       Connection connection = Mockito.mock(Connection.class);
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
       Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
       Subject subject = Mockito.mock(Subject.class);
       Mockito.when(protocolConnection.getSubject()).thenReturn(subject);
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       Set<RolePrincipal> rolePrincipals = new ListOrderedSet();
       Mockito.when(subject.getPrincipals(RolePrincipal.class)).thenReturn(rolePrincipals);
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
       final RolePrincipal roleA = new RolePrincipal("A");
       rolePrincipals.add(roleA);
 
-      Assert.assertEquals("A", keyResolver.resolve(connection, null, null));
+      assertEquals("A", keyResolver.resolve(connection, null, null));
 
       rolePrincipals.add(new RolePrincipal("B"));
 
-      Assert.assertEquals("A", keyResolver.resolve(connection, null, null));
+      assertEquals("A", keyResolver.resolve(connection, null, null));
 
       rolePrincipals.remove(roleA);
       // with no filter, the first entry matches
-      Assert.assertEquals("B", keyResolver.resolve(connection, null, null));
+      assertEquals("B", keyResolver.resolve(connection, null, null));
    }
 }

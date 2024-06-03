@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -58,12 +65,9 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,34 +78,30 @@ public class JournalPagingTest extends ActiveMQTestBase {
    static final int MESSAGE_SIZE = 1024; // 1k
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   @Rule
-   public RetryRule retryMethod = new RetryRule(1);
    protected ServerLocator locator;
    protected ActiveMQServer server;
    protected ClientSessionFactory sf;
    private AssertionLoggerHandler loggerHandler;
 
-   @Before
-   public void checkLoggerStart() throws Exception {
-      loggerHandler = new AssertionLoggerHandler();
-   }
-
-   @After
-   public void checkLoggerEnd() throws Exception {
-      try {
-         // These are the message errors for the negative size address size
-         Assert.assertFalse(loggerHandler.findText("222214"));
-         Assert.assertFalse(loggerHandler.findText("222215"));
-      } finally {
-         loggerHandler.close();
-      }
-   }
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
+      loggerHandler = new AssertionLoggerHandler();
+   }
+
+   @AfterEach
+   public void checkLoggerEnd() throws Exception {
+      if (loggerHandler != null) {
+         try {
+            // These are the message errors for the negative size address size
+            assertFalse(loggerHandler.findText("222214"));
+            assertFalse(loggerHandler.findText("222215"));
+         } finally {
+            loggerHandler.close();
+         }
+      }
    }
 
    @Test
@@ -175,7 +175,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 11; i++) {
          ClientMessage msgRec = consumer.receive(1000);
-         Assert.assertNotNull(msgRec);
+         assertNotNull(msgRec);
          msgRec.acknowledge();
       }
       session.commit();
@@ -185,7 +185,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       consumer = session.createConsumer(ADDRESS, SimpleString.toSimpleString("i=29"));
 
       message = consumer.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.commit();
 
@@ -210,7 +210,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       Page page4 = queue.getPagingStore().newPageObject(4);
       page4.open(true);
       org.apache.activemq.artemis.utils.collections.LinkedList<PagedMessage> messagesRead = page4.read(server.getStorageManager());
-      Assert.assertEquals(10, messagesRead.size());
+      assertEquals(10, messagesRead.size());
       page4.close(false);
       page4.delete(null);
       page4.open(true);
@@ -224,7 +224,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       server.start();
 
       queue = server.locateQueue(ADDRESS);
-      Assert.assertTrue(queue.getPagingStore().isPaging());
+      assertTrue(queue.getPagingStore().isPaging());
 
       queue.getPageSubscription().enableAutoCleanup(); // this should been true already as the server was restarted, just braces and belts
 
@@ -240,13 +240,13 @@ public class JournalPagingTest extends ActiveMQTestBase {
       for (int i = 20; i < numberOfMessages; i++) { // I made one message disappear on page 4
          if (i != 29) { // I made message 29 disappear
             ClientMessage msgClient = consumer.receive(1000);
-            Assert.assertNotNull(msgClient);
-            Assert.assertEquals(i, msgClient.getIntProperty("i").intValue());
+            assertNotNull(msgClient);
+            assertEquals(i, msgClient.getIntProperty("i").intValue());
             msgClient.acknowledge();
          }
       }
       ClientMessage msgClient = consumer.receiveImmediate();
-      Assert.assertNull(msgClient);
+      assertNull(msgClient);
       session.commit();
 
       Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
@@ -301,7 +301,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       server.stop();
 
       new PrintWriter(addressTxt).close();
-      Assert.assertTrue(new File(addressTxt).exists());
+      assertTrue(new File(addressTxt).exists());
 
       final AtomicBoolean activationFailures = new AtomicBoolean();
 
@@ -365,7 +365,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          purgeQueue.getPageSubscription().getPagingStore().startPaging();
-         Assert.assertTrue(purgeQueue.getPageSubscription().isPaging());
+         assertTrue(purgeQueue.getPageSubscription().isPaging());
          producer.send(session.createTextMessage("hello" + i));
          if (i % 2 == 0) {
             session.commit();
@@ -379,7 +379,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       connection.start();
 
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(50000);
-      Assert.assertNotNull(consumer.receive(5000));
+      assertNotNull(consumer.receive(5000));
       session.commit();
 
       consumer.close();
@@ -486,7 +486,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       // remove the very first page. a restart should not fail
       File fileToRemove = new File(pagingFolder, "000000001.page");
-      Assert.assertTrue(fileToRemove.delete());
+      assertTrue(fileToRemove.delete());
 
       server.start();
 
@@ -573,7 +573,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
       } finally {
-         Assert.assertTrue(loggerHandler.findText("AMQ144010"));
+         assertTrue(loggerHandler.findText("AMQ144010"));
       }
    }
 

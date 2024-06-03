@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -70,19 +79,21 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// Parameters set in superclass
+@ExtendWith(ParameterizedTestExtension.class)
 public class LargeMessageTest extends LargeMessageTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -105,7 +116,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       largeMessageSize = (storeType == StoreConfiguration.StoreType.DATABASE) ? 5 * 1024 : 100 * 1024;
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackPartiallyConsumedBuffer() throws Exception {
       for (int i = 0; i < 1; i++) {
          logger.debug("#test {}", i);
@@ -115,7 +126,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackPartiallyConsumedBufferWithRedeliveryDelay() throws Exception {
       internalTestRollbackPartiallyConsumedBuffer(true);
    }
@@ -204,7 +215,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testCloseConsumer() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -234,13 +245,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientMessage msg1 = consumer.receive(1000);
       msg1.acknowledge();
       session.commit();
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       consumer.close();
 
       try {
          msg1.getBodyBuffer().readByte();
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (final Exception ignored) {
          // empty on purpose
       }
@@ -250,7 +261,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testDivertAndExpire() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
       final String DIVERTED = "diverted";
@@ -291,13 +302,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientMessage msg1 = consumer.receive(1000);
       msg1.acknowledge();
       session.commit();
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       consumer.close();
 
       try {
          msg1.getBodyBuffer().readByte();
-         Assert.fail("Exception was expected");
+         fail("Exception was expected");
       } catch (final Exception ignored) {
          logger.debug(ignored.getMessage(), ignored);
       }
@@ -307,7 +318,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testDeleteOnNoBinding() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -330,7 +341,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testFileRemovalOnFailure() throws Exception {
       final AtomicBoolean throwException = new AtomicBoolean(false);
       final String queueName = RandomUtil.randomString();
@@ -376,7 +387,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testDeleteUnreferencedMessage() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -412,7 +423,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
-         Assert.assertTrue(loggerHandler.findText("AMQ221019"));
+         assertTrue(loggerHandler.findText("AMQ221019"));
       }
 
       validateNoFilesOnLargeDir();
@@ -421,7 +432,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testPendingRecord() throws Exception {
 
       ActiveMQServer server = createServer(true, isNetty(), storeType);
@@ -462,9 +473,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.start();
 
       ClientMessage message = consumer.receiveImmediate();
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       for (int i = 0; i < messageSize; i++) {
-         assertEquals("position = " + i, getSamplebyte(i), message.getBodyBuffer().readByte());
+         assertEquals(getSamplebyte(i), message.getBodyBuffer().readByte(), "position = " + i);
       }
       message.acknowledge();
       session.commit();
@@ -483,13 +494,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
          MessageReference ref = browserIterator.next();
          Message message = ref.getMessage();
 
-         Assert.assertNotNull(message);
-         Assert.assertTrue(message instanceof LargeServerMessage);
+         assertNotNull(message);
+         assertTrue(message instanceof LargeServerMessage);
       }
       browserIterator.close();
    }
 
-   @Test
+   @TestTemplate
    public void testDeleteOnDrop() throws Exception {
       fillAddress();
 
@@ -562,12 +573,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testLargeBufferTransacted() throws Exception {
       doTestLargeBuffer(true);
    }
 
-   @Test
+   @TestTemplate
    public void testLargeBufferNotTransacted() throws Exception {
       doTestLargeBuffer(false);
    }
@@ -611,12 +622,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientMessage msg1 = consumer.receive(5000);
       assertNotNull(msg1);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
          // System.out.print(msg1.getBodyBuffer().readByte() + "  ");
          // if (i % 100 == 0) System.out.println();
-         assertEquals("position = " + i, getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(getSamplebyte(i), msg1.getBodyBuffer().readByte(), "position = " + i);
       }
 
       msg1.acknowledge();
@@ -632,7 +643,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testDLALargeMessage() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -671,17 +682,17 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientConsumer consumerRollback = session.createConsumer(ADDRESS);
       ClientMessage msg1 = consumerRollback.receive(1000);
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
       msg1.acknowledge();
       session.rollback();
       consumerRollback.close();
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.close();
@@ -701,10 +712,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
@@ -719,10 +730,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
@@ -736,7 +747,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testDeliveryCount() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -764,14 +775,14 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       ClientMessage msg = consumer.receive(10000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.acknowledge();
-      Assert.assertEquals(1, msg.getDeliveryCount());
+      assertEquals(1, msg.getDeliveryCount());
 
       logger.debug("body buffer is {}", msg.getBodyBuffer());
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
       session.rollback();
 
@@ -782,12 +793,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       consumer = session.createConsumer(ADDRESS);
       msg = consumer.receive(10000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.acknowledge();
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
-      Assert.assertEquals(2, msg.getDeliveryCount());
+      assertEquals(2, msg.getDeliveryCount());
       msg.acknowledge();
       consumer.close();
 
@@ -798,7 +809,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testDLQAlmostLarge() throws Exception {
       SimpleString addressName = SimpleString.toSimpleString("SomewhatHugeNameToBeUsedxxxxxxxxxxxxxxxxxxxiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       SimpleString dlqName = SimpleString.toSimpleString("DLQ" + addressName.toString());
@@ -838,12 +849,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       for (int i = 0; i < 2; i++) {
          if (i == 0) {
             ClientMessage msg = consumer.receive(10000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
             session.rollback();
          } else {
             ClientMessage msg = consumer.receiveImmediate();
-            Assert.assertNull(msg);
+            assertNull(msg);
          }
       }
 
@@ -851,11 +862,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       consumer = session.createConsumer(dlqName);
       ClientMessage msg = consumer.receive(1000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
    }
 
-   @Test
+   @TestTemplate
    public void testDLAOnExpiryNonDurableMessage() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -894,18 +905,18 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientConsumer consumerExpired = session.createConsumer(ADDRESS);
       // to kick expiry quicker than waiting reaper thread
-      Assert.assertNull(consumerExpired.receiveImmediate());
+      assertNull(consumerExpired.receiveImmediate());
       consumerExpired.close();
 
       ClientConsumer consumerExpiry = session.createConsumer(ADDRESS_EXPIRY);
 
       ClientMessage msg1 = consumerExpiry.receive(5000);
       assertTrue(msg1.isLargeMessage());
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
       msg1.acknowledge();
 
       for (int j = 0; j < messageSize; j++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
       }
 
       session.rollback();
@@ -917,11 +928,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
          consumerExpiry = session.createConsumer(ADDRESS_DLA);
 
          msg1 = consumerExpiry.receive(5000);
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
          msg1.acknowledge();
 
          for (int j = 0; j < messageSize; j++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+            assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
          }
 
          session.rollback();
@@ -939,12 +950,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       msg1 = consumerExpiry.receive(5000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       msg1.acknowledge();
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.commit();
@@ -963,7 +974,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testDLAOnExpiry() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -1002,17 +1013,17 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientConsumer consumerExpired = session.createConsumer(ADDRESS);
       // to kick expiry quicker than waiting reaper thread
-      Assert.assertNull(consumerExpired.receiveImmediate());
+      assertNull(consumerExpired.receiveImmediate());
       consumerExpired.close();
 
       ClientConsumer consumerExpiry = session.createConsumer(ADDRESS_EXPIRY);
 
       ClientMessage msg1 = consumerExpiry.receive(5000);
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
       msg1.acknowledge();
 
       for (int j = 0; j < messageSize; j++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
       }
 
       session.rollback();
@@ -1023,11 +1034,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
          consumerExpiry = session.createConsumer(ADDRESS_DLA);
 
          msg1 = consumerExpiry.receive(5000);
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
          msg1.acknowledge();
 
          for (int j = 0; j < messageSize; j++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+            assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
          }
 
          session.rollback();
@@ -1051,11 +1062,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
       consumerExpiry = session.createConsumer(ADDRESS_DLA);
 
       msg1 = consumerExpiry.receive(5000);
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
       msg1.acknowledge();
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.commit();
@@ -1069,7 +1080,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testExpiryLargeMessage() throws Exception {
       final int messageSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
@@ -1110,14 +1121,14 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          // Creating a consumer just to make the expiry process go faster and not have to wait for the reaper
          ClientConsumer consumer2 = session.createConsumer(ADDRESS);
-         Assert.assertNull(consumer2.receiveImmediate());
+         assertNull(consumer2.receiveImmediate());
 
          ClientMessage msg1 = consumer.receive(50000);
 
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
 
          for (int i = 0; i < messageSize; i++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+            assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
          }
 
          session.close();
@@ -1137,10 +1148,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          msg1 = consumer.receive(10000);
 
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
 
          for (int i = 0; i < messageSize; i++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+            assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
          }
 
          msg1.acknowledge();
@@ -1158,12 +1169,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSentWithDuplicateIDBridge() throws Exception {
       internalTestSentWithDuplicateID(true);
    }
 
-   @Test
+   @TestTemplate
    public void testSentWithDuplicateID() throws Exception {
       internalTestSentWithDuplicateID(false);
    }
@@ -1228,12 +1239,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testResendSmallStreamMessage() throws Exception {
       internalTestResendMessage(50000);
    }
 
-   @Test
+   @TestTemplate
    public void testResendLargeStreamMessage() throws Exception {
       internalTestResendMessage(150 * 1024);
    }
@@ -1281,13 +1292,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          ClientMessage msg2 = consumer2.receive(10000);
 
-         Assert.assertNotNull(msg2);
+         assertNotNull(msg2);
 
          msg2.acknowledge();
 
          session.commit();
 
-         Assert.assertEquals(messageSize, msg2.getBodySize());
+         assertEquals(messageSize, msg2.getBodySize());
 
          compareString(messageSize, msg2);
 
@@ -1302,12 +1313,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testResendCachedSmallStreamMessage() throws Exception {
       internalTestResendMessage(50000);
    }
 
-   @Test
+   @TestTemplate
    public void testResendCachedLargeStreamMessage() throws Exception {
       internalTestCachedResendMessage(150 * 1024);
    }
@@ -1379,261 +1390,261 @@ public class LargeMessageTest extends LargeMessageTestBase {
    private void compareString(final long messageSize, ClientMessage msg) {
       assertNotNull(msg);
       for (long i = 0; i < messageSize; i++) {
-         Assert.assertEquals("position " + i, ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte(), "position " + i);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceOneHugeMessage() throws Exception {
       testChunks(false, false, false, true, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceOneMessageStreaming() throws Exception {
       testChunks(false, false, false, true, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceSmallMessageStreaming() throws Exception {
       testChunks(false, false, false, true, true, false, false, false, false, 100, 1024, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceOneHugeMessageConsumer() throws Exception {
       testChunks(false, false, false, true, true, false, false, false, true, 1, largeMessageSize, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistence() throws Exception {
       testChunks(false, false, true, false, true, false, false, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, false, true, true, 2, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceXA() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceXAStream() throws Exception {
       testChunks(true, false, false, true, true, false, false, false, false, 1, 1024 * 1024, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceXAStreamRestart() throws Exception {
       testChunks(true, true, false, true, true, false, false, false, false, 1, 1024 * 1024, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceXAConsumerRestart() throws Exception {
       testChunks(true, true, true, false, true, false, false, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlocked() throws Exception {
       testChunks(false, false, true, false, true, false, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedXA() throws Exception {
       testChunks(true, false, true, false, true, false, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, false, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACK() throws Exception {
       testChunks(false, false, true, false, true, true, true, true, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACKConsumer() throws Exception {
       testChunks(false, false, true, false, true, true, true, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACKXA() throws Exception {
       testChunks(true, false, true, false, true, true, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACKXARestart() throws Exception {
       testChunks(true, true, true, false, true, true, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACKXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, true, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceBlockedPreACKXAConsumerRestart() throws Exception {
       testChunks(true, true, true, false, true, true, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceDelayed() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceDelayedConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceDelayedXA() throws Exception {
       testChunks(true, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
-   @Test
+   @TestTemplate
    public void testFilePersistenceDelayedXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistence() throws Exception {
       testChunks(false, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceConsumer() throws Exception {
       testChunks(false, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceXA() throws Exception {
       testChunks(true, false, true, false, false, false, false, true, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceXAConsumer() throws Exception {
       testChunks(true, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceDelayed() throws Exception {
       testChunks(false, false, true, false, false, false, false, false, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceDelayedConsumer() throws Exception {
       testChunks(false, false, true, false, false, false, false, false, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceDelayedXA() throws Exception {
       testChunks(true, false, true, false, false, false, false, false, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testNullPersistenceDelayedXAConsumer() throws Exception {
       testChunks(true, false, true, false, false, false, false, false, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testPageOnLargeMessage() throws Exception {
       testPageOnLargeMessage(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendSmallMessageXA() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, false, 100, 4, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendSmallMessageXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, true, 100, 4, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendSmallMessageNullPersistenceXA() throws Exception {
       testChunks(true, false, true, false, false, false, false, true, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendSmallMessageNullPersistenceXAConsumer() throws Exception {
       testChunks(true, false, true, false, false, false, false, true, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessageNullPersistenceDelayed() throws Exception {
       testChunks(false, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessageNullPersistenceDelayedConsumer() throws Exception {
       testChunks(false, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessageNullPersistenceDelayedXA() throws Exception {
       testChunks(true, false, true, false, false, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessageNullPersistenceDelayedXAConsumer() throws Exception {
       testChunks(true, false, true, false, false, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistence() throws Exception {
       testChunks(false, false, true, false, true, false, false, true, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, false, true, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceXA() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceXAConsumer() throws Exception {
       testChunks(true, false, true, false, true, false, false, true, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceDelayed() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceDelayedConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceDelayedXA() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, false, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRegularMessagePersistenceDelayedXAConsumer() throws Exception {
       testChunks(false, false, true, false, true, false, false, false, true, 100, 100, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
-   @Test
+   @TestTemplate
    public void testTwoBindingsTwoStartedConsumers() throws Exception {
       // there are two bindings.. one is ACKed, the other is not, the server is restarted
       // The other binding is acked... The file must be deleted
@@ -1666,8 +1677,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientConsumer consumer = session.createConsumer(queue[1]);
       ClientMessage msg = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
       msg.getBodyBuffer().readByte();
-      Assert.assertNull(consumer.receiveImmediate());
-      Assert.assertNotNull(msg);
+      assertNull(consumer.receiveImmediate());
+      assertNotNull(msg);
 
       msg.acknowledge();
       consumer.close();
@@ -1681,7 +1692,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.start();
 
       msg = consumer1.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.acknowledge();
       consumer1.close();
 
@@ -1692,12 +1703,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testTwoBindingsAndRestart() throws Exception {
       testTwoBindings(true);
    }
 
-   @Test
+   @TestTemplate
    public void testTwoBindingsNoRestart() throws Exception {
       testTwoBindings(false);
    }
@@ -1750,22 +1761,22 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testSendRollbackXADurable() throws Exception {
       internalTestSendRollback(true, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRollbackXANonDurable() throws Exception {
       internalTestSendRollback(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRollbackDurable() throws Exception {
       internalTestSendRollback(false, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSendRollbackNonDurable() throws Exception {
       internalTestSendRollback(false, false);
    }
@@ -1817,12 +1828,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleRollback() throws Exception {
       simpleRollbackInternalTest(false);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleRollbackXA() throws Exception {
       simpleRollbackInternalTest(true);
    }
@@ -1860,7 +1871,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          producer.send(clientFile);
 
-         Assert.assertNull(consumer.receiveImmediate());
+         assertNull(consumer.receiveImmediate());
 
          if (isXA) {
             session.end(xid, XAResource.TMSUCCESS);
@@ -1875,7 +1886,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          producer.send(clientFile);
 
-         Assert.assertNull(consumer.receiveImmediate());
+         assertNull(consumer.receiveImmediate());
 
          if (isXA) {
             session.end(xid, XAResource.TMSUCCESS);
@@ -1890,9 +1901,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
             ClientMessage clientMessage = consumer.receive(5000);
 
-            Assert.assertNotNull(clientMessage);
+            assertNotNull(clientMessage);
 
-            Assert.assertEquals(numberOfBytes, clientMessage.getBodySize());
+            assertEquals(numberOfBytes, clientMessage.getBodySize());
 
             clientMessage.acknowledge();
 
@@ -1924,7 +1935,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testBufferMultipleLargeMessages() throws Exception {
       ClientSession session = null;
       ActiveMQServer server = null;
@@ -1961,19 +1972,19 @@ public class LargeMessageTest extends LargeMessageTestBase {
          ClientConsumerInternal consumer = (ClientConsumerInternal) session.createConsumer(ADDRESS);
 
          Wait.waitFor(() -> consumer.getBufferSize() >= NUMBER_OF_MESSAGES, 30_000, 100);
-         Assert.assertEquals(NUMBER_OF_MESSAGES, consumer.getBufferSize());
+         assertEquals(NUMBER_OF_MESSAGES, consumer.getBufferSize());
 
          // Reads the messages, rollback.. read them again
          for (int trans = 0; trans < 2; trans++) {
 
             for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                ClientMessage msg = consumer.receive(10000);
-               Assert.assertNotNull(msg);
+               assertNotNull(msg);
 
                // it will ignore the buffer (not read it) on the first try
                if (trans == 0) {
                   for (int byteRead = 0; byteRead < SIZE; byteRead++) {
-                     Assert.assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
+                     assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
                   }
                }
 
@@ -1986,8 +1997,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
             }
          }
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       } finally {
          try {
@@ -2002,7 +2013,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testReceiveMultipleMessages() throws Exception {
       ClientSession session = null;
       ActiveMQServer server = null;
@@ -2041,17 +2052,17 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
             ClientConsumerInternal consumer = (ClientConsumerInternal) session.createConsumer(ADDRESS);
 
-            Assert.assertTrue(Wait.waitFor(() -> consumer.getBufferSize() >= 5, 30_000, 100));
+            assertTrue(Wait.waitFor(() -> consumer.getBufferSize() >= 5, 30_000, 100));
 
 
             for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                ClientMessage msg = consumer.receive(10000);
-               Assert.assertNotNull(msg);
+               assertNotNull(msg);
 
                // it will ignore the buffer (not read it) on the first try
                if (trans == 0) {
                   for (int byteRead = 0; byteRead < SIZE; byteRead++) {
-                     Assert.assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
+                     assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
                   }
                }
 
@@ -2066,8 +2077,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
             consumer.close();
          }
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       } finally {
          try {
@@ -2083,7 +2094,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
    // JBPAPP-6237
-   @Test
+   @TestTemplate
    public void testPageOnLargeMessageMultipleQueues() throws Exception {
 
       AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
@@ -2164,11 +2175,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
          for (int i = 0; i < 100; i++) {
             ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
-            Assert.assertNotNull(message2);
+            assertNotNull(message2);
 
             message2.acknowledge();
 
-            Assert.assertNotNull(message2);
+            assertNotNull(message2);
          }
 
          session.commit();
@@ -2178,7 +2189,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
             assertTrue(messageLarge.getBooleanProperty("TestLarge"));
 
-            Assert.assertNotNull(messageLarge);
+            assertNotNull(messageLarge);
 
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             messageLarge.acknowledge();
@@ -2198,11 +2209,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
          for (int i = 0; i < 100; i++) {
             ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
-            Assert.assertNotNull(message2);
+            assertNotNull(message2);
 
             message2.acknowledge();
 
-            Assert.assertNotNull(message2);
+            assertNotNull(message2);
          }
 
          session.commit();
@@ -2213,11 +2224,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
 
       // Reference Counting negative errors
-      Assert.assertFalse(loggerHandler.findText("AMQ214034"));
+      assertFalse(loggerHandler.findText("AMQ214034"));
    }
 
    // JBPAPP-6237
-   @Test
+   @TestTemplate
    public void testPageOnLargeMessageMultipleQueues2() throws Exception {
       Configuration config = createDefaultConfig(isNetty());
 
@@ -2285,19 +2296,19 @@ public class LargeMessageTest extends LargeMessageTestBase {
             for (int i = 0; i < 100; i++) {
                ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
-               Assert.assertNotNull(message2);
+               assertNotNull(message2);
 
                assertFalse(message2.getBooleanProperty("TestLarge"));
 
                message2.acknowledge();
 
-               Assert.assertNotNull(message2);
+               assertNotNull(message2);
             }
 
             for (int i = 0; i < 10; i++) {
                ClientMessage messageLarge = consumer.receive(RECEIVE_WAIT_TIME);
 
-               Assert.assertNotNull(messageLarge);
+               assertNotNull(messageLarge);
 
                assertTrue(messageLarge.getBooleanProperty("TestLarge"));
 
@@ -2321,7 +2332,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendStreamingSingleMessage() throws Exception {
       ClientSession session = null;
       ActiveMQServer server = null;
@@ -2362,12 +2373,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
          msg2.acknowledge();
 
          msg2.setOutputStream(createFakeOutputStream());
-         Assert.assertTrue(msg2.waitOutputStreamCompletion(0));
+         assertTrue(msg2.waitOutputStreamCompletion(0));
 
          session.commit();
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       } catch (Throwable t) {
          t.printStackTrace();
@@ -2386,7 +2397,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
    // https://issues.apache.org/jira/browse/ARTEMIS-331
-   @Test
+   @TestTemplate
    public void testSendStreamingSingleEmptyMessage() throws Exception {
       final String propertyName = "myStringPropertyName";
       final String propertyValue = "myStringPropertyValue";
@@ -2430,13 +2441,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
          msg2.acknowledge();
 
          msg2.setOutputStream(createFakeOutputStream());
-         Assert.assertTrue(msg2.waitOutputStreamCompletion(60000));
-         Assert.assertEquals(propertyValue, msg2.getStringProperty(propertyName));
+         assertTrue(msg2.waitOutputStreamCompletion(60000));
+         assertEquals(propertyValue, msg2.getStringProperty(propertyName));
 
          session.commit();
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       } finally {
          try {
@@ -2452,7 +2463,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
    // https://issues.apache.org/jira/browse/ARTEMIS-331
-   @Test
+   @TestTemplate
    public void testSendStreamingEmptyMessagesWithRestart() throws Exception {
       final String propertyName = "myStringPropertyName";
       final String propertyValue = "myStringPropertyValue";
@@ -2507,14 +2518,14 @@ public class LargeMessageTest extends LargeMessageTestBase {
             msg2.acknowledge();
 
             msg2.setOutputStream(createFakeOutputStream());
-            Assert.assertTrue(msg2.waitOutputStreamCompletion(60000));
-            Assert.assertEquals(propertyValue + i, msg2.getStringProperty(propertyName));
+            assertTrue(msg2.waitOutputStreamCompletion(60000));
+            assertEquals(propertyValue + i, msg2.getStringProperty(propertyName));
 
             session.commit();
          }
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       } finally {
          try {
@@ -2532,7 +2543,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    /**
     * Receive messages but never reads them, leaving the buffer pending
     */
-   @Test
+   @TestTemplate
    public void testIgnoreStreaming() throws Exception {
       ClientSession session = null;
       ActiveMQServer server = null;
@@ -2575,9 +2586,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = consumer.receive(50000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
-         Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
 
          msg.acknowledge();
       }
@@ -2586,13 +2597,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session.commit();
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       logger.debug("Thread done");
    }
 
-   @Test
+   @TestTemplate
    public void testLargeMessageBodySize() throws Exception {
       ActiveMQServer server = createServer(true, isNetty(), storeType);
 
@@ -2602,25 +2613,25 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.setMessageID(1005);
 
-      Assert.assertEquals(0, fileMessage.getBodyBufferSize());
+      assertEquals(0, fileMessage.getBodyBufferSize());
 
       for (int i = 0; i < largeMessageSize; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
       fileMessage.releaseResources(true, false);
 
-      Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+      assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
 
       // The server would be doing this
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
 
       fileMessage.releaseResources(false, false);
 
-      Assert.assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+      assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
    }
 
    // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
-   @Test
+   @TestTemplate
    public void testSendServerMessage() throws Exception {
       ActiveMQServer server = createServer(true, isNetty(), storeType);
 
@@ -2659,12 +2670,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientMessage msg = cons.receive(5000);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
-      Assert.assertEquals(msg.getBodySize(), largeMessageSize);
+      assertEquals(msg.getBodySize(), largeMessageSize);
 
       for (int i = 0; i < largeMessageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
       msg.acknowledge();
@@ -2672,7 +2683,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.commit();
    }
 
-   @Test
+   @TestTemplate
    public void testSendServerMessageMetrics() throws Exception {
       ActiveMQServer server = createServer(true, isNetty(), storeType);
 
@@ -2711,13 +2722,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       Collection<ServerProducer> serverProducers = server.getSessions().iterator().next().getServerProducers();
 
-      Assert.assertEquals(1, serverProducers.size());
+      assertEquals(1, serverProducers.size());
 
       ServerProducer producer = serverProducers.iterator().next();
 
-      Assert.assertEquals(1, producer.getMessagesSent());
+      assertEquals(1, producer.getMessagesSent());
 
-      Assert.assertEquals(largeMessageSize, producer.getMessagesSentSize());
+      assertEquals(largeMessageSize, producer.getMessagesSentSize());
 
       fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
 
@@ -2740,19 +2751,19 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       serverProducers = server.getSessions().iterator().next().getServerProducers();
 
-      Assert.assertEquals(1, serverProducers.size());
+      assertEquals(1, serverProducers.size());
 
       producer = serverProducers.iterator().next();
 
-      Assert.assertEquals(2, producer.getMessagesSent());
+      assertEquals(2, producer.getMessagesSent());
 
-      Assert.assertEquals(largeMessageSize * 2, producer.getMessagesSentSize());
+      assertEquals(largeMessageSize * 2, producer.getMessagesSentSize());
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createFactory(isNetty());
@@ -2828,16 +2839,16 @@ public class LargeMessageTest extends LargeMessageTestBase {
       for (int i = 0; i < 100; i++) {
          ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
 
          message2.acknowledge();
 
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
 
          message.getBodyBuffer().readerIndex(0);
 
          for (int j = 1; j <= numberOfBytes; j++) {
-            Assert.assertEquals(j, message.getBodyBuffer().readInt());
+            assertEquals(j, message.getBodyBuffer().readInt());
          }
       }
 
@@ -2854,12 +2865,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testGlobalSizeBytesAndAddressSizeOnPage() throws Exception {
       testGlobalSizeBytesAndAddressSize(true);
    }
 
-   @Test
+   @TestTemplate
    public void testGlobalSizeBytesAndAddressSize() throws Exception {
       testGlobalSizeBytesAndAddressSize(false);
    }
@@ -2900,11 +2911,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.commit();
 
       if (isPage) {
-         Assert.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
-         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+         assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+         assertEquals(0, server.getPagingManager().getGlobalSize());
       } else {
-         Assert.assertNotEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
-         Assert.assertNotEquals(0, server.getPagingManager().getGlobalSize());
+         assertNotEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
+         assertNotEquals(0, server.getPagingManager().getGlobalSize());
       }
 
       session.start();
@@ -2913,7 +2924,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientMessage msg = cons.receive(5000);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
       msg.acknowledge();
 
@@ -2928,11 +2939,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
       cons.close();
    }
 
-   @Test
+   @TestTemplate
    public void testAMQPLargeMessageFDs() throws Exception {
       OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
-      Assume.assumeTrue(os instanceof UnixOperatingSystemMXBean);
+      assumeTrue(os instanceof UnixOperatingSystemMXBean);
 
       final SimpleString MY_QUEUE = new SimpleString("MY-QUEUE");
       final int numberOfMessages = 30;
@@ -2974,12 +2985,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
       Wait.assertTrue(() -> ((UnixOperatingSystemMXBean)os).getOpenFileDescriptorCount() - fdBefore < 3);
    }
 
-   @Test
+   @TestTemplate
    public void testStreamedMessage() throws Exception {
       testStream(false);
    }
 
-   @Test
+   @TestTemplate
    public void testStreamedMessageCompressed() throws Exception {
       testStream(true);
    }
@@ -3038,16 +3049,16 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       ClientMessage receivedMessage = consumer.receive(5000);
-      Assert.assertNotNull(receivedMessage);
+      assertNotNull(receivedMessage);
 
       ActiveMQBuffer buffer = receivedMessage.getBodyBuffer();
-      Assert.assertEquals(BYTES, buffer.readableBytes());
+      assertEquals(BYTES, buffer.readableBytes());
 
       for (int i = 0; i < BYTES; i++) {
-         Assert.assertEquals((byte)10, buffer.readByte());
+         assertEquals((byte)10, buffer.readByte());
       }
 
-      Assert.assertEquals(0, buffer.readableBytes());
+      assertEquals(0, buffer.readableBytes());
 
       session.close();
 

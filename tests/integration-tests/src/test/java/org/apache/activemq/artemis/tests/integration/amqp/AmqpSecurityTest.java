@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +36,8 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +50,11 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSaslAuthWithInvalidCredentials() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient(fullUser, guestUser);
+      AmqpClient client = createAmqpClient(guestUser, fullUser);
 
       try {
          connection = client.connect();
@@ -63,10 +68,11 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSaslAuthWithAuthzid() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
       client.setAuthzid(guestUser);
 
       try {
@@ -80,10 +86,11 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSaslAuthWithoutAuthzid() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
 
       try {
          connection = client.connect();
@@ -96,9 +103,10 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendAndRejected() throws Exception {
-      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
       client.setValidator(new AmqpValidator() {
 
          @Override
@@ -132,11 +140,12 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
-      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
       client.setValidator(new AmqpValidator() {
 
          @Override
@@ -193,9 +202,10 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testReceiverNotAuthorized() throws Exception {
-      AmqpClient client = createAmqpClient(noprivUser, noprivPass);
+      AmqpClient client = createAmqpClient(noprivPass, noprivUser);
       client.setValidator(new AmqpValidator() {
 
          @Override
@@ -230,9 +240,10 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testConsumerNotAuthorizedToCreateQueues() throws Exception {
-      AmqpClient client = createAmqpClient(noprivUser, noprivPass);
+      AmqpClient client = createAmqpClient(noprivPass, noprivUser);
       client.setValidator(new AmqpValidator() {
 
          @Override

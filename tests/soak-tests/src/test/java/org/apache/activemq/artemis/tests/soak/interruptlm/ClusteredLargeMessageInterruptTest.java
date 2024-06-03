@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.soak.interruptlm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -41,10 +44,9 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "lmbroker1";
    public static final String SERVER_NAME_1 = "lmbroker2";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -124,7 +126,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
@@ -295,9 +297,9 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       killProcess(serverProcess, useKill);
       runningSend = false;
       runningConsumer = false;
-      Assert.assertTrue(serverProcess.waitFor(10, TimeUnit.SECONDS));
-      Assert.assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
-      Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+      assertTrue(serverProcess.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
+      assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
       logger.info("All receivers and senders are done!!!");
 
@@ -309,11 +311,11 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       receiverDone = startConsumingThreads(executorService, protocol, 1, CONSUMING_THREADS, tx, queueName);
 
       killProcess(serverProcess2, useKill);
-      Assert.assertTrue(serverProcess2.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(serverProcess2.waitFor(10, TimeUnit.SECONDS));
       runningSend = false;
       runningConsumer = false;
-      Assert.assertTrue(sendDone.await(1, TimeUnit.MINUTES));
-      Assert.assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
+      assertTrue(sendDone.await(1, TimeUnit.MINUTES));
+      assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
 
       serverProcess2 = startServer1();
 
@@ -322,7 +324,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
 
       Thread.sleep(2000);
       runningSend = false;
-      Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+      assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
       QueueControl queueControl1 = getQueueControl(server1URI, builderServer1, queueName, queueName, RoutingType.ANYCAST, 5000);
       QueueControl queueControl2 = getQueueControl(server2URI, builderServer2, queueName, queueName, RoutingType.ANYCAST, 5000);
@@ -333,12 +335,12 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       Wait.waitFor(() -> queueControl1.getMessageCount() == 0 && queueControl2.getMessageCount() == 0 && lmFolder.listFiles().length == 0 && lmFolder2.listFiles().length == 0);
 
       runningConsumer = false;
-      Assert.assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
+      assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
 
       // no need to use wait here, the previous check should have checked that already
-      Assert.assertEquals(0, lmFolder.listFiles().length);
-      Assert.assertEquals(0, lmFolder2.listFiles().length);
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, lmFolder.listFiles().length);
+      assertEquals(0, lmFolder2.listFiles().length);
+      assertEquals(0, errors.get());
    }
 
    @Test
@@ -381,18 +383,18 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       runningSend = runningConsumer = false;
 
       killProcess(serverProcess, false);
-      Assert.assertTrue(serverProcess.waitFor(10, TimeUnit.MINUTES));
-      Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+      assertTrue(serverProcess.waitFor(10, TimeUnit.MINUTES));
+      assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
       sendDone = startSendingThreads(executorService, protocol, 1, SENDING_THREADS, tx, queueName);
       CountDownLatch receiverDone = startConsumingThreads(executorService, protocol, 1, CONSUMING_THREADS, tx, queueName);
       killProcess(serverProcess, false);
-      Assert.assertTrue(serverProcess.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(serverProcess.waitFor(10, TimeUnit.SECONDS));
       serverProcess = startServer0();
 
       Thread.sleep(5000);
       runningSend = false;
-      Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+      assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
       QueueControl queueControl1 = getQueueControl(server1URI, builderServer1, queueName, queueName, RoutingType.ANYCAST, 5000);
       QueueControl queueControl2 = getQueueControl(server2URI, builderServer2, queueName, queueName, RoutingType.ANYCAST, 5000);
@@ -403,7 +405,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
       Wait.assertTrue(() -> queueControl1.getMessageCount() == 0 && queueControl2.getMessageCount() == 0);
 
       runningConsumer = false;
-      Assert.assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
+      assertTrue(receiverDone.await(10, TimeUnit.SECONDS));
 
 
       Wait.assertEquals(0, () -> lmFolder.listFiles().length);
@@ -411,7 +413,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
          logger.info("queueControl2.count={}", queueControl2.getMessageCount());
          return lmFolder2.listFiles().length;
       });
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 

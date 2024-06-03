@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.addressing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +29,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -39,8 +42,9 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60_000)
-   public void testDeadLock() throws Throwable  {
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   public void testDeadLock() throws Throwable {
       ActiveMQServer server = addServer(createServer(false));
       server.start();
 
@@ -93,11 +97,11 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
       createAndDestroy1.join(10_000);
       createAndDestroy2.join(10_000);
 
-      Assert.assertFalse(createAndDestroy1.isAlive());
-      Assert.assertFalse(createAndDestroy2.isAlive());
+      assertFalse(createAndDestroy1.isAlive());
+      assertFalse(createAndDestroy2.isAlive());
 
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 

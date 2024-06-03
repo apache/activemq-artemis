@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -23,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQServerImplTest extends ServerTestBase {
 
@@ -34,8 +40,8 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       server.start();
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       server.addExternalComponent(component, true);
-      Assert.assertTrue(component.isStarted());
-      Assert.assertTrue(server.getExternalComponents() + " does not contain " + component, server.getExternalComponents().contains(component));
+      assertTrue(component.isStarted());
+      assertTrue(server.getExternalComponents().contains(component), server.getExternalComponents() + " does not contain " + component);
    }
 
    @Test
@@ -44,8 +50,8 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       server.start();
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       server.addExternalComponent(component, false);
-      Assert.assertFalse(component.isStarted());
-      Assert.assertTrue(server.getExternalComponents() + " does not contain " + component, server.getExternalComponents().contains(component));
+      assertFalse(component.isStarted());
+      assertTrue(server.getExternalComponents().contains(component), server.getExternalComponents() + " does not contain " + component);
    }
 
    @Test
@@ -54,10 +60,10 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       try {
          server.addExternalComponent(component, false);
-         Assert.fail();
+         fail();
       } catch (IllegalStateException ex) {
-         Assert.assertFalse(component.isStarted());
-         Assert.assertEquals(0, server.getExternalComponents().size());
+         assertFalse(component.isStarted());
+         assertEquals(0, server.getExternalComponents().size());
       }
    }
 
@@ -69,10 +75,10 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       try {
          server.addExternalComponent(component, false);
-         Assert.fail();
+         fail();
       } catch (IllegalStateException ex) {
-         Assert.assertFalse(component.isStarted());
-         Assert.assertEquals(0, server.getExternalComponents().size());
+         assertFalse(component.isStarted());
+         assertEquals(0, server.getExternalComponents().size());
       }
    }
 
@@ -85,7 +91,7 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       Runnable scheduledRunnable = new Runnable() {
          @Override
          public void run() {
-            Assert.fail();
+            fail();
          }
       };
       WeakReference<Runnable> scheduledRunnableRef = new WeakReference<>(scheduledRunnable);
@@ -93,17 +99,17 @@ public class ActiveMQServerImplTest extends ServerTestBase {
       ScheduledExecutorService scheduledPool = server.getScheduledPool();
       ScheduledFuture scheduledFuture = scheduledPool.schedule(scheduledRunnable, 5000, TimeUnit.MILLISECONDS);
 
-      Assert.assertFalse(scheduledFuture.isCancelled());
-      Assert.assertTrue(scheduledFuture.cancel(true));
-      Assert.assertTrue(scheduledFuture.isCancelled());
+      assertFalse(scheduledFuture.isCancelled());
+      assertTrue(scheduledFuture.cancel(true));
+      assertTrue(scheduledFuture.isCancelled());
 
-      Assert.assertNotEquals(null, scheduledRunnableRef.get());
+      assertNotNull(scheduledRunnableRef.get());
 
       scheduledRunnable = null;
 
       forceGC();
 
-      Assert.assertEquals(null, scheduledRunnableRef.get());
+      assertNull(scheduledRunnableRef.get());
 
       server.stop();
    }

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -54,9 +60,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,18 +161,18 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
-      Assert.assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.get(1));
+      assertNull(tm);
+      assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.get(1));
 
       conn.close();
-      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.size());
+      assertEquals(2, listener.size(), "Expected 2 FailoverEvents to be triggered");
    }
 
    @Test
@@ -214,7 +219,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       // Note we block on P send to make sure all messages get to server before failover
 
       JMSUtil.crash(primaryServer, coreSessionPrimary);
-      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
+      assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
       connPrimary.close();
 
       // Now recreate on backup
@@ -230,15 +235,15 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          TextMessage tm = (TextMessage) consumerBackup.receive(1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
-         Assert.assertEquals("message" + i, tm.getText());
+         assertEquals("message" + i, tm.getText());
       }
 
       TextMessage tm = (TextMessage) consumerBackup.receiveNoWait();
-      Assert.assertEquals(FailoverEventType.FAILOVER_FAILED, listener.get(1));
-      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.size());
-      Assert.assertNull(tm);
+      assertEquals(FailoverEventType.FAILOVER_FAILED, listener.get(1));
+      assertEquals(2, listener.size(), "Expected 2 FailoverEvents to be triggered");
+      assertNull(tm);
 
       connBackup.close();
    }
@@ -246,7 +251,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       startServers();
@@ -265,7 +270,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(primarytc.getName(), primarytc).addConnectorConfiguration(backuptc.getName(), backuptc).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), primarytc.getName()));
+      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(primarytc.getName(), primarytc).addConnectorConfiguration(backuptc.getName(), backuptc).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(primarytc.getName(), backuptc.getName()));
       backupConf.setConnectionTtlCheckInterval(100);
 
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
@@ -312,7 +317,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
             }
          }
 
-         Assert.assertTrue(eventTypeList.size() >= elements);
+         assertTrue(eventTypeList.size() >= elements);
       }
 
       @Override

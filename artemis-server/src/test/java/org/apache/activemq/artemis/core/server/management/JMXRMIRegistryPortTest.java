@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -35,7 +36,7 @@ public class JMXRMIRegistryPortTest extends ServerTestBase {
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
       }
    }
 
@@ -47,7 +48,7 @@ public class JMXRMIRegistryPortTest extends ServerTestBase {
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByAddress(new byte[]{0, 0, 0, 0}), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByAddress(new byte[]{0, 0, 0, 0}), testSocket.getInetAddress());
       }
    }
 
@@ -60,7 +61,7 @@ public class JMXRMIRegistryPortTest extends ServerTestBase {
       registryFactory.init();
       registryFactory.destroy();
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
       }
    }
 }

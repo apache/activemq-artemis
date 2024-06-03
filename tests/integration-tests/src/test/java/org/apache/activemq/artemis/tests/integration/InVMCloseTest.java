@@ -17,22 +17,24 @@
 
 package org.apache.activemq.artemis.tests.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InVMCloseTest extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -54,10 +56,10 @@ public class InVMCloseTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
 
-         Assert.assertFalse(loggerHandler.findText("AMQ212037"));
+         assertFalse(loggerHandler.findText("AMQ212037"));
          // additional logging debug might fail the test, but this is meant to be silent on a regular case.
          // I wanted to make sure we don't do any extra logging when a connection is closed.
-         Assert.assertEquals("Logger should be silent for the close operation.", 0, loggerHandler.getNumberOfMessages());
+         assertEquals(0, loggerHandler.getNumberOfMessages(), "Logger should be silent for the close operation.");
       }
    }
 }

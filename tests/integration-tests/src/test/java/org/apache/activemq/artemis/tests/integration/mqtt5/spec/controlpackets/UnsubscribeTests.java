@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,7 +35,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -57,7 +62,8 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * that packet as if it had received a sequence of multiple UNSUBSCRIBE packets, except that it sends just one
     * UNSUBACK response.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testUnsubscribe() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
       final String TOPIC = RandomUtil.randomString();
@@ -112,7 +118,8 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.10.4-2] When a Server receives UNSUBSCRIBE It MUST stop adding any new messages which match the Topic
     * Filters, for delivery to the Client.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testStopAddingMessagesOnUnsubscribe() throws Exception {
       final String TOPIC = RandomUtil.randomString();
 
@@ -153,7 +160,8 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    /*
     * [MQTT-3.10.4-4] The Server MUST respond to an UNSUBSCRIBE request by sending an UNSUBACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testUnsubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
@@ -191,7 +199,8 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.10.4-5] The UNSUBACK packet MUST have the same Packet Identifier as the UNSUBSCRIBE packet. Even where no
     * Topic Subscriptions are deleted, the Server MUST respond with an UNSUBACK.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testUnsubAckPacketId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);

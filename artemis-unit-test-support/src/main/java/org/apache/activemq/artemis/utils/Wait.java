@@ -16,15 +16,17 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
@@ -96,7 +98,7 @@ public class Wait {
          if (printThreadDump) {
             callThreadDumpUtil("thread dump");
          }
-         Assert.assertEquals(size.longValue(), condition.getCount());
+         Assertions.assertEquals(size.longValue(), condition.getCount());
       }
    }
 
@@ -114,7 +116,7 @@ public class Wait {
       boolean result = waitFor(() -> (obj == condition || (obj != null && obj.equals(condition.getObject()))), timeout, sleepMillis);
 
       if (!result) {
-         Assert.assertEquals(obj, condition.getObject());
+         Assertions.assertEquals(obj, condition.getObject());
       }
    }
 
@@ -122,7 +124,7 @@ public class Wait {
       boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
 
       if (!result) {
-         Assert.assertEquals(size, condition.getCount());
+         Assertions.assertEquals(size, condition.getCount());
       }
    }
 
@@ -171,7 +173,7 @@ public class Wait {
       boolean result = waitFor(condition, duration, sleep);
 
       if (!result) {
-         Assert.fail(failureMessage.get());
+         fail(failureMessage.get());
       }
    }
 

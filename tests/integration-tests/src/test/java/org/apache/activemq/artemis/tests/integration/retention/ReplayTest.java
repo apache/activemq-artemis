@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.retention;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,13 +35,14 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReplayTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -88,9 +93,9 @@ public class ReplayTest extends ActiveMQTestBase {
 
          MessageConsumer consumer = session.createConsumer(queue);
 
-         Assert.assertNotNull(consumer.receive(5000));
+         assertNotNull(consumer.receive(5000));
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          server.replay(null, null, "t1", "t2", null);
 
@@ -100,24 +105,24 @@ public class ReplayTest extends ActiveMQTestBase {
 
          TextMessage receivedMessage = (TextMessage) consumert2.receive(5000);
 
-         Assert.assertNotNull(receivedMessage);
+         assertNotNull(receivedMessage);
 
-         Assert.assertEquals(buffer.toString(), receivedMessage.getText());
+         assertEquals(buffer.toString(), receivedMessage.getText());
 
-         Assert.assertNull(consumert2.receiveNoWait());
+         assertNull(consumert2.receiveNoWait());
 
          server.replay(null, null, "t2", "t1", null);
 
          receivedMessage = (TextMessage) consumer.receive(5000);
 
-         Assert.assertNotNull(receivedMessage);
+         assertNotNull(receivedMessage);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          // invalid filter.. nothing should be re played
          server.replay(null, null, "t1", "t1", "foo='foo'");
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
    }

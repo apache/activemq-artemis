@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
@@ -41,8 +46,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +59,7 @@ public class AddressCommandTest extends JMSTestBase {
    private ByteArrayOutputStream output;
    private ByteArrayOutputStream error;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -244,12 +249,12 @@ public class AddressCommandTest extends JMSTestBase {
    private void checkExecutionPassed(ConnectionAbstract command) throws Exception {
       String fullMessage = output.toString();
       logger.debug("output: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains("successfully"));
+      assertTrue(fullMessage.contains("successfully"), fullMessage);
    }
 
    private void checkExecutionFailure(ConnectionAbstract command, String message) throws Exception {
       String fullMessage = error.toString();
       logger.debug("error: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains(message));
+      assertTrue(fullMessage.contains(message), fullMessage);
    }
 }

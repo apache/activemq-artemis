@@ -17,27 +17,27 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYEIGHT_ZERO;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYEIGHT_ZERO;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CLIFunctionTest extends ClasspathBase {
 
    private final ClassLoader serverClassloader;
 
    private final ClassLoader clientClassloader;
 
-
-   @Parameterized.Parameters(name = "Server={0}, Client={1}")
+   @Parameters(name = "Server={0}, Client={1}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
       combinations.add(new Object[]{TWO_TWENTYEIGHT_ZERO, SNAPSHOT});
@@ -55,11 +55,11 @@ public class CLIFunctionTest extends ClasspathBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testQueueStat() throws Throwable {
       try {
          setVariable(serverClassloader, "persistent", Boolean.FALSE);
-         startServer(serverFolder.getRoot(), serverClassloader, "server", null,
+         startServer(serverFolder, serverClassloader, "server", null,
                      false, "servers/artemisServer.groovy",
                      "ARTEMIS", "ARTEMIS", "ARTEMIS");
 

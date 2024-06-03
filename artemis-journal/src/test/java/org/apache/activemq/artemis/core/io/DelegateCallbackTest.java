@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DelegateCallbackTest {
 
@@ -57,8 +59,8 @@ public class DelegateCallbackTest {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(false);
       final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.done();
-      Assert.assertEquals(2, countingIOCallback.done);
-      Assert.assertEquals(0, countingIOCallback.onError);
+      assertEquals(2, countingIOCallback.done);
+      assertEquals(0, countingIOCallback.onError);
    }
 
    @Test
@@ -66,8 +68,8 @@ public class DelegateCallbackTest {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(false);
       final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.onError(0, "not a real error");
-      Assert.assertEquals(0, countingIOCallback.done);
-      Assert.assertEquals(2, countingIOCallback.onError);
+      assertEquals(0, countingIOCallback.done);
+      assertEquals(2, countingIOCallback.onError);
    }
 
    @Test
@@ -75,8 +77,8 @@ public class DelegateCallbackTest {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
       final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.done();
-      Assert.assertEquals(2, countingIOCallback.done);
-      Assert.assertEquals(0, countingIOCallback.onError);
+      assertEquals(2, countingIOCallback.done);
+      assertEquals(0, countingIOCallback.onError);
    }
 
    @Test
@@ -84,8 +86,8 @@ public class DelegateCallbackTest {
       final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
       final DelegateCallback callback = DelegateCallback.wrap(Arrays.asList(countingIOCallback, countingIOCallback));
       callback.onError(0, "not a real error");
-      Assert.assertEquals(0, countingIOCallback.done);
-      Assert.assertEquals(2, countingIOCallback.onError);
+      assertEquals(0, countingIOCallback.done);
+      assertEquals(2, countingIOCallback.onError);
    }
 
    @Test
@@ -94,7 +96,7 @@ public class DelegateCallbackTest {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
          final DelegateCallback callback = DelegateCallback.wrap(Collections.singleton(countingIOCallback));
          callback.done();
-         Assert.assertTrue(loggerHandler.findText("AMQ142024"));
+         assertTrue(loggerHandler.findText("AMQ142024"));
       }
    }
 
@@ -104,7 +106,7 @@ public class DelegateCallbackTest {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
          final DelegateCallback callback = DelegateCallback.wrap(Collections.singleton(countingIOCallback));
          callback.onError(0, "not a real error");
-         Assert.assertTrue(loggerHandler.findText("AMQ142025"));
+         assertTrue(loggerHandler.findText("AMQ142025"));
       }
    }
 

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra;
 
+import static java.beans.Introspector.getBeanInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,10 +35,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static java.beans.Introspector.getBeanInfo;
+import org.junit.jupiter.api.Test;
 
 public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
 
@@ -83,7 +86,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception {
       SortedSet<String> connectionFactoryProperties = findAllPropertyNames(ActiveMQConnectionFactory.class);
-      Assert.assertTrue(connectionFactoryProperties.contains("useTopologyForLoadBalancing"));
+      assertTrue(connectionFactoryProperties.contains("useTopologyForLoadBalancing"));
       connectionFactoryProperties.removeAll(UNSUPPORTED_CF_PROPERTIES);
       SortedSet<String> raProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
       raProperties.removeAll(UNSUPPORTED_RA_PROPERTIES);

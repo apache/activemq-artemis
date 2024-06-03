@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -82,9 +82,8 @@ import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import io.netty.buffer.ByteBuf;
@@ -124,7 +123,7 @@ public class AMQPMessageTest {
       AMQPDefinedTypes.registerAllTypes(decoder, encoder);
    }
 
-   @Before
+   @BeforeEach
    public void setUp() {
       encodedProtonMessage = encodeMessage(createProtonMessage());
    }
@@ -150,7 +149,9 @@ public class AMQPMessageTest {
    public void testCreateMessageFromEncodedReadableBuffer() {
       AMQPStandardMessage decoded = new AMQPStandardMessage(0, ReadableBuffer.ByteBufferReader.wrap(encodedProtonMessage), null, null);
 
-      assertEquals(true, decoded.getHeader().getDurable());
+      Boolean durable = decoded.getHeader().getDurable();
+      assertNotNull(durable);
+      assertTrue(durable);
       assertEquals(TEST_TO_ADDRESS, decoded.getAddress());
    }
 
@@ -158,7 +159,9 @@ public class AMQPMessageTest {
    public void testCreateMessageFromEncodedByteArrayDataWithExtraProperties() {
       AMQPStandardMessage decoded = new AMQPStandardMessage(0, encodedProtonMessage, new TypedProperties(), null);
 
-      assertEquals(true, decoded.getHeader().getDurable());
+      Boolean durable = decoded.getHeader().getDurable();
+      assertNotNull(durable);
+      assertTrue(durable);
       assertEquals(TEST_TO_ADDRESS, decoded.getAddress());
       assertNotNull(decoded.getExtraProperties());
    }
@@ -183,7 +186,9 @@ public class AMQPMessageTest {
       assertEquals(persistedSize, message.getPersistSize());
       assertEquals(persistedSize - Integer.BYTES, message.getPersistentSize());
       assertEquals(persistedSize - Integer.BYTES, message.getEncodeSize());
-      assertEquals(true, message.getHeader().getDurable());
+      Boolean durable = message.getHeader().getDurable();
+      assertNotNull(durable);
+      assertTrue(durable);
       assertEquals(TEST_TO_ADDRESS, message.getAddress());
    }
 
@@ -202,20 +207,20 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
 
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       assertTrue(message.hasScheduledDeliveryTime());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       message.getHeader();
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
 
       assertTrue(message.hasScheduledDeliveryTime());
    }
@@ -235,20 +240,20 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
 
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       assertTrue(message.hasScheduledDeliveryTime());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       message.getHeader();
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
 
       assertTrue(message.hasScheduledDeliveryTime());
    }
@@ -265,20 +270,20 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.getDataScanningStatus());
 
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       assertFalse(message.hasScheduledDeliveryTime());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
 
       message.getHeader();
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
+      assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.getDataScanningStatus());
 
       assertFalse(message.hasScheduledDeliveryTime());
    }
@@ -344,10 +349,10 @@ public class AMQPMessageTest {
                   latchAlign.countDown();
                   go.await();
 
-                  Assert.assertNotNull(decoded.getHeader());
+                  assertNotNull(decoded.getHeader());
                   // this is a method used by Core Converter
                   decoded.getProtonMessage();
-                  Assert.assertNotNull(decoded.getHeader());
+                  assertNotNull(decoded.getHeader());
 
                } catch (Throwable e) {
                   e.printStackTrace();
@@ -361,15 +366,15 @@ public class AMQPMessageTest {
             threads[i].start();
          }
 
-         Assert.assertTrue(latchAlign.await(10, TimeUnit.SECONDS));
+         assertTrue(latchAlign.await(10, TimeUnit.SECONDS));
          go.countDown();
 
          for (Thread thread : threads) {
             thread.join(5000);
-            Assert.assertFalse(thread.isAlive());
+            assertFalse(thread.isAlive());
          }
 
-         Assert.assertEquals(0, failures.get());
+         assertEquals(0, failures.get());
       }
    }
 
@@ -379,7 +384,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
    }
 
    @Test
@@ -389,7 +394,7 @@ public class AMQPMessageTest {
 
       final String ID = UUID.randomUUID().toString();
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
       decoded.setConnectionID(ID);
       assertEquals(ID, decoded.getConnectionID());
    }
@@ -401,7 +406,7 @@ public class AMQPMessageTest {
 
       final String ID = UUID.randomUUID().toString();
 
-      assertEquals(null, decoded.getConnectionID());
+      assertNull(decoded.getConnectionID());
       decoded.setConnectionID(ID);
       assertEquals(ID, decoded.getConnectionID());
       assertEquals(ID, decoded.getStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME));
@@ -508,7 +513,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      assertEquals(null, decoded.getDuplicateProperty());
+      assertNull(decoded.getDuplicateProperty());
    }
 
    //----- Test the getAddress methods ---------------------------------------//
@@ -887,8 +892,8 @@ public class AMQPMessageTest {
       decoded.setReplyTo(null);
       decoded.reencode();
 
-      assertEquals(null, decoded.getReplyTo());
-      assertEquals(null, decoded.getProperties().getReplyTo());
+      assertNull(decoded.getReplyTo());
+      assertNull(decoded.getProperties().getReplyTo());
    }
 
    //----- Test access to User ID --------------------------------------------//
@@ -1610,15 +1615,15 @@ public class AMQPMessageTest {
       decoded.putExtraBytesProperty(name, original);
 
       ICoreMessage coreMessage = decoded.toCore();
-      Assert.assertEquals(original, coreMessage.getBytesProperty(name));
+      assertEquals(original, coreMessage.getBytesProperty(name));
 
       ActiveMQBuffer buffer = ActiveMQBuffers.pooledBuffer(10 * 1024);
       try {
          decoded.getPersister().encode(buffer, decoded);
-         Assert.assertEquals(AMQPMessagePersisterV3.getInstance().getID(), buffer.readByte()); // the journal reader will read 1 byte to find the persister
+         assertEquals(AMQPMessagePersisterV3.getInstance().getID(), buffer.readByte()); // the journal reader will read 1 byte to find the persister
          AMQPStandardMessage readMessage = (AMQPStandardMessage)decoded.getPersister().decode(buffer, null, null);
-         Assert.assertEquals(33, readMessage.getMessageID());
-         Assert.assertEquals("someAddress", readMessage.getAddress());
+         assertEquals(33, readMessage.getMessageID());
+         assertEquals("someAddress", readMessage.getAddress());
          assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
       } finally {
          buffer.release();
@@ -1627,8 +1632,8 @@ public class AMQPMessageTest {
       {
          ICoreMessage embeddedMessage = EmbedMessageUtil.embedAsCoreMessage(decoded);
          AMQPStandardMessage readMessage = (AMQPStandardMessage) EmbedMessageUtil.extractEmbedded(embeddedMessage, null);
-         Assert.assertEquals(33, readMessage.getMessageID());
-         Assert.assertEquals("someAddress", readMessage.getAddress());
+         assertEquals(33, readMessage.getMessageID());
+         assertEquals("someAddress", readMessage.getAddress());
          assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
       }
    }

@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,17 +36,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -53,7 +56,7 @@ import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
  * Refer to ./scripts/parameters.sh for suggested parameters
  * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
  * export TEST_FLOW_ZIP_LOCATION=a folder */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class FlowControlPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "FLOW";
@@ -78,7 +81,7 @@ public class FlowControlPagingTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "flowControlPaging";
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -94,7 +97,7 @@ public class FlowControlPagingTest extends SoakTestBase {
    }
 
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
@@ -124,9 +127,9 @@ public class FlowControlPagingTest extends SoakTestBase {
       return "flow-data-" + protocol +  "-" + MESSAGES + "-" + MESSAGE_SIZE + ".zip";
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       boolean useZip = ZIP_LOCATION != null;
@@ -141,7 +144,7 @@ public class FlowControlPagingTest extends SoakTestBase {
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
-   @Test
+   @TestTemplate
    public void testFlow() throws Exception {
       String QUEUE_NAME = "QUEUE_FLOW";
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
@@ -231,7 +234,7 @@ public class FlowControlPagingTest extends SoakTestBase {
                   continue;
                }
 
-               Assert.assertEquals(m, message.getIntProperty("m"));
+               assertEquals(m, message.getIntProperty("m"));
 
                // The sending commit interval here will be used for printing
                if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
@@ -258,8 +261,8 @@ public class FlowControlPagingTest extends SoakTestBase {
       connectionConsumer.start();
 
       service.shutdown();
-      Assert.assertTrue("Test Timed Out", service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES), "Test Timed Out");
+      assertEquals(0, errors.get());
 
       connectionConsumer.close();
    }

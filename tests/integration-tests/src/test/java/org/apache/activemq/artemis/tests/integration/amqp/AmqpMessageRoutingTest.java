@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -24,13 +28,16 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+
+import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
@@ -49,7 +56,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
       return false;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAnycastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -68,7 +76,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
       Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAnycastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -87,7 +96,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
       Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMulticastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -106,7 +116,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
       Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMulticastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -132,7 +143,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
     *
     * @throws Exception
     */
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRoutingExclusivity() throws Exception {
 
       // Create Address with both ANYCAST and MULTICAST enabled
@@ -169,17 +181,20 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPRouteMessageToJMSOpenWire() throws Throwable {
       testAMQPRouteMessageToJMS(createOpenWireConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPRouteMessageToJMSAMQP() throws Throwable {
       testAMQPRouteMessageToJMS(createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testAMQPRouteMessageToJMSCore() throws Throwable {
       testAMQPRouteMessageToJMS(createCoreConnection());
    }

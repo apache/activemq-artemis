@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,30 +37,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters
  * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
  * export TEST_HORIZONTAL_ZIP_LOCATION=a folder
  * */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class HorizontalPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "HORIZONTAL";
@@ -81,7 +83,7 @@ public class HorizontalPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "horizontalPaging";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -96,7 +98,7 @@ public class HorizontalPagingTest extends SoakTestBase {
       }
    }
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
@@ -128,9 +130,9 @@ public class HorizontalPagingTest extends SoakTestBase {
       return "horizontal-" + protocol + "-" + DESTINATIONS + "-" + MESSAGES + "-" + MESSAGE_SIZE + ".zip";
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       boolean useZip = ZIP_LOCATION != null;
@@ -146,7 +148,7 @@ public class HorizontalPagingTest extends SoakTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testHorizontal() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       AtomicInteger errors = new AtomicInteger(0);
@@ -251,7 +253,7 @@ public class HorizontalPagingTest extends SoakTestBase {
                      logger.info("Destination {} received {} {} messages", destination, m, protocol);
                   }
 
-                  Assert.assertEquals(m, message.getIntProperty("m"));
+                  assertEquals(m, message.getIntProperty("m"));
 
                   if (RECEIVE_COMMIT_INTERVAL > 0 && (m + 1) % RECEIVE_COMMIT_INTERVAL == 0) {
                      sessionConsumer.commit();
@@ -274,9 +276,9 @@ public class HorizontalPagingTest extends SoakTestBase {
       connectionConsumer.start();
 
       service.shutdown();
-      Assert.assertTrue("Test Timed Out", service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
-      Assert.assertEquals(DESTINATIONS, completedFine.get());
+      assertTrue(service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES), "Test Timed Out");
+      assertEquals(0, errors.get());
+      assertEquals(DESTINATIONS, completedFine.get());
 
       connectionConsumer.close();
    }

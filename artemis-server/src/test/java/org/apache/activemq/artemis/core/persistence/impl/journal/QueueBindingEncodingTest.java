@@ -16,15 +16,16 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class QueueBindingEncodingTest extends Assert {
+public class QueueBindingEncodingTest {
 
    @Test
    public void testEncodeDecode() {

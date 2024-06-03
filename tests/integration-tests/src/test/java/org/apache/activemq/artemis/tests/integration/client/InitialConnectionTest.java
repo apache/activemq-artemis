@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
@@ -25,8 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InitialConnectionTest extends ActiveMQTestBase {
 
@@ -56,7 +58,7 @@ public class InitialConnectionTest extends ActiveMQTestBase {
 
       t.join();
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 
@@ -72,8 +74,8 @@ public class InitialConnectionTest extends ActiveMQTestBase {
          // expected
          failed = true;
       }
-      Assert.assertTrue(failed);
+      assertTrue(failed);
       long timeEnd = System.currentTimeMillis();
-      Assert.assertTrue("3 connectors, at 100 milliseconds each try, initialConnectAttempt=2, it should have waited at least 600 (- 100 from the last try that we don't actually wait, just throw ) milliseconds", timeEnd - timeStart >= 500);
+      assertTrue(timeEnd - timeStart >= 500, "3 connectors, at 100 milliseconds each try, initialConnectAttempt=2, it should have waited at least 600 (- 100 from the last try that we don't actually wait, just throw ) milliseconds");
    }
 }

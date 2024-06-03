@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +29,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTFQQNTest extends MQTTTestSupport {
 
@@ -53,7 +60,8 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testSendAndReceiveMQTTSpecial1() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -68,7 +76,7 @@ public class MQTTFQQNTest extends MQTTTestSupport {
             for (int i = 0; i < NUM_MESSAGES; i++) {
                try {
                   byte[] payload = subscriptionProvider.receive(10000);
-                  assertNotNull("Should get a message", payload);
+                  assertNotNull(payload, "Should get a message");
                   latch.countDown();
                } catch (Exception e) {
                   e.printStackTrace();
@@ -94,7 +102,8 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       publishProvider.disconnect();
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
    public void testSendAndReceiveMQTTSpecial2() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);

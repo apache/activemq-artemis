@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -38,16 +39,16 @@ import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.qpid.proton.codec.DecodeException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * test cases for the SASL-SCRAM
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SCRAMTest {
 
    /**
@@ -73,7 +74,7 @@ public class SCRAMTest {
       this.mechanism = mechanism;
    }
 
-   @Test
+   @TestTemplate
    public void testSuccess() throws NoSuchAlgorithmException {
       TestSCRAMServerSASL serverSASL = new TestSCRAMServerSASL(mechanism, USERNAME, PASSWORD);
       TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, PASSWORD);
@@ -97,7 +98,7 @@ public class SCRAMTest {
       assertTrue(clientCheck.length == 0);
    }
 
-   @Test
+   @TestTemplate
    public void testWrongClientPassword() throws NoSuchAlgorithmException {
       TestSCRAMServerSASL serverSASL = new TestSCRAMServerSASL(mechanism, USERNAME, PASSWORD);
       TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, "xyz");
@@ -113,25 +114,27 @@ public class SCRAMTest {
       assertNull(serverFinal);
       assertNotNull(serverSASL.result());
       assertFalse(serverSASL.result().isSuccess());
-      assertTrue(serverSASL.exception + " is not an instance of ScramException", serverSASL.exception instanceof ScramException);
+      assertTrue(serverSASL.exception instanceof ScramException, serverSASL.exception + " is not an instance of ScramException");
    }
 
-   @Test(expected = DecodeException.class)
+   @TestTemplate
    public void testServerTryTrickClient() throws NoSuchAlgorithmException, ScramException {
-      TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, PASSWORD);
-      ScramServerFunctionalityImpl bad =
-               new ScramServerFunctionalityImpl(mechanism.getDigest(), mechanism.getHmac(), SNONCE);
-      byte[] clientFirst = clientSASL.getInitialResponse();
-      assertNotNull(clientFirst);
-      bad.handleClientFirstMessage(new String(clientFirst, StandardCharsets.US_ASCII));
-      byte[] serverFirst =
-               bad.prepareFirstMessage(generateUserData(mechanism, "bad")).getBytes(StandardCharsets.US_ASCII);
-      byte[] clientFinal = clientSASL.getResponse(serverFirst);
-      assertNotNull(clientFinal);
-      assertFalse(clientFinal.length == 0);
-      byte[] serverFinal = bad.prepareFinalMessageUnchecked(new String(clientFinal, StandardCharsets.US_ASCII))
-                              .getBytes(StandardCharsets.US_ASCII);
-      clientSASL.getResponse(serverFinal);
+      assertThrows(DecodeException.class, () -> {
+         TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, PASSWORD);
+         ScramServerFunctionalityImpl bad =
+            new ScramServerFunctionalityImpl(mechanism.getDigest(), mechanism.getHmac(), SNONCE);
+         byte[] clientFirst = clientSASL.getInitialResponse();
+         assertNotNull(clientFirst);
+         bad.handleClientFirstMessage(new String(clientFirst, StandardCharsets.US_ASCII));
+         byte[] serverFirst =
+            bad.prepareFirstMessage(generateUserData(mechanism, "bad")).getBytes(StandardCharsets.US_ASCII);
+         byte[] clientFinal = clientSASL.getResponse(serverFirst);
+         assertNotNull(clientFinal);
+         assertFalse(clientFinal.length == 0);
+         byte[] serverFinal = bad.prepareFinalMessageUnchecked(new String(clientFinal, StandardCharsets.US_ASCII))
+            .getBytes(StandardCharsets.US_ASCII);
+         clientSASL.getResponse(serverFinal);
+      });
    }
 
    private static UserData generateUserData(SCRAM mechanism, String password) throws NoSuchAlgorithmException,

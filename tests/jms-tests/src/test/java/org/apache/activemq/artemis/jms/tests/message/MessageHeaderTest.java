@@ -60,7 +60,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQObjectMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -738,6 +739,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       MessageHeaderTestBase.ensureEquivalent(receivedMessage, (ActiveMQMessage) message);
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();

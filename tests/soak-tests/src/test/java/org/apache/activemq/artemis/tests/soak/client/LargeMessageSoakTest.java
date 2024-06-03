@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,8 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +48,7 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -117,12 +122,12 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
                      while (textMessage == null);
 
 
-                     Assert.assertNotNull(textMessage);
+                     assertNotNull(textMessage);
                      if (logger.isDebugEnabled()) {
                         logger.debug("Consumer Thread {} received {} messages, protocol={}", localT, i, protocol);
                      }
                      // Since all messages come from the same queue on all consumers, this is the only assertion possible for the message
-                     Assert.assertEquals(largetext, textMessage.getText());
+                     assertEquals(largetext, textMessage.getText());
                   }
                }
             } catch (Throwable e) {
@@ -157,8 +162,8 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
          });
       }
 
-      Assert.assertTrue(done.await(5, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(5, TimeUnit.MINUTES));
+      assertEquals(0, errors.get());
    }
 
 

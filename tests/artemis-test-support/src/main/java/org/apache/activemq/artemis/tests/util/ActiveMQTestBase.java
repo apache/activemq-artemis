@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.naming.Context;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
@@ -136,31 +142,31 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.rules.LibaioContextCheck;
-import org.apache.activemq.artemis.tests.rules.RemoveFolder;
+import org.apache.activemq.artemis.tests.extensions.LibaioContextCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.PortCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.RemoveDirectoryExtension;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-
 /**
  * Base class with basic utilities on starting up a basic server
  */
+@ExtendWith(LibaioContextCheckExtension.class)
 public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -169,10 +175,9 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       Env.setTestEnv(true);
    }
 
-   @ClassRule
-   public static PortCheckRule portCheckRule = new PortCheckRule(61616);
+   @RegisterExtension
+   public static PortCheckExtension portCheckExtension = new PortCheckExtension(61616);
 
-   public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
    public static final String INVM_CONNECTOR_FACTORY = InVMConnectorFactory.class.getCanonicalName();
    public static final String NETTY_ACCEPTOR_FACTORY = NettyAcceptorFactory.class.getCanonicalName();
@@ -188,9 +193,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    private static final int DEFAULT_UDP_PORT;
 
    protected static final long WAIT_TIMEOUT = 30000;
-
-   @ClassRule
-   public static LibaioContextCheck libaioContextRule = new LibaioContextCheck();
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
@@ -208,16 +210,16 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    private final Collection<ActiveMQComponent> otherComponents = new HashSet<>();
    private final Set<ExecutorService> executorSet = new HashSet<>();
 
-   private String testDir;
    private int sendMsgCount = 0;
 
-   @Rule
-   public TemporaryFolder temporaryFolder;
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   // Cleans itself, but ./target/tmp/ deleted below as well.
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
-   @Rule
-   // This Custom rule will remove any files under ./target/tmp
-   // including anything created previously by TemporaryFolder
-   public RemoveFolder folder = new RemoveFolder(TARGET_TMP);
+   // This Extension will remove any files under ./target/tmp
+   @RegisterExtension
+   public RemoveDirectoryExtension removeDirectory = new RemoveDirectoryExtension(TargetTempDirFactory.TARGET_TMP);
 
    static {
       Random random = new Random();
@@ -225,11 +227,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    public ActiveMQTestBase() {
-      File parent = new File(TARGET_TMP);
-      parent.mkdirs();
-      File subParent = new File(parent, this.getClass().getSimpleName());
-      subParent.mkdirs();
-      temporaryFolder = new TemporaryFolder(subParent);
+
    }
 
    protected <T> T serialClone(Object object) throws Exception {
@@ -244,12 +242,12 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-
       try {
+         closeAllSessionFactories();
+         closeAllServerLocatorsFactories();
+
          assertAllClientConsumersAreClosed();
          assertAllClientProducersAreClosed();
          assertAllClientSessionsAreClosed();
@@ -348,12 +346,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       }
    }
 
-   @Before
-   public void setupTestDir() {
-      testDir = temporaryFolder.getRoot().getAbsolutePath();
-   }
-
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       sendMsgCount = 0;
       clearDataRecreateServerDirs();
@@ -364,7 +357,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {
       for (int i = 0; i < expected.length; i++) {
-         Assert.assertEquals("byte at index " + i, expected[i], actual[i]);
+         assertEquals(expected[i], actual[i], "byte at index " + i);
       }
    }
 
@@ -390,11 +383,11 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     * i.e: DON'T USE IT UNLESS YOU HAVE A SEPARATE VM FOR YOUR TEST.
     */
    protected void disableCheckThread() {
-      leakCheckRule.disable();
+      threadLeakCheckExtension.disable();
    }
 
    protected String getName() {
-      return name.getMethodName();
+      return name;
    }
 
    protected boolean isWindows() {
@@ -614,7 +607,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       while (i++ <= 200 && hasValue);
 
       for (WeakReference<?> ref : references) {
-         Assert.assertNull(ref.get());
+         assertNull(ref.get());
       }
    }
 
@@ -684,7 +677,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
                                                           final TransportConfiguration[] actual) {
       assertEquals(expected.length, actual.length);
       for (int i = 0; i < expected.length; i++) {
-         Assert.assertEquals("TransportConfiguration at index " + i, expected[i], actual[i]);
+         assertEquals(expected[i], actual[i], "TransportConfiguration at index " + i);
       }
    }
 
@@ -696,7 +689,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       for (int i = 0; i < size; i++) {
          byte b1 = expected.readByte();
          byte b2 = actual.readByte();
-         Assert.assertEquals("byte at index " + i, b1, b2);
+         assertEquals(b1, b2, "byte at index " + i);
       }
       expected.resetReaderIndex();
       actual.resetReaderIndex();
@@ -705,23 +698,23 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    public static void assertEqualsByteArrays(final int length, final byte[] expected, final byte[] actual) {
       // we check only for the given length (the arrays might be
       // larger)
-      Assert.assertTrue(expected.length >= length);
-      Assert.assertTrue(actual.length >= length);
+      assertTrue(expected.length >= length);
+      assertTrue(actual.length >= length);
       for (int i = 0; i < length; i++) {
-         Assert.assertEquals("byte at index " + i, expected[i], actual[i]);
+         assertEquals(expected[i], actual[i], "byte at index " + i);
       }
    }
 
    public static void assertSameXids(final List<Xid> expected, final List<Xid> actual) {
-      Assert.assertNotNull(expected);
-      Assert.assertNotNull(actual);
-      Assert.assertEquals(expected.size(), actual.size());
+      assertNotNull(expected);
+      assertNotNull(actual);
+      assertEquals(expected.size(), actual.size());
 
       for (int i = 0; i < expected.size(); i++) {
          Xid expectedXid = expected.get(i);
          Xid actualXid = actual.get(i);
          assertEqualsByteArrays(expectedXid.getBranchQualifier(), actualXid.getBranchQualifier());
-         Assert.assertEquals(expectedXid.getFormatId(), actualXid.getFormatId());
+         assertEquals(expectedXid.getFormatId(), actualXid.getFormatId());
          assertEqualsByteArrays(expectedXid.getGlobalTransactionId(), actualXid.getGlobalTransactionId());
       }
    }
@@ -729,14 +722,14 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    protected static void checkNoBinding(final Context context, final String binding) {
       try {
          context.lookup(binding);
-         Assert.fail("there must be no resource to look up for " + binding);
+         fail("there must be no resource to look up for " + binding);
       } catch (Exception e) {
       }
    }
 
    protected static Object checkBinding(final Context context, final String binding) throws Exception {
       Object o = context.lookup(binding);
-      Assert.assertNotNull(o);
+      assertNotNull(o);
       return o;
    }
 
@@ -764,7 +757,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     * @return the testDir
     */
    protected final String getTestDir() {
-      return testDir;
+      return temporaryFolder.getAbsolutePath();
    }
 
    protected String getEmbeddedDataBaseName() {
@@ -788,11 +781,12 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    protected final File getTestDirfile() {
-      return new File(testDir);
+      return new File(getTestDir());
    }
 
    protected final void setTestDir(String testDir) {
-      this.testDir = testDir;
+      // Used directly by some tests that execute a test class Main but still use the 'test dir' otherwise set by JUnit.
+      this.temporaryFolder = new File(testDir);
    }
 
    protected final void clearDataRecreateServerDirs() {
@@ -954,10 +948,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
                                                  final ActiveMQAction action) {
       try {
          action.run();
-         Assert.fail(message);
+         fail(message);
       } catch (Exception e) {
-         Assert.assertTrue(e instanceof ActiveMQException);
-         Assert.assertEquals(errorCode, ((ActiveMQException) e).getType());
+         assertTrue(e instanceof ActiveMQException);
+         assertEquals(errorCode, ((ActiveMQException) e).getType());
       }
    }
 
@@ -968,10 +962,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    protected static void expectXAException(final int errorCode, final ActiveMQAction action) {
       try {
          action.run();
-         Assert.fail("must throw a XAException with the expected errorCode: " + errorCode);
+         fail("must throw a XAException with the expected errorCode: " + errorCode);
       } catch (Exception e) {
-         Assert.assertTrue(e instanceof XAException);
-         Assert.assertEquals(errorCode, ((XAException) e).errorCode);
+         assertTrue(e instanceof XAException);
+         assertEquals(errorCode, ((XAException) e).errorCode);
       }
    }
 
@@ -1048,7 +1042,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
             logger.debug("Validating {} type = {}", prop.getName(), prop.getPropertyType());
             prop.getWriteMethod().invoke(pojo, value);
 
-            Assert.assertEquals("Property " + prop.getName(), value, prop.getReadMethod().invoke(pojo));
+            assertEquals(value, prop.getReadMethod().invoke(pojo), "Property " + prop.getName());
          }
       }
    }
@@ -1679,7 +1673,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    protected void assertMessageBody(final int i, final ClientMessage message) {
-      Assert.assertEquals(message.toString(), "message" + i, message.getBodyBuffer().readString());
+      assertEquals("message" + i, message.getBodyBuffer().readString(), message.toString());
    }
 
    /**
@@ -1714,13 +1708,13 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
                                         final boolean ack) throws ActiveMQException {
       for (int i = start; i < msgCount; i++) {
          ClientMessage message = consumer.receive(1000);
-         Assert.assertNotNull("Expecting a message " + i, message);
+         assertNotNull(message, "Expecting a message " + i);
          // sendCallNumber is just a debugging measure.
          Object prop = message.getObjectProperty(SEND_CALL_NUMBER);
          if (prop == null)
             prop = -1;
          final int actual = message.getIntProperty("counter");
-         Assert.assertEquals("expected=" + i + ". Got: property['counter']=" + actual + " sendNumber=" + prop, i, actual);
+         assertEquals(i, actual, "expected=" + i + ". Got: property['counter']=" + actual + " sendNumber=" + prop);
          assertMessageBody(i, message);
          if (ack)
             message.acknowledge();
@@ -2006,7 +2000,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    private void assertAllExecutorsFinished() throws InterruptedException {
       for (ExecutorService s : executorSet) {
-         Assert.assertTrue(s.awaitTermination(5, TimeUnit.SECONDS));
+         assertTrue(s.awaitTermination(5, TimeUnit.SECONDS));
       }
    }
 
@@ -2031,7 +2025,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    private void assertAllClientProducersAreClosed() {
       synchronized (clientProducers) {
          for (ClientProducer p : clientProducers) {
-            assertTrue(p + " should be closed", p.isClosed());
+            assertTrue(p.isClosed(), p + " should be closed");
          }
          clientProducers.clear();
       }
@@ -2112,7 +2106,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    protected void assertRefListsIdenticalRefs(final List<MessageReference> l1, final List<MessageReference> l2) {
       if (l1.size() != l2.size()) {
-         Assert.fail("Lists different sizes: " + l1.size() + ", " + l2.size());
+         fail("Lists different sizes: " + l1.size() + ", " + l2.size());
       }
 
       Iterator<MessageReference> iter1 = l1.iterator();
@@ -2122,7 +2116,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          MessageReference o1 = iter1.next();
          MessageReference o2 = iter2.next();
 
-         Assert.assertTrue("expected " + o1 + " but was " + o2, o1 == o2);
+         assertTrue(o1 == o2, "expected " + o1 + " but was " + o2);
       }
    }
 
@@ -2432,14 +2426,14 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       ClusterManager clusterManager = server.getClusterManager();
       clusterManager.flushExecutor();
       clusterManager.clear();
-      Assert.assertTrue("server should be running!", server.isStarted());
+      assertTrue(server.isStarted(), "server should be running!");
       server.fail(true);
 
       if (sessions.length > 0) {
          // Wait to be informed of failure
          boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
-         Assert.assertTrue("Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
-                              sessions.length, ok);
+         assertTrue(ok, "Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
+                              sessions.length);
       }
    }
 
@@ -2549,6 +2543,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     * @throws InterruptedException
     */
    public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
-      assertTrue("Latch has got to return within a minute", latch.await(1, TimeUnit.MINUTES));
+      assertTrue(latch.await(1, TimeUnit.MINUTES), "Latch has got to return within a minute");
    }
 }

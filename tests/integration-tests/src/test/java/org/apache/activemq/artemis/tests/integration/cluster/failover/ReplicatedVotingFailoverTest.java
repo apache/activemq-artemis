@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -23,24 +26,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.tests.extensions.TestMethodNameMatchExtension;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ReplicatedVotingFailoverTest extends FailoverTestBase {
 
-   boolean testBackupFailsVoteFails = false;
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         testBackupFailsVoteFails = description.getMethodName().equals("testBackupFailsVoteFails");
-      }
+   private static final String TEST_BACKUP_FAILS_VOTE_FAILS = "testBackupFailsVoteFails";
 
-   };
+   @RegisterExtension
+   TestMethodNameMatchExtension testBackupFailsVoteFails = new TestMethodNameMatchExtension(TEST_BACKUP_FAILS_VOTE_FAILS);
 
    protected void beforeWaitForRemoteBackupSynchronization() {
    }
@@ -131,7 +127,7 @@ public class ReplicatedVotingFailoverTest extends FailoverTestBase {
       ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setVoteOnReplicationFailure(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
-      if (testBackupFailsVoteFails) {
+      if (testBackupFailsVoteFails.matches()) {
          ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setQuorumSize(2);
       }
    }

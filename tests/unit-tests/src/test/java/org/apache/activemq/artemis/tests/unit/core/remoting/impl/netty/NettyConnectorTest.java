@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -41,9 +47,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -54,7 +60,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
    private ExecutorService executorService;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       executorService = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
@@ -73,6 +79,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       waitForServerToStart(server);
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       executorService.shutdown();
@@ -111,9 +118,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -128,7 +135,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       try {
          new NettyConnector(params, null, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
-         Assert.fail("Should throw Exception");
+         fail("Should throw Exception");
       } catch (IllegalArgumentException e) {
          // Ok
       }
@@ -136,7 +143,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       try {
          new NettyConnector(params, handler, null, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
-         Assert.fail("Should throw Exception");
+         fail("Should throw Exception");
       } catch (IllegalArgumentException e) {
          // Ok
       }
@@ -165,12 +172,12 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       c.close();
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
 
    }
 
@@ -198,12 +205,12 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       c.close();
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
 
    }
 
@@ -231,10 +238,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
-      Assert.assertNull(connector.createConnection());
+      assertTrue(connector.isStarted());
+      assertNull(connector.createConnection());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
 
    }
 
@@ -262,13 +269,13 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
 
       //Should have failed because SSL props override transport config options
       assertNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -295,14 +302,14 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
 
       //Should not fail because SSL props override transport config options
       assertNotNull(c);
       c.close();
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -330,14 +337,14 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
 
       //Should not fail because forceSSLParameters is set
       assertNotNull(c);
       c.close();
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -363,7 +370,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = null;
 
       try {
@@ -394,11 +401,11 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -421,11 +428,11 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -448,10 +455,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
-      Assert.assertNull(connector.createConnection());
+      assertTrue(connector.isStarted());
+      assertNull(connector.createConnection());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    public static class NettyConnectorTestPasswordCodec implements SensitiveDataCodec<String> {
@@ -497,11 +504,11 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -523,11 +530,11 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -551,10 +558,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
-      Assert.assertNull(connector.createConnection());
+      assertTrue(connector.isStarted());
+      assertNull(connector.createConnection());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -580,11 +587,11 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
+      assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -601,10 +608,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
-      Assert.assertNull(connector.createConnection());
+      assertTrue(connector.isStarted());
+      assertNull(connector.createConnection());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -621,10 +628,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
-      Assert.assertTrue(connector.isStarted());
-      Assert.assertNull(connector.createConnection());
+      assertTrue(connector.isStarted());
+      assertNull(connector.createConnection());
       connector.close();
-      Assert.assertFalse(connector.isStarted());
+      assertFalse(connector.isStarted());
    }
 
    @Test
@@ -640,14 +647,14 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          connector.start();
          final Connection connection = connector.createConnection(future -> {
             future.awaitUninterruptibly();
-            Assert.assertTrue(future.isSuccess());
+            assertTrue(future.isSuccess());
             final ChannelPipeline pipeline = future.channel().pipeline();
             final ActiveMQChannelHandler activeMQChannelHandler = pipeline.get(ActiveMQChannelHandler.class);
-            Assert.assertNotNull(activeMQChannelHandler);
+            assertNotNull(activeMQChannelHandler);
             pipeline.remove(activeMQChannelHandler);
-            Assert.assertNull(pipeline.get(ActiveMQChannelHandler.class));
+            assertNull(pipeline.get(ActiveMQChannelHandler.class));
          });
-         Assert.assertNull(connection);
+         assertNull(connection);
          connector.close();
       } finally {
          closeExecutor.shutdownNow();

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -48,8 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -1421,7 +1425,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             topicConsumer.getMessageSelector();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1448,7 +1452,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             topicConsumer.getNoLocal();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1495,7 +1499,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ((TopicSubscriber) topicConsumer).getTopic();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1542,7 +1546,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ((QueueReceiver) queueConsumer).getQueue();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1914,6 +1918,7 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -2888,10 +2893,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
          for (int count = 0; count < NUM_MESSAGES; count++) {
             TextMessage tm = (TextMessage) durable.receive(1500);
-            Assert.assertNotNull(tm);
+            assertNotNull(tm);
          }
 
-         Assert.assertNull(durable.receiveNoWait());
+         assertNull(durable.receiveNoWait());
 
          sess1.commit();
 
@@ -2952,10 +2957,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
          for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) durable3.receive(1000);
-            Assert.assertNotNull(tm);
+            assertNotNull(tm);
             ProxyAssertSupport.assertEquals("hello", tm.getText());
          }
-         Assert.assertNull(durable3.receiveNoWait());
+         assertNull(durable3.receiveNoWait());
 
          logger.debug("received {} messages", NUM_MESSAGES);
 

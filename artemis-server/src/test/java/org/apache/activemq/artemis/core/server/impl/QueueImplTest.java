@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,8 +39,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class QueueImplTest {
@@ -69,8 +71,8 @@ public class QueueImplTest {
 
       //Mock storageManager.
       Mockito.doAnswer(invocationOnMock -> {
-         Assert.assertTrue("Too transactions locked on afterCommit.",
-                           availableTransactions.tryAcquire(3000, TimeUnit.MILLISECONDS));
+         assertTrue(availableTransactions.tryAcquire(3000, TimeUnit.MILLISECONDS),
+                           "Too transactions locked on afterCommit.");
          executorService.execute(() -> {
             ((IOCallback) invocationOnMock.getArgument(0)).done();
             availableTransactions.release();
@@ -89,6 +91,6 @@ public class QueueImplTest {
 
       Mockito.doReturn(queue).when(pageSubscription).getQueue();
 
-      Assert.assertEquals(pagedReferences, queue.deleteAllReferences(flushLimit));
+      assertEquals(pagedReferences, queue.deleteAllReferences(flushLimit));
    }
 }

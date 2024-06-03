@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -23,24 +26,25 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LockManagerExtraBackupReplicatedFailoverTest extends FailoverTestBase {
 
    private static final String GROUP_NAME = "foo";
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean useGroupName;
 
-   @Parameterized.Parameters(name = "useGroupName={0}")
+   @Parameters(name = "useGroupName={0}")
    public static Iterable<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{false}, {true}});
    }
@@ -68,16 +72,16 @@ public class LockManagerExtraBackupReplicatedFailoverTest extends FailoverTestBa
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-   @Test
+   @TestTemplate
    public void testExtraBackupReplicates() throws Exception {
       Configuration secondBackupConfig = backupConfig.copy();
       String secondBackupGroupName = ((ReplicationBackupPolicyConfiguration) secondBackupConfig.getHAPolicyConfiguration()).getGroupName();
-      Assert.assertEquals(((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).getGroupName(),
+      assertEquals(((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).getGroupName(),
                           secondBackupGroupName);
       if (useGroupName) {
-         Assert.assertEquals(GROUP_NAME, secondBackupGroupName);
+         assertEquals(GROUP_NAME, secondBackupGroupName);
       } else {
-         Assert.assertNull(secondBackupGroupName);
+         assertNull(secondBackupGroupName);
       }
       TestableServer secondBackupServer = createTestableServer(secondBackupConfig);
       secondBackupConfig.setBindingsDirectory(getBindingsDir(1, true))

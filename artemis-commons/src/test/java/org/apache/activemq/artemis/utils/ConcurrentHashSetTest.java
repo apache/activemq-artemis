@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Iterator;
 
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.ConcurrentSet;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ConcurrentHashSetTest extends Assert {
+public class ConcurrentHashSetTest {
 
 
    private ConcurrentSet<String> set;
@@ -34,64 +37,64 @@ public class ConcurrentHashSetTest extends Assert {
 
    @Test
    public void testAdd() throws Exception {
-      Assert.assertTrue(set.add(element));
-      Assert.assertFalse(set.add(element));
+      assertTrue(set.add(element));
+      assertFalse(set.add(element));
    }
 
    @Test
    public void testAddIfAbsent() throws Exception {
-      Assert.assertTrue(set.addIfAbsent(element));
-      Assert.assertFalse(set.addIfAbsent(element));
+      assertTrue(set.addIfAbsent(element));
+      assertFalse(set.addIfAbsent(element));
    }
 
    @Test
    public void testRemove() throws Exception {
-      Assert.assertTrue(set.add(element));
+      assertTrue(set.add(element));
 
-      Assert.assertTrue(set.remove(element));
-      Assert.assertFalse(set.remove(element));
+      assertTrue(set.remove(element));
+      assertFalse(set.remove(element));
    }
 
    @Test
    public void testContains() throws Exception {
-      Assert.assertFalse(set.contains(element));
+      assertFalse(set.contains(element));
 
-      Assert.assertTrue(set.add(element));
-      Assert.assertTrue(set.contains(element));
+      assertTrue(set.add(element));
+      assertTrue(set.contains(element));
 
-      Assert.assertTrue(set.remove(element));
-      Assert.assertFalse(set.contains(element));
+      assertTrue(set.remove(element));
+      assertFalse(set.contains(element));
    }
 
    @Test
    public void testSize() throws Exception {
-      Assert.assertEquals(0, set.size());
+      assertEquals(0, set.size());
 
-      Assert.assertTrue(set.add(element));
-      Assert.assertEquals(1, set.size());
+      assertTrue(set.add(element));
+      assertEquals(1, set.size());
 
-      Assert.assertTrue(set.remove(element));
-      Assert.assertEquals(0, set.size());
+      assertTrue(set.remove(element));
+      assertEquals(0, set.size());
    }
 
    @Test
    public void testClear() throws Exception {
-      Assert.assertTrue(set.add(element));
+      assertTrue(set.add(element));
 
-      Assert.assertTrue(set.contains(element));
+      assertTrue(set.contains(element));
       set.clear();
-      Assert.assertFalse(set.contains(element));
+      assertFalse(set.contains(element));
    }
 
    @Test
    public void testIsEmpty() throws Exception {
-      Assert.assertTrue(set.isEmpty());
+      assertTrue(set.isEmpty());
 
-      Assert.assertTrue(set.add(element));
-      Assert.assertFalse(set.isEmpty());
+      assertTrue(set.add(element));
+      assertFalse(set.isEmpty());
 
       set.clear();
-      Assert.assertTrue(set.isEmpty());
+      assertTrue(set.isEmpty());
    }
 
    @Test
@@ -101,11 +104,11 @@ public class ConcurrentHashSetTest extends Assert {
       Iterator<String> iterator = set.iterator();
       while (iterator.hasNext()) {
          String e = iterator.next();
-         Assert.assertEquals(element, e);
+         assertEquals(element, e);
       }
    }
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       set = new ConcurrentHashSet<>();
       element = RandomUtil.randomString();

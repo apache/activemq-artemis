@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting.ssl;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OpenSSLContextFactoryProviderTest {
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,25 +57,26 @@ import org.apache.activemq.artemis.core.server.impl.PrimaryOnlyActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
-import org.apache.activemq.artemis.tests.rules.LibaioContextCheck;
+import org.apache.activemq.artemis.tests.extensions.LibaioContextCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.PortCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-
 /**
  * Base class with basic utilities on starting up a basic server
  */
+@ExtendWith(LibaioContextCheckExtension.class)
 public abstract class ServerTestBase extends ArtemisTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -82,16 +85,13 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       Env.setTestEnv(true);
    }
 
-   @ClassRule
-   public static PortCheckRule portCheckRule = new PortCheckRule(61616);
+   @RegisterExtension
+   public static PortCheckExtension portCheckExtension = new PortCheckExtension(61616);
 
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
    public static final String NETTY_ACCEPTOR_FACTORY = NettyAcceptorFactory.class.getCanonicalName();
    public static final String CLUSTER_PASSWORD = "UnitTestsClusterPassword";
-
-   @ClassRule
-   public static LibaioContextCheck libaioContextRule = new LibaioContextCheck();
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
@@ -104,20 +104,18 @@ public abstract class ServerTestBase extends ArtemisTestCase {
 
    private String testDir;
 
-   @Rule
-   public TemporaryFolder temporaryFolder;
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   // Cleans itself, but ./target/tmp/ deleted below as well.
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
-   @Rule
-   // This Custom rule will remove any files under ./target/tmp
-   // including anything created previously by TemporaryFolder
-   public RemoveFolder folder = new RemoveFolder(TARGET_TMP);
+   // This Extension will remove any files under ./target/tmp
+   @RegisterExtension
+   public RemoveDirectoryExtension removeDirectory = new RemoveDirectoryExtension(TargetTempDirFactory.TARGET_TMP);
+
 
    public ServerTestBase() {
-      File parent = new File(TARGET_TMP);
-      parent.mkdirs();
-      File subParent = new File(parent, this.getClass().getSimpleName());
-      subParent.mkdirs();
-      temporaryFolder = new TemporaryFolder(subParent);
+
    }
 
    protected <T> T serialClone(Object object) throws Exception {
@@ -132,7 +130,7 @@ public abstract class ServerTestBase extends ArtemisTestCase {
 
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       synchronized (servers) {
          for (ActiveMQServer server : servers) {
@@ -221,12 +219,7 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       }
    }
 
-   @Before
-   public void setupTestDir() {
-      testDir = temporaryFolder.getRoot().getAbsolutePath();
-   }
-
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       clearDataRecreateServerDirs();
       OperationContextImpl.clearContext();
@@ -235,7 +228,7 @@ public abstract class ServerTestBase extends ArtemisTestCase {
    }
 
    protected String getName() {
-      return name.getMethodName();
+      return name;
    }
 
    protected Configuration createDefaultInVMConfig() throws Exception {
@@ -340,11 +333,12 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return ThreadDumpUtil.threadDump(msg);
    }
 
-   /**
-    * @return the testDir
-    */
    protected final String getTestDir() {
-      return testDir;
+      return temporaryFolder.getAbsolutePath();
+   }
+
+   protected final File getTestDirfile() {
+      return new File(getTestDir());
    }
 
    protected String getEmbeddedDataBaseName() {
@@ -365,10 +359,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
 
    protected String getJDBCPassword() {
       return System.getProperty("jdbc.password", null);
-   }
-
-   protected final File getTestDirfile() {
-      return new File(testDir);
    }
 
    protected final void clearDataRecreateServerDirs() {

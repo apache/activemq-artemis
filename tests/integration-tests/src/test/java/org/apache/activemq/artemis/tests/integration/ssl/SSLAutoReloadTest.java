@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -32,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -44,7 +46,7 @@ public class SSLAutoReloadTest extends ActiveMQTestBase {
    @Test
    public void testOneWaySSLWithAutoReload() throws Exception {
 
-      File parentDir = new File(temporaryFolder.getRoot(), "sub");
+      File parentDir = new File(temporaryFolder, "sub");
       parentDir.mkdirs();
 
       // reference keystore from temp location that we can update
@@ -89,9 +91,9 @@ public class SSLAutoReloadTest extends ActiveMQTestBase {
 
    @Test
    public void testOneWaySSLWithAutoReloadPemConfigSources() throws Exception {
-      File serverKeyFile = temporaryFolder.newFile();
-      File serverCertFile = temporaryFolder.newFile();
-      File serverPemConfigFile = temporaryFolder.newFile();
+      File serverKeyFile = File.createTempFile("junit", null, temporaryFolder);
+      File serverCertFile = File.createTempFile("junit", null, temporaryFolder);
+      File serverPemConfigFile = File.createTempFile("junit", null, temporaryFolder);
 
       Files.copy(this.getClass().getClassLoader().getResourceAsStream("unknown-server-key.pem"),
          serverKeyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

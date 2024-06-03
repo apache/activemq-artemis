@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.largemessage;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.IOException;
@@ -46,17 +51,18 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
 
@@ -75,12 +81,13 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       this.storeType = storeType;
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
    }
 
-   @Parameterized.Parameters(name = "storeType={0}")
+   @Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
       return Arrays.asList(params);
@@ -176,8 +183,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                session = sf.createSession(null, null, isXA, false, false, preAck, 0);
 
                Xid[] xids = session.recover(XAResource.TMSTARTRSCAN);
-               Assert.assertEquals(1, xids.length);
-               Assert.assertEquals(xid, xids[0]);
+               assertEquals(1, xids.length);
+               assertEquals(xid, xids[0]);
 
                session.rollback(xid);
                producer = session.createProducer(ADDRESS);
@@ -208,8 +215,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
             session = sf.createSession(null, null, isXA, false, false, preAck, 0);
 
             Xid[] xids = session.recover(XAResource.TMSTARTRSCAN);
-            Assert.assertEquals(1, xids.length);
-            Assert.assertEquals(xid, xids[0]);
+            assertEquals(1, xids.length);
+            assertEquals(xid, xids[0]);
 
             producer = session.createProducer(ADDRESS);
 
@@ -258,20 +265,20 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                      try {
                         if (delayDelivery > 0) {
                            long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
-                           Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
+                           assertTrue(System.currentTimeMillis() - originalTime >= delayDelivery, System.currentTimeMillis() - originalTime + "<" + delayDelivery);
                         }
 
                         if (!preAck) {
                            message.acknowledge();
                         }
 
-                        Assert.assertNotNull(message);
+                        assertNotNull(message);
 
                         if (delayDelivery <= 0) {
                            // right now there is no guarantee of ordered delivered on multiple scheduledMessages with
                            // the same
                            // scheduled delivery time
-                           Assert.assertEquals(msgCounter, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                           assertEquals(msgCounter, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
                         }
 
                         if (useStreamOnConsume) {
@@ -298,7 +305,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                               }
                            });
 
-                           Assert.assertEquals(numberOfBytes, bytesRead.get());
+                           assertEquals(numberOfBytes, bytesRead.get());
                         } else {
 
                            ActiveMQBuffer buffer = message.getBodyBuffer();
@@ -308,12 +315,12 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                                  LargeMessageTestBase.logger.debug("Read {} bytes", b);
                               }
 
-                              Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
+                              assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                            }
 
                            try {
                               buffer.readByte();
-                              Assert.fail("Supposed to throw an exception");
+                              fail("Supposed to throw an exception");
                            } catch (Exception e) {
                            }
                         }
@@ -332,8 +339,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
                consumer.setMessageHandler(handler);
 
-               Assert.assertTrue(latchDone.await(waitOnConsumer, TimeUnit.MILLISECONDS));
-               Assert.assertEquals(0, errors.get());
+               assertTrue(latchDone.await(waitOnConsumer, TimeUnit.MILLISECONDS));
+               assertEquals(0, errors.get());
             } else {
 
                session.start();
@@ -341,23 +348,23 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                for (int i = 0; i < numberOfMessages; i++) {
                   ClientMessage message = consumer.receive(waitOnConsumer + delayDelivery);
 
-                  Assert.assertNotNull(message);
+                  assertNotNull(message);
 
                   if (delayDelivery > 0) {
                      long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
-                     Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
+                     assertTrue(System.currentTimeMillis() - originalTime >= delayDelivery, System.currentTimeMillis() - originalTime + "<" + delayDelivery);
                   }
 
                   if (!preAck) {
                      message.acknowledge();
                   }
 
-                  Assert.assertNotNull(message);
+                  assertNotNull(message);
 
                   if (delayDelivery <= 0) {
                      // right now there is no guarantee of ordered delivered on multiple scheduledMessages with the same
                      // scheduled delivery time
-                     Assert.assertEquals(i, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                     assertEquals(i, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
                   }
 
                   if (useStreamOnConsume) {
@@ -388,7 +395,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                         }
                      });
 
-                     Assert.assertEquals(numberOfBytes, bytesRead.get());
+                     assertEquals(numberOfBytes, bytesRead.get());
                   } else {
                      ActiveMQBuffer buffer = message.getBodyBuffer();
                      buffer.resetReaderIndex();
@@ -397,7 +404,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                         if (b % (1024L * 1024L) == 0L) {
                            LargeMessageTestBase.logger.debug("Read {} bytes", b);
                         }
-                        Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
+                        assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                      }
                   }
 
@@ -429,8 +436,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
          session.close();
 
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
+         assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
 
          validateNoFilesOnLargeDir();
 
@@ -543,7 +550,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
       ClientMessage clientMessage = consumer.receive(5000);
 
-      Assert.assertNotNull(clientMessage);
+      assertNotNull(clientMessage);
 
       clientMessage.acknowledge();
 
@@ -634,6 +641,12 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          this.random = random;
       }
 
+      public TestLargeMessageInputStream(TestLargeMessageInputStream other) {
+         this.minLarge = other.minLarge;
+         this.size = other.size;
+         this.pos = other.pos;
+      }
+
       public int getChar(int index) {
          if (random) {
             Random r = new Random();
@@ -645,12 +658,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
       public void setSize(int size) {
          this.size = size;
-      }
-
-      public TestLargeMessageInputStream(TestLargeMessageInputStream other) {
-         this.minLarge = other.minLarge;
-         this.size = other.size;
-         this.pos = other.pos;
       }
 
       public int getSize() {

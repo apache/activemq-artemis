@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -43,21 +42,21 @@ import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreTextM
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.netty.buffer.Unpooled;
-import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 
 public class JMSMappingInboundTransformerTest {
 
-   @Before
+   @BeforeEach
    public void setUp() {
    }
 
@@ -81,8 +80,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(coreMessage);
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -98,8 +97,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -109,8 +108,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    // ----- Data Body Section ------------------------------------------------//
@@ -133,8 +132,8 @@ public class JMSMappingInboundTransformerTest {
       AMQPStandardMessage amqp = encodeAndCreateAMQPMessage(message);
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(amqp.toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -154,8 +153,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -175,8 +174,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -188,8 +187,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreObjectMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreObjectMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -288,11 +287,11 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
+      assertNotNull(jmsMessage, "Message should not be null");
       if (StandardCharsets.UTF_8.equals(expectedCharset)) {
-         assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+         assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
       } else {
-         assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+         assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
       }
    }
 
@@ -312,8 +311,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -330,8 +329,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -350,8 +349,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreObjectMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreObjectMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -369,8 +368,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreMapMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreMapMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -388,8 +387,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreStreamMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreStreamMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -407,8 +406,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreStreamMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreStreamMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -426,8 +425,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
@@ -445,8 +444,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -458,8 +457,8 @@ public class JMSMappingInboundTransformerTest {
       CoreTextMessageWrapper jmsMessage = (CoreTextMessageWrapper) CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
       jmsMessage.decode();
 
-      assertTrue("Expected TextMessage", jmsMessage instanceof CoreTextMessageWrapper);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected TextMessage");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
 
       CoreTextMessageWrapper textMessage = jmsMessage;
 
@@ -509,7 +508,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue("Expected ServerJMSTextMessage", jmsMessage instanceof CoreTextMessageWrapper);
+      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected ServerJMSTextMessage");
    }
 
    // ----- ReplyTo Conversions ----------------------------------------------//
@@ -555,7 +554,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue("Expected TextMessage", jmsMessage instanceof CoreTextMessageWrapper);
+      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected TextMessage");
    }
 
    private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {

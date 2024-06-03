@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.soak.replicationflow;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -35,11 +38,10 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReplicationFlowControlTest extends SoakTestBase {
 
@@ -47,7 +49,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "replicated-static0";
    public static final String SERVER_NAME_1 = "replicated-static1";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
@@ -83,14 +85,14 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    static AtomicInteger totalConsumed = new AtomicInteger(0);
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
       disableCheckThread();
    }
 
-   @After
+   @AfterEach
    @Override
    public void after() throws Exception {
       super.after();
@@ -205,7 +207,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
       System.out.println("retention folder = " + retentionFolder.getAbsolutePath());
       File[] files = retentionFolder.listFiles();
       // it should be max = 2, however I'm giving some extra due to async factors..
-      Assert.assertTrue(retentionFolder.getAbsolutePath() + " has " + (files == null ? "no files" : files.length + " elements"), files != null && files.length <= 10);
+      assertTrue(files != null && files.length <= 10, retentionFolder.getAbsolutePath() + " has " + (files == null ? "no files" : files.length + " elements"));
    }
 
    void startConsumers(boolean useAMQP) {

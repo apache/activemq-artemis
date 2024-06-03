@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.management.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.util.Arrays;
@@ -27,20 +33,15 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class HawtioSecurityControlImplTest {
 
    protected GuardInvocationHandler guard;
 
-   @Before
+   @BeforeEach
    public void initGuard() {
       guard = Mockito.mock(ArtemisMBeanServerGuard.class);
    }
@@ -65,15 +66,17 @@ public class HawtioSecurityControlImplTest {
       assertFalse(control.canInvoke(objectName));
    }
 
-   @Test(expected = Exception.class)
+   @Test
    public void testCanInvokeMBeanThrowsException() throws Exception {
-      String objectName = "foo.bar.testing:type=SomeMBean";
-      StorageManager storageManager = Mockito.mock(StorageManager.class);
-      Mockito.when(guard.canInvoke(objectName, null)).thenThrow(new Exception());
+      assertThrows(Exception.class, () -> {
+         String objectName = "foo.bar.testing:type=SomeMBean";
+         StorageManager storageManager = Mockito.mock(StorageManager.class);
+         Mockito.when(guard.canInvoke(objectName, null)).thenThrow(new Exception());
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
-      control.canInvoke(objectName);
-      fail("Should have thrown an exception");
+         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+         control.canInvoke(objectName);
+         fail("Should have thrown an exception");
+      });
    }
 
    @Test
@@ -95,15 +98,17 @@ public class HawtioSecurityControlImplTest {
       assertFalse(control.canInvoke(objectName, "otherMethod", new String[]{"java.lang.String", "java.lang.String"}));
    }
 
-   @Test(expected = Exception.class)
+   @Test
    public void testCanInvokeMethodException() throws Exception {
-      String objectName = "foo.bar.testing:type=SomeMBean";
-      StorageManager storageManager = Mockito.mock(StorageManager.class);
-      Mockito.when(guard.canInvoke(objectName, "testMethod")).thenThrow(new Exception());
+      assertThrows(Exception.class, () -> {
+         String objectName = "foo.bar.testing:type=SomeMBean";
+         StorageManager storageManager = Mockito.mock(StorageManager.class);
+         Mockito.when(guard.canInvoke(objectName, "testMethod")).thenThrow(new Exception());
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
-      control.canInvoke(objectName, "testMethod", new String[]{});
-      fail("Should have thrown an exception");
+         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+         control.canInvoke(objectName, "testMethod", new String[]{});
+         fail("Should have thrown an exception");
+      });
    }
 
    @Test

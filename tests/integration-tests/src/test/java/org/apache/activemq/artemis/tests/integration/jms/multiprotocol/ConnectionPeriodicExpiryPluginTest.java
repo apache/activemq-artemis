@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,19 +46,22 @@ public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTe
       server.getConfiguration().getBrokerPlugins().add(plugin);
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testAMQP() throws Exception {
       Connection connection = createConnection(); //AMQP
       testExpiry(connection);
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testCore() throws Exception {
       Connection connection = createCoreConnection();
       testExpiry(connection);
    }
 
-   @Test(timeout = 5000)
+   @Test
+   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
    public void testOpenWire() throws Exception {
       Connection connection = createOpenWireConnection();
       testExpiry(connection);

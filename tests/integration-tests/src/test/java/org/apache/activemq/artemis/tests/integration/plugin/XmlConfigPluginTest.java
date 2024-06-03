@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -23,7 +28,7 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class XmlConfigPluginTest extends ActiveMQTestBase {
 
@@ -36,9 +41,9 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
          assertTrue(server.getBrokerPlugins().get(0) instanceof MethodCalledVerifier);
          assertTrue(server.getBrokerPlugins().get(1) instanceof ConfigurationVerifier);
          ConfigurationVerifier configurationVerifier = (ConfigurationVerifier) server.getBrokerPlugins().get(1);
-         assertEquals("value1", "val_1", configurationVerifier.value1);
-         assertEquals("value2", "val_2", configurationVerifier.value2);
-         assertNull("value3 should not have been set", configurationVerifier.value3);
+         assertEquals("val_1", configurationVerifier.value1, "value1");
+         assertEquals("val_2", configurationVerifier.value2, "value2");
+         assertNull(configurationVerifier.value3, "value3 should not have been set");
       } finally {
          if (server != null) {
             server.stop();
@@ -55,17 +60,16 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       ActiveMQServer server = createServerFromConfig("broker-logging-plugin.xml");
       try {
          server.start();
-         assertEquals("only one plugin should be registered",1, server.getBrokerPlugins().size());
-         assertTrue("ensure LoggingActiveMQServerPlugin is registered",server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin);
+         assertEquals(1, server.getBrokerPlugins().size(), "only one plugin should be registered");
+         assertTrue(server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin,"ensure LoggingActiveMQServerPlugin is registered");
          LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
-         assertEquals("check logAll", true, loggingActiveMQServerPlugin.isLogAll());
-         assertEquals("check logConnectionEvents", true, loggingActiveMQServerPlugin.isLogConnectionEvents());
-         assertEquals("check logSessionEvents", true, loggingActiveMQServerPlugin.isLogSessionEvents());
-         assertEquals("check logConsumerEvents", true, loggingActiveMQServerPlugin.isLogConsumerEvents());
-         assertEquals("check logDeliveringEvents", true, loggingActiveMQServerPlugin.isLogDeliveringEvents());
-         assertEquals("check logSendingEvents", true, loggingActiveMQServerPlugin.isLogSendingEvents());
-         assertEquals("check logInternalEvents", true, loggingActiveMQServerPlugin.isLogInternalEvents());
-
+         assertTrue(loggingActiveMQServerPlugin.isLogAll(), "check logAll");
+         assertTrue(loggingActiveMQServerPlugin.isLogConnectionEvents(), "check logConnectionEvents");
+         assertTrue(loggingActiveMQServerPlugin.isLogSessionEvents(), "check logSessionEvents");
+         assertTrue(loggingActiveMQServerPlugin.isLogConsumerEvents(), "check logConsumerEvents");
+         assertTrue(loggingActiveMQServerPlugin.isLogDeliveringEvents(), "check logDeliveringEvents");
+         assertTrue(loggingActiveMQServerPlugin.isLogSendingEvents(), "check logSendingEvents");
+         assertTrue(loggingActiveMQServerPlugin.isLogInternalEvents(), "check logInternalEvents");
       } finally {
          if (server != null) {
             server.stop();
@@ -82,16 +86,16 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       ActiveMQServer server = createServerFromConfig("broker-logging-plugin-wrong.xml");
       try {
          server.start();
-         assertEquals("only one plugin should be registered",1, server.getBrokerPlugins().size());
-         assertTrue("ensure LoggingActiveMQServerPlugin is registered",server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin);
+         assertEquals(1, server.getBrokerPlugins().size(), "only one plugin should be registered");
+         assertTrue(server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin,"ensure LoggingActiveMQServerPlugin is registered");
          LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
-         assertEquals("check logAll", false, loggingActiveMQServerPlugin.isLogAll());
-         assertEquals("check logConnectionEvents", false, loggingActiveMQServerPlugin.isLogConnectionEvents());
-         assertEquals("check logSessionEvents", false, loggingActiveMQServerPlugin.isLogSessionEvents());
-         assertEquals("check logConsumerEvents", false, loggingActiveMQServerPlugin.isLogConsumerEvents());
-         assertEquals("check logDeliveringEvents", false, loggingActiveMQServerPlugin.isLogDeliveringEvents());
-         assertEquals("check logSendingEvents", false, loggingActiveMQServerPlugin.isLogSendingEvents());
-         assertEquals("check logInternalEvents", false, loggingActiveMQServerPlugin.isLogInternalEvents());
+         assertFalse(loggingActiveMQServerPlugin.isLogAll(), "check logAll");
+         assertFalse(loggingActiveMQServerPlugin.isLogConnectionEvents(), "check logConnectionEvents");
+         assertFalse(loggingActiveMQServerPlugin.isLogSessionEvents(), "check logSessionEvents");
+         assertFalse(loggingActiveMQServerPlugin.isLogConsumerEvents(), "check logConsumerEvents");
+         assertFalse(loggingActiveMQServerPlugin.isLogDeliveringEvents(), "check logDeliveringEvents");
+         assertFalse(loggingActiveMQServerPlugin.isLogSendingEvents(), "check logSendingEvents");
+         assertFalse(loggingActiveMQServerPlugin.isLogInternalEvents(), "check logInternalEvents");
 
       } finally {
          if (server != null) {

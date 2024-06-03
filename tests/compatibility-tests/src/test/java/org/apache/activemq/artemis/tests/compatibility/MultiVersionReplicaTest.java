@@ -17,6 +17,12 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_EIGHTEEN_ZERO;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVENTEEN_ZERO;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYTWO_ZERO;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -30,19 +36,14 @@ import java.util.List;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_EIGHTEEN_ZERO;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVENTEEN_ZERO;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYTWO_ZERO;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class MultiVersionReplicaTest extends ClasspathBase {
 
    private static final String QUEUE_NAME = "MultiVersionReplicaTestQueue";
@@ -55,7 +56,7 @@ public class MultiVersionReplicaTest extends ClasspathBase {
 
 
 
-   @Parameterized.Parameters(name = "main={0}, backup={1}")
+   @Parameters(name = "main={0}, backup={1}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
       combinations.add(new Object[]{TWO_TWENTYTWO_ZERO, SNAPSHOT});
@@ -77,7 +78,7 @@ public class MultiVersionReplicaTest extends ClasspathBase {
       this.backupClassLoader = getClasspath(backup);
    }
 
-   @After
+   @AfterEach
    public void cleanupServers() {
       try {
          evaluate(mainClassloader, "multiVersionReplica/mainServerStop.groovy");
@@ -90,12 +91,12 @@ public class MultiVersionReplicaTest extends ClasspathBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testReplica() throws Throwable {
       System.out.println("Starting live");
-      evaluate(mainClassloader, "multiVersionReplica/mainServer.groovy", serverFolder.getRoot().getAbsolutePath(), "1", "61000", "61001");
+      evaluate(mainClassloader, "multiVersionReplica/mainServer.groovy", serverFolder.getAbsolutePath(), "1", "61000", "61001");
       System.out.println("Starting backup");
-      evaluate(backupClassLoader, "multiVersionReplica/backupServer.groovy", serverFolder.getRoot().getAbsolutePath(), "2", "61001", "61000");
+      evaluate(backupClassLoader, "multiVersionReplica/backupServer.groovy", serverFolder.getAbsolutePath(), "2", "61001", "61000");
 
       evaluate(mainClassloader, "multiVersionReplica/mainServerIsReplicated.groovy");
 
@@ -154,7 +155,7 @@ public class MultiVersionReplicaTest extends ClasspathBase {
          boolean pending = false;
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             pending = true;
             if (i > 0 && i % 100 == 0) {
                session.commit();

@@ -67,7 +67,6 @@
          <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
-
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-buffer</artifactId>
@@ -81,8 +80,13 @@
          <artifactId>commons-beanutils</artifactId>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>

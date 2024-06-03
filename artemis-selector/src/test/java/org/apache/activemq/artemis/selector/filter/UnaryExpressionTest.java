@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collections;
 
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UnaryExpressionTest {
 
@@ -28,17 +30,17 @@ public class UnaryExpressionTest {
    public void testEquals() throws Exception {
       BooleanExpression expr1 = UnaryExpression.createNOT(SelectorParser.parse("x = 1"));
       BooleanExpression expr2 = UnaryExpression.createNOT(SelectorParser.parse("x = 1"));
-      Assert.assertTrue("Created unary expression 1", expr1 instanceof UnaryExpression);
-      Assert.assertTrue("Created unary expression 2", expr2 instanceof UnaryExpression);
-      Assert.assertEquals("Unary expressions are equal", expr1, expr2);
+      assertTrue(expr1 instanceof UnaryExpression, "Created unary expression 1");
+      assertTrue(expr2 instanceof UnaryExpression, "Created unary expression 2");
+      assertEquals(expr1, expr2, "Unary expressions are equal");
    }
 
    @Test
    public void testInExpressionToString() throws Exception {
       BooleanExpression expr;
       expr = UnaryExpression.createInExpression(new PropertyExpression("foo"), Collections.<Object>singletonList("bar"), false);
-      Assert.assertTrue(expr.toString().matches("foo\\s+IN\\s+.*bar.*"));
+      assertTrue(expr.toString().matches("foo\\s+IN\\s+.*bar.*"));
       expr = UnaryExpression.createInExpression(new PropertyExpression("foo"), Collections.emptyList(), false);
-      Assert.assertTrue(expr.toString().matches("foo\\s+IN\\s+.*"));
+      assertTrue(expr.toString().matches("foo\\s+IN\\s+.*"));
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -23,22 +26,23 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
  * Some Stomp tests against server with persistence enabled are put here.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ExtraStompTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -46,7 +50,7 @@ public class ExtraStompTest extends StompTestBase {
    private StompClientConnection connV10;
    private StompClientConnection connV11;
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{"ws+v11.stomp"}, {"tcp+v11.stomp"}});
    }
@@ -57,7 +61,7 @@ public class ExtraStompTest extends StompTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       URI v10Uri = new URI(uri.toString().replace("v11", "v10"));
@@ -69,7 +73,7 @@ public class ExtraStompTest extends StompTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          connV10.disconnect();
@@ -79,12 +83,12 @@ public class ExtraStompTest extends StompTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendAndReceive10() throws Exception {
       testSendAndReceive(connV10);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAndReceive11() throws Exception {
       testSendAndReceive(connV11);
    }
@@ -130,12 +134,12 @@ public class ExtraStompTest extends StompTestBase {
       unsubscribe(conn, "a-sub");
    }
 
-   @Test
+   @TestTemplate
    public void testNoGarbageAfterPersistentMessageV10() throws Exception {
       testNoGarbageAfterPersistentMessage(connV10);
    }
 
-   @Test
+   @TestTemplate
    public void testNoGarbageAfterPersistentMessageV11() throws Exception {
       testNoGarbageAfterPersistentMessage(connV11);
    }
@@ -172,12 +176,12 @@ public class ExtraStompTest extends StompTestBase {
       unsubscribe(conn, "a-sub");
    }
 
-   @Test
+   @TestTemplate
    public void testNoGarbageOnPersistentRedeliveryV10() throws Exception {
       testNoGarbageOnPersistentRedelivery(connV10);
    }
 
-   @Test
+   @TestTemplate
    public void testNoGarbageOnPersistentRedeliveryV11() throws Exception {
       testNoGarbageOnPersistentRedelivery(connV11);
    }

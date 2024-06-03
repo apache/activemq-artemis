@@ -16,20 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BasicSslTests extends MQTT5TestSupport {
 
    protected String protocol;
@@ -38,7 +42,7 @@ public class BasicSslTests extends MQTT5TestSupport {
       this.protocol = protocol;
    }
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][] {
          {SSL},
@@ -51,7 +55,8 @@ public class BasicSslTests extends MQTT5TestSupport {
       return true;
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @TestTemplate
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testSimpleSendReceive() throws Exception {
       String topic = RandomUtil.randomString();
       byte[] body = RandomUtil.randomBytes(32);

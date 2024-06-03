@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -45,10 +51,9 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeTestAccessor;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NettyBridgeReconnectTest extends BridgeTestBase {
 
@@ -68,7 +73,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
    private Map<String, TransportConfiguration> connectors;
    private ArrayList<String> staticConnectors;
 
-   @After
+   @AfterEach
    public void destroyServer() throws Exception {
       if (server1 != null) {
          server1.stop();
@@ -89,7 +94,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
       server0.start();
    }
 
-   @Before
+   @BeforeEach
    public void setServer() throws Exception {
       server0Params = new HashMap<>();
       server1Params = new HashMap<>();
@@ -179,7 +184,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
             bridge = (BridgeImpl) c;
          }
       }
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       Executor executorFail = server1.getExecutorFactory().getExecutor();
 
@@ -206,10 +211,10 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
          try {
             Wait.assertEquals(0, ((LocalQueueBinding) b).getQueue().getPagingStore()::getAddressSize);
          } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
          }
       });
-      Assert.assertTrue(queuesTested.get() > 0);
+      assertTrue(queuesTested.get() > 0);
 
       Wait.assertEquals(0, serverQueue1::getDeliveringCount);
       Wait.assertEquals(0, serverQueue1::getMessageCount);
@@ -223,12 +228,12 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
          HashSet<String> received = new HashSet<>();
          for (int j = 0; j < TRANSACTIONS * NUM_MESSAGES; j++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             received.add(message.getText());
             //Assert.assertEquals("" + j, message.getText());
          }
-         Assert.assertEquals(TRANSACTIONS * NUM_MESSAGES, received.size());
-         Assert.assertNull(consumer.receiveNoWait());
+         assertEquals(TRANSACTIONS * NUM_MESSAGES, received.size());
+         assertNull(consumer.receiveNoWait());
       }
 
 
@@ -239,10 +244,10 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
          try {
             Wait.assertEquals(0, ((LocalQueueBinding) b).getQueue().getPagingStore()::getAddressSize);
          } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
          }
       });
-      Assert.assertTrue(queuesTested.get() > 0);
+      assertTrue(queuesTested.get() > 0);
 
 
    }

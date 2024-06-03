@@ -16,10 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -39,16 +49,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
@@ -248,9 +252,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       clusterConnection1.stop();
       clusterConnection2.stop();
 
-      Assert.assertEquals(0, ((ClusterConnectionImpl)clusterConnection0).getRecords().size());
-      Assert.assertEquals(0, ((ClusterConnectionImpl)clusterConnection1).getRecords().size());
-      Assert.assertEquals(0, ((ClusterConnectionImpl)clusterConnection2).getRecords().size());
+      assertEquals(0, ((ClusterConnectionImpl)clusterConnection0).getRecords().size());
+      assertEquals(0, ((ClusterConnectionImpl)clusterConnection1).getRecords().size());
+      assertEquals(0, ((ClusterConnectionImpl)clusterConnection2).getRecords().size());
 
       Wait.assertTrue(() -> clusterConnectionRecords0.stream().noneMatch(messageFlowRecord -> messageFlowRecord.getBridge().isConnected()), 1000);
       Wait.assertTrue(() -> clusterConnectionRecords1.stream().noneMatch(messageFlowRecord -> messageFlowRecord.getBridge().isConnected()), 1000);
@@ -400,16 +404,16 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
             .findFirst()
             .orElse(null));
 
-      Assert.assertNotNull(SnFQueueName);
+      assertNotNull(SnFQueueName);
 
       QueueControl queueControl = ManagementControlHelper.createQueueControl(SnFQueueName, SnFQueueName, RoutingType.MULTICAST, servers[0].getMBeanServer());
 
       //check that internal queue can be managed
       queueControl.pause();
-      Assert.assertTrue(queueControl.isPaused());
+      assertTrue(queueControl.isPaused());
 
       queueControl.resume();
-      Assert.assertFalse(queueControl.isPaused());
+      assertFalse(queueControl.isPaused());
 
       closeAllConsumers();
 
@@ -537,7 +541,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    }
 
    @Test
-   @Ignore("Test not implemented yet")
+   @Disabled("Test not implemented yet")
    public void testSimpleRoundRobbinNoFailure() throws Exception {
       //TODO make this test to crash a node
       setupServer(0, true, isNetty());

@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.smoke.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -36,10 +41,9 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DualMirrorNoContainerTest extends SmokeTestBase {
 
@@ -52,7 +56,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
    Process processB;
    Process processA;
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_A);
@@ -73,7 +77,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public  void beforeClass() throws Exception {
       cleanupData(SERVER_NAME_A);
       cleanupData(SERVER_NAME_B);
@@ -168,7 +172,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
          connectionB.start();
 
          receiveMessages(tx, sessionB, consumerB, 5, 9);
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
 
          sendMessages(tx, sessionB, producerB, 0, 19);
          receiveMessages(tx, sessionB, consumerB, 0, 9);
@@ -182,7 +186,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
 
          receiveMessages(tx, sessionA, consumerA, 10, 19);
 
-         Assert.assertNull(consumerA.receiveNoWait());
+         assertNull(consumerA.receiveNoWait());
       }
    }
 
@@ -255,10 +259,10 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumerB.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
-            Assert.assertEquals("message " + i + largeBuffer, message.getText());
+            assertNotNull(message, "expected message at " + i);
+            assertEquals("message " + i + largeBuffer, message.getText());
          }
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
          sessionB.rollback();
       }
 
@@ -278,15 +282,15 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i += 2) {
             //System.out.println("Received message on i=" + i);
             TextMessage message = (TextMessage)consumerB.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
-            Assert.assertEquals("message " + i + largeBuffer, message.getText());
+            assertNotNull(message, "expected message at " + i);
+            assertEquals("message " + i + largeBuffer, message.getText());
 
             if (op++ > 0 && op % FAILURE_INTERVAL == 0) {
                restartA(++restarted);
             }
          }
 
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
       }
 
       System.out.println("Restarted serverA " + restarted + " times");
@@ -305,15 +309,15 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
 
          for (int i = 1; i < NUMBER_OF_MESSAGES; i += 2) {
             TextMessage message = (TextMessage)consumerA.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
+            assertNotNull(message, "expected message at " + i);
             // We should only have red left
-            Assert.assertEquals("Unexpected message at " + i + " with i=" + message.getIntProperty("i"), "red", message.getStringProperty("color"));
-            Assert.assertEquals("message " + i + largeBuffer, message.getText());
+            assertEquals("red", message.getStringProperty("color"), "Unexpected message at " + i + " with i=" + message.getIntProperty("i"));
+            assertEquals("message " + i + largeBuffer, message.getText());
          }
 
          sessionA.commit();
 
-         Assert.assertNull(consumerA.receiveNoWait());
+         assertNull(consumerA.receiveNoWait());
       }
 
       Thread.sleep(5000);
@@ -331,7 +335,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
          TextMessage message = (TextMessage)consumerB.receiveNoWait();
 
          if (message != null) {
-            Assert.fail("was expected null, however received " + message.getText());
+            fail("was expected null, however received " + message.getText());
          }
       }
 
@@ -374,8 +378,8 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
    private void receiveMessages(boolean tx, Session session, MessageConsumer consumer, int start, int end) throws JMSException {
       for (int i = start; i <= end; i++) {
          TextMessage message = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("message " + i, message.getText());
+         assertNotNull(message);
+         assertEquals("message " + i, message.getText());
       }
       if (tx) session.commit();
    }

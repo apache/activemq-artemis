@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,8 +47,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -529,7 +533,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue(ok);
+         assertTrue(ok);
       }
 
       for (ClientSession session : sessions) {
@@ -965,7 +969,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -996,7 +1000,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -1066,7 +1070,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
 
-      Assert.assertNotNull(message2);
+      assertNotNull(message2);
 
       message2.acknowledge();
 
@@ -1093,7 +1097,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + ADDRESS.toString()));
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertNull(consumer.receiveImmediate());
+         assertNull(consumer.receiveImmediate());
       }
 
       sess.close();
@@ -1141,7 +1145,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       System.gc();
 
-      Assert.assertEquals(0, InVMRegistry.instance.size());
+      assertEquals(0, InVMRegistry.instance.size());
    }
 
    private void sendMessages(final ClientSession sessSend,
@@ -1174,7 +1178,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
             ClientMessage msg = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
 
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
 
             int tn = (Integer) msg.getObjectProperty(new SimpleString("threadnum"));
             int cnt = (Integer) msg.getObjectProperty(new SimpleString("count"));

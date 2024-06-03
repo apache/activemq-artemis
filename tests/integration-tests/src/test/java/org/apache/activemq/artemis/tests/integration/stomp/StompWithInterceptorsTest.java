@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,13 +28,15 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrameInterceptor;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompWithInterceptorsTest extends StompTestBase {
 
    @Override
@@ -51,7 +56,7 @@ public class StompWithInterceptorsTest extends StompTestBase {
       return stompOutgoingInterceptor;
    }
 
-   @Test
+   @TestTemplate
    public void stompFrameInterceptor() throws Exception {
       IncomingStompInterceptor.interceptedFrames.clear();
       OutgoingStompInterceptor.interceptedFrames.clear();
@@ -79,7 +84,7 @@ public class StompWithInterceptorsTest extends StompTestBase {
       sendJmsMessage(getName());
 
       // Something was supposed to be called on sendMessages
-      assertTrue("core interceptor is not working", CoreInterceptor.incomingInterceptedFrames.size() > 0);
+      assertTrue(CoreInterceptor.incomingInterceptedFrames.size() > 0, "core interceptor is not working");
 
       conn.receiveFrame(10000);
 
@@ -101,8 +106,8 @@ public class StompWithInterceptorsTest extends StompTestBase {
       incomingCommands.add("DISCONNECT");
 
       for (int i = 0; i < IncomingStompInterceptor.interceptedFrames.size(); i++) {
-         Assert.assertEquals(incomingCommands.get(i), IncomingStompInterceptor.interceptedFrames.get(i).getCommand());
-         Assert.assertEquals("incomingInterceptedVal", IncomingStompInterceptor.interceptedFrames.get(i).getHeader("incomingInterceptedProp"));
+         assertEquals(incomingCommands.get(i), IncomingStompInterceptor.interceptedFrames.get(i).getCommand());
+         assertEquals("incomingInterceptedVal", IncomingStompInterceptor.interceptedFrames.get(i).getHeader("incomingInterceptedProp"));
       }
 
       List<String> outgoingCommands = new ArrayList<>(3);
@@ -111,11 +116,11 @@ public class StompWithInterceptorsTest extends StompTestBase {
       outgoingCommands.add("MESSAGE");
 
       for (int i = 0; i < OutgoingStompInterceptor.interceptedFrames.size(); i++) {
-         Assert.assertEquals(outgoingCommands.get(i), OutgoingStompInterceptor.interceptedFrames.get(i).getCommand());
+         assertEquals(outgoingCommands.get(i), OutgoingStompInterceptor.interceptedFrames.get(i).getCommand());
       }
 
-      Assert.assertEquals("incomingInterceptedVal", OutgoingStompInterceptor.interceptedFrames.get(2).getHeader("incomingInterceptedProp"));
-      Assert.assertEquals("outgoingInterceptedVal", OutgoingStompInterceptor.interceptedFrames.get(2).getHeader("outgoingInterceptedProp"));
+      assertEquals("incomingInterceptedVal", OutgoingStompInterceptor.interceptedFrames.get(2).getHeader("incomingInterceptedProp"));
+      assertEquals("outgoingInterceptedVal", OutgoingStompInterceptor.interceptedFrames.get(2).getHeader("outgoingInterceptedProp"));
    }
 
    public static class CoreInterceptor implements Interceptor {

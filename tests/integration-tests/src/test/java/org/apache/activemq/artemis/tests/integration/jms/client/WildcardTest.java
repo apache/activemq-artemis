@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -37,7 +41,7 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class WildcardTest extends JMSTestBase {
 
    @Parameters(name = "a={0},b={1},c={2}")
@@ -64,7 +68,7 @@ public class WildcardTest extends JMSTestBase {
       this.topicWildcard = topicWildcard;
    }
 
-   @Test
+   @TestTemplate
    public void testWildcard1Topic() throws Exception {
       Session         sessionA   = createSession();
       MessageProducer producerA  = createProducer(sessionA, topicA);
@@ -76,18 +80,18 @@ public class WildcardTest extends JMSTestBase {
       producerA.send(message);
 
       ObjectMessage received1 = (ObjectMessage)consumerA.receive(500);
-      Assert.assertNotNull(received1);
-      Assert.assertNotNull(received1.getObject());
+      assertNotNull(received1);
+      assertNotNull(received1.getObject());
 
       ObjectMessage received2 = (ObjectMessage)consumerWC.receive(500);
-      Assert.assertNotNull(received2);
-      Assert.assertNotNull(received2.getObject());
+      assertNotNull(received2);
+      assertNotNull(received2.getObject());
 
-      Assert.assertEquals(received1.getJMSMessageID(), received2.getJMSMessageID());
-      Assert.assertEquals(received1.getObject(), received2.getObject());
+      assertEquals(received1.getJMSMessageID(), received2.getJMSMessageID());
+      assertEquals(received1.getObject(), received2.getObject());
    }
 
-   @Test
+   @TestTemplate
    public void testWildcard2Topics() throws Exception {
       Session         sessionA   = createSession();
       MessageProducer producerA  = createProducer(sessionA, topicA);
@@ -106,64 +110,64 @@ public class WildcardTest extends JMSTestBase {
       producerB.send(message2);
 
       ObjectMessage received1 = (ObjectMessage)consumerA.receive(500);
-      Assert.assertNotNull(received1);
-      Assert.assertNotNull(received1.getObject());
+      assertNotNull(received1);
+      assertNotNull(received1.getObject());
 
       ObjectMessage received2 = (ObjectMessage)consumerB.receive(500);
-      Assert.assertNotNull(received2);
-      Assert.assertNotNull(received2.getObject());
+      assertNotNull(received2);
+      assertNotNull(received2.getObject());
 
       ObjectMessage received3 = (ObjectMessage)consumerWC.receive(500);
-      Assert.assertNotNull(received3);
-      Assert.assertNotNull(received3.getObject());
+      assertNotNull(received3);
+      assertNotNull(received3.getObject());
 
       ObjectMessage received4 = (ObjectMessage)consumerWC.receive(500);
-      Assert.assertNotNull(received4);
-      Assert.assertNotNull(received4.getObject());
+      assertNotNull(received4);
+      assertNotNull(received4.getObject());
 
-      Assert.assertEquals(received1.getJMSMessageID(), received3.getJMSMessageID());
-      Assert.assertEquals(received1.getObject(), received3.getObject());
+      assertEquals(received1.getJMSMessageID(), received3.getJMSMessageID());
+      assertEquals(received1.getObject(), received3.getObject());
 
-      Assert.assertEquals(received2.getJMSMessageID(), received4.getJMSMessageID());
-      Assert.assertEquals(received2.getObject(), received4.getObject());
+      assertEquals(received2.getJMSMessageID(), received4.getJMSMessageID());
+      assertEquals(received2.getObject(), received4.getObject());
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcard1() throws Exception {
       testNegativeAddressSizeOnWildcard(1);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcard2() throws Exception {
       testNegativeAddressSizeOnWildcard(2);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcard10() throws Exception {
       testNegativeAddressSizeOnWildcard(10);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcard100() throws Exception {
       testNegativeAddressSizeOnWildcard(100);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcardAsync1() throws Exception {
       testNegativeAddressSizeOnWildcardAsync(1);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcardAsync2() throws Exception {
       testNegativeAddressSizeOnWildcardAsync(2);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcardAsync10() throws Exception {
       testNegativeAddressSizeOnWildcardAsync(10);
    }
 
-   @Test
+   @TestTemplate
    public void testNegativeAddressSizeOnWildcardAsync100() throws Exception {
       testNegativeAddressSizeOnWildcardAsync(100);
    }
@@ -182,19 +186,19 @@ public class WildcardTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ObjectMessage received1 = (ObjectMessage)consumerA.receive(500);
-         Assert.assertNotNull("consumerA message - " + i + " is null", received1);
-         Assert.assertNotNull("consumerA message - " + i + " is null", received1.getObject());
+         assertNotNull(received1, "consumerA message - " + i + " is null");
+         assertNotNull(received1.getObject(), "consumerA message - " + i + " is null");
 
          ObjectMessage received2 = (ObjectMessage)consumerWC.receive(500);
-         Assert.assertNotNull("consumerWC message - " + i + " is null", received2);
-         Assert.assertNotNull("consumerWC message - " + i + " is null", received2.getObject());
+         assertNotNull(received2, "consumerWC message - " + i + " is null");
+         assertNotNull(received2.getObject(), "consumerWC message - " + i + " is null");
       }
 
       long addressSizeA  = (Long)mbeanServer.getAttribute(new ObjectName("org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"" + topicA + "\""), "AddressSize");
       long addressSizeWC = (Long)mbeanServer.getAttribute(new ObjectName("org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"" + topicWildcard + "\""), "AddressSize");
 
-      Assert.assertTrue(topicA + " AddressSize < 0", addressSizeA >= 0);
-      Assert.assertTrue(topicWildcard + " AddressSize < 0", addressSizeWC >= 0);
+      assertTrue(addressSizeA >= 0, topicA + " AddressSize < 0");
+      assertTrue(addressSizeWC >= 0, topicWildcard + " AddressSize < 0");
    }
 
    private void testNegativeAddressSizeOnWildcardAsync(int numMessages) throws Exception {
@@ -214,18 +218,18 @@ public class WildcardTest extends JMSTestBase {
       }
 
       if (!latchA.await(5, TimeUnit.SECONDS)) {
-         Assert.fail("Waiting to receive " + latchA.getCount() + " messages on " + topicA);
+         fail("Waiting to receive " + latchA.getCount() + " messages on " + topicA);
       }
 
       if (!latchWC.await(5, TimeUnit.SECONDS)) {
-         Assert.fail("Waiting to receive " + latchWC.getCount() + " messages on " + topicWildcard);
+         fail("Waiting to receive " + latchWC.getCount() + " messages on " + topicWildcard);
       }
 
       long addressSizeA  = (Long)mbeanServer.getAttribute(new ObjectName("org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"" + topicA + "\""), "AddressSize");
       long addressSizeWC = (Long)mbeanServer.getAttribute(new ObjectName("org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"" + topicWildcard + "\""), "AddressSize");
 
-      Assert.assertTrue(topicA + " AddressSize < 0", addressSizeA >= 0);
-      Assert.assertTrue(topicWildcard + " AddressSize < 0", addressSizeWC >= 0);
+      assertTrue(addressSizeA >= 0, topicA + " AddressSize < 0");
+      assertTrue(addressSizeWC >= 0, topicWildcard + " AddressSize < 0");
    }
 
    private Session createSession() throws Exception {

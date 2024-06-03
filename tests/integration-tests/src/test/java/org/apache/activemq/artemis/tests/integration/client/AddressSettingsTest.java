@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -30,8 +33,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AddressSettingsTest extends ActiveMQTestBase {
 
@@ -96,20 +98,20 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       ClientConsumer cc2 = session.createConsumer(queueB);
       session.start();
       ClientMessage message = cc1.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc2.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.rollback();
       cc1.close();
       cc2.close();
       message = dlqARec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("A", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("A", message.getBodyBuffer().readString());
       message = dlqBrec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("B", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("B", message.getBodyBuffer().readString());
       sendSession.close();
       session.close();
 
@@ -134,12 +136,12 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       repo.addMatch("(foo.#)", new AddressSettings().setDeadLetterAddress(fooLiteralDLA));
 
       // should be the DLA from foo.# - the literal match
-      Assert.assertEquals(fooLiteralDLA, repo.getMatch("foo.#").getDeadLetterAddress());
-      Assert.assertEquals(defaultEA, repo.getMatch("foo.#").getExpiryAddress());
+      assertEquals(fooLiteralDLA, repo.getMatch("foo.#").getDeadLetterAddress());
+      assertEquals(defaultEA, repo.getMatch("foo.#").getExpiryAddress());
 
-      Assert.assertEquals(fooChildrenDLA, repo.getMatch("foo.bar").getDeadLetterAddress());
-      Assert.assertEquals(fooDefaultDLA, repo.getMatch("foo.bar.too").getDeadLetterAddress());
-      Assert.assertEquals(defaultDLA, repo.getMatch("too.#").getDeadLetterAddress());
+      assertEquals(fooChildrenDLA, repo.getMatch("foo.bar").getDeadLetterAddress());
+      assertEquals(fooDefaultDLA, repo.getMatch("foo.bar.too").getDeadLetterAddress());
+      assertEquals(defaultDLA, repo.getMatch("too.#").getDeadLetterAddress());
    }
 
    @Test
@@ -175,20 +177,20 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       ClientConsumer cc2 = session.createConsumer(queueB);
       session.start();
       ClientMessage message = cc1.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc2.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.rollback();
       cc1.close();
       cc2.close();
       message = dlqARec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("A", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("A", message.getBodyBuffer().readString());
       message = dlqBrec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("B", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("B", message.getBodyBuffer().readString());
       sendSession.close();
       session.close();
 
@@ -226,20 +228,20 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       ClientConsumer cc2 = session.createConsumer(queueB);
       session.start();
       ClientMessage message = cc1.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc2.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.rollback();
       cc1.close();
       cc2.close();
       message = dlqARec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("A", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("A", message.getBodyBuffer().readString());
       message = dlqBrec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("B", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("B", message.getBodyBuffer().readString());
       sendSession.close();
       session.close();
    }
@@ -287,27 +289,27 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       ClientConsumer cc3 = session.createConsumer(queueC);
       session.start();
       ClientMessage message = cc1.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc2.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc3.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.rollback();
       cc1.close();
       cc2.close();
       cc3.close();
       message = dlqARec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("A", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("A", message.getBodyBuffer().readString());
       message = dlqBrec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("B", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("B", message.getBodyBuffer().readString());
       message = dlqCrec.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals("C", message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals("C", message.getBodyBuffer().readString());
       sendSession.close();
       session.close();
 
@@ -369,24 +371,24 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       ClientConsumer cc3 = session.createConsumer(queueC);
       session.start();
       ClientMessage message = cc1.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc2.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       message = cc3.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
       session.rollback();
       cc1.close();
       cc2.close();
       cc3.close();
       message = dlqCrec.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message = dlqCrec.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message = dlqCrec.receive(5000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       sendSession.close();
       session.close();
 

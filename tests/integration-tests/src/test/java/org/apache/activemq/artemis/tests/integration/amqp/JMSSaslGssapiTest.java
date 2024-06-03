@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -69,9 +74,10 @@ import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.sasl.GssapiMechanism;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -98,7 +104,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    private static MiniKdc kdc;
    private static final boolean debug = false;
 
-   @BeforeClass
+   @BeforeAll
    public static void setUpKerberos() throws Exception {
       Properties kdcConf = MiniKdc.createConf();
       kdcConf.setProperty("debug", Boolean.toString(debug));
@@ -141,7 +147,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @AfterClass
+   @AfterAll
    public static void stopKerberos() throws Exception {
       if (kdc != null) {
          kdc.stop();
@@ -201,7 +207,8 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       params.put("saslLoginConfigScope", "amqp-sasl-gssapi");
    }
 
-   @Test(timeout = 600000)
+   @Test
+   @Timeout(value = 600000, unit = TimeUnit.MILLISECONDS)
    public void testConnection() throws Exception {
       Connection connection = createConnection("client", null);
       connection.start();
@@ -223,7 +230,8 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 600000)
+   @Test
+   @Timeout(value = 600000, unit = TimeUnit.MILLISECONDS)
    public void testSaslPlainConnectionDenied() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
       try {
@@ -234,7 +242,8 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 900000)
+   @Test
+   @Timeout(value = 900000, unit = TimeUnit.MILLISECONDS)
    public void testOutboundWithSlowMech() throws Exception {
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT));

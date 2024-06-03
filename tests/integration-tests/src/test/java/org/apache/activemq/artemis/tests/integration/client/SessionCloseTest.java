@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 
@@ -32,11 +35,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionCloseTest extends ActiveMQTestBase {
 
@@ -55,7 +55,7 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertTrue(session.isClosed());
+      assertTrue(session.isClosed());
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
          @Override
@@ -136,8 +136,8 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertTrue(session.isXA());
-      Assert.assertTrue(session.isClosed());
+      assertTrue(session.isXA());
+      assertTrue(session.isClosed());
 
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
@@ -211,16 +211,16 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertTrue(session.isClosed());
-      Assert.assertTrue(producer.isClosed());
-      Assert.assertTrue(consumer.isClosed());
+      assertTrue(session.isClosed());
+      assertTrue(producer.isClosed());
+      assertTrue(consumer.isClosed());
 
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));

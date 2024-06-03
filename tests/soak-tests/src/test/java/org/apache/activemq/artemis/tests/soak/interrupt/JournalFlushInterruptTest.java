@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.soak.interrupt;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -33,17 +35,16 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JournalFlushInterruptTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "interruptjf";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -65,7 +66,7 @@ public class JournalFlushInterruptTest extends SoakTestBase {
    static ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "jfinterrupt", true);
    Process serverProcess;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       serverProcess = startServer(SERVER_NAME_0, 0, 30000);
@@ -96,7 +97,7 @@ public class JournalFlushInterruptTest extends SoakTestBase {
       Thread.sleep(100);
 
       killProcess(serverProcess);
-      Assert.assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
+      assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
       serverProcess = startServer(SERVER_NAME_0, 0, 0);
 
       waitForServerToStart("tcp://localhost:61616", "artemis", "artemis", 5000);

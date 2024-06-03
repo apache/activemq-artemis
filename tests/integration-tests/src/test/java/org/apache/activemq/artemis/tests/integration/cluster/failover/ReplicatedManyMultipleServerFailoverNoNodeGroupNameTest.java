@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplicatedManyMultipleServerFailoverNoNodeGroupNameTest extends ReplicatedManyMultipleServerFailoverTest {
 
    @Override

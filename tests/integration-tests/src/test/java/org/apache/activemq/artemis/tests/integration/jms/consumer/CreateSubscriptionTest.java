@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,20 +35,20 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CreateSubscriptionTest extends JMSTestBase {
 
 
    private final String protocol;
 
-   @Parameterized.Parameters(name = "persistenceEnabled = {0}")
+   @Parameters(name = "persistenceEnabled = {0}")
    public static Iterable<? extends Object> persistenceEnabled() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}});
    }
@@ -54,7 +57,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
       this.protocol = protocol;
    }
 
-   @Test
+   @TestTemplate
    public void testSharedConsumer() throws Exception {
 
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
@@ -80,7 +83,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSharedDurableConsumer() throws Exception {
 
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
@@ -107,22 +110,22 @@ public class CreateSubscriptionTest extends JMSTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testCreateManyConsumersDurable() throws Exception {
       testCreateManyConsumers("createSharedDurableConsumer");
    }
 
-   @Test
+   @TestTemplate
    public void testCreateManyConsumersNonDurable() throws Exception {
       testCreateManyConsumers("createSharedConsumer");
    }
 
-   @Test
+   @TestTemplate
    public void testDurableSubscriber() throws Exception {
       testCreateManyConsumers("createDurableSubscriber");
    }
 
-   @Test
+   @TestTemplate
    public void testNonDurableSubscriber() throws Exception {
       testCreateManyConsumers("createConsumer");
    }
@@ -188,8 +191,8 @@ public class CreateSubscriptionTest extends JMSTestBase {
             threads[i].join();
          }
 
-         Assert.assertEquals(0, errors.get());
-         Assert.assertFalse(loggerHandler.findText("AMQ229018"));
+         assertEquals(0, errors.get());
+         assertFalse(loggerHandler.findText("AMQ229018"));
       }
 
    }

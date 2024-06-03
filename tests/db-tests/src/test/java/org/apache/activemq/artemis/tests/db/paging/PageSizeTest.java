@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -34,24 +36,28 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class PageSizeTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -63,7 +69,7 @@ public class PageSizeTest extends ParameterDBTestBase {
       return database.getDriverClass();
    }
 
-   @Test
+   @TestTemplate
    public void testMaxSizePage() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.getConfiguration().getAddressSettings().clear();
@@ -90,7 +96,7 @@ public class PageSizeTest extends ParameterDBTestBase {
          Wait.assertTrue(queue.getPagingStore()::isPaging, 1000, 100);
          long size = getMaxSizeBytesStored(queue);
          // organically all the pages should have less than 30K
-         Assert.assertTrue("size is " + size, size <= dbstoreConfig.getMaxPageSizeBytes());
+         assertTrue(size <= dbstoreConfig.getMaxPageSizeBytes(), "size is " + size);
 
          // will send one very large message, but bellow the streaming size. We should have one record > page_size
          BytesMessage message = session.createBytesMessage();
@@ -101,7 +107,7 @@ public class PageSizeTest extends ParameterDBTestBase {
          // Since we sent a large message (I mean, not streaming large, but larger than page-size,
          // a page with more than 30K should been created to allow the "large" message to be stored.
          size = getMaxSizeBytesStored(queue);
-         Assert.assertTrue("size is " + size, size >= 50 * 1024);
+         assertTrue(size >= 50 * 1024, "size is " + size);
       }
    }
 
@@ -129,7 +135,7 @@ public class PageSizeTest extends ParameterDBTestBase {
          if (sql != null) {
             ResultSet resultSet = null;
             resultSet = sqlConn.createStatement().executeQuery(sql);
-            Assert.assertTrue(resultSet.next());
+            assertTrue(resultSet.next());
             return resultSet.getLong(1);
          } else {
             return -1;

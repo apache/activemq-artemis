@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jdbc.store.file;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,9 +40,8 @@ import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 public class PostgresLargeObjectManagerTest {
 

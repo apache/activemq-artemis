@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSSecurityException;
@@ -35,8 +37,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FQQNSendSecurityTest extends ActiveMQTestBase {
 
@@ -49,7 +51,7 @@ public class FQQNSendSecurityTest extends ActiveMQTestBase {
    private final String QUEUE = "myQueue";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);

@@ -16,15 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class ReusableLatchTest extends ActiveMQTestBase {
 
@@ -47,13 +51,13 @@ public class ReusableLatchTest extends ActiveMQTestBase {
 
       for (int i = 1; i <= 100; i++) {
          latch.countUp();
-         Assert.assertEquals(i, latch.getCount());
+         assertEquals(i, latch.getCount());
       }
 
       for (int i = 100; i > 0; i--) {
-         Assert.assertEquals(i, latch.getCount());
+         assertEquals(i, latch.getCount());
          latch.countDown();
-         Assert.assertEquals(i - 1, latch.getCount());
+         assertEquals(i - 1, latch.getCount());
       }
 
       latch.await();
@@ -143,10 +147,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numberOfThreads; i++) {
-         Assert.assertTrue(waits[i].waiting);
+         assertTrue(waits[i].waiting);
       }
 
-      Assert.assertEquals(numberOfThreads * numberOfAdds + 1, latch.getCount());
+      assertEquals(numberOfThreads * numberOfAdds + 1, latch.getCount());
 
       class ThreadDown extends Thread {
 
@@ -192,10 +196,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
          down[i].join();
       }
 
-      Assert.assertEquals(1, latch.getCount());
+      assertEquals(1, latch.getCount());
 
       for (int i = 0; i < numberOfThreads; i++) {
-         Assert.assertTrue(waits[i].waiting);
+         assertTrue(waits[i].waiting);
       }
 
       latch.countDown();
@@ -204,10 +208,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
          waits[i].join();
       }
 
-      Assert.assertEquals(0, latch.getCount());
+      assertEquals(0, latch.getCount());
 
       for (int i = 0; i < numberOfThreads; i++) {
-         Assert.assertFalse(waits[i].waiting);
+         assertFalse(waits[i].waiting);
       }
    }
 
@@ -249,15 +253,15 @@ public class ReusableLatchTest extends ActiveMQTestBase {
 
       t.readyLatch.await();
 
-      Assert.assertEquals(true, t.waiting);
+      assertTrue(t.waiting);
 
       latch.countDown();
 
       t.join();
 
-      Assert.assertEquals(false, t.waiting);
+      assertFalse(t.waiting);
 
-      Assert.assertNull(t.e);
+      assertNull(t.e);
 
       latch.countUp();
 
@@ -266,23 +270,23 @@ public class ReusableLatchTest extends ActiveMQTestBase {
 
       t.readyLatch.await();
 
-      Assert.assertEquals(true, t.waiting);
+      assertTrue(t.waiting);
 
       latch.countDown();
 
       t.join();
 
-      Assert.assertEquals(false, t.waiting);
+      assertFalse(t.waiting);
 
-      Assert.assertNull(t.e);
+      assertNull(t.e);
 
-      Assert.assertTrue(latch.await(1000));
+      assertTrue(latch.await(1000));
 
-      Assert.assertEquals(0, latch.getCount());
+      assertEquals(0, latch.getCount());
 
       latch.countDown();
 
-      Assert.assertEquals(0, latch.getCount());
+      assertEquals(0, latch.getCount());
 
    }
 

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -37,17 +41,17 @@ import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPo
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.LeastConnectionsPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.RoundRobinPolicy;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class RedirectTest extends RoutingTestBase {
 
-   @Parameterized.Parameters(name = "protocol: {0}, pool: {1}")
+   @Parameters(name = "protocol: {0}, pool: {1}")
    public static Collection<Object[]> data() {
       final String[] protocols = new String[] {AMQP_PROTOCOL, CORE_PROTOCOL, OPENWIRE_PROTOCOL};
       final String[] pools = new String[] {CLUSTER_POOL, DISCOVERY_POOL, STATIC_POOL};
@@ -74,7 +78,7 @@ public class RedirectTest extends RoutingTestBase {
       this.pool = pool;
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleRedirect() throws Exception {
       final String queueName = "RedirectTestQueue";
 
@@ -100,8 +104,8 @@ public class RedirectTest extends RoutingTestBase {
       QueueControl queueControl1 = (QueueControl)getServer(1).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages());
+      assertEquals(0, queueControl1.countMessages());
 
       ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
          TransportConstants.DEFAULT_PORT + 0, null, "admin", "admin");
@@ -117,43 +121,43 @@ public class RedirectTest extends RoutingTestBase {
          }
       }
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(1, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages());
+      assertEquals(1, queueControl1.countMessages());
 
       try (Connection connection = connectionFactory.createConnection()) {
          connection.start();
          try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             try (MessageConsumer consumer = session.createConsumer(session.createQueue(queueName))) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("TEST", message.getText());
+               assertNotNull(message);
+               assertEquals("TEST", message.getText());
             }
          }
       }
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages());
+      assertEquals(0, queueControl1.countMessages());
 
       stopServers(0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testRoundRobinRedirect() throws Exception {
       testEvenlyRedirect(RoundRobinPolicy.NAME, null, false);
    }
 
-   @Test
+   @TestTemplate
    public void testLeastConnectionsRedirect() throws Exception {
       testEvenlyRedirect(LeastConnectionsPolicy.NAME, Collections.singletonMap(
          LeastConnectionsPolicy.CONNECTION_COUNT_THRESHOLD, String.valueOf(30)), false);
    }
 
-   @Test
+   @TestTemplate
    public void testRoundRobinRedirectWithFailure() throws Exception {
       testEvenlyRedirect(RoundRobinPolicy.NAME, null, true);
    }
 
-   @Test
+   @TestTemplate
    public void testLeastConnectionsRedirectWithFailure() throws Exception {
       testEvenlyRedirect(LeastConnectionsPolicy.NAME, Collections.singletonMap(
          LeastConnectionsPolicy.CONNECTION_COUNT_THRESHOLD, String.valueOf(30)), true);
@@ -197,7 +201,7 @@ public class RedirectTest extends RoutingTestBase {
          queueControls[node] = (QueueControl)getServer(node).getManagementService()
             .getResource(ResourceNames.QUEUE + queueName);
 
-         Assert.assertEquals("Unexpected messagecount for node " + node, 0, queueControls[node].countMessages());
+         assertEquals(0, queueControls[node].countMessages(), "Unexpected messagecount for node " + node);
       }
 
 
@@ -224,9 +228,9 @@ public class RedirectTest extends RoutingTestBase {
          connections[i].close();
       }
 
-      Assert.assertEquals(0, queueControls[0].countMessages());
+      assertEquals(0, queueControls[0].countMessages());
       for (int targetNode : targetNodes) {
-         Assert.assertEquals("Messages of node " + targetNode, 1, queueControls[targetNode].countMessages());
+         assertEquals(1, queueControls[targetNode].countMessages(), "Messages of node " + targetNode);
       }
 
       if (withFailure) {
@@ -241,21 +245,21 @@ public class RedirectTest extends RoutingTestBase {
             try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
                try (MessageConsumer consumer = session.createConsumer(session.createQueue(queueName))) {
                   TextMessage message = (TextMessage) consumer.receive(1000);
-                  Assert.assertNotNull(message);
-                  Assert.assertEquals("TEST" + i, message.getText());
+                  assertNotNull(message);
+                  assertEquals("TEST" + i, message.getText());
                }
             }
          }
       }
 
       for (int node : nodes) {
-         Assert.assertEquals("Unexpected message count for node " + node, 0, queueControls[node].countMessages());
+         assertEquals(0, queueControls[node].countMessages(), "Unexpected message count for node " + node);
       }
 
       stopServers(nodes);
    }
 
-   @Test
+   @TestTemplate
    public void testSymmetricRedirect() throws Exception {
       final String queueName = "RedirectTestQueue";
 
@@ -276,7 +280,7 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(0, 1);
 
-      Assert.assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
+      assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
 
       getServer(0).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       getServer(1).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
@@ -286,8 +290,8 @@ public class RedirectTest extends RoutingTestBase {
       QueueControl queueControl1 = (QueueControl)getServer(1).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
 
-      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
-      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
+      assertEquals(0, queueControl1.countMessages(), "Unexpected message count for node 1");
 
       ConnectionFactory connectionFactory0 = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
          TransportConstants.DEFAULT_PORT + 0, null, "admin", "admin");
@@ -303,10 +307,10 @@ public class RedirectTest extends RoutingTestBase {
          }
       }
 
-      Assert.assertTrue((queueControl0.countMessages() == 0 && queueControl1.countMessages() == 1) ||
+      assertTrue((queueControl0.countMessages() == 0 && queueControl1.countMessages() == 1) ||
          (queueControl0.countMessages() == 1 && queueControl1.countMessages() == 0));
 
-      Assert.assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
+      assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
 
       ConnectionFactory connectionFactory1 = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
          TransportConstants.DEFAULT_PORT + 1, null, "admin", "admin");
@@ -316,19 +320,19 @@ public class RedirectTest extends RoutingTestBase {
          try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             try (MessageConsumer consumer = session.createConsumer(session.createQueue(queueName))) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("TEST", message.getText());
+               assertNotNull(message);
+               assertEquals("TEST", message.getText());
             }
          }
       }
 
-      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
-      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
+      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
+      assertEquals(0, queueControl1.countMessages(), "Unexpected message count for node 1");
 
       stopServers(0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testRedirectAfterFailure() throws Exception {
       final String queueName = "RedirectTestQueue";
 
@@ -359,9 +363,9 @@ public class RedirectTest extends RoutingTestBase {
       QueueControl queueControl2 = (QueueControl)getServer(2).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
 
-      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
-      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
-      Assert.assertEquals("Unexpected message count for node 2", 0, queueControl2.countMessages());
+      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
+      assertEquals(0, queueControl1.countMessages(), "Unexpected message count for node 1");
+      assertEquals(0, queueControl2.countMessages(), "Unexpected message count for node 2");
 
       int failedNode;
       ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
@@ -390,28 +394,28 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(failedNode);
 
-      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
-      Assert.assertEquals("Unexpected message count for node 1", 1, queueControl1.countMessages());
-      Assert.assertEquals("Unexpected message count for node 2", 1, queueControl2.countMessages());
+      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
+      assertEquals(1, queueControl1.countMessages(), "Unexpected message count for node 1");
+      assertEquals(1, queueControl2.countMessages(), "Unexpected message count for node 2");
 
       try (Connection connection = connectionFactory.createConnection()) {
          connection.start();
          try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             try (MessageConsumer consumer = session.createConsumer(session.createQueue(queueName))) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("TEST_AFTER_FAILURE", message.getText());
+               assertNotNull(message);
+               assertEquals("TEST_AFTER_FAILURE", message.getText());
             }
          }
       }
 
-      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
+      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
       if (failedNode == 1) {
-         Assert.assertEquals("Unexpected message count for node 1", 1, queueControl1.countMessages());
-         Assert.assertEquals("Unexpected message count for node 2", 0, queueControl2.countMessages());
+         assertEquals(1, queueControl1.countMessages(), "Unexpected message count for node 1");
+         assertEquals(0, queueControl2.countMessages(), "Unexpected message count for node 2");
       } else {
-         Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
-         Assert.assertEquals("Unexpected message count for node 2", 1, queueControl2.countMessages());
+         assertEquals(0, queueControl1.countMessages(), "Unexpected message count for node 1");
+         assertEquals(1, queueControl2.countMessages(), "Unexpected message count for node 2");
       }
 
       stopServers(0, 1, 2);

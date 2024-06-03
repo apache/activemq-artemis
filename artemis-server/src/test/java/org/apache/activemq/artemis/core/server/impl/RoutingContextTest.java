@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +47,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.NodeStoreFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalCloseable;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RoutingContextTest {
 
@@ -942,28 +944,28 @@ public class RoutingContextTest {
    @Test
    public void testValidateInternal() {
       RoutingContext context = new RoutingContextImpl(new TransactionImpl(new NullStorageManager()));
-      Assert.assertFalse(context.isInternal());
+      assertFalse(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
-      Assert.assertTrue(context.isInternal());
+      assertTrue(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t2"), new FakeQueueForRoutingContextTest("t2", false, true));
-      Assert.assertFalse(context.isInternal());
+      assertFalse(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
-      Assert.assertFalse(context.isInternal());
+      assertFalse(context.isInternal());
 
       context.clear();
-      Assert.assertFalse(context.isInternal());
+      assertFalse(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
-      Assert.assertTrue(context.isInternal());
+      assertTrue(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t2"), new FakeQueueForRoutingContextTest("t2", true, true));
-      Assert.assertTrue(context.isInternal());
+      assertTrue(context.isInternal());
 
       context.addQueue(SimpleString.toSimpleString("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
-      Assert.assertTrue(context.isInternal());
+      assertTrue(context.isInternal());
    }
 
 }

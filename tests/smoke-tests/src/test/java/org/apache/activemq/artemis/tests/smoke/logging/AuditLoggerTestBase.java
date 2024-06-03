@@ -22,13 +22,13 @@ import java.io.PrintWriter;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AuditLoggerTestBase extends SmokeTestBase {
 
    private File auditLog = null;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
 
       File server0Location = getFileServerLocation(getServerName());

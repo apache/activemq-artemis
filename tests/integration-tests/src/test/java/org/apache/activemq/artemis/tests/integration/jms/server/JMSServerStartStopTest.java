@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -38,9 +41,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
    private final Set<ActiveMQConnectionFactory> connectionFactories = new HashSet<>();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
@@ -123,9 +125,9 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          TextMessage tm = (TextMessage) consumer.receive(10000);
 
-         Assert.assertNotNull("not null", tm);
+         assertNotNull(tm, "not null");
 
-         Assert.assertEquals("message" + i, tm.getText());
+         assertEquals("message" + i, tm.getText());
       }
 
       conn.close();

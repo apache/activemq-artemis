@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -32,16 +34,15 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
 
-   @Before
+   @BeforeEach
    public void setupServer() throws Exception {
       server = createServer(true, true);
    }
@@ -62,7 +63,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
          for (int i = 0; i < 100; i++) {
             producer.send(session.createTextMessage("hello"));
          }
-         Assert.assertEquals(0, countDuplicateDetection(server.getConfiguration()));
+         assertEquals(0, countDuplicateDetection(server.getConfiguration()));
       }
 
 
@@ -97,7 +98,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
       }
       server.stop();
 
-      Assert.assertEquals(useDuplicate ? 100 : 0, countDuplicateDetection(server.getConfiguration()));
+      assertEquals(useDuplicate ? 100 : 0, countDuplicateDetection(server.getConfiguration()));
 
    }
 

@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueConfigRestartTest extends ActiveMQTestBase {
 
@@ -44,14 +47,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding1.getQueue().isPurgeOnNoConsumers());
+      assertTrue(queueBinding1.getQueue().isPurgeOnNoConsumers());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
+      assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
    }
 
    @Test
@@ -66,14 +69,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding1.getQueue().isLastValue());
+      assertTrue(queueBinding1.getQueue().isLastValue());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding2.getQueue().isLastValue());
+      assertTrue(queueBinding2.getQueue().isLastValue());
    }
 
    @Test
@@ -88,14 +91,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding1.getQueue().isExclusive());
+      assertTrue(queueBinding1.getQueue().isExclusive());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding2.getQueue().isExclusive());
+      assertTrue(queueBinding2.getQueue().isExclusive());
    }
 
    @Test
@@ -111,14 +114,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setConsumersBeforeDispatch(consumersBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
+      assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
+      assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
    }
 
    @Test
@@ -134,14 +137,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setDelayBeforeDispatch(delayBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
+      assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
+      assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
    }
 
 
@@ -157,14 +160,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setUser("bob").setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertEquals(SimpleString.toSimpleString("bob"), queueBinding1.getQueue().getUser());
+      assertEquals(SimpleString.toSimpleString("bob"), queueBinding1.getQueue().getUser());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
+      assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
    }
 
    @Test
@@ -179,14 +182,14 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding1.getQueue().isEnabled());
+      assertTrue(queueBinding1.getQueue().isEnabled());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertTrue(queueBinding2.getQueue().isEnabled());
+      assertTrue(queueBinding2.getQueue().isEnabled());
    }
 
    @Test
@@ -201,13 +204,13 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(false));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertFalse(queueBinding1.getQueue().isEnabled());
+      assertFalse(queueBinding1.getQueue().isEnabled());
 
       server.stop();
 
       server.start();
 
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      Assert.assertFalse(queueBinding2.getQueue().isEnabled());
+      assertFalse(queueBinding2.getQueue().isEnabled());
    }
 }

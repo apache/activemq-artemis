@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -30,9 +32,8 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutogroupIdTest extends ActiveMQTestBase {
 
@@ -54,7 +55,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
    /* auto group id tests*/
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -102,8 +103,8 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(100, myMessageHandler.messagesReceived);
-      Assert.assertEquals(0, myMessageHandler2.messagesReceived);
+      assertEquals(100, myMessageHandler.messagesReceived);
+      assertEquals(0, myMessageHandler2.messagesReceived);
 
    }
 
@@ -148,9 +149,9 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(myMessageHandler.messagesReceived, 100);
-      Assert.assertEquals(myMessageHandler2.messagesReceived, 100);
-      Assert.assertEquals(myMessageHandler3.messagesReceived, 0);
+      assertEquals(myMessageHandler.messagesReceived, 100);
+      assertEquals(myMessageHandler2.messagesReceived, 100);
+      assertEquals(myMessageHandler3.messagesReceived, 0);
    }
 
    /*
@@ -187,8 +188,8 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(50, myMessageHandler.messagesReceived);
-      Assert.assertEquals(50, myMessageHandler2.messagesReceived);
+      assertEquals(50, myMessageHandler.messagesReceived);
+      assertEquals(50, myMessageHandler2.messagesReceived);
 
    }
 

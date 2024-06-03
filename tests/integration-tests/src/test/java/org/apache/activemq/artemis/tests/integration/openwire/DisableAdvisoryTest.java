@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -25,7 +28,7 @@ import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.state.ConsumerState;
 import org.apache.activemq.state.SessionState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;

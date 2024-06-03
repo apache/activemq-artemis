@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,19 +37,19 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class IndividualAckPagingTest extends ActiveMQTestBase {
 
    // Even though the focus of the test is paging, I'm adding non paging here to verify the test semantics itself
-   @Parameterized.Parameters(name = "paging={0}, restartServerBeforeConsume={1}")
+   @Parameters(name = "paging={0}, restartServerBeforeConsume={1}")
    public static Collection getParams() {
       return Arrays.asList(new Object[][]{{true, false}, {true, true}, {false, false}});
    }
@@ -66,7 +70,7 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
       this.restartServerBeforeConsume = restartServerBeforeConsume;
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -95,12 +99,12 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testIndividualAckCore() throws Exception {
       testIndividualAck("CORE", 1024);
    }
 
-   @Test
+   @TestTemplate
    public void testIndividualAckAMQP() throws Exception {
       testIndividualAck("AMQP", 1024);
    }
@@ -139,12 +143,12 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(jmsQueue);
          for (int i = 0; i < 100; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             if (message.getIntProperty("i") == 77) {
                message.acknowledge();
             }
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       if (restartServerBeforeConsume) {
@@ -160,10 +164,10 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(jmsQueue);
          for (int i = 0; i < 99; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertNotEquals(77, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertNotEquals(77, message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

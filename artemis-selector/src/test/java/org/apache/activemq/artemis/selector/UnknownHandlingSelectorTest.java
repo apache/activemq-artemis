@@ -16,18 +16,20 @@
  */
 package org.apache.activemq.artemis.selector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class UnknownHandlingSelectorTest {
 
    private MockMessage message;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       message = new MockMessage();
       message.setDestination("FOO.BAR");
@@ -164,9 +166,9 @@ public class UnknownHandlingSelectorTest {
 
    protected void assertSelector(String text, boolean expected) throws FilterException {
       BooleanExpression selector = SelectorParser.parse(text);
-      Assert.assertTrue("Created a valid selector", selector != null);
+      assertTrue(selector != null, "Created a valid selector");
       boolean value = selector.matches(message);
-      Assert.assertEquals("Selector for: " + text, expected, value);
+      assertEquals(expected, value, "Selector for: " + text);
    }
 
    private static String not(String selector) {

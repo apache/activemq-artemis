@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -31,14 +34,13 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AMQPMessageLoadBalancingTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -122,10 +124,10 @@ public class AMQPMessageLoadBalancingTest extends ClusterTestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES / 2; i++) {
             ClientMessage msg = consumerX.receive(5000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
          }
-         Assert.assertNull(consumerX.receiveImmediate());
+         assertNull(consumerX.receiveImmediate());
          sessionX.commit();
          sessionX.close();
       }

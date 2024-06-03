@@ -17,11 +17,11 @@
 
 package org.apache.activemq.artemis.tests.util;
 
-import org.apache.activemq.artemis.tests.rules.SpawnedVMCheck;
-import org.junit.Rule;
+import org.apache.activemq.artemis.tests.extensions.SpawnedVMCheckExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class SpawnedTestBase extends ActiveMQTestBase {
 
-   @Rule
-   public SpawnedVMCheck spawnedVMCheck = new SpawnedVMCheck();
+   @RegisterExtension
+   public SpawnedVMCheckExtension spawnedVMCheck = new SpawnedVMCheckExtension();
 }

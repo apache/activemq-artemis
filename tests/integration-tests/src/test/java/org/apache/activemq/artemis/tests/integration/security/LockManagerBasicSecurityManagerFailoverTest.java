@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -29,8 +33,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManage
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LockManagerBasicSecurityManagerFailoverTest extends FailoverTestBase {
 
@@ -51,7 +54,7 @@ public class LockManagerBasicSecurityManagerFailoverTest extends FailoverTestBas
       DistributedLockManagerConfiguration managerConfiguration =
          new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(),
                                                  Collections.singletonMap("locks-folder",
-                                                                               temporaryFolder.newFolder("manager").toString()));
+                                                                               newFolder(temporaryFolder, "manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null,
                                                                     managerConfiguration, managerConfiguration);
@@ -108,7 +111,7 @@ public class LockManagerBasicSecurityManagerFailoverTest extends FailoverTestBas
          session = cf.createSession("foo", "bar", false, true, true, false, 0);
       } catch (ActiveMQException e) {
          e.printStackTrace();
-         Assert.fail("should not throw exception");
+         fail("should not throw exception");
       }
 
       crash(session);
@@ -119,8 +122,17 @@ public class LockManagerBasicSecurityManagerFailoverTest extends FailoverTestBas
          session = cf.createSession("foo", "bar", false, true, true, false, 0);
       } catch (ActiveMQException e) {
          e.printStackTrace();
-         Assert.fail("should not throw exception");
+         fail("should not throw exception");
       }
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }
 

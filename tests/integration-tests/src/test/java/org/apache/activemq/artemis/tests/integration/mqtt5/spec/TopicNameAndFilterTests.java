@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +31,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -53,7 +56,8 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
     * [MQTT-4.7.2-1] The Server MUST NOT match Topic Filters starting with a wildcard character (# or +) with Topic
     * Names beginning with a $ character.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMatchingHash() throws Exception {
       testMatchingWildcard("#");
    }
@@ -62,7 +66,8 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
     * [MQTT-4.7.2-1] The Server MUST NOT match Topic Filters starting with a wildcard character (# or +) with Topic
     * Names beginning with a $ character.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMatchingPlus() throws Exception {
       testMatchingWildcard("+");
    }

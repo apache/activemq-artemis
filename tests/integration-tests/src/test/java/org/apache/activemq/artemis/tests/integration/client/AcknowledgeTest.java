@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +51,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,12 +86,12 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientMessage cm = null;
       for (int i = 0; i < numMessages; i++) {
          cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
       }
       cm.acknowledge();
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
 
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       session.close();
       sendSession.close();
    }
@@ -124,9 +128,9 @@ public class AcknowledgeTest extends ActiveMQTestBase {
             latch.countDown();
          }
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
@@ -163,9 +167,9 @@ public class AcknowledgeTest extends ActiveMQTestBase {
             latch.countDown();
          }
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
@@ -279,9 +283,9 @@ public class AcknowledgeTest extends ActiveMQTestBase {
             latch.countDown();
          }
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }

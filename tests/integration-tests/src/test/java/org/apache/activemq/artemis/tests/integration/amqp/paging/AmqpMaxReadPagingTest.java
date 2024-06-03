@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -32,8 +35,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -57,7 +60,8 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testMaxReadPage() throws Exception {
       final int MSG_SIZE = 1000;
       final StringBuilder builder = new StringBuilder();
@@ -73,7 +77,7 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
 
       Queue queue = server.locateQueue(getQueueName());
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       queue.getPagingStore().startPaging();
 
       AmqpSender sender = session.createSender(getQueueName(), true);
@@ -89,18 +93,18 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
       sender.close();
       Wait.assertEquals(MSG_COUNT, queue::getMessageCount);
       receiver.flow(MSG_COUNT);
-      Assert.assertNotNull(receiver.receive(10, TimeUnit.SECONDS)); // wait some time so we have some data
+      assertNotNull(receiver.receive(10, TimeUnit.SECONDS)); // wait some time so we have some data
       if (receiver.getPrefetchSize() > 10) {
          logger.warn("Receiver has an unexpected size of {} elements on the client buffer", receiver.getPrefetchSize());
       }
       PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
-      Assert.assertTrue(pagingStore.isPaging());
-      Assert.assertTrue(receiver.getPrefetchSize() <= 10); // we should not have more than page-read messages
+      assertTrue(pagingStore.isPaging());
+      assertTrue(receiver.getPrefetchSize() <= 10); // we should not have more than page-read messages
 
       Thread.sleep(500); // it is important to have some quiet period to make sure all previous tasks were emptied
       for (int i = 0; i < MSG_COUNT - 1; i++) {
          AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          System.out.println("Received " + i);
          message.accept();
       }

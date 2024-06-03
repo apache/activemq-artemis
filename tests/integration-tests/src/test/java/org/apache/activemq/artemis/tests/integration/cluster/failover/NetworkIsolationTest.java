@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -27,9 +31,8 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -41,7 +44,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
    // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
    private static final String badAddress = "203.0.113.1";
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       this.startBackupServer = false;
@@ -70,7 +73,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
       primaryServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
       primaryServer.start();
 
-      Assert.assertTrue(Wait.waitFor(primaryServer::isActive));
+      assertTrue(Wait.waitFor(primaryServer::isActive));
 
       primaryServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
 
@@ -78,7 +81,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
       primaryServer.getServer().getNetworkHealthCheck().clearAddresses();
 
-      Assert.assertTrue(Wait.waitFor(primaryServer::isStarted));
+      assertTrue(Wait.waitFor(primaryServer::isStarted));
    }
 
    @Test
@@ -91,11 +94,11 @@ public class NetworkIsolationTest extends FailoverTestBase {
          {
             backupServer.getServer().getNetworkHealthCheck().addAddress("127.0.0.1");
 
-            Assert.assertTrue(loggerHandler.findText("AMQ202001"));
+            assertTrue(loggerHandler.findText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-            Assert.assertEquals(1, loggerHandler.countText("AMQ202001"));
+            assertEquals(1, loggerHandler.countText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().clearAddresses();
          }
@@ -109,7 +112,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
-         Assert.assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
+         assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
 
          crash(false, true, session);
 
@@ -117,8 +120,8 @@ public class NetworkIsolationTest extends FailoverTestBase {
             Thread.sleep(10);
          }
 
-         Assert.assertTrue(backupServer.isStarted());
-         Assert.assertFalse(backupServer.isActive());
+         assertTrue(backupServer.isStarted());
+         assertFalse(backupServer.isActive());
 
          primaryServer.start();
 
@@ -129,7 +132,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
          backupServer.getServer().getNetworkHealthCheck().clearAddresses();
 
          // This will make sure the backup got synchronized after the network was activated again
-         Assert.assertTrue(getReplicationEndpoint(backupServer.getServer()).isStarted());
+         assertTrue(getReplicationEndpoint(backupServer.getServer()).isStarted());
       }
    }
 
@@ -146,11 +149,11 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
       try {
 
-         Assert.assertEquals(100L, primaryServer.getServer().getNetworkHealthCheck().getPeriod());
+         assertEquals(100L, primaryServer.getServer().getNetworkHealthCheck().getPeriod());
 
          primaryServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
 
-         Assert.assertFalse(primaryServer.getServer().getNetworkHealthCheck().check());
+         assertFalse(primaryServer.getServer().getNetworkHealthCheck().check());
 
          Wait.assertFalse(primaryServer::isStarted);
 
@@ -158,7 +161,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          Wait.assertTrue(primaryServer::isStarted);
 
-         Assert.assertTrue(component.isStarted());
+         assertTrue(component.isStarted());
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          throw e;

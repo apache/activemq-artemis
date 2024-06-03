@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -61,9 +67,8 @@ import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -107,31 +112,31 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       ArrayList<Pair<String, String>> renamesRead = new ArrayList<>();
 
-      Assert.assertNotNull(JournalCompactor.readControlFile(fileFactory, strDataFiles, strNewFiles, renamesRead));
+      assertNotNull(JournalCompactor.readControlFile(fileFactory, strDataFiles, strNewFiles, renamesRead));
 
-      Assert.assertEquals(dataFiles.size(), strDataFiles.size());
-      Assert.assertEquals(newFiles.size(), strNewFiles.size());
-      Assert.assertEquals(renames.size(), renamesRead.size());
+      assertEquals(dataFiles.size(), strDataFiles.size());
+      assertEquals(newFiles.size(), strNewFiles.size());
+      assertEquals(renames.size(), renamesRead.size());
 
       Iterator<String> iterDataFiles = strDataFiles.iterator();
       for (JournalFile file : dataFiles) {
-         Assert.assertEquals(file.getFile().getFileName(), iterDataFiles.next());
+         assertEquals(file.getFile().getFileName(), iterDataFiles.next());
       }
-      Assert.assertFalse(iterDataFiles.hasNext());
+      assertFalse(iterDataFiles.hasNext());
 
       Iterator<String> iterNewFiles = strNewFiles.iterator();
       for (JournalFile file : newFiles) {
-         Assert.assertEquals(file.getFile().getFileName(), iterNewFiles.next());
+         assertEquals(file.getFile().getFileName(), iterNewFiles.next());
       }
-      Assert.assertFalse(iterNewFiles.hasNext());
+      assertFalse(iterNewFiles.hasNext());
 
       Iterator<Pair<String, String>> iterRename = renames.iterator();
       for (Pair<String, String> rename : renamesRead) {
          Pair<String, String> original = iterRename.next();
-         Assert.assertEquals(original.getA(), rename.getA());
-         Assert.assertEquals(original.getB(), rename.getB());
+         assertEquals(original.getA(), rename.getA());
+         assertEquals(original.getB(), rename.getB());
       }
-      Assert.assertFalse(iterNewFiles.hasNext());
+      assertFalse(iterNewFiles.hasNext());
 
    }
 
@@ -280,11 +285,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.testCompact();
       int cnt = loggerHandler.countText("must be");
-      Assert.assertTrue(cnt > 0);
-      Assert.assertFalse(failed.get());
+      assertTrue(cnt > 0);
+      assertFalse(failed.get());
 
       journal.testCompact();
-      Assert.assertEquals(cnt, loggerHandler.countText("must be")); // the invalid records should be cleared during a compact
+      assertEquals(cnt, loggerHandler.countText("must be")); // the invalid records should be cleared during a compact
    }
 
    @Test
@@ -397,7 +402,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.appendAddRecord(idGenerator.generateID(), recordType, "test".getBytes(), true);
 
       running.set(false);
-      Assert.assertTrue(latchDone.await(10, TimeUnit.SECONDS));
+      assertTrue(latchDone.await(10, TimeUnit.SECONDS));
 
       recordId = idGenerator.generateID();
       journal.appendAddRecord(recordId, recordType, "test".getBytes(), true);
@@ -441,9 +446,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       });
 
 
-      Assert.assertEquals(2, count.get());
+      assertEquals(2, count.get());
 
-      Assert.assertFalse(failed.get());
+      assertFalse(failed.get());
 
    }
 
@@ -941,9 +946,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       loadAndCheck();
 
       if (createControlFile) {
-         Assert.assertEquals(0, criticalErrors.get());
+         assertEquals(0, criticalErrors.get());
       } else {
-         Assert.assertEquals(1, criticalErrors.get());
+         assertEquals(1, criticalErrors.get());
       }
 
    }
@@ -1039,7 +1044,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       t.join(50000);
       if (t.isAlive()) {
          t.interrupt();
-         Assert.fail("supposed to join thread");
+         fail("supposed to join thread");
       }
 
       stopJournal();
@@ -1555,11 +1560,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       JournalFile[] files2 = journal.getDataFiles();
 
-      Assert.assertEquals(files.length, files2.length);
+      assertEquals(files.length, files2.length);
 
       for (int i = 0; i < files.length; i++) {
-         Assert.assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
-         Assert.assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
+         assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
+         assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
       }
 
       for (long id : listToDelete) {
@@ -1571,7 +1576,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       JournalFile[] files3 = journal.getDataFiles();
 
       for (JournalFile file : files3) {
-         Assert.assertEquals(0, file.getLiveSize());
+         assertEquals(0, file.getLiveSize());
       }
 
       stopJournal();
@@ -1582,7 +1587,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       files3 = journal.getDataFiles();
 
       for (JournalFile file : files3) {
-         Assert.assertEquals(0, file.getLiveSize());
+         assertEquals(0, file.getLiveSize());
       }
 
    }
@@ -1944,11 +1949,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       JournalFile[] files2 = journal.getDataFiles();
 
-      Assert.assertEquals(files.length, files2.length);
+      assertEquals(files.length, files2.length);
 
       for (int i = 0; i < files.length; i++) {
-         Assert.assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
-         Assert.assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
+         assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
+         assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
       }
 
       long tx = idGenerator.generateID();
@@ -1962,7 +1967,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       JournalFile[] files3 = journal.getDataFiles();
 
       for (JournalFile file : files3) {
-         Assert.assertEquals(0, file.getLiveSize());
+         assertEquals(0, file.getLiveSize());
       }
 
       stopJournal();
@@ -1973,7 +1978,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       files3 = journal.getDataFiles();
 
       for (JournalFile file : files3) {
-         Assert.assertEquals(0, file.getLiveSize());
+         assertEquals(0, file.getLiveSize());
       }
 
    }
@@ -2111,19 +2116,19 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
          deleteExecutor.shutdown();
 
-         assertTrue("delete executor failted to terminate", deleteExecutor.awaitTermination(30, TimeUnit.SECONDS));
+         assertTrue(deleteExecutor.awaitTermination(30, TimeUnit.SECONDS), "delete executor failted to terminate");
 
          storage.stop();
 
          executor.shutdown();
 
-         assertTrue("executor failed to terminate", executor.awaitTermination(30, TimeUnit.SECONDS));
+         assertTrue(executor.awaitTermination(30, TimeUnit.SECONDS), "executor failed to terminate");
 
          ioexecutor.shutdown();
 
-         assertTrue("ioexecutor failed to terminate", ioexecutor.awaitTermination(30, TimeUnit.SECONDS));
+         assertTrue(ioexecutor.awaitTermination(30, TimeUnit.SECONDS), "ioexecutor failed to terminate");
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
 
       } catch (Throwable e) {
          e.printStackTrace();
@@ -2166,7 +2171,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       File testDir = new File(getTestDir());
 
@@ -2179,7 +2184,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       });
 
       for (File file : files) {
-         assertEquals("File " + file + " doesn't have the expected number of bytes", fileSize, file.length());
+         assertEquals(fileSize, file.length(), "File " + file + " doesn't have the expected number of bytes");
       }
 
       super.tearDown();

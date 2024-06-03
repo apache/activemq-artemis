@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.message.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,8 +47,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -67,11 +72,11 @@ public class MessageImplTest extends ActiveMQTestBase {
 
          ICoreMessage message = message1;
 
-         Assert.assertEquals(type, message.getType());
-         Assert.assertEquals(durable, message.isDurable());
-         Assert.assertEquals(expiration, message.getExpiration());
-         Assert.assertEquals(timestamp, message.getTimestamp());
-         Assert.assertEquals(priority, message.getPriority());
+         assertEquals(type, message.getType());
+         assertEquals(durable, message.isDurable());
+         assertEquals(expiration, message.getExpiration());
+         assertEquals(timestamp, message.getTimestamp());
+         assertEquals(priority, message.getPriority());
 
          final SimpleString destination = new SimpleString(RandomUtil.randomString());
          final boolean durable2 = RandomUtil.randomBoolean();
@@ -80,19 +85,19 @@ public class MessageImplTest extends ActiveMQTestBase {
          final byte priority2 = RandomUtil.randomByte();
 
          message.setAddress(destination);
-         Assert.assertEquals(destination, message.getAddressSimpleString());
+         assertEquals(destination, message.getAddressSimpleString());
 
          message.setDurable(durable2);
-         Assert.assertEquals(durable2, message.isDurable());
+         assertEquals(durable2, message.isDurable());
 
          message.setExpiration(expiration2);
-         Assert.assertEquals(expiration2, message.getExpiration());
+         assertEquals(expiration2, message.getExpiration());
 
          message.setTimestamp(timestamp2);
-         Assert.assertEquals(timestamp2, message.getTimestamp());
+         assertEquals(timestamp2, message.getTimestamp());
 
          message.setPriority(priority2);
-         Assert.assertEquals(priority2, message.getPriority());
+         assertEquals(priority2, message.getPriority());
 
       }
    }
@@ -101,20 +106,20 @@ public class MessageImplTest extends ActiveMQTestBase {
    public void testExpired() {
       Message message = new ClientMessageImpl();
 
-      Assert.assertEquals(0, message.getExpiration());
-      Assert.assertFalse(message.isExpired());
+      assertEquals(0, message.getExpiration());
+      assertFalse(message.isExpired());
 
       message.setExpiration(System.currentTimeMillis() + 1000);
-      Assert.assertFalse(message.isExpired());
+      assertFalse(message.isExpired());
 
       message.setExpiration(System.currentTimeMillis() - 1);
-      Assert.assertTrue(message.isExpired());
+      assertTrue(message.isExpired());
 
       message.setExpiration(System.currentTimeMillis() - 1000);
-      Assert.assertTrue(message.isExpired());
+      assertTrue(message.isExpired());
 
       message.setExpiration(0);
-      Assert.assertFalse(message.isExpired());
+      assertFalse(message.isExpired());
    }
 
    @Test
@@ -158,75 +163,75 @@ public class MessageImplTest extends ActiveMQTestBase {
          SimpleString val9 = new SimpleString(RandomUtil.randomString());
          msg.putStringProperty(prop9, val9);
 
-         Assert.assertEquals(9, msg.getPropertyNames().size());
-         Assert.assertTrue(msg.getPropertyNames().contains(prop1));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop2));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop3));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop4));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop5));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop6));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop7));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop8));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop9));
+         assertEquals(9, msg.getPropertyNames().size());
+         assertTrue(msg.getPropertyNames().contains(prop1));
+         assertTrue(msg.getPropertyNames().contains(prop2));
+         assertTrue(msg.getPropertyNames().contains(prop3));
+         assertTrue(msg.getPropertyNames().contains(prop4));
+         assertTrue(msg.getPropertyNames().contains(prop5));
+         assertTrue(msg.getPropertyNames().contains(prop6));
+         assertTrue(msg.getPropertyNames().contains(prop7));
+         assertTrue(msg.getPropertyNames().contains(prop8));
+         assertTrue(msg.getPropertyNames().contains(prop9));
 
-         Assert.assertTrue(msg.containsProperty(prop1));
-         Assert.assertTrue(msg.containsProperty(prop2));
-         Assert.assertTrue(msg.containsProperty(prop3));
-         Assert.assertTrue(msg.containsProperty(prop4));
-         Assert.assertTrue(msg.containsProperty(prop5));
-         Assert.assertTrue(msg.containsProperty(prop6));
-         Assert.assertTrue(msg.containsProperty(prop7));
-         Assert.assertTrue(msg.containsProperty(prop8));
-         Assert.assertTrue(msg.containsProperty(prop9));
+         assertTrue(msg.containsProperty(prop1));
+         assertTrue(msg.containsProperty(prop2));
+         assertTrue(msg.containsProperty(prop3));
+         assertTrue(msg.containsProperty(prop4));
+         assertTrue(msg.containsProperty(prop5));
+         assertTrue(msg.containsProperty(prop6));
+         assertTrue(msg.containsProperty(prop7));
+         assertTrue(msg.containsProperty(prop8));
+         assertTrue(msg.containsProperty(prop9));
 
-         Assert.assertEquals(val1, msg.getObjectProperty(prop1));
-         Assert.assertEquals(val2, msg.getObjectProperty(prop2));
-         Assert.assertEquals(val3, msg.getObjectProperty(prop3));
-         Assert.assertEquals(val4, msg.getObjectProperty(prop4));
-         Assert.assertEquals(val5, msg.getObjectProperty(prop5));
-         Assert.assertEquals(val6, msg.getObjectProperty(prop6));
-         Assert.assertEquals(val7, msg.getObjectProperty(prop7));
-         Assert.assertEquals(val8, msg.getObjectProperty(prop8));
-         Assert.assertEquals(val9, msg.getObjectProperty(prop9));
+         assertEquals(val1, msg.getObjectProperty(prop1));
+         assertEquals(val2, msg.getObjectProperty(prop2));
+         assertEquals(val3, msg.getObjectProperty(prop3));
+         assertEquals(val4, msg.getObjectProperty(prop4));
+         assertEquals(val5, msg.getObjectProperty(prop5));
+         assertEquals(val6, msg.getObjectProperty(prop6));
+         assertEquals(val7, msg.getObjectProperty(prop7));
+         assertEquals(val8, msg.getObjectProperty(prop8));
+         assertEquals(val9, msg.getObjectProperty(prop9));
 
          SimpleString val10 = new SimpleString(RandomUtil.randomString());
          // test overwrite
          msg.putStringProperty(prop9, val10);
-         Assert.assertEquals(val10, msg.getObjectProperty(prop9));
+         assertEquals(val10, msg.getObjectProperty(prop9));
 
          int val11 = RandomUtil.randomInt();
          msg.putIntProperty(prop9, val11);
-         Assert.assertEquals(val11, msg.getObjectProperty(prop9));
+         assertEquals(val11, msg.getObjectProperty(prop9));
 
          msg.removeProperty(prop1);
-         Assert.assertEquals(8, msg.getPropertyNames().size());
-         Assert.assertTrue(msg.getPropertyNames().contains(prop2));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop3));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop4));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop5));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop6));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop7));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop8));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop9));
+         assertEquals(8, msg.getPropertyNames().size());
+         assertTrue(msg.getPropertyNames().contains(prop2));
+         assertTrue(msg.getPropertyNames().contains(prop3));
+         assertTrue(msg.getPropertyNames().contains(prop4));
+         assertTrue(msg.getPropertyNames().contains(prop5));
+         assertTrue(msg.getPropertyNames().contains(prop6));
+         assertTrue(msg.getPropertyNames().contains(prop7));
+         assertTrue(msg.getPropertyNames().contains(prop8));
+         assertTrue(msg.getPropertyNames().contains(prop9));
 
          msg.removeProperty(prop2);
-         Assert.assertEquals(7, msg.getPropertyNames().size());
-         Assert.assertTrue(msg.getPropertyNames().contains(prop3));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop4));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop5));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop6));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop7));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop8));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop9));
+         assertEquals(7, msg.getPropertyNames().size());
+         assertTrue(msg.getPropertyNames().contains(prop3));
+         assertTrue(msg.getPropertyNames().contains(prop4));
+         assertTrue(msg.getPropertyNames().contains(prop5));
+         assertTrue(msg.getPropertyNames().contains(prop6));
+         assertTrue(msg.getPropertyNames().contains(prop7));
+         assertTrue(msg.getPropertyNames().contains(prop8));
+         assertTrue(msg.getPropertyNames().contains(prop9));
 
          msg.removeProperty(prop9);
-         Assert.assertEquals(6, msg.getPropertyNames().size());
-         Assert.assertTrue(msg.getPropertyNames().contains(prop3));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop4));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop5));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop6));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop7));
-         Assert.assertTrue(msg.getPropertyNames().contains(prop8));
+         assertEquals(6, msg.getPropertyNames().size());
+         assertTrue(msg.getPropertyNames().contains(prop3));
+         assertTrue(msg.getPropertyNames().contains(prop4));
+         assertTrue(msg.getPropertyNames().contains(prop5));
+         assertTrue(msg.getPropertyNames().contains(prop6));
+         assertTrue(msg.getPropertyNames().contains(prop7));
+         assertTrue(msg.getPropertyNames().contains(prop8));
 
          msg.removeProperty(prop3);
          msg.removeProperty(prop4);
@@ -234,7 +239,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          msg.removeProperty(prop6);
          msg.removeProperty(prop7);
          msg.removeProperty(prop8);
-         Assert.assertEquals(0, msg.getPropertyNames().size());
+         assertEquals(0, msg.getPropertyNames().size());
       }
    }
 
@@ -400,7 +405,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          t.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    private void simulateRead(ActiveMQBuffer buf) {

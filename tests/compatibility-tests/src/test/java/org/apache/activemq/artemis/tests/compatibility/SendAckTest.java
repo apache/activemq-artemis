@@ -17,26 +17,27 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 
-@RunWith(Parameterized.class)
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class SendAckTest extends ServerBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
@@ -62,7 +63,7 @@ public class SendAckTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
       evaluate(senderClassloader,  "sendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
       evaluate(receiverClassloader,  "sendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");

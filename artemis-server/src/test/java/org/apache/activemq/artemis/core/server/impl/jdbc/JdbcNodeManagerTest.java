@@ -23,30 +23,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JdbcNodeManagerTest extends ServerTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean useAuthentication;
    private DatabaseStorageConfiguration dbConf;
    private ScheduledExecutorService leaseLockExecutor;
 
-   @Parameterized.Parameters(name = "authentication = {0}")
+   @Parameters(name = "authentication = {0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{false}, {true}});
    }
 
-   @Before
+   @BeforeEach
    public void configure() {
       if (useAuthentication) {
          System.setProperty("derby.connection.requireAuthentication", "true");
@@ -78,7 +80,7 @@ public class JdbcNodeManagerTest extends ServerTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void shouldStartAndStopGracefullyTest() throws Exception {
       final JdbcNodeManager nodeManager = JdbcNodeManager.with(dbConf, leaseLockExecutor, null);
       nodeManager.start();

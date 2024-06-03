@@ -16,15 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrameInterceptor;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,11 +37,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompPropertiesInterceptorTest extends StompTestBase {
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
    }
@@ -75,7 +81,8 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
    private static final String MY_HEADER = "my-header";
    private static Map<String, Object> expectedProperties = new ConcurrentHashMap<>();
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCheckInterceptedStompMessageProperties() throws Exception {
       final String msgText = "Test intercepted message";
       final String myHeader = "TestInterceptedHeader";
@@ -88,7 +95,7 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
 
       subFrame.addHeader("subscription-type", "ANYCAST");
-      subFrame.addHeader("destination", name.getMethodName());
+      subFrame.addHeader("destination", name);
       subFrame.addHeader("ack", "auto");
       subFrame.addHeader(MY_HEADER, myHeader);
       subFrame.setBody(msgText);
@@ -96,7 +103,7 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
       conn.sendFrame(subFrame);
 
       ClientStompFrame frame = conn.createFrame("SEND");
-      frame.addHeader("destination", name.getMethodName());
+      frame.addHeader("destination", name);
       frame.addHeader("ack", "auto");
       frame.addHeader(MY_HEADER, myHeader);
       conn.sendFrame(frame);

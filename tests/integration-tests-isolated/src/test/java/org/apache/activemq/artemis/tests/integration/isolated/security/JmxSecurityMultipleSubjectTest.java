@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.isolated.security;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.JMX;
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
@@ -37,14 +42,9 @@ import org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServer
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JmxSecurityMultipleSubjectTest {
 
@@ -64,7 +64,7 @@ public class JmxSecurityMultipleSubjectTest {
    ActiveMQServer server;
 
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       Configuration configuration = new ConfigurationImpl().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()));
@@ -72,7 +72,7 @@ public class JmxSecurityMultipleSubjectTest {
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       server.stop();
    }
@@ -123,7 +123,7 @@ public class JmxSecurityMultipleSubjectTest {
             return e1;
          }
       });
-      assertNotNull("view permission is not sufficient", e);
+      assertNotNull(e, "view permission is not sufficient");
 
       e = Subject.doAs(updateSubject, (PrivilegedExceptionAction<Exception>) () -> {
          try {
@@ -133,7 +133,7 @@ public class JmxSecurityMultipleSubjectTest {
             return e1;
          }
       });
-      assertNotNull("no permission is sufficient", e);
+      assertNotNull(e, "no permission is sufficient");
 
    }
 }

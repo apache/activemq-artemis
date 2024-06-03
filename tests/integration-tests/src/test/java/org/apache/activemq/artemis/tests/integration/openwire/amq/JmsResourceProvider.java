@@ -29,6 +29,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * adapted from: org.apache.activemq.test.JmsResourceProvider
@@ -100,7 +101,7 @@ public class JmsResourceProvider {
    /**
     * Creates a destination, which can either a topic or a queue.
     *
-    * @see org.apache.activemq.test.JmsResourceProvider#createDestination(javax.jms.Session,
+    * @see Assertions#createDestination(javax.jms.Session,
     * java.lang.String)
     */
    public Destination createDestination(Session session, JmsTransactionTestSupport support) throws JMSException {

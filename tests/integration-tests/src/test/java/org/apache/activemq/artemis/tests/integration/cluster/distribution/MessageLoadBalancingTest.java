@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,14 +30,13 @@ import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageLoadBalancingTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -82,16 +84,16 @@ public class MessageLoadBalancingTest extends ClusterTestBase {
       send(0, "queues.testaddress", 10, false, null);
 
       ClientMessage message = getConsumer(1).receive(1000);
-      Assert.assertNull(message);
+      assertNull(message);
 
       for (int i = 0; i < 10; i++) {
          message = getConsumer(0).receive(5000);
-         Assert.assertNotNull("" + i, message);
+         assertNotNull(message, "" + i);
          message.acknowledge();
       }
 
       ClientMessage clientMessage = getConsumer(0).receiveImmediate();
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
    }
 
    @Test
@@ -116,13 +118,13 @@ public class MessageLoadBalancingTest extends ClusterTestBase {
       for (int i = 0; i < 2; i++) {
          po[i] = servers[i].getPostOffice();
          bindings[i] = po[i].getBinding(new SimpleString("queue0"));
-         Assert.assertNotNull(bindings[i]);
+         assertNotNull(bindings[i]);
 
          Queue queue0 = (Queue)bindings[i].getBindable();
-         Assert.assertNotNull(queue0);
+         assertNotNull(queue0);
 
          QueueConfiguration qconfig = queue0.getQueueConfiguration();
-         Assert.assertNotNull(qconfig);
+         assertNotNull(qconfig);
 
          qconfig.setFilterString("color = 'red'");
          po[i].updateQueue(qconfig, true);
@@ -130,7 +132,7 @@ public class MessageLoadBalancingTest extends ClusterTestBase {
 
       SimpleString clusterName0 = bindings[1].getClusterName();
       RemoteQueueBinding remoteBinding = (RemoteQueueBinding) po[0].getBinding(clusterName0);
-      Assert.assertNotNull(remoteBinding);
+      assertNotNull(remoteBinding);
 
       Wait.assertEquals("color = 'red'", () -> {
          Filter filter = remoteBinding.getFilter();

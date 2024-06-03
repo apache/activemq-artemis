@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -34,13 +39,13 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +57,7 @@ public class FailoverListenerTest extends FailoverTestBase {
    private ClientSessionFactoryInternal sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
@@ -117,7 +122,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       verifyMessageOnServer(0, 1);
 
       wrapUpSessionFactory();
-      assertEquals("Expected 4 FailoverEvents to be triggered", 4, listener.getFailoverEventType().size());
+      assertEquals(4, listener.getFailoverEventType().size(), "Expected 4 FailoverEvents to be triggered");
    }
 
    /**
@@ -167,7 +172,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILOVER_FAILED, listener.getFailoverEventType().get(1));
 
-      assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.getFailoverEventType().size());
+      assertEquals(2, listener.getFailoverEventType().size(), "Expected 2 FailoverEvents to be triggered");
       session.close();
 
       wrapUpSessionFactory();
@@ -181,8 +186,8 @@ public class FailoverListenerTest extends FailoverTestBase {
 
    private void wrapUpSessionFactory() {
       sf.close();
-      assertEquals("Expecting 0 sessions", 0, sf.numSessions());
-      assertEquals("Expecting 0 connections", 0, sf.numConnections());
+      assertEquals(0, sf.numSessions(), "Expecting 0 sessions");
+      assertEquals(0, sf.numConnections(), "Expecting 0 connections");
    }
 
    @Override

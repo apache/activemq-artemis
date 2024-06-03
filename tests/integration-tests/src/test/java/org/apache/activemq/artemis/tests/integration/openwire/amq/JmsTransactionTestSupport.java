@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -31,8 +39,8 @@ import java.util.List;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTransactionTestSupport
@@ -57,7 +65,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    private boolean resendPhase;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -132,7 +140,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
          beginTx();
          for (int i = 0; i < batchSize; i++) {
             message = (TextMessage) consumer.receive(1000 * 5);
-            assertNotNull("Received only " + i + " messages in batch " + j, message);
+            assertNotNull(message, "Received only " + i + " messages in batch " + j);
             assertEquals("Batch Message", message.getText());
          }
 
@@ -345,7 +353,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       // get redelivered.
       beginTx();
       message = consumer.receive(5000);
-      assertNotNull("Should have re-received the message again!", message);
+      assertNotNull(message, "Should have re-received the message again!");
       messages.add(message);
       commitTx();
 
@@ -394,11 +402,11 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       // get redelivered.
       beginTx();
       message = (TextMessage) consumer.receive(5000);
-      assertNotNull("Should have re-received the first message again!", message);
+      assertNotNull(message, "Should have re-received the first message again!");
       messages.add(message);
       assertEquals(outbound[0], message);
       message = (TextMessage) consumer.receive(5000);
-      assertNotNull("Should have re-received the second message again!", message);
+      assertNotNull(message, "Should have re-received the second message again!");
       messages.add(message);
       assertEquals(outbound[1], message);
 
@@ -549,21 +557,21 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       beginTx();
       message = consumer.receive(5000);
       List<String> secondBody = assertReceivedObjectMessageWithListBody(message);
-      assertNotSame("Second call should return a different body", secondBody, body);
+      assertNotSame(secondBody, body, "Second call should return a different body");
       commitTx();
    }
 
    @SuppressWarnings("unchecked")
    protected List<String> assertReceivedObjectMessageWithListBody(Message message) throws JMSException {
-      assertNotNull("Should have received a message!", message);
-      assertEquals("foo header", "abc", message.getStringProperty("foo"));
+      assertNotNull(message, "Should have received a message!");
+      assertEquals("abc", message.getStringProperty("foo"), "foo header");
 
-      assertTrue("Should be an object message but was: " + message, message instanceof ObjectMessage);
+      assertTrue(message instanceof ObjectMessage, "Should be an object message but was: " + message);
       ObjectMessage objectMessage = (ObjectMessage) message;
       List<String> body = (List<String>) objectMessage.getObject();
 
-      assertEquals("Size of list should be 1", 1, body.size());
-      assertEquals("element 0 of list", "First", body.get(0));
+      assertEquals(1, body.size(), "Size of list should be 1");
+      assertEquals("First", body.get(0), "element 0 of list");
       return body;
    }
 

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,15 +35,15 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
    ArrayList<Long> deletedMessage = new ArrayList<>();
@@ -50,13 +53,13 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
    }
 
    // This is only applicable for FILE based store, as the database storage manager will automatically delete records.
-   @Parameterized.Parameters(name = "storeType")
+   @Parameters(name = "storeType")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}};
       return Arrays.asList(params);
    }
 
-   @Test
+   @TestTemplate
    public void testDeleteMessagesOnStartup() throws Exception {
       createStorage();
 
@@ -84,10 +87,10 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
       journal.loadMessageJournal(postOffice, null, null, null, null, null, null, null, new PostOfficeJournalLoader(postOffice, null, journal, null, null, null, null, null, queues));
 
-      Assert.assertEquals(98, deletedMessage.size());
+      assertEquals(98, deletedMessage.size());
 
       for (Long messageID : deletedMessage) {
-         Assert.assertTrue("messageID = " + messageID, messageID.longValue() >= 2 && messageID <= 99);
+         assertTrue(messageID.longValue() >= 2 && messageID <= 99, "messageID = " + messageID);
       }
    }
 

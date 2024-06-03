@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,9 +44,8 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PagingManagerImplTest extends ActiveMQTestBase {
 
@@ -68,11 +72,11 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       store.startPaging();
 
-      Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       Page page = store.depage();
 
@@ -82,21 +86,21 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       page.close(false, false);
 
-      Assert.assertEquals(1, msgs.size());
+      assertEquals(1, msgs.size());
 
       ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), (msgs.get(0).getMessage()).toCore().getBodyBuffer().toByteBuffer().array());
 
-      Assert.assertTrue(store.isPaging());
+      assertTrue(store.isPaging());
 
-      Assert.assertNull(store.depage());
+      assertNull(store.depage());
 
       final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
+      assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
 
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       File fileJournalDir = new File(getJournalDir());

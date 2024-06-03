@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.retention;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -35,10 +39,9 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReplayTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
@@ -48,7 +51,7 @@ public class ReplayTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "replay/replay";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -63,7 +66,7 @@ public class ReplayTest extends SmokeTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       startServer(SERVER_NAME_0, 0, 30000);
@@ -125,36 +128,36 @@ public class ReplayTest extends SmokeTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(bufferStr, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, null);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(bufferStr, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, "i=1");
 
          for (int i = 0; i < 2; i++) { // replay of a replay will give you 2 messages
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(1, message.getIntProperty("i"));
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(1, message.getIntProperty("i"));
+            assertEquals(bufferStr, message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, "foo='foo'");
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

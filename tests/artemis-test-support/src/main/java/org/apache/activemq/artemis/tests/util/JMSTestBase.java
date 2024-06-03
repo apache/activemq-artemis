@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
@@ -45,9 +48,8 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class JMSTestBase extends ActiveMQTestBase {
 
@@ -122,7 +124,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -163,7 +165,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          for (JMSContext jmsContext : contextSet) {
@@ -221,7 +223,7 @@ public class JMSTestBase extends ActiveMQTestBase {
 
    protected void createCF(final List<TransportConfiguration> connectorConfigs,
                            final String... jndiBindings) throws Exception {
-      createCF(name.getMethodName(), connectorConfigs, jndiBindings);
+      createCF(name, connectorConfigs, jndiBindings);
    }
 
 
@@ -275,9 +277,9 @@ public class JMSTestBase extends ActiveMQTestBase {
       try {
          for (int i = start; i < msgCount; i++) {
             Message message = consumer.receive(100);
-            Assert.assertNotNull("Expecting a message " + i, message);
+            assertNotNull(message, "Expecting a message " + i);
             final int actual = message.getIntProperty("counter");
-            Assert.assertEquals("expected=" + i + ". Got: property['counter']=" + actual, i, actual);
+            assertEquals(i, actual, "expected=" + i + ". Got: property['counter']=" + actual);
             if (ack)
                message.acknowledge();
          }

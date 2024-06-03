@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MBeanInfoHelperTest extends Assert {
+public class MBeanInfoHelperTest {
 
    @Test
    public void testOperationsInfosCache() {

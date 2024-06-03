@@ -17,16 +17,18 @@
 
 package org.apache.activemq.artemis.tests.smoke.paging;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SmokeMaxMessagePagingTest extends SmokeTestBase {
 
@@ -34,7 +36,7 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
    public static final String SERVER_NAME_ADDRESS = "pagingAddressMaxMessages";
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_GLOBAL);
@@ -57,7 +59,7 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
    }
 
@@ -75,7 +77,7 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
       cleanupData(serverName);
       startServer(serverName, 0, 30000);
       internalSend("core", 2000);
-      Assert.assertTrue("System did not page", isPaging(serverName));
+      assertTrue(isPaging(serverName), "System did not page");
    }
 
    boolean isPaging(String serverName) {
@@ -101,13 +103,13 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
       Process process = startServer(serverName, 0, 30000);
       internalSend("core", 500);
 
-      Assert.assertFalse(isPaging(serverName));
+      assertFalse(isPaging(serverName));
 
       process.destroy();
       process = startServer(serverName, 0, 30000);
       internalSend("core", 1500);
 
-      Assert.assertTrue(isPaging(serverName));
+      assertTrue(isPaging(serverName));
    }
 
    private void internalSend(String protocol, int numberOfMessages) throws Exception {

@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.transactions;
 
-import org.apache.activemq.artemis.service.extensions.ServiceUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TransactionManagerLocatorTest extends Assert {
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.junit.jupiter.api.Test;
+
+public class TransactionManagerLocatorTest {
 
    @Test
    public void getTM() {

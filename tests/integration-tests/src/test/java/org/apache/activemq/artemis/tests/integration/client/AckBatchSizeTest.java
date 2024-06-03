@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -29,8 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,9 +82,9 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = (ClientMessage)sendSession.createMessage(false).setAddress(addressA);
-         Assert.assertEquals(originalSize, message.getEncodeSize());
+         assertEquals(originalSize, message.getEncodeSize());
          cp.send(message);
-         Assert.assertEquals(originalSize, message.getEncodeSize());
+         assertEquals(originalSize, message.getEncodeSize());
       }
 
       ClientConsumer consumer = session.createConsumer(queueA);
@@ -90,16 +92,16 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages - 1; i++) {
          logger.debug("Receive ");
          ClientMessage m = consumer.receive(5000);
-         Assert.assertEquals(0, m.getPropertyNames().size());
-         Assert.assertEquals("expected to be " + originalSize, originalSize, m.getEncodeSize());
+         assertEquals(0, m.getPropertyNames().size());
+         assertEquals(originalSize, m.getEncodeSize(), "expected to be " + originalSize);
          m.acknowledge();
       }
 
       ClientMessage m = consumer.receive(5000);
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       m.acknowledge();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
@@ -130,11 +132,11 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientMessage[] messages = new ClientMessage[numMessages];
       for (int i = 0; i < numMessages; i++) {
          messages[i] = consumer.receive(5000);
-         Assert.assertNotNull(messages[i]);
+         assertNotNull(messages[i]);
       }
       for (int i = 0; i < numMessages; i++) {
          messages[i].acknowledge();
-         Assert.assertEquals(numMessages - i - 1, q.getDeliveringCount());
+         assertEquals(numMessages - i - 1, q.getDeliveringCount());
       }
       sendSession.close();
       session.close();

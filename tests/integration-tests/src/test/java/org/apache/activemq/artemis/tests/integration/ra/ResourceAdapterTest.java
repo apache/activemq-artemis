@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpoint;
@@ -49,7 +56,7 @@ import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
 import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ResourceAdapterTest extends ActiveMQRATestBase {
 

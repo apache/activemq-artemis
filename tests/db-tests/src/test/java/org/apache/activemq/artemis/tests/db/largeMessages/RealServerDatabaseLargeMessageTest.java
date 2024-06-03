@@ -17,6 +17,12 @@
 
 package org.apache.activemq.artemis.tests.db.largeMessages;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -35,17 +41,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
-
+@ExtendWith(ParameterizedTestExtension.class)
 public class RealServerDatabaseLargeMessageTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -62,20 +68,20 @@ public class RealServerDatabaseLargeMessageTest extends ParameterDBTestBase {
 
    Process serverProcess;
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       serverProcess = startServer(database.getName(), 0, 60_000);
       executorService = Executors.newFixedThreadPool(PRODUCERS + 1); // there will be one consumer
       runAfter(executorService::shutdownNow);
    }
 
-   @Test
+   @TestTemplate
    public void testLargeMessage() throws Exception {
       testLargeMessage("CORE");
       testLargeMessage("AMQP");
@@ -129,12 +135,12 @@ public class RealServerDatabaseLargeMessageTest extends ParameterDBTestBase {
             MessageConsumer consumer = session.createConsumer(queue);
             for (int messageI = 0; messageI < PRODUCERS * MESSAGES_PER_PRODUCER; messageI++) {
                BytesMessage message = (BytesMessage) consumer.receive(10_000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
                logger.debug("Received message");
-               Assert.assertEquals(messageLoad.length, message.getBodyLength());
+               assertEquals(messageLoad.length, message.getBodyLength());
                byte[] messageRead = new byte[(int)message.getBodyLength()];
                message.readBytes(messageRead);
-               Assert.assertArrayEquals(messageLoad, messageRead);
+               assertArrayEquals(messageLoad, messageRead);
                if (messageI % 5 == 0) {
                   session.commit();
                }
@@ -148,8 +154,8 @@ public class RealServerDatabaseLargeMessageTest extends ParameterDBTestBase {
          }
       });
 
-      Assert.assertTrue(done.await(120, TimeUnit.SECONDS));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(120, TimeUnit.SECONDS));
+      assertEquals(0, errors.get());
 
    }
 

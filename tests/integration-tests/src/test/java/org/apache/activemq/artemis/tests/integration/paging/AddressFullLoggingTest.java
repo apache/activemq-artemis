@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,10 +42,9 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class AddressFullLoggingTest extends ActiveMQTestBase {
 
@@ -50,12 +52,12 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
    private static LogLevel previousLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() throws Exception {
       AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, previousLevel);
    }
@@ -153,9 +155,9 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
          server.stop();
 
          // Using the code only so the test doesn't fail just because someone edits the log text
-         Assert.assertTrue("Expected to find AMQ222183", loggerHandler.findText("AMQ222183", MY_ADDRESS));
-         Assert.assertTrue("Expected to find AMQ221046", loggerHandler.findText("AMQ221046", MY_ADDRESS));
-         Assert.assertFalse("Expected to not find AMQ222211", loggerHandler.findText("AMQ222211"));
+         assertTrue(loggerHandler.findText("AMQ222183", MY_ADDRESS), "Expected to find AMQ222183");
+         assertTrue(loggerHandler.findText("AMQ221046", MY_ADDRESS), "Expected to find AMQ221046");
+         assertFalse(loggerHandler.findText("AMQ222211"), "Expected to not find AMQ222211");
       }
    }
 

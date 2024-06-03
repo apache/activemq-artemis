@@ -14,43 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.tests.extensions;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * This will make sure any properties changed through tests are cleaned up between tests.
  */
-public class CleanupSystemPropertiesRule extends ExternalResource {
+public class CleanupSystemPropertiesExtension implements BeforeEachCallback, AfterEachCallback, Extension {
 
    private Properties originalProperties;
 
-   /**
-    * Override to set up your specific external resource.
-    *
-    * @throws Throwable if setup fails (which will disable {@code after}
-    */
    @Override
-   protected void before() throws Throwable {
-      // do nothing
-
+   public void beforeEach(ExtensionContext context) throws Exception {
       originalProperties = new Properties();
       originalProperties.putAll(System.getProperties());
 
    }
 
-   /**
-    * Override to tear down your specific external resource.
-    */
    @Override
-   protected void after() {
+   public void afterEach(ExtensionContext context) throws Exception {
 
       Properties changed = new Properties();
-      HashSet newProperties = new HashSet();
+      Set<Object> newProperties = new HashSet<>();
       for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
          Object originalValue = originalProperties.get(entry.getKey());
          if (originalValue == null) {
@@ -102,5 +96,4 @@ public class CleanupSystemPropertiesRule extends ExternalResource {
       originalProperties = null;
 
    }
-
 }

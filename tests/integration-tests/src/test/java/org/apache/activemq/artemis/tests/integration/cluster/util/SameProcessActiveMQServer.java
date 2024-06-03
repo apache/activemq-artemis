@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +26,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
-import org.junit.Assert;
 
 public class SameProcessActiveMQServer implements TestableServer {
 
@@ -101,7 +102,7 @@ public class SameProcessActiveMQServer implements TestableServer {
       ClusterManager clusterManager = server.getClusterManager();
       clusterManager.flushExecutor();
       clusterManager.clear();
-      Assert.assertTrue("server should be running!", server.isStarted());
+      assertTrue(server.isStarted(), "server should be running!");
       server.fail(failover);
 
       if (waitFailure) {
@@ -110,8 +111,8 @@ public class SameProcessActiveMQServer implements TestableServer {
          // so in order to give enough time we double the wait time.
          boolean ok = latch.await(callTimeout * 2 + failoverCallTimeout * 2, TimeUnit.MILLISECONDS);
 
-         Assert.assertTrue("Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
-                              sessions.length, ok);
+         assertTrue(ok, "Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
+                              sessions.length);
       }
 
       return latch;

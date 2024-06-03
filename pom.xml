@@ -164,7 +164,6 @@
       <hamcrest.version>2.1</hamcrest.version>
       <junit.version>4.13.2</junit.version>
       <junit5.version>5.10.1</junit5.version>
-      <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.7.2</postgresql.version>
@@ -869,6 +868,10 @@
                   <environmentVariables>
                      <PN_TRACE_FRM>${proton.trace.frames}</PN_TRACE_FRM>
                   </environmentVariables>
+                  <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                     <version>3.0</version>
+                     <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                  </statelessTestsetReporter>
                </configuration>
             </plugin>
             <plugin>

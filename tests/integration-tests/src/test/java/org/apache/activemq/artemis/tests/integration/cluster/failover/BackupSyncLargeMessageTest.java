@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,8 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
@@ -65,7 +69,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       // 200 will increase the odds of a failure
       setNumberOfMessages(200);
       File dir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(dir).size());
+      assertEquals(0, getAllMessageFileIds(dir).size(), "Should not have any large messages... previous test failed to clean up?");
       createProducerSendSomeMessages();
       startBackupFinishSyncing();
       receiveMsgsInRange(0, getNumberOfMessages() / 2);
@@ -75,7 +79,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       while (getAllMessageFileIds(dir).size() != target && System.currentTimeMillis() < timeout) {
          Thread.sleep(50);
       }
-      assertEquals("we really ought to delete these after delivery", target, getAllMessageFileIds(dir).size());
+      assertEquals(target, getAllMessageFileIds(dir).size(), "we really ought to delete these after delivery");
    }
 
    /**
@@ -86,7 +90,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       setNumberOfMessages(200);
       File backupLMdir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
       File primaryLMDir = new File(primaryServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(backupLMdir).size());
+      assertEquals(0, getAllMessageFileIds(backupLMdir).size(), "Should not have any large messages... previous test failed to clean up?");
       createProducerSendSomeMessages();
 
       backupServer.start();
@@ -101,9 +105,9 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
       Set<Long> backupLM = getAllMessageFileIds(backupLMdir);
       Set<Long> primaryLM = getAllMessageFileIds(primaryLMDir);
-      assertEquals("primary and backup should have the same files ", primaryLM, backupLM);
-      assertEquals("we really ought to delete these after delivery: " + backupLM, getNumberOfMessages() / 2, backupLM.size());
-      assertEquals("we really ought to delete these after delivery", getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size());
+      assertEquals(primaryLM, backupLM, "primary and backup should have the same files ");
+      assertEquals(getNumberOfMessages() / 2, backupLM.size(), "we really ought to delete these after delivery: " + backupLM);
+      assertEquals(getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size(), "we really ought to delete these after delivery");
    }
 
    /**
@@ -147,7 +151,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       startBackupFinishSyncing();
       ActiveMQTestBase.waitForLatch(latch2);
       crash(session);
-      assertFalse("no exceptions while sending message", caughtException.get());
+      assertFalse(caughtException.get(), "no exceptions while sending message");
 
       session.start();
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
@@ -155,11 +159,11 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       ActiveMQBuffer buffer = msg.getBodyBuffer();
 
       for (int j = 0; j < largeMessageSize; j++) {
-         Assert.assertTrue("large msg , expecting " + largeMessageSize + " bytes, got " + j, buffer.readable());
-         Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
+         assertTrue(buffer.readable(), "large msg , expecting " + largeMessageSize + " bytes, got " + j);
+         assertEquals(ActiveMQTestBase.getSamplebyte(j), buffer.readByte(), "equal at " + j);
       }
       receiveMessages(consumer, 0, 20, true);
-      assertNull("there should be no more messages!", consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate(), "there should be no more messages!");
       consumer.close();
       session.commit();
    }

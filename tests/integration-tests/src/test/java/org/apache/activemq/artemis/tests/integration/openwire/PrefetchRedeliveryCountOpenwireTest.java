@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -58,8 +62,9 @@ import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.failover.FailoverTransport;
 import org.apache.activemq.transport.tcp.TcpTransport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +72,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       realStore = true;
@@ -89,12 +95,14 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
       //serverConfig.setJournalSyncTransactional(true);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testConsumerSingleMessageLoopExclusive() throws Exception {
       doTestConsumerSingleMessageLoop(true);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testConsumerSingleMessageLoopNonExclusive() throws Exception {
       doTestConsumerSingleMessageLoop(false);
    }
@@ -131,7 +139,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             MessageConsumer messageConsumer = session.createConsumer(queue);
 
             TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-            Assert.assertNotNull(messageReceived);
+            assertNotNull(messageReceived);
 
             assertEquals("This is a text message", messageReceived.getText());
             messageConsumer.close();
@@ -143,7 +151,8 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
       }
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testExclusiveConsumerOrderOnReconnectionLargePrefetch() throws Exception {
       Connection exConn = null;
 
@@ -194,8 +203,8 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             TextMessage messageReceived;
             for (int j = 0; j < batch; j++) { // a small batch
                messageReceived = (TextMessage) messageConsumer.receive(5000);
-               Assert.assertNotNull("null @ i=" + i, messageReceived);
-               Assert.assertEquals(i + j, messageReceived.getIntProperty("SEQ"));
+               assertNotNull(messageReceived, "null @ i=" + i);
+               assertEquals(i + j, messageReceived.getIntProperty("SEQ"));
 
                assertEquals("This is a text message", messageReceived.getText());
             }
@@ -212,7 +221,8 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
       }
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testServerSideRollbackOnCloseOrder() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -304,7 +314,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
                         }
                      }
                      // verify within batch order
-                     Assert.assertEquals("@:" + receivedCount.get() + " batch out of order", ((long) batch * inProgressBatch.get()) + i, receivedSeq);
+                     assertEquals(((long) batch * inProgressBatch.get()) + i, receivedSeq, "@:" + receivedCount.get() + " batch out of order");
                   }
 
                   if (i != batch) {
@@ -367,13 +377,14 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             executorService.shutdownNow();
          }
 
-         Assert.assertTrue("errors: " + errors, errors.isEmpty());
+         assertTrue(errors.isEmpty(), "errors: " + errors);
       });
 
-      Assert.assertTrue(errors.isEmpty());
+      assertTrue(errors.isEmpty());
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
    public void testExclusiveConsumerBatchOrderUnderLoad() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -465,7 +476,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
                         }
                      }
                      // verify within batch order
-                     Assert.assertEquals("@:" + receivedCount.get() + " batch out of order", ((long) batch * inProgressBatch.get()) + i, receivedSeq);
+                     assertEquals(((long) batch * inProgressBatch.get()) + i, receivedSeq, "@:" + receivedCount.get() + " batch out of order");
                   }
 
                   if (i != batch) {
@@ -534,10 +545,10 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             executorService.shutdownNow();
          }
 
-         Assert.assertTrue(errors.isEmpty());
+         assertTrue(errors.isEmpty());
       });
 
-      Assert.assertTrue(errors.isEmpty());
+      assertTrue(errors.isEmpty());
    }
 
    public void underLoad(final int numProducers, Runnable r) throws Exception {
@@ -627,7 +638,8 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
       }
    }
 
-   @Test(timeout = 120_000)
+   @Test
+   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
    public void testExclusiveConsumerTransactionalBatchOnReconnectionLargePrefetch() throws Exception {
       doTestExclusiveConsumerTransactionalBatchOnReconnectionLargePrefetch();
    }
@@ -694,7 +706,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
 
                int receivedSeq = messageReceived.getIntProperty("SEQ");
                // need to infer batch from seq number and adjust - client never gets commit response
-               Assert.assertEquals("@:" + received + ", out of order", (batch * (receivedSeq / batch)) + j, receivedSeq);
+               assertEquals((batch * (receivedSeq / batch)) + j, receivedSeq, "@:" + received + ", out of order");
             }
 
             // arrange concurrent commit - ack/commit

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -37,16 +44,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration configuration = createDefaultConfig(isNetty());
@@ -62,7 +68,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
       ServerLocator locator = createNonHALocator(isNetty()).setCallTimeout(30000);
       try (ClientSessionFactory csf = locator.createSessionFactory()) {
-         Assert.assertFalse(csf.isClosed());
+         assertFalse(csf.isClosed());
       }
 
       server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
@@ -89,10 +95,10 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       locator.close();
 
       //check connect fails fast
-      Assert.assertTrue(connectLatch.await(3000, TimeUnit.MILLISECONDS));
+      assertTrue(connectLatch.await(3000, TimeUnit.MILLISECONDS));
 
       //check connect timed out
-      Assert.assertTrue(connectTimedOut.get());
+      assertTrue(connectTimedOut.get());
    }
 
    @Test
@@ -203,14 +209,14 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {
          try (ServerLocatorImpl locator = (ServerLocatorImpl) ServerLocatorImpl.newLocator("tcp://localhost:61616")) {
             locator.connect();
-            Assert.fail("Expected an exception");
+            fail("Expected an exception");
          } catch (Exception expected) {
          }
 
          // The connect operation used to log a warning and throw an exception.
          // which will flood the logs when a server is being started for the first time.
          // Having the exception thrown only should be enough.
-         Assert.assertFalse(handler.findText("AMQ212025"));
+         assertFalse(handler.findText("AMQ212025"));
       }
    }
 

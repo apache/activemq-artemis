@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,8 +34,7 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReconnectFailoverTest extends BasicOpenWireTest {
 
@@ -53,8 +55,8 @@ public class ReconnectFailoverTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(tempQueue);
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello", message.getText());
+            assertNotNull(message);
+            assertEquals("hello", message.getText());
          }
       } finally {
          connection.close();
@@ -94,8 +96,8 @@ public class ReconnectFailoverTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(tempQueue);
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello", message.getText());
+            assertNotNull(message);
+            assertEquals("hello", message.getText());
          }
       } finally {
          connection.close();

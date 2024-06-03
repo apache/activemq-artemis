@@ -23,11 +23,11 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 
 public abstract class AbstractLeakTest extends ActiveMQTestBase {
 
-   @AfterClass
+   @AfterAll
    public static void clearStatus() throws Exception {
       ServerStatus.clear();
 

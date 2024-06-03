@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanager;
 
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,39 +31,39 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfigu
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FakeServiceComponent;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static java.util.Arrays.asList;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LockManagerBackupAuthenticationTest extends FailoverTestBase {
 
    private static CountDownLatch registrationStarted;
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean useNetty;
 
-   @Parameterized.Parameters(name = "useNetty={1}")
+   @Parameters(name = "useNetty={1}")
    public static Iterable<Object[]> getParams() {
       return asList(new Object[][]{{false}, {true}});
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       startBackupServer = false;
       registrationStarted = new CountDownLatch(1);
       super.setUp();
    }
 
-   @Test
+   @TestTemplate
    public void testWrongPasswordSetting() throws Exception {
       FakeServiceComponent fakeServiceComponent = new FakeServiceComponent("fake web server");
       Wait.assertTrue(primaryServer.getServer()::isActive);
@@ -72,7 +76,7 @@ public class LockManagerBackupAuthenticationTest extends FailoverTestBase {
        * live.
        */
       Wait.waitFor(() -> !backupServer.isStarted());
-      assertFalse("backup should have stopped", backupServer.isStarted());
+      assertFalse(backupServer.isStarted(), "backup should have stopped");
       Wait.assertFalse(fakeServiceComponent::isStarted);
       backupServer.stop();
       primaryServer.stop();

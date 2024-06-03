@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +32,6 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.junit.Assert;
 
 public class JdbcNodeManagerTest extends NodeManagerTest {
 
@@ -95,7 +97,7 @@ public class JdbcNodeManagerTest extends NodeManagerTest {
             fail(nodeRunner.e.getMessage());
          }
       }
-      Assert.assertFalse("Some of the lease locks has failed to renew the locks", failedRenew.get());
+      assertFalse(failedRenew.get(), "Some of the lease locks has failed to renew the locks");
    }
 
 }

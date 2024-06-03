@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Session;
@@ -34,7 +38,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 public class AdvisoryOpenWireTest extends BasicOpenWireTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       //this system property is used to construct the executor in
       //org.apache.activemq.transport.AbstractInactivityMonitor.createExecutor()
@@ -81,7 +85,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
             advisoryAddressControl = (AddressControl) addressResource;
          }
       }
-      assertNotNull("addressControl for temp advisory", advisoryAddressControl);
+      assertNotNull(advisoryAddressControl, "addressControl for temp advisory");
       return advisoryAddressControl;
    }
 
@@ -159,7 +163,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
 
          // there is an advisory for create and another for delete
-         assertEquals("all routed", numTempDestinations * 2, advisoryAddress.getRoutedMessageCount());
+         assertEquals(numTempDestinations * 2, advisoryAddress.getRoutedMessageCount(), "all routed");
 
       } finally {
          for (Connection conn : connections) {
@@ -190,7 +194,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Session session = connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE);
          session.close();
 
-         assertTrue("Got all the advisories on time", numConnectionsCreatedViaAdvisoryNotificationsLatch.await(5, TimeUnit.SECONDS));
+         assertTrue(numConnectionsCreatedViaAdvisoryNotificationsLatch.await(5, TimeUnit.SECONDS), "Got all the advisories on time");
 
       } finally {
          for (Connection conn : connections) {

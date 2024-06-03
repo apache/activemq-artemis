@@ -26,12 +26,14 @@ import java.util.Locale;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public abstract class ParameterDBTestBase extends DBTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -46,9 +48,10 @@ public abstract class ParameterDBTestBase extends DBTestBase {
    }
 
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public Database database;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -108,7 +111,7 @@ public abstract class ParameterDBTestBase extends DBTestBase {
             }
             return 1;
          default:
-            return dropTables("BINDING", "MESSAGE", "LARGE_MESSAGE", "PAGE_STORE", "NODE_MANAGER");
+            return dropTables("MESSAGE", "LARGE_MESSAGE", "PAGE_STORE", "NODE_MANAGER", "BINDING");
       }
    }
 

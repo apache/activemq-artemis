@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -30,24 +35,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.zip.Adler32;
-import java.util.zip.Checksum;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-public class PropertiesLoginModuleTest extends Assert {
+public class PropertiesLoginModuleTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -75,13 +78,13 @@ public class PropertiesLoginModuleTest extends Assert {
 
       Subject subject = context.getSubject();
 
-      assertEquals("Should have three principals", 3, subject.getPrincipals().size());
-      assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
-      assertEquals("Should have two group principals", 2, subject.getPrincipals(RolePrincipal.class).size());
+      assertEquals(3, subject.getPrincipals().size(), "Should have three principals");
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size(), "Should have one user principal");
+      assertEquals(2, subject.getPrincipals(RolePrincipal.class).size(), "Should have two group principals");
 
       context.logout();
 
-      assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "Should have zero principals");
    }
 
    @Test
@@ -106,16 +109,16 @@ public class PropertiesLoginModuleTest extends Assert {
       Subject subject = context.getSubject();
 
       //test initial principals
-      assertEquals("Should have three principals", 3, subject.getPrincipals().size());
-      assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
-      assertEquals("Should have two group principals", 2, subject.getPrincipals(RolePrincipal.class).size());
+      assertEquals(3, subject.getPrincipals().size(), "Should have three principals");
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size(), "Should have one user principal");
+      assertEquals(2, subject.getPrincipals(RolePrincipal.class).size(), "Should have two group principals");
 
       String hashOriginal = genHash(usersFile);
-      assertTrue("Contains hash", ServerStatus.getInstance().asJson().contains(hashOriginal));
+      assertTrue(ServerStatus.getInstance().asJson().contains(hashOriginal), "Contains hash");
 
       context.logout();
 
-      assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "Should have zero principals");
 
       //Modify the file and test that the properties are reloaded
       Thread.sleep(1000);
@@ -130,17 +133,17 @@ public class PropertiesLoginModuleTest extends Assert {
       subject = context.getSubject();
 
       //Check that the principals changed
-      assertEquals("Should have three principals", 2, subject.getPrincipals().size());
-      assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
-      assertEquals("Should have one group principals", 1, subject.getPrincipals(RolePrincipal.class).size());
+      assertEquals(2, subject.getPrincipals().size(), "Should have three principals");
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size(), "Should have one user principal");
+      assertEquals(1, subject.getPrincipals(RolePrincipal.class).size(), "Should have one group principals");
 
       context.logout();
 
       String hashUpdated = genHash(usersFile);
-      assertTrue("Contains hashUpdated", ServerStatus.getInstance().asJson().contains(hashUpdated));
+      assertTrue(ServerStatus.getInstance().asJson().contains(hashUpdated), "Contains hashUpdated");
       assertNotEquals(hashOriginal, hashUpdated);
 
-      assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "Should have zero principals");
    }
 
    private String genHash(File usersFile) {

@@ -16,10 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -41,6 +49,7 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -63,8 +72,8 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -74,7 +83,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFa
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -90,15 +98,13 @@ import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfigu
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
+import org.apache.activemq.artemis.tests.extensions.PortCheckExtension;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.PortCheckRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
 
@@ -106,8 +112,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    private static final int[] PORTS = {TransportConstants.DEFAULT_PORT, TransportConstants.DEFAULT_PORT + 1, TransportConstants.DEFAULT_PORT + 2, TransportConstants.DEFAULT_PORT + 3, TransportConstants.DEFAULT_PORT + 4, TransportConstants.DEFAULT_PORT + 5, TransportConstants.DEFAULT_PORT + 6, TransportConstants.DEFAULT_PORT + 7, TransportConstants.DEFAULT_PORT + 8, TransportConstants.DEFAULT_PORT + 9,};
 
-   @ClassRule
-   public static PortCheckRule rule = new PortCheckRule(PORTS);
+   @RegisterExtension
+   public static PortCheckExtension portCheckExtension = new PortCheckExtension(PORTS);
 
    protected int getLargeMessageSize() {
       return 500;
@@ -137,6 +143,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected ServerLocator[] locators;
 
+   protected AtomicInteger nodeCount = new AtomicInteger();
+
    protected boolean isForceUniqueStorageManagerIds() {
       return true;
    }
@@ -148,7 +156,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager" + nodeCount.incrementAndGet()).toString()));
       } catch (IOException ioException) {
          logger.error(ioException.getMessage(), ioException);
          return null;
@@ -157,7 +165,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -197,7 +205,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       logTopologyDiagram();
       for (int i = 0; i < MAX_SERVERS; i++) {
@@ -931,7 +939,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                dumpConsumers();
 
-               Assert.assertNotNull("consumer " + consumerIDs[i] + " did not receive message " + j, message);
+               assertNotNull(message, "consumer " + consumerIDs[i] + " did not receive message " + j);
             }
 
             if (ack) {
@@ -939,7 +947,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             }
 
             if (firstReceiveTime != -1) {
-               Assert.assertTrue("Message received too soon", System.currentTimeMillis() >= firstReceiveTime);
+               assertTrue(System.currentTimeMillis() >= firstReceiveTime, "Message received too soon");
             }
 
             SimpleString id = (SimpleString) message.getObjectProperty(Message.HDR_GROUP_ID);
@@ -947,7 +955,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             if (groupIdsReceived.get(id) == null) {
                groupIdsReceived.put(id, i);
             } else if (groupIdsReceived.get(id) != i) {
-               Assert.fail("consumer " + groupIdsReceived.get(id) +
+               fail("consumer " + groupIdsReceived.get(id) +
                               " already bound to groupid " +
                               id +
                               " received on consumer " +
@@ -978,7 +986,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                message = holder.consumer.receive(2000);
 
                if (message == null) {
-                  Assert.fail("consumer " + i + " did not receive all messages");
+                  fail("consumer " + i + " did not receive all messages");
                }
 
                if (ack) {
@@ -1015,7 +1023,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                dumpConsumers();
 
-               Assert.fail("consumer " + consumerID + " did not receive message " + j);
+               fail("consumer " + consumerID + " did not receive message " + j);
             }
 
             if (isLargeMessage()) {
@@ -1027,7 +1035,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             }
 
             if (firstReceiveTime != -1) {
-               Assert.assertTrue("Message received too soon", System.currentTimeMillis() >= firstReceiveTime);
+               assertTrue(System.currentTimeMillis() >= firstReceiveTime, "Message received too soon");
             }
 
             if (j != (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP)) {
@@ -1042,7 +1050,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          }
       }
 
-      Assert.assertFalse("Messages were consumed out of order::" + firstOutOfOrderMessage, outOfOrder);
+      assertFalse(outOfOrder, "Messages were consumed out of order::" + firstOutOfOrderMessage);
    }
 
    private void dumpConsumers() throws Exception {
@@ -1125,9 +1133,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             ClientMessage message = holder.consumer.receive(WAIT_TIMEOUT);
 
-            Assert.assertNotNull("consumer " + consumerIDs[count] + " did not receive message " + i, message);
+            assertNotNull(message, "consumer " + consumerIDs[count] + " did not receive message " + i);
 
-            Assert.assertEquals("consumer " + consumerIDs[count] + " message " + i, i, message.getObjectProperty(ClusterTestBase.COUNT_PROP));
+            assertEquals(i, message.getObjectProperty(ClusterTestBase.COUNT_PROP), "consumer " + consumerIDs[count] + " message " + i);
 
             message.acknowledge();
 
@@ -1185,7 +1193,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
          ClientMessage msg = holder.consumer.receive(10000);
 
-         Assert.assertNotNull("msg must exist", msg);
+         assertNotNull(msg, "msg must exist");
 
          int count = msg.getIntProperty(ClusterTestBase.COUNT_PROP);
 
@@ -1224,7 +1232,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          for (OrderedConsumerHolder holder : sorted) {
             ClientMessage msg = holder.consumer.consumer.receive(10000);
 
-            Assert.assertNotNull("msg must exist", msg);
+            assertNotNull(msg, "msg must exist");
 
             int p = msg.getIntProperty(ClusterTestBase.COUNT_PROP);
 
@@ -1275,7 +1283,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                // logger.debug("consumer {} received message {}", consumerIDs[i], count);
 
-               Assert.assertFalse(counts.contains(count));
+               assertFalse(counts.contains(count));
 
                counts.add(count);
 
@@ -1290,7 +1298,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
 
       for (int messageCount : messageCounts) {
-         Assert.assertTrue(counts.contains(messageCount));
+         assertTrue(counts.contains(messageCount));
       }
 
       @SuppressWarnings("unchecked")
@@ -1312,11 +1320,11 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       for (int messageCount : messageCounts) {
          LinkedList<Integer> list = lists[index];
 
-         Assert.assertNotNull(list);
+         assertNotNull(list);
 
          int elem = list.poll();
 
-         Assert.assertEquals(messageCount, elem);
+         assertEquals(messageCount, elem);
 
          index++;
 
@@ -1421,7 +1429,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No consumer at " + consumerIDs[i]);
          }
 
-         Assert.assertNull("consumer " + i + " received message", holder.consumer.receiveImmediate());
+         assertNull(holder.consumer.receiveImmediate(), "consumer " + i + " received message");
       }
    }
 
@@ -2082,5 +2090,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    public interface ClusterConfigCallback {
       void configure(ClusterConnectionConfiguration config);
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

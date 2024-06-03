@@ -18,8 +18,8 @@
 package org.apache.activemq.artemis.tests.e2e.ha.replication.lockmanager;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class LockManagerTestBase {
 
@@ -31,7 +31,7 @@ public abstract class LockManagerTestBase {
    protected static Object zookeeper3;
    protected static final String ZOOKEEPER_ADMIN_SERVER_START_LOG = ".*Started AdminServer on address.*\\n";
 
-   @BeforeClass
+   @BeforeAll
    public static void init() {
       service = ContainerService.getService();
       network = service.newNetwork();
@@ -69,7 +69,7 @@ public abstract class LockManagerTestBase {
       service.start(zookeeper3);
    }
 
-   @AfterClass
+   @AfterAll
    public static void shutdown() {
       service.stop(zookeeper3);
       service.stop(zookeeper2);

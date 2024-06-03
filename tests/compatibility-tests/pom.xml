@@ -119,7 +119,7 @@
          <exclusions>
             <exclusion>
                <groupId>org.apache.groovy</groupId>
-               <artifactId>groovy-test-junit5</artifactId>
+               <artifactId>groovy-test</artifactId>
             </exclusion>
          </exclusions>
       </dependency>
@@ -184,8 +184,12 @@
          <artifactId>netty-transport</artifactId>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>

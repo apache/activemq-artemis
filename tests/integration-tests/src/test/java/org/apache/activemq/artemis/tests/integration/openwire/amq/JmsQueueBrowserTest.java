@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -27,7 +32,7 @@ import java.util.Enumeration;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsQueueBrowserTest
@@ -67,11 +72,11 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       Enumeration<?> enumeration = browser.getEnumeration();
 
       // browse the second
-      assertTrue("should have received the second message", enumeration.hasMoreElements());
+      assertTrue(enumeration.hasMoreElements(), "should have received the second message");
       assertEquals(outbound[1], enumeration.nextElement());
 
       // browse the third.
-      assertTrue("Should have received the third message", enumeration.hasMoreElements());
+      assertTrue(enumeration.hasMoreElements(), "Should have received the third message");
       assertEquals(outbound[2], enumeration.nextElement());
 
       // There should be no more.
@@ -117,7 +122,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       Enumeration<?> enumeration = browser.getEnumeration();
 
       for (int i = 0; i < outbound.length; i++) {
-         assertTrue("should have a", enumeration.hasMoreElements());
+         assertTrue(enumeration.hasMoreElements(), "should have a");
          assertEquals(outbound[i], enumeration.nextElement());
       }
       browser.close();
@@ -131,15 +136,15 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       enumeration = browser.getEnumeration();
       for (int j = 0; j < 2; j++) {
          for (int i = 0; i < outbound.length; i++) {
-            assertTrue("should have a", enumeration.hasMoreElements());
-            assertEquals("j=" + j + ", i=" + i, outbound[i].getText(), ((TextMessage) enumeration.nextElement()).getText());
+            assertTrue(enumeration.hasMoreElements(), "should have a");
+            assertEquals(outbound[i].getText(), ((TextMessage) enumeration.nextElement()).getText(), "j=" + j + ", i=" + i);
          }
       }
       browser.close();
 
       consumer = session.createConsumer(destination);
       for (int i = 0; i < outbound.length * 2; i++) {
-         assertNotNull("Got message: " + i, consumer.receive(2000));
+         assertNotNull(consumer.receive(2000), "Got message: " + i);
       }
       consumer.close();
    }
@@ -288,7 +293,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       Enumeration<?> enumeration = browser.getEnumeration();
 
       // browse the first message
-      assertTrue("should have received the first message", enumeration.hasMoreElements());
+      assertTrue(enumeration.hasMoreElements(), "should have received the first message");
       assertEquals(outbound[0], enumeration.nextElement());
 
 
@@ -437,11 +442,11 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       consumer = session.createConsumer(destination);
       // Receive the first message.
       TextMessage msg = (TextMessage) consumer.receive(1000);
-      assertEquals("Expected " + outbound[0].getText() + " but received " + msg.getText(), outbound[0], msg);
+      assertEquals(outbound[0], msg, "Expected " + outbound[0].getText() + " but received " + msg.getText());
       msg = (TextMessage) consumer.receive(1000);
-      assertEquals("Expected " + outbound[1].getText() + " but received " + msg.getText(), outbound[1], msg);
+      assertEquals(outbound[1], msg, "Expected " + outbound[1].getText() + " but received " + msg.getText());
       msg = (TextMessage) consumer.receive(1000);
-      assertEquals("Expected " + outbound[2].getText() + " but received " + msg.getText(), outbound[2], msg);
+      assertEquals(outbound[2], msg, "Expected " + outbound[2].getText() + " but received " + msg.getText());
 
       consumer.close();
       producer.close();

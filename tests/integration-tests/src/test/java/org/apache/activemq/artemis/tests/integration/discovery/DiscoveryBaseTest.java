@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +43,6 @@ import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
 
 public class DiscoveryBaseTest extends ActiveMQTestBase {
 
@@ -56,7 +60,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
    protected static void verifyBroadcast(BroadcastGroup broadcastGroup,
                                          DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
-      Assert.assertTrue("broadcast not received", discoveryGroup.waitForBroadcast(2000));
+      assertTrue(discoveryGroup.waitForBroadcast(2000), "broadcast not received");
    }
 
    /**
@@ -66,7 +70,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
    protected static void verifyNonBroadcast(BroadcastGroup broadcastGroup,
                                             DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
-      Assert.assertFalse("NO broadcast received", discoveryGroup.waitForBroadcast(2000));
+      assertFalse(discoveryGroup.waitForBroadcast(2000), "NO broadcast received");
    }
 
    protected TransportConfiguration generateTC() {

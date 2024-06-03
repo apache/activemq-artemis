@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -37,10 +43,7 @@ import org.apache.activemq.artemis.integration.FileBroker;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
 
 public class FileBrokerTest {
 
@@ -52,11 +55,11 @@ public class FileBrokerTest {
       try {
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
-         Assert.assertNull(jmsServerManager);
+         assertNull(jmsServerManager);
          ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
-         Assert.assertNotNull(activeMQServer);
-         Assert.assertTrue(activeMQServer.isStarted());
-         Assert.assertTrue(broker.isStarted());
+         assertNotNull(activeMQServer);
+         assertTrue(activeMQServer.isStarted());
+         assertTrue(broker.isStarted());
       } finally {
          broker.stop();
       }
@@ -72,7 +75,7 @@ public class FileBrokerTest {
       FileBroker broker2 = new FileBroker(serverDTO2, new ActiveMQJAASSecurityManager(), null);
       try {
          broker1.start();
-         Assert.assertTrue(broker1.isStarted());
+         assertTrue(broker1.isStarted());
 
          Thread thread = new Thread(() -> {
             try {
@@ -83,13 +86,13 @@ public class FileBrokerTest {
          });
          thread.start();
 
-         Assert.assertFalse(broker2.isStarted());
+         assertFalse(broker2.isStarted());
          //only if broker1 is stopped can broker2 be fully started
          broker1.stop();
          broker1 = null;
 
          thread.join(5000);
-         Assert.assertTrue(broker2.isStarted());
+         assertTrue(broker2.isStarted());
          broker2.stop();
 
       } finally {
@@ -116,12 +119,12 @@ public class FileBrokerTest {
          broker = new FileBroker(serverDTO, securityManager, null);
          broker.start();
          ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
-         Assert.assertNotNull(activeMQServer);
-         Assert.assertTrue(activeMQServer.isStarted());
-         Assert.assertTrue(broker.isStarted());
+         assertNotNull(activeMQServer);
+         assertTrue(activeMQServer.isStarted());
+         assertTrue(broker.isStarted());
          File file = new File(activeMQServer.getConfiguration().getConfigurationUrl().toURI());
          path = file.getPath();
-         Assert.assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
+         assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
 
          Thread.sleep(activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod() * 2);
 
@@ -164,12 +167,12 @@ public class FileBrokerTest {
          broker = new FileBroker(serverDTO, securityManager, null);
          broker.start();
          ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
-         Assert.assertNotNull(activeMQServer);
-         Assert.assertTrue(activeMQServer.isStarted());
-         Assert.assertTrue(broker.isStarted());
+         assertNotNull(activeMQServer);
+         assertTrue(activeMQServer.isStarted());
+         assertTrue(broker.isStarted());
          File file = new File(activeMQServer.getConfiguration().getConfigurationUrl().toURI());
          path = file.getPath();
-         Assert.assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
+         assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
 
          Thread.sleep(1000);
 

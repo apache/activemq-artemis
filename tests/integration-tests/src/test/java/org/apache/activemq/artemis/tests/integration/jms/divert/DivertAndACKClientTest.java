@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.divert;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -30,8 +32,7 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A DivertAndACKClientTest
@@ -58,7 +59,7 @@ public class DivertAndACKClientTest extends JMSTestBase {
       final MessageConsumer consumer = session.createConsumer(queueTarget);
       TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
 
-      Assert.assertNotNull(receivedMessage);
+      assertNotNull(receivedMessage);
 
       connection.close();
    }
@@ -80,7 +81,7 @@ public class DivertAndACKClientTest extends JMSTestBase {
 
       final MessageConsumer consumer = session.createConsumer(queueTarget);
       TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
-      Assert.assertNotNull(receivedMessage);
+      assertNotNull(receivedMessage);
       receivedMessage.acknowledge();
 
       connection.close();

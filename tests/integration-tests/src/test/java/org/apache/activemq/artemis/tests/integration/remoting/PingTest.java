@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +44,8 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PingTest extends ActiveMQTestBase {
 
@@ -49,7 +54,7 @@ public class PingTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultNettyConfig());
@@ -93,7 +98,7 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      Assert.assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
+      assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
 
       Listener clientListener = new Listener();
 
@@ -117,13 +122,13 @@ public class PingTest extends ActiveMQTestBase {
 
       Thread.sleep(PingTest.CLIENT_FAILURE_CHECK_PERIOD * 10);
 
-      Assert.assertNull(clientListener.getException());
+      assertNull(clientListener.getException());
 
-      Assert.assertNull(serverListener.getException());
+      assertNull(serverListener.getException());
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
 
-      Assert.assertTrue(serverConn == serverConn2);
+      assertTrue(serverConn == serverConn2);
 
       session.close();
 
@@ -145,7 +150,7 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      Assert.assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
+      assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
 
       Listener clientListener = new Listener();
 
@@ -169,13 +174,13 @@ public class PingTest extends ActiveMQTestBase {
 
       Thread.sleep(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
 
-      Assert.assertNull(clientListener.getException());
+      assertNull(clientListener.getException());
 
-      Assert.assertNull(serverListener.getException());
+      assertNull(serverListener.getException());
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
 
-      Assert.assertTrue(serverConn == serverConn2);
+      assertTrue(serverConn == serverConn2);
 
       session.close();
 
@@ -197,7 +202,7 @@ public class PingTest extends ActiveMQTestBase {
          @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.PING) {
-               Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
+               assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
                unwantedPings.countDown();
                requiredPings.countDown();
             }
@@ -211,11 +216,11 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      Assert.assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
+      assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
 
-      Assert.assertTrue("server didn't received an expected ping from the client", requiredPings.await(5000, TimeUnit.MILLISECONDS));
+      assertTrue(requiredPings.await(5000, TimeUnit.MILLISECONDS), "server didn't received an expected ping from the client");
 
-      Assert.assertFalse("server received an unexpected ping from the client", unwantedPings.await(ActiveMQClient.DEFAULT_CONNECTION_TTL * 2, TimeUnit.MILLISECONDS));
+      assertFalse(unwantedPings.await(ActiveMQClient.DEFAULT_CONNECTION_TTL * 2, TimeUnit.MILLISECONDS), "server received an unexpected ping from the client");
 
       session.close();
 
@@ -239,7 +244,7 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      Assert.assertEquals(1, csf.numConnections());
+      assertEquals(1, csf.numConnections());
 
       session.addFailureListener(clientListener);
 
@@ -277,14 +282,14 @@ public class PingTest extends ActiveMQTestBase {
          RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
       }
 
-      Assert.assertTrue(server.getRemotingService().getConnections().isEmpty());
+      assertTrue(server.getRemotingService().getConnections().isEmpty());
 
       // The client listener should be called too since the server will close it from the server side which will result
       // in the
       // netty detecting closure on the client side and then calling failure listener
-      Assert.assertNotNull(clientListener.getException());
+      assertNotNull(clientListener.getException());
 
-      Assert.assertNotNull(serverListener.getException());
+      assertNotNull(serverListener.getException());
 
       session.close();
 
@@ -320,7 +325,7 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      Assert.assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
+      assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
 
       final CountDownLatch clientLatch = new CountDownLatch(1);
       SessionFailureListener clientListener = new SessionFailureListener() {
@@ -362,17 +367,17 @@ public class PingTest extends ActiveMQTestBase {
       }
 
       serverConn.addCloseListener(serverListener);
-      Assert.assertTrue("server has not received any ping from the client", pingOnServerLatch.await(4000, TimeUnit.MILLISECONDS));
+      assertTrue(pingOnServerLatch.await(4000, TimeUnit.MILLISECONDS), "server has not received any ping from the client");
 
       // we let the server receives at least 1 ping (so that it uses the client ConnectionTTL value)
 
       // Setting the handler to null will prevent server sending pings back to client
       serverConn.getChannel(0, -1).setHandler(null);
 
-      Assert.assertTrue(clientLatch.await(8 * PingTest.CLIENT_FAILURE_CHECK_PERIOD, TimeUnit.MILLISECONDS));
+      assertTrue(clientLatch.await(8 * PingTest.CLIENT_FAILURE_CHECK_PERIOD, TimeUnit.MILLISECONDS));
 
       // Server connection will be closed too, when client closes client side connection after failure is detected
-      Assert.assertTrue(serverLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS));
+      assertTrue(serverLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS));
 
       long start = System.currentTimeMillis();
       while (true) {
@@ -382,7 +387,7 @@ public class PingTest extends ActiveMQTestBase {
             break;
          }
       }
-      Assert.assertTrue(server.getRemotingService().getConnections().isEmpty());
+      assertTrue(server.getRemotingService().getConnections().isEmpty());
 
       session.close();
 

@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.smoke.jdbccli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.cli.commands.tools.DBOption;
@@ -26,8 +29,7 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JDBCExportWrongUserTest extends SmokeTestBase {
 
@@ -50,7 +52,7 @@ public class JDBCExportWrongUserTest extends SmokeTestBase {
       String user = RandomUtil.randomString();
       String password = RandomUtil.randomString();
 
-      Assert.assertTrue(FileUtil.findReplace(new File(artemisInstance, "/etc/broker.xml"), "</database-store>", "   <jdbc-user>" + user + "</jdbc-user>\n" + "            <jdbc-password>" + password + "</jdbc-password>\n" + "         </database-store>"));
+      assertTrue(FileUtil.findReplace(new File(artemisInstance, "/etc/broker.xml"), "</database-store>", "   <jdbc-user>" + user + "</jdbc-user>\n" + "            <jdbc-password>" + password + "</jdbc-password>\n" + "         </database-store>"));
 
       {
          DBOption dbOption = new DBOption();
@@ -58,10 +60,10 @@ public class JDBCExportWrongUserTest extends SmokeTestBase {
 
          Configuration configuration = dbOption.getParameterConfiguration();
 
-         Assert.assertEquals(user, ((DatabaseStorageConfiguration) configuration.getStoreConfiguration()).getJdbcUser());
-         Assert.assertEquals(password, ((DatabaseStorageConfiguration) configuration.getStoreConfiguration()).getJdbcPassword());
-         Assert.assertEquals(user, dbOption.getJdbcUser());
-         Assert.assertEquals(password, dbOption.getJdbcPassword());
+         assertEquals(user, ((DatabaseStorageConfiguration) configuration.getStoreConfiguration()).getJdbcUser());
+         assertEquals(password, ((DatabaseStorageConfiguration) configuration.getStoreConfiguration()).getJdbcPassword());
+         assertEquals(user, dbOption.getJdbcUser());
+         assertEquals(password, dbOption.getJdbcPassword());
       }
 
       {
@@ -69,10 +71,10 @@ public class JDBCExportWrongUserTest extends SmokeTestBase {
          dbOption.setHomeValues(cliCreateServer.getArtemisHome(), artemisInstance, new File(artemisInstance, "/etc"));
          dbOption.setJdbcUser("myNewUser").setJdbcPassword("myNewPassword").setJdbcClassName("myClass").setJdbcURL("myURL");
          Configuration config = dbOption.getParameterConfiguration();
-         Assert.assertEquals("myNewUser", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcUser());
-         Assert.assertEquals("myNewPassword", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcPassword());
-         Assert.assertEquals("myURL", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcConnectionUrl());
-         Assert.assertEquals("myClass", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcDriverClassName());
+         assertEquals("myNewUser", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcUser());
+         assertEquals("myNewPassword", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcPassword());
+         assertEquals("myURL", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcConnectionUrl());
+         assertEquals("myClass", ((DatabaseStorageConfiguration) config.getStoreConfiguration()).getJdbcDriverClassName());
       }
    }
 

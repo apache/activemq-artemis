@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.federation;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.concurrent.ScheduledFuture;
 
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
@@ -25,7 +28,7 @@ import org.apache.activemq.artemis.core.server.federation.Federation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FederatedQueueConsumerTest extends ActiveMQTestBase {
 

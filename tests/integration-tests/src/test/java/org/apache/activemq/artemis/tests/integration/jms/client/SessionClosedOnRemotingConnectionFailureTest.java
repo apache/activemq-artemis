@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -34,8 +37,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A SessionClosedOnRemotingConnectionFailureTest
@@ -68,7 +70,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
 
          prod.send(session.createMessage());
 
-         Assert.assertNotNull(cons.receive());
+         assertNotNull(cons.receive());
 
          // Now fail the underlying connection
 
@@ -81,7 +83,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
          try {
             prod.send(session.createMessage());
 
-            Assert.fail("Should throw exception");
+            fail("Should throw exception");
          } catch (JMSException e) {
             // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }
@@ -89,7 +91,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
          try {
             cons.receive();
 
-            Assert.fail("Should throw exception");
+            fail("Should throw exception");
          } catch (JMSException e) {
             // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }

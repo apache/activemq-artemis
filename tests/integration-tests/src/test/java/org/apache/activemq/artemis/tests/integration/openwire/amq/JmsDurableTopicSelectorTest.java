@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicSelectorTest
@@ -24,7 +24,7 @@ import org.junit.Before;
 public class JmsDurableTopicSelectorTest extends JmsTopicSelectorTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       durable = true;
       super.setUp();

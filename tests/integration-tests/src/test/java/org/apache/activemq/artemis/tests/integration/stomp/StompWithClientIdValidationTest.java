@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
 
@@ -30,11 +32,13 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@SuppressWarnings("deprecation")
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompWithClientIdValidationTest extends StompTestBase {
 
    @Override
@@ -80,7 +84,7 @@ public class StompWithClientIdValidationTest extends StompTestBase {
       return server;
    }
 
-   @Test
+   @TestTemplate
    public void testStompConnectWithClientId() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
 
@@ -91,7 +95,7 @@ public class StompWithClientIdValidationTest extends StompTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testStompConnectWithoutClientId() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       try {

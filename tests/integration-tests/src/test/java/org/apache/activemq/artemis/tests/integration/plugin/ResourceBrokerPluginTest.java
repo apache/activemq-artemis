@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.charset.StandardCharsets;
@@ -40,9 +43,8 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -63,7 +65,7 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -92,7 +94,7 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
          public void beforePutTransaction(Xid xid,
                                           Transaction tx,
                                           RemotingConnection remotingConnection) throws ActiveMQException {
-            Assert.assertEquals(clientXid, xid);
+            assertEquals(clientXid, xid);
             latch.countDown();
          }
 
@@ -100,19 +102,19 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
          public void afterPutTransaction(Xid xid,
                                          Transaction tx,
                                          RemotingConnection remotingConnection) throws ActiveMQException {
-            Assert.assertEquals(clientXid, xid);
+            assertEquals(clientXid, xid);
             latch.countDown();
          }
 
          @Override
          public void beforeRemoveTransaction(Xid xid, RemotingConnection remotingConnection) throws ActiveMQException {
-            Assert.assertEquals(clientXid, xid);
+            assertEquals(clientXid, xid);
             latch.countDown();
          }
 
          @Override
          public void afterRemoveTransaction(Xid xid, RemotingConnection remotingConnection) throws ActiveMQException {
-            Assert.assertEquals(clientXid, xid);
+            assertEquals(clientXid, xid);
             latch.countDown();
          }
       });
@@ -120,7 +122,7 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
       clientSession.start(clientXid, XAResource.TMNOFLAGS);
       clientSession.end(clientXid, XAResource.TMSUCCESS);
       clientSession.commit(clientXid, true);
-      Assert.assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
    }
 
    @Test
@@ -162,6 +164,6 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
       Xid xidEx = new XidImpl(xid.getBranchQualifier(), JTA_FORMAT_ID, getGlobalTransactionIdEx);
       clientSessionEx.start(xidEx, XAResource.TMNOFLAGS);
 
-      Assert.assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
    }
 }

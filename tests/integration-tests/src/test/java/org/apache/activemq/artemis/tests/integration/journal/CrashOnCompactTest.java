@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,23 +35,22 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CrashOnCompactTest extends SpawnedTestBase {
 
    static int OK = 2;
    static int NOT_OK = 3;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
    }
 
    @Test
    public void testCrashCompact() throws Exception {
       Process process = SpawnedVMSupport.spawnVM(CrashOnCompactTest.class.getCanonicalName(), getTestDirfile().getAbsolutePath());
-      Assert.assertEquals(OK, process.waitFor());
+      assertEquals(OK, process.waitFor());
       checkJournalSize();
    }
 
@@ -70,7 +71,7 @@ public class CrashOnCompactTest extends SpawnedTestBase {
          }
       });
 
-      Assert.assertEquals(900, info.size());
+      assertEquals(900, info.size());
    }
 
    private static void addJournal(File folder, boolean crash) throws Exception {

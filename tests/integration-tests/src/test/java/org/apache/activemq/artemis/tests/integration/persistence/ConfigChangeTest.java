@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
 import javax.jms.Message;
@@ -37,8 +39,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConfigChangeTest extends ActiveMQTestBase {
 
@@ -143,7 +144,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       }
 
       long bindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
-      assertEquals("Ensure the original queue is not destroyed by checking the binding id is the same", originalBindingId, bindingId);
+      assertEquals(originalBindingId, bindingId, "Ensure the original queue is not destroyed by checking the binding id is the same");
 
       server.stop();
 
@@ -178,26 +179,26 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       server.getActiveMQServerControl().addConnector("connector2", "tcp://localhost:61616");
       server.getActiveMQServerControl().createBridge(bridgeConfiguration.toJSON());
 
-      Assert.assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
-      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
       server.stop();
 
       // clear the in-memory connector configurations to force a reload from disk
       server.getConfiguration().getConnectorConfigurations().clear();
 
       server.start();
-      Assert.assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
-      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
 
       server.getActiveMQServerControl().destroyBridge(bridgeName);
       server.getActiveMQServerControl().removeConnector("connector1");
       server.getActiveMQServerControl().removeConnector("connector2");
-      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
-      Assert.assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
       server.stop();
       server.start();
-      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
-      Assert.assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
       server.stop();
 
    }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,10 +30,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SplitMirrorTest extends E2ETestBase {
 
@@ -47,12 +50,12 @@ public class SplitMirrorTest extends E2ETestBase {
    private final String SERVER_A = basedir + "/target/brokerConnect/splitMirror/serverA";
    private final String SERVER_B = basedir + "/target/brokerConnect/splitMirror/serverB";
 
-   @Before
+   @BeforeEach
    public void beforeStart() throws Exception {
       disableCheckThread();
       ValidateContainer.assumeArtemisContainer();
 
-      Assert.assertNotNull(basedir);
+      assertNotNull(basedir);
       recreateBrokerDirectory(SERVER_ROOT);
       recreateBrokerDirectory(SERVER_A);
       recreateBrokerDirectory(SERVER_B);
@@ -81,7 +84,7 @@ public class SplitMirrorTest extends E2ETestBase {
       service.start(serverRoot);
    }
 
-   @After
+   @AfterEach
    public void afterStop() {
       service.stop(serverRoot);
       service.stop(serverMainA);
@@ -104,7 +107,7 @@ public class SplitMirrorTest extends E2ETestBase {
 
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < 5; i++) {
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
          consumer.close();
       }
@@ -118,9 +121,9 @@ public class SplitMirrorTest extends E2ETestBase {
          connection.start();
          for (int i = 5; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       try (Connection connection = cfB.createConnection()) {
@@ -130,9 +133,9 @@ public class SplitMirrorTest extends E2ETestBase {
          connection.start();
          for (int i = 5; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       try (Connection connection = cfRoot.createConnection()) {
@@ -142,9 +145,9 @@ public class SplitMirrorTest extends E2ETestBase {
          connection.start();
          for (int i = 5; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
          service.kill(serverMainA);
          MessageProducer producer = session.createProducer(queue);
@@ -162,11 +165,11 @@ public class SplitMirrorTest extends E2ETestBase {
          connection.start();
          for (int i = 0; i < 33; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             System.out.println("message.getText() = " + message.getText() + " i = " + i);
-            Assert.assertEquals("afterKill " + i, message.getText());
+            assertEquals("afterKill " + i, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       service.start(serverMainA);
@@ -180,10 +183,10 @@ public class SplitMirrorTest extends E2ETestBase {
          connection.start();
          for (int i = 0; i < 33; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("afterKill " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("afterKill " + i, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

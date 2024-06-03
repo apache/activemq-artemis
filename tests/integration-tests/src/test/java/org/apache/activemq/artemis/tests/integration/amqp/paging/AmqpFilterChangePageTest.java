@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -38,8 +41,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AmqpFilterChangePageTest extends ActiveMQTestBase {
 
@@ -112,12 +114,12 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          Message message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
 
       session.commit();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       connection.close();
 

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -23,9 +26,11 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,47 +38,56 @@ public class JMSMessagePropertiesTest extends MultiprotocolJMSClientTestSupport 
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesAMQPProducerCoreConsumer() throws Exception {
       testMessageProperties(createConnection(), createCoreConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesAMQPProducerAMQPConsumer() throws Exception {
       testMessageProperties(createConnection(), createConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesAMQPProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createConnection(), createOpenWireConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesCoreProducerAMQPConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesCoreProducerCoreConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createCoreConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesCoreProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createOpenWireConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesOpenWireProducerAMQPConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesOpenWireProducerCoreConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createCoreConnection());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testMessagePropertiesOpenWireProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createOpenWireConnection());
    }
@@ -118,7 +132,7 @@ public class JMSMessagePropertiesTest extends MultiprotocolJMSClientTestSupport 
 
          Message received = consumer.receive(100);
 
-         assertNotNull("Should have received a message by now.", received);
+         assertNotNull(received, "Should have received a message by now.");
 
          assertEquals(stringPropertyValue, received.getStringProperty(stringPropertyName));
          assertEquals(intPropertyValue, received.getIntProperty(intPropertyName));

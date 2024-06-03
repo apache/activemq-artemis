@@ -17,6 +17,13 @@
 
 package org.apache.activemq.artemis.tests.db.paging;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -30,17 +37,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
-
+@ExtendWith(ParameterizedTestExtension.class)
 public class RealServerDatabasePagingTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,19 +65,19 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
 
    Process serverProcess;
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       return convertParameters(Database.selectedList());
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       serverProcess = startServer(database.getName(), 0, 60_000);
    }
 
 
-   @Test
+   @TestTemplate
    public void testPaging() throws Exception {
       testPaging("CORE", MAX_MESSAGES, MESSAGE_SIZE);
       testPaging("AMQP", MAX_MESSAGES, MESSAGE_SIZE);
@@ -78,7 +85,7 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
    }
 
 
-   @Test
+   @TestTemplate
    public void testSoakPaging() throws Exception {
       testPaging("AMQP", SOAK_MAX_MESSAGES, SOAK_MESSAGE_SIZE);
    }
@@ -112,7 +119,7 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
 
       serverProcess.destroyForcibly();
       serverProcess.waitFor(1, TimeUnit.MINUTES);
-      Assert.assertFalse(serverProcess.isAlive());
+      assertFalse(serverProcess.isAlive());
 
       serverProcess = startServer(database.getName(), 0, 60_000);
 
@@ -123,19 +130,19 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < messages; i++) {
             BytesMessage message = (BytesMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("i"));
-            Assert.assertEquals(messageSize, message.getBodyLength());
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("i"));
+            assertEquals(messageSize, message.getBodyLength());
             byte[] bytesOutput = new byte[(int)message.getBodyLength()];
             message.readBytes(bytesOutput);
-            Assert.assertArrayEquals(messageLoad, bytesOutput);
+            assertArrayEquals(messageLoad, bytesOutput);
             if (i % COMMIT_INTERVAL == 0) {
                logger.info("Received {}", i);
                session.commit();
             }
          }
          session.commit();
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
 

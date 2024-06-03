@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -31,25 +35,22 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * This test will run a hornetq server with artemis clients
  * and it will make sure that failover happens without any problems.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class HQFailoverTest extends VersionedBase {
 
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
@@ -61,19 +62,19 @@ public class HQFailoverTest extends VersionedBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      evaluate(serverClassloader, "hqfailovertest/hornetqServer.groovy", serverFolder.getRoot().getAbsolutePath());
+      FileUtil.deleteDirectory(serverFolder);
+      evaluate(serverClassloader, "hqfailovertest/hornetqServer.groovy", serverFolder.getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Throwable {
       execute(serverClassloader, "backupServer.stop(); liveServer.stop();");
 
    }
 
-   @Test
+   @TestTemplate
    public void failoverTest() throws Throwable {
       String textBody = "a rapadura e doce mas nao e mole nao";
       String queueName = "queue";

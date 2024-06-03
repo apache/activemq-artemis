@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.io.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -30,13 +33,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.netty.util.internal.PlatformDependent;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ThreadLocalByteBufferPoolTest {
 
    //testing using heap buffers to avoid killing the test suite
@@ -48,7 +51,7 @@ public class ThreadLocalByteBufferPoolTest {
       this.zeroed = zeroed;
    }
 
-   @Parameterized.Parameters(name = "zeroed={0}")
+   @Parameters(name = "zeroed={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
    }
@@ -59,26 +62,26 @@ public class ThreadLocalByteBufferPoolTest {
       bb.get(content);
       final byte[] zeroed = new byte[content.length];
       Arrays.fill(zeroed, (byte) 0);
-      Assert.assertArrayEquals(zeroed, content);
+      assertArrayEquals(zeroed, content);
    }
 
-   @Test
+   @TestTemplate
    public void shouldBorrowOnlyBuffersOfTheCorrectType() {
-      Assert.assertEquals(isDirect, pool.borrow(0, zeroed).isDirect());
+      assertEquals(isDirect, pool.borrow(0, zeroed).isDirect());
    }
 
-   @Test
+   @TestTemplate
    public void shouldBorrowZeroedBuffer() {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, zeroed);
-      Assert.assertEquals(0, buffer.position());
-      Assert.assertEquals(size, buffer.limit());
+      assertEquals(0, buffer.position());
+      assertEquals(size, buffer.limit());
       if (zeroed) {
          assertZeroed(buffer);
       }
    }
 
-   @Test
+   @TestTemplate
    public void shouldBorrowTheSameBuffer() {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, zeroed);
@@ -88,25 +91,25 @@ public class ThreadLocalByteBufferPoolTest {
       pool.release(buffer);
       final int newSize = size - 1;
       final ByteBuffer sameBuffer = pool.borrow(newSize, zeroed);
-      Assert.assertSame(buffer, sameBuffer);
-      Assert.assertEquals(0, sameBuffer.position());
-      Assert.assertEquals(newSize, sameBuffer.limit());
+      assertSame(buffer, sameBuffer);
+      assertEquals(0, sameBuffer.position());
+      assertEquals(newSize, sameBuffer.limit());
       if (zeroed) {
          assertZeroed(sameBuffer);
       }
    }
 
-   @Test
+   @TestTemplate
    public void shouldBorrowNewBufferIfExceedPooledCapacity() {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, zeroed);
       pool.release(buffer);
       final int newSize = buffer.capacity() + 1;
       final ByteBuffer differentBuffer = pool.borrow(newSize, zeroed);
-      Assert.assertNotSame(buffer, differentBuffer);
+      assertNotSame(buffer, differentBuffer);
    }
 
-   @Test
+   @TestTemplate
    public void shouldPoolTheBiggestBuffer() {
       final int size = 32;
       final ByteBuffer small = pool.borrow(size, zeroed);
@@ -114,10 +117,10 @@ public class ThreadLocalByteBufferPoolTest {
       pool.release(small);
       big.limit(0);
       pool.release(big);
-      Assert.assertSame(big, pool.borrow(big.capacity(), zeroed));
+      assertSame(big, pool.borrow(big.capacity(), zeroed));
    }
 
-   @Test
+   @TestTemplate
    public void shouldNotPoolTheSmallestBuffer() {
       final int size = 32;
       final ByteBuffer small = pool.borrow(size, zeroed);
@@ -125,16 +128,16 @@ public class ThreadLocalByteBufferPoolTest {
       big.limit(0);
       pool.release(big);
       pool.release(small);
-      Assert.assertSame(big, pool.borrow(big.capacity(), zeroed));
+      assertSame(big, pool.borrow(big.capacity(), zeroed));
    }
 
-   @Test
+   @TestTemplate
    public void shouldNotPoolBufferOfDifferentType() {
       final int size = 32;
       final ByteBuffer buffer = isDirect ? ByteBuffer.allocate(size) : ByteBuffer.allocateDirect(size);
       try {
          pool.release(buffer);
-         Assert.assertNotSame(buffer, pool.borrow(size, zeroed));
+         assertNotSame(buffer, pool.borrow(size, zeroed));
       } catch (Throwable t) {
          if (PlatformDependent.hasUnsafe()) {
             if (buffer.isDirect()) {
@@ -144,46 +147,50 @@ public class ThreadLocalByteBufferPoolTest {
       }
    }
 
-   @Test
+   @TestTemplate
    public void shouldNotPoolReadOnlyBuffer() {
       final int size = 32;
       final ByteBuffer borrow = pool.borrow(size, zeroed);
       final ByteBuffer readOnlyBuffer = borrow.asReadOnlyBuffer();
       pool.release(readOnlyBuffer);
-      Assert.assertNotSame(readOnlyBuffer, pool.borrow(size, zeroed));
+      assertNotSame(readOnlyBuffer, pool.borrow(size, zeroed));
    }
 
-   @Test(expected = NullPointerException.class)
+   @TestTemplate
    public void shouldFailPoolingNullBuffer() {
-      pool.release(null);
+      assertThrows(NullPointerException.class, () -> {
+         pool.release(null);
+      });
    }
 
-   @Test(expected = NullPointerException.class)
+   @TestTemplate
    public void shouldFailPoolingNullBufferIfNotEmpty() {
-      final int size = 32;
-      pool.release(pool.borrow(size, zeroed));
-      pool.release(null);
+      assertThrows(NullPointerException.class, () -> {
+         final int size = 32;
+         pool.release(pool.borrow(size, zeroed));
+         pool.release(null);
+      });
    }
 
-   @Test
+   @TestTemplate
    public void shouldBorrowOnlyThreadLocalBuffers() throws ExecutionException, InterruptedException {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, zeroed);
       pool.release(buffer);
       final ExecutorService executor = Executors.newSingleThreadExecutor();
       try {
-         Assert.assertNotSame(buffer, executor.submit(() -> pool.borrow(size, zeroed)).get());
+         assertNotSame(buffer, executor.submit(() -> pool.borrow(size, zeroed)).get());
       } finally {
          executor.shutdown();
       }
    }
 
-   @Test
+   @TestTemplate
    public void shouldResetReusedBufferLimitBeforeZeroing() throws Exception {
       doResetReusedBufferLimitBeforeZeroingTestImpl(true);
    }
 
-   @Test
+   @TestTemplate
    public void shouldResetReusedBufferLimitBeforeZeroingWithoutArray() throws Exception {
       doResetReusedBufferLimitBeforeZeroingTestImpl(false);
    }
@@ -196,7 +203,7 @@ public class ThreadLocalByteBufferPoolTest {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, true);
 
-      assertEquals("Unexpected buffer limit", size, buffer.limit());
+      assertEquals(size, buffer.limit(), "Unexpected buffer limit");
       assertFalse(buffer.isDirect());
 
       // Put a non-zero value at the first byte, updating the position
@@ -204,9 +211,9 @@ public class ThreadLocalByteBufferPoolTest {
       // Put a non-zero value at the last byte, not updating the position
       buffer.put(size - 1, (byte) 5);
 
-      assertEquals("Unexpected buffer value at index 0", (byte) 4, buffer.get(0));
-      assertEquals("Unexpected buffer value at index " + (size - 1), (byte) 5, buffer.get(size - 1));
-      assertEquals("Unexpected buffer position", 1, buffer.position());
+      assertEquals((byte) 4, buffer.get(0), "Unexpected buffer value at index 0");
+      assertEquals((byte) 5, buffer.get(size - 1), "Unexpected buffer value at index " + (size - 1));
+      assertEquals(1, buffer.position(), "Unexpected buffer position");
 
       // Set the buffer limit to half its current size, making it less than we will
       // ask for the next time we borrow, ensuring it then needs to be zeroed
@@ -221,7 +228,7 @@ public class ThreadLocalByteBufferPoolTest {
          spy = Mockito.spy(buffer);
          Mockito.doReturn(false).when(spy).hasArray();
 
-         assertEquals("Unexpected buffer limit", size / 2, spy.limit());
+         assertEquals(size / 2, spy.limit(), "Unexpected buffer limit");
 
          pool.release(spy);
       }
@@ -237,8 +244,8 @@ public class ThreadLocalByteBufferPoolTest {
       }
 
       // Verify position + limit, and content is zeroed
-      assertEquals("Unexpected buffer limit", size, buffer2.limit());
-      assertEquals("Unexpected buffer position", 0, buffer2.position());
+      assertEquals(size, buffer2.limit(), "Unexpected buffer limit");
+      assertEquals(0, buffer2.position(), "Unexpected buffer position");
       assertZeroed(buffer2);
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -30,10 +33,9 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testing of message property conversion. See {@link javax.jms.Message} for details
@@ -53,7 +55,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -70,7 +72,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       producerConnection.close();
       consumerConnection.close();
@@ -615,9 +617,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       queueProducer.send(m1);
       Message m2 = queueConsumer.receive(1000);
-      Assert.assertEquals("key should be true", m2.getObjectProperty("key"), Boolean.TRUE);
-      Assert.assertEquals("key2 should be null", null, m2.getObjectProperty("key2"));
-      Assert.assertEquals("key3 should be null", null, m2.getObjectProperty("key3"));
+      assertEquals(m2.getObjectProperty("key"), Boolean.TRUE, "key should be true");
+      assertNull(m2.getObjectProperty("key2"), "key2 should be null");
+      assertNull(m2.getObjectProperty("key3"), "key3 should be null");
    }
 
    @Test
@@ -1000,7 +1002,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       ProxyAssertSupport.assertEquals(myFloat, m4.getFloatProperty("myFloat"), 0);
       ProxyAssertSupport.assertEquals(myDouble, m4.getDoubleProperty("myDouble"), 0);
 
-      ProxyAssertSupport.assertEquals(false, m4.getBooleanProperty("myIllegal"));
+      ProxyAssertSupport.assertFalse(m4.getBooleanProperty("myIllegal"));
 
       try {
          m4.getByteProperty("myIllegal");

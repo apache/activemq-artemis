@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -26,23 +28,25 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase {
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public HAType haType;
 
-   @Parameterized.Parameters(name = "ha={0}")
+   @Parameters(name = "ha={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{HAType.SharedNothingReplication}, {HAType.PluggableQuorumReplication}});
    }
 
-   @Test
+   @TestTemplate
    public void testStartPrimaryFirst() throws Exception {
       for (TestableServer liveServer : primaryServers) {
          liveServer.start();
@@ -54,7 +58,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
       sendCrashReceive();
    }
 
-   @Test
+   @TestTemplate
    public void testStartBackupFirst() throws Exception {
       for (TestableServer backupServer : backupServers) {
          backupServer.start();
@@ -120,7 +124,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          for (int i = 0; i < 100; i++) {
             for (ClientConsumer consumer : consumers) {
                ClientMessage message = consumer.receive(1000);
-               assertNotNull("expecting durable msg " + i, message);
+               assertNotNull(message, "expecting durable msg " + i);
                message.acknowledge();
             }
 

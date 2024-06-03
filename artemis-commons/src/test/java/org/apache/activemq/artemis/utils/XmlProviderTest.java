@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Validator;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
@@ -27,20 +32,20 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class XmlProviderTest extends ArtemisTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -49,12 +54,12 @@ public class XmlProviderTest extends ArtemisTestCase {
 
    protected boolean xxeEnabled;
 
-   @Parameterized.Parameters(name = "xxeEnabled={0}")
+   @Parameters(name = "xxeEnabled={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Boolean[]{true, false});
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeAll() {
       if (origXxeEnabled == null) {
          origXxeEnabled = XmlProvider.isXxeEnabled();
@@ -63,7 +68,7 @@ public class XmlProviderTest extends ArtemisTestCase {
       logger.trace("BeforeAll - origXxeEnabled={}, isXxeEnabled={}", origXxeEnabled, XmlProvider.isXxeEnabled());
    }
 
-   @AfterClass
+   @AfterAll
    public static void afterAll() {
       logger.trace("AfterAll - origXxeEnabled={}, isXxeEnabled={} ", origXxeEnabled, XmlProvider.isXxeEnabled());
       if (origXxeEnabled != null) {
@@ -72,7 +77,7 @@ public class XmlProviderTest extends ArtemisTestCase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void setUp() {
       logger.trace("Running setUp - xxeEnabled={}", xxeEnabled);
       XmlProvider.setXxeEnabled(xxeEnabled);
@@ -82,17 +87,17 @@ public class XmlProviderTest extends ArtemisTestCase {
       this.xxeEnabled = xxeEnabled;
    }
 
-   @Test
+   @TestTemplate
    public void testDocument() throws Exception {
       DocumentBuilder documentBuilder = XmlProvider.newDocumentBuilder();
       Document document = documentBuilder.parse(new File(getClass().getResource("/document.xml").toURI()));
       Element documentElement = document.getDocumentElement();
 
-      Assert.assertEquals("t:book", documentElement.getTagName());
-      Assert.assertEquals(1, documentElement.getElementsByTagName("title").getLength());
+      assertEquals("t:book", documentElement.getTagName());
+      assertEquals(1, documentElement.getElementsByTagName("title").getLength());
    }
 
-   @Test
+   @TestTemplate
    public void testDocumentWithXmlInclude() throws Exception {
       Map<String, Boolean> properties = new HashMap<>();
       properties.put(XmlProvider.XINCLUDE_AWARE_PROPERTY, true);
@@ -101,22 +106,22 @@ public class XmlProviderTest extends ArtemisTestCase {
       Document document = documentBuilder.parse(new File(XmlProviderTest.class.getResource("/document-with-xinclude.xml").toURI()));
       Element documentElement = document.getDocumentElement();
 
-      Assert.assertEquals("t:book", documentElement.getTagName());
+      assertEquals("t:book", documentElement.getTagName());
 
       if (XmlProvider.isXxeEnabled()) {
-         Assert.assertEquals(1, documentElement.getElementsByTagName("title").getLength());
+         assertEquals(1, documentElement.getElementsByTagName("title").getLength());
       } else {
-         Assert.assertEquals(0, documentElement.getElementsByTagName("title").getLength());
+         assertEquals(0, documentElement.getElementsByTagName("title").getLength());
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSchema() throws Exception {
       StreamSource streamSource = new StreamSource(XmlProviderTest.class.getResourceAsStream("/schema.xsd"));
       XmlProvider.newSchema(streamSource, null);
    }
 
-   @Test
+   @TestTemplate
    public void testSchemaWithImport() {
       StreamSource streamSource = new StreamSource(XmlProviderTest.class.getResourceAsStream("/schema-with-import.xsd"));
 
@@ -128,13 +133,13 @@ public class XmlProviderTest extends ArtemisTestCase {
       }
 
       if (XmlProvider.isXxeEnabled()) {
-         Assert.assertNull(newSchemaException);
+         assertNull(newSchemaException);
       } else {
-         Assert.assertNotNull(newSchemaException);
+         assertNotNull(newSchemaException);
       }
    }
 
-   @Test
+   @TestTemplate
    public void testValidator() throws Exception {
       Map<String, Boolean> properties = new HashMap<>();
       properties.put(XmlProvider.NAMESPACE_AWARE_PROPERTY, true);
@@ -146,7 +151,7 @@ public class XmlProviderTest extends ArtemisTestCase {
       validator.validate(new DOMSource(documentElement));
    }
 
-   @Test
+   @TestTemplate
    public void testValidatorWithImport() throws Exception {
       Map<String, Boolean> properties = new HashMap<>();
       properties.put(XmlProvider.NAMESPACE_AWARE_PROPERTY, true);
@@ -163,9 +168,9 @@ public class XmlProviderTest extends ArtemisTestCase {
       }
 
       if (XmlProvider.isXxeEnabled()) {
-         Assert.assertNull(validateException);
+         assertNull(validateException);
       } else {
-         Assert.assertNotNull(validateException);
+         assertNotNull(validateException);
       }
    }
 }

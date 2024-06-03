@@ -29,6 +29,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URL;
@@ -66,7 +69,8 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +93,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       return createServer(AMQP_PORT, false);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConfigurationWithoutChangesIsIgnoredOnUpdate() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -187,7 +192,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationConnectsToSecondPeerWhenConfigurationUpdatedWithNewConnection() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -313,7 +319,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationDisconnectsFromExistingPeerIfConfigurationRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -402,7 +409,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationUpdatesPolicyAndFederatesQueueInsteadOfAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -529,7 +537,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testReloadAmqpConnectionAddressPolicyMatches() throws Exception {
       server.start();
 
@@ -604,7 +613,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testReloadAmqpConnectionQueuePolicyMatches() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
@@ -693,7 +703,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testReloadAmqpConnectionAddressPolicyReplacedWithQueuePolicy() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
@@ -766,7 +777,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testReloadAmqpConnectionQueuePolicyMatchesFromBrokerProperties() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)

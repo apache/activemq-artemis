@@ -14,41 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.tests.extensions;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
-import org.junit.Assert;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-/**
- * This will make sure any properties changed through tests are cleaned up between tests.
- */
-public class PortCheckRule extends TestWatcher {
+public class PortCheckExtension implements Extension, BeforeEachCallback, AfterEachCallback {
 
-   final int[] port;
+   final int[] ports;
 
-   public PortCheckRule(int... port) {
-      this.port = port;
+   public PortCheckExtension(int... ports) {
+      this.ports = ports;
    }
 
    @Override
-   protected void starting(Description description) {
-      for (int p : port) {
+   public void beforeEach(ExtensionContext context) throws Exception {
+      String testName = context.getRequiredTestMethod().getName();
+      for (int p : ports) {
          if (!checkAvailable(p)) {
-            Assert.fail("a previous test is using port " + p + " on " + description);
+            fail("a previous test is using port " + p + " before " + testName);
          }
       }
    }
 
    @Override
-   protected void finished(Description description) {
-      for (int p : port) {
+   public void afterEach(ExtensionContext context) throws Exception {
+      String testName = context.getRequiredTestMethod().getName();
+      for (int p : ports) {
          if (!checkAvailable(p)) {
-            Assert.fail(description + " has left a server socket open on port " + p);
+            fail(testName + " has left a server socket open on port " + p);
          }
       }
    }

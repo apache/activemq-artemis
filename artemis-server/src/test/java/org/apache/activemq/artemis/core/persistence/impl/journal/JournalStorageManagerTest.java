@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,30 +40,24 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JournalStorageManagerTest extends ServerTestBase {
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public JournalType journalType;
 
-   @Parameterized.Parameters(name = "journal type={0}")
+   @Parameters(name = "journal type={0}")
    public static Collection<Object[]> getParams() {
       return Stream.of(JournalType.values())
          .map(journalType -> new Object[]{journalType})
@@ -65,7 +68,7 @@ public class JournalStorageManagerTest extends ServerTestBase {
    private static ExecutorService ioExecutor;
    private static ExecutorService testExecutor;
 
-   @BeforeClass
+   @BeforeAll
    public static void initExecutors() {
       executor = Executors.newSingleThreadExecutor();
       //to allow concurrent compaction and I/O operations
@@ -73,7 +76,7 @@ public class JournalStorageManagerTest extends ServerTestBase {
       testExecutor = Executors.newSingleThreadExecutor();
    }
 
-   @AfterClass
+   @AfterAll
    public static void destroyExecutors() {
       ioExecutor.shutdownNow();
       executor.shutdownNow();
@@ -83,24 +86,24 @@ public class JournalStorageManagerTest extends ServerTestBase {
    /**
     * Test of fixJournalFileSize method, of class JournalStorageManager.
     */
-   @Test
+   @TestTemplate
    public void testFixJournalFileSize() throws Exception {
       if (journalType == JournalType.ASYNCIO) {
-         assumeTrue("AIO is not supported on this platform", AIOSequentialFileFactory.isSupported());
+         assumeTrue(AIOSequentialFileFactory.isSupported(), "AIO is not supported on this platform");
       }
       final Configuration configuration = createDefaultInVMConfig().setJournalType(journalType);
       final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
       final ExecutorFactory ioExecutorFactory = new OrderedExecutorFactory(ioExecutor);
       final JournalStorageManager manager = new JournalStorageManager(configuration, null, executorFactory, null, ioExecutorFactory);
-      Assert.assertEquals(4096, manager.fixJournalFileSize(1024, 4096));
-      Assert.assertEquals(4096, manager.fixJournalFileSize(4098, 4096));
-      Assert.assertEquals(8192, manager.fixJournalFileSize(8192, 4096));
+      assertEquals(4096, manager.fixJournalFileSize(1024, 4096));
+      assertEquals(4096, manager.fixJournalFileSize(4098, 4096));
+      assertEquals(8192, manager.fixJournalFileSize(8192, 4096));
    }
 
-   @Test
+   @TestTemplate
    public void testAddBytesToLargeMessageNotLeakingByteBuffer() throws Exception {
       if (journalType == JournalType.ASYNCIO) {
-         assumeTrue("AIO is not supported on this platform", AIOSequentialFileFactory.isSupported());
+         assumeTrue(AIOSequentialFileFactory.isSupported(), "AIO is not supported on this platform");
       }
       final Configuration configuration = createDefaultInVMConfig().setJournalType(journalType);
       final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
@@ -117,7 +120,7 @@ public class JournalStorageManagerTest extends ServerTestBase {
       try {
          file.open();
          doAnswer(invocation -> {
-            Assert.fail("No buffer should leak into the factory pool while writing into a large message");
+            fail("No buffer should leak into the factory pool while writing into a large message");
             return invocation.callRealMethod();
          }).when(manager.largeMessagesFactory).releaseBuffer(any(ByteBuffer.class));
          final int size = 100;
@@ -126,12 +129,12 @@ public class JournalStorageManagerTest extends ServerTestBase {
          directBuffer.writerIndex(size);
          long fileSize = file.size();
          manager.addBytesToLargeMessage(file, 1, directBuffer);
-         Assert.assertEquals(fileSize + size, file.size());
+         assertEquals(fileSize + size, file.size());
          fileSize = file.size();
          final ActiveMQBuffer heapBuffer = ActiveMQBuffers.wrappedBuffer(new byte[size]);
          heapBuffer.writerIndex(size);
          manager.addBytesToLargeMessage(file, 1, heapBuffer);
-         Assert.assertEquals(fileSize + size, file.size());
+         assertEquals(fileSize + size, file.size());
       } finally {
          manager.stop();
          file.close();

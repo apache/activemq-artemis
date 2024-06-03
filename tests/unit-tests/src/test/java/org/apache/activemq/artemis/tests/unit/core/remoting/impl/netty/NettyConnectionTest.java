@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,8 +41,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleLi
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettyConnectionTest extends ActiveMQTestBase {
 
@@ -48,7 +52,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       Channel channel = createChannel();
       NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
 
-      Assert.assertEquals(channel.id(), conn.getID());
+      assertEquals(channel.id(), conn.getID());
    }
 
    @Test
@@ -56,12 +60,12 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(128));
       EmbeddedChannel channel = createChannel();
 
-      Assert.assertEquals(0, channel.outboundMessages().size());
+      assertEquals(0, channel.outboundMessages().size());
 
       NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
       conn.write(buff);
       channel.runPendingTasks();
-      Assert.assertEquals(1, channel.outboundMessages().size());
+      assertEquals(1, channel.outboundMessages().size());
    }
 
    @Test
@@ -73,18 +77,20 @@ public class NettyConnectionTest extends ActiveMQTestBase {
 
       ActiveMQBuffer buff = conn.createTransportBuffer(size);
       buff.writeByte((byte) 0x00); // Netty buffer does lazy initialization.
-      Assert.assertEquals(size, buff.capacity());
+      assertEquals(size, buff.capacity());
 
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void throwsExceptionOnBlockUntilWritableIfClosed() {
-      EmbeddedChannel channel = createChannel();
-      NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
-      conn.close();
-      //to make sure the channel is closed it needs to run the pending tasks
-      channel.runPendingTasks();
-      conn.blockUntilWritable(0, TimeUnit.NANOSECONDS);
+      assertThrows(IllegalStateException.class, () -> {
+         EmbeddedChannel channel = createChannel();
+         NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
+         conn.close();
+         //to make sure the channel is closed it needs to run the pending tasks
+         channel.runPendingTasks();
+         conn.blockUntilWritable(0, TimeUnit.NANOSECONDS);
+      });
    }
 
    @Test

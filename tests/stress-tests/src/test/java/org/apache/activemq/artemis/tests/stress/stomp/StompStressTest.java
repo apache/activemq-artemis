@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,10 +39,9 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StompStressTest extends ActiveMQTestBase {
 
@@ -61,7 +63,7 @@ public class StompStressTest extends ActiveMQTestBase {
       sendFrame(frame);
 
       frame = receiveFrame(10000);
-      Assert.assertTrue(frame.startsWith("CONNECTED"));
+      assertTrue(frame.startsWith("CONNECTED"));
 
       frame = "SUBSCRIBE\n" + "destination:" + destination + "\n" + "ack:auto\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -76,9 +78,9 @@ public class StompStressTest extends ActiveMQTestBase {
       for (int i = 0; i < COUNT; i++) {
          System.out.println("<<< " + i);
          frame = receiveFrame(10000);
-         Assert.assertTrue(frame.startsWith("MESSAGE"));
-         Assert.assertTrue(frame.indexOf("destination:") > 0);
-         Assert.assertTrue(frame.indexOf("count:" + i) > 0);
+         assertTrue(frame.startsWith("MESSAGE"));
+         assertTrue(frame.indexOf("destination:") > 0);
+         assertTrue(frame.indexOf("count:" + i) > 0);
       }
 
       frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
@@ -88,7 +90,7 @@ public class StompStressTest extends ActiveMQTestBase {
    // Implementation methods
    // -------------------------------------------------------------------------
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -111,7 +113,7 @@ public class StompStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (stompSocket != null) {
          stompSocket.close();
@@ -154,7 +156,7 @@ public class StompStressTest extends ActiveMQTestBase {
                byte[] ba = inputBuffer.toByteArray();
                System.out.println(new String(ba, StandardCharsets.UTF_8));
             }
-            Assert.assertEquals("Expecting stomp frame to terminate with \0\n", c, '\n');
+            assertEquals(c, '\n', "Expecting stomp frame to terminate with \0\n");
             byte[] ba = inputBuffer.toByteArray();
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);

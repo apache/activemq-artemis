@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -26,8 +28,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DivertTopicToQueueTest extends JMSClientTestSupport {
 
@@ -67,8 +68,8 @@ public class DivertTopicToQueueTest extends JMSClientTestSupport {
       TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
       TextMessage receivedMessage2 = (TextMessage) consumer2.receive(1000);
 
-      Assert.assertNotNull(receivedMessage);
-      Assert.assertNotNull(receivedMessage2);
+      assertNotNull(receivedMessage);
+      assertNotNull(receivedMessage2);
 
       connection.close();
    }

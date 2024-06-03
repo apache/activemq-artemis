@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClusterConnectionBridgeTest extends ActiveMQTestBase {
 

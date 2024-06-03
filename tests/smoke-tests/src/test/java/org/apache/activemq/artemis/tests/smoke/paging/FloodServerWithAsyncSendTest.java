@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.smoke.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -34,10 +39,9 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -48,7 +52,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
    public static final String SERVER_NAME_0 = "paging";
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -67,7 +71,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
    AtomicInteger errors = new AtomicInteger(0);
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       startServer(SERVER_NAME_0, 0, 30000);
@@ -84,7 +88,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
       if (protocol.equalsIgnoreCase("OPENWIRE")) {
          return CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616?jms.useAsyncSend=true");
       } else {
-         Assert.fail("unsuported protocol");
+         fail("unsuported protocol");
          return null;
       }
    }
@@ -103,10 +107,10 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
          running = false;
 
          executorService.shutdown();
-         Assert.assertTrue(executorService.awaitTermination(1, TimeUnit.MINUTES));
+         assertTrue(executorService.awaitTermination(1, TimeUnit.MINUTES));
 
          for (int i = 0; i < 2; i++) {
-            Assert.assertEquals("should have received at least a few messages", 20, consume(protocol, "queue" + i, 20));
+            assertEquals(20, consume(protocol, "queue" + i, 20), "should have received at least a few messages");
          }
 
          ConnectionFactory factory = newCF("openwire");
@@ -122,11 +126,11 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
          producer.send(session.createTextMessage(random));
          TextMessage message = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(random, message.getText());
+         assertNotNull(message);
+         assertEquals(random, message.getText());
          connection.close();
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       } finally {
          running = false;
          executorService.shutdownNow(); // just to avoid thread leakage in case anything failed on the test

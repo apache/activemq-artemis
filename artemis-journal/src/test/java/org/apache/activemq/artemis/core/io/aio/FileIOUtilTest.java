@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.io.aio;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,22 +28,15 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.util.FileIOUtil;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class FileIOUtilTest {
 
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   public FileIOUtilTest() {
-      File parent = new File("./target");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
-   }
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
    /** Since the introduction of asynchronous close on AsyncIO journal
     there was a situation that if you open a file while it was pending to close
@@ -49,10 +45,10 @@ public class FileIOUtilTest {
     */
    @Test
    public void testOpenClose() throws Exception {
-      Assume.assumeTrue(LibaioContext.isLoaded());
+      assumeTrue(LibaioContext.isLoaded());
       AtomicInteger errors = new AtomicInteger(0);
 
-      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), (Throwable error, String message, String file) -> errors.incrementAndGet(),  4 * 1024);
+      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder, (Throwable error, String message, String file) -> errors.incrementAndGet(),  4 * 1024);
       factory.start();
 
       SequentialFile file = factory.createSequentialFile("fileAIO.bin");
@@ -86,13 +82,13 @@ public class FileIOUtilTest {
          factory.stop();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 
    @Test
    public void testCopy() throws Exception {
-      SequentialFileFactory factory = new NIOSequentialFileFactory(temporaryFolder.getRoot(), 100);
+      SequentialFileFactory factory = new NIOSequentialFileFactory(temporaryFolder, 100);
       SequentialFile file = factory.createSequentialFile("file1.bin");
       file.open();
 
@@ -119,8 +115,8 @@ public class FileIOUtilTest {
       SequentialFile newFile2 = factory.createSequentialFile("file2.cop");
       FileIOUtil.copyData(file2, newFile2, buffer);
 
-      Assert.assertEquals(file.size(), newFile.size());
-      Assert.assertEquals(file2.size(), newFile2.size());
+      assertEquals(file.size(), newFile.size());
+      assertEquals(file2.size(), newFile2.size());
 
       newFile.close();
       newFile2.close();

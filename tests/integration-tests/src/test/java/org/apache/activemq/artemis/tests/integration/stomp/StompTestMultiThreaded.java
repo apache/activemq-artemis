@@ -16,20 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.net.URI;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+// Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompTestMultiThreaded extends StompTestBase {
 
    private static final SimpleString QUEUE = new SimpleString("x");
@@ -63,7 +65,7 @@ public class StompTestMultiThreaded extends StompTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTwoConcurrentSubscribers() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false).setAutoDeleteQueues(false));
       server.getRemotingService().createAcceptor("test", "tcp://localhost:61614?protocols=STOMP&anycastPrefix=/queue/").start();
@@ -83,7 +85,7 @@ public class StompTestMultiThreaded extends StompTestBase {
 
          for (SomeConsumer consumer : consumers) {
             consumer.join();
-            Assert.assertFalse(consumer.failed);
+            assertFalse(consumer.failed);
          }
 
          // delete queue here so it can be auto-created again during the next loop iteration

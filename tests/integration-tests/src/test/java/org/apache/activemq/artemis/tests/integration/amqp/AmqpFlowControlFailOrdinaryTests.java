@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -25,8 +28,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +71,7 @@ public class AmqpFlowControlFailOrdinaryTests extends JMSClientTestSupport {
          receiver.flow(messagesSent);
          for (int i = 0; i < messagesSent; i++) {
             AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
-            Assert.assertNotNull(receive);
+            assertNotNull(receive);
             receive.accept();
          }
          receiver.close();

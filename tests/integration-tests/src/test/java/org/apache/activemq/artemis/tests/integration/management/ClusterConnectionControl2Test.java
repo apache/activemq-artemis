@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.management.MBeanServer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +39,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClusterConnectionControl2Test extends ManagementTestBase {
 
@@ -62,9 +64,9 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
    @Test
    public void testNodes() throws Exception {
       ClusterConnectionControl clusterConnectionControl_0 = createManagementControl(clusterConnectionConfig_0.getName());
-      Assert.assertTrue(clusterConnectionControl_0.isStarted());
+      assertTrue(clusterConnectionControl_0.isStarted());
       Map<String, String> nodes = clusterConnectionControl_0.getNodes();
-      Assert.assertEquals(0, nodes.size());
+      assertEquals(0, nodes.size());
 
       server1.start();
       waitForServerToStart(server1);
@@ -79,14 +81,14 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
          Thread.sleep(50);
       }
 
-      Assert.assertEquals(1, nodes.size());
+      assertEquals(1, nodes.size());
 
       String remoteAddress = nodes.values().iterator().next();
-      Assert.assertTrue(remoteAddress.endsWith(":" + port_1));
+      assertTrue(remoteAddress.endsWith(":" + port_1));
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -126,7 +128,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }

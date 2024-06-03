@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -25,10 +27,9 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class will control mix up compactor between each operation of a test
@@ -54,7 +55,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -69,7 +70,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
 
       File testDir = new File(getTestDir());
@@ -83,7 +84,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
       });
 
       for (File file : files) {
-         Assert.assertEquals("File " + file + " doesn't have the expected number of bytes", fileSize, file.length());
+         assertEquals(fileSize, file.length(), "File " + file + " doesn't have the expected number of bytes");
       }
 
       super.tearDown();

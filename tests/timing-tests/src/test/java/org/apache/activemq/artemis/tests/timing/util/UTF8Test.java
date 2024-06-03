@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.timing.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UTF8Util;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class UTF8Test extends ActiveMQTestBase {
 
@@ -62,12 +62,12 @@ public class UTF8Test extends ActiveMQTestBase {
       buffer.writeUTF(str);
 
       for (int c = 0; c < TIMES; c++) {
-         ThreadLeakCheckRule.forceGC();
+         forceGC();
          final long start = System.currentTimeMillis();
          for (long i = 0; i < numberOfIteractions; i++) {
             buffer.resetReaderIndex();
             String newstr = buffer.readUTF();
-            Assert.assertEquals(str, newstr);
+            assertEquals(str, newstr);
             blackHole = newstr;
          }
          final long spentTime = System.currentTimeMillis() - start;
@@ -79,7 +79,7 @@ public class UTF8Test extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       UTF8Util.clearBuffer();
       super.tearDown();

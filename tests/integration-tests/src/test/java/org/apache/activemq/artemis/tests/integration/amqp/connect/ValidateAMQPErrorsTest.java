@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 import static java.util.EnumSet.of;
 import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
@@ -59,8 +62,8 @@ import org.apache.qpid.protonj2.test.driver.matchers.messaging.PropertiesMatcher
 import org.apache.qpid.protonj2.test.driver.matchers.transport.TransferPayloadCompositeMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.types.EncodedAmqpValueMatcher;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +86,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     * Connecting to itself should issue an error.
     * and the max retry should still be counted, not just keep connecting forever.
     */
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testConnectItself() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
@@ -94,19 +98,20 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
          server.start();
 
-         Assert.assertEquals(1, server.getBrokerConnections().size());
+         assertEquals(1, server.getBrokerConnections().size());
          server.getBrokerConnections().forEach((t) -> Wait.assertFalse(t::isStarted));
          Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"), 5000, 25); // max retry
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          Thread.sleep(50);
-         Assert.assertFalse(loggerHandler.findText("AMQ111002")); // there shouldn't be a retry after the last failure
-         Assert.assertFalse(loggerHandler.findText("AMQ111003")); // there shouldn't be a retry after the last failure
+         assertFalse(loggerHandler.findText("AMQ111002")); // there shouldn't be a retry after the last failure
+         assertFalse(loggerHandler.findText("AMQ111003")); // there shouldn't be a retry after the last failure
       }
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testCloseLinkOnMirror() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
@@ -118,7 +123,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
 
          server.start();
-         Assert.assertEquals(1, server.getBrokerConnections().size());
+         assertEquals(1, server.getBrokerConnections().size());
          Wait.assertTrue(() -> loggerHandler.findText("AMQ111002"));
          server.getBrokerConnections().forEach((t) -> Wait.assertTrue(() -> ((AMQPBrokerConnection) t).isConnecting()));
 
@@ -164,18 +169,20 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
             MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
             connection.start();
             for (int i = 0; i < 10; i++) {
-               Assert.assertEquals("message " + i, ((TextMessage) consumer.receive(5000)).getText());
+               assertEquals("message " + i, ((TextMessage) consumer.receive(5000)).getText());
             }
          }
       }
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testCloseLinkOnSender() throws Exception {
       doCloseLinkTestImpl(true);
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testCloseLinkOnReceiver() throws Exception {
       doCloseLinkTestImpl(false);
    }
@@ -200,10 +207,10 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
          if (isSender) {
             server.start();
-            Assert.assertEquals(1, server.getBrokerConnections().size());
+            assertEquals(1, server.getBrokerConnections().size());
          } else {
             server2.start();
-            Assert.assertEquals(1, server2.getBrokerConnections().size());
+            assertEquals(1, server2.getBrokerConnections().size());
          }
          Wait.assertTrue(() -> loggerHandler.findText("AMQ111002"));
          server.getBrokerConnections().forEach((t) -> Wait.assertTrue(() -> ((AMQPBrokerConnection) t).isConnecting()));
@@ -261,14 +268,15 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          connection.start();
          for (int i = 0; i < 10; i++) {
-            Assert.assertEquals("message " + i, ((TextMessage) consumer.receive(5000)).getText());
+            assertEquals("message " + i, ((TextMessage) consumer.receive(5000)).getText());
          }
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testTimeoutOnSenderOpen() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // Initial attempt
@@ -299,7 +307,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testReconnectAfterSenderOpenTimeout() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // Initial attempt, times out
@@ -349,7 +358,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testNoServerOfferedMirrorCapability() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          for (int i = 0; i < 3; ++i) {
@@ -374,7 +384,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
             server.start();
 
             Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"));
-            Assert.assertEquals(3, loggerHandler.countText("AMQ119018"));
+            assertEquals(3, loggerHandler.countText("AMQ119018"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          }
@@ -386,7 +396,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     *
     * @throws Exception
     */
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testReconnectAfterMirrorLinkRefusal() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // First attempt, refuse
@@ -435,7 +446,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
    public void testNoClientDesiredMirrorCapability() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();

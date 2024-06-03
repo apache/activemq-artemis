@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CountDownLatch;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,15 +31,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
 
@@ -54,7 +57,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
    private volatile boolean error = false;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       jmsServer.createTopic(true, "topicIn", "/topic/topicIn");
@@ -316,7 +319,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
 
          assertFalse(error);
          if (errorMessage != null) {
-            Assert.fail(errorMessage);
+            fail(errorMessage);
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);

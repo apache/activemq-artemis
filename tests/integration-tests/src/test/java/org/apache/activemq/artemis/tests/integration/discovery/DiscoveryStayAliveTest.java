@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.InetAddress;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -30,8 +33,9 @@ import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is to make sure discovery works fine even when garbled data is sent
@@ -41,13 +45,14 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
    ScheduledExecutorService scheduledExecutorService;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, Thread.currentThread().getContextClassLoader()));
 
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       scheduledExecutorService.shutdown();

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.performance.storage;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -38,8 +40,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
@@ -150,7 +151,7 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
          t.start();
       }
 
-      Assert.assertEquals(NUMBER_OF_THREADS, queue.getConsumerCount());
+      assertEquals(NUMBER_OF_THREADS, queue.getConsumerCount());
 
       alignFlag.await();
 
@@ -167,12 +168,12 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       for (ConsumerThread t : cthreads) {
          t.join();
-         Assert.assertEquals(0, t.errors);
+         assertEquals(0, t.errors);
       }
 
       for (MyThread t : threads) {
          t.join();
-         Assert.assertEquals(0, t.errors.get());
+         assertEquals(0, t.errors.get());
       }
 
       slowSending.interrupt();

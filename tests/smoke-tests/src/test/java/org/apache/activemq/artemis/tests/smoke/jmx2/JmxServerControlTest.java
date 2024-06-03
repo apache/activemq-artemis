@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmx2;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.util.Map;
 
@@ -40,10 +43,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JmxServerControlTest extends SmokeTestBase {
    // This test will use a smoke created by the pom on this project (smoke-tsts)
@@ -53,7 +55,7 @@ public class JmxServerControlTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "jmx2";
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -70,7 +72,7 @@ public class JmxServerControlTest extends SmokeTestBase {
       }
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -94,7 +96,7 @@ public class JmxServerControlTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -118,10 +120,10 @@ public class JmxServerControlTest extends SmokeTestBase {
                JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
                JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
 
-               Assert.assertEquals("number of consumers returned from query", 1, array.size());
+               assertEquals(1, array.size(), "number of consumers returned from query");
                JsonObject jsonConsumer = array.getJsonObject(0);
-               Assert.assertEquals("queue name in consumer", queueName, jsonConsumer.getString("queue"));
-               Assert.assertEquals("address name in consumer", addressName, jsonConsumer.getString("address"));
+               assertEquals(queueName, jsonConsumer.getString("queue"), "queue name in consumer");
+               assertEquals(addressName, jsonConsumer.getString("address"), "address name in consumer");
             } finally {
                consumer.close();
             }

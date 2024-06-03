@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.tcp.TcpTransport;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ProducerFlowControlBaseTest extends BasicOpenWireTest {
    ActiveMQQueue queueA = new ActiveMQQueue("QUEUE.A");
@@ -121,7 +121,7 @@ public class ProducerFlowControlBaseTest extends BasicOpenWireTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       this.makeSureCoreQueueExist("QUEUE.A");
@@ -129,7 +129,7 @@ public class ProducerFlowControlBaseTest extends BasicOpenWireTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (flowControlConnection != null) {

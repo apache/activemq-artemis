@@ -17,23 +17,24 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
-@RunWith(Parameterized.class)
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class PrefixSendAckTest extends ServerBase {
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
@@ -45,7 +46,7 @@ public class PrefixSendAckTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
       evaluate(senderClassloader,  "prefixSendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
       evaluate(receiverClassloader,  "prefixSendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");

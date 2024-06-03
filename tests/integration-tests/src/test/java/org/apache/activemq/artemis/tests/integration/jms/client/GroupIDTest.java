@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GroupIDTest extends GroupingTest {
 

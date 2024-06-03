@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.isolated.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
@@ -54,8 +59,8 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +73,8 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       disableCheckThread();
    }
 
-   @Test(timeout = 20_000)
+   @Test
+   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
    public void testConsumerDroppedWithProtonTestClient() throws Exception {
       int NUMBER_OF_CONNECTIONS = 100;
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
@@ -104,14 +110,15 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
          });
       }
 
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
       Wait.assertEquals(0, () -> serverQueue.getConsumers().size(), 5000, 100);
    }
 
-   @Test(timeout = 20_000)
+   @Test
+   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
    public void testRegularClose() throws Exception {
       int NUMBER_OF_CONNECTIONS = 100;
       int REPEATS = 10;
@@ -154,16 +161,16 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
          });
       }
 
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
-      Assert.assertFalse(loggerHandler.findText("AMQ212037"));
+      assertFalse(loggerHandler.findText("AMQ212037"));
 
-      Assert.assertFalse(loggerHandler.findText("Connection failure"));
-      Assert.assertFalse(loggerHandler.findText("REMOTE_DISCONNECT"));
-      Assert.assertFalse(loggerHandler.findText("AMQ222061"));
-      Assert.assertFalse(loggerHandler.findText("AMQ222107"));
+      assertFalse(loggerHandler.findText("Connection failure"));
+      assertFalse(loggerHandler.findText("REMOTE_DISCONNECT"));
+      assertFalse(loggerHandler.findText("AMQ222061"));
+      assertFalse(loggerHandler.findText("AMQ222107"));
 
       Wait.assertEquals(0, () -> serverQueue.getConsumers().size(), 5000, 100);
       Wait.assertEquals(0, server::getConnectionCount, 5000);
@@ -279,7 +286,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       }
       if (!done.await(10, TimeUnit.SECONDS)) {
          logger.warn(ThreadDumpUtil.threadDump("Threads are still running"));
-         Assert.fail("Threads are still running");
+         fail("Threads are still running");
       }
 
       Wait.assertEquals(0, () -> serverQueue.getConsumers().size(), 5000, 100);
@@ -329,7 +336,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setAddress(getName()).setAutoCreated(false));
 
       for (int i = 0; i < TEST_REPEATS; i++) {
-         Assert.assertEquals(0, serverQueue.getConsumerCount());
+         assertEquals(0, serverQueue.getConsumerCount());
          latchCreating.setCount(1);
          blockCreate.setCount(1);
          done.setCount(1);
@@ -352,17 +359,17 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
             }
          });
 
-         Assert.assertTrue(latchCreating.await(10, TimeUnit.SECONDS));
+         assertTrue(latchCreating.await(10, TimeUnit.SECONDS));
          server.getRemotingService().getConnections().forEach(r -> {
             r.fail(new ActiveMQException("it's a simulation"));
          });
          blockCreate.countDown();
-         Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+         assertTrue(done.await(10, TimeUnit.SECONDS));
 
          { // double checking the executor is done
             CountDownLatch check = new CountDownLatch(1);
             executorService.execute(check::countDown);
-            Assert.assertTrue(check.await(1, TimeUnit.SECONDS));
+            assertTrue(check.await(1, TimeUnit.SECONDS));
          }
 
          Thread.sleep(100); // I need some time for the error condition to kick in
@@ -445,7 +452,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertTrue(received.await(10, TimeUnit.SECONDS));
+      assertTrue(received.await(10, TimeUnit.SECONDS));
 
       server.registerBrokerPlugin(new ActiveMQServerSessionPlugin() {
          @Override
@@ -477,22 +484,22 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       server.getRemotingService().getConnections().forEach(r -> {
          r.fail(new ActiveMQException("it's a simulation"));
       });
-      Assert.assertTrue(latchCreating.await(10, TimeUnit.SECONDS));
+      assertTrue(latchCreating.await(10, TimeUnit.SECONDS));
       server.getRemotingService().getConnections().forEach(r -> {
          r.fail(new ActiveMQException("it's a simulation 2nd time"));
       });
       blockCreate.countDown();
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
       running.set(false);
-      Assert.assertTrue(doneConsumer.await(40, TimeUnit.SECONDS));
+      assertTrue(doneConsumer.await(40, TimeUnit.SECONDS));
 
       Thread.sleep(100);
 
       { // double checking the executor is done
          CountDownLatch check = new CountDownLatch(1);
          executorService.execute(check::countDown);
-         Assert.assertTrue(check.await(1, TimeUnit.SECONDS));
+         assertTrue(check.await(1, TimeUnit.SECONDS));
       }
 
       Wait.assertEquals(0, server::getConnectionCount, 5000);
@@ -501,7 +508,8 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
    }
 
 
-   @Test(timeout = 10_000)
+   @Test
+   @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
    public void testForceDropOpenWire() throws Throwable {
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
@@ -543,7 +551,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertTrue(beforeCreateCalled.await(5, TimeUnit.MINUTES));
+      assertTrue(beforeCreateCalled.await(5, TimeUnit.MINUTES));
 
       server.getRemotingService().getConnections().forEach(r -> {
          r.fail(new ActiveMQException("this is a simulation"));

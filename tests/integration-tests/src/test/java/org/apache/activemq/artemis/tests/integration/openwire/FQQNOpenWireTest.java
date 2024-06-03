@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -42,23 +48,24 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Verify FQQN queues work with openwire/artemis JMS API
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class FQQNOpenWireTest extends OpenWireTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{"OpenWire"}, {"Artemis"}});
    }
@@ -82,7 +89,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {
@@ -128,12 +135,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTopicFQQNSendAndConsumeAutoCreate() throws Exception {
       internalTopicFQQNSendAndConsume(true);
    }
 
-   @Test
+   @TestTemplate
    public void testTopicFQQNSendAndConsumeManualCreate() throws Exception {
       internalTopicFQQNSendAndConsume(false);
    }
@@ -169,7 +176,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
 
       SimpleString queueName1 = new SimpleString("sub.queue1");
@@ -203,7 +210,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    //jms queues know no addresses, this test only shows
    //that it is possible for jms clients to receive from
    //core queues by its FQQN.
@@ -277,7 +284,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testFQNConsumer() throws Exception {
       Connection exConn = null;
 
@@ -315,7 +322,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSpecialFQQNCase() throws Exception {
       Connection exConn = null;
 
@@ -363,7 +370,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQN() throws Exception {
       Connection exConn = null;
 
@@ -408,7 +415,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQueue() throws Exception {
       Connection exConn = null;
 
@@ -455,7 +462,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQAndAddress() throws Exception {
       Connection exConn = null;
 
@@ -502,7 +509,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNConsumerAutoCreateQAndAddress() throws Exception {
       Connection exConn = null;
 
@@ -548,7 +555,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQWithExistingAddressWithAnyCastDefault() throws Exception {
       Connection exConn = null;
 

@@ -16,17 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.unit;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -35,12 +39,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AllClassesTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "classInfo={0}")
+   @Parameters(name = "classInfo={0}")
    public static Collection getParameters() {
       List<Class> parameters = new ArrayList<>();
       ClassLoader classLoader = AllClassesTest.class.getClassLoader();
@@ -79,7 +84,8 @@ public class AllClassesTest {
    }
 
 
-   @Test(timeout = 3000)
+   @TestTemplate
+   @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
    public void testToString() {
       Object targetInstance = null;
 
@@ -89,7 +95,7 @@ public class AllClassesTest {
          logger.debug("Error creating a new instance of {}: {}", targetClass.getName(), t);
       }
 
-      Assume.assumeTrue("Cannot create " + targetClass.getName(), targetInstance != null);
+      assumeTrue(targetInstance != null, "Cannot create " + targetClass.getName());
 
       try {
          String targetOutput = targetInstance.toString();

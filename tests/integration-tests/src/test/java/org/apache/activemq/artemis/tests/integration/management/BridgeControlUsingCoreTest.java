@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +38,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BridgeControlUsingCoreTest extends ManagementTestBase {
 
@@ -53,28 +56,28 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(bridgeConfig.getName()));
       CoreMessagingProxy proxy = createProxy(bridgeConfig.getName());
 
-      Assert.assertEquals(bridgeConfig.getName(), proxy.retrieveAttributeValue("name"));
-      Assert.assertEquals(bridgeConfig.getDiscoveryGroupName(), proxy.retrieveAttributeValue("discoveryGroupName"));
-      Assert.assertEquals(bridgeConfig.getQueueName(), proxy.retrieveAttributeValue("queueName"));
-      Assert.assertEquals(bridgeConfig.getForwardingAddress(), proxy.retrieveAttributeValue("forwardingAddress"));
-      Assert.assertEquals(bridgeConfig.getFilterString(), proxy.retrieveAttributeValue("filterString"));
-      Assert.assertEquals(bridgeConfig.getRetryInterval(), proxy.retrieveAttributeValue("retryInterval", Long.class));
-      Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), proxy.retrieveAttributeValue("retryIntervalMultiplier", Double.class));
-      Assert.assertEquals(bridgeConfig.getMaxRetryInterval(), proxy.retrieveAttributeValue("maxRetryInterval", Long.class));
-      Assert.assertEquals(bridgeConfig.getReconnectAttempts(), proxy.retrieveAttributeValue("reconnectAttempts", Integer.class));
-      Assert.assertEquals(bridgeConfig.isUseDuplicateDetection(), proxy.retrieveAttributeValue("useDuplicateDetection", Boolean.class));
+      assertEquals(bridgeConfig.getName(), proxy.retrieveAttributeValue("name"));
+      assertEquals(bridgeConfig.getDiscoveryGroupName(), proxy.retrieveAttributeValue("discoveryGroupName"));
+      assertEquals(bridgeConfig.getQueueName(), proxy.retrieveAttributeValue("queueName"));
+      assertEquals(bridgeConfig.getForwardingAddress(), proxy.retrieveAttributeValue("forwardingAddress"));
+      assertEquals(bridgeConfig.getFilterString(), proxy.retrieveAttributeValue("filterString"));
+      assertEquals(bridgeConfig.getRetryInterval(), proxy.retrieveAttributeValue("retryInterval", Long.class));
+      assertEquals(bridgeConfig.getRetryIntervalMultiplier(), proxy.retrieveAttributeValue("retryIntervalMultiplier", Double.class));
+      assertEquals(bridgeConfig.getMaxRetryInterval(), proxy.retrieveAttributeValue("maxRetryInterval", Long.class));
+      assertEquals(bridgeConfig.getReconnectAttempts(), proxy.retrieveAttributeValue("reconnectAttempts", Integer.class));
+      assertEquals(bridgeConfig.isUseDuplicateDetection(), proxy.retrieveAttributeValue("useDuplicateDetection", Boolean.class));
 
       @SuppressWarnings("unchecked")
       Map<String, Object> bridgeMetrics = (Map<String, Object>) proxy.retrieveAttributeValue("metrics", Map.class);
-      Assert.assertEquals(0L, proxy.retrieveAttributeValue("messagesPendingAcknowledgement", Long.class));
-      Assert.assertEquals(0L, proxy.retrieveAttributeValue("messagesAcknowledged", Long.class));
-      Assert.assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_PENDING_ACKNOWLEDGEMENT_KEY));
-      Assert.assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_ACKNOWLEDGED_KEY));
+      assertEquals(0L, proxy.retrieveAttributeValue("messagesPendingAcknowledgement", Long.class));
+      assertEquals(0L, proxy.retrieveAttributeValue("messagesAcknowledged", Long.class));
+      assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_PENDING_ACKNOWLEDGEMENT_KEY));
+      assertEquals(0L, bridgeMetrics.get(BridgeMetrics.MESSAGES_ACKNOWLEDGED_KEY));
 
       Object[] data = (Object[]) proxy.retrieveAttributeValue("staticConnectors");
-      Assert.assertEquals(bridgeConfig.getStaticConnectors().get(0), data[0]);
+      assertEquals(bridgeConfig.getStaticConnectors().get(0), data[0]);
 
-      Assert.assertTrue((Boolean) proxy.retrieveAttributeValue("started"));
+      assertTrue((Boolean) proxy.retrieveAttributeValue("started"));
    }
 
    @Test
@@ -83,19 +86,19 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
       CoreMessagingProxy proxy = createProxy(bridgeConfig.getName());
 
       // started by the server
-      Assert.assertTrue((Boolean) proxy.retrieveAttributeValue("Started"));
+      assertTrue((Boolean) proxy.retrieveAttributeValue("Started"));
 
       proxy.invokeOperation("stop");
-      Assert.assertFalse((Boolean) proxy.retrieveAttributeValue("Started"));
+      assertFalse((Boolean) proxy.retrieveAttributeValue("Started"));
 
       proxy.invokeOperation("start");
-      Assert.assertTrue((Boolean) proxy.retrieveAttributeValue("Started"));
+      assertTrue((Boolean) proxy.retrieveAttributeValue("Started"));
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

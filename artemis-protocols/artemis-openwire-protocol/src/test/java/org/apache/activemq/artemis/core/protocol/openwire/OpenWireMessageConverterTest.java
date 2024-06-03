@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.ActiveMQMessageAuditNoSync;
@@ -43,13 +48,8 @@ import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.wireformat.WireFormat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class OpenWireMessageConverterTest {
 

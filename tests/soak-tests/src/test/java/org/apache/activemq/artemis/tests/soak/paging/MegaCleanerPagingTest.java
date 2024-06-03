@@ -17,6 +17,12 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -42,8 +48,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +98,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       // Using a spawn to limit memory consumption to the test
       Process process = SpawnedVMSupport.spawnVM(MegaCleanerPagingTest.class.getName(), new String[]{"-Xmx512M"}, getTestDir(), methodName);
       logger.debug("process PID {}", process.pid());
-      Assert.assertTrue(process.waitFor(10, TimeUnit.MINUTES));
-      Assert.assertEquals(OK, process.exitValue());
+      assertTrue(process.waitFor(10, TimeUnit.MINUTES));
+      assertEquals(OK, process.exitValue());
    }
 
    // I am using a separate VM to limit memory..
@@ -148,11 +153,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
-      Assert.assertNotNull(serverQueue);
+      assertNotNull(serverQueue);
       serverQueue.getPagingStore().startPaging();
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616?consumerWindowSize=0");
-      Assert.assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
+      assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
 
       final int SIZE = 10 * 1024;
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -173,8 +178,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES / 2; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(createBuffer(i, SIZE), message.getText());
+         assertNotNull(message);
+         assertEquals(createBuffer(i, SIZE), message.getText());
 
          if (i % 1000 == 0) {
             logger.debug("received {} messages", i);
@@ -186,8 +191,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.stop();
-         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
-         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
+         assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
       }
    }
 
@@ -212,11 +217,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
-      Assert.assertNotNull(serverQueue);
+      assertNotNull(serverQueue);
       serverQueue.getPagingStore().startPaging();
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616?consumerWindowSize=0");
-      Assert.assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
+      assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
 
       final int SIZE = 10 * 1024;
       session.commit();
@@ -230,8 +235,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
       for (int i = NUMBER_OF_MESSAGES / 2; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(createBuffer(i, SIZE), message.getText());
+         assertNotNull(message);
+         assertEquals(createBuffer(i, SIZE), message.getText());
 
          if (i % 1000 == 0) {
             logger.debug("received {} messages", i);
@@ -239,15 +244,15 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
          }
       }
       session.commit();
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
       connection.close();
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.getCursorProvider().resumeCleanup();
 
          server.stop();
-         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
-         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
+         assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
       }
    }
 
@@ -275,11 +280,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
-      Assert.assertNotNull(serverQueue);
+      assertNotNull(serverQueue);
       serverQueue.getPagingStore().startPaging();
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616?consumerWindowSize=0");
-      Assert.assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
+      assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
       Connection slowConnection  = cf.createConnection();
       Session slowSession = slowConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Queue slowQueue = slowSession.createQueue(queueName);
@@ -293,11 +298,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
       if (midstream) {
          slowMessage = (TextMessage) slowConsumer.receive(5000);
-         Assert.assertNotNull(slowMessage);
-         Assert.assertEquals("slow", slowMessage.getText());
+         assertNotNull(slowMessage);
+         assertEquals("slow", slowMessage.getText());
       } else {
          slowMessage = (TextMessage) slowConsumer.receiveNoWait();
-         Assert.assertNull(slowMessage);
+         assertNull(slowMessage);
       }
 
 
@@ -320,8 +325,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(createBuffer(i, SIZE), message.getText());
+         assertNotNull(message);
+         assertEquals(createBuffer(i, SIZE), message.getText());
 
          if (i % 1000 == 0) {
             logger.debug("received {} messages", i);
@@ -329,7 +334,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
          }
       }
       session.commit();
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
       connection.close();
       slowConnection.close();
 
@@ -340,8 +345,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
             Wait.assertFalse(store::isPaging);
          }
          server.stop();
-         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
-         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
+         assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
       }
    }
 

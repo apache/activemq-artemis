@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.JMSContext;
 import java.util.UUID;
 
@@ -30,15 +35,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueQueryTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
@@ -55,7 +60,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       assertEquals(RoutingType.MULTICAST, queueQueryResult.getRoutingType());
       assertEquals(queueName, queueQueryResult.getName());
       assertTrue(queueQueryResult.isAutoCreateQueues());
-      assertEquals(null, queueQueryResult.getFilterString());
+      assertNull(queueQueryResult.getFilterString());
       assertFalse(queueQueryResult.isAutoCreated());
       assertEquals(addressName, queueQueryResult.getAddress());
       assertEquals(0, queueQueryResult.getMessageCount());
@@ -64,7 +69,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
-      assertEquals(null, queueQueryResult.getLastValueKey());
+      assertNull(queueQueryResult.getLastValueKey());
       assertTrue(queueQueryResult.isDurable());
       assertFalse(queueQueryResult.isPurgeOnNoConsumers());
       assertFalse(queueQueryResult.isTemporary());
@@ -139,7 +144,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isAutoCreateQueues());
-      assertEquals(null, queueQueryResult.getFilterString());
+      assertNull(queueQueryResult.getFilterString());
       assertTrue(queueQueryResult.isAutoCreated());
       assertEquals(queueName, queueQueryResult.getAddress());
       assertEquals(1, queueQueryResult.getMessageCount());
@@ -148,7 +153,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
-      assertEquals(null, queueQueryResult.getLastValueKey());
+      assertNull(queueQueryResult.getLastValueKey());
       assertTrue(queueQueryResult.isDurable());
       assertFalse(queueQueryResult.isPurgeOnNoConsumers());
       assertFalse(queueQueryResult.isTemporary());

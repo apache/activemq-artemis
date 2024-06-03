@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -34,8 +37,7 @@ import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManag
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class ConcurrentAckTest extends ServerTestBase {
@@ -102,9 +104,9 @@ public class ConcurrentAckTest extends ServerTestBase {
          done.countDown();
       });
 
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 }

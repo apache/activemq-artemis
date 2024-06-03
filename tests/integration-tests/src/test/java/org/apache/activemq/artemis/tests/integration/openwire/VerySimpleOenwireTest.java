@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -28,7 +30,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** This is useful to debug connection ordering. There's only one connection being made from these tests */
 public class VerySimpleOenwireTest extends OpenWireTestBase {

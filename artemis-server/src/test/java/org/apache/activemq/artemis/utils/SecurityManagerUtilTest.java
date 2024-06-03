@@ -17,25 +17,27 @@
 
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.security.auth.Subject;
 import java.security.Principal;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SecurityManagerUtilTest {
 
    @Test
    public void getUserFromSubject() throws Exception {
-      Assert.assertNull(SecurityManagerUtil.getUserFromSubject(null, null));
+      assertNull(SecurityManagerUtil.getUserFromSubject(null, null));
       Subject subject = new Subject();
-      Assert.assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
+      assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
       subject.getPrincipals().add(new RolePrincipal("r"));
-      Assert.assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
+      assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
       subject.getPrincipals().add(new UserPrincipal("u"));
-      Assert.assertEquals("u", SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
+      assertEquals("u", SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
    }
 
    class UserFromOtherDomainPrincipal implements Principal {
@@ -49,6 +51,6 @@ public class SecurityManagerUtilTest {
    public void getUserFromForeignPrincipalInSubject() throws Exception {
       Subject subject = new Subject();
       subject.getPrincipals().add(new UserFromOtherDomainPrincipal());
-      Assert.assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
+      assertNull(SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class));
    }
 }

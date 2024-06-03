@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +32,8 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +41,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateTemporaryQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -62,7 +67,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testDeleteTemporaryQueue() throws Exception {
       Connection connection = createConnection();
 
@@ -78,19 +84,20 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          TemporaryQueue tempQueue = (TemporaryQueue) queue;
          tempQueue.delete();
 
-         assertTrue("Temp Queue should be deleted.", Wait.waitFor(new Wait.Condition() {
+         assertTrue(Wait.waitFor(new Wait.Condition() {
 
             @Override
             public boolean isSatisfied() throws Exception {
                return getProxyToQueue(queue.getQueueName()) == null;
             }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)));
+         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateTemporaryTopic() throws Throwable {
       Connection connection = createConnection();
 
@@ -112,7 +119,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       assertNotNull(message);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testDeleteTemporaryTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -128,13 +136,13 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          TemporaryTopic tempTopic = (TemporaryTopic) topic;
          tempTopic.delete();
 
-         assertTrue("Temp Queue should be deleted.", Wait.waitFor(new Wait.Condition() {
+         assertTrue(Wait.waitFor(new Wait.Condition() {
 
             @Override
             public boolean isSatisfied() throws Exception {
                return getProxyToQueue(topic.getTopicName()) == null;
             }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)));
+         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
       } finally {
          connection.close();
       }

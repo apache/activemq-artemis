@@ -21,8 +21,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * A test that sends/receives bytes messages to the JMS provider and verifies their integrity.
@@ -32,14 +32,14 @@ public class BytesMessageTest extends MessageTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       message = session.createBytesMessage();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
       super.tearDown();
@@ -72,7 +72,7 @@ public class BytesMessageTest extends MessageTestBase {
 
       BytesMessage bm = (BytesMessage) m;
 
-      ProxyAssertSupport.assertEquals(true, bm.readBoolean());
+      ProxyAssertSupport.assertTrue(bm.readBoolean());
       ProxyAssertSupport.assertEquals((byte) 3, bm.readByte());
       byte[] bytes = new byte[3];
       bm.readBytes(bytes);

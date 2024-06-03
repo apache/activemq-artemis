@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -34,12 +38,13 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    // TODO: find a solution to this
@@ -53,7 +58,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       return persistent;
    }
 
-   @Parameterized.Parameters(name = "persistent={0}")
+   @Parameters(name = "persistent={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -74,7 +79,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     *
     * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendHalfLargeTextMessage() throws Exception {
       createQueue(QUEUE);
 
@@ -114,7 +119,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     *
     * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendMapMessageOverCluster() throws Exception {
       createQueue("jms." + QUEUE);
 
@@ -182,7 +187,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     *
     * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendBytesAsLargeOnBridgeOnly() throws Exception {
       createQueue(QUEUE);
 
@@ -216,7 +221,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
          msg2.acknowledge();
 
          for (int j = 0; j < bytes.length; j++) {
-            assertEquals("Position " + i, msg2.readByte(), bytes[j]);
+            assertEquals(msg2.readByte(), bytes[j], "Position " + i);
          }
       }
 
@@ -229,7 +234,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     *
     * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendLargeForBridge() throws Exception {
       createQueue(QUEUE);
 
@@ -267,7 +272,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
          msg2.acknowledge();
 
          for (int j = 0; j < bytes.length; j++) {
-            assertEquals("Position " + i, msg2.readByte(), bytes[j]);
+            assertEquals(msg2.readByte(), bytes[j], "Position " + i);
          }
       }
 

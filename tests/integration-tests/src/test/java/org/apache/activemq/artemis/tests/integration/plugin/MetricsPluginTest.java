@@ -17,6 +17,13 @@
 
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,25 +53,24 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class MetricsPluginTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean legacyConfig;
 
-   @Parameterized.Parameters(name = "legacyConfig={0}")
+   @Parameters(name = "legacyConfig={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -79,7 +85,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -94,7 +100,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       session = addClientSession(sf.createSession(false, true, true));
    }
 
-   @Test
+   @TestTemplate
    public void testForArtemisMetricsPresence() throws Exception {
       class Metric {
          public final String name;
@@ -189,12 +195,12 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       ));
    }
 
-   @Test
+   @TestTemplate
    public void testForBasicMetricsPresenceAndValue() throws Exception {
       internalTestForBasicMetrics(true);
    }
 
-   @Test
+   @TestTemplate
    public void testDisablingMetrics() throws Exception {
       internalTestForBasicMetrics(false);
    }
@@ -256,7 +262,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0, enabled);
    }
 
-   @Test
+   @TestTemplate
    public void testMessageCountWithPaging() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
@@ -286,7 +292,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) (messageCount * 2));
    }
 
-   @Test
+   @TestTemplate
    public void testMetricsPluginRegistration() {
       assertEquals(SimpleMetricsPlugin.class, server.getConfiguration().getMetricsConfiguration().getPlugin().getClass());
       assertEquals(server, ((SimpleMetricsPlugin)server.getConfiguration().getMetricsConfiguration().getPlugin()).getServer());
@@ -321,10 +327,10 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               .findFirst();
 
       if (enabled) {
-         assertTrue(metric + " for " + tag + " " + tagValue + " not present", actualValue.isPresent());
-         assertEquals(metric + " not equal", expectedValue, actualValue.getAsDouble(), 0);
+         assertTrue(actualValue.isPresent(), metric + " for " + tag + " " + tagValue + " not present");
+         assertEquals(expectedValue, actualValue.getAsDouble(), 0, metric + " not equal");
       } else {
-         assertFalse(metric + " for " + tag + " " + tagValue + " present", actualValue.isPresent());
+         assertFalse(actualValue.isPresent(), metric + " for " + tag + " " + tagValue + " present");
       }
    }
 }

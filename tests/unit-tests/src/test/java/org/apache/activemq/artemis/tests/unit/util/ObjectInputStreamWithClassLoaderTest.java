@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,12 +51,9 @@ import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClas
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
-
-
 
    public static ClassLoader newClassLoader(final Class... userClasses) throws Exception {
 
@@ -94,7 +97,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          //Class.isAnonymousClass() call used in ObjectInputStreamWithClassLoader
          //need to access the enclosing class and its parent class of the obj
          //i.e. ActiveMQTestBase, ArtemisTestCase, and Assert.
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(obj.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class, Assert.class);
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(obj.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
 
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -102,10 +105,10 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
          Object deserializedObj = ois.readObject();
 
-         Assert.assertNotSame(obj, deserializedObj);
-         Assert.assertNotSame(obj.getClass(), deserializedObj.getClass());
-         Assert.assertNotSame(obj.getClass().getClassLoader(), deserializedObj.getClass().getClassLoader());
-         Assert.assertSame(testClassLoader, deserializedObj.getClass().getClassLoader());
+         assertNotSame(obj, deserializedObj);
+         assertNotSame(obj.getClass(), deserializedObj.getClass());
+         assertNotSame(obj.getClass().getClassLoader(), deserializedObj.getClass().getClassLoader());
+         assertSame(testClassLoader, deserializedObj.getClass().getClassLoader());
       } finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
@@ -121,7 +124,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          originalProxy.setMyInt(100);
          byte[] bytes = ObjectInputStreamWithClassLoaderTest.toBytes(originalProxy);
 
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class, Assert.class);
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(), ActiveMQTestBase.class, ArtemisTestCase.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
@@ -141,7 +144,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyList() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
       try {
          outputStream.writeObject(new TestClass1());
@@ -173,7 +176,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       assertTrue(result instanceof ClassNotFoundException);
 
       denyList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg2";
-      result = readSerializedObject(null, denyList, serailizeFile);
+      result = readSerializedObject(null, denyList,serailizeFile);
       assertNull(result);
 
       denyList = "some.other.package";
@@ -218,7 +221,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyListAgainstArrayObject() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       TestClass1[] sourceObject = new TestClass1[]{new TestClass1()};
 
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
@@ -253,7 +256,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyListAgainstListObject() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       List<TestClass1> sourceObject = new ArrayList<>();
       sourceObject.add(new TestClass1());
 
@@ -296,7 +299,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyListAgainstListMapObject() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       Map<TestClass1, TestClass2> sourceObject = new HashMap<>();
       sourceObject.put(new TestClass1(), new TestClass2());
 
@@ -362,7 +365,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyListAnonymousObject() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
       try {
          Serializable object = EnclosingClass.anonymousObject;
@@ -392,7 +395,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
    @Test
    public void testAllowDenyListLocalObject() throws Exception {
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
       try {
          Object object = EnclosingClass.getLocalObject();
@@ -423,7 +426,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
    @Test
    public void testDeprecatedWhiteBlackListSystemProperty() throws Exception {
 
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
       try {
          outputStream.writeObject(new TestClass1());
@@ -438,8 +441,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new FileInputStream(serailizeFile));
          String bList = ois.getDenyList();
          String wList = ois.getAllowList();
-         assertEquals("wrong black list: " + bList, "system.defined.black.list", bList);
-         assertEquals("wrong white list: " + wList, "system.defined.white.list", wList);
+         assertEquals("system.defined.black.list", bList, "wrong black list: " + bList);
+         assertEquals("system.defined.white.list", wList, "wrong white list: " + wList);
          ois.close();
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
@@ -450,7 +453,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
    @Test
    public void testAllowDenyListSystemProperty() throws Exception {
 
-      File serailizeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      File serailizeFile = new File(temporaryFolder, "testclass.bin");
       ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serailizeFile));
       try {
          outputStream.writeObject(new TestClass1());
@@ -465,8 +468,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new FileInputStream(serailizeFile));
          String bList = ois.getDenyList();
          String wList = ois.getAllowList();
-         assertEquals("wrong deny list: " + bList, "system.defined.deny.list", bList);
-         assertEquals("wrong allow list: " + wList, "system.defined.allow.list", wList);
+         assertEquals("system.defined.deny.list", bList, "wrong deny list: " + bList);
+         assertEquals("system.defined.allow.list", wList, "wrong allow list: " + wList);
          ois.close();
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.DENYLIST_PROPERTY);
@@ -548,7 +551,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
    }
 
    private static byte[] toBytes(final Object obj) throws IOException {
-      Assert.assertTrue(obj instanceof Serializable);
+      assertTrue(obj instanceof Serializable);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
       oos.writeObject(obj);

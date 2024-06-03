@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.xa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Arrays;
@@ -39,21 +43,16 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SessionFailureXATest extends ActiveMQTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(1);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -75,14 +74,14 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       this.storeType = storeType;
    }
 
-   @Parameterized.Parameters(name = "storeType={0}")
+   @Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}};
       return Arrays.asList(params);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -108,17 +107,17 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       clientSession.createQueue(new QueueConfiguration(atestq));
    }
 
-   @Test
+   @TestTemplate
    public void testFailureWithXAEnd() throws Exception {
       testFailure(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testFailureWithoutXAEnd() throws Exception {
       testFailure(false, false);
    }
 
-   @Test
+   @TestTemplate
    public void testFailureWithXAPrepare() throws Exception {
       testFailure(true, true);
    }
@@ -146,21 +145,21 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals(m.getBodyBuffer().readString(), "m1");
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals(m.getBodyBuffer().readString(), "m2");
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals(m.getBodyBuffer().readString(), "m3");
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals(m.getBodyBuffer().readString(), "m4");
       if (xaEnd) {
          // We are validating both cases, where xaEnd succeeded and didn't succeed
          // so this tests is parameterized to validate both cases.
@@ -202,27 +201,27 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       HashSet<String> bodies = new HashSet<>();
       m = clientConsumer.receive(1000);
       if (xaPrepare) {
-         Assert.assertNull(m);
+         assertNull(m);
       } else {
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          assertOrTrack(xaEnd, m, bodies, "m1");
          m = clientConsumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          assertOrTrack(xaEnd, m, bodies, "m2");
          m = clientConsumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          assertOrTrack(xaEnd, m, bodies, "m3");
          m = clientConsumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          assertOrTrack(xaEnd, m, bodies, "m4");
 
          if (!xaEnd) {
             // order is not guaranteed b/c the m4 async ack may not have been processed when there is no sync end call
-            assertEquals("got all bodies", 4, bodies.size());
+            assertEquals(4, bodies.size(), "got all bodies");
          }
       }
    }
@@ -230,7 +229,7 @@ public class SessionFailureXATest extends ActiveMQTestBase {
    private void assertOrTrack(boolean xaEnd, ClientMessage m, HashSet<String> bodies, String expected) {
       final String body = m.getBodyBuffer().readString();
       if (xaEnd) {
-         Assert.assertEquals(expected, body);
+         assertEquals(expected, body);
       } else {
          bodies.add(body);
       }

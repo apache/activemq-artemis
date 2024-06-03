@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.db;
 
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
@@ -23,28 +26,39 @@ import java.util.List;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@DisabledIf("isNoDatabaseSelected")
+@ExtendWith(ParameterizedTestExtension.class)
 public class DropDBTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "db={0}")
+   @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
       List<Database> dbList = Database.selectedList();
       dbList.remove(Database.DERBY); // no derby on this test
+
       return convertParameters(dbList);
    }
 
+   // Used in @DisabledIf on class, avoids no-params failure with only -PDB-derby-tests
+   public static boolean isNoDatabaseSelected() {
+      return parameters().isEmpty();
+   }
+
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      Assume.assumeTrue(database != Database.DERBY);
+      assumeTrue(database != Database.DERBY);
       dropDatabase();
    }
 
@@ -53,7 +67,7 @@ public class DropDBTest extends ParameterDBTestBase {
       return database.getDriverClass();
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleDrop() throws Exception {
       ActiveMQServer server = createServer(createDefaultConfig(0, true));
       server.start();
@@ -62,7 +76,7 @@ public class DropDBTest extends ParameterDBTestBase {
       int tablesDroppped = dropDatabase();
       if (tablesDroppped < 4) {
          logger.warn("At least 4 tables should be removed, while only {} tables were dropped", tablesDroppped);
-         Assert.fail("Only " + tablesDroppped + " tables were dropped");
+         fail("Only " + tablesDroppped + " tables were dropped");
       }
    }
 }

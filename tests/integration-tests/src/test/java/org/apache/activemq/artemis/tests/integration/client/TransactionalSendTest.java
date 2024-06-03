@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -26,9 +28,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TransactionalSendTest extends ActiveMQTestBase {
 
@@ -43,7 +44,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -62,7 +63,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, getMessageCount(q));
+      assertEquals(0, getMessageCount(q));
       session.commit();
       Wait.assertEquals(numMessages, () -> getMessageCount(q));
       // now send some more
@@ -88,9 +89,9 @@ public class TransactionalSendTest extends ActiveMQTestBase {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(getMessageCount(q), 0);
+      assertEquals(getMessageCount(q), 0);
       session.rollback();
-      Assert.assertEquals(getMessageCount(q), 0);
+      assertEquals(getMessageCount(q), 0);
       // now send some more
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));

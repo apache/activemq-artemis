@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,8 +34,8 @@ import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorService;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectorsServiceTest extends ActiveMQTestBase {
 
@@ -41,7 +44,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
    private ServiceRegistry serviceRegistry;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       // Setup Configuration
       configuration = new ConfigurationImpl();
@@ -108,7 +111,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       FakeConnectorServiceFactory connectorServiceFactory = new FakeConnectorServiceFactory();
       try {
          connectorsService.createService(connectorServiceConfiguration, connectorServiceFactory);
-         assertTrue("Expected exception when creating service with same name", false);
+         assertTrue(false, "Expected exception when creating service with same name");
       } catch (Exception e) {
       }
 
@@ -128,7 +131,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       // Destroy non-existing connector service
       try {
          connectorsService.destroyService("myfact");
-         assertTrue("Expected exception when destroying non-existing service", false);
+         assertTrue(false, "Expected exception when destroying non-existing service");
       } catch (Exception e) {
       }
    }

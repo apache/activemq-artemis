@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -30,15 +33,9 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    @Override
    protected void setupServers() throws Exception {
@@ -91,8 +88,8 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
       locators[0].addClusterTopologyListener(primaryTopologyListener);
 
-      assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
-      assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
+      assertTrue(servers[3].getHAPolicy().isBackup(), "we assume 3 is a backup");
+      assertFalse(servers[3].getHAPolicy().isSharedStore(), "no shared storage");
 
       failNode(0);
 
@@ -102,10 +99,10 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       waitForBindings(3, QUEUES_TESTADDRESS, 1, 1, true);
 
       assertTrue(servers[3].waitForActivation(2, TimeUnit.SECONDS));
-      assertFalse("3 should have failed over ", servers[3].getHAPolicy().isBackup());
+      assertFalse(servers[3].getHAPolicy().isBackup(), "3 should have failed over ");
 
       failNode(1);
-      assertFalse("4 should have failed over ", servers[4].getHAPolicy().isBackup());
+      assertFalse(servers[4].getHAPolicy().isBackup(), "4 should have failed over ");
    }
 
    @Test
@@ -148,8 +145,8 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
       locators[0].addClusterTopologyListener(primaryTopologyListener);
 
-      assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
-      assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
+      assertTrue(servers[3].getHAPolicy().isBackup(), "we assume 3 is a backup");
+      assertFalse(servers[3].getHAPolicy().isSharedStore(), "no shared storage");
 
       SharedNothingPrimaryActivation primaryActivation = (SharedNothingPrimaryActivation) servers[0].getActivation();
       primaryActivation.freezeReplication();
@@ -158,7 +155,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       assertTrue(servers[0].isReplicaSync());
 
       for (ActiveMQComponent component : externalComponents) {
-         Assert.assertTrue("component " + component + " is stopped, the web server would been stopped here", component.isStarted());
+         assertTrue(component.isStarted(), "component " + component + " is stopped, the web server would been stopped here");
       }
    }
 

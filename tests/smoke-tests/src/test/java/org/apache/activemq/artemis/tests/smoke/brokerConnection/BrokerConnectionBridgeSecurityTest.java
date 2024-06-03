@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -30,15 +34,14 @@ import java.io.File;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 
 public class BrokerConnectionBridgeSecurityTest extends SmokeTestBase {
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_A);
@@ -63,7 +66,7 @@ public class BrokerConnectionBridgeSecurityTest extends SmokeTestBase {
    public static final String SERVER_NAME_A = "brokerConnect/bridgeSecurityA";
    public static final String SERVER_NAME_B = "brokerConnect/bridgeSecurityB";
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       // no need to cleanup, these servers don't have persistence
       // start serverB first, after all ServerA needs it alive to create connections
@@ -96,25 +99,25 @@ public class BrokerConnectionBridgeSecurityTest extends SmokeTestBase {
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumerB.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("toB", message.getText());
+            assertNotNull(message);
+            assertEquals("toB", message.getText());
          }
 
          MessageProducer producerB = sessionB.createProducer(queueToA);
          for (int i = 0; i < 10; i++) {
             producerB.send(sessionA.createTextMessage("toA"));
          }
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
 
          connectionA.start();
 
          MessageConsumer consumerA = sessionA.createConsumer(queueToA);
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumerA.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("toA", message.getText());
+            assertNotNull(message);
+            assertEquals("toA", message.getText());
          }
-         Assert.assertNull(consumerA.receiveNoWait());
+         assertNull(consumerA.receiveNoWait());
 
       }
    }

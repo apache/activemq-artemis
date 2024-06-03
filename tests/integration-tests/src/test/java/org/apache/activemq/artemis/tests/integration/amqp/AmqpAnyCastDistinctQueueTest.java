@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,13 +29,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+
+import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Make sure auto create will not create a queue when the queue and its address have a distinct name in anycast.
@@ -42,7 +48,8 @@ public class AmqpAnyCastDistinctQueueTest extends AmqpClientTestSupport {
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDistinctQueueAddressAnyCast() throws Exception {
       String ADDRESS_NAME = "DISTINCT_ADDRESS_testDistinctAddressAnyCast";
       String QUEUE_NAME = "DISTINCT_QUEUE_testDistinctQUEUE_AnyCast";
@@ -65,10 +72,10 @@ public class AmqpAnyCastDistinctQueueTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queueReceiving);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("hello " + i, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
    }

@@ -20,7 +20,7 @@ import javax.jms.Message;
 import javax.jms.TemporaryQueue;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A JMSReplyToHeaderTest

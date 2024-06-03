@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.e2e.common;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +27,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -153,8 +155,8 @@ public abstract class ContainerService {
       @Override
       public void prepareInstance(String home) throws Exception {
          File homeFile = new File(home);
-         Assert.assertTrue(homeFile.exists());
-         Assert.assertTrue(homeFile.isDirectory());
+         assertTrue(homeFile.exists());
+         assertTrue(homeFile.isDirectory());
 
          copyFile("artemis", home + "/bin/artemis");
          copyFile("artemis.profile", home + "/etc/artemis.profile");
@@ -210,24 +212,24 @@ public abstract class ContainerService {
       @Override
       public void exposeFile(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertFalse(file.isDirectory());
+         assertTrue(file.exists());
+         assertFalse(file.isDirectory());
          ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
       public void exposeFolder(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertTrue(file.isDirectory());
+         assertTrue(file.exists());
+         assertTrue(file.isDirectory());
          ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
       public void copyFileToContainer(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertFalse(file.isDirectory());
+         assertTrue(file.exists());
+         assertFalse(file.isDirectory());
          ((GenericContainer)container).withCopyFileToContainer(MountableFile.forHostPath(hostPath), containerPath);
       }
 

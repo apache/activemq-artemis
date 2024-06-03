@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -44,17 +47,18 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AutoClientIDShardClusterTest extends RoutingTestBase {
 
-   @Parameterized.Parameters(name = "protocol: {0}")
+   @Parameters(name = "protocol: {0}")
    public static Collection<Object[]> data() {
       final String[] protocols = new String[] {AMQP_PROTOCOL, CORE_PROTOCOL, OPENWIRE_PROTOCOL};
       Collection<Object[]> data = new ArrayList<>();
@@ -78,8 +82,8 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
          servers[i].addProtocolManagerFactory(new ProtonProtocolManagerFactory());
          servers[i].addProtocolManagerFactory(new OpenWireProtocolManagerFactory());
       }
-      setupClusterConnection("cluster0", name.getMethodName(), MessageLoadBalancingType.ON_DEMAND, 1, true, 0, 1);
-      setupClusterConnection("cluster1", name.getMethodName(), MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 0);
+      setupClusterConnection("cluster0", name, MessageLoadBalancingType.ON_DEMAND, 1, true, 0, 1);
+      setupClusterConnection("cluster1", name, MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 0);
       toSend.set(numMessages);
    }
 
@@ -94,7 +98,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
                try (Connection connection = connectionFactory.createConnection()) {
                   connection.start();
                   try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-                     javax.jms.Topic topic = session.createTopic(name.getMethodName());
+                     javax.jms.Topic topic = session.createTopic( name);
                      try (MessageProducer producer = session.createProducer(topic)) {
                         for (int i = 0; i < 10 && toSend.get() > 0; i++) {
                            Message message = session.createTextMessage();
@@ -137,7 +141,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
                   connection = connectionFactory.createConnection();
                   connection.start();
                   try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-                     javax.jms.Topic topic = session.createTopic(name.getMethodName());
+                     javax.jms.Topic topic = session.createTopic( name);
                      try (TopicSubscriber durableSubscriber = session.createDurableSubscriber(topic, "Sub-" + id)) {
                         registered.countDown();
                         for (int i = 0; i < 5; i++) {
@@ -176,7 +180,8 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
       }
    }
 
-   @Ignore("not totally reliable, but does show the root cause of the problem being solved")
+   @TestTemplate
+   @Disabled("not totally reliable, but does show the root cause of the problem being solved")
    public void testWithoutOutSharding() throws Exception {
       setupServers();
       startServers(0, 1);
@@ -194,21 +199,21 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
          assertTrue(sub0.registered.await(20, TimeUnit.SECONDS));
          assertTrue(sub1.registered.await(20, TimeUnit.SECONDS));
 
-         assertTrue(waitForBindings(servers[0], name.getMethodName(), true, 2, -1, 10000));
-         assertTrue(waitForBindings(servers[1], name.getMethodName(), true, 2, -1, 10000));
+         assertTrue(waitForBindings(servers[0], name, true, 2, -1, 10000));
+         assertTrue(waitForBindings(servers[1], name, true, 2, -1, 10000));
 
          // wait for remote bindings!
-         assertTrue(waitForBindings(servers[0], name.getMethodName(), false, 2, -1, 10000));
-         assertTrue(waitForBindings(servers[1], name.getMethodName(), false, 2, -1, 10000));
+         assertTrue(waitForBindings(servers[0], name, false, 2, -1, 10000));
+         assertTrue(waitForBindings(servers[1], name, false, 2, -1, 10000));
 
          // produce a few every second with failover randomize=true so we produce on all nodes
          executorService.submit(producer);
 
-         assertTrue("All sent", Wait.waitFor(() -> toSend.get() == 0));
+         assertTrue(Wait.waitFor(() -> toSend.get() == 0), "All sent");
 
-         assertTrue("All received sub0", Wait.waitFor(() -> sub0.maxReceived == numMessages));
+         assertTrue(Wait.waitFor(() -> sub0.maxReceived == numMessages), "All received sub0");
 
-         assertTrue("All received sub1", Wait.waitFor(() -> sub1.maxReceived == numMessages));
+         assertTrue(Wait.waitFor(() -> sub1.maxReceived == numMessages), "All received sub1");
 
          // with bouncing, one 'may' be out of order, hence ignored
          assertTrue(sub0.orderShot.get() || sub1.orderShot.get());
@@ -221,7 +226,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testWithConsistentHashClientIDModTwo() throws Exception {
       setupServers();
 
@@ -242,21 +247,21 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
          assertTrue(sub0.registered.await(5, TimeUnit.SECONDS));
          assertTrue(sub1.registered.await(5, TimeUnit.SECONDS));
 
-         assertTrue(waitForBindings(servers[0], name.getMethodName(), true, 1, 1, 2000));
-         assertTrue(waitForBindings(servers[1], name.getMethodName(), true, 1, 1, 2000));
+         assertTrue(waitForBindings(servers[0], name, true, 1, 1, 2000));
+         assertTrue(waitForBindings(servers[1], name, true, 1, 1, 2000));
 
          // wait for remote bindings!
-         assertTrue(waitForBindings(servers[0], name.getMethodName(), false, 1, 1, 10000));
-         assertTrue(waitForBindings(servers[1], name.getMethodName(), false, 1, 1, 10000));
+         assertTrue(waitForBindings(servers[0], name, false, 1, 1, 10000));
+         assertTrue(waitForBindings(servers[1], name, false, 1, 1, 10000));
 
          // produce a few every second with failover randomize=true so we produce on all nodes
          executorService.submit(producer);
 
-         assertTrue("All sent", Wait.waitFor(() -> toSend.get() == 0));
+         assertTrue(Wait.waitFor(() -> toSend.get() == 0), "All sent");
 
-         assertTrue("All received sub0", Wait.waitFor(() -> sub0.maxReceived == numMessages));
+         assertTrue(Wait.waitFor(() -> sub0.maxReceived == numMessages), "All received sub0");
 
-         assertTrue("All received sub1", Wait.waitFor(() -> sub1.maxReceived == numMessages));
+         assertTrue(Wait.waitFor(() -> sub1.maxReceived == numMessages), "All received sub1");
 
          // with partition, none will be out of order
          assertFalse(sub0.orderShot.get() && sub1.orderShot.get());

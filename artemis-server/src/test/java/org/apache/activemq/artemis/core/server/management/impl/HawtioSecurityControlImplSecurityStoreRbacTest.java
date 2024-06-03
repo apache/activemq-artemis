@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.core.server.management.impl;
 
 import org.apache.activemq.artemis.core.server.management.ArtemisRbacInvocationHandler;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 public class HawtioSecurityControlImplSecurityStoreRbacTest extends HawtioSecurityControlImplTest {
 
-   @Override @Before
+   @Override @BeforeEach
    public void initGuard() {
       guard = Mockito.mock(ArtemisRbacInvocationHandler.class);
    }

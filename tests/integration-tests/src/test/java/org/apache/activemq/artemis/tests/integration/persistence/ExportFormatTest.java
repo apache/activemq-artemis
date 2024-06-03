@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.StringReader;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -29,8 +32,8 @@ import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ExportFormatTest extends ActiveMQTestBase {
 
@@ -69,7 +72,7 @@ public class ExportFormatTest extends ActiveMQTestBase {
       "#File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)";
 
    @Test
-   @Ignore
+   @Disabled
    // Used to update the format, if you need to use this it means the data format was broken, Be careful on updating the format!
    public void testCreateFormat() throws Exception {
       ActiveMQServer server = createServer(true);

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -23,6 +26,7 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,15 +39,11 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class BasicOpenWireTest extends OpenWireTestBase {
 
-   @Rule
-   public TestName name = new TestName();
    protected ActiveMQConnectionFactory factory;
    protected ActiveMQConnectionFactory looseFactory;
    protected ActiveMQXAConnectionFactory xaFactory;
@@ -61,7 +61,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected Map<String, SimpleString> testQueues = new HashMap<>();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
@@ -94,7 +94,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.clearProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime");
       try {
@@ -207,12 +207,12 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected void assertTextMessagesEqual(String messsage,
                                           Message[] firstSet,
                                           Message[] secondSet) throws JMSException {
-      assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
+      assertEquals(firstSet.length, secondSet.length, "Message count does not match: " + messsage);
       for (int i = 0; i < secondSet.length; i++) {
          TextMessage m1 = (TextMessage) firstSet[i];
          TextMessage m2 = (TextMessage) secondSet[i];
-         assertFalse("Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
-         assertEquals("Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getText(), m2.getText());
+         assertFalse(m1 == null ^ m2 == null, "Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}");
+         assertEquals(m1.getText(), m2.getText(), "Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}");
       }
    }
 

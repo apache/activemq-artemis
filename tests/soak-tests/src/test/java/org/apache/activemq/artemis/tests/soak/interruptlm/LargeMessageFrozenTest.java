@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.interruptlm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -40,9 +45,8 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.TcpProxy;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +59,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void startServer() throws Exception {
       server = createServer(true, true);
       server.getConfiguration().addAcceptorConfiguration("alternate", "tcp://localhost:44444?amqpIdleTimeout=100");
@@ -87,9 +91,9 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       switch (protocol.toUpperCase(Locale.ROOT)) {
          case "CORE":
             ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:33333?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
+            assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
+            assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
+            assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
             factory = artemisfactory;
             break;
          case "AMQP":
@@ -107,8 +111,8 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue(getName());
 
-      Assert.assertEquals(1, proxy.getInboundHandlers().size());
-      Assert.assertEquals(1, proxy.getOutbounddHandlers().size());
+      assertEquals(1, proxy.getInboundHandlers().size());
+      assertEquals(1, proxy.getOutbounddHandlers().size());
 
       String body;
       {
@@ -135,7 +139,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       for (int repeat = 0; repeat < 5; repeat++) {
          try {
             for (int i = 0; i < 1; i++) {
-               Assert.assertNotNull(consumer.receive(1000));
+               assertNotNull(consumer.receive(1000));
             }
             proxy.stopAllHandlers();
             consumer.receive(100);
@@ -145,7 +149,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
             failed = true;
          }
 
-         Assert.assertTrue(failed);
+         assertTrue(failed);
          server.getRemotingService().getConnections().forEach(r -> r.fail(new ActiveMQException("forced failure")));
 
          connection = factory.createConnection();
@@ -157,8 +161,8 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(body, message.getText());
+         assertNotNull(message);
+         assertEquals(body, message.getText());
          session.commit();
       }
 
@@ -189,9 +193,9 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       switch (protocol.toUpperCase(Locale.ROOT)) {
          case "CORE":
             ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:44444?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
+            assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
+            assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
+            assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
             factory = artemisfactory;
             break;
          case "AMQP":
@@ -235,13 +239,13 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       connection.start();
 
-      Assert.assertEquals(1, serverQueue.getConsumers().size());
+      assertEquals(1, serverQueue.getConsumers().size());
       ServerConsumerImpl serverConsumer = (ServerConsumerImpl) serverQueue.getConsumers().iterator().next();
 
 
       TextMessage message = (TextMessage) consumer.receive(100);
-      Assert.assertNotNull(message);
-      Assert.assertEquals(body, message.getText());
+      assertNotNull(message);
+      assertEquals(body, message.getText());
 
       serverConsumer.errorProcessing(new Exception("Dumb error"), queueMessages.get(0));
 
@@ -263,16 +267,16 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       for (int i = 0; i < recCount; i++) {
          TextMessage recMessage = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(recMessage);
-         Assert.assertEquals(body, recMessage.getText());
+         assertNotNull(recMessage);
+         assertEquals(body, recMessage.getText());
          session.commit();
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       // I could have done this assert before the loop
       // but I also wanted to see a condition where messages get damaged
-      Assert.assertEquals(NUMBER_OF_MESSAGES, recCount);
+      assertEquals(NUMBER_OF_MESSAGES, recCount);
 
       Wait.assertEquals(0, serverQueue::getMessageCount);
 
@@ -294,9 +298,9 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       switch (protocol.toUpperCase(Locale.ROOT)) {
          case "CORE":
             ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:33333?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
+            assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
+            assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
+            assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
             factory = artemisfactory;
             break;
          case "AMQP":
@@ -314,8 +318,8 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = sessionConsumer.createQueue(getName());
 
-      Assert.assertEquals(1, proxy.getInboundHandlers().size());
-      Assert.assertEquals(1, proxy.getOutbounddHandlers().size());
+      assertEquals(1, proxy.getInboundHandlers().size());
+      assertEquals(1, proxy.getOutbounddHandlers().size());
 
       String body;
       {
@@ -357,7 +361,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       long numberOfMessages = serverQueue.getMessageCount();
 
-      Assert.assertTrue(failed);
+      assertTrue(failed);
 
       connection = factory.createConnection();
       connection.start();
@@ -368,13 +372,13 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numberOfMessages; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(body, message.getText());
+         assertNotNull(message);
+         assertEquals(body, message.getText());
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
-      Assert.assertEquals(0L, serverQueue.getMessageCount());
+      assertEquals(0L, serverQueue.getMessageCount());
 
       Wait.assertEquals(0, () -> {
          System.gc();

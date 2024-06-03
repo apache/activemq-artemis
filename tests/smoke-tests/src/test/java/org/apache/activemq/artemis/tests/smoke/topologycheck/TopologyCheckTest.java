@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.topologycheck;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 
@@ -30,10 +34,9 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +130,7 @@ public class TopologyCheckTest extends SmokeTestBase {
     */
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       for (int i = 1; i <= 4; i++) {
@@ -152,7 +155,7 @@ public class TopologyCheckTest extends SmokeTestBase {
    String[] URLS = new String[]{URI_1, URI_2, URI_3, URI_4};
    String[] SERVER_NAMES = new String[]{SERVER_NAME_1, SERVER_NAME_2, SERVER_NAME_3, SERVER_NAME_4};
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_1);
       cleanupData(SERVER_NAME_2);
@@ -224,18 +227,18 @@ public class TopologyCheckTest extends SmokeTestBase {
          Wait.assertEquals(validNodes.length, () -> simpleManagement.listNetworkTopology().size(), 500, 5000);
 
          JsonArray topologyArray = simpleManagement.listNetworkTopology();
-         Assert.assertNotNull(topologyArray);
+         assertNotNull(topologyArray);
 
          for (int j : validNodes) {
             JsonObject itemTopology = findTopologyNode(nodeIDs[j], topologyArray);
-            Assert.assertNotNull(itemTopology);
+            assertNotNull(itemTopology);
             JsonString jsonString = (JsonString) itemTopology.get("live");
-            Assert.assertEquals(uris[j], "tcp://" + jsonString.getString());
+            assertEquals(uris[j], "tcp://" + jsonString.getString());
          }
       }
 
       ClusterNodeVerifier clusterVerifier = new ClusterNodeVerifier(uris[validNodes[0]], "admin", "admin");
-      Assert.assertTrue(clusterVerifier.verify(new ActionContext()));
+      assertTrue(clusterVerifier.verify(new ActionContext()));
    }
 
    JsonObject findTopologyNode(String nodeID, JsonArray topologyArray) {

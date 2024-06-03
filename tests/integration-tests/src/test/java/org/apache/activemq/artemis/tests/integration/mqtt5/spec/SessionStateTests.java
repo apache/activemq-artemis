@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Unsure how to test this as it's a negative. Many other tests exercise this implicitly:
@@ -25,6 +25,6 @@ import org.junit.Ignore;
  * [MQTT-4.1.0-1] The Client and Server MUST NOT discard the Session State while the Network Connection is open.
  */
 
-@Ignore
+@Disabled
 public class SessionStateTests extends MQTT5TestSupport {
 }

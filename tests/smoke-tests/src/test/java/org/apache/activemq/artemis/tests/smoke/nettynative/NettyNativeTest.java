@@ -16,14 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.smoke.nettynative;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -41,7 +45,7 @@ public class NettyNativeTest extends SmokeTestBase {
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
 
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME);
@@ -56,7 +60,7 @@ public class NettyNativeTest extends SmokeTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME);
       disableCheckThread();
@@ -80,16 +84,16 @@ public class NettyNativeTest extends SmokeTestBase {
             connection.start();
 
             TextMessage txt = (TextMessage) consumer.receive(10000);
-            Assert.assertNotNull(txt);
-            Assert.assertEquals("TEST", txt.getText());
+            assertNotNull(txt);
+            assertEquals("TEST", txt.getText());
 
             session.commit();
          }
       }
 
       File artemisLog = new File("target/" + SERVER_NAME + "/log/artemis.log");
-      Assert.assertTrue(findLogRecord(artemisLog,  "Acceptor using native"));
-      Assert.assertFalse(findLogRecord(artemisLog, "Acceptor using nio"));
+      assertTrue(findLogRecord(artemisLog,  "Acceptor using native"));
+      assertFalse(findLogRecord(artemisLog, "Acceptor using nio"));
    }
 
 }

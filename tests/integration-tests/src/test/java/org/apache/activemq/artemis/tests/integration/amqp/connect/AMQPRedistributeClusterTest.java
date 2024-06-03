@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -62,9 +66,8 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +91,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
    ActiveMQServer b1;
    ActiveMQServer b2;
 
-   @Before
+   @BeforeEach
    public void setCluster() throws Exception {
       a1 = createClusteredServer("A_1", A_1_PORT, A_2_PORT, B_1_PORT);
       a2 = createClusteredServer("A_2", A_2_PORT, A_1_PORT, B_2_PORT);
@@ -172,7 +175,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                consumer = sessionA2.createConsumer(sessionA2.createQueue(QUEUE_NAME));
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {} from {}", message, place);
             consumer.close();
          }
@@ -184,8 +187,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       assertEmptyQueue(b2.locateQueue(QUEUE_NAME));
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
    }
 
    @Test
@@ -245,7 +248,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                Wait.assertTrue(() -> b1.locateQueue(qb.getUniqueName()) != null);
             }
          });
-         Assert.assertEquals(1, subscriptionSet.size());
+         assertEquals(1, subscriptionSet.size());
          subscriptionQueueName = subscriptionSet.iterator().next();
       }
 
@@ -259,13 +262,13 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       });
 
       Queue a1TopicSubscription = a1.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a1TopicSubscription);
+      assertNotNull(a1TopicSubscription);
       Queue a2TopicSubscription = a2.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a2TopicSubscription);
+      assertNotNull(a2TopicSubscription);
       Queue b1TopicSubscription = b1.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(b1TopicSubscription);
+      assertNotNull(b1TopicSubscription);
       Queue b2TopicSubscription = b2.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a2);
+      assertNotNull(a2);
 
 
       try (Connection conn = cfA1.createConnection()) {
@@ -276,10 +279,10 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          }
       }
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
 
-      Assert.assertEquals(0, a1TopicSubscription.getConsumerCount());
+      assertEquals(0, a1TopicSubscription.getConsumerCount());
       Wait.assertEquals(numMessages / 2, a1TopicSubscription::getMessageCount);
       Wait.assertEquals(numMessages / 2, a2TopicSubscription::getMessageCount);
 
@@ -308,15 +311,15 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                consumer = sessionA2.createSharedDurableConsumer(topic, subscriptionName);
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {} from {}", message, place);
             consumer.close();
          }
       }
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
 
       assertEmptyQueue(a1TopicSubscription);
       assertEmptyQueue(a2TopicSubscription);
@@ -365,7 +368,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          }
       });
 
-      Assert.assertEquals(1, remoteQueueBindings_a2.size());
+      assertEquals(1, remoteQueueBindings_a2.size());
 
       RoutingContext routingContext = new RoutingContextImpl(new TransactionImpl(a2.getStorageManager())).setMirrorOption(MirrorOption.individualRoute);
 
@@ -446,7 +449,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          }
       });
 
-      Assert.assertEquals(1, remoteQueueBindings_a2.size());
+      assertEquals(1, remoteQueueBindings_a2.size());
       AmqpConnection connection = createAmqpConnection(new URI("tcp://localhost:" + A_1_PORT));
       runAfter(connection::close);
       AmqpSession session = connection.createSession();
@@ -561,7 +564,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
    }
 
    private void assertEmptyQueue(Queue queue) {
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       try {
          Wait.assertEquals(0, queue::getMessageCount);
       } catch (Throwable e) {

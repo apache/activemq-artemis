@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -29,16 +33,16 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class PrimaryToPrimaryFailoverTest extends FailoverTest {
 
@@ -46,6 +50,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
    private InVMNodeManager nodeManager1;
    private ClientSessionFactoryInternal sf2;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -110,7 +115,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) locator.createSessionFactory();
       addSessionFactory(sf);
 
-      assertTrue("topology members expected " + topologyMembers, countDownLatch.await(5, TimeUnit.SECONDS));
+      assertTrue(countDownLatch.await(5, TimeUnit.SECONDS), "topology members expected " + topologyMembers);
 
       closeSessionFactory(sf);
 
@@ -138,7 +143,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) locator.createSessionFactory(transportConfiguration);
       addSessionFactory(sf);
 
-      assertTrue("topology members expected " + topologyMembers, countDownLatch.await(5, TimeUnit.SECONDS));
+      assertTrue(countDownLatch.await(5, TimeUnit.SECONDS), "topology members expected " + topologyMembers);
 
       closeSessionFactory(sf);
 
@@ -223,9 +228,9 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
 
       sf.close();
 
-      Assert.assertEquals(0, sf.numSessions());
+      assertEquals(0, sf.numSessions());
 
-      Assert.assertEquals(0, sf.numConnections());
+      assertEquals(0, sf.numConnections());
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-285
@@ -284,11 +289,13 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
    }
 
    @Override
+   @Test
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailBothRestartPrimary() throws Exception {
    }
 
@@ -296,89 +303,106 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
    //all the timeout ones aren't as we don't migrate timeouts, any failback or server restart
    //or replicating tests aren't either
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testPrimaryAndBackupBackupComesBackNewFactory() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testPrimaryAndBackupPrimaryComesBackNewFactory() {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailoverMultipleSessionsWithConsumers() throws Exception {
       //
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testTimeoutOnFailover() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testTimeoutOnFailoverConsume() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailBack() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailBackPrimaryRestartsBackupIsGone() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testPrimaryAndBackupPrimaryComesBack() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testSimpleFailover() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailThenReceiveMoreMessagesAfterFailover2() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testWithoutUsingTheBackup() throws Exception {
    }
 
    //todo check to see which failing tests are valid,
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testSimpleSendAfterFailoverDurableNonTemporary() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception {
    }
 
    @Override
-   @Ignore
+   @Test
+   @Disabled
    public void testFailPrimaryTooSoon() throws Exception {
    }
 }

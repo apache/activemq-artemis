@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -38,8 +40,7 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPPersisterTest {
 
@@ -98,7 +99,7 @@ public class AMQPPersisterTest {
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       persister.encode(buffer, message);
 
-      Assert.assertEquals(persister.getEncodeSize(message), buffer.writerIndex());
+      assertEquals(persister.getEncodeSize(message), buffer.writerIndex());
 
 
    }

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -46,7 +53,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,10 +254,10 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
       try {
          Object obj = objMsg.getObject();
-         assertTrue("deserialization should fail but got: " + obj, shouldSucceed);
+         assertTrue(shouldSucceed, "deserialization should fail but got: " + obj);
          assertTrue(obj instanceof DummySerializable);
       } catch (JMSException e) {
-         assertFalse("got unexpected exception: " + e, shouldSucceed);
+         assertFalse(shouldSucceed, "got unexpected exception: " + e);
       }
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);

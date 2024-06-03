@@ -66,10 +66,8 @@ import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -111,9 +109,6 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected String fullUser = "user";
    protected String fullPass = "pass";
 
-   @Rule
-   public TestName name = new TestName();
-
    public MQTTTestSupport() {
       this.protocolScheme = "mqtt";
       this.useSSL = false;
@@ -124,17 +119,12 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
    }
 
-   @Override
-   public String getName() {
-      return name.getMethodName();
-   }
-
    public ActiveMQServer getServer() {
       return server;
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String basedir = basedir().getPath();
@@ -151,7 +141,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.clearProperty("javax.net.ssl.trustStore");
       System.clearProperty("javax.net.ssl.trustStorePassword");
@@ -261,11 +251,11 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    protected String getQueueName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + name;
    }
 
    protected String getTopicName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + name;
    }
 
    /**

@@ -23,12 +23,12 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_LIST;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +42,6 @@ import java.util.UUID;
 
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
@@ -59,7 +58,7 @@ import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSMappingOutboundTransformerTest {
 
@@ -479,13 +478,13 @@ public class JMSMappingOutboundTransformerTest {
       Map<Symbol, Object> maMap = ma == null ? null : ma.getValue();
       if (maMap != null) {
          Object actualValue = maMap.get(AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
-         assertEquals("Unexpected annotation value", expectedAnnotationValue, actualValue);
+         assertEquals(expectedAnnotationValue, actualValue, "Unexpected annotation value");
       } else if (expectedAnnotationValue != null) {
          fail("Expected annotation value, but there were no annotations");
       }
 
       if (jmsDestination != null) {
-         assertEquals("Unexpected 'to' address", jmsDestination, amqp.getAddress());
+         assertEquals(jmsDestination, amqp.getAddress(), "Unexpected 'to' address");
       }
    }
 
@@ -512,13 +511,13 @@ public class JMSMappingOutboundTransformerTest {
       Map<Symbol, Object> maMap = ma == null ? null : ma.getValue();
       if (maMap != null) {
          Object actualValue = maMap.get(AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION);
-         assertEquals("Unexpected annotation value", expectedAnnotationValue, actualValue);
+         assertEquals(expectedAnnotationValue, actualValue, "Unexpected annotation value");
       } else if (expectedAnnotationValue != null) {
          fail("Expected annotation value, but there were no annotations");
       }
 
       if (jmsReplyTo != null) {
-         assertEquals("Unexpected 'reply-to' address", jmsReplyTo, amqp.getReplyTo().toString());
+         assertEquals(jmsReplyTo, amqp.getReplyTo().toString(), "Unexpected 'reply-to' address");
       }
    }
 

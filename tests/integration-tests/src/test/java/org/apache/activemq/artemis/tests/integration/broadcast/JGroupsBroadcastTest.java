@@ -16,32 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.broadcast;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.jgroups.JChannel;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class JGroupsBroadcastTest {
+public class JGroupsBroadcastTest extends ArtemisTestCase {
 
-   @After
+   @AfterEach
    public void cleanupJChannel() {
       JChannelManager.getInstance().clear();
    }
 
-   @Before
+   @BeforeEach
    public void prepareJChannel() {
       JChannelManager.getInstance().setLoopbackMessages(true);
    }
-
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
 
    @Test
    public void testRefCount() throws Exception {
@@ -64,15 +62,15 @@ public class JGroupsBroadcastTest {
 
          channelEndpoint1.close(true);
 
-         Assert.assertTrue(channel.isOpen());
+         assertTrue(channel.isOpen());
 
          channelEndpoint2.close(true);
 
-         Assert.assertTrue(channel.isOpen());
+         assertTrue(channel.isOpen());
 
          channelEndpoint3.close(true);
 
-         Assert.assertTrue(channel.isOpen());
+         assertTrue(channel.isOpen());
 
          channel.close();
 
@@ -80,7 +78,7 @@ public class JGroupsBroadcastTest {
          // channel wrapper is recreated
          try {
             channelEndpoint2.openClient();
-            Assert.fail("this should be closed");
+            fail("this should be closed");
          } catch (Exception e) {
          }
 

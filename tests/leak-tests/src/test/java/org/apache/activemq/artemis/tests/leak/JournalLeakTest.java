@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -39,17 +46,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
 
 /* at the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked list (or leaked-list, pun intended) */
 public class JournalLeakTest extends AbstractLeakTest {
@@ -58,12 +60,12 @@ public class JournalLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
-   @After
+   @AfterEach
    public void validateServer() throws Exception {
       CheckLeak checkLeak = new CheckLeak();
 
@@ -82,7 +84,7 @@ public class JournalLeakTest extends AbstractLeakTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       server = createServer(true, createDefaultConfig(1, true));
       server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
@@ -126,8 +128,8 @@ public class JournalLeakTest extends AbstractLeakTest {
 
                for (int i = 0; i < MESSAGES; i++) {
                   Message message = consumer.receive(5000);
-                  Assert.assertNotNull(message);
-                  Assert.assertEquals(i, message.getIntProperty("i"));
+                  assertNotNull(message);
+                  assertEquals(i, message.getIntProperty("i"));
                   if (i > 0 && i % 100 == 0) {
                      session.commit();
                   }
@@ -168,8 +170,8 @@ public class JournalLeakTest extends AbstractLeakTest {
          }
       });
 
-      Assert.assertTrue(done.await(1, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(done.await(1, TimeUnit.MINUTES));
+      assertEquals(0, errors.get());
 
       basicMemoryAsserts();
 

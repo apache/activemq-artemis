@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.EventLoop;
@@ -28,8 +30,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.qpid.proton.engine.Connection;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
@@ -81,6 +82,6 @@ public class AMQPConnectionContextTest {
 
       connectionContext.close(null);
 
-      Assert.assertEquals(0, scheduledPool.getQueue().size());
+      assertEquals(0, scheduledPool.getQueue().size());
    }
 }

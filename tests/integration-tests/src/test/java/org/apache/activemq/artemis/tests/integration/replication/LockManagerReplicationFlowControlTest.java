@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -24,15 +25,15 @@ import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfigur
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class LockManagerReplicationFlowControlTest extends SharedNothingReplicationFlowControlTest {
 
    private DistributedLockManagerConfiguration managerConfiguration;
 
-   @Before
+   @BeforeEach
    public void init() throws IOException {
-      managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+      managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager").toString()));
    }
 
    @Override
@@ -48,5 +49,14 @@ public class LockManagerReplicationFlowControlTest extends SharedNothingReplicat
       ReplicationPrimaryPolicyConfiguration haPolicy = ReplicationPrimaryPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
       return haPolicy;
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

@@ -19,6 +19,12 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.apache.activemq.transport.amqp.AmqpSupport.COPY;
 import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_NAME;
 import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +44,8 @@ import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transport.Detach;
 import org.apache.qpid.proton.engine.Receiver;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -52,7 +59,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
 
    private final String SELECTOR_STRING = "color = red";
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateDurableReceiver() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -80,7 +88,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       assertEquals(getTopicName(), lookupSubscription());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testDetachedDurableReceiverRemainsActive() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -123,7 +132,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCloseDurableReceiverRemovesSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -143,7 +153,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testReattachToDurableNode() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -163,7 +174,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLookupExistingSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -204,7 +216,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLookupExistingSubscriptionWithSelector() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -246,7 +259,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLookupExistingSubscriptionWithNoLocal() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -286,7 +300,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLookupExistingSubscriptionWithSelectorAndNoLocal() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -328,7 +343,8 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testLookupNonExistingSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();

@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.core.version.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class VersionImplTest extends Assert {
+public class VersionImplTest {
 
 
    @Test
@@ -38,11 +41,11 @@ public class VersionImplTest extends Assert {
       int[] compatibleVersionList = {7, 8, 9, 10};
       VersionImpl version = new VersionImpl(versionName, majorVersion, minorVersion, microVersion, incrementingVersion, compatibleVersionList);
 
-      Assert.assertEquals(versionName, version.getVersionName());
-      Assert.assertEquals(majorVersion, version.getMajorVersion());
-      Assert.assertEquals(minorVersion, version.getMinorVersion());
-      Assert.assertEquals(microVersion, version.getMicroVersion());
-      Assert.assertEquals(incrementingVersion, version.getIncrementingVersion());
+      assertEquals(versionName, version.getVersionName());
+      assertEquals(majorVersion, version.getMajorVersion());
+      assertEquals(minorVersion, version.getMinorVersion());
+      assertEquals(microVersion, version.getMicroVersion());
+      assertEquals(incrementingVersion, version.getIncrementingVersion());
    }
 
    @Test
@@ -51,11 +54,11 @@ public class VersionImplTest extends Assert {
       VersionImpl sameVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, new int[]{7, 8, 9, 10});
       VersionImpl differentVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 11, new int[]{7, 8, 9, 10, 11});
 
-      Assert.assertFalse(version.equals(new Object()));
+      assertFalse(version.equals(new Object()));
 
-      Assert.assertTrue(version.equals(version));
-      Assert.assertTrue(version.equals(sameVersion));
-      Assert.assertFalse(version.equals(differentVersion));
+      assertTrue(version.equals(version));
+      assertTrue(version.equals(sameVersion));
+      assertFalse(version.equals(differentVersion));
    }
 
    @Test
@@ -70,7 +73,7 @@ public class VersionImplTest extends Assert {
       ObjectInputStream ois = new ObjectInputStream(bais);
       VersionImpl version2 = (VersionImpl) ois.readObject();
 
-      Assert.assertTrue(version.equals(version2));
+      assertTrue(version.equals(version2));
    }
 
 

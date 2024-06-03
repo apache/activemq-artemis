@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Any test based on a single server can extend this class.
@@ -37,7 +37,7 @@ public abstract class SingleServerTestBase extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

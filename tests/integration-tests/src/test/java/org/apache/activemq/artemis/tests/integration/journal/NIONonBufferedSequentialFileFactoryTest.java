@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +26,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
@@ -47,8 +48,8 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
    private void writeHeapBufferNotFromBeginningAndRead(boolean useHeapByteBufferToRead) throws Exception {
       final SequentialFile file = factory.createSequentialFile("write.amq");
       file.open();
-      Assert.assertEquals(0, file.size());
-      Assert.assertEquals(0, file.position());
+      assertEquals(0, file.size());
+      assertEquals(0, file.position());
       try {
          final String data = "writeDirectArray";
          final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
@@ -62,8 +63,8 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
          }
          try {
             file.position(factory.calculateBlockSize(bytes.length));
-            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
-            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+            assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
          } finally {
             if (!useHeapByteBufferToRead) {
                factory.releaseBuffer(readBuffer);
@@ -88,8 +89,8 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
    private void writeHeapBufferAndRead(boolean useHeapByteBufferToRead) throws Exception {
       final SequentialFile file = factory.createSequentialFile("write.amq");
       file.open();
-      Assert.assertEquals(0, file.size());
-      Assert.assertEquals(0, file.position());
+      assertEquals(0, file.size());
+      assertEquals(0, file.position());
       try {
          final String data = "writeDirectArray";
          final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
@@ -102,8 +103,8 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
          }
          try {
             file.position(0);
-            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
-            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+            assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
          } finally {
             if (!useHeapByteBufferToRead) {
                factory.releaseBuffer(readBuffer);
@@ -128,8 +129,8 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
    private void writeHeapAndDirectBufferAndRead(boolean useHeapByteBufferToRead) throws Exception {
       final SequentialFile file = factory.createSequentialFile("write.amq");
       file.open();
-      Assert.assertEquals(0, file.size());
-      Assert.assertEquals(0, file.position());
+      assertEquals(0, file.size());
+      assertEquals(0, file.position());
       try {
          final String data = "writeDirectArray";
          final byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
@@ -146,11 +147,11 @@ public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFacto
          }
          try {
             file.position(0);
-            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
-            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+            assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
             readBuffer.flip();
-            Assert.assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
-            Assert.assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
+            assertEquals(factory.calculateBlockSize(bytes.length), file.read(readBuffer));
+            assertEquals(data, StandardCharsets.UTF_8.decode(readBuffer).toString());
          } finally {
             if (!useHeapByteBufferToRead) {
                factory.releaseBuffer(readBuffer);

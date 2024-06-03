@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +30,13 @@ import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetti
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<SimpleString, PersistedAddressSettingJSON> mapExpectedAddresses;
@@ -43,7 +46,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -57,7 +60,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       journal1.storeAddressSetting(persistedSetting);
    }
 
-   @Test
+   @TestTemplate
    public void testStoreSecuritySettings() throws Exception {
       createStorage();
 
@@ -90,7 +93,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
    }
 
-   @Test
+   @TestTemplate
    public void testStoreConfigDeleteSettings() throws Exception {
       createStorage();
 

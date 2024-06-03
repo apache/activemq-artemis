@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -47,24 +53,19 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final String NON_DESTRUCTIVE_QUEUE_NAME = "NON_DESTRUCTIVE_QUEUE";
    private static final String NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME = "NON_DESTRUCTIVE_EXPIRY_QUEUE";
@@ -79,7 +80,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       this.scanPeriod = scanPeriod;
    }
 
-   @Parameterized.Parameters(name = "persistenceEnabled={0}, scanPeriod={1}")
+   @Parameters(name = "persistenceEnabled={0}, scanPeriod={1}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{false, 100}, {true, 100}, {true, -1}};
       return Arrays.asList(params);
@@ -118,32 +119,32 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    }
 
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveAMQPProducerAMQPConsumer() throws Exception {
       testNonDestructive(AMQPConnection, AMQPConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveCoreProducerCoreConsumer() throws Exception {
       testNonDestructive(CoreConnection, CoreConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveCoreProducerAMQPConsumer() throws Exception {
       testNonDestructive(CoreConnection, AMQPConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveAMQPProducerCoreConsumer() throws Exception {
       testNonDestructive(AMQPConnection, CoreConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveLVQWithConsumerFirstCore() throws Exception {
       testNonDestructiveLVQWithConsumerFirst(CoreConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testNonDestructiveLVQWithConsumerFirstAMQP() throws Exception {
       testNonDestructiveLVQWithConsumerFirst(AMQPConnection);
    }
@@ -164,49 +165,49 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
       //Consume Once
       receive(consumerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Again as should be non-destructive
       receive(consumerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveDualConsumer(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
       //Consume Once
       receiveDualConsumer(consumerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Again as should be non-destructive
       receiveDualConsumer(consumerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveExpiry(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME));
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
       //Consume Once
@@ -219,12 +220,12 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
 
       //Consume Again this time we expect the message to be expired, so nothing delivered
       receiveNull(consumerConnectionSupplier, NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
-      assertEquals("Ensure Message count", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveMulitpleMessages(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
@@ -233,7 +234,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 2);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
-      assertEquals("Ensure Message count", 3, queueBinding.getQueue().getMessageCount());
+      assertEquals(3, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
       //Consume Once
@@ -245,7 +246,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveMulitpleMessagesDualConsumer(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
@@ -254,7 +255,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 2);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
-      assertEquals("Ensure Message count", 3, queueBinding.getQueue().getMessageCount());
+      assertEquals(3, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
       //Consume Once
@@ -266,30 +267,30 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveLVQ(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendLVQ(producerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME));
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Simulate a small pause, else both messages could be consumed if consumer is fast enough
       Thread.sleep(10);
 
       //Consume Once
       receiveLVQ(consumerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Again as should be non-destructive
       receiveLVQ(consumerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Send again
       sendLVQ(producerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Simulate a small pause, else both messages could be consumed if consumer is fast enough
       Thread.sleep(10);
@@ -297,12 +298,12 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       //Consume Once More
       receiveLVQ(consumerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_LVQ_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
    public void testNonDestructiveLVQWithConsumerFirst(ConnectionSupplier connectionSupplier) throws Exception {
@@ -370,7 +371,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       //Send again
       sendLVQ(producerConnectionSupplier, NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
-      assertEquals("Ensure Message count", 1, lastValueQueue.getMessageCount());
+      assertEquals(1, lastValueQueue.getMessageCount(), "Ensure Message count");
 
       //Simulate a small pause, else both messages could be consumed if consumer is fast enough
       Thread.sleep(10);
@@ -381,7 +382,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       //Send Tombstone
       sendLVQTombstone(producerConnectionSupplier, NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString(), tombstoneTimeToLive);
 
-      assertEquals("Ensure Message count", 1, lastValueQueue.getMessageCount());
+      assertEquals(1, lastValueQueue.getMessageCount(), "Ensure Message count");
 
       //Simulate a small pause, else both messages could be consumed if consumer is fast enough
       Thread.sleep(10);
@@ -392,40 +393,40 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       //Consume Again ensuring Tombstone exists as should not have expired
       receiveLVQTombstone(consumerConnectionSupplier, NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
-      assertEquals("Ensure Message count", 1, lastValueQueue.getLastValueKeys().size());
+      assertEquals(1, lastValueQueue.getLastValueKeys().size(), "Ensure Message count");
 
       //Ensure enough time elapsed for expiration and expiry thread to have run.
       Thread.sleep(tombstoneTimeToLive * 3);
 
       // Consume again testing tombstone has been removed
       receiveLVQAssertEmpty(consumerConnectionSupplier, NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME);
-      assertEquals("Ensure Message count", 0, lastValueQueue.getMessageCount());
-      assertEquals("Ensure Message count", 0, lastValueQueue.getLastValueKeys().size());
+      assertEquals(0, lastValueQueue.getMessageCount(), "Ensure Message count");
+      assertEquals(0, lastValueQueue.getLastValueKeys().size(), "Ensure Message count");
 
    }
 
-   @Test
+   @TestTemplate
    public void testMessageCount() throws Exception {
       sendMessage(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Once
       receive(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       sendMessage(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 2, queueBinding.getQueue().getMessageCount());
+      assertEquals(2, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Again as should be non-destructive
       receive(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
-      assertEquals("Ensure Message count", 2, queueBinding.getQueue().getMessageCount());
+      assertEquals(2, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
       control.removeAllMessages();
 
-      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
+      assertEquals(0, queueBinding.getQueue().getMessageCount(), "Message count after clearing queue via queue control should be 0");
    }
 
 
@@ -593,12 +594,12 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleLastValuesCore() throws Exception {
       testMultipleLastValues(CoreConnection);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleLastValuesAMQP() throws Exception {
       testMultipleLastValues(AMQPConnection);
    }
@@ -643,7 +644,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
          }
 
          for (Producer producer : producers) {
-            assertFalse("Producer failed!", producer.failed);
+            assertFalse(producer.failed, "Producer failed!");
          }
       }
       for (Map.Entry<String, List<String>> entry : results.entrySet()) {
@@ -663,10 +664,10 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
          for (Map.Entry<String, Integer> stringIntegerEntry : dups.entrySet()) {
             sb.append(stringIntegerEntry.getKey() + "(" + stringIntegerEntry.getValue() + "),");
          }
-         Assert.fail("Duplicate messages received " + sb);
+         fail("Duplicate messages received " + sb);
       }
 
-      Assert.assertEquals("Got all messages produced", MESSAGE_COUNT_PER_GROUP * GROUP_COUNT * PRODUCER_COUNT, receivedTally);
+      assertEquals(MESSAGE_COUNT_PER_GROUP * GROUP_COUNT * PRODUCER_COUNT, receivedTally, "Got all messages produced");
       Wait.assertEquals((long) GROUP_COUNT, () -> server.locateQueue(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).getMessageCount(), 2000, 100, false);
    }
 

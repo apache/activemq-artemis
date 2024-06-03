@@ -17,11 +17,11 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
-import org.junit.Test;
-
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.AMQ_5_11;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.JAKARTAEE;
+
+import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
+import org.junit.jupiter.api.Test;
 
 public class OpenWireJakartaTest extends ClasspathBase {
 

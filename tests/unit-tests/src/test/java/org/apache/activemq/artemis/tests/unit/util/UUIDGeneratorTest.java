@@ -16,10 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,21 +52,21 @@ public class UUIDGeneratorTest extends ActiveMQTestBase {
          org.apache.activemq.artemis.utils.UUID nativeId = gen.generateUUID();
          uuidSet.add(nativeId);
       }
-      assertEquals("All there", numIterations, uuidSet.size());
+      assertEquals(numIterations, uuidSet.size(), "All there");
    }
 
    @Test
    public void testGetHardwareAddress() throws Exception {
       byte[] bytes = UUIDGenerator.getHardwareAddress();
-      Assert.assertNotNull(bytes);
-      Assert.assertTrue(bytes.length == 6);
+      assertNotNull(bytes);
+      assertTrue(bytes.length == 6);
    }
 
    @Test
    public void testZeroPaddedBytes() throws Exception {
-      Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(null));
-      Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[0]));
-      Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[7]));
+      assertNull(UUIDGenerator.getZeroPaddedSixBytes(null));
+      assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[0]));
+      assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[7]));
 
       byte[] fiveBytes = new byte[]{1, 2, 3, 4, 5};
       byte[] zeroPaddedFiveBytes = UUIDGenerator.getZeroPaddedSixBytes(fiveBytes);

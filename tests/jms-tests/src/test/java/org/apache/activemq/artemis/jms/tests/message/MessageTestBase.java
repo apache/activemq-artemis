@@ -26,9 +26,9 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -50,7 +50,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -64,7 +64,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (conn != null)
          conn.close();
@@ -192,7 +192,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
 
    protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException {
       ProxyAssertSupport.assertNotNull(m);
-      ProxyAssertSupport.assertEquals(true, m.getBooleanProperty("booleanProperty"));
+      ProxyAssertSupport.assertTrue(m.getBooleanProperty("booleanProperty"));
       ProxyAssertSupport.assertEquals((byte) 3, m.getByteProperty("byteProperty"));
       ProxyAssertSupport.assertEquals(4.0, m.getDoubleProperty("doubleProperty"));
       ProxyAssertSupport.assertEquals(5.0f, m.getFloatProperty("floatProperty"));

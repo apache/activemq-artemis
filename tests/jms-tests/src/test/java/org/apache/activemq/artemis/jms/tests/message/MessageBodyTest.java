@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.MessageEOFException;
@@ -30,8 +32,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -200,7 +202,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       int ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(6, ret);
 
-      Assert.assertArrayEquals(myBytes, bytes);
+      assertArrayEquals(myBytes, bytes);
 
       byte[] bytes2 = new byte[3];
       ret = m2.readBytes(bytes2);
@@ -223,7 +225,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       bytes = new byte[6];
       ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(6, ret);
-      Assert.assertArrayEquals(myBytes, bytes);
+      assertArrayEquals(myBytes, bytes);
 
       ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(-1, ret);
@@ -853,6 +855,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
 
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -1020,7 +1023,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       int ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(6, ret);
 
-      Assert.assertArrayEquals(myBytes, bytes);
+      assertArrayEquals(myBytes, bytes);
 
       ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(-1, ret);
@@ -1049,7 +1052,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       bytes = new byte[6];
       ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(6, ret);
-      Assert.assertArrayEquals(myBytes, bytes);
+      assertArrayEquals(myBytes, bytes);
 
       ret = m2.readBytes(bytes);
       ProxyAssertSupport.assertEquals(-1, ret);

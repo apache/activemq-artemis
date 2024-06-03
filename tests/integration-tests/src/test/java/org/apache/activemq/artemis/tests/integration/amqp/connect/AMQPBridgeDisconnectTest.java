@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -29,8 +31,7 @@ import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
 
@@ -128,7 +129,7 @@ public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
          ActiveMQServer var10000 = this.server;
          Wait.assertTrue(var10000::isActive);
          Queue queue = this.server.locateQueue(DESTINATION_NAME);
-         Assert.assertNotNull(queue);
+         assertNotNull(queue);
          Wait.assertEquals(1, queue::getConsumerCount);
          Wait.assertEquals(1, () -> {
             return this.server.getRemotingService().getConnections().size();

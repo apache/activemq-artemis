@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.hawtbuf.Buffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
 
@@ -33,7 +38,8 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testNonSaslHeaderRejectedOnConnect() throws Exception {
       final AmqpHeader header = new AmqpHeader();
 
@@ -51,7 +57,7 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       assertEquals(3, response.getProtocolId());
 
       // pump some bytes down the wire until broker closes the connection
-      assertTrue("Broker should have closed client connection", Wait.waitFor(new Wait.Condition() {
+      assertTrue(Wait.waitFor(new Wait.Condition() {
 
          @Override
          public boolean isSatisfied() throws Exception {
@@ -62,7 +68,7 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
                return true;
             }
          }
-      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)));
+      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)), "Broker should have closed client connection");
    }
 
    private class ClientConnection {

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
@@ -45,17 +50,16 @@ import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 import org.apache.activemq.artemis.lockmanager.MutableLong;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
    private DistributedLockManagerConfiguration managerConfiguration;
 
-   @Before
+   @BeforeEach
    public void init() throws IOException {
-      managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+      managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager").toString()));
    }
 
    @Override
@@ -167,7 +171,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       primaryInstance.start();
 
       // primary initially UN REPLICATED
-      Assert.assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
@@ -182,8 +186,8 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> backupServer.isReplicaSync(), timeout);
 
       // primary REPLICATED, backup matches (has replicated) activation sequence
-      Assert.assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
-      Assert.assertEquals(1L, backupServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, backupServer.getNodeManager().getNodeActivationSequence());
 
       primaryInstance.stop();
 
@@ -248,7 +252,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       primaryInstance.start();
 
       // primary UN REPLICATED
-      Assert.assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
 
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
@@ -262,8 +266,8 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> backupServer.isReplicaSync(), timeout);
 
       // primary REPLICATED, backup matches (has replicated) activation sequence
-      Assert.assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
-      Assert.assertEquals(1L, backupServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, primaryInstance.getNodeManager().getNodeActivationSequence());
+      assertEquals(1L, backupServer.getNodeManager().getNodeActivationSequence());
 
       // transition to un replicated once backup goes away
       backupServer.stop();
@@ -414,7 +418,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
       primaryServer.start();
       Wait.waitFor(primaryServer::isStarted);
-      Assert.assertEquals(2, primaryServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(2, primaryServer.getNodeManager().getNodeActivationSequence());
       primaryServer.stop();
 
       // backup can get lock but does not have the sequence to start, will try and be a backup
@@ -427,8 +431,8 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       }
       primaryServer.start();
       Wait.waitFor(primaryServer::isStarted);
-      Assert.assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
-      Assert.assertEquals(3, distributedLockManager.getMutableLong(coordinatedId).get());
+      assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, distributedLockManager.getMutableLong(coordinatedId).get());
 
       distributedLockManager.stop();
 
@@ -437,7 +441,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       backupServer.setIdentity("BACKUP");
       backupServer.start();
       Wait.waitFor(backupServer::isReplicaSync);
-      Assert.assertEquals(3, backupServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, backupServer.getNodeManager().getNodeActivationSequence());
       backupServer.stop();
    }
 
@@ -572,13 +576,13 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       DistributedLockManager distributedLockManager = DistributedLockManager.newInstanceOf(managerConfiguration.getClassName(), managerConfiguration.getProperties());
       distributedLockManager.start();
       final MutableLong activationSequence = distributedLockManager.getMutableLong(coordinatedId);
-      Assert.assertTrue(activationSequence.compareAndSet(2, -2));
+      assertTrue(activationSequence.compareAndSet(2, -2));
 
       // primary server should activate after self healing its outstanding claim
       primaryServer.start();
       Wait.waitFor(primaryServer::isStarted);
-      Assert.assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
-      Assert.assertEquals(3, activationSequence.get());
+      assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, activationSequence.get());
    }
 
    @Test
@@ -616,7 +620,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
          managerConfiguration.getProperties());
       distributedLockManager.start();
       final MutableLong coordinatedActivationSequence = distributedLockManager.getMutableLong(coordinatedId);
-      Assert.assertTrue(coordinatedActivationSequence.compareAndSet(2, -2));
+      assertTrue(coordinatedActivationSequence.compareAndSet(2, -2));
 
       // case: 2, the fail to write locally 2 but the write actually failing
       // need to put 1 in the local activation sequence of the primary
@@ -676,5 +680,14 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       assertTrue(message.getStringProperty("K").equals(addr));
       consumer.close();
       clientSession.close();
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

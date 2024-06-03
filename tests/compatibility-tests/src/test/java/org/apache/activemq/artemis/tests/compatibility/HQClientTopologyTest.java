@@ -17,30 +17,31 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
 /**
  * Runs Artemis server with HornetQ client and verifies that the client receives
  * correct connector parameters (keys must be dash-delimited instead of camelCase).
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class HQClientTopologyTest extends VersionedBase {
 
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
@@ -53,18 +54,18 @@ public class HQClientTopologyTest extends VersionedBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      evaluate(serverClassloader, "hqclienttopologytest/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath());
+      FileUtil.deleteDirectory(serverFolder);
+      evaluate(serverClassloader, "hqclienttopologytest/artemisServer.groovy", serverFolder.getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Throwable {
       execute(serverClassloader, "server.stop();");
    }
 
-   @Test
+   @TestTemplate
    public void topologyChangeMessageTest() throws Throwable {
       evaluate(senderClassloader, "hqclienttopologytest/verifyTopologyChangeMessage.groovy", server, sender);
    }

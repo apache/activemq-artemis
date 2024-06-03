@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -40,15 +44,16 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SyncSendTest extends ActiveMQTestBase {
 
    private static long totalRecordTime = -1;
@@ -56,7 +61,7 @@ public class SyncSendTest extends ActiveMQTestBase {
    private static final int MEASURE_RECORDS = 100;
    private static final int WRAMP_UP = 100;
 
-   @Parameterized.Parameters(name = "storage={0}, protocol={1}")
+   @Parameters(name = "storage={0}, protocol={1}")
    public static Collection getParameters() {
       Object[] storages = new Object[]{"libaio", "nio", "null"};
       Object[] protocols = new Object[]{"core", "openwire", "amqp"};
@@ -91,6 +96,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -119,7 +125,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          return 0;
       }
       if (totalRecordTime < 0) {
-         File measureFile = temporaryFolder.newFile();
+         File measureFile = File.createTempFile("junit", null, temporaryFolder);
 
          System.out.println("File::" + measureFile);
 
@@ -132,7 +138,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          buffer.put(new byte[10]);
          buffer.position(0);
 
-         Assert.assertEquals(10, channel.write(buffer));
+         assertEquals(10, channel.write(buffer));
          channel.force(true);
 
          long time = System.nanoTime();
@@ -145,7 +151,7 @@ public class SyncSendTest extends ActiveMQTestBase {
             buffer.position(0);
             buffer.putInt(i);
             buffer.position(0);
-            Assert.assertEquals(10, channel.write(buffer));
+            assertEquals(10, channel.write(buffer));
             channel.force(false);
          }
 
@@ -160,7 +166,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testSendConsumeAudoACK() throws Exception {
 
       long recordTime = getTimePerSync();
@@ -192,7 +198,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          System.out.println("RECORD TIME = " + recordTime + " milliseconds = " + TimeUnit.NANOSECONDS.toMillis(recordTime));
 
          if ((end - start) < recordTime * 0.7) {
-            Assert.fail("Messages are being sent too fast! Faster than the disk would be able to sync!");
+            fail("Messages are being sent too fast! Faster than the disk would be able to sync!");
          }
 
          connection.start();
@@ -203,7 +209,7 @@ public class SyncSendTest extends ActiveMQTestBase {
                start = System.nanoTime(); // wramp up
             }
             Message msg = consumer.receive(5000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
          }
 
          end = System.nanoTime();
@@ -213,7 +219,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
          // There's no way to sync on ack for AMQP
          if (!protocol.equals("amqp") && (end - start) < recordTime * 0.7) {
-            Assert.fail("Messages are being acked too fast! Faster than the disk would be able to sync!");
+            fail("Messages are being acked too fast! Faster than the disk would be able to sync!");
          }
 
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString("queue"));

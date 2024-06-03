@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -33,16 +38,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.proton.engine.impl.ReceiverImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
 
 // This test spawns the server as a separate VM
 // as we need to count exclusively client objects from qpid-proton
@@ -68,13 +69,13 @@ public class ClientLeakTest extends AbstractLeakTest {
 
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       serverProcess = SpawnedVMSupport.spawnVM(ClientLeakTest.class.getName());
       runAfter(serverProcess::destroyForcibly);
@@ -96,10 +97,10 @@ public class ClientLeakTest extends AbstractLeakTest {
 
       }
       while (success == false && System.currentTimeMillis() < time);
-      Assert.assertTrue(success);
+      assertTrue(success);
    }
 
-   @After
+   @AfterEach
    public void stopServer() throws Exception {
       serverProcess.destroyForcibly();
    }
@@ -124,7 +125,7 @@ public class ClientLeakTest extends AbstractLeakTest {
             MessageConsumer consumer = session.createConsumer(session.createQueue("test"));
             connection.start();
             Message message = consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             session.commit();
             // consumer.close(); // uncomment this and the test will pass.
             session.close();

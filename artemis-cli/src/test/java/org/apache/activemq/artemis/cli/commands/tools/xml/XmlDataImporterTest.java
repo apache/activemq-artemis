@@ -16,30 +16,30 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools.xml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.cli.test.CliTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class XmlDataImporterTest extends CliTestBase {
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    @Override
    public void setup() throws Exception {
       super.setup();
       server = ((Pair<ManagementContext, ActiveMQServer>)startServer()).getB();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       stopServer();

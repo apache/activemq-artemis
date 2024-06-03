@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -42,10 +43,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test JMS Security.
@@ -57,14 +57,14 @@ public class SecurityTest extends JMSTestCase {
    private String originalAmqPassword;
    private String originalBrokerBindUrl;
 
-   @Before
+   @BeforeEach
    public void setupProperty() {
       originalAmqUser = System.getProperty(DefaultConnectionProperties.AMQ_USER);
       originalAmqPassword = System.getProperty(DefaultConnectionProperties.AMQ_PASSWORD);
       originalBrokerBindUrl = System.getProperty(DefaultConnectionProperties.BROKER_BIND_URL);
    }
 
-   @After
+   @AfterEach
    public void clearProperty() {
       if (originalAmqUser == null) {
          System.clearProperty(DefaultConnectionProperties.AMQ_USER);
@@ -138,7 +138,7 @@ public class SecurityTest extends JMSTestCase {
       DefaultConnectionProperties.initialize();
       ConnectionFactory cf = new ActiveMQConnectionFactory();
       Connection conn = addConnection(cf.createConnection());
-      Assert.assertTrue(((ActiveMQConnectionFactory) cf).isCompressLargeMessage());
+      assertTrue(((ActiveMQConnectionFactory) cf).isCompressLargeMessage());
    }
 
    /**

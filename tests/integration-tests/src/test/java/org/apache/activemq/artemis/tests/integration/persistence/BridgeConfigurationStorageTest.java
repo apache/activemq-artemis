@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +28,13 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
 
    public BridgeConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
@@ -35,12 +42,12 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
 
-   @Test
+   @TestTemplate
    public void testStoreBridgeConfiguration() throws Exception {
       createStorage();
 
@@ -66,28 +73,28 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
 
       List<PersistedBridgeConfiguration> bridgeConfigurations = journal.recoverBridgeConfigurations();
 
-      Assert.assertEquals(1, bridgeConfigurations.size());
+      assertEquals(1, bridgeConfigurations.size());
 
       PersistedBridgeConfiguration persistedBridgeConfiguration = bridgeConfigurations.get(0);
-      Assert.assertEquals(configuration.getName(), persistedBridgeConfiguration.getBridgeConfiguration().getName());
-      Assert.assertEquals(configuration.getQueueName(), persistedBridgeConfiguration.getBridgeConfiguration().getQueueName());
-      Assert.assertEquals(configuration.getConcurrency(), persistedBridgeConfiguration.getBridgeConfiguration().getConcurrency());
-      Assert.assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
-      Assert.assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
-      Assert.assertNotNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
-      Assert.assertEquals("mytransformer", persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration().getClassName());
+      assertEquals(configuration.getName(), persistedBridgeConfiguration.getBridgeConfiguration().getName());
+      assertEquals(configuration.getQueueName(), persistedBridgeConfiguration.getBridgeConfiguration().getQueueName());
+      assertEquals(configuration.getConcurrency(), persistedBridgeConfiguration.getBridgeConfiguration().getConcurrency());
+      assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
+      assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
+      assertNotNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
+      assertEquals("mytransformer", persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration().getClassName());
       Map<String, String> properties = persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration().getProperties();
-      Assert.assertEquals(3, properties.size());
-      Assert.assertEquals("prop1", properties.get("key1"));
-      Assert.assertEquals("prop2", properties.get("key2"));
-      Assert.assertEquals("prop3", properties.get("key3"));
+      assertEquals(3, properties.size());
+      assertEquals("prop1", properties.get("key1"));
+      assertEquals("prop2", properties.get("key2"));
+      assertEquals("prop3", properties.get("key3"));
       journal.stop();
 
       journal = null;
 
    }
 
-   @Test
+   @TestTemplate
    public void testStoreBridgeConfigurationNoTransformer() throws Exception {
       createStorage();
 
@@ -107,15 +114,15 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
 
       List<PersistedBridgeConfiguration> bridgeConfigurations = journal.recoverBridgeConfigurations();
 
-      Assert.assertEquals(1, bridgeConfigurations.size());
+      assertEquals(1, bridgeConfigurations.size());
 
       PersistedBridgeConfiguration persistedBridgeConfiguration = bridgeConfigurations.get(0);
-      Assert.assertEquals(configuration.getName(), persistedBridgeConfiguration.getBridgeConfiguration().getName());
-      Assert.assertEquals(configuration.getQueueName(), persistedBridgeConfiguration.getBridgeConfiguration().getQueueName());
-      Assert.assertEquals(configuration.getConcurrency(), persistedBridgeConfiguration.getBridgeConfiguration().getConcurrency());
-      Assert.assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
-      Assert.assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
-      Assert.assertNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
+      assertEquals(configuration.getName(), persistedBridgeConfiguration.getBridgeConfiguration().getName());
+      assertEquals(configuration.getQueueName(), persistedBridgeConfiguration.getBridgeConfiguration().getQueueName());
+      assertEquals(configuration.getConcurrency(), persistedBridgeConfiguration.getBridgeConfiguration().getConcurrency());
+      assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
+      assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
+      assertNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
       journal.stop();
 
       journal = null;

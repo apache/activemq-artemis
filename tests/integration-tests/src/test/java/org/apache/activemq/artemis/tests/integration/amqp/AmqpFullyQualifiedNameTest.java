@@ -16,8 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
@@ -41,8 +47,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +67,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -199,7 +206,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       assertTrue(e.getMessage().contains("Queue: '" + queue2 + "' does not exist for address '" + address1 + "'"));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {
@@ -348,7 +356,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
             assertTrue(query.isExists() || query.isAutoCreateQueues());
             assertEquals(anycastAddress, query.getAddress());
             assertEquals(q, query.getName());
-            assertEquals("Message not consumed", 0, query.getMessageCount());
+            assertEquals(0, query.getMessageCount(), "Message not consumed");
             //try query again using qName
             query = server.queueQuery(q);
             assertEquals(q, query.getName());

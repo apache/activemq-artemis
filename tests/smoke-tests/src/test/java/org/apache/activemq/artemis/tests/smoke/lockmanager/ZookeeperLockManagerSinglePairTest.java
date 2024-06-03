@@ -17,20 +17,28 @@
 
 package org.apache.activemq.artemis.tests.smoke.lockmanager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.tests.extensions.ThreadLeakCheckExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
 import org.apache.curator.test.TestingZooKeeperServer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class ZookeeperLockManagerSinglePairTest extends LockManagerSinglePairTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -42,26 +50,26 @@ public class ZookeeperLockManagerSinglePairTest extends LockManagerSinglePairTes
    private InstanceSpec[] clusterSpecs;
    private int nodes;
 
-   @Before
+   @BeforeEach
    @Override
    public void setup() throws Exception {
       super.setup();
       nodes = 3;
       clusterSpecs = new InstanceSpec[nodes];
       for (int i = 0; i < nodes; i++) {
-         clusterSpecs[i] = new InstanceSpec(temporaryFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
+         clusterSpecs[i] = new InstanceSpec(newFolder(temporaryFolder, "node" + i), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
-      Assert.assertEquals("127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668", testingServer.getConnectString());
+      assertEquals("127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668", testingServer.getConnectString());
       logger.info("Cluster of {} nodes on: {}", 3, testingServer.getConnectString());
    }
 
    @Override
-   @After
+   @AfterEach
    public void after() throws Exception {
       // zk bits that leak from servers
-      ThreadLeakCheckRule.addKownThread("ListenerHandler-");
+      ThreadLeakCheckExtension.addKownThread("ListenerHandler-");
       try {
          super.after();
       } finally {
@@ -96,5 +104,14 @@ public class ZookeeperLockManagerSinglePairTest extends LockManagerSinglePairTes
       for (int nodeIndex : nodes) {
          servers.get(nodeIndex).restart();
       }
+   }
+
+   private static File newFolder(File root, String... subDirs) throws IOException {
+      String subFolder = String.join("/", subDirs);
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

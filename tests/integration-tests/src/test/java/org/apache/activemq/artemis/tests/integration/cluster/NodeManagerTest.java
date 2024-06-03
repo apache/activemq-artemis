@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
-import org.junit.Test;
-
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.AWAIT_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CHECK_ID;
@@ -37,6 +29,15 @@ import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerA
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_BACKUP;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
+import org.junit.jupiter.api.Test;
 
 public class NodeManagerTest extends SpawnedTestBase {
 

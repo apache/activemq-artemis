@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
@@ -23,9 +25,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -33,7 +34,7 @@ import org.junit.Test;
 public class MessageProducerTest extends JMSTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       conn = cf.createConnection();
@@ -47,7 +48,7 @@ public class MessageProducerTest extends JMSTestBase {
          Message m = session.createMessage();
          try {
             producer.send(m);
-            Assert.fail("must not be reached");
+            fail("must not be reached");
          } catch (UnsupportedOperationException cause) {
             // expected
          }
@@ -60,19 +61,19 @@ public class MessageProducerTest extends JMSTestBase {
    public void testHasDefaultDestination() throws Exception {
       Session session = conn.createSession();
       try {
-         Queue queue = createQueue(name.getMethodName());
-         Queue queue2 = createQueue(name.getMethodName() + "2");
+         Queue queue = createQueue( name);
+         Queue queue2 = createQueue( name + "2");
          MessageProducer producer = session.createProducer(queue);
          Message m = session.createMessage();
          try {
             producer.send(queue2, m);
-            Assert.fail("must not be reached");
+            fail("must not be reached");
          } catch (UnsupportedOperationException cause) {
             // expected
          }
          try {
             producer.send(queue, m);
-            Assert.fail("tck7 requires an UnsupportedOperationException " + "even if the destination is the same as the default one");
+            fail("tck7 requires an UnsupportedOperationException " + "even if the destination is the same as the default one");
          } catch (UnsupportedOperationException cause) {
             // expected
          }

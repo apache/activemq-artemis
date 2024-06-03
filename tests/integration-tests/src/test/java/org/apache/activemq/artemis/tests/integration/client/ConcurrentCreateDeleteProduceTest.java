@@ -33,8 +33,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * The delete queue was resetting some fields on the Queue what would eventually turn a NPE.
@@ -57,7 +57,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
    private static final int PAGE_SIZE = 10 * 1024;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

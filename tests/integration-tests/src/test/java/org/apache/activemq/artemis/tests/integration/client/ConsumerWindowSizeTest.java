@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
@@ -49,10 +55,9 @@ import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +78,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -136,7 +141,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(1000);
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       for (ClientSession tmpSess : sessions) {
          tmpSess.close();
@@ -176,14 +181,14 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          ClientMessage message = null;
          message = consumer.receiveImmediate();
          // message = consumer.receive(1000); // the test will pass if used receive(1000) instead of receiveImmediate
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
 
          prod.send(msg);
          sessionProd.commit();
 
          message = consumer.receive(10000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
 
          session.close();
@@ -236,7 +241,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(1000);
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       for (ClientSession tmpSess : sessions) {
          tmpSess.close();
@@ -269,7 +274,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          consumers.add(consumer);
          session1.start();
          sessions.add(session1);
-         Assert.assertNull(consumer.receive(10));
+         assertNull(consumer.receive(10));
 
       }
 
@@ -288,7 +293,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(5000);
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       for (ClientSession tmpSess : sessions) {
          tmpSess.close();
@@ -371,9 +376,9 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          t.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
-      Assert.assertEquals(NUMBER_OF_MESSAGES, received.get());
+      assertEquals(NUMBER_OF_MESSAGES, received.get());
    }
 
    @Test
@@ -427,7 +432,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       }
 
-      Assert.assertEquals(NUMBER_OF_MESSAGES, received.get());
+      assertEquals(NUMBER_OF_MESSAGES, received.get());
    }
 
    /*
@@ -460,21 +465,21 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessage * 2; i++) {
          ClientMessage m = receivingConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
       receiveSession.close();
 
       for (int i = 0; i < numMessage * 2; i++) {
          ClientMessage m = cc.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
 
       session.close();
       sendSession.close();
 
-      Assert.assertEquals(0, getMessageCount(messagingService, queueA.toString()));
+      assertEquals(0, getMessageCount(messagingService, queueA.toString()));
    }
 
    @Test
@@ -516,12 +521,12 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages - 1; i++) {
             ClientMessage msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
             msg.acknowledge();
          }
 
          ClientMessage msg = consNeverUsed.receive(500);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
 
          session.close();
@@ -530,7 +535,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          sessionB.close();
          sessionB = null;
 
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
       } finally {
          try {
@@ -551,7 +556,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Ignore("I believe this test became invalid after we started using another thread to deliver the large message")
+   @Disabled("I believe this test became invalid after we started using another thread to deliver the large message")
    public void testSlowConsumerNoBufferLargeMessages() throws Exception {
       internalTestSlowConsumerNoBuffer(true);
    }
@@ -592,7 +597,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          // This will force a credit to be sent, but if the message wasn't received we need to take out that credit from
          // the server
          // or the client will be buffering messages
-         Assert.assertNull(consNeverUsed.receive(1));
+         assertNull(consNeverUsed.receive(1));
 
          ClientMessage msg = createTextMessage(session, "This one will expire");
          if (largeMessages) {
@@ -611,8 +616,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          // It will be able to receive another message, but it shouldn't send a credit again, as the credit was already
          // sent
          msg = consNeverUsed.receive(TIMEOUT * 1000);
-         Assert.assertNotNull(msg);
-         Assert.assertEquals("First-on-non-buffered", getTextMessage(msg));
+         assertNotNull(msg);
+         assertEquals("First-on-non-buffered", getTextMessage(msg));
          msg.acknowledge();
 
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
@@ -629,12 +634,12 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
-            Assert.assertEquals("Msg" + i, getTextMessage(msg));
+            assertNotNull(msg, "expected message at i = " + i);
+            assertEquals("Msg" + i, getTextMessage(msg));
             msg.acknowledge();
          }
 
-         Assert.assertEquals(0, consNeverUsed.getBufferSize());
+         assertEquals(0, consNeverUsed.getBufferSize());
 
          session.close();
          session = null;
@@ -642,7 +647,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          sessionB.close();
          sessionB = null;
 
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
       } finally {
          try {
@@ -716,28 +721,28 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages / 2; i++) {
             ClientMessage msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
 
             String str = getTextMessage(msg);
-            Assert.assertEquals("Msg" + i, str);
+            assertEquals("Msg" + i, str);
 
             msg.acknowledge();
 
-            Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons1.getBufferSize());
+            assertEquals(0, cons1.getBufferSize(), "A slow consumer shouldn't buffer anything on the client side!");
          }
 
          for (int i = numberOfMessages / 2; i < numberOfMessages; i++) {
             ClientMessage msg = cons2.receive(1000);
 
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
 
             String str = getTextMessage(msg);
 
-            Assert.assertEquals("Msg" + i, str);
+            assertEquals("Msg" + i, str);
 
             msg.acknowledge();
 
-            Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons2.getBufferSize());
+            assertEquals(0, cons2.getBufferSize(), "A slow consumer shouldn't buffer anything on the client side!");
          }
 
          session1.close(); // just to make sure everything is flushed and no pending packets on the sending buffer, or
@@ -751,7 +756,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          prod = session1.createProducer(ADDRESS);
 
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
          // This should also work the other way around
 
@@ -777,33 +782,33 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages / 2; i++) {
             ClientMessage msg = cons2.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
 
-            Assert.assertEquals("Msg" + i, msg.getBodyBuffer().readString());
+            assertEquals("Msg" + i, msg.getBodyBuffer().readString());
 
             msg.acknowledge();
 
-            Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons2.getBufferSize());
+            assertEquals(0, cons2.getBufferSize(), "A slow consumer shouldn't buffer anything on the client side!");
 
          }
 
          for (int i = numberOfMessages / 2; i < numberOfMessages; i++) {
             ClientMessage msg = cons1.receive(1000);
 
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
 
-            Assert.assertEquals("Msg" + i, msg.getBodyBuffer().readString());
+            assertEquals("Msg" + i, msg.getBodyBuffer().readString());
 
             msg.acknowledge();
 
-            Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons1.getBufferSize());
+            assertEquals(0, cons1.getBufferSize(), "A slow consumer shouldn't buffer anything on the client side!");
          }
 
          session1.close();
          session1 = null;
          session2.close();
          session2 = null;
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
       } finally {
          try {
@@ -855,19 +860,19 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
 
             msg.saveToOutputStream(new FakeOutputStream());
 
             msg.acknowledge();
 
-            Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons1.getBufferSize());
+            assertEquals(0, cons1.getBufferSize(), "A slow consumer shouldn't buffer anything on the client side!");
          }
 
          session1.close(); // just to make sure everything is flushed and no pending packets on the sending buffer, or
          session1.close();
          session1 = null;
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
       } finally {
          try {
@@ -963,18 +968,18 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             while (timeout > System.currentTimeMillis() && consumer.getBufferSize() <= 10) {
                Thread.sleep(10);
             }
-            Assert.assertTrue(consumer.getBufferSize() >= 10);
+            assertTrue(consumer.getBufferSize() >= 10);
 
             ClientMessage msg = consumer.receive(500);
             msg.getBodyBuffer().readByte();
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
             session.rollback();
          }
 
          for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage msg = consumer.receive(5000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.getBodyBuffer().readByte();
             msg.acknowledge();
             session.commit();
@@ -1086,23 +1091,23 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          consReceiveOneAndHold.setMessageHandler(handler);
 
-         Assert.assertTrue(latchReceived.await(TIMEOUT, TimeUnit.SECONDS));
+         assertTrue(latchReceived.await(TIMEOUT, TimeUnit.SECONDS));
 
-         Assert.assertEquals(0, consReceiveOneAndHold.getBufferSize());
+         assertEquals(0, consReceiveOneAndHold.getBufferSize());
 
          for (int i = 2; i < numberOfMessages; i++) {
             ClientMessage msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
-            Assert.assertEquals("Msg" + i, getTextMessage(msg));
+            assertNotNull(msg, "expected message at i = " + i);
+            assertEquals("Msg" + i, getTextMessage(msg));
             msg.acknowledge();
          }
 
-         Assert.assertEquals(0, consReceiveOneAndHold.getBufferSize());
+         assertEquals(0, consReceiveOneAndHold.getBufferSize());
 
          latchDone.countDown();
 
          // The test can' t close the session while the message is still being read, or it could interrupt the data
-         Assert.assertTrue(latchRead.await(10, TimeUnit.SECONDS));
+         assertTrue(latchRead.await(10, TimeUnit.SECONDS));
 
          session.close();
          session = null;
@@ -1110,9 +1115,9 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          sessionB.close();
          sessionB = null;
 
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-         Assert.assertFalse("MessageHandler received a failure", handler.failed);
+         assertFalse(handler.failed, "MessageHandler received a failure");
 
       } finally {
          try {
@@ -1218,28 +1223,28 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          consReceiveOneAndHold.setMessageHandler(handler);
 
-         Assert.assertTrue(latchReceived.await(TIMEOUT, TimeUnit.SECONDS));
+         assertTrue(latchReceived.await(TIMEOUT, TimeUnit.SECONDS));
 
          long timeout = System.currentTimeMillis() + 1000 * TIMEOUT;
          while (consReceiveOneAndHold.getBufferSize() == 0 && System.currentTimeMillis() < timeout) {
             Thread.sleep(10);
          }
 
-         Assert.assertEquals(1, consReceiveOneAndHold.getBufferSize());
+         assertEquals(1, consReceiveOneAndHold.getBufferSize());
 
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
 
          for (int i = 3; i < numberOfMessages; i++) {
             ClientMessage msg = cons1.receive(1000);
-            Assert.assertNotNull("expected message at i = " + i, msg);
+            assertNotNull(msg, "expected message at i = " + i);
             String text = getTextMessage(msg);
-            Assert.assertEquals("Msg" + i, text);
+            assertEquals("Msg" + i, text);
             msg.acknowledge();
          }
 
          latchDone.countDown();
 
-         Assert.assertTrue(latchReceivedBuffered.await(TIMEOUT, TimeUnit.SECONDS));
+         assertTrue(latchReceivedBuffered.await(TIMEOUT, TimeUnit.SECONDS));
 
          session.close();
          session = null;
@@ -1247,9 +1252,9 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          sessionB.close();
          sessionB = null;
 
-         Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
+         assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-         Assert.assertFalse("MessageHandler received a failure", handler.failed);
+         assertFalse(handler.failed, "MessageHandler received a failure");
 
       } finally {
          try {
@@ -1312,7 +1317,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             // even as expected by the test
             Bindings bindings = server.getPostOffice().getBindingsForAddress(ADDRESS);
 
-            Assert.assertEquals(1, bindings.getBindings().size());
+            assertEquals(1, bindings.getBindings().size());
 
             for (Binding binding : bindings.getBindings()) {
                Collection<Consumer> consumers = ((QueueBinding) binding).getQueue().getConsumers();
@@ -1324,7 +1329,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
                      Thread.sleep(10);
                   }
 
-                  Assert.assertNull(consumerImpl.getAvailableCredits());
+                  assertNull(consumerImpl.getAvailableCredits());
                }
             }
          }
@@ -1352,20 +1357,20 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          }
          while ((!foundA || !foundB) && System.currentTimeMillis() < timeout);
 
-         Assert.assertTrue("ConsumerA didn't receive the expected number of messages on buffer (consA=" + consA.getBufferSize() +
+         assertTrue(foundA, "ConsumerA didn't receive the expected number of messages on buffer (consA=" + consA.getBufferSize() +
                               ", consB=" +
                               consB.getBufferSize() +
                               ") foundA = " +
                               foundA +
                               " foundB = " +
-                              foundB, foundA);
-         Assert.assertTrue("ConsumerB didn't receive the expected number of messages on buffer (consA=" + consA.getBufferSize() +
+                              foundB);
+         assertTrue(foundB, "ConsumerB didn't receive the expected number of messages on buffer (consA=" + consA.getBufferSize() +
                               ", consB=" +
                               consB.getBufferSize() +
                               ") foundA = " +
                               foundA +
                               " foundB = " +
-                              foundB, foundB);
+                              foundB);
 
       } finally {
          try {

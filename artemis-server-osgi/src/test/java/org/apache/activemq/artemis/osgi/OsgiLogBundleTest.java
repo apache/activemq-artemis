@@ -16,25 +16,25 @@
  */
 package org.apache.activemq.artemis.osgi;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class OsgiLogBundleTest {
 
    private static final String LOGGER_NAME = ActiveMQOsgiLogger.class.getPackage().getName();
    private static LogLevel origLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origLevel = AssertionLoggerHandler.setLevel(LOGGER_NAME, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(LOGGER_NAME, origLevel);
    }

@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
@@ -44,8 +47,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.junit.After;
-import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
 
    public static final String basedir = System.getProperty("basedir");
 
-   @After
+   @AfterEach
    public void after() throws Exception {
       // close ServerLocators before killing the server otherwise they'll hang and delay test termination
       closeAllServerLocatorsFactories();
@@ -89,7 +91,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
       File serverPlace = new File(serverLocation);
       File etcPlace = new File(serverPlace, "etc");
       File stopMe = new File(etcPlace, STOP_FILE_NAME);
-      Assert.assertTrue(stopMe.createNewFile());
+      assertTrue(stopMe.createNewFile());
    }
 
    public static String getServerLocation(String serverName) {
@@ -177,7 +179,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
       return jmxConnector;
    }
@@ -188,7 +190,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
    }
 
    protected boolean findLogRecord(File logFile, String... values) throws Exception {
-      Assert.assertTrue(logFile.exists());
+      assertTrue(logFile.exists());
       boolean hasRecord = false;
       try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
          String line = reader.readLine();

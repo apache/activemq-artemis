@@ -17,7 +17,12 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -55,8 +60,9 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerIn
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +90,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       return createServer(SERVER_PORT, false);
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -97,7 +103,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationBrokerPluginWithAddressPolicyConfigured() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -183,7 +190,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> federationPlugin.stopped.get());
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testFederationBrokerPluginWithQueuePolicyConfigured() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -268,7 +276,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> federationPlugin.stopped.get());
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testPluginCanBlockAddressFederationConsumerCreate() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -339,7 +348,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> federationPlugin.stopped.get());
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testPluginCanBlockQueueFederationConsumerCreate() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -410,7 +420,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> federationPlugin.stopped.get());
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
    public void testPluginCanBlockAddressFederationWhenDemandOnDivertIsAdded() throws Exception {
       logger.info("Test started: {}", getTestName());
 

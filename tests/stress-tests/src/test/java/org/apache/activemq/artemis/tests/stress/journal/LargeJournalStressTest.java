@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,10 +34,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LargeJournalStressTest extends ActiveMQTestBase {
 
@@ -150,7 +152,7 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
                   msg.acknowledge();
                }
 
-               Assert.assertNull(cons.receiveImmediate());
+               assertNull(cons.receiveImmediate());
             } catch (Throwable e) {
                this.e = e;
             } finally {
@@ -198,24 +200,24 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numberOfMessages.intValue(); i++) {
          ClientMessage msg = cons.receive(10000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
       }
 
-      Assert.assertNull(cons.receiveImmediate());
+      assertNull(cons.receiveImmediate());
 
       cons.close();
 
       cons = sess.createConsumer(LargeJournalStressTest.Q2);
 
-      Assert.assertNull(cons.receiveImmediate());
+      assertNull(cons.receiveImmediate());
 
       sess.close();
 
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -254,7 +256,7 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       locator.close();
 

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
@@ -28,7 +34,8 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +47,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCreateQueueReceiver() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
@@ -80,7 +88,8 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRejectMessageWithIncomingInterceptor() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
@@ -116,7 +125,8 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testRejectMessageWithOutgoingInterceptor() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -177,7 +187,8 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCheckInterceptedMessageProperties() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -244,7 +255,8 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testCheckRemotingConnection() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       final boolean[] passed = {false};
@@ -268,7 +280,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       sender.send(message);
 
       assertTrue(latch.await(2, TimeUnit.SECONDS));
-      assertTrue("connection not set", passed[0]);
+      assertTrue(passed[0], "connection not set");
 
       final CountDownLatch latch2 = new CountDownLatch(1);
       server.getRemotingService().addOutgoingInterceptor(new AmqpInterceptor() {
@@ -284,7 +296,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       assertEquals(latch2.getCount(), 0);
-      assertTrue("connection not set", passed[0]);
+      assertTrue(passed[0], "connection not set");
       sender.close();
       receiver.close();
       connection.close();

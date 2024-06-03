@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -26,7 +28,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
 
 public class AMQPLargeMessagesTestUtil {
 
@@ -52,7 +53,7 @@ public class AMQPLargeMessagesTestUtil {
             AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
             // Using a Wait.waitFor here as we may have something working with the buffer in parallel
             Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
-            Assert.assertNull("Temporary buffers are being retained", amqpLargeMessage.inspectTemporaryBuffer());
+            assertNull(amqpLargeMessage.inspectTemporaryBuffer(), "Temporary buffers are being retained");
          }
       }
       totalIterator.close();

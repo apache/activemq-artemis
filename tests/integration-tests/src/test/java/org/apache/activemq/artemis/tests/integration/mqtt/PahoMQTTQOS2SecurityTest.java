@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -28,12 +30,13 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
 
@@ -62,7 +65,8 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       return true;
    }
 
-   @Test(timeout = 300000)
+   @Test
+   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
    public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -102,7 +106,7 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       waitForLatch(latch);
       producer.disconnect();
       producer.close();
-      Assert.assertFalse(failed[0]);
+      assertFalse(failed[0]);
    }
 
    private MqttClient createPahoClient(String clientId) throws MqttException {

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.broker.artemiswrapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;

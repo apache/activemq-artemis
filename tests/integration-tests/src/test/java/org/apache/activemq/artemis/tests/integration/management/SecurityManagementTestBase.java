@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -31,26 +37,27 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   @Parameterized.Parameter(0)
+   // [Some-]subclass tests are parameterized
+   @Parameter(index = 0)
    public boolean managementRbac = false;
 
-   @Parameterized.Parameters(name = "managementRbac={0}")
+   @Parameters(name = "managementRbac={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -106,31 +113,31 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
          }
          ClientMessage reply = requestor.request(mngmntMessage, 500);
          if (expectSuccess) {
-            Assert.assertNotNull(reply);
-            Assert.assertTrue("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.hasOperationSucceeded(reply));
+            assertNotNull(reply);
+            assertTrue((Boolean) ManagementHelper.hasOperationSucceeded(reply), "" + ManagementHelper.getResult(reply));
             if (attribute) {
-               Assert.assertTrue("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.getResult(reply));
+               assertTrue((Boolean) ManagementHelper.getResult(reply), "" + ManagementHelper.getResult(reply));
             }
          } else {
             if (attribute) {
-               Assert.assertNull(reply);
+               assertNull(reply);
             } else {
-               Assert.assertNotNull(reply);
-               Assert.assertFalse("" + ManagementHelper.getResult(reply), (Boolean) ManagementHelper.hasOperationSucceeded(reply));
+               assertNotNull(reply);
+               assertFalse((Boolean) ManagementHelper.hasOperationSucceeded(reply), "" + ManagementHelper.getResult(reply));
             }
          }
 
          requestor.close();
       } catch (ActiveMQSecurityException possiblyExpected) {
          if (expectSuccess) {
-            Assert.fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
+            fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
          }
       } catch (ActiveMQClusterSecurityException possiblyExpected) {
          if (expectSuccess) {
-            Assert.fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
+            fail("got unexpected security exception " + possiblyExpected.getClass() + ": " + possiblyExpected.getMessage());
          }
       } catch (Exception e) {
-         Assert.fail("got unexpected exception " + e.getClass() + ": " + e.getMessage());
+         fail("got unexpected exception " + e.getClass() + ": " + e.getMessage());
       } finally {
          sf.close();
       }

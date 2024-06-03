@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -78,10 +84,10 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +120,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          trans.increment(1, 0);
       }
 
-      Assert.assertEquals(nr1, trans.getNumberOfMessages());
+      assertEquals(nr1, trans.getNumberOfMessages());
 
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(trans.getEncodeSize());
 
@@ -123,9 +129,9 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       PageTransactionInfo trans2 = new PageTransactionInfoImpl(id1);
       trans2.decode(buffer);
 
-      Assert.assertEquals(id2, trans2.getTransactionID());
+      assertEquals(id2, trans2.getTransactionID());
 
-      Assert.assertEquals(nr1, trans2.getNumberOfMessages());
+      assertEquals(nr1, trans2.getNumberOfMessages());
 
    }
 
@@ -164,11 +170,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       storeImpl.startPaging();
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       List<ActiveMQBuffer> buffers = new ArrayList<>();
 
@@ -179,12 +185,12 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Message msg = createMessage(1, storeImpl, destination, buffer);
 
-      Assert.assertTrue(storeImpl.isPaging());
+      assertTrue(storeImpl.isPaging());
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
-      Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
+      assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       storeImpl.addSyncPoint(OperationContextImpl.getContext());
 
@@ -192,7 +198,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       storeImpl.stop();
    }
@@ -209,7 +215,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       storeImpl.startPaging();
 
@@ -225,11 +231,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          Message msg = createMessage(i, storeImpl, destination, buffer);
          final RoutingContextImpl ctx = new RoutingContextImpl(null);
-         Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
+         assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
 
       }
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       storeImpl.addSyncPoint(OperationContextImpl.getContext());
 
@@ -239,15 +245,15 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       LinkedList<PagedMessage> msg = page.read(new NullStorageManager());
 
-      Assert.assertEquals(numMessages, msg.size());
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(numMessages, msg.size());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       page.close(false);
       page = storeImpl.depage();
 
-      Assert.assertNull(page);
+      assertNull(page);
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       for (int i = 0; i < numMessages; i++) {
          ActiveMQBuffer horn1 = buffers.get(i);
@@ -255,7 +261,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          horn1.resetReaderIndex();
          horn2.resetReaderIndex();
          for (int j = 0; j < horn1.writerIndex(); j++) {
-            Assert.assertEquals(horn1.readByte(), horn2.readByte());
+            assertEquals(horn1.readByte(), horn2.readByte());
          }
       }
 
@@ -280,7 +286,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          logger.debug("#repeat {}", repeat);
 
          storeImpl.startPaging();
-         Assert.assertEquals(1, storeImpl.getNumberOfPages());
+         assertEquals(1, storeImpl.getNumberOfPages());
          storeImpl.getCursorProvider().disableCleanup();
 
          int numMessages = 100;
@@ -295,23 +301,23 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                msg.putIntProperty("page", page);
                final RoutingContextImpl ctx = new RoutingContextImpl(null);
                ctx.addQueue(fakeQueue.getName(), fakeQueue);
-               Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
+               assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
                if (i > 0 && i % 10 == 0) {
                   storeImpl.forceAnotherPage();
                   page++;
-                  Assert.assertEquals(page, storeImpl.getNumberOfPages());
+                  assertEquals(page, storeImpl.getNumberOfPages());
                }
             }
          }
 
-         Assert.assertEquals(numMessages / 10, storeImpl.getNumberOfPages());
+         assertEquals(numMessages / 10, storeImpl.getNumberOfPages());
 
          PageIterator iterator = subscription.iterator();
          for (int i = 0; i < numMessages; i++) {
-            Assert.assertTrue(iterator.hasNext());
+            assertTrue(iterator.hasNext());
             PagedReference reference = iterator.next();
-            Assert.assertNotNull(reference);
-            Assert.assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
+            assertNotNull(reference);
+            assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
             int pageOnMsg = reference.getMessage().getIntProperty("page").intValue();
             if (pageOnMsg > 2 && pageOnMsg < 10) {
                subscription.ack(reference);
@@ -325,7 +331,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
-         Assert.assertTrue(storeImpl.isPaging());
+         assertTrue(storeImpl.isPaging());
 
          int messagesRead = 0;
          iterator = subscription.iterator();
@@ -335,28 +341,28 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                break;
             }
 
-            Assert.assertTrue(subscription.contains(reference));
+            assertTrue(subscription.contains(reference));
 
             logger.debug("#received message {}, {}", messagesRead, reference);
             messagesRead++;
             int pageOnMsg = reference.getMessage().getIntProperty("page");
-            Assert.assertTrue("received " + reference, pageOnMsg <= 2 || pageOnMsg >= 10);
+            assertTrue(pageOnMsg <= 2 || pageOnMsg >= 10, "received " + reference);
 
             subscription.ack(reference);
          }
          iterator.close();
 
-         Assert.assertEquals(30, messagesRead);
+         assertEquals(30, messagesRead);
 
-         Assert.assertEquals(3, storeImpl.getNumberOfPages());
+         assertEquals(3, storeImpl.getNumberOfPages());
 
          PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
-         Assert.assertFalse(storeImpl.isPaging());
+         assertFalse(storeImpl.isPaging());
 
-         Assert.assertEquals(1, PagingStoreTestAccessor.getUsedPagesSize(storeImpl));
+         assertEquals(1, PagingStoreTestAccessor.getUsedPagesSize(storeImpl));
 
-         Assert.assertEquals(1, storeImpl.getNumberOfPages());
+         assertEquals(1, storeImpl.getNumberOfPages());
       }
    }
 
@@ -412,7 +418,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                msg.putIntProperty("page", page);
                final RoutingContextImpl ctx = new RoutingContextImpl(null);
                ctx.addQueue(fakeQueue.getName(), fakeQueue);
-               Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
+               assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
                if (i > 0 && i % 10 == 0) {
                   storeImpl.forceAnotherPage();
                   page++;
@@ -420,17 +426,17 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             }
          }
 
-         Assert.assertEquals(10, storeImpl.getNumberOfPages());
+         assertEquals(10, storeImpl.getNumberOfPages());
 
-         Assert.assertEquals(10, factory.listFiles("page").size());
+         assertEquals(10, factory.listFiles("page").size());
 
          int messagesRead = 0;
          PageIterator iterator = subscription.iterator();
          for (int i = 1; i <= numMessages; i++) {
-            Assert.assertTrue(iterator.hasNext());
+            assertTrue(iterator.hasNext());
             PagedReference reference = iterator.next();
-            Assert.assertNotNull(reference);
-            Assert.assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
+            assertNotNull(reference);
+            assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
             int pageOnMsg = reference.getMessage().getIntProperty("page").intValue();
             if (pageOnMsg == 10) {
                messagesRead++;
@@ -439,25 +445,25 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          }
          iterator.close();
 
-         Assert.assertEquals(7, messagesRead);
+         assertEquals(7, messagesRead);
 
          PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
-         Assert.assertEquals(10, factory.listFiles("page").size());
+         assertEquals(10, factory.listFiles("page").size());
 
-         Assert.assertTrue(storeImpl.isPaging());
+         assertTrue(storeImpl.isPaging());
 
          storeImpl.forceAnotherPage();
 
-         Assert.assertEquals(11, factory.listFiles("page").size());
+         assertEquals(11, factory.listFiles("page").size());
 
          PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
-         Assert.assertEquals(10, factory.listFiles("page").size());
+         assertEquals(10, factory.listFiles("page").size());
 
-         Assert.assertEquals(10, storeImpl.getNumberOfPages());
+         assertEquals(10, storeImpl.getNumberOfPages());
 
-         Assert.assertEquals(11 + 10 * repeat, storeImpl.getCurrentWritingPage());
+         assertEquals(11 + 10 * repeat, storeImpl.getCurrentWritingPage());
 
          messagesRead = 0;
          iterator = subscription.iterator();
@@ -468,17 +474,17 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             }
             messagesRead++;
             int pageOnMsg = reference.getMessage().getIntProperty("page");
-            Assert.assertTrue(pageOnMsg != 10);
+            assertTrue(pageOnMsg != 10);
 
             subscription.ack(reference);
          }
          iterator.close();
 
-         Assert.assertEquals(90, messagesRead);
+         assertEquals(90, messagesRead);
 
          PageCursorProviderTestAccessor.cleanup(storeImpl.getCursorProvider());
 
-         Assert.assertFalse(storeImpl.isPaging());
+         assertFalse(storeImpl.isPaging());
       }
    }
 
@@ -508,12 +514,12 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          msg.putIntProperty("page", 1);
          final RoutingContextImpl ctx = new RoutingContextImpl(null);
          ctx.addQueue(fakeQueue.getName(), fakeQueue);
-         Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
+         assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName())));
       }
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
-      Assert.assertEquals(1, factory.listFiles("page").size());
+      assertEquals(1, factory.listFiles("page").size());
 
       String fileName = storeImpl.createFileName(1);
 
@@ -525,9 +531,9 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       int size = PageReadWriter.readFromSequentialFile(storageManager, storeImpl.getStoreName(), factory, file, 1, messages::add, PageReadWriter.SKIP_ALL, null, null);
       file.close();
 
-      Assert.assertEquals(0, messages.size());
+      assertEquals(0, messages.size());
 
-      Assert.assertEquals(10, size);
+      assertEquals(10, size);
 
    }
 
@@ -542,11 +548,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       store.start();
 
-      Assert.assertEquals(0, store.getNumberOfPages());
+      assertEquals(0, store.getNumberOfPages());
 
       store.startPaging();
 
-      Assert.assertEquals(1, store.getNumberOfPages());
+      assertEquals(1, store.getNumberOfPages());
 
       List<ActiveMQBuffer> buffers = new ArrayList<>();
 
@@ -563,10 +569,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          Message msg = createMessage(i, store, destination, buffer);
 
          final RoutingContextImpl ctx = new RoutingContextImpl(null);
-         Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+         assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
       }
 
-      Assert.assertEquals(2, store.getNumberOfPages());
+      assertEquals(2, store.getNumberOfPages());
 
       store.addSyncPoint(OperationContextImpl.getContext());
 
@@ -583,72 +589,72 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          page.close(false, false);
 
-         Assert.assertEquals(5, msg.size());
+         assertEquals(5, msg.size());
 
          for (int i = 0; i < 5; i++) {
-            Assert.assertEquals(sequence++, msg.get(i).getMessage().getMessageID());
+            assertEquals(sequence++, msg.get(i).getMessage().getMessageID());
             ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(pageNr * 5 + i), msg.get(i).getMessage().toCore().getBodyBuffer());
          }
       }
 
-      Assert.assertEquals(1, store.getNumberOfPages());
+      assertEquals(1, store.getNumberOfPages());
 
-      Assert.assertTrue(store.isPaging());
+      assertTrue(store.isPaging());
 
       Message msg = createMessage(1, store, destination, buffers.get(0));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
-      Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       Page newPage = store.depage();
 
       newPage.open(true);
 
-      Assert.assertEquals(1, newPage.read(new NullStorageManager()).size());
+      assertEquals(1, newPage.read(new NullStorageManager()).size());
 
       newPage.delete(null);
 
-      Assert.assertEquals(1, store.getNumberOfPages());
+      assertEquals(1, store.getNumberOfPages());
 
-      Assert.assertTrue(store.isPaging());
+      assertTrue(store.isPaging());
 
-      Assert.assertNull(store.depage());
+      assertNull(store.depage());
 
-      Assert.assertFalse(store.isPaging());
+      assertFalse(store.isPaging());
 
       {
          final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
-         Assert.assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
+         assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
       }
 
       store.startPaging();
 
       {
          final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
-         Assert.assertTrue(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
+         assertTrue(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
       }
 
       Page page = store.depage();
 
-      Assert.assertNotNull(page);
+      assertNotNull(page);
 
       page.open(true);
 
       LinkedList<PagedMessage> msgs = page.read(new NullStorageManager());
 
-      Assert.assertEquals(1, msgs.size());
+      assertEquals(1, msgs.size());
 
-      Assert.assertEquals(1L, msgs.get(0).getMessage().getMessageID());
+      assertEquals(1L, msgs.get(0).getMessage().getMessageID());
 
       ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(0), msgs.get(0).getMessage().toCore().getBodyBuffer());
 
-      Assert.assertEquals(1, store.getNumberOfPages());
+      assertEquals(1, store.getNumberOfPages());
 
-      Assert.assertTrue(store.isPaging());
+      assertTrue(store.isPaging());
 
-      Assert.assertNull(store.depage());
+      assertNull(store.depage());
 
-      Assert.assertEquals(0, store.getNumberOfPages());
+      assertEquals(0, store.getNumberOfPages());
 
       page.open(true);
       page.close(false);
@@ -684,12 +690,12 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       // Marked the store to be paged
       storeImpl.startPaging();
 
-      Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      assertEquals(1, storeImpl.getNumberOfPages());
 
       final SimpleString destination = new SimpleString("test");
 
@@ -793,23 +799,23 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
                Message msgWritten = buffers.remove(id);
                buffers2.put(id, msg.getMessage());
-               Assert.assertNotNull(msgWritten);
-               Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
+               assertNotNull(msgWritten);
+               assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
                ActiveMQTestBase.assertEqualsBuffers(10, msgWritten.toCore().getBodyBuffer(), msg.getMessage().toCore().getBodyBuffer());
             }
          }
       }
 
-      Assert.assertEquals(0, buffers.size());
+      assertEquals(0, buffers.size());
 
       List<String> files = factory.listFiles("page");
 
-      Assert.assertTrue(files.size() != 0);
+      assertTrue(files.size() != 0);
 
       for (String file : files) {
          SequentialFile fileTmp = factory.createSequentialFile(file);
          fileTmp.open();
-         Assert.assertTrue("The page file size (" + fileTmp.size() + ") shouldn't be > " + MAX_SIZE, fileTmp.size() <= MAX_SIZE);
+         assertTrue(fileTmp.size() <= MAX_SIZE, "The page file size (" + fileTmp.size() + ") shouldn't be > " + MAX_SIZE);
          fileTmp.close();
       }
 
@@ -817,13 +823,13 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       storeImpl2.start();
 
       long numberOfPages = storeImpl2.getNumberOfPages();
-      Assert.assertTrue(numberOfPages != 0);
+      assertTrue(numberOfPages != 0);
 
       storeImpl2.startPaging();
 
       storeImpl2.startPaging();
 
-      Assert.assertEquals(numberOfPages, storeImpl2.getNumberOfPages());
+      assertEquals(numberOfPages, storeImpl2.getNumberOfPages());
 
       long lastMessageId = messageIdGenerator.incrementAndGet();
       Message lastMsg = createMessage(lastMessageId, storeImpl, destination, createRandomBuffer(lastMessageId, 5));
@@ -852,8 +858,8 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          msgs.forEach((msg) -> {
             long id = msg.getMessage().toCore().getBodyBuffer().readLong();
             Message msgWritten = buffers2.remove(id);
-            Assert.assertNotNull(msgWritten);
-            Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
+            assertNotNull(msgWritten);
+            assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
             ActiveMQTestBase.assertEqualsByteArrays(msgWritten.toCore().getBodyBuffer().writerIndex(), msgWritten.toCore().getBodyBuffer().toByteBuffer().array(), msg.getMessage().toCore().getBodyBuffer().toByteBuffer().array());
          });
       }
@@ -861,14 +867,14 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       lastPage.open(true);
       LinkedList<PagedMessage> lastMessages = lastPage.read(new NullStorageManager());
       lastPage.close(false, false);
-      Assert.assertEquals(1, lastMessages.size());
+      assertEquals(1, lastMessages.size());
 
       lastMessages.get(0).getMessage().toCore().getBodyBuffer().resetReaderIndex();
-      Assert.assertEquals(lastMessages.get(0).getMessage().toCore().getBodyBuffer().readLong(), lastMessageId);
+      assertEquals(lastMessages.get(0).getMessage().toCore().getBodyBuffer().readLong(), lastMessageId);
 
-      Assert.assertEquals(0, buffers2.size());
+      assertEquals(0, buffers2.size());
 
-      Assert.assertEquals(0, storeImpl.getAddressSize());
+      assertEquals(0, storeImpl.getAddressSize());
 
       storeImpl.stop();
    }
@@ -888,18 +894,18 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       // Marked the store to be paged
       storeImpl.startPaging();
 
       storeImpl.depage();
 
-      Assert.assertNull(storeImpl.getCurrentPage());
+      assertNull(storeImpl.getCurrentPage());
 
       storeImpl.startPaging();
 
-      Assert.assertNotNull(storeImpl.getCurrentPage());
+      assertNotNull(storeImpl.getCurrentPage());
 
       storeImpl.stop();
    }
@@ -921,12 +927,12 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          store.start();
 
-         Assert.assertEquals(0, store.getNumberOfPages());
+         assertEquals(0, store.getNumberOfPages());
 
          // Marked the store to be paged
          store.startPaging();
 
-         Assert.assertEquals(1, store.getNumberOfPages());
+         assertEquals(1, store.getNumberOfPages());
 
          final SimpleString destination = new SimpleString("test");
 
@@ -957,7 +963,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             }
          });
 
-         Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+         assertTrue(done.await(10, TimeUnit.SECONDS));
          done.countUp();
 
          executorService.execute(() -> {
@@ -971,10 +977,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      page.open(true);
                      LinkedList<PagedMessage> messages = page.read(new NullStorageManager());
                      messages.forEach(pgmsg -> {
-                        Assert.assertEquals(countOnPage.getAndIncrement(), pgmsg.getMessageNumber());
+                        assertEquals(countOnPage.getAndIncrement(), pgmsg.getMessageNumber());
                         Message msg = pgmsg.getMessage();
-                        Assert.assertEquals(msgsRead.getAndIncrement(), msg.getMessageID());
-                        Assert.assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
+                        assertEquals(msgsRead.getAndIncrement(), msg.getMessageID());
+                        assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
                      });
 
                      page.close(false, false);
@@ -990,7 +996,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          });
 
-         Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+         assertTrue(done.await(10, TimeUnit.SECONDS));
 
          store.stop();
 
@@ -1018,7 +1024,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.start();
 
-      Assert.assertEquals(0, storeImpl.getNumberOfPages());
+      assertEquals(0, storeImpl.getNumberOfPages());
 
       // Marked the store to be paged
       storeImpl.startPaging();
@@ -1056,14 +1062,14 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       while (msgsRead.get() < num1 + num2) {
          page = storeImpl.depage();
-         assertNotNull("no page after read " + msgsRead + " msg", page);
+         assertNotNull(page, "no page after read " + msgsRead + " msg");
          page.open(true);
          LinkedList<PagedMessage> messages = page.read(new NullStorageManager());
 
          messages.forEach(pgmsg -> {
             Message msg = pgmsg.getMessage();
-            Assert.assertEquals(msgsRead.longValue(), msg.getMessageID());
-            Assert.assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
+            assertEquals(msgsRead.longValue(), msg.getMessageID());
+            assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
             msgsRead.incrementAndGet();
          });
          page.close(false);
@@ -1089,7 +1095,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.startPaging();
          store.stopPaging();
-         Assert.assertTrue(loggerHandler.findText("AMQ222038"));
+         assertTrue(loggerHandler.findText("AMQ222038"));
       }
    }
 
@@ -1109,7 +1115,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.startPaging();
          store.stopPaging();
-         Assert.assertTrue(loggerHandler.findText("AMQ224108"));
+         assertTrue(loggerHandler.findText("AMQ224108"));
       }
    }
 
@@ -1304,21 +1310,21 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          assertEquals(100, store.getAddressLimitPercent());
 
          store.checkMemory(trackMemoryChecks, null);
-         assertEquals("no change", 3, calls.get());
-         assertEquals("no change to be sure to be sure!", 3, calls.get());
+         assertEquals(3, calls.get(), "no change");
+         assertEquals(3, calls.get(), "no change to be sure to be sure!");
 
          store.unblock();
-         assertEquals("no change after unblock", 3, calls.get());
+         assertEquals(3, calls.get(), "no change after unblock");
 
          store.addSize(-900);
          assertEquals(10, store.getAddressLimitPercent());
 
-         assertTrue("change", Wait.waitFor(new Wait.Condition() {
+         assertTrue(Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {
                return 4 == calls.get();
             }
-         }, 1000, 50));
+         }, 1000, 50), "change");
 
 
       } finally {
@@ -1379,14 +1385,14 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    // Protected ----------------------------------------------------
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       executor.shutdown();
       super.tearDown();
@@ -1471,7 +1477,8 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
    public void testCheckExecutionIsNotRepeated() throws Exception {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 

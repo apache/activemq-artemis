@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.GENERIC_EXCEPTION;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.IllegalStateException;
 import javax.jms.InvalidDestinationException;
 import javax.jms.InvalidSelectorException;
@@ -26,16 +32,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.jms.client.JMSExceptionHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
-import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.GENERIC_EXCEPTION;
-import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
+import org.junit.jupiter.api.Test;
 
 public class JMSExceptionHelperTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testCONNECTION_TIMEDOUT() throws Exception {
@@ -96,7 +95,7 @@ public class JMSExceptionHelperTest extends ActiveMQTestBase {
                                    final Class<? extends Throwable> expectedException) {
       ActiveMQException me = new ActiveMQException(errorCode);
       Exception e = JMSExceptionHelper.convertFromActiveMQException(me);
-      Assert.assertNotNull(e);
-      Assert.assertTrue(e.getClass().isAssignableFrom(expectedException));
+      assertNotNull(e);
+      assertTrue(e.getClass().isAssignableFrom(expectedException));
    }
 }

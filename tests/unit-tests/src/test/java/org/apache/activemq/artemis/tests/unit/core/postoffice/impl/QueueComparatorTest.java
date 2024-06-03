@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +26,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueComparatorTest {
 
@@ -43,14 +44,14 @@ public class QueueComparatorTest {
       queues.add(queue2);
       queues.add(queue3);
 
-      Assert.assertEquals(1, queues.get(0).getMessageCount());
-      Assert.assertEquals(2, queues.get(1).getMessageCount());
-      Assert.assertEquals(3, queues.get(2).getMessageCount());
+      assertEquals(1, queues.get(0).getMessageCount());
+      assertEquals(2, queues.get(1).getMessageCount());
+      assertEquals(3, queues.get(2).getMessageCount());
 
       Collections.sort(queues, new ScaleDownHandler.OrderQueueByNumberOfReferencesComparator());
 
-      Assert.assertEquals(3, queues.get(0).getMessageCount());
-      Assert.assertEquals(2, queues.get(1).getMessageCount());
-      Assert.assertEquals(1, queues.get(2).getMessageCount());
+      assertEquals(3, queues.get(0).getMessageCount());
+      assertEquals(2, queues.get(1).getMessageCount());
+      assertEquals(1, queues.get(2).getMessageCount());
    }
 }

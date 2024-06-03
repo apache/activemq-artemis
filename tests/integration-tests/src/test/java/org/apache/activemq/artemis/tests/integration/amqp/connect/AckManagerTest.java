@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -25,6 +30,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
@@ -56,9 +62,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +75,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
    private static final String SNF_NAME = "$ACTIVEMQ_ARTEMIS_MIRROR_other";
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -108,9 +113,9 @@ public class AckManagerTest extends ActiveMQTestBase {
       int numberOfAcksC2 = 200;
 
       Queue c1s1 = server1.locateQueue("c1.s1");
-      Assert.assertNotNull(c1s1);
+      assertNotNull(c1s1);
       Queue c2s2 = server1.locateQueue("c2.s2");
-      Assert.assertNotNull(c2s2);
+      assertNotNull(c2s2);
 
       PagingStore store = server1.getPagingManager().getPageStore(TOPIC_NAME);
       store.startPaging();
@@ -166,38 +171,38 @@ public class AckManagerTest extends ActiveMQTestBase {
 
          HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
 
-         Assert.assertEquals(1, sortedRetries.size());
+         assertEquals(1, sortedRetries.size());
 
          LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksOnAddress = sortedRetries.get(c1s1.getAddress());
 
-         Assert.assertEquals(2, acksOnAddress.size());
+         assertEquals(2, acksOnAddress.size());
 
          JournalHashMap<AckRetry, AckRetry, Queue> acksOnc1s1 = acksOnAddress.get(c1s1.getID());
          JournalHashMap<AckRetry, AckRetry, Queue> acksOnc2s2 = acksOnAddress.get(c2s2.getID());
-         Assert.assertEquals(numberOfAcksC1, acksOnc1s1.size());
-         Assert.assertEquals(numberOfAcksC2, acksOnc2s2.size());
+         assertEquals(numberOfAcksC1, acksOnc1s1.size());
+         assertEquals(numberOfAcksC2, acksOnc2s2.size());
 
          Wait.assertEquals(numberOfMessages, c1s1::getMessageCount);
          Wait.assertEquals(numberOfMessages, c2s2::getMessageCount);
 
          AckManager originalManager = AckManagerProvider.getManager(server1);
          server1.stop();
-         Assert.assertEquals(0, AckManagerProvider.getSize());
+         assertEquals(0, AckManagerProvider.getSize());
          server1.start();
          AckManager newManager = AckManagerProvider.getManager(server1);
-         Assert.assertEquals(1, AckManagerProvider.getSize());
-         Assert.assertNotSame(originalManager, AckManagerProvider.getManager(server1));
+         assertEquals(1, AckManagerProvider.getSize());
+         assertNotSame(originalManager, AckManagerProvider.getManager(server1));
          AckManager manager = AckManagerProvider.getManager(server1);
          Wait.assertTrue(manager::isStarted, 5_000);
 
-         Assert.assertEquals(1, AckManagerProvider.getSize());
-         Assert.assertNotSame(newManager, ackManager);
+         assertEquals(1, AckManagerProvider.getSize());
+         assertNotSame(newManager, ackManager);
       }
 
       AckManager ackManager = AckManagerProvider.getManager(server1);
       ackManager.start();
       HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
-      Assert.assertEquals(1, sortedRetries.size());
+      assertEquals(1, sortedRetries.size());
       LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksOnAddress = sortedRetries.get(c1s1.getAddress());
       JournalHashMap<AckRetry, AckRetry, Queue> acksOnc1s1 = acksOnAddress.get(c1s1.getID());
       JournalHashMap<AckRetry, AckRetry, Queue> acksOnc2s2 = acksOnAddress.get(c2s2.getID());
@@ -257,23 +262,23 @@ public class AckManagerTest extends ActiveMQTestBase {
             for (int m = start; m < numberOfMessages; m++) {
                logger.debug("Receiving i={}, m={}", i, m);
                TextMessage message = (TextMessage) subscriber.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("hello " + m, message.getText());
-               Assert.assertEquals(m, message.getIntProperty("i"));
+               assertNotNull(message);
+               assertEquals("hello " + m, message.getText());
+               assertEquals(m, message.getIntProperty("i"));
             }
-            Assert.assertNull(subscriber.receiveNoWait());
+            assertNull(subscriber.receiveNoWait());
 
          }
       }
 
       server1.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
-      Assert.assertEquals(0, getCounter(JournalRecordIds.ACK_RETRY, countJournal(server1.getConfiguration())));
+      assertEquals(0, getCounter(JournalRecordIds.ACK_RETRY, countJournal(server1.getConfiguration())));
 
-      Assert.assertEquals(1, AckManagerProvider.getSize());
+      assertEquals(1, AckManagerProvider.getSize());
 
       // the server was restarted at least once, locating it again
       Queue c1s1AfterRestart = server1.locateQueue("c1.s1");
-      Assert.assertNotNull(c1s1AfterRestart);
+      assertNotNull(c1s1AfterRestart);
 
       ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_000L,AckReason.NORMAL);
       ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_001L,AckReason.NORMAL);
@@ -281,11 +286,11 @@ public class AckManagerTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> ackManager.sortRetries().isEmpty(), 5000);
 
       server1.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
-      Assert.assertEquals(0, getCounter(JournalRecordIds.ACK_RETRY, countJournal(server1.getConfiguration())));
+      assertEquals(0, getCounter(JournalRecordIds.ACK_RETRY, countJournal(server1.getConfiguration())));
 
       server1.stop();
 
-      Assert.assertEquals(0, AckManagerProvider.getSize());
+      assertEquals(0, AckManagerProvider.getSize());
    }
 
 
@@ -319,9 +324,9 @@ public class AckManagerTest extends ActiveMQTestBase {
       String c1s1Name = "c1.s1";
 
       final Queue c0s0 = server1.locateQueue(c0s0Name);
-      Assert.assertNotNull(c0s0);
+      assertNotNull(c0s0);
       final Queue c1s1 = server1.locateQueue(c1s1Name);
-      Assert.assertNotNull(c1s1);
+      assertNotNull(c1s1);
 
       PagingStore store = server1.getPagingManager().getPageStore(TOPIC_NAME);
       store.startPaging();
@@ -376,9 +381,9 @@ public class AckManagerTest extends ActiveMQTestBase {
 
 
       Queue c0s0AfterRestart = server1.locateQueue(c0s0Name);
-      Assert.assertNotNull(c0s0AfterRestart);
+      assertNotNull(c0s0AfterRestart);
       Queue c1s1AfterRestart = server1.locateQueue(c1s1Name);
-      Assert.assertNotNull(c1s1AfterRestart);
+      assertNotNull(c1s1AfterRestart);
 
       Wait.assertEquals(numberOfMessages - numberOfAcksC1, c1s1AfterRestart::getMessageCount, 10_000);
       Wait.assertEquals(numberOfAcksC1, c1s1AfterRestart::getMessagesAcknowledged, 10_000);
@@ -387,7 +392,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       server1.stop();
 
-      Assert.assertEquals(0, AckManagerProvider.getSize());
+      assertEquals(0, AckManagerProvider.getSize());
    }
 
 

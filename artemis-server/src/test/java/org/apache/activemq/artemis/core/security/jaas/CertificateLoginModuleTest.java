@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -29,11 +32,10 @@ import java.util.Vector;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CertificateLoginModuleTest extends Assert {
+public class CertificateLoginModuleTest {
 
    private static final String USER_NAME = "testUser";
    private static final List<String> ROLE_NAMES = new Vector<>();
@@ -49,7 +51,7 @@ public class CertificateLoginModuleTest extends Assert {
       ROLE_NAMES.add("testRole4");
    }
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       subject = new Subject();
    }
@@ -138,6 +140,6 @@ public class CertificateLoginModuleTest extends Assert {
 
       loginModule.logout();
 
-      assertEquals("logout should have cleared Subject principals.", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "logout should have cleared Subject principals.");
    }
 }

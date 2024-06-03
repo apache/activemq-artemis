@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,29 +29,27 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class DuplicateCacheTest extends StorageManagerTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    public DuplicateCacheTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
    }
 
-   @Test
+   @TestTemplate
    public void testDuplicate() throws Exception {
       createStorage();
 
@@ -76,11 +77,11 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
 
       byte[] id = RandomUtil.randomBytes();
 
-      Assert.assertFalse(cache.contains(id));
+      assertFalse(cache.contains(id));
 
       cache.addToCache(id, null);
 
-      Assert.assertTrue(cache.contains(id));
+      assertTrue(cache.contains(id));
 
       cache.deleteFromCache(id);
 
@@ -97,14 +98,14 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
          }
       }, true);
 
-      Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
+      assertTrue(latch.await(1, TimeUnit.MINUTES));
 
-      Assert.assertFalse(cache.contains(id));
+      assertFalse(cache.contains(id));
 
       cache.clear();
    }
 
-   @Test
+   @TestTemplate
    public void testDuplicateNonPersistent() throws Exception {
       createStorage();
 
@@ -129,7 +130,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
       cache.clear();
    }
 
-   @Test
+   @TestTemplate
    public void testDisabledPersistentCache() throws Exception {
       createStorage();
       DuplicateIDCache cache = DuplicateIDCaches.persistent(new SimpleString("test"), 0, journal);
@@ -138,7 +139,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
       cache.addToCache(bytes);
    }
 
-   @Test
+   @TestTemplate
    public void testDisabledInMemoryCache() throws Exception {
       createStorage();
       DuplicateIDCache cache = DuplicateIDCaches.inMemory(new SimpleString("test"), 0);

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -35,11 +38,10 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
@@ -52,7 +54,7 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
    private static AssertionLoggerHandler loggerHandler;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, createDefaultInVMConfig().setSecurityEnabled(true));
@@ -68,13 +70,13 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
       server.getActiveMQServerControl().addUser("queue2", "queue2", "queue2", true);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(MESSAGE_AUDIT_LOGGER_NAME, LogLevel.INFO);
       loggerHandler = new AssertionLoggerHandler();
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() throws Exception {
       try {
          loggerHandler.close();
@@ -226,12 +228,12 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
          for (SomeConsumer consumer : consumers) {
             consumer.join();
-            Assert.assertFalse(consumer.failed);
+            assertFalse(consumer.failed);
          }
 
          for (SomeProducer producer : producers) {
             producer.join();
-            Assert.assertFalse(producer.failed);
+            assertFalse(producer.failed);
          }
 
          assertFalse(loggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue2.*"));

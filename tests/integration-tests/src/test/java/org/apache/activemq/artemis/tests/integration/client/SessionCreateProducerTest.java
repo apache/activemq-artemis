@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -24,9 +30,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionCreateProducerTest extends ActiveMQTestBase {
 
@@ -35,7 +40,7 @@ public class SessionCreateProducerTest extends ActiveMQTestBase {
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -49,21 +54,21 @@ public class SessionCreateProducerTest extends ActiveMQTestBase {
    @Test
    public void testCreateAnonProducer() throws Exception {
       ClientProducer producer = clientSession.createProducer();
-      Assert.assertNull(producer.getAddress());
-      Assert.assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
-      Assert.assertEquals(cf.getServerLocator().isBlockOnNonDurableSend(), producer.isBlockOnNonDurableSend());
-      Assert.assertEquals(cf.getServerLocator().isBlockOnDurableSend(), producer.isBlockOnDurableSend());
-      Assert.assertFalse(producer.isClosed());
+      assertNull(producer.getAddress());
+      assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
+      assertEquals(cf.getServerLocator().isBlockOnNonDurableSend(), producer.isBlockOnNonDurableSend());
+      assertEquals(cf.getServerLocator().isBlockOnDurableSend(), producer.isBlockOnDurableSend());
+      assertFalse(producer.isClosed());
    }
 
    @Test
    public void testCreateProducer1() throws Exception {
       ClientProducer producer = clientSession.createProducer("testAddress");
-      Assert.assertNotNull(producer.getAddress());
-      Assert.assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
-      Assert.assertEquals(cf.getServerLocator().isBlockOnNonDurableSend(), producer.isBlockOnNonDurableSend());
-      Assert.assertEquals(cf.getServerLocator().isBlockOnDurableSend(), producer.isBlockOnDurableSend());
-      Assert.assertFalse(producer.isClosed());
+      assertNotNull(producer.getAddress());
+      assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
+      assertEquals(cf.getServerLocator().isBlockOnNonDurableSend(), producer.isBlockOnNonDurableSend());
+      assertEquals(cf.getServerLocator().isBlockOnDurableSend(), producer.isBlockOnDurableSend());
+      assertFalse(producer.isClosed());
    }
 
    @Test
@@ -71,7 +76,7 @@ public class SessionCreateProducerTest extends ActiveMQTestBase {
       clientSession.close();
       try {
          clientSession.createProducer();
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQObjectClosedException oce) {
          //ok
       } catch (ActiveMQException e) {

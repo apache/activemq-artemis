@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Receive Messages and resend them, like the bridge would do
@@ -127,20 +131,20 @@ public class ReSendMessageTest extends JMSTestBase {
 
       for (int i = 0; i < msgs.size(); i++) {
          Message msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          prod.send(msg);
       }
 
-      Assert.assertNull(cons.receiveNoWait());
+      assertNull(cons.receiveNoWait());
 
       sess.commit();
 
       for (Message originalMessage : msgs) {
          Message copiedMessage = cons.receive(5000);
-         Assert.assertNotNull(copiedMessage);
+         assertNotNull(copiedMessage);
 
-         Assert.assertEquals(copiedMessage.getClass(), originalMessage.getClass());
+         assertEquals(copiedMessage.getClass(), originalMessage.getClass());
 
          sess.commit();
 
@@ -148,28 +152,28 @@ public class ReSendMessageTest extends JMSTestBase {
             BytesMessage copiedBytes = (BytesMessage) copiedMessage;
 
             for (int i = 0; i < copiedBytes.getBodyLength(); i++) {
-               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), copiedBytes.readByte());
+               assertEquals(ActiveMQTestBase.getSamplebyte(i), copiedBytes.readByte());
             }
          } else if (copiedMessage instanceof MapMessage) {
             MapMessage copiedMap = (MapMessage) copiedMessage;
             MapMessage originalMap = (MapMessage) originalMessage;
             if (originalMap.getString("str") != null) {
-               Assert.assertEquals(originalMap.getString("str"), copiedMap.getString("str"));
+               assertEquals(originalMap.getString("str"), copiedMap.getString("str"));
             }
             if (originalMap.getObject("long") != null) {
-               Assert.assertEquals(originalMap.getLong("long"), copiedMap.getLong("long"));
+               assertEquals(originalMap.getLong("long"), copiedMap.getLong("long"));
             }
             if (originalMap.getObject("int") != null) {
-               Assert.assertEquals(originalMap.getInt("int"), copiedMap.getInt("int"));
+               assertEquals(originalMap.getInt("int"), copiedMap.getInt("int"));
             }
             if (originalMap.getObject("object") != null) {
-               Assert.assertEquals(originalMap.getObject("object"), copiedMap.getObject("object"));
+               assertEquals(originalMap.getObject("object"), copiedMap.getObject("object"));
             }
          } else if (copiedMessage instanceof ObjectMessage) {
-            Assert.assertNotSame(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
-            Assert.assertEquals(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
+            assertNotSame(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
+            assertEquals(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
          } else if (copiedMessage instanceof TextMessage) {
-            Assert.assertEquals(((TextMessage) originalMessage).getText(), ((TextMessage) copiedMessage).getText());
+            assertEquals(((TextMessage) originalMessage).getText(), ((TextMessage) copiedMessage).getText());
          }
       }
 
@@ -229,7 +233,7 @@ public class ReSendMessageTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");

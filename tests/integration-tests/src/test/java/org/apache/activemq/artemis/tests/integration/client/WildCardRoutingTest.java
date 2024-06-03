@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -28,9 +32,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WildCardRoutingTest extends ActiveMQTestBase {
 
@@ -57,15 +60,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -82,21 +85,21 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientSession.deleteQueue(queueName);
 
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
    }
 
    @Test
@@ -115,27 +118,27 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientSession.deleteQueue(queueName);
 
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
 
       clientSession.deleteQueue(queueName2);
 
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
    }
 
    @Test
@@ -156,15 +159,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -185,15 +188,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -213,20 +216,20 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       clientSession.start();
       clientSession.deleteQueue(queueName1);
       // the wildcard binding should still exist
-      Assert.assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 1);
+      assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 1);
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       clientConsumer.close();
       clientSession.deleteQueue(queueName);
-      Assert.assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 0);
+      assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 0);
    }
 
    @Test
@@ -275,43 +278,43 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(addressAK, createTextMessage(clientSession, "m9"));
 
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m3", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m4", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m5", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m6", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m7", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m8", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m9", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m9", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       // now remove all the queues
       clientSession.deleteQueue(queueName1);
       clientSession.deleteQueue(queueName2);
@@ -372,43 +375,43 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(addressAK, createTextMessage(clientSession, "m9"));
 
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m3", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m4", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m5", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m6", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m7", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m8", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m9", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m9", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       // now remove all the queues
       clientSession.deleteQueue(queueName1);
       clientSession.deleteQueue(queueName2);
@@ -441,15 +444,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -470,15 +473,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -499,15 +502,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -528,15 +531,15 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -557,11 +560,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -582,12 +585,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -609,11 +612,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -634,11 +637,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -659,11 +662,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -684,11 +687,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -709,11 +712,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -727,9 +730,9 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
-      Assert.assertEquals(2, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
-      Assert.assertEquals(2, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
+      assertEquals(2, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
+      assertEquals(2, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
       ClientConsumer clientConsumer = clientSession.createConsumer(queueName);
@@ -737,24 +740,24 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientSession.deleteQueue(queueName);
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
-      Assert.assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
-      Assert.assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAC).getBindings().size());
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(address).getBindings().size());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration configuration = createDefaultInVMConfig().setWildcardRoutingEnabled(true).setTransactionTimeoutScanPeriod(500);

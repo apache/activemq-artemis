@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -39,8 +43,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +102,7 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
 
 
       HashMap<Integer, AtomicInteger> journalCount = countJournal(server.getConfiguration());
-      Assert.assertEquals(NUMBER_OF_MESSAGES * 2, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
+      assertEquals(NUMBER_OF_MESSAGES * 2, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
 
       try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {
          server.start();
@@ -110,7 +113,7 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(60_000);
 
       journalCount = countJournal(server.getConfiguration());
-      Assert.assertEquals(NUMBER_OF_MESSAGES, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
+      assertEquals(NUMBER_OF_MESSAGES, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
 
       server.stop();
       server.start();
@@ -122,11 +125,11 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
             MessageConsumer consumer = session.createConsumer(session.createQueue("test" + producerID));
             for (int i = 0; i < (producerID == 1 ? 0 : NUMBER_OF_MESSAGES); i++) {
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull("message not received on producer + " + producerID + ", message " + i, message);
-               Assert.assertEquals("could not find message " + i + " on producerID=" + producerID, "hello " + i, message.getText());
+               assertNotNull(message, "message not received on producer + " + producerID + ", message " + i);
+               assertEquals("hello " + i, message.getText(), "could not find message " + i + " on producerID=" + producerID);
                session.commit();
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             consumer.close();
          }
       }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -42,14 +46,13 @@ import javax.jms.TopicSubscriber;
 import java.io.Serializable;
 
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BasicSecurityTest extends BasicOpenWireTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       this.enableSecurity = true;
       super.setUp();
@@ -162,7 +165,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
          MessageConsumer consumer;
          try {
             consumer = sendingSession.createConsumer(dest);
-            Assert.fail("exception expected");
+            fail("exception expected");
          } catch (JMSSecurityException e) {
             e.printStackTrace();
             //expected

@@ -16,19 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.jndi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jndi.JNDIReferenceFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test to simulate JNDI references created using String properties in containers such as Apache Tomcat.
@@ -38,7 +40,8 @@ public class StringRefAddrReferenceTest {
    private static final String FACTORY = "factory";
    private static final String TYPE = "type";
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
    public void testActiveMQQueueFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQQueue.class.getName());
@@ -55,7 +58,8 @@ public class StringRefAddrReferenceTest {
 
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
    public void testActiveMQTopicFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQTopic.class.getName());
@@ -72,7 +76,8 @@ public class StringRefAddrReferenceTest {
 
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
    public void testActiveMQConnectionFactoryFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQConnectionFactory.class.getName());

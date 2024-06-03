@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -45,9 +49,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
 
@@ -56,7 +59,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void setServer() throws Exception {
    }
 
@@ -151,7 +154,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
       connection.start();
 
       Queue queue = server.locateQueue("Sub_1");
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Topic topic = session.createTopic(SUB_NAME);
@@ -162,19 +165,19 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < numberOfMessages; i++) {
             producer.send(session.createTextMessage("a"));
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
          connection.close();
       } finally {
          running.set(false);
-         Assert.assertTrue(runningLatch.await(10, TimeUnit.SECONDS));
+         assertTrue(runningLatch.await(10, TimeUnit.SECONDS));
       }
 
       Wait.assertEquals(0, this::countAddMessage, 5000, 100);
 
       Wait.assertEquals(0L, queue.getPagingStore()::getAddressSize, 2000, 100);
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    int countAddMessage() throws Exception {

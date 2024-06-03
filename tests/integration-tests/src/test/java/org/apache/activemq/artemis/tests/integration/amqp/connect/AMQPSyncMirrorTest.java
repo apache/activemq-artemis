@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -64,9 +69,8 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +84,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
    private ActiveMQServer slowServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -273,7 +277,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
                Wait.assertEquals(i, replicatedQueue::getMessageCount);
 
-               Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+               assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
                pool.execute(() -> {
                   try {
@@ -285,10 +289,10 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                });
             }
 
-            Assert.assertFalse("sendPending.await() not supposed to succeed", sendPending.await(10, TimeUnit.MILLISECONDS));
+            assertFalse(sendPending.await(10, TimeUnit.MILLISECONDS), "sendPending.await() not supposed to succeed");
             logger.debug("semSend.release");
             semSend.release();
-            Assert.assertTrue(sendPending.await(10, TimeUnit.SECONDS));
+            assertTrue(sendPending.await(10, TimeUnit.SECONDS));
             Wait.assertEquals(i + 1, replicatedQueue::getMessageCount);
          }
 
@@ -305,7 +309,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             logger.debug("===<<< Receiving message {}", i);
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             semAck.acquire();
 
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -328,15 +332,15 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                // non transactional ack in AMQP is always async. No need to verify anything else here
                logger.debug("non transactional and amqp is always asynchronous. No need to verify anything");
             } else {
-               Assert.assertFalse(countDownLatch.await(10, TimeUnit.MILLISECONDS));
+               assertFalse(countDownLatch.await(10, TimeUnit.MILLISECONDS));
             }
 
             semAck.release();
-            Assert.assertTrue(countDownLatch.await(10, TimeUnit.SECONDS));
+            assertTrue(countDownLatch.await(10, TimeUnit.SECONDS));
             Wait.assertEquals(NUMBER_OF_MESSAGES - i - 1, replicatedQueue::getMessageCount);
          }
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       } finally {
          semAck.release();
          semSend.release();
@@ -541,9 +545,9 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
       Wait.waitFor(() -> server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror") != null, 5000);
       Queue snf = server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror");
-      Assert.assertNotNull(snf);
+      assertNotNull(snf);
       // Mirror is configured to block, we cannot allow anything other than block
-      Assert.assertEquals(AddressFullMessagePolicy.BLOCK, snf.getPagingStore().getAddressFullMessagePolicy());
+      assertEquals(AddressFullMessagePolicy.BLOCK, snf.getPagingStore().getAddressFullMessagePolicy());
 
       server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
@@ -592,7 +596,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          Message message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          message.acknowledge();
 
@@ -603,7 +607,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          Wait.assertEquals(NUMBER_OF_MESSAGES - i - 1, replicatedQueue::getMessageCount, 5000);
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 }

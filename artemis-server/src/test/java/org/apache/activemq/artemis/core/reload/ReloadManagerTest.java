@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.reload;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -29,10 +32,9 @@ import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReloadManagerTest extends ServerTestBase {
 
@@ -42,14 +44,14 @@ public class ReloadManagerTest extends ServerTestBase {
 
    private ReloadManagerImpl manager;
 
-   @Before
+   @BeforeEach
    public void startScheduled() {
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
       executorService = Executors.newSingleThreadExecutor();
       manager = new ReloadManagerImpl(scheduledExecutorService, executorService, 100);
    }
 
-   @After
+   @AfterEach
    public void stopScheduled() {
       manager.stop();
       scheduledExecutorService.shutdown();
@@ -81,7 +83,7 @@ public class ReloadManagerTest extends ServerTestBase {
 
       File parentDir = nested.getParentFile();
 
-      Assert.assertTrue(parentDir.isDirectory());
+      assertTrue(parentDir.isDirectory());
 
       final ReusableLatch latch = new ReusableLatch(1);
 
@@ -93,11 +95,11 @@ public class ReloadManagerTest extends ServerTestBase {
       };
       manager.addCallback(parentDir.toURI().toURL(), reloadCallback);
 
-      Assert.assertFalse(latch.await(1, TimeUnit.SECONDS));
+      assertFalse(latch.await(1, TimeUnit.SECONDS));
 
       parentDir.setLastModified(System.currentTimeMillis());
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      assertTrue(latch.await(1, TimeUnit.SECONDS));
 
    }
 
@@ -116,17 +118,17 @@ public class ReloadManagerTest extends ServerTestBase {
       File notExistFile = new File(getTemporaryDir(), "./sub2/not-there");
       File notExistDir = notExistFile.getParentFile();
 
-      Assert.assertFalse(notExistDir.exists());
+      assertFalse(notExistDir.exists());
 
       manager.addCallback(notExistDir.toURI().toURL(), reloadCallback);
 
-      Assert.assertFalse(latch.await(1, TimeUnit.SECONDS));
+      assertFalse(latch.await(1, TimeUnit.SECONDS));
 
       // create that non-existent file now
       notExistFile.mkdirs();
       notExistFile.createNewFile();
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      assertTrue(latch.await(1, TimeUnit.SECONDS));
    }
 
    private void internalTest(ReloadManagerImpl manager, File file) throws IOException, InterruptedException {
@@ -141,10 +143,10 @@ public class ReloadManagerTest extends ServerTestBase {
          }
       });
 
-      Assert.assertFalse(latch.await(1, TimeUnit.SECONDS));
+      assertFalse(latch.await(1, TimeUnit.SECONDS));
 
       file.setLastModified(System.currentTimeMillis());
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      assertTrue(latch.await(1, TimeUnit.SECONDS));
    }
 }

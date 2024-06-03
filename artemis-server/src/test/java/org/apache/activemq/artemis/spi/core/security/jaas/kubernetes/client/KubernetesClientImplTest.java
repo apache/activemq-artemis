@@ -21,11 +21,11 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.AUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.UNAUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.USERNAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.JsonBody.json;
@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model.TokenReview;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockserver.configuration.Configuration;
 import org.mockserver.configuration.ConfigurationProperties;
 import org.mockserver.integration.ClientAndServer;
@@ -64,7 +64,7 @@ public class KubernetesClientImplTest {
    private static final String KERMIT_REQUEST = "{\"apiVersion\": \"authentication.k8s.io/v1\"," +
          "\"kind\": \"TokenReview\", \"spec\": {\"token\": \"kermit_token\"}}";
 
-   @BeforeClass
+   @BeforeAll
    public static void startServer() {
       ConfigurationProperties.dynamicallyCreateCertificateAuthorityCertificate(true);
       ConfigurationProperties.directoryToSaveDynamicSSLCertificate("target/test-classes");
@@ -90,7 +90,7 @@ public class KubernetesClientImplTest {
       System.setProperty("KUBERNETES_CA_PATH", caPath.getPath());
    }
 
-   @AfterClass
+   @AfterAll
    public static void stopServer() {
       System.clearProperty("KUBERNETES_SERVICE_HOST");
       System.clearProperty("KUBERNETES_SERVICE_PORT");
@@ -99,7 +99,7 @@ public class KubernetesClientImplTest {
       mockServer.stop();
    }
 
-   @Before
+   @BeforeEach
    public void reset() {
       mockServer.reset();
    }

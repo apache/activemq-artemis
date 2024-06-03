@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.soak.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
@@ -36,9 +38,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
    protected ActiveMQServer server;
@@ -47,7 +48,7 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultNettyConfig();
@@ -111,8 +112,8 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
 
       thread.interrupt();
 
-      Assert.assertEquals(messageCount, queueControl.getMessageCount());
-      Assert.assertEquals(ActiveMQServer.SERVER_STATE.STARTED, server.getState());
+      assertEquals(messageCount, queueControl.getMessageCount());
+      assertEquals(ActiveMQServer.SERVER_STATE.STARTED, server.getState());
 
       server.stop();
 

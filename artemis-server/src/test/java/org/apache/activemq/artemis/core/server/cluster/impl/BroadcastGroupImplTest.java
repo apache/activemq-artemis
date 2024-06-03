@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
@@ -23,7 +26,7 @@ import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the {@link BroadcastGroupImpl}.<br>
@@ -110,6 +113,6 @@ public class BroadcastGroupImplTest extends ServerTestBase {
       // Broadcast
       test.broadcastConnectors();
       // Make sure we sent one package
-      assertEquals("Incorrect number of sent datagrams", 1, befi.sent);
+      assertEquals(1, befi.sent, "Incorrect number of sent datagrams");
    }
 }

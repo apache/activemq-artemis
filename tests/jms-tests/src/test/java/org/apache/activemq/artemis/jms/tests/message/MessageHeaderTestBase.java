@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
 
@@ -355,7 +355,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
    protected MessageConsumer topicConsumer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

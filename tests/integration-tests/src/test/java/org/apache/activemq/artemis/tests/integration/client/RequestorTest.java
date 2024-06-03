@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -34,9 +38,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RequestorTest extends ActiveMQTestBase {
 
@@ -65,8 +68,8 @@ public class RequestorTest extends ActiveMQTestBase {
       request.putLongProperty(key, value);
 
       ClientMessage reply = requestor.request(request, 500);
-      Assert.assertNotNull("reply was not received", reply);
-      Assert.assertEquals(value, reply.getObjectProperty(key));
+      assertNotNull(reply, "reply was not received");
+      assertEquals(value, reply.getObjectProperty(key));
 
       Thread.sleep(5000);
       session.close();
@@ -103,9 +106,9 @@ public class RequestorTest extends ActiveMQTestBase {
          request.putLongProperty(key, value);
 
          ClientMessage reply = requestor.request(request, 5000);
-         Assert.assertNotNull("reply was not received", reply);
+         assertNotNull(reply, "reply was not received");
          reply.acknowledge();
-         Assert.assertEquals(value, reply.getObjectProperty(key));
+         assertEquals(value, reply.getObjectProperty(key));
          requestor.close();
          session.close();
       }
@@ -136,15 +139,15 @@ public class RequestorTest extends ActiveMQTestBase {
       request.putLongProperty(key, value);
 
       ClientMessage reply = requestor.request(request, 500);
-      Assert.assertNotNull("reply was not received", reply);
-      Assert.assertEquals(value, reply.getObjectProperty(key));
+      assertNotNull(reply, "reply was not received");
+      assertEquals(value, reply.getObjectProperty(key));
 
       request = session.createMessage(false);
       request.putLongProperty(key, value + 1);
 
       reply = requestor.request(request, 500);
-      Assert.assertNotNull("reply was not received", reply);
-      Assert.assertEquals(value + 1, reply.getObjectProperty(key));
+      assertNotNull(reply, "reply was not received");
+      assertEquals(value + 1, reply.getObjectProperty(key));
 
       session.close();
    }
@@ -174,7 +177,7 @@ public class RequestorTest extends ActiveMQTestBase {
       ClientMessage request = session.createMessage(false);
 
       ClientMessage reply = requestor.request(request, 500);
-      Assert.assertNull(reply);
+      assertNull(reply);
 
       session.close();
    }
@@ -220,8 +223,8 @@ public class RequestorTest extends ActiveMQTestBase {
       request.putLongProperty(key, value);
 
       ClientMessage reply = requestor.request(request, 500);
-      Assert.assertNotNull("reply was not received", reply);
-      Assert.assertEquals(value, reply.getObjectProperty(key));
+      assertNotNull(reply, "reply was not received");
+      assertEquals(value, reply.getObjectProperty(key));
 
       request = session.createMessage(false);
       request.putLongProperty(key, value + 1);
@@ -239,7 +242,7 @@ public class RequestorTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());

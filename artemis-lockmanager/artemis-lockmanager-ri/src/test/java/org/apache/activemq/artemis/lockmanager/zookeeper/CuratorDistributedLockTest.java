@@ -16,8 +16,15 @@
  */
 package org.apache.activemq.artemis.lockmanager.zookeeper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -30,25 +37,22 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.lockmanager.DistributedLock;
 import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockTest;
 import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
-
-import org.apache.activemq.artemis.lockmanager.DistributedLockTest;
 import org.apache.curator.test.TestingZooKeeperServer;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static java.lang.Boolean.TRUE;
-
-@RunWith(value = Parameterized.class)
 public class CuratorDistributedLockTest extends DistributedLockTest {
+
+   // fast-tests runs dont need to run 3 ZK nodes
+   private static final int ZK_NODES = Boolean.getBoolean("fast-tests") ? 1 : 3;
 
    private static final int BASE_SERVER_PORT = 6666;
    private static final int CONNECTION_MS = 2000;
@@ -58,26 +62,23 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    private static final int RETRIES_MS = 100;
    private static final int RETRIES = 1;
 
-   // fast-tests runs doesn't need to run 3 ZK nodes
-   private static final int ZK_NODES = Boolean.getBoolean("fast-tests") ? 1 : 3;
-   @Parameterized.Parameter
    public int zkNodes;
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
    private TestingCluster testingServer;
    private InstanceSpec[] clusterSpecs;
    private String connectString;
 
-   @Parameterized.Parameters(name = "nodes={0}")
-   public static Iterable<Object[]> getTestParameters() {
-      return Arrays.asList(new Object[][]{{ZK_NODES}});
-   }
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File tmpFolder;
 
+   @BeforeEach
    @Override
    public void setupEnv() throws Throwable {
+      zkNodes = ZK_NODES; // The number of nodes to use, based on test profile.
+
       clusterSpecs = new InstanceSpec[zkNodes];
       for (int i = 0; i < zkNodes; i++) {
-         clusterSpecs[i] = new InstanceSpec(tmpFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
+         clusterSpecs[i] = new InstanceSpec(newFolder(tmpFolder, "node" + i), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
@@ -85,6 +86,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       super.setupEnv();
    }
 
+   @AfterEach
    @Override
    public void tearDownEnv() throws Throwable {
       super.tearDownEnv();
@@ -105,9 +107,11 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       return CuratorDistributedLockManager.class.getName();
    }
 
-   @Test(expected = RuntimeException.class)
+   @Test
    public void cannotCreateManagerWithNotValidParameterNames() {
-      final DistributedLockManager manager = createManagedDistributeManager(config -> config.put("_", "_"));
+      assertThrows(RuntimeException.class, () -> {
+         final DistributedLockManager manager = createManagedDistributeManager(config -> config.put("_", "_"));
+      });
    }
 
    @Test
@@ -116,78 +120,85 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       manager1.start();
       final DistributedLockManager manager2 = createManagedDistributeManager(config -> config.put("namespace", "2"));
       manager2.start();
-      Assert.assertTrue(manager1.getDistributedLock("a").tryLock());
-      Assert.assertTrue(manager2.getDistributedLock("a").tryLock());
+      assertTrue(manager1.getDistributedLock("a").tryLock());
+      assertTrue(manager2.getDistributedLock("a").tryLock());
    }
 
    @Test
    public void cannotStartManagerWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException {
       final DistributedLockManager manager = createManagedDistributeManager();
       testingServer.close();
-      Assert.assertFalse(manager.start(1, TimeUnit.SECONDS));
+      assertFalse(manager.start(1, TimeUnit.SECONDS));
    }
 
-   @Test(expected = UnavailableStateException.class)
+   @Test
    public void cannotAcquireLockWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
-      final DistributedLockManager manager = createManagedDistributeManager();
-      manager.start();
-      final DistributedLock lock = manager.getDistributedLock("a");
-      final CountDownLatch notAvailable = new CountDownLatch(1);
-      final DistributedLock.UnavailableLockListener listener = notAvailable::countDown;
-      lock.addListener(listener);
-      testingServer.close();
-      Assert.assertTrue(notAvailable.await(30, TimeUnit.SECONDS));
-      lock.tryLock();
+      assertThrows(UnavailableStateException.class, () -> {
+         final DistributedLockManager manager = createManagedDistributeManager();
+         manager.start();
+         final DistributedLock lock = manager.getDistributedLock("a");
+         final CountDownLatch notAvailable = new CountDownLatch(1);
+         final DistributedLock.UnavailableLockListener listener = notAvailable::countDown;
+         lock.addListener(listener);
+         testingServer.close();
+         assertTrue(notAvailable.await(30, TimeUnit.SECONDS));
+         lock.tryLock();
+      });
    }
 
-   @Test(expected = UnavailableStateException.class)
+   @Test
    public void cannotTryLockWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
-      final DistributedLockManager manager = createManagedDistributeManager();
-      manager.start();
-      final DistributedLock lock = manager.getDistributedLock("a");
-      testingServer.close();
-      lock.tryLock();
+      assertThrows(UnavailableStateException.class, () -> {
+         final DistributedLockManager manager = createManagedDistributeManager();
+         manager.start();
+         final DistributedLock lock = manager.getDistributedLock("a");
+         testingServer.close();
+         lock.tryLock();
+      });
    }
 
-   @Test(expected = UnavailableStateException.class)
+   @Test
    public void cannotCheckLockStatusWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
-      final DistributedLockManager manager = createManagedDistributeManager();
-      manager.start();
-      final DistributedLock lock = manager.getDistributedLock("a");
-      Assert.assertFalse(lock.isHeldByCaller());
-      Assert.assertTrue(lock.tryLock());
-      testingServer.close();
-      lock.isHeldByCaller();
+      assertThrows(UnavailableStateException.class, () -> {
+         final DistributedLockManager manager = createManagedDistributeManager();
+         manager.start();
+         final DistributedLock lock = manager.getDistributedLock("a");
+         assertFalse(lock.isHeldByCaller());
+         assertTrue(lock.tryLock());
+         testingServer.close();
+         lock.isHeldByCaller();
+      });
    }
 
-   @Test(expected = UnavailableStateException.class)
    public void looseLockAfterServerStop() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException, IOException {
-      final DistributedLockManager manager = createManagedDistributeManager();
-      manager.start();
-      final DistributedLock lock = manager.getDistributedLock("a");
-      Assert.assertTrue(lock.tryLock());
-      Assert.assertTrue(lock.isHeldByCaller());
-      final CountDownLatch notAvailable = new CountDownLatch(1);
-      final DistributedLock.UnavailableLockListener listener = notAvailable::countDown;
-      lock.addListener(listener);
-      Assert.assertEquals(1, notAvailable.getCount());
-      testingServer.close();
-      Assert.assertTrue(notAvailable.await(30, TimeUnit.SECONDS));
-      lock.isHeldByCaller();
+      assertThrows(UnavailableStateException.class, () -> {
+         final DistributedLockManager manager = createManagedDistributeManager();
+         manager.start();
+         final DistributedLock lock = manager.getDistributedLock("a");
+         assertTrue(lock.tryLock());
+         assertTrue(lock.isHeldByCaller());
+         final CountDownLatch notAvailable = new CountDownLatch(1);
+         final DistributedLock.UnavailableLockListener listener = notAvailable::countDown;
+         lock.addListener(listener);
+         assertEquals(1, notAvailable.getCount());
+         testingServer.close();
+         assertTrue(notAvailable.await(30, TimeUnit.SECONDS));
+         lock.isHeldByCaller();
+      });
    }
 
    @Test
    public void canAcquireLockOnMajorityRestart() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       final DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       final DistributedLock lock = manager.getDistributedLock("a");
-      Assert.assertTrue(lock.tryLock());
-      Assert.assertTrue(lock.isHeldByCaller());
+      assertTrue(lock.tryLock());
+      assertTrue(lock.isHeldByCaller());
       final CountDownLatch notAvailable = new CountDownLatch(1);
       final DistributedLock.UnavailableLockListener listener = notAvailable::countDown;
       lock.addListener(listener);
-      Assert.assertEquals(1, notAvailable.getCount());
+      assertEquals(1, notAvailable.getCount());
       testingServer.stop();
       notAvailable.await();
       manager.stop();
@@ -196,31 +207,33 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       otherManager.start();
       // await more then the expected value, that depends by how curator session expiration is configured
       TimeUnit.MILLISECONDS.sleep(SESSION_MS + SERVER_TICK_MS);
-      Assert.assertTrue(otherManager.getDistributedLock("a").tryLock());
+      assertTrue(otherManager.getDistributedLock("a").tryLock());
    }
 
    @Test
    public void cannotStartManagerWithoutQuorum() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       stopMajority(true);
-      Assert.assertFalse(manager.start(2, TimeUnit.SECONDS));
-      Assert.assertFalse(manager.isStarted());
+      assertFalse(manager.start(2, TimeUnit.SECONDS));
+      assertFalse(manager.isStarted());
    }
 
-   @Test(expected = UnavailableStateException.class)
+   @Test
    public void cannotAcquireLockWithoutQuorum() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
-      DistributedLockManager manager = createManagedDistributeManager();
-      manager.start();
-      stopMajority(true);
-      DistributedLock lock = manager.getDistributedLock("a");
-      lock.tryLock();
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
+      assertThrows(UnavailableStateException.class, () -> {
+         DistributedLockManager manager = createManagedDistributeManager();
+         manager.start();
+         stopMajority(true);
+         DistributedLock lock = manager.getDistributedLock("a");
+         lock.tryLock();
+      });
    }
 
    @Test
    public void cannotCheckLockWithoutQuorum() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       stopMajority(true);
@@ -231,34 +244,34 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       } catch (UnavailableStateException expected) {
          return;
       }
-      Assert.assertFalse(held);
+      assertFalse(held);
    }
 
    @Test
    public void canGetLockWithoutQuorum() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       stopMajority(true);
       DistributedLock lock = manager.getDistributedLock("a");
-      Assert.assertNotNull(lock);
+      assertNotNull(lock);
    }
 
    @Test
    public void notifiedAsUnavailableWhileLoosingQuorum() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
       CountDownLatch unavailable = new CountDownLatch(1);
       lock.addListener(unavailable::countDown);
       stopMajority(true);
-      Assert.assertTrue(unavailable.await(SESSION_MS + SERVER_TICK_MS, TimeUnit.MILLISECONDS));
+      assertTrue(unavailable.await(SESSION_MS + SERVER_TICK_MS, TimeUnit.MILLISECONDS));
    }
 
    @Test
    public void beNotifiedOnce() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -268,13 +281,13 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       lock.addListener(unavailableLock::incrementAndGet);
       stopMajority(true);
       TimeUnit.MILLISECONDS.sleep(SESSION_MS + SERVER_TICK_MS + CONNECTION_MS);
-      Assert.assertEquals(1, unavailableLock.get());
-      Assert.assertEquals(1, unavailableManager.get());
+      assertEquals(1, unavailableLock.get());
+      assertEquals(1, unavailableManager.get());
    }
 
    @Test
    public void beNotifiedOfUnavailabilityWhileBlockedOnTimedLock() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -284,7 +297,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       lock.addListener(unavailableLock::incrementAndGet);
       final DistributedLockManager otherManager = createManagedDistributeManager();
       otherManager.start();
-      Assert.assertTrue(otherManager.getDistributedLock("a").tryLock());
+      assertTrue(otherManager.getDistributedLock("a").tryLock());
       final CountDownLatch startedTimedLock = new CountDownLatch(1);
       final AtomicReference<Boolean> unavailableTimedLock = new AtomicReference<>(null);
       Thread timedLock = new Thread(() -> {
@@ -299,18 +312,20 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
          }
       });
       timedLock.start();
-      Assert.assertTrue(startedTimedLock.await(10, TimeUnit.SECONDS));
+      assertTrue(startedTimedLock.await(10, TimeUnit.SECONDS));
       TimeUnit.SECONDS.sleep(1);
       stopMajority(true);
       TimeUnit.MILLISECONDS.sleep(SESSION_MS + CONNECTION_MS);
       Wait.waitFor(() -> unavailableLock.get() > 0, SERVER_TICK_MS);
-      Assert.assertEquals(1, unavailableManager.get());
-      Assert.assertEquals(TRUE, unavailableTimedLock.get());
+      assertEquals(1, unavailableManager.get());
+      Boolean result = unavailableTimedLock.get();
+      assertNotNull(result);
+      assertTrue(result);
    }
 
    @Test
    public void beNotifiedOfAlreadyUnavailableManagerAfterAddingListener() throws Exception {
-      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
+      assumeTrue(zkNodes > 1, zkNodes + " <= 1");
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       final AtomicBoolean unavailable = new AtomicBoolean(false);
@@ -318,17 +333,17 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
          unavailable.set(true);
       };
       manager.addUnavailableManagerListener(managerListener);
-      Assert.assertFalse(unavailable.get());
+      assertFalse(unavailable.get());
       stopMajority(true);
       Wait.waitFor(unavailable::get);
       manager.removeUnavailableManagerListener(managerListener);
       final AtomicInteger unavailableOnRegister = new AtomicInteger();
       manager.addUnavailableManagerListener(unavailableOnRegister::incrementAndGet);
-      Assert.assertEquals(1, unavailableOnRegister.get());
+      assertEquals(1, unavailableOnRegister.get());
       unavailableOnRegister.set(0);
       try (DistributedLock lock = manager.getDistributedLock("a")) {
          lock.addListener(unavailableOnRegister::incrementAndGet);
-         Assert.assertEquals(1, unavailableOnRegister.get());
+         assertEquals(1, unavailableOnRegister.get());
       }
    }
 
@@ -349,5 +364,13 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
             throw new IllegalStateException("errored while restarting " + clusterSpecs[nodeIndex]);
          }
       }
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

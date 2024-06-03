@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.smoke.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.IllegalStateException;
@@ -42,10 +45,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -56,7 +60,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @BeforeClass
+   @BeforeAll
    public static void createServers() throws Exception {
 
       File server0Location = getFileServerLocation(SERVER_NAME_0);
@@ -71,7 +75,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -92,17 +96,19 @@ public class MultiThreadConvertTest extends SmokeTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.PERSISTENT);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersNonPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.NON_PERSISTENT);
    }
@@ -159,7 +165,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
             });
          }
 
-         assertTrue("Receivers didn't signal ready", subscribed.await(10, TimeUnit.SECONDS));
+         assertTrue(subscribed.await(10, TimeUnit.SECONDS), "Receivers didn't signal ready");
 
          // Send using AMQP and receive using Core JMS client.
          Session amqpSession = amqpConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -173,8 +179,8 @@ public class MultiThreadConvertTest extends SmokeTestBase {
             producer.send(message);
          }
 
-         assertTrue("did not read all messages, waiting on: " + done.getCount(), done.await(30, TimeUnit.SECONDS));
-         assertFalse("should not be any errors on receive", error.get());
+         assertTrue(done.await(30, TimeUnit.SECONDS), "did not read all messages, waiting on: " + done.getCount());
+         assertFalse(error.get(), "should not be any errors on receive");
       } finally {
          try {
             amqpConnection.close();

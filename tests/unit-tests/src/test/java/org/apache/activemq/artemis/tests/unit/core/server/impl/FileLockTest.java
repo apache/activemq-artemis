@@ -29,16 +29,21 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.util.stream.Collectors.toSet;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileLockTest extends ActiveMQTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       File file = new File(getTestDir());
@@ -72,20 +77,20 @@ public class FileLockTest extends ActiveMQTestBase {
       Set<File> files = Arrays.stream(managerDirectory.listFiles(pathname -> pathname.isFile())).collect(toSet());
       final Set<String> expectedFileNames = Arrays.stream(new String[]{FileLockNodeManager.SERVER_LOCK_NAME, "serverlock.1", "serverlock.2"})
          .collect(toSet());
-      Assert.assertEquals(expectedFileNames, files.stream().map(File::getName).collect(toSet()));
+      assertEquals(expectedFileNames, files.stream().map(File::getName).collect(toSet()));
       final File nodeIdFile = files.stream().filter(file -> file.getName().equals(FileLockNodeManager.SERVER_LOCK_NAME)).findFirst().get();
       final byte[] encodedNodeId = manager.getUUID().asBytes();
       try (FileChannel serverLock = FileChannel.open(nodeIdFile.toPath(), StandardOpenOption.READ)) {
-         Assert.assertEquals(16, encodedNodeId.length);
-         Assert.assertEquals(19, serverLock.size());
+         assertEquals(16, encodedNodeId.length);
+         assertEquals(19, serverLock.size());
          final ByteBuffer readNodeId = ByteBuffer.allocate(16);
          serverLock.read(readNodeId, 3);
          readNodeId.flip();
-         Assert.assertArrayEquals(encodedNodeId, readNodeId.array());
+         assertArrayEquals(encodedNodeId, readNodeId.array());
       }
-      Assert.assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.getNodeActivationSequence());
-      Assert.assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.readNodeActivationSequence());
-      Assert.assertEquals(3, managerDirectory.listFiles(pathname -> pathname.isFile()).length);
+      assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.getNodeActivationSequence());
+      assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.readNodeActivationSequence());
+      assertEquals(3, managerDirectory.listFiles(pathname -> pathname.isFile()).length);
       manager.stop();
    }
 
@@ -95,12 +100,12 @@ public class FileLockTest extends ActiveMQTestBase {
       FileLockNodeManager manager = new FileLockNodeManager(managerDirectory, true);
       manager.start();
       Set<File> files = Arrays.stream(managerDirectory.listFiles(pathname -> pathname.isFile())).collect(toSet());
-      Assert.assertTrue(files.isEmpty());
-      Assert.assertNull(manager.getNodeId());
-      Assert.assertNull(manager.getUUID());
-      Assert.assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.getNodeActivationSequence());
-      Assert.assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.readNodeActivationSequence());
-      Assert.assertEquals(0, managerDirectory.listFiles(pathname -> pathname.isFile()).length);
+      assertTrue(files.isEmpty());
+      assertNull(manager.getNodeId());
+      assertNull(manager.getUUID());
+      assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.getNodeActivationSequence());
+      assertEquals(NodeManager.NULL_NODE_ACTIVATION_SEQUENCE, manager.readNodeActivationSequence());
+      assertEquals(0, managerDirectory.listFiles(pathname -> pathname.isFile()).length);
       manager.stop();
    }
 
@@ -108,16 +113,16 @@ public class FileLockTest extends ActiveMQTestBase {
    public void testReplicatedStopBackupPersistence() throws Exception {
       final FileLockNodeManager manager = new FileLockNodeManager(getTestDirfile(), false);
       manager.start();
-      Assert.assertNotNull(manager.getUUID());
+      assertNotNull(manager.getUUID());
       manager.writeNodeActivationSequence(1);
       final long nodeActivationSequence = manager.getNodeActivationSequence();
-      Assert.assertEquals(1, nodeActivationSequence);
+      assertEquals(1, nodeActivationSequence);
       manager.stop();
       // replicated manager read activation sequence (if any) but ignore NodeId
       final FileLockNodeManager replicatedManager = new FileLockNodeManager(getTestDirfile(), true);
       replicatedManager.start();
-      Assert.assertNull(replicatedManager.getUUID());
-      Assert.assertEquals(1, replicatedManager.getNodeActivationSequence());
+      assertNull(replicatedManager.getUUID());
+      assertEquals(1, replicatedManager.getNodeActivationSequence());
       UUID storedNodeId = UUIDGenerator.getInstance().generateUUID();
       replicatedManager.setNodeID(storedNodeId.toString());
       replicatedManager.setNodeActivationSequence(2);
@@ -127,8 +132,8 @@ public class FileLockTest extends ActiveMQTestBase {
       replicatedManager.stop();
       // start read whatever has been persisted by stopBackup
       manager.start();
-      Assert.assertEquals(storedNodeId, manager.getUUID());
-      Assert.assertEquals(2, manager.getNodeActivationSequence());
+      assertEquals(storedNodeId, manager.getUUID());
+      assertEquals(2, manager.getNodeActivationSequence());
       manager.stop();
    }
 
@@ -137,15 +142,15 @@ public class FileLockTest extends ActiveMQTestBase {
       final FileLockNodeManager manager = new FileLockNodeManager(getTestDirfile(), false);
       manager.start();
       UUID id = manager.getUUID();
-      Assert.assertNotNull(manager.getUUID());
+      assertNotNull(manager.getUUID());
       manager.writeNodeActivationSequence(1);
       final long nodeActivationSequence = manager.getNodeActivationSequence();
-      Assert.assertEquals(1, nodeActivationSequence);
+      assertEquals(1, nodeActivationSequence);
       manager.stop();
       final FileLockNodeManager otherManager = new FileLockNodeManager(getTestDirfile(), false);
       otherManager.start();
-      Assert.assertEquals(id, otherManager.getUUID());
-      Assert.assertEquals(1, otherManager.getNodeActivationSequence());
+      assertEquals(id, otherManager.getUUID());
+      assertEquals(1, otherManager.getNodeActivationSequence());
       otherManager.stop();
    }
 

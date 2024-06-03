@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -41,8 +48,9 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -92,7 +100,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * CONNACK containing an Assigned Client Identifier. The Assigned Client Identifier MUST be a new Client Identifier
     * not used by any other Session currently in the Server.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testEmptyClientID() throws Exception {
 
       // no session should exist
@@ -118,7 +127,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * the ClientID, it MUST set Session Present to 1 in the CONNACK packet, otherwise it MUST set Session Present to 0
     * in the CONNACK packet. In both cases it MUST set a 0x00 (Success) Reason Code in the CONNACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testConnackWhenCleanStartFalse() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
 
@@ -150,7 +160,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-2] If the Server accepts a connection with Clean Start set to 1, the Server MUST set Session Present
     * to 0 in the CONNACK packet in addition to setting a 0x00 (Success) Reason Code in the CONNACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testConnackWhenCleanStartTrue() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
 
@@ -175,7 +186,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * If the Session Expiry Interval is absent the value 0 is used. If it is set to 0, or is absent, the Session ends
     * when the Network Connection is closed.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testCleanStartFalseWithAbsentSessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -202,7 +214,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * If the Session Expiry Interval is 0xFFFFFFFF (UINT_MAX), the Session does not expire.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testCleanStartFalseWithMaxSessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -226,7 +239,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.0-1] The Server MUST send a CONNACK with a 0x00 (Success) Reason Code before sending any Packet other
     * than AUTH.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testConnackSentFirst() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       CountDownLatch latch = new CountDownLatch(1);
@@ -259,7 +273,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * This test *only* exercises one scenario where a CONNACK packet contains a non-zero Reason Code (i.e. when the
     * client ID is invalid)
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testSessionPresentWithNonZeroConnackReasonCode() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
@@ -293,7 +308,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
    /*
     * [MQTT-3.2.2-8] The Server sending the CONNACK packet MUST use one of the Connect Reason Code values.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testConnackReasonCode() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
@@ -317,7 +333,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * The normal use-case with a postive maximum packet size.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMaxPacketSize() throws Exception {
       final int SIZE = 256;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
@@ -359,7 +376,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * Disable maximum packet size on the broker so that it doesn't appear in the CONNACK at all.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMaxPacketSizeNegativeOne() throws Exception {
       final int SIZE = -1;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
@@ -377,8 +395,9 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * I expected the Paho client to validate the returning maximumPacketSize in the CONNACK, but it doesn't. :(
     */
-   @Ignore
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Disabled
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testMaxPacketSizeZero() throws Exception {
       final int SIZE = 0;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
@@ -404,7 +423,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * Disable topic alias maximum on the broker so that it is absent from the CONNACK.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testTopicAliasMaxNegativeOne() throws Exception {
       final int SIZE = -1;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
@@ -424,7 +444,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * Disable topic alias maximum on the broker.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testTopicAliasMaxZero() throws Exception {
       final int SIZE = 0;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
@@ -439,7 +460,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-21] If the Server sends a Server Keep Alive on the CONNACK packet, the Client MUST use this value
     * instead of the Keep Alive value the Client sent on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testServerKeepAlive() throws Exception {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
@@ -457,7 +479,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-22] If the Server does not send the Server Keep Alive, the Server MUST use the Keep Alive value set by
     * the Client on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testServerKeepAliveNegativeOne() throws Exception {
       final int KEEP_ALIVE = 1234;
       setAcceptorProperty("serverKeepAlive=-1");
@@ -483,7 +506,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * serverKeepAlive=0 completely disables keep alives no matter the client's keep alive value.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testServerKeepAliveZero() throws Exception {
       final int SERVER_KEEP_ALIVE = 0;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
@@ -506,7 +530,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-22] If the Server does not send the Server Keep Alive, the Server MUST use the Keep Alive value set by
     * the Client on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
    public void testServerKeepAliveWithClientKeepAliveZero() throws Exception {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);

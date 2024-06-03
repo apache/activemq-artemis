@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,24 +33,22 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CoreClientLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
-   @AfterClass
+   @AfterAll
    public static void afterClass() throws Exception {
       ServerStatus.clear();
       MemoryAssertions.assertMemory(new CheckLeak(), 0, ActiveMQServerImpl.class.getName());
@@ -56,7 +57,7 @@ public class CoreClientLeakTest extends AbstractLeakTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, createDefaultConfig(1, true));
@@ -65,7 +66,7 @@ public class CoreClientLeakTest extends AbstractLeakTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
       server.stop();
@@ -109,7 +110,7 @@ public class CoreClientLeakTest extends AbstractLeakTest {
 
             // I am allowing extra 50 strings created elsewhere. it should not happen at the time I created this test but I am allowing this just in case
             if (lastNumberOfSimpleStrings > initialSimpleString + 50) {
-               Assert.fail("There are " + lastNumberOfSimpleStrings + " while there was " + initialSimpleString + " SimpleString objects initially");
+               fail("There are " + lastNumberOfSimpleStrings + " while there was " + initialSimpleString + " SimpleString objects initially");
             }
 
          } finally {

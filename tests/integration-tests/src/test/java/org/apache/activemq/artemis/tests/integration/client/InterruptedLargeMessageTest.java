@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -63,16 +66,19 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//Parameters set in superclass
+@ExtendWith(ParameterizedTestExtension.class)
 public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -88,7 +94,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
@@ -99,7 +105,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       return false;
    }
 
-   @Test
+   @TestTemplate
    public void testInterruptLargeMessageSend() throws Exception {
 
       ClientSession session = null;
@@ -144,7 +150,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testCloseConsumerDuringTransmission() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
 
@@ -204,15 +210,15 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       t.join();
 
-      Assert.assertEquals(0, unexpectedErrors.get());
-      Assert.assertEquals(1, expectedErrors.get());
+      assertEquals(0, unexpectedErrors.get());
+      assertEquals(1, expectedErrors.get());
 
       session.close();
 
       server.stop();
    }
 
-   @Test
+   @TestTemplate
    public void testForcedInterruptUsingJMS() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
 
@@ -256,15 +262,15 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       t.join();
 
-      Assert.assertEquals(0, unexpectedErrors.get());
-      Assert.assertEquals(1, expectedErrors.get());
+      assertEquals(0, unexpectedErrors.get());
+      assertEquals(1, expectedErrors.get());
 
       session.close();
 
       server.stop();
    }
 
-   @Test
+   @TestTemplate
    public void testSendNonPersistentQueue() throws Exception {
 
       ClientSession session = null;
@@ -302,9 +308,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       for (int h = 0; h < 5; h++) {
          for (int i = 0; i < 10; i++) {
             ClientMessage clientMessage = cons.receive(5000);
-            Assert.assertNotNull(clientMessage);
+            assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++) {
-               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -319,7 +325,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testSendPaging() throws Exception {
 
       ClientSession session = null;
@@ -373,9 +379,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          for (int i = 0; i < 10; i++) {
             ClientMessage clientMessage = cons.receive(5000);
-            Assert.assertNotNull(clientMessage);
+            assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++) {
-               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -396,7 +402,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testSendPreparedXA() throws Exception {
       ClientSession session = null;
 
@@ -467,8 +473,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          for (int i = 0; i < 10; i++) {
             logger.info("I = {}", i);
             ClientMessage msg = cons1.receive(5000);
-            Assert.assertNotNull(msg);
-            Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
+            assertNotNull(msg);
+            assertEquals(1, msg.getIntProperty("txid").intValue());
             msg.acknowledge();
          }
 
@@ -504,7 +510,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testRestartBeforeDelete() throws Exception {
 
       class NoPostACKQueue extends QueueImpl {
@@ -638,7 +644,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       for (int i = 0; i < 10; i++) {
          ClientMessage msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.saveToOutputStream(new java.io.OutputStream() {
             @Override
             public void write(int b) throws IOException {
@@ -657,7 +663,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       validateNoFilesOnLargeDir();
    }
 
-   @Test
+   @TestTemplate
    public void testConsumeAfterRestart() throws Exception {
       ClientSession session = null;
 
@@ -701,7 +707,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       for (int i = 0; i < 10; i++) {
          ClientMessage msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.saveToOutputStream(new java.io.OutputStream() {
             @Override
             public void write(int b) throws IOException {

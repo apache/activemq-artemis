@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -50,8 +54,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.netty.NettyTransportFactory;
 import org.apache.activemq.transport.netty.NettyTransportListener;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSConfigurationTest extends ActiveMQTestBase {
 
@@ -81,8 +84,8 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
 
       for (String binding : cfConfig.getBindings()) {
          Object o = context.lookup(binding);
-         Assert.assertNotNull(o);
-         Assert.assertTrue(o instanceof ConnectionFactory);
+         assertNotNull(o);
+         assertTrue(o instanceof ConnectionFactory);
          ConnectionFactory cf = (ConnectionFactory) o;
          Connection connection = cf.createConnection();
          connection.close();
@@ -90,18 +93,18 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
 
       for (String binding : queueConfig.getBindings()) {
          Object o = context.lookup(binding);
-         Assert.assertNotNull(o);
-         Assert.assertTrue(o instanceof Queue);
+         assertNotNull(o);
+         assertTrue(o instanceof Queue);
          Queue queue = (Queue) o;
-         Assert.assertEquals(queueConfig.getName(), queue.getQueueName());
+         assertEquals(queueConfig.getName(), queue.getQueueName());
       }
 
       for (String binding : topicConfig.getBindings()) {
          Object o = context.lookup(binding);
-         Assert.assertNotNull(o);
-         Assert.assertTrue(o instanceof Topic);
+         assertNotNull(o);
+         assertTrue(o instanceof Topic);
          Topic topic = (Topic) o;
-         Assert.assertEquals(topicConfig.getName(), topic.getTopicName());
+         assertEquals(topicConfig.getName(), topic.getTopicName());
       }
 
       server.stop();
@@ -142,7 +145,7 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
 
       try {
          transport.connect();
-         assertTrue("Connection should be closed now", Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(HANDSHAKE_TIMEOUT + 1)));
+         assertTrue(Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(HANDSHAKE_TIMEOUT + 1)), "Connection should be closed now");
       } finally {
          transport.close();
          server.stop();

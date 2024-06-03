@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,16 +52,10 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReconnectTest extends ActiveMQTestBase {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    @Test
    public void testReconnectNetty() throws Exception {
@@ -112,12 +110,12 @@ public class ReconnectTest extends ActiveMQTestBase {
 
          server.start();
 
-         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+         assertTrue(latch.await(5, TimeUnit.SECONDS));
 
          // Some time to let possible loops to occur
          Thread.sleep(500);
 
-         Assert.assertEquals(1, count.get());
+         assertEquals(1, count.get());
 
          locator.close();
       } finally {
@@ -165,7 +163,7 @@ public class ReconnectTest extends ActiveMQTestBase {
             session.addMetaData("meta1", "meta1");
 
             ServerSession[] sessions = countMetadata(server, "meta1", 1);
-            Assert.assertEquals(1, sessions.length);
+            assertEquals(1, sessions.length);
 
             final AtomicInteger count = new AtomicInteger(0);
 
@@ -182,11 +180,11 @@ public class ReconnectTest extends ActiveMQTestBase {
 
             sessions[0].getRemotingConnection().fail(new ActiveMQException("failure!"));
 
-            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+            assertTrue(latch.await(5, TimeUnit.SECONDS));
 
             sessions = countMetadata(server, "meta1", 1);
 
-            Assert.assertEquals(1, sessions.length);
+            assertEquals(1, sessions.length);
 
             locator.close();
          }
