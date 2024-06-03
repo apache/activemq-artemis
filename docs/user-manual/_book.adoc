@@ -57,6 +57,7 @@ include::metrics.adoc[leveloffset=1]
 
 //== Broker-to-Broker Connectivity
 
+include::node-id.adoc[leveloffset=1]
 include::core-bridges.adoc[leveloffset=1]
 include::clusters.adoc[leveloffset=1]
 include::federation.adoc[leveloffset=1]

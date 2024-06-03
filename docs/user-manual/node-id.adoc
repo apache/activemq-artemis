@@ -1,0 +1,40 @@
+= Node ID
+:idprefix:
+:idseparator: -
+
+When connecting multiple Artemis brokers together they can cooperate to solve a common task
+like xref:clusters.adoc[clustering] or xref:ha.adoc[high availability] for example.
+
+Implementation of coordination and control over which broker does what will vary between the different "Broker-to-broker Connectivity"
+variants, but one important aspect is the use of a unique identifier called `node-id`.
+
+By default, the brokers `node-id` will get generated the first time it starts up. The value is then
+persisted into the `journal`, on a file called `server.lock`
+
+This id _must_ be unique among all brokers to ensure proper functionality.
+
+
+== Manually setting the brokers ID
+
+In certain cases, being able to manually set a `node-id` rather than generating one can be preferable. Brokers running in
+an environment where their storage is ephemeral would be one such case. This is because any time a broker is restarted, moved
+or upgraded it could end up with a new disk and therefore also a new journal. Starting this broker up, while being configured
+identiaclly, would still give it a new `node-id`. In some configurations, this means the broker won't be able to resume
+whatever role it orinially had because the other broker it was connected to prior will look for the original `node-id`.
+
+To handle these scenarios `node-id` can be set in the `broker.xml` configuration file.
+[,xml]
+----
+<node-id>myUniqueID</node-id>
+----
+
+The selected nodeID will get converted internally into a 16-byte UUID. Therefore it might not be recognizeable to
+someone looking for it in logs or the console.
+
+The `node-id` has to be set before first starting the broker as this value will get persisted in the brokers `journal`.
+Once persisted, this is the value that the broker will use regardless of configuration.
+
+[WARNING]
+====
+If you choose to set `node-id` manually, it's uniqueness among other brokers are _UTMOST_ important.
+====

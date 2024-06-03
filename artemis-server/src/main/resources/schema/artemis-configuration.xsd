@@ -36,6 +36,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="node-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Node ID. If set, it will be used as an identifier when running in a cluster.
+                  Has to be unique within the cluster
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="system-property-prefix" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

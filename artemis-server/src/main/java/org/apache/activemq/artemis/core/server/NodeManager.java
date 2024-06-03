@@ -83,6 +83,15 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
+   /**
+    * Returns the converted form of a given nodeID
+    *
+    * @param nodeID
+    */
+   public String getConvertedNodeId(String nodeID) {
+      return new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeID)).toString();
+   }
+
    public long readNodeActivationSequence() throws NodeManagerException {
       // TODO make it abstract
       throw new UnsupportedOperationException("TODO");
@@ -117,16 +126,14 @@ public abstract class NodeManager implements ActiveMQComponent {
    }
 
    /**
-    * Sets the nodeID.
-    * <p>
-    * Only used by replicating backups.
+    * Sets the nodeID
     *
     * @param nodeID
     */
    public void setNodeID(String nodeID) {
       synchronized (nodeIDGuard) {
-         this.nodeID = new SimpleString(nodeID);
          this.uuid = new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeID));
+         this.nodeID = new SimpleString(uuid.toString());
       }
    }
 

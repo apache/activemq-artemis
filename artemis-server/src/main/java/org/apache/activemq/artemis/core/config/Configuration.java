@@ -71,6 +71,16 @@ public interface Configuration {
    Configuration setName(String name);
 
    /**
+    * Returns the ID of the node.
+    */
+   String getNodeID();
+
+   /**
+    * Sets the ID of the node. If not set, a UUID generated on first startup will be used instead.
+    */
+   Configuration setNodeID(String nodeID);
+
+   /**
     * We use Bean-utils to pass in System.properties that start with {@link #setSystemPropertyPrefix(String)}.
     * The default should be 'brokerconfig.' (Including the ".").
     * For example if you want to set clustered through a system property you must do:

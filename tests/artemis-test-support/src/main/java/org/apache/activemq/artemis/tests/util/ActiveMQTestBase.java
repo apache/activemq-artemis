@@ -455,6 +455,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
+      configuration.setNodeID("node-" + serverID);
 
       // When it comes to the testsuite, we don't need any batching, I will leave some minimal batching to exercise the codebase
       configuration.setJournalBufferTimeout_AIO(100).setJournalBufferTimeout_NIO(100);

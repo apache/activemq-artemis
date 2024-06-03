@@ -617,7 +617,33 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       } else {
          manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout(), scheduledPool);
       }
+
+      if (!replicatingBackup && configuration.getNodeID() != null) {
+         manager.setNodeID(toCompatibleNodeID(configuration.getNodeID()));
+      }
+
       return manager;
+   }
+
+   private String toCompatibleNodeID(String nodeID) {
+      if (nodeID == null) {
+         return null;
+      }
+
+      final int len = nodeID.length();
+
+      if (!(len > 0)) {
+         return null;
+      }
+
+      if (len >= 16) {
+         nodeID = nodeID.substring(0, 16);
+      } else if (len % 2 != 0) {
+         // must be even for conversion to uuid, extend to next even
+         nodeID = nodeID + "+";
+      }
+
+      return nodeID.replace('-', '.');
    }
 
    @Override
