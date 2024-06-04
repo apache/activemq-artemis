@@ -217,8 +217,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       final String text = "HelloWorld";
       final int prefetchSize = 10;
 
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString dlq = SimpleString.of("DLQ1");
       server.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDeadLetterAddress(dla));
 

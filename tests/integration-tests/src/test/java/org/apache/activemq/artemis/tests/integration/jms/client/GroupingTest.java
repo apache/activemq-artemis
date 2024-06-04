@@ -69,7 +69,7 @@ public class GroupingTest extends JMSTestBase {
    }
 
    protected void setProperty(Message message) {
-      ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+      ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.of("foo"));
    }
 
    protected ConnectionFactory getCF() throws Exception {
@@ -875,7 +875,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertEquals(4, queueBinding.getQueue().getGroupBuckets());
       } finally {
          connection.close();
@@ -904,7 +904,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertTrue(queueBinding.getQueue().isGroupRebalance());
       } finally {
          connection.close();
@@ -933,7 +933,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertEquals("my-custom-key", queueBinding.getQueue().getGroupFirstKey().toString());
       } finally {
          connection.close();

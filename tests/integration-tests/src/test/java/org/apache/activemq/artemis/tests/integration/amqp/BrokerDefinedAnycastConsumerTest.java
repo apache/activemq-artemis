@@ -41,9 +41,9 @@ import org.junit.jupiter.api.Timeout;
 
 public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
-   SimpleString queue1 = new SimpleString("queue1");
-   SimpleString queue2 = new SimpleString("queue2");
+   SimpleString address = SimpleString.of("testAddress");
+   SimpleString queue1 = SimpleString.of("queue1");
+   SimpleString queue2 = SimpleString.of("queue2");
 
    @Override
    protected boolean isAutoCreateQueues() {

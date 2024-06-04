@@ -216,7 +216,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(DESTINATION)) != null, 2000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(DESTINATION)) != null, 2000, 100);
    }
 
    @Test
@@ -231,7 +231,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      assertTrue(server.getAddressInfo(SimpleString.toSimpleString(DESTINATION)) == null);
+      assertTrue(server.getAddressInfo(SimpleString.of(DESTINATION)) == null);
    }
 
    /*
@@ -313,7 +313,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       // enable send-to-dla-on-no-route so that we can detect an errant will message on disconnect
       server.createQueue(new QueueConfiguration("activemq.notifications"));
       server.createQueue(new QueueConfiguration("DLA"));
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setSendToDLAOnNoRoute(true).setDeadLetterAddress(SimpleString.toSimpleString("DLA")));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setSendToDLAOnNoRoute(true).setDeadLetterAddress(SimpleString.of("DLA")));
 
       MqttClient client = createPahoClient("willGenerator");
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
@@ -374,7 +374,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer1.setCallback(new LatchedMqttCallback(ackLatch1));
       consumer1.subscribe(SHARED_SUB1, 1);
 
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC1)));
       Queue q1 = getSharedSubscriptionQueue(SHARED_SUB1);
       assertNotNull(q1);
       assertEquals(TOPIC1, q1.getAddress().toString());
@@ -385,7 +385,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer2.setCallback(new LatchedMqttCallback(ackLatch2));
       consumer2.subscribe(SHARED_SUB2, 1);
 
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC2)));
       Queue q2 = getSharedSubscriptionQueue(SHARED_SUB2);
       assertNotNull(q2);
       assertEquals(TOPIC2, q2.getAddress().toString());
@@ -430,13 +430,13 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer.setCallback(new LatchedMqttCallback(ackLatch));
       consumer.subscribe(SHARED_SUBS, new int[]{1, 1});
 
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC1)));
       Queue q1 = getSharedSubscriptionQueue(SHARED_SUBS[0]);
       assertNotNull(q1);
       assertEquals(TOPIC1, q1.getAddress().toString());
       assertEquals(1, q1.getConsumerCount());
 
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC2)));
       Queue q2 = getSharedSubscriptionQueue(SHARED_SUBS[1]);
       assertNotNull(q2);
       assertEquals(TOPIC2, q2.getAddress().toString());
@@ -564,13 +564,13 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(latch.await(2, TimeUnit.SECONDS));
 
       for (String address : addresses) {
-         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
+         assertNotNull(server.getAddressInfo(SimpleString.of(address)));
       }
 
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
-         assertNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
+         assertNull(server.getAddressInfo(SimpleString.of(address)));
       }
 
       consumer.disconnect();

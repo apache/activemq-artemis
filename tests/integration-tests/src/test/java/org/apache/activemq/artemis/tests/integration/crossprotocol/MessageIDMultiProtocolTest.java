@@ -55,7 +55,7 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
    String protocolConsumer;
    ConnectionFactory senderCF;
    ConnectionFactory consumerCF;
-   private static final SimpleString queueName = SimpleString.toSimpleString("MessageIDueueTest");
+   private static final SimpleString queueName = SimpleString.of("MessageIDueueTest");
 
    public MessageIDMultiProtocolTest(String protocolSender, String protocolConsumer) {
       this.protocolSender = protocolSender;

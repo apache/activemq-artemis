@@ -130,7 +130,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
 
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(name));
 
          Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STARTED, props);
 
@@ -191,7 +191,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(name));
          Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STOPPED, props);
          try {
             notificationService.sendNotification(notification);

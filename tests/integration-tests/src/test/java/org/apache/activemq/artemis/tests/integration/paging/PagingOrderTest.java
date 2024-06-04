@@ -75,7 +75,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
    private static final int PAGE_SIZE = 10 * 1024;
 
 
-   static final SimpleString ADDRESS = new SimpleString("TestQueue");
+   static final SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    private Connection conn;
 
@@ -119,7 +119,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -192,7 +192,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(new QueueConfiguration(ADDRESS));
 
-      Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -242,7 +242,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -281,7 +281,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
                q1 = qb.getQueue();
             }
 
-            if (qb.getQueue().getName().equals(new SimpleString("inactive"))) {
+            if (qb.getQueue().getName().equals(SimpleString.of("inactive"))) {
                q2 = qb.getQueue();
             }
          }
@@ -326,7 +326,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(new QueueConfiguration(ADDRESS));
 
-      Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -372,7 +372,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -437,7 +437,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -522,7 +522,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -621,10 +621,10 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.createTopic(true, "tt", "/topic/TT");
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
-                      .setMaxSizeBytes(1024 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
-              .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
-                      .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+                     .setMaxSizeBytes(1024 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+                     .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+                     .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.getActiveMQServerControl().addAddressSettings("TT", addressSettings.toJSON());
 
@@ -641,7 +641,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       TextMessage txt = sess.createTextMessage("TST");
       prod.send(txt);
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("TT"));
 
       assertEquals(1024 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -661,7 +661,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      store = server.getPagingManager().getPageStore(SimpleString.of("TT"));
 
       conn.close();
 
@@ -683,10 +683,10 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.start();
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
-              .setMaxSizeBytes(100 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
-              .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
-              .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+                     .setMaxSizeBytes(100 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+                     .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+                     .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.getActiveMQServerControl().addAddressSettings("Q1", addressSettings.toJSON());
 
@@ -709,7 +709,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
          prod.send(bmt);
       }
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
 
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -731,7 +731,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, store.getAddressFullMessagePolicy());

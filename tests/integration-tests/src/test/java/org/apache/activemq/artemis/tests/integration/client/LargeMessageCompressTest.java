@@ -578,9 +578,9 @@ public class LargeMessageCompressTest extends LargeMessageTest {
    @TestTemplate
    public void testLargeMessageCompressionLevel() throws Exception {
 
-      SimpleString address1 = new SimpleString("address1");
-      SimpleString address2 = new SimpleString("address2");
-      SimpleString address3 = new SimpleString("address3");
+      SimpleString address1 = SimpleString.of("address1");
+      SimpleString address2 = SimpleString.of("address2");
+      SimpleString address3 = SimpleString.of("address3");
 
       ActiveMQServer server = createServer(true, true);
       server.start();

@@ -54,9 +54,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(ParameterizedTestExtension.class)
 public class RequestReplyNonJMSTest extends OpenWireTestBase {
 
-   private static final SimpleString queueName = SimpleString.toSimpleString("RequestReplyQueueTest");
-   private static final SimpleString topicName = SimpleString.toSimpleString("RequestReplyTopicTest");
-   private static final SimpleString replyQueue = SimpleString.toSimpleString("ReplyOnRequestReplyQueueTest");
+   private static final SimpleString queueName = SimpleString.of("RequestReplyQueueTest");
+   private static final SimpleString topicName = SimpleString.of("RequestReplyTopicTest");
+   private static final SimpleString replyQueue = SimpleString.of("ReplyOnRequestReplyQueueTest");
 
    private final String protocolConsumer;
 

@@ -67,7 +67,7 @@ public class ActiveMQProducerResource extends ExternalResource implements Active
    }
 
    public ActiveMQProducerResource(String url, String address, String username, String password) {
-      activeMQProducer = new ActiveMQProducerDelegate(url, SimpleString.toSimpleString(address), username, password);
+      activeMQProducer = new ActiveMQProducerDelegate(url, SimpleString.of(address), username, password);
    }
 
    public ActiveMQProducerResource(String url, String address) {
@@ -84,11 +84,11 @@ public class ActiveMQProducerResource extends ExternalResource implements Active
 
    public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
       activeMQProducer =
-               new ActiveMQProducerDelegate(serverLocator, SimpleString.toSimpleString(address), username, password);
+               new ActiveMQProducerDelegate(serverLocator, SimpleString.of(address), username, password);
    }
 
    public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
-      activeMQProducer = new ActiveMQProducerDelegate(serverLocator, SimpleString.toSimpleString(address));
+      activeMQProducer = new ActiveMQProducerDelegate(serverLocator, SimpleString.of(address));
    }
 
    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username,

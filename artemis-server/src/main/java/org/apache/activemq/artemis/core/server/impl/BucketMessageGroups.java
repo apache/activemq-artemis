@@ -37,7 +37,7 @@ public class BucketMessageGroups<C> implements MessageGroups<C> {
    //2) Admin users still need to interact with a specific bucket/group e.g. they may need to reset a bucket.
    //3) Choice of key is we want to avoid risk of clashing with users groups keys.
    //4) Actually makes testing a little easier as we know how the parsed int will hash.
-   private static SimpleString _AMQ_GROUP_BUCKET_INT_KEY = new SimpleString("_AMQ_GROUP_BUCKET_INT_KEY_");
+   private static SimpleString _AMQ_GROUP_BUCKET_INT_KEY = SimpleString.of("_AMQ_GROUP_BUCKET_INT_KEY_");
 
    private final int bucketCount;
    private C[] buckets;

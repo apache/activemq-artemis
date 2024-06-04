@@ -177,7 +177,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       ((JDBCSequentialFileFactory)fileFactory).destroy();
       String tableName = factoryToTableName.remove(fileFactory);
       if (tableName != null) {
-         SimpleString removeTableName = SimpleString.toSimpleString(tableName);
+         SimpleString removeTableName = SimpleString.of(tableName);
          JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
          directoryList.open();
 
@@ -244,7 +244,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    private synchronized SequentialFileFactory newFileFactory(final String directoryName, boolean writeToDirectory) throws Exception {
       JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
       directoryList.open();
-      SimpleString simpleString = SimpleString.toSimpleString(directoryName);
+      SimpleString simpleString = SimpleString.of(directoryName);
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(simpleString.sizeof());
       buffer.writeSimpleString(simpleString);
       if (writeToDirectory) directoryList.write(buffer, true);

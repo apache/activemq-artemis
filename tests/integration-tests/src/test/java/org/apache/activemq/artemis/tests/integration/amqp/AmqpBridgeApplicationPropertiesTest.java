@@ -114,10 +114,10 @@ public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
       server0.getConfiguration().addDivertConfiguration(customNotificationsDivert);
       server1.getConfiguration().addDivertConfiguration(frameworkNotificationsDivert);
 
-      customNotificationQueue = SimpleString.toSimpleString("*.Provider.*.Agent.*.CustomNotification");
-      frameworkNotificationsQueue = SimpleString.toSimpleString("FrameworkNotifications");
-      bridgeNotificationsQueue = SimpleString.toSimpleString("BridgeNotifications");
-      notificationsQueue = SimpleString.toSimpleString("Notifications");
+      customNotificationQueue = SimpleString.of("*.Provider.*.Agent.*.CustomNotification");
+      frameworkNotificationsQueue = SimpleString.of("FrameworkNotifications");
+      bridgeNotificationsQueue = SimpleString.of("BridgeNotifications");
+      notificationsQueue = SimpleString.of("Notifications");
 
       server0.start();
       server1.start();

@@ -72,7 +72,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
@@ -267,7 +267,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             if (isNetty) {
                assertTrue(message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
             } else {
-               assertEquals(SimpleString.toSimpleString("invm:0"), message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
+               assertEquals(SimpleString.of("invm:0"), message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
             }
             assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
             assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONSUMER_NAME));
@@ -380,12 +380,12 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testSlowWildcardConsumer() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(2);

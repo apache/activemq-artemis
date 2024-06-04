@@ -46,7 +46,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
             case NAME:
                return matches(queue.getName());
             case CONSUMER_ID:
-               Queue q = server.locateQueue(new SimpleString(queue.getName()));
+               Queue q = server.locateQueue(SimpleString.of(queue.getName()));
                for (Consumer consumer : q.getConsumers()) {
                   if (matches(consumer.sequentialID()))
                      return true;
@@ -73,7 +73,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
             case ROUTING_TYPE:
                return matches(queue.getRoutingType());
             case AUTO_CREATED:
-               return matches(server.locateQueue(new SimpleString(queue.getName())).isAutoCreated());
+               return matches(server.locateQueue(SimpleString.of(queue.getName())).isAutoCreated());
             case DURABLE:
                return matches(queue.isDurable());
             case PAUSED:

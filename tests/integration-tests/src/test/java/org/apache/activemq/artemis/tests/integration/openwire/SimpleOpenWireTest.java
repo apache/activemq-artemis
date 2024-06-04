@@ -978,8 +978,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
-      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.toSimpleString("foo")) != null), 2000, 100));
-      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.toSimpleString("foo")) != null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.of("foo")) != null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.of("foo")) != null), 2000, 100));
 
       MessageProducer producer = session.createProducer(null);
       producer.send(queue, message);
@@ -987,13 +987,13 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       TextMessage message1 = (TextMessage) consumer.receive(1000);
       assertTrue(message1.getText().equals(message.getText()));
 
-      assertNotNull(server.locateQueue(SimpleString.toSimpleString("foo")));
+      assertNotNull(server.locateQueue(SimpleString.of("foo")));
 
       consumer.close();
       connection.close();
 
-      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.toSimpleString("foo")) == null), 2000, 100));
-      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.toSimpleString("foo")) == null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.of("foo")) == null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.of("foo")) == null), 2000, 100));
    }
 
    @Test
@@ -1062,7 +1062,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
@@ -1104,7 +1104,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMultipleConsumers() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
@@ -1141,7 +1141,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
@@ -1181,7 +1181,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample2() throws Exception {
       Connection conn1 = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
@@ -1826,7 +1826,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    private void checkQueueEmpty(String qName) {
       PostOffice po = server.getPostOffice();
-      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString(qName));
+      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.of(qName));
       try {
          //waiting for last ack to finish
          Thread.sleep(1000);

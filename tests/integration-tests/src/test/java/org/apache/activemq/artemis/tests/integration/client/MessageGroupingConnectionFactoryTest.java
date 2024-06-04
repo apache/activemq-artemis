@@ -45,7 +45,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString qName = new SimpleString("MessageGroupingTestQueue");
+   private final SimpleString qName = SimpleString.of("MessageGroupingTestQueue");
 
    @Test
    public void testBasicGroupingUsingConnection() throws Exception {

@@ -93,7 +93,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
          final Queue queueView = getProxyToQueue(getQueueName());
          assertNotNull(queueView);
 
-         final SimpleString queueNameSS = SimpleString.toSimpleString(getQueueName());
+         final SimpleString queueNameSS = SimpleString.of(getQueueName());
          PagingStore targetPagingStore = server.getPagingManager().getPageStore(queueNameSS);
          assertNotNull(targetPagingStore);
 

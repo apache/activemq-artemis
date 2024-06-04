@@ -439,7 +439,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private void handleReplicaTargetLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
       try {
          try {
-            protonSession.getSessionSPI().check(SimpleString.toSimpleString(receiver.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
+            protonSession.getSessionSPI().check(SimpleString.of(receiver.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
          } catch (ActiveMQSecurityException e) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
          }
@@ -472,7 +472,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private void handleFederationControlLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
       try {
          try {
-            protonSession.getSessionSPI().check(SimpleString.toSimpleString(FEDERATION_BASE_VALIDATION_ADDRESS), CheckType.SEND, getSecurityAuth());
+            protonSession.getSessionSPI().check(SimpleString.of(FEDERATION_BASE_VALIDATION_ADDRESS), CheckType.SEND, getSecurityAuth());
          } catch (ActiveMQSecurityException e) {
             throw new ActiveMQAMQPSecurityException(
                "User does not have permission to attach to the federation control address");

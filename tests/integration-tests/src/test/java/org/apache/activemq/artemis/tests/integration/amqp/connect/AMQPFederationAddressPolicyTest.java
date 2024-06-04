@@ -219,7 +219,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
@@ -240,8 +240,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          // This should trigger the federation consumer to be shutdown as the statically defined queue
          // should be the only remaining demand on the address.
          logger.info("Removing Queues from federated address to eliminate demand");
-         server.destroyQueue(SimpleString.toSimpleString("test"));
-         Wait.assertFalse(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         server.destroyQueue(SimpleString.of("test"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectClose();
@@ -292,7 +292,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -368,7 +368,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -457,7 +457,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final String expectedJMSFilter = generateAddressFilter(1);
          final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
@@ -607,7 +607,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -687,7 +687,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -774,7 +774,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -849,7 +849,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
@@ -872,7 +872,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectDetach().respond();
 
-            server.removeAddressInfo(SimpleString.toSimpleString("test"), null, true);
+            server.removeAddressInfo(SimpleString.of("test"), null, true);
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          }
@@ -946,7 +946,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
          server.deployDivert(divertConfig);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1029,7 +1029,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
          server.deployDivert(divertConfig);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1120,7 +1120,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
          server.deployDivert(divertConfig);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1210,7 +1210,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.deployDivert(divertConfig);
          // Current implementation requires the source address exist on the local broker before it
          // will attempt to federate it from the remote.
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1300,7 +1300,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.deployDivert(divertConfig);
          // Current implementation requires the source address exist on the local broker before it
          // will attempt to federate it from the remote.
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1387,7 +1387,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
          server.deployDivert(divertConfig);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1418,7 +1418,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectDetach().respond();
 
-            server.destroyDivert(SimpleString.toSimpleString("test-divert"));
+            server.destroyDivert(SimpleString.of("test-divert"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.close();
@@ -1470,7 +1470,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
          server.deployDivert(divertConfig);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
@@ -1507,7 +1507,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
             consumer1.close();
             consumer2.close();
 
-            server.destroyDivert(SimpleString.toSimpleString("test-divert"));
+            server.destroyDivert(SimpleString.of("test-divert"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectDetach().respond();
@@ -1554,7 +1554,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
@@ -2204,7 +2204,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()
@@ -2284,7 +2284,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -2503,7 +2503,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
@@ -2568,8 +2568,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          // This should trigger the federation consumer to be shutdown as the statically defined queue
          // should be the only remaining demand on the address.
          logger.info("Removing Queues from federated address to eliminate demand");
-         server.destroyQueue(SimpleString.toSimpleString("test"));
-         Wait.assertFalse(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         server.destroyQueue(SimpleString.of("test"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectClose();
@@ -2614,8 +2614,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.start();
 
          // Configure addresses and divert for the test
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("target"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("target"), RoutingType.MULTICAST));
          server.deployDivert(divert);
 
          // Create demand on the addresses so that on start federation should happen
@@ -2730,10 +2730,10 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.start();
 
          // Configure addresses and divert for the test
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("target1"), RoutingType.MULTICAST));
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("target2"), RoutingType.MULTICAST));
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("target3"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("target1"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("target2"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("target3"), RoutingType.MULTICAST));
          server.deployDivert(divert1);
          server.deployDivert(divert2);
 
@@ -2791,12 +2791,12 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-         server.destroyDivert(SimpleString.toSimpleString(divert1.getName()));
+         server.destroyDivert(SimpleString.of(divert1.getName()));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectDetach().respond();
 
-         server.destroyDivert(SimpleString.toSimpleString(divert2.getName()));
+         server.destroyDivert(SimpleString.of(divert2.getName()));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -2866,8 +2866,8 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.start();
 
          // Configure addresses and divert for the test
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("target"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("target"), RoutingType.MULTICAST));
          server.deployDivert(divert);
          server.registerBrokerPlugin(federationPlugin);
 
@@ -3118,7 +3118,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectTransfer().withPayload(payloadMatcher).accept(); // Address added event
 
          // Manually add the address and a queue binding to create local demand.
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
          server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
@@ -3316,7 +3316,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    @Timeout(20)
    public void testRemoteBrokerClosesFederationReceiverAfterAddressRemoved() throws Exception {
       server.start();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
          scriptFederationConnectToRemote(peer, "test", true, true);
@@ -3345,7 +3345,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectDetach().withError(AmqpError.RESOURCE_DELETED.toString());
 
          // Force remove consumers from the address should indicate the resource was deleted.
-         server.removeAddressInfo(SimpleString.toSimpleString("test"), null, true);
+         server.removeAddressInfo(SimpleString.of("test"), null, true);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -3363,14 +3363,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          // has been added once more and it could restore the previous federation state.
          peer.expectTransfer().withPayload(payloadMatcher).withSettled(true);
 
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          // This time removing and restoring should generate no traffic as there was not
          // another federation receiver added.
-         server.removeAddressInfo(SimpleString.toSimpleString("test"), null, true);
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.removeAddressInfo(SimpleString.of("test"), null, true);
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectClose();
@@ -3418,7 +3418,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -3529,7 +3529,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.registerBrokerPlugin(federationPlugin);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 

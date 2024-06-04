@@ -98,7 +98,7 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
 
    // Redefined because AMQPMessage uses SimpleString in its annotations API for some reason.
    private static final SimpleString MESSAGE_HOPS_ANNOTATION =
-      new SimpleString(AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString());
+      SimpleString.of(AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString());
 
    private static final Symbol[] DEFAULT_OUTCOMES = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL,
                                                                  Released.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL};
@@ -431,7 +431,7 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
       AMQPFederatedAddressDeliveryReceiver(AMQPSessionContext session, FederationConsumerInfo consumerInfo, Receiver receiver) {
          super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);
 
-         this.cachedAddress = SimpleString.toSimpleString(consumerInfo.getAddress());
+         this.cachedAddress = SimpleString.of(consumerInfo.getAddress());
       }
 
       @Override
@@ -484,7 +484,7 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
             throw new ActiveMQAMQPInternalErrorException("Remote should have sent an valid Target but we got: " + target);
          }
 
-         address = SimpleString.toSimpleString(target.getAddress());
+         address = SimpleString.of(target.getAddress());
          defRoutingType = getRoutingType(target.getCapabilities(), address);
 
          try {

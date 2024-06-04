@@ -125,7 +125,7 @@ public abstract class NodeManager implements ActiveMQComponent {
     */
    public void setNodeID(String nodeID) {
       synchronized (nodeIDGuard) {
-         this.nodeID = new SimpleString(nodeID);
+         this.nodeID = SimpleString.of(nodeID);
          this.uuid = new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeID));
       }
    }
@@ -136,7 +136,7 @@ public abstract class NodeManager implements ActiveMQComponent {
    protected void setUUID(UUID generateUUID) {
       synchronized (nodeIDGuard) {
          uuid = generateUUID;
-         nodeID = new SimpleString(uuid.toString());
+         nodeID = SimpleString.of(uuid.toString());
       }
    }
 

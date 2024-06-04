@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 
 public class PagingSendTest extends ActiveMQTestBase {
 
-   public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   public static final SimpleString ADDRESS = SimpleString.of("SimpleAddress");
 
    private ServerLocator locator;
 
@@ -219,7 +219,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false);
 
       // Create a queue
-      SimpleString queueAddr = new SimpleString("testQueue");
+      SimpleString queueAddr = SimpleString.of("testQueue");
       session.createQueue(new QueueConfiguration(queueAddr));
 
       // Set up paging on the queue address
@@ -265,7 +265,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false);
 
       // Create a queue
-      SimpleString queueAddr = new SimpleString("testQueue");
+      SimpleString queueAddr = SimpleString.of("testQueue");
       session.createQueue(new QueueConfiguration(queueAddr));
 
       // Set up paging on the queue address

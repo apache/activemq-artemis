@@ -64,8 +64,8 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
       ActiveMQServer primary = primaryServer.getServer();
       ActiveMQServer backup = backupServer.getServer();
       ClientSession session = addClientSession(sf.createSession(true, true));
-      final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName = SimpleString.of("simpleQueue");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       primary.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
       backup.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));

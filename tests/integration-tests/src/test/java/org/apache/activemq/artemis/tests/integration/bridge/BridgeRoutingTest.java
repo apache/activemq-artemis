@@ -132,8 +132,8 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
                                    ComponentConfigurationRoutingType bridgeRoutingType,
                                    long sleepTime,
                                    int destinationMessageCount) throws Exception {
-      SimpleString source = SimpleString.toSimpleString("source");
-      SimpleString destination = SimpleString.toSimpleString("destination");
+      SimpleString source = SimpleString.of("source");
+      SimpleString destination = SimpleString.of("destination");
       int concurrency = 2;
 
       server0.createQueue(new QueueConfiguration(source).setRoutingType(sourceRoutingType));

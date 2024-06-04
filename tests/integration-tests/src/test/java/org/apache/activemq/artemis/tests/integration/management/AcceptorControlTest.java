@@ -144,14 +144,14 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       Notification notif = notifListener.getNotifications().get(i);
       assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
-      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("factory")).toString());
 
       acceptorControl.start();
 
       i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STARTED);
       notif = notifListener.getNotifications().get(i);
       assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
-      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("factory")).toString());
    }
 
    private int findNotification(SimpleNotificationService.Listener notifListener, CoreNotificationType type) {

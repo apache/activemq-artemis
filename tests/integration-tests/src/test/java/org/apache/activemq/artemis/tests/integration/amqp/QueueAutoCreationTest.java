@@ -105,7 +105,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
 
    protected Queue createAddressOnlyAndFakeQueue(final String queueName) throws Exception {
-      SimpleString address = SimpleString.toSimpleString(queueName);
+      SimpleString address = SimpleString.of(queueName);
       clientSession.createAddress(address, RoutingType.ANYCAST, false);
       return new ActiveMQQueue(queueName);
    }

@@ -44,8 +44,8 @@ configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(true);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
-        configuration.addAddressSetting("#", new AddressSettings().setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.toSimpleString("DLQ"))
-                .setExpiryAddress(SimpleString.toSimpleString("EXP")));
+        configuration.addAddressSetting("#", new AddressSettings().setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("DLQ"))
+                .setExpiryAddress(SimpleString.of("EXP")));
         if (globalMaxSize != null) {
             configuration.getAddressSettings().get("#").setPageSizeBytes(Long.parseLong(globalMaxSize)).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
             configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
@@ -64,6 +64,6 @@ server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
-AddressInfo info = new AddressInfo(SimpleString.toSimpleString("topic")).setAutoCreated(false).addRoutingType(RoutingType.MULTICAST);
+AddressInfo info = new AddressInfo(SimpleString.of("topic")).setAutoCreated(false).addRoutingType(RoutingType.MULTICAST);
 server.activeMQServer.addAddressInfo(info);
 

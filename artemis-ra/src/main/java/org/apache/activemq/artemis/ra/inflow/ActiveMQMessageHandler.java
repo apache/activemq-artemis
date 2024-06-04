@@ -121,7 +121,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       String selector = spec.getMessageSelector();
 
       // Create the message consumer
-      SimpleString selectorString = selector == null || selector.trim().equals("") ? null : new SimpleString(selector);
+      SimpleString selectorString = selector == null || selector.trim().equals("") ? null : SimpleString.of(selector);
       if (activation.isTopic() && spec.isSubscriptionDurable()) {
          SimpleString queueName = ActiveMQDestination.createQueueNameForSubscription(true, spec.getClientID(), spec.getSubscriptionName());
 
@@ -145,7 +145,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
             boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || (oldFilterString != null && selector != null && !oldFilterString.toString().equals(selector));
 
-            SimpleString oldTopicName = (enable1XPrefix && !subResponse.getAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX) ? PacketImpl.OLD_TOPIC_PREFIX : SimpleString.toSimpleString("")).concat(subResponse.getAddress());
+            SimpleString oldTopicName = (enable1XPrefix && !subResponse.getAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX) ? PacketImpl.OLD_TOPIC_PREFIX : SimpleString.of("")).concat(subResponse.getAddress());
 
             boolean topicChanged = !oldTopicName.equals(activation.getAddress());
 
@@ -162,7 +162,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          SimpleString tempQueueName;
          if (activation.isTopic()) {
             if (activation.getTopicTemporaryQueue() == null) {
-               tempQueueName = new SimpleString(UUID.randomUUID().toString());
+               tempQueueName = SimpleString.of(UUID.randomUUID().toString());
                session.createQueue(new QueueConfiguration(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
                activation.setTopicTemporaryQueue(tempQueueName);
             } else {

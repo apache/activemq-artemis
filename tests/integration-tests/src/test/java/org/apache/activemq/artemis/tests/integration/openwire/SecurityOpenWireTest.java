@@ -67,7 +67,7 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
 
       server.getSecurityRepository().addMatch("denyQ", roles);
-      SimpleString denyQ = new SimpleString("denyQ");
+      SimpleString denyQ = SimpleString.of("denyQ");
       server.createQueue(new QueueConfiguration(denyQ).setRoutingType(RoutingType.ANYCAST));
       try (Connection connection = factory.createConnection("denyQ", "denyQ")) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

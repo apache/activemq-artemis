@@ -52,9 +52,9 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+      SimpleString ADDRESS = SimpleString.of("queue.0");
 
-      final SimpleString user = new SimpleString("newUser");
+      final SimpleString user = SimpleString.of("newUser");
 
       Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setUser(user));
 
@@ -122,7 +122,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+      SimpleString ADDRESS = SimpleString.of("queue.0");
 
       Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
@@ -217,7 +217,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+      SimpleString ADDRESS = SimpleString.of("queue.0");
 
       AddressInfo infoAdded = new AddressInfo(ADDRESS, RoutingType.ANYCAST);
 

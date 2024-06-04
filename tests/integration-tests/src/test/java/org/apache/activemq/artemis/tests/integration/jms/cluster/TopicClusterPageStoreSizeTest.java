@@ -119,9 +119,9 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
 
       if (forcePaging) {
          // message in the store, should have getPagedSize or is there some such thing?
-         assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getNumberOfPages() > 0, "size on 2");
+         assertTrue(server2.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getNumberOfPages() > 0, "size on 2");
       } else {
-         assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0, "size on 2");
+         assertTrue(server2.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize() > 0, "size on 2");
       }
 
       // reconnect
@@ -150,8 +150,8 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
       prod1.send(topic1, session1.createTextMessage("someOtherMessage"));
 
       // stays on server 1
-      assertTrue(server1.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() > 0, "some size on 1");
-      assertTrue(server2.getPagingManager().getPageStore(SimpleString.toSimpleString(TOPIC)).getAddressSize() == 0, "no size on 2");
+      assertTrue(server1.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize() > 0, "some size on 1");
+      assertTrue(server2.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize() == 0, "no size on 2");
 
       // duplicate this sub on 2
       conn2 = cf2.createConnection();

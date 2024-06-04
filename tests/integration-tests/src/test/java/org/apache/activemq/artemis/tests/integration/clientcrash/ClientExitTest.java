@@ -47,7 +47,7 @@ public class ClientExitTest extends ClientTestBase {
 
    private static final String MESSAGE_TEXT = RandomUtil.randomString();
 
-   private static final SimpleString QUEUE = new SimpleString("ClientExitTestQueue");
+   private static final SimpleString QUEUE = SimpleString.of("ClientExitTestQueue");
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

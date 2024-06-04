@@ -131,7 +131,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    @Override
    public void send(final String address1, final Message message) throws ActiveMQException {
-      send(SimpleString.toSimpleString(address1), message);
+      send(SimpleString.of(address1), message);
    }
 
    @Override

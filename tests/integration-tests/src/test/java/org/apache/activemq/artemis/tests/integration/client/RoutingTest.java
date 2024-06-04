@@ -39,12 +39,12 @@ import org.junit.jupiter.api.Test;
 
 public class RoutingTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString addressB = new SimpleString("addressB");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString queueB = new SimpleString("queueB");
-   public final SimpleString queueC = new SimpleString("queueC");
-   public final SimpleString queueD = new SimpleString("queueD");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString addressB = SimpleString.of("addressB");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString queueB = SimpleString.of("queueB");
+   public final SimpleString queueC = SimpleString.of("queueC");
+   public final SimpleString queueD = SimpleString.of("queueD");
 
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -142,12 +142,12 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToSingleQueueWithFilter() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(new SimpleString("foo = 'bar'")).setDurable(false));
+      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(SimpleString.of("foo = 'bar'")).setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
-         clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+         clientMessage.putStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
          p.send(clientMessage);
       }
       ClientSession session = cf.createSession(false, true, true);
@@ -166,19 +166,19 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToMultipleQueueWithFilters() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(new SimpleString("foo = 'bar'")).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setFilterString(new SimpleString("x = 1")).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setFilterString(new SimpleString("b = false")).setDurable(false));
+      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(SimpleString.of("foo = 'bar'")).setDurable(false));
+      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setFilterString(SimpleString.of("x = 1")).setDurable(false));
+      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setFilterString(SimpleString.of("b = false")).setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
          if (i % 3 == 0) {
-            clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+            clientMessage.putStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
          } else if (i % 3 == 1) {
-            clientMessage.putIntProperty(new SimpleString("x"), 1);
+            clientMessage.putIntProperty(SimpleString.of("x"), 1);
          } else {
-            clientMessage.putBooleanProperty(new SimpleString("b"), false);
+            clientMessage.putBooleanProperty(SimpleString.of("b"), false);
          }
          p.send(clientMessage);
       }

@@ -713,7 +713,7 @@ public class MessageProducerTest extends JMSTestCase {
 
    @Test
    public void testSendToQueueOnlyWhenTopicWithSameAddress() throws Exception {
-      SimpleString addr = SimpleString.toSimpleString("testAddr");
+      SimpleString addr = SimpleString.of("testAddr");
 
       EnumSet<RoutingType> supportedRoutingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 

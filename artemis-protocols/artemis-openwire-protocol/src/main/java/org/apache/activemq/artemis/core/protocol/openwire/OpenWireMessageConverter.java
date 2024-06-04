@@ -101,7 +101,7 @@ public final class OpenWireMessageConverter {
 
       final String type = messageSend.getType();
       if (type != null) {
-         coreMessage.putStringProperty(OpenWireConstants.JMS_TYPE_PROPERTY, new SimpleString(type));
+         coreMessage.putStringProperty(OpenWireConstants.JMS_TYPE_PROPERTY, SimpleString.of(type));
       }
       coreMessage.setDurable(messageSend.isPersistent());
       coreMessage.setExpiration(messageSend.getExpiration());
@@ -176,14 +176,14 @@ public final class OpenWireMessageConverter {
 
       final MessageId messageId = messageSend.getMessageId();
       if (messageId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.toSimpleString(messageId.toString()));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.of(messageId.toString()));
       }
 
       coreMessage.setUserID(UUIDGenerator.getInstance().generateUUID());
 
       final ProducerId producerId = messageSend.getProducerId();
       if (producerId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_PRODUCER_ID, SimpleString.toSimpleString(producerId.toString()));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_PRODUCER_ID, SimpleString.of(producerId.toString()));
       }
 
       putMsgProperties(messageSend, coreMessage);
@@ -206,7 +206,7 @@ public final class OpenWireMessageConverter {
 
       final String userId = messageSend.getUserID();
       if (userId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_USER_ID, new SimpleString(userId));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_USER_ID, SimpleString.of(userId));
       }
       coreMessage.putBooleanProperty(OpenWireConstants.AMQ_MSG_DROPPABLE, messageSend.isDroppable());
 
@@ -235,7 +235,7 @@ public final class OpenWireMessageConverter {
       DataInputStream tdataIn = new DataInputStream(tis);
       String text = MarshallingSupport.readUTF8(tdataIn);
       tdataIn.close();
-      body.writeNullableSimpleString(new SimpleString(text));
+      body.writeNullableSimpleString(SimpleString.of(text));
    }
 
    private static void writeMapType(final ByteSequence contents,
@@ -409,7 +409,7 @@ public final class OpenWireMessageConverter {
             builder.append(','); //is this separator safe?
          }
       }
-      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_BROKER_PATH, new SimpleString(builder.toString()));
+      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_BROKER_PATH, SimpleString.of(builder.toString()));
    }
 
    private static void putMsgCluster(final BrokerId[] cluster, final CoreMessage coreMessage) {
@@ -420,7 +420,7 @@ public final class OpenWireMessageConverter {
             builder.append(','); //is this separator safe?
          }
       }
-      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_CLUSTER, new SimpleString(builder.toString()));
+      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_CLUSTER, SimpleString.of(builder.toString()));
    }
 
    private static void putMsgDataStructure(final DataStructure ds,
@@ -451,7 +451,7 @@ public final class OpenWireMessageConverter {
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
       for (Entry<String, Object> entry : map.entrySet()) {
-         SimpleString key = new SimpleString(entry.getKey());
+         SimpleString key = SimpleString.of(entry.getKey());
          Object value = entry.getValue();
          if (value instanceof UTF8Buffer) {
             value = value.toString();

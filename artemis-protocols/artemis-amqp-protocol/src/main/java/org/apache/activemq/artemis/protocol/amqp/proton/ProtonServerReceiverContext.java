@@ -93,7 +93,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          if (target.getDynamic()) {
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
-            address = SimpleString.toSimpleString(sessionSPI.tempQueueName());
+            address = SimpleString.of(sessionSPI.tempQueueName());
             defRoutingType = getRoutingType(target.getCapabilities(), address);
 
             try {
@@ -112,7 +112,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             // matched on receive of the message.
             String targetAddress = target.getAddress();
             if (targetAddress != null && !targetAddress.isEmpty()) {
-               address = SimpleString.toSimpleString(targetAddress);
+               address = SimpleString.of(targetAddress);
             }
 
             if (address != null) {
@@ -289,7 +289,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(target.getAddress()));
+            sessionSPI.removeTemporaryQueue(SimpleString.of(target.getAddress()));
          } catch (Exception e) {
             //ignore on close, its temp anyway and will be removed later
          }

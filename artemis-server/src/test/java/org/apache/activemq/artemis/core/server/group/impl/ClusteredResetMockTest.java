@@ -73,7 +73,7 @@ import org.junit.jupiter.api.Test;
  */
 public class ClusteredResetMockTest extends ServerTestBase {
 
-   public static final SimpleString ANYCLUSTER = SimpleString.toSimpleString("anycluster");
+   public static final SimpleString ANYCLUSTER = SimpleString.of("anycluster");
 
    @Test
    public void testMultipleSenders() throws Throwable {
@@ -82,7 +82,7 @@ public class ClusteredResetMockTest extends ServerTestBase {
       ReusableLatch latchSends = new ReusableLatch(NUMBER_OF_SENDERS);
 
       FakeManagement fake = new FakeManagement(latchSends);
-      RemoteGroupingHandler handler = new RemoteGroupingHandler(fake, SimpleString.toSimpleString("tst1"), SimpleString.toSimpleString("tst2"), 50000, 499);
+      RemoteGroupingHandler handler = new RemoteGroupingHandler(fake, SimpleString.of("tst1"), SimpleString.of("tst2"), 50000, 499);
       handler.start();
 
       Sender[] sn = new Sender[NUMBER_OF_SENDERS];
@@ -150,7 +150,7 @@ public class ClusteredResetMockTest extends ServerTestBase {
 
       Sender(String code, RemoteGroupingHandler handler) {
          super("Sender::" + code);
-         this.code = SimpleString.toSimpleString(code);
+         this.code = SimpleString.of(code);
          this.handler = handler;
       }
 

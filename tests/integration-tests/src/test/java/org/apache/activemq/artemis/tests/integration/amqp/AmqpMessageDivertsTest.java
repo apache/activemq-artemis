@@ -70,7 +70,7 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
 
    public void runQueueReceiverReadMessageWithDivert(String routingType) throws Exception {
       final String forwardingAddress = getQueueName() + "Divert";
-      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
+      final SimpleString simpleForwardingAddress = SimpleString.of(forwardingAddress);
       server.createQueue(new QueueConfiguration(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
       server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(), forwardingAddress, true, null, null, routingType);
 
@@ -107,7 +107,7 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
    public void testDivertTransformerWithProperties(boolean rebootServer) throws Exception {
       divertCount.set(0);
       final String forwardingAddress = getQueueName() + "Divert";
-      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
+      final SimpleString simpleForwardingAddress = SimpleString.of(forwardingAddress);
       server.createQueue(new QueueConfiguration(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
       server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(),
                                                      forwardingAddress, true, null, AmqpMessageDivertsTest.class.getName(),

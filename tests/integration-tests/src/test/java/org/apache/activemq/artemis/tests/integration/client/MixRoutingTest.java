@@ -47,7 +47,7 @@ public class MixRoutingTest extends SingleServerTestBase {
 
    @Test
    public void testMix() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
+      SimpleString queueName = SimpleString.of(getName());
       server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
@@ -93,7 +93,7 @@ public class MixRoutingTest extends SingleServerTestBase {
 
    @Test
    public void testMix2() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
+      SimpleString queueName = SimpleString.of(getName());
       server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
@@ -143,8 +143,8 @@ public class MixRoutingTest extends SingleServerTestBase {
 
    @Test
    public void testMixWithTopics() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
-      SimpleString topicName = SimpleString.toSimpleString("topic" + getName());
+      SimpleString queueName = SimpleString.of(getName());
+      SimpleString topicName = SimpleString.of("topic" + getName());
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
       server.addAddressInfo(info);
       server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));

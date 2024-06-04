@@ -131,7 +131,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
       // pause the SnF queue so that when the server tries to redistribute a message it won't actually go across the cluster bridge
       final String snfAddress = servers[0].getInternalNamingPrefix() + "sf.cluster0." + servers[0].getNodeID().toString();
-      Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))).getQueue();
+      Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(snfAddress))).getQueue();
       snfQueue.pause();
 
       ClientSession session = sfs[2].createSession(servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword(), false, true, false, false, 0);
@@ -179,7 +179,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       removeConsumer(0);
       servers[0].stop();
 
-      Queue queueServer2 = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue();
+      Queue queueServer2 = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue();
 
       Wait.assertEquals(0, queueServer2::getMessageCount);
 
@@ -187,7 +187,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
       // ensure the message is in queue 1 on node 1 as expected
-      Queue queueServer1 = ((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue();
+      Queue queueServer1 = ((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue();
       Wait.assertEquals(TEST_SIZE, queueServer1::getMessageCount);
 
       for (int i = 0; i < TEST_SIZE; i++) {
@@ -209,11 +209,11 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       assertNull(clientMessage);
       removeConsumer(0);
 
-      Wait.assertTrue(() -> (servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
-      Wait.assertTrue(() -> (servers[1].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))) == null);
+      Wait.assertTrue(() -> (servers[2].getPostOffice().getBinding(SimpleString.of(snfAddress))) == null);
+      Wait.assertTrue(() -> (servers[1].getPostOffice().getBinding(SimpleString.of(snfAddress))) == null);
 
-      assertFalse(servers[1].queueQuery(SimpleString.toSimpleString(snfAddress)).isExists());
-      assertFalse(servers[1].addressQuery(SimpleString.toSimpleString(snfAddress)).isExists());
+      assertFalse(servers[1].queueQuery(SimpleString.of(snfAddress)).isExists());
+      assertFalse(servers[1].addressQuery(SimpleString.of(snfAddress)).isExists());
    }
 
    @Test
@@ -246,7 +246,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
 
       // pause the SnF queue so that when the server tries to redistribute a message it won't actually go across the cluster bridge
       String snfAddress = servers[0].getInternalNamingPrefix() + "sf.cluster0." + servers[0].getNodeID().toString();
-      Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))).getQueue();
+      Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(snfAddress))).getQueue();
       snfQueue.pause();
 
       ClientSession session = sfs[2].createSession(servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword(), false, true, false, false, 0);
@@ -272,17 +272,17 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       removeConsumer(1);
       servers[0].stop();
 
-      Wait.assertEquals(0, () -> getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()) +
-         getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
+      Wait.assertEquals(0, () -> getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()) +
+         getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(queueName3))).getQueue()));
 
-      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
 
       // get the messages from queue 1 on node 1
       addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
       addConsumer(1, 1, queueName3, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
-      Wait.assertEquals(TEST_SIZE * 2, () -> getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()) +
-         getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
+      Wait.assertEquals(TEST_SIZE * 2, () -> getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()) +
+         getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName3))).getQueue()));
       // ensure the message is in queue 1 on node 1 as expected
 
       for (int i = 0; i < TEST_SIZE; i++) {

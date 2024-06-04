@@ -141,8 +141,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.putStringProperty("myNullStringProperty", null);
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
-         msg.putStringProperty(new SimpleString("mySimpleStringProperty"), new SimpleString("mySimpleStringPropertyValue_" + i));
-         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), (SimpleString) null);
+         msg.putStringProperty(SimpleString.of("mySimpleStringProperty"), SimpleString.of("mySimpleStringPropertyValue_" + i));
+         msg.putStringProperty(SimpleString.of("myNullSimpleStringProperty"), (SimpleString) null);
          producer.send(msg);
       }
 
@@ -188,16 +188,16 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
          assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
          assertEquals(i, msg.getObjectProperty("myObjectProperty"));
-         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.of("myNullObjectProperty")));
          assertNull(msg.getObjectProperty("myNullObjectProperty"));
          assertEquals(Integer.valueOf(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
          assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
-         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.of("myNullStringProperty")));
          assertNull(msg.getStringProperty("myNullStringProperty"));
          assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
          assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
-         assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
-         assertTrue(msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
+         assertEquals(SimpleString.of("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(SimpleString.of("mySimpleStringProperty")));
+         assertTrue(msg.getPropertyNames().contains(SimpleString.of("myNullSimpleStringProperty")));
          assertNull(msg.getSimpleStringProperty("myNullSimpleStringProperty"));
       }
    }
@@ -463,12 +463,12 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
-      ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString("queueName1"));
+      ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of("queueName1"));
 
       assertEquals("addressName1", queueQuery.getAddress().toString());
       assertNull(queueQuery.getFilterString());
 
-      queueQuery = session.queueQuery(new SimpleString("queueName2"));
+      queueQuery = session.queueQuery(SimpleString.of("queueName2"));
 
       assertEquals("addressName1", queueQuery.getAddress().toString());
       assertEquals("bob", queueQuery.getFilterString().toString());
@@ -1133,7 +1133,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testRoutingTypes() throws Exception {
-      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      SimpleString myAddress = SimpleString.of("myAddress");
       ClientSession session = basicSetUp();
 
       EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
@@ -1173,7 +1173,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testEmptyRoutingTypes() throws Exception {
-      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      SimpleString myAddress = SimpleString.of("myAddress");
       ClientSession session = basicSetUp();
 
       EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
@@ -1209,10 +1209,10 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testImportWrongRoutingType() throws Exception {
-      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      SimpleString myQueue = SimpleString.toSimpleString("myQueue");
-      SimpleString dla = SimpleString.toSimpleString("DLA");
-      SimpleString dlaPrefix = SimpleString.toSimpleString("DLA.");
+      SimpleString myAddress = SimpleString.of("myAddress");
+      SimpleString myQueue = SimpleString.of("myQueue");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString dlaPrefix = SimpleString.of("DLA.");
       String payload = "myMessagePayload";
 
       server = createServer(true);

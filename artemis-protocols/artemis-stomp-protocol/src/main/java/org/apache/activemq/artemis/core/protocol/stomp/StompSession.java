@@ -297,9 +297,9 @@ public class StompSession implements SessionCallback {
                                                    String selector,
                                                    String ack,
                                                    Integer consumerWindowSize) throws Exception {
-      SimpleString address = SimpleString.toSimpleString(destination);
-      SimpleString queueName = SimpleString.toSimpleString(destination);
-      SimpleString selectorSimple = SimpleString.toSimpleString(selector);
+      SimpleString address = SimpleString.of(destination);
+      SimpleString queueName = SimpleString.of(destination);
+      SimpleString selectorSimple = SimpleString.of(selector);
       final int finalConsumerWindowSize;
 
       if (consumerWindowSize != null) {
@@ -319,7 +319,7 @@ public class StompSession implements SessionCallback {
             if (clientID == null) {
                throw BUNDLE.missingClientID();
             }
-            queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
+            queueName = SimpleString.of(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
                try {
                   session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selectorSimple));
@@ -364,7 +364,7 @@ public class StompSession implements SessionCallback {
       }
 
       if (durableSubscriptionName != null && clientID != null) {
-         SimpleString queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
+         SimpleString queueName = SimpleString.of(clientID + "." + durableSubscriptionName);
          if (manager.getServer().locateQueue(queueName) != null) {
             session.deleteQueue(queueName);
          }

@@ -74,7 +74,7 @@ public class DivertControlTest extends ManagementTestBase {
       QueueConfiguration forwardQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setAddress(address).setDurable(false);
 
       divertConfig = new DivertConfiguration()
-         .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.toSimpleString(address)).toString())
+         .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.of(address)).toString())
          .setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString())
          .setForwardingAddress(forwardQueueConfig.getAddress().toString())
          .setExclusive(RandomUtil.randomBoolean())

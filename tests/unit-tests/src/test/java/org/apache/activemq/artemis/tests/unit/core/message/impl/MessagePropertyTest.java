@@ -43,7 +43,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
    private final int numMessages = 20;
 
    private static final String ADDRESS = "anAddress123";
-   private static final SimpleString SIMPLE_STRING_KEY = new SimpleString("StringToSimpleString");
+   private static final SimpleString SIMPLE_STRING_KEY = SimpleString.of("StringToSimpleString");
 
    @Override
    @BeforeEach
@@ -59,7 +59,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, true);
 
       String filter = null;
-      session.createAddress(SimpleString.toSimpleString(ADDRESS), RoutingType.MULTICAST, false);
+      session.createAddress(SimpleString.of(ADDRESS), RoutingType.MULTICAST, false);
       session.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.MULTICAST).setFilterString(filter));
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -70,7 +70,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
          message.putShortProperty("short", (short) i);
          message.putByteProperty("byte", (byte) i);
          message.putFloatProperty("float", floatValue(i));
-         message.putStringProperty(SIMPLE_STRING_KEY, new SimpleString(Integer.toString(i)));
+         message.putStringProperty(SIMPLE_STRING_KEY, SimpleString.of(Integer.toString(i)));
          message.putBytesProperty("byte[]", byteArray(i));
          message.putObjectProperty("null-value", null);
          producer.send(message);
@@ -104,7 +104,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
             assertEquals((short) i, message.getShortProperty("short").shortValue());
             assertEquals((byte) i, message.getByteProperty("byte").byteValue());
             assertEquals(floatValue(i), message.getFloatProperty("float").floatValue(), 0.001);
-            assertEquals(new SimpleString(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
+            assertEquals(SimpleString.of(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
             assertEqualsByteArrays(byteArray(i), message.getBytesProperty("byte[]"));
             assertNull(message.getIngressTimestamp());
 

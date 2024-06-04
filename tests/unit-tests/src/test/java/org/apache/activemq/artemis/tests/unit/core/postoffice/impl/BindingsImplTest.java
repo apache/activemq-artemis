@@ -55,7 +55,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOnDemand() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -66,7 +66,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOff() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -77,7 +77,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOffWithRedistribution() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -103,12 +103,12 @@ public class BindingsImplTest extends ActiveMQTestBase {
    }
 
    private void internalTest(final boolean route) throws Exception {
-      final FakeBinding fake = new FakeBinding(new SimpleString("a"));
+      final FakeBinding fake = new FakeBinding(SimpleString.of("a"));
 
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
       bind.addBinding(fake);
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
+      bind.addBinding(new FakeBinding(SimpleString.of("a")));
+      bind.addBinding(new FakeBinding(SimpleString.of("a")));
 
       Thread t = new Thread() {
          @Override
@@ -121,7 +121,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
          }
       };
 
-      Queue queue = new FakeQueue(new SimpleString("a"));
+      Queue queue = new FakeQueue(SimpleString.of("a"));
       t.start();
 
       for (int i = 0; i < 100; i++) {
@@ -360,7 +360,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       final SimpleString name;
-      final SimpleString uniqueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      final SimpleString uniqueName = SimpleString.of(UUID.randomUUID().toString());
 
       FakeBinding(final SimpleString name) {
          this.name = name;

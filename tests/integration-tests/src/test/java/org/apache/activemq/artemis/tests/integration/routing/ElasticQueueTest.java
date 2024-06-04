@@ -73,7 +73,7 @@ import org.junit.jupiter.api.Timeout;
 public class ElasticQueueTest extends ActiveMQTestBase {
 
    static final String qName = "EQ";
-   static final SimpleString qNameSimple = SimpleString.toSimpleString(qName);
+   static final SimpleString qNameSimple = SimpleString.of(qName);
 
    final int base_port = 61616;
    final Stack<Worker> workers = new Stack<>();

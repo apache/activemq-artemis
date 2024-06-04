@@ -101,19 +101,19 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       super.createAddressAndQueues(server);
 
       //Add Non Destructive Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Expiry Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Last Value Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add  Non Destructive Last Value Queue for Tombstone Test
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
    }
@@ -164,7 +164,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveSingle(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME));
       assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
@@ -185,7 +185,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveDualConsumer(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME));
       assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
@@ -206,7 +206,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveExpiry(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME));
       assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
@@ -233,7 +233,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 1);
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 2);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME));
       assertEquals(3, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
@@ -254,7 +254,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 1);
       sendMessage(producerConnectionSupplier, NON_DESTRUCTIVE_QUEUE_NAME, 2);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME));
       assertEquals(3, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
 
@@ -273,7 +273,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveLVQ(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       sendLVQ(producerConnectionSupplier, NON_DESTRUCTIVE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_LVQ_QUEUE_NAME));
       assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Simulate a small pause, else both messages could be consumed if consumer is fast enough
@@ -366,7 +366,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveLVQTombstone(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
       int tombstoneTimeToLive = 500;
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME));
       LastValueQueue lastValueQueue = (LastValueQueue)queueBinding.getQueue();
       //Send again
       sendLVQ(producerConnectionSupplier, NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME, Message.HDR_LAST_VALUE_NAME.toString());
@@ -409,7 +409,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
    public void testMessageCount() throws Exception {
       sendMessage(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
 
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME));
       assertEquals(1, queueBinding.getQueue().getMessageCount(), "Ensure Message count");
 
       //Consume Once

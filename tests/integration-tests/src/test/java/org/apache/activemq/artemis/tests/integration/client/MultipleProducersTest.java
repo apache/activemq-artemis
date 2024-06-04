@@ -45,11 +45,11 @@ public class MultipleProducersTest extends JMSTestBase {
    public Queue queueTwo = null;
    public Session session = null;
 
-   public SimpleString dlq = new SimpleString("DLQ");
-   public SimpleString expiryQueue = new SimpleString("ExpiryQueue");
+   public SimpleString dlq = SimpleString.of("DLQ");
+   public SimpleString expiryQueue = SimpleString.of("ExpiryQueue");
 
-   public SimpleString queueOneName = new SimpleString("queueOne");
-   public SimpleString queueTwoName = new SimpleString("queueTwo");
+   public SimpleString queueOneName = SimpleString.of("queueOne");
+   public SimpleString queueTwoName = SimpleString.of("queueTwo");
    public QueueControl control = null;
    public long queueOneMsgCount = 0;
    public long queueTwoMsgCount = 0;

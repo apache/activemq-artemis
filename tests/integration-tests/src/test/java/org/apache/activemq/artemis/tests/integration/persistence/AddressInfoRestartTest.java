@@ -33,8 +33,8 @@ public class AddressInfoRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address));
 

@@ -228,7 +228,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
          try {
             JMXConnector connector = newJMXFactory(uri);
 
-            ObjectName objectQueueName = builder.getQueueObjectName(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType);
+            ObjectName objectQueueName = builder.getQueueObjectName(SimpleString.of(address), SimpleString.of(queueName), routingType);
 
             QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(connector.getMBeanServerConnection(), objectQueueName, QueueControl.class, false);
             queueControl.getMessagesAcknowledged(); // making one call

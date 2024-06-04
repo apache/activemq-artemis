@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.of("ADD");
 
    private static final boolean IS_JOURNAL = false;
 

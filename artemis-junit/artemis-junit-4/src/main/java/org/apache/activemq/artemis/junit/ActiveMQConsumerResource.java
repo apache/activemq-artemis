@@ -54,7 +54,7 @@ public class ActiveMQConsumerResource extends ExternalResource implements Active
 
    public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
       this.activeMQConsumer =
-               new ActiveMQConsumerDelegate(url, SimpleString.toSimpleString(queueName), username, password);
+               new ActiveMQConsumerDelegate(url, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
@@ -66,11 +66,11 @@ public class ActiveMQConsumerResource extends ExternalResource implements Active
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), username, password);
+      this(serverLocator, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), null, null);
+      this(serverLocator, SimpleString.of(queueName), null, null);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName, String username,

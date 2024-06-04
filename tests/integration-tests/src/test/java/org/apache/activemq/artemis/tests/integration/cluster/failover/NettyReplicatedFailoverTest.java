@@ -99,7 +99,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
          Wait.assertTrue(backupServer.getServer()::isReplicaSync);
 
          SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupServer.getServer().getActivation();
-         Map<Long, Page> currentPages = activation.getReplicationEndpoint().getPageIndex().get(SimpleString.toSimpleString(queueName));
+         Map<Long, Page> currentPages = activation.getReplicationEndpoint().getPageIndex().get(SimpleString.of(queueName));
 
          logger.info("There are {} page files open", currentPages.size());
          Wait.assertTrue(() -> currentPages.size() <= 1, 10_000);
@@ -107,7 +107,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
          producer.send(session.createTextMessage("on currentPage"));
          session.commit();
 
-         PagingStore store = primaryServer.getServer().getPagingManager().getPageStore(SimpleString.toSimpleString(queueName));
+         PagingStore store = primaryServer.getServer().getPagingManager().getPageStore(SimpleString.of(queueName));
          Page currentPage = store.getCurrentPage();
          logger.info("Page {}", currentPage.getPageId());
 

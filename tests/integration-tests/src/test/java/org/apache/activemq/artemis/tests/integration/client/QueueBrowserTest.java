@@ -36,7 +36,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
@@ -111,11 +111,11 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("x"), i);
+         message.putIntProperty(SimpleString.of("x"), i);
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("x >= 50"), true);
 
       for (int i = 50; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
@@ -154,12 +154,12 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          if (i % 2 == 0) {
-            message.putStringProperty(new SimpleString("color"), new SimpleString("RED"));
+            message.putStringProperty(SimpleString.of("color"), SimpleString.of("RED"));
          }
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("color = 'RED'"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("color = 'RED'"), true);
 
       for (int i = 0; i < numMessages; i += 2) {
          ClientMessage message2 = consumer.receive(1000);
@@ -221,12 +221,12 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("x"), i);
+         message.putIntProperty(SimpleString.of("x"), i);
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("x < 50"), true);
-      ClientConsumer consumer2 = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("x < 50"), true);
+      ClientConsumer consumer2 = session.createConsumer(QUEUE, SimpleString.of("x >= 50"), true);
       ClientConsumer consumer3 = session.createConsumer(QUEUE, null, true);
 
       for (int i = 0; i < 50; i++) {

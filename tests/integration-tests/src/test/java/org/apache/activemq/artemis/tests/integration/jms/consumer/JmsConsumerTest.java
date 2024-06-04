@@ -145,7 +145,7 @@ public class JmsConsumerTest extends JMSTestBase {
          assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -191,7 +191,7 @@ public class JmsConsumerTest extends JMSTestBase {
          assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       conn.close();
 
       assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
@@ -238,7 +238,7 @@ public class JmsConsumerTest extends JMSTestBase {
          assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       context.close();
 
       assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
@@ -313,7 +313,7 @@ public class JmsConsumerTest extends JMSTestBase {
          assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       conn.close();
 
       Queue queue = server.locateQueue(queueName);
@@ -342,7 +342,7 @@ public class JmsConsumerTest extends JMSTestBase {
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       Queue queue = server.locateQueue(queueName);
       Wait.assertEquals(0, queue::getDeliveringCount);
       Wait.assertEquals(0, queue::getMessageCount);
@@ -816,7 +816,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       session.createConsumer(session.createQueue(queueName));
 
-      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.of(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
       assertTrue(queue.isPurgeOnNoConsumers());
@@ -836,15 +836,15 @@ public class JmsConsumerTest extends JMSTestBase {
 
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       //Remove the wildcard address associated with topic2
-      server.removeAddressInfo(SimpleString.toSimpleString(topic1), null);
+      server.removeAddressInfo(SimpleString.of(topic1), null);
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -869,12 +869,12 @@ public class JmsConsumerTest extends JMSTestBase {
 
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -910,8 +910,8 @@ public class JmsConsumerTest extends JMSTestBase {
    }
 
    private void testAddressRemovalWithWithConsumers(String topic1, String topic2) throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -922,8 +922,8 @@ public class JmsConsumerTest extends JMSTestBase {
       c1.close();
 
       // Make sure topic2 address can be removed and the bindings still exist for topic1
-      server.removeAddressInfo(SimpleString.toSimpleString(topic2), null);
-      assertEquals(1, server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1))
+      server.removeAddressInfo(SimpleString.of(topic2), null);
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(SimpleString.of(topic1))
             .getBindings().size());
 
       // Re-create address by creating a consumer on the topic and make sure the

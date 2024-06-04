@@ -71,8 +71,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(ANYCAST_PREFIX + addressA, 1);
 
-      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.of(queueA)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueC))::getMessageCount);
    }
 
    @Test
@@ -91,8 +91,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.ANYCAST);
 
-      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.of(queueA)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueC))::getMessageCount);
    }
 
    @Test
@@ -111,8 +111,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(MULTICAST_PREFIX + addressA, 1);
 
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
-      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
    }
 
    @Test
@@ -131,8 +131,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.MULTICAST);
 
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
-      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
    }
 
    /**
@@ -148,7 +148,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       // Create Address with both ANYCAST and MULTICAST enabled
       String testAddress = "testRoutingExclusivity-mixed-mode";
-      SimpleString ssTestAddress = new SimpleString(testAddress);
+      SimpleString ssTestAddress = SimpleString.of(testAddress);
 
       AddressInfo addressInfo = new AddressInfo(ssTestAddress);
       addressInfo.addRoutingType(RoutingType.MULTICAST);

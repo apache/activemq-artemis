@@ -48,7 +48,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   final SimpleString ADDRESS = new SimpleString("address");
+   final SimpleString ADDRESS = SimpleString.of("address");
 
    private ActiveMQServer server;
 
@@ -151,7 +151,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          // failureQueue.push(true);
 
@@ -176,7 +176,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
          if (i % 10 == 0) {
             // failureQueue.push(true);
          }
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -251,7 +251,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
          failureQueue.push(true);
 
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }

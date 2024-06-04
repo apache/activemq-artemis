@@ -2823,7 +2823,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             Binding binding = null;
 
             if (originalMessageQueue != null) {
-               binding = postOffice.getBinding(SimpleString.toSimpleString(originalMessageQueue));
+               binding = postOffice.getBinding(SimpleString.of(originalMessageQueue));
             }
 
             if (originalMessageAddress != null && binding != null) {
@@ -2841,7 +2841,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
                }
 
-               move(tx, SimpleString.toSimpleString(originalMessageAddress), null, ref, false, AckReason.NORMAL, null, targetQueue, true);
+               move(tx, SimpleString.of(originalMessageAddress), null, ref, false, AckReason.NORMAL, null, targetQueue, true);
 
                return true;
             }
@@ -3950,7 +3950,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (isAutoCreate && !getAddress().equals(destinationAddress)) {
          if (destinationAddress != null && destinationAddress.length() != 0) {
             SimpleString destinationQueueName = prefix.concat(getAddress()).concat(suffix);
-            SimpleString filter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            SimpleString filter = SimpleString.of(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
             try {
                server.createQueue(new QueueConfiguration(destinationQueueName).setAddress(destinationAddress).setFilterString(filter).setAutoCreated(true).setAutoCreateAddress(true), true);
             } catch (ActiveMQQueueExistsException e) {
@@ -4851,15 +4851,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
 
-                        props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+                        props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(connection.getRemoteAddress()));
 
                         if (connection.getID() != null) {
-                           props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(connection.getID().toString()));
+                           props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(connection.getID().toString()));
                         }
 
                         props.putLongProperty(ManagementHelper.HDR_CONSUMER_NAME, serverConsumer.getID());
 
-                        props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(serverConsumer.getSessionID()));
+                        props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(serverConsumer.getSessionID()));
 
                         Notification notification = new Notification(null, CoreNotificationType.CONSUMER_SLOW, props);
 

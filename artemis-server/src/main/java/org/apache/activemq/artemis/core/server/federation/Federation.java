@@ -59,7 +59,7 @@ public class Federation {
       this.server = server;
       this.config = config;
       Objects.requireNonNull(config.getName());
-      this.name = SimpleString.toSimpleString(config.getName());
+      this.name = SimpleString.of(config.getName());
    }
 
    public synchronized void start() throws ActiveMQException {

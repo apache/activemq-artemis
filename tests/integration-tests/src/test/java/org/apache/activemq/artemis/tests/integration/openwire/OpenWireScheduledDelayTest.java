@@ -40,7 +40,7 @@ public class OpenWireScheduledDelayTest extends OpenWireTestBase {
 
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      addressSettingsMap.put("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
    }
 
    @Test

@@ -61,7 +61,7 @@ public class FQQNStompTest extends StompTestBase {
    public void setUp() throws Exception {
       super.setUp();
       conn = StompClientConnectionFactory.createClientConnection(uri);
-      QueueQueryResult result = server.queueQuery(new SimpleString(getQueueName()));
+      QueueQueryResult result = server.queueQuery(SimpleString.of(getQueueName()));
       assertTrue(result.isExists());
    }
 
@@ -99,9 +99,9 @@ public class FQQNStompTest extends StompTestBase {
 
    @TestTemplate
    public void testReceiveFQQN2() throws Exception {
-      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      final SimpleString q1Name = SimpleString.toSimpleString("q1");
-      final SimpleString q2Name = SimpleString.toSimpleString("q2");
+      final SimpleString myAddress = SimpleString.of("myAddress");
+      final SimpleString q1Name = SimpleString.of("q1");
+      final SimpleString q2Name = SimpleString.of("q2");
 
       Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
       Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
@@ -123,9 +123,9 @@ public class FQQNStompTest extends StompTestBase {
 
    @TestTemplate
    public void testSendFQQNMulticast() throws Exception {
-      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      final SimpleString q1Name = SimpleString.toSimpleString("q1");
-      final SimpleString q2Name = SimpleString.toSimpleString("q2");
+      final SimpleString myAddress = SimpleString.of("myAddress");
+      final SimpleString q1Name = SimpleString.of("q1");
+      final SimpleString q2Name = SimpleString.of("q2");
 
       Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
       Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
@@ -148,9 +148,9 @@ public class FQQNStompTest extends StompTestBase {
 
    @TestTemplate
    public void testSendFQQNAnycast() throws Exception {
-      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      final SimpleString q1Name = SimpleString.toSimpleString("q1");
-      final SimpleString q2Name = SimpleString.toSimpleString("q2");
+      final SimpleString myAddress = SimpleString.of("myAddress");
+      final SimpleString q1Name = SimpleString.of("q1");
+      final SimpleString q2Name = SimpleString.of("q2");
 
       Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
       Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
@@ -215,8 +215,8 @@ public class FQQNStompTest extends StompTestBase {
 
    @TestTemplate
    public void testAutoCreateOnSendFQQN() throws Exception {
-      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      final SimpleString q1Name = SimpleString.toSimpleString("q1");
+      final SimpleString myAddress = SimpleString.of("myAddress");
+      final SimpleString q1Name = SimpleString.of("q1");
 
       conn.connect(defUser, defPass);
       send(conn, myAddress + "\\c\\c" + q1Name, null, "Hello World!");
@@ -249,9 +249,9 @@ public class FQQNStompTest extends StompTestBase {
    }
 
    private void internalTestAutoCreateOnSubscribeFQQN(RoutingType routingType) throws Exception {
-      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
-      final SimpleString q1Name = SimpleString.toSimpleString("q1");
-      final SimpleString q2Name = SimpleString.toSimpleString("q2");
+      final SimpleString myAddress = SimpleString.of("myAddress");
+      final SimpleString q1Name = SimpleString.of("q1");
+      final SimpleString q2Name = SimpleString.of("q2");
 
       StompClientConnection consumer1Connection = StompClientConnectionFactory.createClientConnection(uri);
       consumer1Connection.connect(defUser, defPass);

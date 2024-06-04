@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
+   SimpleString address = SimpleString.of("testAddress");
 
    @Test
    @Timeout(60)
@@ -64,15 +64,15 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       receiver2.close();
       //check its been deleted
       Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")) == null;
+            return server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null;
          }
       }, 1000);
       connection.close();
@@ -99,12 +99,12 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       receiver2.close();
       //check its **Hasn't** been deleted
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       connection.close();
    }
 
@@ -128,14 +128,14 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       //check its been deleted
       connection.close();
       Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")) == null;
+            return server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null;
          }
       }, 1000);
    }
@@ -160,15 +160,15 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")));
       receiver2.close();
       //check its been deleted
       Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")) == null;
+            return server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")) == null;
          }
       }, 1000);
       connection.close();
@@ -194,12 +194,12 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
@@ -223,22 +223,22 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
 
       connection.close();
 
       connection = addConnection(client.connect("myClientId"));
       session = connection.createSession();
 
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver = session.createMulticastReceiver(source, "myReceiverID", "mySub");
       receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
 
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
@@ -262,22 +262,22 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
 
       connection.close();
 
       connection = addConnection(client.connect("myClientId"));
       session = connection.createSession();
 
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver = session.createDurableReceiver(null, "mySub");
       receiver2 = session.createDurableReceiver(null, "mySub|2");
 
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
@@ -301,12 +301,12 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("mySub:global")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("mySub:global")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("mySub:global")));
       connection.close();
    }
 

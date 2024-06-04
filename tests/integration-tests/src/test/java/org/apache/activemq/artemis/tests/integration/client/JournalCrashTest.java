@@ -50,7 +50,7 @@ public class JournalCrashTest extends SpawnedTestBase {
 
    private ClientSessionFactory factory;
 
-   private final SimpleString QUEUE = new SimpleString("queue");
+   private final SimpleString QUEUE = SimpleString.of("queue");
 
    private ServerLocator locator;
 
@@ -100,7 +100,7 @@ public class JournalCrashTest extends SpawnedTestBase {
 
          for (int i = start; i < end; i++) {
             ClientMessage msg = session.createMessage(true);
-            msg.putIntProperty(new SimpleString("key"), i);
+            msg.putIntProperty(SimpleString.of("key"), i);
             msg.getBodyBuffer().writeUTF("message " + i);
             prod.send(msg);
          }
@@ -130,7 +130,7 @@ public class JournalCrashTest extends SpawnedTestBase {
 
             msg.acknowledge();
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("key")));
          }
       }
    }

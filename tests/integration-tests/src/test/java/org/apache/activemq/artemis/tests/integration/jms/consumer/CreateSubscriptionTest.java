@@ -60,7 +60,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
    @TestTemplate
    public void testSharedConsumer() throws Exception {
 
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("myTopic")).addRoutingType(RoutingType.MULTICAST));
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = cf.createConnection();
       Session session = connection.createSession();
@@ -86,7 +86,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
    @TestTemplate
    public void testSharedDurableConsumer() throws Exception {
 
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("myTopic")).addRoutingType(RoutingType.MULTICAST));
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = cf.createConnection();
       Session session = connection.createSession();
@@ -134,7 +134,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("myTopic")).addRoutingType(RoutingType.MULTICAST));
          ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
          AtomicInteger errors = new AtomicInteger(0);

@@ -59,7 +59,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
       this.session = session;
       this.queue = queue;
       if (messageSelector != null) {
-         filterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
+         filterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
       }
       this.enable1xPrefixes = enable1xPrefixes;
    }

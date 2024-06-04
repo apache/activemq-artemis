@@ -237,7 +237,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
       @Override
       public SimpleString getAddress() {
-         return SimpleString.toSimpleString("");
+         return SimpleString.of("");
       }
 
       @Override

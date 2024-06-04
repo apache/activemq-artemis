@@ -92,29 +92,29 @@ public class MQTTUtil {
 
    public static final String MQTT_RETAIN_ADDRESS_PREFIX = DOLLAR + "sys.mqtt.retain.";
 
-   public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.toSimpleString("mqtt.qos.level");
+   public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.of("mqtt.qos.level");
 
-   public static final SimpleString MQTT_MESSAGE_ID_KEY = SimpleString.toSimpleString("mqtt.message.id");
+   public static final SimpleString MQTT_MESSAGE_ID_KEY = SimpleString.of("mqtt.message.id");
 
-   public static final SimpleString MQTT_MESSAGE_TYPE_KEY = SimpleString.toSimpleString("mqtt.message.type");
+   public static final SimpleString MQTT_MESSAGE_TYPE_KEY = SimpleString.of("mqtt.message.type");
 
-   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.toSimpleString("mqtt.message.retain");
+   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.of("mqtt.message.retain");
 
-   public static final SimpleString MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY = SimpleString.toSimpleString("mqtt.message.retain.initial.distribution");
+   public static final SimpleString MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY = SimpleString.of("mqtt.message.retain.initial.distribution");
 
-   public static final SimpleString MQTT_PAYLOAD_FORMAT_INDICATOR_KEY = SimpleString.toSimpleString("mqtt.payload.format.indicator");
+   public static final SimpleString MQTT_PAYLOAD_FORMAT_INDICATOR_KEY = SimpleString.of("mqtt.payload.format.indicator");
 
-   public static final SimpleString MQTT_RESPONSE_TOPIC_KEY = SimpleString.toSimpleString("mqtt.response.topic");
+   public static final SimpleString MQTT_RESPONSE_TOPIC_KEY = SimpleString.of("mqtt.response.topic");
 
-   public static final SimpleString MQTT_CORRELATION_DATA_KEY = SimpleString.toSimpleString("mqtt.correlation.data");
+   public static final SimpleString MQTT_CORRELATION_DATA_KEY = SimpleString.of("mqtt.correlation.data");
 
    public static final String MQTT_USER_PROPERTY_EXISTS_KEY = "mqtt.user.property.exists";
 
    public static final String MQTT_USER_PROPERTY_KEY_PREFIX = "mqtt.ordered.user.property.";
 
-   public static final SimpleString MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE = SimpleString.toSimpleString(MQTT_USER_PROPERTY_KEY_PREFIX);
+   public static final SimpleString MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE = SimpleString.of(MQTT_USER_PROPERTY_KEY_PREFIX);
 
-   public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.toSimpleString("mqtt.content.type");
+   public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.of("mqtt.content.type");
 
    public static final String MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
 

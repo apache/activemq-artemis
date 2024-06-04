@@ -111,7 +111,7 @@ public class JmxSecurityTest {
 
       AddressControl addressControl = JMX.newMBeanProxy(
          ManagementFactory.getPlatformMBeanServer(),
-         ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.toSimpleString("activemq.notifications")), AddressControl.class, false);
+         ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.of("activemq.notifications")), AddressControl.class, false);
 
       try {
          addressControl.sendMessage(null, 1, "hi", false, null, null);
@@ -137,7 +137,7 @@ public class JmxSecurityTest {
 
       AddressControl addressControl = JMX.newMBeanProxy(
          ManagementFactory.getPlatformMBeanServer(),
-         ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.toSimpleString("activemq.notifications")), AddressControl.class, false);
+         ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.of("activemq.notifications")), AddressControl.class, false);
 
       long unRoutedMessageCount = addressControl.getUnRoutedMessageCount();
       assertEquals(0L, unRoutedMessageCount);
@@ -168,7 +168,7 @@ public class JmxSecurityTest {
 
       QueueControl queueControl = JMX.newMBeanProxy(
          ManagementFactory.getPlatformMBeanServer(),
-         ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString("Q1"), SimpleString.toSimpleString("Q1"), RoutingType.ANYCAST), QueueControl.class, false);
+         ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.of("Q1"), SimpleString.of("Q1"), RoutingType.ANYCAST), QueueControl.class, false);
       queueControl.getDurableMessageCount();
 
       queueControl.browse();
@@ -273,9 +273,9 @@ public class JmxSecurityTest {
 
    @Test
    public void testQueueAuthorization() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString QUEUE_A = new SimpleString("a");
-      final SimpleString QUEUE_B = new SimpleString("b");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString QUEUE_A = SimpleString.of("a");
+      final SimpleString QUEUE_B = SimpleString.of("b");
 
       Set<Role> aRoles = new HashSet<>();
       aRoles.add(new Role(QUEUE_A.toString(), false, true, true, false, false, false, false, false, true, false, true, false));

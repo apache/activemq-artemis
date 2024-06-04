@@ -52,9 +52,9 @@ public class RingQueueTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString address = new SimpleString("RingQueueTestAddress");
+   private final SimpleString address = SimpleString.of("RingQueueTestAddress");
 
-   private final SimpleString qName = new SimpleString("RingQueueTestQ1");
+   private final SimpleString qName = SimpleString.of("RingQueueTestQ1");
 
    @Test
    public void testSimple() throws Exception {

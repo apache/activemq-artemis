@@ -113,7 +113,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
 
       assertFalse(client.isConnected());
 
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(MQTTUtil.getCoreAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration()))) != null, 2000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(MQTTUtil.getCoreAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration()))) != null, 2000, 100);
    }
 
    @Test

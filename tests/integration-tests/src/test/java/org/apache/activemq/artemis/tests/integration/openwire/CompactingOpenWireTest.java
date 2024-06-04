@@ -61,7 +61,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
       createFactories();
 
       for (int i = 0; i < 30; i++) {
-         SimpleString coreQueue = new SimpleString(queueName + i);
+         SimpleString coreQueue = SimpleString.of(queueName + i);
          this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST));
          testQueues.put(queueName, coreQueue);
       }

@@ -1938,7 +1938,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          bindingCount = 0;
          totConsumers = 0;
 
-         Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+         Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
          for (Binding binding : bindings.getBindings()) {
             if (binding.isConnected() && (binding instanceof LocalQueueBinding && local || binding instanceof RemoteQueueBinding && !local)) {
@@ -1986,7 +1986,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    public void printBindings(ActiveMQServer server, String address) throws Exception {
       PostOffice po = server.getPostOffice();
-      Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
       System.err.println("=======================================================================");
       System.err.println("Binding information for address = " + address + " for server " + server);
@@ -2127,7 +2127,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
       message.getBodyBuffer().writeString(UUID.randomUUID().toString());
 
-      message.setAddress(new SimpleString("foo"));
+      message.setAddress(SimpleString.of("foo"));
 
       return message;
    }
@@ -2230,7 +2230,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
                                                     final String address) throws Exception {
       ArrayList<QueueBinding> bindingsFound = new ArrayList<>();
 
-      Bindings bindings = postOffice.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = postOffice.getBindingsForAddress(SimpleString.of(address));
 
       for (Binding binding : bindings.getBindings()) {
          if (binding instanceof LocalQueueBinding) {

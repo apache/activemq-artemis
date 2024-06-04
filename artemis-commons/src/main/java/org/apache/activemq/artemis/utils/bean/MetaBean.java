@@ -192,7 +192,7 @@ public class MetaBean<T> {
             } else if (type == String.class) {
                setter.accept(resultObject, json.getString(name));
             } else if (type == SimpleString.class) {
-               setter.accept(resultObject, SimpleString.toSimpleString(json.getString(name)));
+               setter.accept(resultObject, SimpleString.of(json.getString(name)));
             } else if (type == Integer.class) {
                setter.accept(resultObject, json.getInt(name));
             } else if (type == Long.class) {

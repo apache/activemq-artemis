@@ -92,7 +92,7 @@ public class AMQPPersisterTest {
    @Test
    public void testEncodeSize() throws Exception {
 
-      Message message = createMessage(SimpleString.toSimpleString("Test"), 1, new byte[10]);
+      Message message = createMessage(SimpleString.of("Test"), 1, new byte[10]);
 
       MessagePersister persister = AMQPMessagePersisterV3.getInstance();
 

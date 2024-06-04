@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
 
-   SimpleString address = new SimpleString("testAddress");
+   SimpleString address = SimpleString.of("testAddress");
 
    @Test
    @Timeout(60)

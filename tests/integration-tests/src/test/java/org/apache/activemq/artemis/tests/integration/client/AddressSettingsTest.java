@@ -37,33 +37,33 @@ import org.junit.jupiter.api.Test;
 
 public class AddressSettingsTest extends ActiveMQTestBase {
 
-   private final SimpleString addressA = new SimpleString("addressA");
+   private final SimpleString addressA = SimpleString.of("addressA");
 
-   private final SimpleString addressA2 = new SimpleString("add.addressA");
+   private final SimpleString addressA2 = SimpleString.of("add.addressA");
 
-   private final SimpleString addressB = new SimpleString("addressB");
+   private final SimpleString addressB = SimpleString.of("addressB");
 
-   private final SimpleString addressB2 = new SimpleString("add.addressB");
+   private final SimpleString addressB2 = SimpleString.of("add.addressB");
 
-   private final SimpleString addressC = new SimpleString("addressC");
+   private final SimpleString addressC = SimpleString.of("addressC");
 
-   private final SimpleString queueA = new SimpleString("queueA");
+   private final SimpleString queueA = SimpleString.of("queueA");
 
-   private final SimpleString queueB = new SimpleString("queueB");
+   private final SimpleString queueB = SimpleString.of("queueB");
 
-   private final SimpleString queueC = new SimpleString("queueC");
+   private final SimpleString queueC = SimpleString.of("queueC");
 
-   private final SimpleString dlaA = new SimpleString("dlaA");
+   private final SimpleString dlaA = SimpleString.of("dlaA");
 
-   private final SimpleString dlqA = new SimpleString("dlqA");
+   private final SimpleString dlqA = SimpleString.of("dlqA");
 
-   private final SimpleString dlaB = new SimpleString("dlaB");
+   private final SimpleString dlaB = SimpleString.of("dlaB");
 
-   private final SimpleString dlqB = new SimpleString("dlqB");
+   private final SimpleString dlqB = SimpleString.of("dlqB");
 
-   private final SimpleString dlaC = new SimpleString("dlaC");
+   private final SimpleString dlaC = SimpleString.of("dlaC");
 
-   private final SimpleString dlqC = new SimpleString("dlqC");
+   private final SimpleString dlqC = SimpleString.of("dlqC");
 
    @Test
    public void testSimpleHierarchyWithDLA() throws Exception {

@@ -76,7 +76,7 @@ public class AddressCommandTest extends JMSTestBase {
       command.setMulticast(true);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      AddressInfo addressInfo = server.getAddressInfo(new SimpleString(address));
+      AddressInfo addressInfo = server.getAddressInfo(SimpleString.of(address));
       assertNotNull(addressInfo);
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
@@ -89,7 +89,7 @@ public class AddressCommandTest extends JMSTestBase {
       command.setName(address);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(address)));
 
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(command, "Address already exists");
@@ -101,13 +101,13 @@ public class AddressCommandTest extends JMSTestBase {
       CreateAddress command = new CreateAddress();
       command.setName(address);
       command.execute(new ActionContext());
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(address)));
 
       DeleteAddress deleteAddress = new DeleteAddress();
       deleteAddress.setName(address);
       deleteAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(deleteAddress);
-      assertNull(server.getAddressInfo(new SimpleString(address)));
+      assertNull(server.getAddressInfo(SimpleString.of(address)));
    }
 
    @Test
@@ -122,10 +122,10 @@ public class AddressCommandTest extends JMSTestBase {
    @Test
    public void testFailDeleteAddressWhenExistsQueues() throws Exception {
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(new SimpleString("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
 
       final DeleteAddress deleteAddress = new DeleteAddress();
       deleteAddress.setName(addressName);
@@ -136,11 +136,11 @@ public class AddressCommandTest extends JMSTestBase {
    @Test
    public void testForceDeleteAddressWhenExistsQueues() throws Exception {
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final String queueName = "queue1";
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      Queue queue = server.createQueue(new QueueConfiguration(new SimpleString(queueName)).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of(queueName)).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616");
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession session = csf.createSession();
@@ -162,7 +162,7 @@ public class AddressCommandTest extends JMSTestBase {
       CreateAddress command = new CreateAddress();
       command.setName(address);
       command.execute(new ActionContext());
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(address)));
 
       ShowAddress showAddress = new ShowAddress();
       showAddress.setName(address);
@@ -183,11 +183,11 @@ public class AddressCommandTest extends JMSTestBase {
    public void testShowAddressBindings() throws Exception {
 
       // Create bindings
-      SimpleString address = new SimpleString("address");
+      SimpleString address = SimpleString.of("address");
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(new SimpleString("queue1")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(new SimpleString("queue2")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(new SimpleString("queue3")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(SimpleString.of("queue2")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(SimpleString.of("queue3")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
 
       DivertConfiguration divertConfiguration = new DivertConfiguration();
       divertConfiguration.setName(address.toString());
@@ -204,7 +204,7 @@ public class AddressCommandTest extends JMSTestBase {
    @Test
    public void testUpdateAddressRoutingTypes() throws Exception {
       final String addressName = "address";
-      final SimpleString address = new SimpleString(addressName);
+      final SimpleString address = SimpleString.of(addressName);
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
 
       final UpdateAddress updateAddress = new UpdateAddress();
@@ -231,10 +231,10 @@ public class AddressCommandTest extends JMSTestBase {
    @Test
    public void testFailUpdateAddressRoutingTypesWhenExistsQueues() throws Exception {
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(new SimpleString("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
 
       final UpdateAddress updateAddress = new UpdateAddress();
       updateAddress.setName(addressName);

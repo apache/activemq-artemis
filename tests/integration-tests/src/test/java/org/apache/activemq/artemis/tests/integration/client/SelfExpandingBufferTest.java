@@ -36,7 +36,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
    ActiveMQServer service;
 
-   SimpleString ADDRESS = new SimpleString("Address");
+   SimpleString ADDRESS = SimpleString.of("Address");
 
    @Test
    public void testSelfExpandingBufferNettyPersistent() throws Exception {

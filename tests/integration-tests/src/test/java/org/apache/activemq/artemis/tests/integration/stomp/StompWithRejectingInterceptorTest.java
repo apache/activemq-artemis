@@ -71,7 +71,7 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
          assertEquals(incomingCommands.get(i), IncomingStompFrameRejectInterceptor.interceptedFrames.get(i).getCommand());
       }
 
-      Wait.assertFalse(() -> server.locateQueue(SimpleString.toSimpleString(getQueuePrefix() + getQueueName())).getMessageCount() > 0, 1000, 100);
+      Wait.assertFalse(() -> server.locateQueue(SimpleString.of(getQueuePrefix() + getQueueName())).getMessageCount() > 0, 1000, 100);
    }
 
    public static class IncomingStompFrameRejectInterceptor implements StompFrameInterceptor {

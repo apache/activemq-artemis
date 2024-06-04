@@ -55,7 +55,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
    public void testQueueReceiverReadMessage() throws Exception {
       AmqpConnection connection = null;
       String queue = "purgeQueue";
-      SimpleString ssQueue = new SimpleString(queue);
+      SimpleString ssQueue = SimpleString.of(queue);
 
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
@@ -112,7 +112,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
    @Timeout(60)
    public void testPurgeQueueCoreRollback() throws Exception {
       String queue = "purgeQueue";
-      SimpleString ssQueue = new SimpleString(queue);
+      SimpleString ssQueue = SimpleString.of(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 

@@ -149,8 +149,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists());
          Wait.assertTrue(() -> federationPlugin.beforeCreateConsumerCapture.get() != null);
          Wait.assertTrue(() -> federationPlugin.afterCreateConsumerCapture.get() != null);
 
@@ -236,7 +236,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
          Wait.assertTrue(() -> federationPlugin.beforeCreateConsumerCapture.get() != null);
          Wait.assertTrue(() -> federationPlugin.afterCreateConsumerCapture.get() != null);
 
@@ -323,7 +323,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should not trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(topic);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -395,7 +395,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should not trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(queue);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -456,7 +456,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       server.start();
       server.deployDivert(divert);
       // Currently the address must exist on the local before we will federate from the remote
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
       final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
       final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT_REMOTE);

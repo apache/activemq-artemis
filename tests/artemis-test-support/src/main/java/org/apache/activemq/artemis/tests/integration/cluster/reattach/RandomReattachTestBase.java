@@ -63,7 +63,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    private static final int RECEIVE_TIMEOUT = 10000;
 
 
-   private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("FailoverTestAddress");
 
    private ActiveMQServer server;
 
@@ -237,7 +237,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
@@ -258,7 +258,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -274,7 +274,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
                fail("Too many messages");
             }
 
-            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(SimpleString.of("count")));
 
             count++;
 
@@ -314,7 +314,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -339,7 +339,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
@@ -358,7 +358,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -378,7 +378,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
                fail("Too many messages");
             }
 
-            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(SimpleString.of("count")));
 
             count++;
 
@@ -413,7 +413,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -439,7 +439,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
@@ -460,7 +460,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -468,7 +468,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -486,7 +486,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
                fail("Too many messages, expected " + count);
             }
 
-            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(SimpleString.of("count")));
 
             count++;
 
@@ -554,7 +554,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -579,7 +579,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
@@ -598,7 +598,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -606,7 +606,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -628,7 +628,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
                fail("Too many messages, " + count);
             }
 
-            assertEquals(count, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(count, message.getObjectProperty(SimpleString.of("count")));
 
             count++;
 
@@ -689,7 +689,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -716,7 +716,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
@@ -737,7 +737,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -747,7 +747,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -767,7 +767,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -792,7 +792,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
@@ -811,7 +811,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -829,7 +829,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -849,7 +849,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -876,7 +876,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
@@ -897,7 +897,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -905,7 +905,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -917,7 +917,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -939,7 +939,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -963,7 +963,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -988,7 +988,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
@@ -1007,7 +1007,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -1015,7 +1015,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          producer.send(message);
       }
 
@@ -1031,7 +1031,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -1055,7 +1055,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
             assertNotNull(msg);
 
-            assertEquals(i, msg.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("count")));
 
             msg.acknowledge();
          }
@@ -1079,7 +1079,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numSessions; i++) {
-         SimpleString subName = new SimpleString("sub" + i);
+         SimpleString subName = SimpleString.of("sub" + i);
 
          s.deleteQueue(subName);
       }
@@ -1180,7 +1180,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    protected void doTestN(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(new QueueConfiguration(new SimpleString(ADDRESS.toString())).setAddress(ADDRESS).setDurable(false));
+      sessCreate.createQueue(new QueueConfiguration(SimpleString.of(ADDRESS.toString())).setAddress(ADDRESS).setDurable(false));
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1190,7 +1190,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       sess.stop();
 
-      ClientConsumer consumer = sess.createConsumer(new SimpleString(ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(SimpleString.of(ADDRESS.toString()));
 
       ClientProducer producer = sess.createProducer(ADDRESS);
 
@@ -1211,7 +1211,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       sess.close();
 
-      sessCreate.deleteQueue(new SimpleString(ADDRESS.toString()));
+      sessCreate.deleteQueue(SimpleString.of(ADDRESS.toString()));
 
       sessCreate.close();
    }

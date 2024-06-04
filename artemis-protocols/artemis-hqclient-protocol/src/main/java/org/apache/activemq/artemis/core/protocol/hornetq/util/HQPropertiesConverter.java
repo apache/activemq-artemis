@@ -36,16 +36,16 @@ public class HQPropertiesConverter {
       Map<SimpleString, SimpleString> d = new HashMap<>();
 
       // Add entries for outgoing messages
-      d.put(new SimpleString("_HQ_ACTUAL_EXPIRY"), new SimpleString("_AMQ_ACTUAL_EXPIRY"));
-      d.put(new SimpleString("_HQ_ORIG_ADDRESS"), new SimpleString("_AMQ_ORIG_ADDRESS"));
-      d.put(new SimpleString("_HQ_ORIG_QUEUE"), new SimpleString("_AMQ_ORIG_QUEUE"));
-      d.put(new SimpleString("_HQ_ORIG_MESSAGE_ID"), new SimpleString("_AMQ_ORIG_MESSAGE_ID"));
-      d.put(new SimpleString("_HQ_GROUP_ID"), new SimpleString("_AMQ_GROUP_ID"));
-      d.put(new SimpleString("_HQ_LARGE_COMPRESSED"), new SimpleString("_AMQ_LARGE_COMPRESSED"));
-      d.put(new SimpleString("_HQ_LARGE_SIZE"), new SimpleString("_AMQ_LARGE_SIZE"));
-      d.put(new SimpleString("_HQ_SCHED_DELIVERY"), new SimpleString("_AMQ_SCHED_DELIVERY"));
-      d.put(new SimpleString("_HQ_DUPL_ID"), new SimpleString("_AMQ_DUPL_ID"));
-      d.put(new SimpleString("_HQ_LVQ_NAME"), new SimpleString("_AMQ_LVQ_NAME"));
+      d.put(SimpleString.of("_HQ_ACTUAL_EXPIRY"), SimpleString.of("_AMQ_ACTUAL_EXPIRY"));
+      d.put(SimpleString.of("_HQ_ORIG_ADDRESS"), SimpleString.of("_AMQ_ORIG_ADDRESS"));
+      d.put(SimpleString.of("_HQ_ORIG_QUEUE"), SimpleString.of("_AMQ_ORIG_QUEUE"));
+      d.put(SimpleString.of("_HQ_ORIG_MESSAGE_ID"), SimpleString.of("_AMQ_ORIG_MESSAGE_ID"));
+      d.put(SimpleString.of("_HQ_GROUP_ID"), SimpleString.of("_AMQ_GROUP_ID"));
+      d.put(SimpleString.of("_HQ_LARGE_COMPRESSED"), SimpleString.of("_AMQ_LARGE_COMPRESSED"));
+      d.put(SimpleString.of("_HQ_LARGE_SIZE"), SimpleString.of("_AMQ_LARGE_SIZE"));
+      d.put(SimpleString.of("_HQ_SCHED_DELIVERY"), SimpleString.of("_AMQ_SCHED_DELIVERY"));
+      d.put(SimpleString.of("_HQ_DUPL_ID"), SimpleString.of("_AMQ_DUPL_ID"));
+      d.put(SimpleString.of("_HQ_LVQ_NAME"), SimpleString.of("_AMQ_LVQ_NAME"));
 
       hqAmqDictionary = Collections.unmodifiableMap(d);
 

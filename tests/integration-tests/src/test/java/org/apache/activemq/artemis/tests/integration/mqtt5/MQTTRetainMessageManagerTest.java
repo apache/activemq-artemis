@@ -146,7 +146,7 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
             mqttPublisher.publish(topic, message);
             lastMessagePublished.set(message);
          }
-         Wait.waitFor(() -> server.getAddressInfo(SimpleString.toSimpleString(topic)).getRoutedMessageCount() >= numberOfMessages, 5000, 100);
+         Wait.waitFor(() -> server.getAddressInfo(SimpleString.of(topic)).getRoutedMessageCount() >= numberOfMessages, 5000, 100);
          mqttConsumerAfterPublish.subscribe(topic, qos);
          mqttConsumerAfterPublish2.subscribe(topic, qos);
          Wait.waitFor(() -> lastMessageArrivedOnConsumerAfterPublish.get() != null, 5000, 100);

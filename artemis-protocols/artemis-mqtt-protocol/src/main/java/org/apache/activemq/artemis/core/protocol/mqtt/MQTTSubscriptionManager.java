@@ -85,14 +85,14 @@ public class MQTTSubscriptionManager {
 
       StringBuilder messageFilter = new StringBuilder(baseFilter);
       messageFilter.append(")");
-      this.messageFilter = new SimpleString(messageFilter.toString());
+      this.messageFilter = SimpleString.of(messageFilter.toString());
 
       // [MQTT-4.7.2-1]
       StringBuilder messageFilterNoDollar = new StringBuilder(baseFilter);
       messageFilterNoDollar.append(" OR ");
       messageFilterNoDollar.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" LIKE '").append(DOLLAR).append("%')");
       messageFilterNoDollar.append(")");
-      this.messageFilterNoDollar = new SimpleString(messageFilterNoDollar.toString());
+      this.messageFilterNoDollar = SimpleString.of(messageFilterNoDollar.toString());
    }
 
    synchronized void start() throws Exception {
@@ -156,7 +156,7 @@ public class MQTTSubscriptionManager {
 
       // the subscription queue does not exist so we need to create it
       if (q == null) {
-         SimpleString sAddress = SimpleString.toSimpleString(coreAddress);
+         SimpleString sAddress = SimpleString.of(coreAddress);
 
          // only check if we can auto create queues if it's FQQN
          BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(sAddress);
@@ -227,7 +227,7 @@ public class MQTTSubscriptionManager {
       long cid = existingConsumerId != null ? existingConsumerId : session.getServer().getStorageManager().generateID();
 
       // for noLocal support we use the MQTT *client id* rather than the connection ID, but we still use the existing property name
-      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), noLocal ? SimpleString.toSimpleString(CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + session.getState().getClientId() + "'") : null, false, false, -1);
+      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), noLocal ? SimpleString.of(CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + session.getState().getClientId() + "'") : null, false, false, -1);
 
       ServerConsumer existingConsumer = consumers.put(topicFilter, consumer);
       if (existingConsumer != null) {
@@ -262,7 +262,7 @@ public class MQTTSubscriptionManager {
                   consumerQoSLevels.remove(removed.getID());
                }
 
-               SimpleString internalQueueName = SimpleString.toSimpleString(MQTTUtil.getCoreQueueFromMqttTopic(topics.get(i), state.getClientId(), session.getServer().getConfiguration().getWildcardConfiguration()));
+               SimpleString internalQueueName = SimpleString.of(MQTTUtil.getCoreQueueFromMqttTopic(topics.get(i), state.getClientId(), session.getServer().getConfiguration().getWildcardConfiguration()));
                Queue queue = session.getServer().locateQueue(internalQueueName);
                if (queue != null) {
                   if (queue.isConfigurationManaged()) {

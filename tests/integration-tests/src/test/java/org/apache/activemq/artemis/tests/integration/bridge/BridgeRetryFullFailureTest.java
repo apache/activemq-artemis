@@ -78,8 +78,8 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
 
    @Test
    public void testFullServer() throws Exception {
-      SimpleString source = SimpleString.toSimpleString("source");
-      SimpleString destination = SimpleString.toSimpleString("destination");
+      SimpleString source = SimpleString.of("source");
+      SimpleString destination = SimpleString.of("destination");
 
       server0.createQueue(new QueueConfiguration(source).setRoutingType(RoutingType.ANYCAST));
       Queue queueServer1 = server1.createQueue(new QueueConfiguration(destination).setRoutingType(RoutingType.ANYCAST));

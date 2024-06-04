@@ -56,12 +56,12 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
+   private SimpleString anycastAddress = SimpleString.of("address.anycast");
+   private SimpleString multicastAddress = SimpleString.of("address.multicast");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.of("q1");
+   private SimpleString anycastQ2 = SimpleString.of("q2");
+   private SimpleString anycastQ3 = SimpleString.of("q3");
 
    private ServerLocator locator;
 
@@ -211,7 +211,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    //however we can test query functionality
    public void testTopic() throws Exception {
 
-      SimpleString queueName = new SimpleString("someAddress");
+      SimpleString queueName = SimpleString.of("someAddress");
       server.createQueue(new QueueConfiguration(queueName).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
@@ -258,8 +258,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    @Test
    public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
 
-      SimpleString queueName1 = new SimpleString("sub.queue1");
-      SimpleString queueName2 = new SimpleString("sub.queue2");
+      SimpleString queueName1 = SimpleString.of("sub.queue1");
+      SimpleString queueName2 = SimpleString.of("sub.queue2");
       server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
       server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
@@ -383,7 +383,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //::queue ok!
-         String specialName = CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1).toString();
+         String specialName = CompositeAddress.toFullyQualified(SimpleString.of(""), anycastQ1).toString();
          javax.jms.Queue q1 = session.createQueue(specialName);
          session.createConsumer(q1);
       } catch (InvalidDestinationException e) {

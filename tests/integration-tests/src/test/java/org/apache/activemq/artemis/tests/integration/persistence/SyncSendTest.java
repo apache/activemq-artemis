@@ -222,7 +222,7 @@ public class SyncSendTest extends ActiveMQTestBase {
             fail("Messages are being acked too fast! Faster than the disk would be able to sync!");
          }
 
-         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString("queue"));
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.of("queue"));
          Wait.assertEquals(0, serverQueue::getMessageCount);
          Wait.assertEquals(0, serverQueue::getDeliveringCount);
       } finally {

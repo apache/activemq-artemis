@@ -52,8 +52,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryDefaultsOnStaticQueue() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.createQueue(new QueueConfiguration(queueName).setAddress(addressName));
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isExists());
@@ -81,8 +81,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
    public void testQueueQueryOnStaticQueueWithFQQN() throws Exception {
 //      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
 //      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString addressName = SimpleString.toSimpleString("myAddress");
-      SimpleString queueName = SimpleString.toSimpleString("myQueue");
+      SimpleString addressName = SimpleString.of("myAddress");
+      SimpleString queueName = SimpleString.of("myQueue");
       SimpleString fqqn = addressName.concat("::").concat(queueName);
 //      server.createQueue(fqqn, RoutingType.MULTICAST, fqqn, null, true, false);
       server.createQueue(new QueueConfiguration(fqqn));
@@ -96,10 +96,10 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonDefaultsOnStaticQueue() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString filter = SimpleString.toSimpleString("x = 'y'");
-      SimpleString lastValueKey = SimpleString.toSimpleString("myLastValueKey");
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString filter = SimpleString.of("x = 'y'");
+      SimpleString lastValueKey = SimpleString.of("myLastValueKey");
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings()
          .setAutoCreateAddresses(true)
          .setDefaultMaxConsumers(1)
@@ -137,7 +137,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryDefaultsOnAutoCreatedQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.getAddressSettingsRepository().addMatch(queueName.toString(), new AddressSettings());
       JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext();
       c.createProducer().send(c.createQueue(queueName.toString()), c.createMessage());
@@ -163,8 +163,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryOnAutoCreatedQueueWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString fqqn = addressName.concat("::").concat(queueName);
       try (JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext()) {
          c.createProducer().send(c.createQueue(fqqn.toString()), c.createMessage());
@@ -184,8 +184,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonDefaultsOnAutoCreatedQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString lastValueKey = SimpleString.toSimpleString("myLastValueKey");
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString lastValueKey = SimpleString.of("myLastValueKey");
       server.getAddressSettingsRepository().addMatch(queueName.toString(), new AddressSettings()
          .setAutoCreateAddresses(true)
          .setAutoCreateQueues(true)
@@ -225,7 +225,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonExistentQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertFalse(queueQueryResult.isExists());
       assertEquals(queueName, queueQueryResult.getName());
@@ -233,8 +233,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonExistentQueueWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString fqqn = addressName.concat("::").concat(queueName);
       QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
       assertFalse(queueQueryResult.isExists());

@@ -117,7 +117,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testQueuePrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.queue.";
       final String destinationName = "test";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
+      final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
       server.createQueue(new QueueConfiguration(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
@@ -147,7 +147,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testAutoCreateQueuePrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.queue.";
       final String destinationName = "autocreatedtest";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
+      final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.start(new BootstrapContext());
@@ -176,7 +176,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testTopicPrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.topic.";
       final String destinationName = "test";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
+      final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
       server.addAddressInfo(new AddressInfo(prefixedDestinationName).addRoutingType(RoutingType.MULTICAST));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);

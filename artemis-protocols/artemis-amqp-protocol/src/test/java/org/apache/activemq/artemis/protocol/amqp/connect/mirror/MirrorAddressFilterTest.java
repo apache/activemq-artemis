@@ -26,13 +26,13 @@ public class MirrorAddressFilterTest {
 
    @Test
    public void testAddressFilter() {
-      assertTrue(new MirrorAddressFilter("").match(new SimpleString("any")));
-      assertTrue(new MirrorAddressFilter("test").match(new SimpleString("test123")));
-      assertTrue(new MirrorAddressFilter("a,b").match(new SimpleString("b")));
-      assertTrue(new MirrorAddressFilter("!c").match(new SimpleString("a")));
-      assertTrue(new MirrorAddressFilter("!a,!").match(new SimpleString("b123")));
-      assertFalse(new MirrorAddressFilter("a,b,!ab").match(new SimpleString("ab")));
-      assertFalse(new MirrorAddressFilter("!a,!b").match(new SimpleString("b123")));
-      assertFalse(new MirrorAddressFilter("a,").match(new SimpleString("b")));
+      assertTrue(new MirrorAddressFilter("").match(SimpleString.of("any")));
+      assertTrue(new MirrorAddressFilter("test").match(SimpleString.of("test123")));
+      assertTrue(new MirrorAddressFilter("a,b").match(SimpleString.of("b")));
+      assertTrue(new MirrorAddressFilter("!c").match(SimpleString.of("a")));
+      assertTrue(new MirrorAddressFilter("!a,!").match(SimpleString.of("b123")));
+      assertFalse(new MirrorAddressFilter("a,b,!ab").match(SimpleString.of("ab")));
+      assertFalse(new MirrorAddressFilter("!a,!b").match(SimpleString.of("b123")));
+      assertFalse(new MirrorAddressFilter("a,").match(SimpleString.of("b")));
    }
 }

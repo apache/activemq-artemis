@@ -68,8 +68,8 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testMultipleConsumers() throws Exception {
-      SimpleString queue = SimpleString.toSimpleString("queue");
-      SimpleString address = SimpleString.toSimpleString("address");
+      SimpleString queue = SimpleString.of("queue");
+      SimpleString address = SimpleString.of("address");
 
       session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());
@@ -179,7 +179,7 @@ public class TransientQueueTest extends SingleServerTestBase {
 
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("a=1")).setDurable(false));
+         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.of("a=1")).setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
@@ -192,13 +192,13 @@ public class TransientQueueTest extends SingleServerTestBase {
       Wait.assertTrue(() -> server.locateQueue(queue) == null, 2000, 100);
       Wait.assertTrue(() -> server.getAddressInfo(queue) == null, 2000, 100);
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("q=1")).setDurable(false));
+      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.of("q=1")).setDurable(false));
 
       exHappened = false;
 
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("q=2")).setDurable(false));
+         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.of("q=2")).setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }

@@ -97,8 +97,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       logger.debug("Doing test");
 
-      getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("queues")));
-      getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString("queues")));
+      getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(SimpleString.of("queues")));
+      getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(SimpleString.of("queues")));
 
       startServers(0, 1);
 
@@ -116,7 +116,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 1, 0, false);
 
       //send some grouped messages before we add the consumer to node 0 so we guarantee its pinned to node 1
-      sendWithProperty(0, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, new SimpleString("grp1"));
+      sendWithProperty(0, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, SimpleString.of("grp1"));
       addConsumer(0, 0, "queue0", null);
 
       waitForBindings(0, "queues.testaddress", 1, 1, true);
@@ -288,7 +288,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       removeConsumer(0);
       addConsumer(0, 0, "queue0", null);
 
-      Bindable bindable = servers[0].getPostOffice().getBinding(new SimpleString("queue0")).getBindable();
+      Bindable bindable = servers[0].getPostOffice().getBinding(SimpleString.of("queue0")).getBindable();
       String debug = ((QueueImpl) bindable).debug();
       assertFalse(debug.contains(Redistributor.class.getName()));
       logger.debug("Test done");
@@ -1366,7 +1366,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       removeConsumer(0);
       addConsumer(1, 1, "queue0", null);
 
-      Queue queue = servers[1].locateQueue(SimpleString.toSimpleString("queue0"));
+      Queue queue = servers[1].locateQueue(SimpleString.of("queue0"));
       assertNotNull(queue);
       Wait.waitFor(() -> queue.getMessageCount() == 200);
 
@@ -1444,7 +1444,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       waitForBindings(0, "queues.testaddress", 1, 0, false);
 
-      getServer(0).getPagingManager().getPageStore(new SimpleString("queues.testaddress")).startPaging();
+      getServer(0).getPagingManager().getPageStore(SimpleString.of("queues.testaddress")).startPaging();
 
       ClientSession session0 = sfs[0].createSession(true, true, 0);
       ClientProducer producer0 = session0.createProducer("queues.testaddress");

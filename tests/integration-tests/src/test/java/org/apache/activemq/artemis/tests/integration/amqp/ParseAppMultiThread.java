@@ -46,7 +46,7 @@ public class ParseAppMultiThread {
          for (int i = 0; i < 10; i++) {
             map.put("stuff" + i, "value" + i); // just filling stuff
          }
-         AMQPStandardMessage originalMessage = AMQPStandardMessage.createMessage(1, 0, SimpleString.toSimpleString("duh"), null, null, null, null, map, null, null);
+         AMQPStandardMessage originalMessage = AMQPStandardMessage.createMessage(1, 0, SimpleString.of("duh"), null, null, null, null, map, null, null);
 
 
          // doing a round trip that would be made through persistence
@@ -77,7 +77,7 @@ public class ParseAppMultiThread {
             Runnable r = () -> {
                try {
                   barrier.await();
-                  assertEquals(randomStr, amqpStandardMessage.getObjectProperty(SimpleString.toSimpleString("color")));
+                  assertEquals(randomStr, amqpStandardMessage.getObjectProperty(SimpleString.of("color")));
                } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
@@ -92,7 +92,7 @@ public class ParseAppMultiThread {
             t.join();
          }
 
-         assertEquals(randomStr, amqpStandardMessage.getObjectPropertyForFilter(SimpleString.toSimpleString("color")));
+         assertEquals(randomStr, amqpStandardMessage.getObjectPropertyForFilter(SimpleString.of("color")));
          assertEquals(0, errors.get());
       }
 

@@ -288,7 +288,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       Packet disconnect;
 
       if (channel0.supports(PacketImpl.DISCONNECT_V3)) {
-         disconnect = new DisconnectMessage_V3(nodeID, reason, SimpleString.toSimpleString(targetNodeID), targetConnector);
+         disconnect = new DisconnectMessage_V3(nodeID, reason, SimpleString.of(targetNodeID), targetConnector);
       } else if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
          disconnect = new DisconnectMessage_V2(nodeID, reason.isScaleDown() ? targetNodeID : null);
       } else {

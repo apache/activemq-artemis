@@ -68,10 +68,10 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
       clientProvider.disconnect();
 
       if (managed) {
-         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) != null &&
-            server.locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() == 0, 5000, 10));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) != null &&
+            server.locateQueue(SimpleString.of(queueName)).getConsumerCount() == 0, 5000, 10));
       } else {
-         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10));
       }
    }
 
@@ -87,7 +87,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
       clientProvider.subscribe(topic, AT_LEAST_ONCE);
       server.stop();
       server.start();
-      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10);
    }
 
    @Test
@@ -120,7 +120,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
                clientProvider.disconnect();
             }
             clientProviders.clear();
-            assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10));
+            assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10));
          }
       }
    }

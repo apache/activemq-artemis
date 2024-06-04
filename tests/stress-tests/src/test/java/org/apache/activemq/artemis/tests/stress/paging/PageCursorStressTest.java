@@ -64,7 +64,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
 
 
-   private final SimpleString ADDRESS = new SimpleString("test-add");
+   private final SimpleString ADDRESS = SimpleString.of("test-add");
 
    private ActiveMQServer server;
 
@@ -148,7 +148,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
          @Override
          public SimpleString getFilterString() {
-            return new SimpleString("even=true");
+            return SimpleString.of("even=true");
          }
 
       });
@@ -177,7 +177,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
          @Override
          public SimpleString getFilterString() {
-            return new SimpleString("even=true");
+            return SimpleString.of("even=true");
          }
 
       });
@@ -792,7 +792,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
     */
    private PageSubscription createNonPersistentCursor(Filter filter) throws Exception {
       long id = server.getStorageManager().generateID();
-      FakeQueue queue = new FakeQueue(new SimpleString(filter.toString()), id);
+      FakeQueue queue = new FakeQueue(SimpleString.of(filter.toString()), id);
       queueList.add(queue);
 
       PageSubscription subs = lookupCursorProvider().createSubscription(id, filter, false);

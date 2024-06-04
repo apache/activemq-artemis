@@ -340,7 +340,7 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public List<String> listAllSubscribersForTopic(final String s) throws Exception {
-      ObjectName objectName = ObjectNameBuilder.DEFAULT.getAddressObjectName(new SimpleString(s));
+      ObjectName objectName = ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.of(s));
       AddressControl topic = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), objectName, AddressControl.class, false);
       Object[] subInfos = topic.getQueueNames();
       List<String> subs = new ArrayList<>();

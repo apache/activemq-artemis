@@ -176,7 +176,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!servers[0].getPagingManager().getPageStore(SimpleString.of(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
             Message message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
@@ -228,8 +228,8 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      Wait.assertEquals(TEST_SIZE, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      Wait.assertEquals(TEST_SIZE - 1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      Wait.assertEquals(TEST_SIZE, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
+      Wait.assertEquals(TEST_SIZE - 1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
 
       assertEquals(TEST_SIZE, performScaledown());
       // trigger scaleDown from node 0 to node 1
@@ -284,9 +284,9 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       ClientProducer producer2 = session.createProducer(addressName2);
       producer2.send(session.createMessage(true));
 
-      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
-      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue()));
+      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
+      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
+      Wait.assertEquals(1, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName3))).getQueue()));
 
       assertEquals(1, performScaledown());
 
@@ -297,9 +297,9 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertNull(servers[1].getPostOffice().getBinding(new SimpleString(queueName1)));
-      assertEquals(1, getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
-      assertNull(servers[1].getPostOffice().getBinding(new SimpleString(queueName3)));
+      assertNull(servers[1].getPostOffice().getBinding(SimpleString.of(queueName1)));
+      assertEquals(1, getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
+      assertNull(servers[1].getPostOffice().getBinding(SimpleString.of(queueName3)));
    }
 
    @TestTemplate
@@ -330,7 +330,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       send(0, addressName, TEST_SIZE, true, null);
 
       // at this point on node 0 there should be 2 messages in testQueue1
-      Wait.assertEquals(TEST_SIZE, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
+      Wait.assertEquals(TEST_SIZE, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
 
       assertEquals(TEST_SIZE, performScaledown());
       // trigger scaleDown from node 0 to node 1

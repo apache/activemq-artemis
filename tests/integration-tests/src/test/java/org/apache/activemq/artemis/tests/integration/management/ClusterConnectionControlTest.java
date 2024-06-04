@@ -159,14 +159,14 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       assertTrue(notifListener.getNotifications().size() > 0);
       Notification notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
       assertNotNull(notif);
-      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       clusterConnectionControl.start();
 
       assertTrue(notifListener.getNotifications().size() > 0);
       notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STARTED);
       assertNotNull(notif);
-      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 
    private Notification getFirstNotificationOfType(List<Notification> notifications, CoreNotificationType type) {

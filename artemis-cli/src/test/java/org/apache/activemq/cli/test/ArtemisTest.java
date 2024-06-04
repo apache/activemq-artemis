@@ -1399,14 +1399,14 @@ public class ArtemisTest extends CliTestBase {
             for (String str : queues.split(",")) {
                String[] seg = str.split(":");
                RoutingType routingType = RoutingType.valueOf((seg.length == 2 ? seg[1] : "anycast").toUpperCase());
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(seg[0]));
+               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.of(seg[0]));
                assertTrue(queryResult.isExists(), "Couldn't find queue " + seg[0]);
                assertEquals(routingType, queryResult.getRoutingType());
             }
             for (String str : addresses.split(",")) {
                String[] seg = str.split(":");
                RoutingType routingType = RoutingType.valueOf((seg.length == 2 ? seg[1] : "multicast").toUpperCase());
-               ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(seg[0]));
+               ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.of(seg[0]));
                assertTrue(queryResult.isExists(), "Couldn't find address " + str);
                assertTrue(routingType == RoutingType.ANYCAST ? queryResult.isSupportsAnycast() : queryResult.isSupportsMulticast());
             }

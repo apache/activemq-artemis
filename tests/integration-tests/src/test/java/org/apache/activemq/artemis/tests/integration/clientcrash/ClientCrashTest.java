@@ -61,8 +61,8 @@ public class ClientCrashTest extends ClientTestBase {
    static final int CONNECTION_TTL = 1000;
 
 
-   public static final SimpleString QUEUE = new SimpleString("ClientCrashTestQueue");
-   public static final SimpleString QUEUE2 = new SimpleString("ClientCrashTestQueue2");
+   public static final SimpleString QUEUE = SimpleString.of("ClientCrashTestQueue");
+   public static final SimpleString QUEUE2 = SimpleString.of("ClientCrashTestQueue2");
 
    public static final String MESSAGE_TEXT_FROM_SERVER = "ClientCrashTest from server";
 

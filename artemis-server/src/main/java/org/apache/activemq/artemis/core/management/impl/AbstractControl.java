@@ -135,7 +135,7 @@ public abstract class AbstractControl extends StandardMBean {
          message.setTimestamp(System.currentTimeMillis());
          if (body != null) {
             if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+               message.getBodyBuffer().writeNullableSimpleString(SimpleString.of(body));
             } else {
                message.getBodyBuffer().writeBytes(Base64.decode(body));
             }

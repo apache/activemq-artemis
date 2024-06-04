@@ -54,9 +54,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString qName = new SimpleString("ExpiryRunnerTestQ");
+   private final SimpleString qName = SimpleString.of("ExpiryRunnerTestQ");
 
-   private final SimpleString qName2 = new SimpleString("ExpiryRunnerTestQ2");
+   private final SimpleString qName2 = SimpleString.of("ExpiryRunnerTestQ2");
 
    private SimpleString expiryQueue;
 
@@ -285,8 +285,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
 
       clientSession = sessionFactory.createSession(false, true, true);
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
-      expiryAddress = new SimpleString("EA");
-      expiryQueue = new SimpleString("expiryQ");
+      expiryAddress = SimpleString.of("EA");
+      expiryQueue = SimpleString.of("expiryQ");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);

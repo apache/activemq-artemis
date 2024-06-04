@@ -46,7 +46,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
    volatile boolean running = true;
 
-   private final SimpleString ADDRESS = new SimpleString("ADQUEUE");
+   private final SimpleString ADDRESS = SimpleString.of("ADQUEUE");
 
    AtomicInteger sequence = new AtomicInteger(0);
    private ActiveMQServer server;

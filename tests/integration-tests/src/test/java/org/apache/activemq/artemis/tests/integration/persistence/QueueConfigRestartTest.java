@@ -41,8 +41,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
@@ -63,8 +63,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
@@ -85,8 +85,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
@@ -108,8 +108,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setConsumersBeforeDispatch(consumersBeforeDispatch));
 
@@ -131,8 +131,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setDelayBeforeDispatch(delayBeforeDispatch));
 
@@ -154,13 +154,13 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setUser("bob").setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
-      assertEquals(SimpleString.toSimpleString("bob"), queueBinding1.getQueue().getUser());
+      assertEquals(SimpleString.of("bob"), queueBinding1.getQueue().getUser());
 
       server.stop();
 
@@ -176,8 +176,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(true));
 
@@ -198,8 +198,8 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(false));
 

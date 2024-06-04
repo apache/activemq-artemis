@@ -136,15 +136,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       // create the 2 queues used in the test
       ClientSessionFactory sf = locator.createSessionFactory(transpConf);
       ClientSession session = sf.createTransactedSession();
-      session.createAddress(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, false);
-      session.createAddress(SimpleString.toSimpleString("queue2"), RoutingType.ANYCAST, false);
+      session.createAddress(SimpleString.of("queue"), RoutingType.ANYCAST, false);
+      session.createAddress(SimpleString.of("queue2"), RoutingType.ANYCAST, false);
 
-      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
       session.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST));
       session.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST));
-      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
       session.commit();
       sf.close();
       session.close();

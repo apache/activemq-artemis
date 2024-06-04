@@ -269,7 +269,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -343,7 +343,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -420,7 +420,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -487,7 +487,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       CyclicBarrier routingBarrier = new CyclicBarrier(2);
       CountDownLatch deliveryBeforeFailureLatch = new CountDownLatch(numMessages);
@@ -638,7 +638,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -735,7 +735,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
@@ -835,9 +835,9 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final int numMessages = NUM_MESSAGES;
 
-      SimpleString propKey = new SimpleString("propkey");
+      SimpleString propKey = SimpleString.of("propkey");
 
-      final Queue queue = (Queue) server0.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      final Queue queue = (Queue) server0.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);

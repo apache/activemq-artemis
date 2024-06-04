@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class MulticastTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString baseAddress = new SimpleString("multicast.address");
+   private SimpleString baseAddress = SimpleString.of("multicast.address");
 
    private AddressInfo addressInfo;
 

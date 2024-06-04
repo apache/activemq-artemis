@@ -125,12 +125,12 @@ public class AMQPFederationCommandDispatcher implements SenderController {
       controlAddress = federation.prefixControlLinkQueueName(sender.getRemoteTarget().getAddress());
 
       try {
-         session.createTemporaryQueue(SimpleString.toSimpleString(getControlLinkAddress()), RoutingType.ANYCAST, 1);
+         session.createTemporaryQueue(SimpleString.of(getControlLinkAddress()), RoutingType.ANYCAST, 1);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
 
-      return (Consumer) session.createSender(senderContext, SimpleString.toSimpleString(getControlLinkAddress()), null, false);
+      return (Consumer) session.createSender(senderContext, SimpleString.of(getControlLinkAddress()), null, false);
    }
 
    @Override
@@ -138,7 +138,7 @@ public class AMQPFederationCommandDispatcher implements SenderController {
       // Make a best effort to remove the temporary queue used for control commands on close.
 
       try {
-         session.removeTemporaryQueue(SimpleString.toSimpleString(getControlLinkAddress()));
+         session.removeTemporaryQueue(SimpleString.of(getControlLinkAddress()));
       } catch (Exception e) {
          // Ignored as the temporary queue should be removed on connection termination.
       }

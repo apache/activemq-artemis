@@ -364,6 +364,6 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    public AddressQueryResult getProxyToAddress(String addressName) throws Exception {
-      return server.addressQuery(SimpleString.toSimpleString(addressName));
+      return server.addressQuery(SimpleString.of(addressName));
    }
 }

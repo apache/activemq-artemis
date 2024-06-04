@@ -65,7 +65,7 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {
          RoutingType addressRoutingType = RoutingType.MULTICAST;
-         SimpleString address = SimpleString.toSimpleString("myTopic_" + UUID.randomUUID().toString());
+         SimpleString address = SimpleString.of("myTopic_" + UUID.randomUUID().toString());
          clientSession.createAddress(address, addressRoutingType, false);
          ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
          assertTrue(addressQuery.isExists());
@@ -93,7 +93,7 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
       assertEquals(RoutingType.ANYCAST, defaultRoutingType);
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {
-         SimpleString address = SimpleString.toSimpleString("myTopic_" + UUID.randomUUID().toString());
+         SimpleString address = SimpleString.of("myTopic_" + UUID.randomUUID().toString());
          ClientSession.AddressQuery addressQuery = clientSession.addressQuery(address);
          assertFalse(addressQuery.isExists());
          assertTrue(addressQuery.getQueueNames().isEmpty());

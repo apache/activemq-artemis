@@ -42,8 +42,8 @@ public class JMSTransactedRedeliveryBugTest extends JMSClientTestSupport {
    private static final String INITIAL_QUEUE_NAME = "InitialQueue";
    private static final String FINAL_QUEUE_NAME = "FinalQueue";
 
-   private static final SimpleString INITIAL_QUEUE_SS = new SimpleString(INITIAL_QUEUE_NAME);
-   private static final SimpleString FINAL_QUEUE_SS = new SimpleString(FINAL_QUEUE_NAME);
+   private static final SimpleString INITIAL_QUEUE_SS = SimpleString.of(INITIAL_QUEUE_NAME);
+   private static final SimpleString FINAL_QUEUE_SS = SimpleString.of(FINAL_QUEUE_NAME);
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {

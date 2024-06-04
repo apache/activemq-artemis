@@ -193,8 +193,8 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
 
       server.getConfiguration().getAddressSettings().put("#", addressSettings);
       Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
@@ -260,7 +260,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    public Queue getProxyToQueue(String queueName) {
-      return server.locateQueue(SimpleString.toSimpleString(queueName));
+      return server.locateQueue(SimpleString.of(queueName));
    }
 
    private Connection trackJMSConnection(Connection connection) {

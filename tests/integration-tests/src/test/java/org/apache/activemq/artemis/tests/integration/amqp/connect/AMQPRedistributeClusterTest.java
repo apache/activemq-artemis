@@ -77,7 +77,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
    private static final String QUEUE_NAME = "REDIST_QUEUE";
    private static final String TOPIC_NAME = "REDIST_TOPIC";
-   private static final SimpleString TOPIC_NAME_SIMPLE_STRING = SimpleString.toSimpleString("REDIST_TOPIC");
+   private static final SimpleString TOPIC_NAME_SIMPLE_STRING = SimpleString.of("REDIST_TOPIC");
 
    protected static final int A_1_PORT = 5673;
    protected static final int A_2_PORT = 5674;
@@ -121,7 +121,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       server.getConfiguration().addClusterConfiguration(clusterConfiguration);
 
       if (mirrorPort > 0) {
-         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(new SimpleString(mirrorName(mirrorPort)))));
+         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(SimpleString.of(mirrorName(mirrorPort)))));
       }
 
       return server;

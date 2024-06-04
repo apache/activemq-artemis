@@ -83,9 +83,9 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
       super.configureAddressSettings(addressSettingsMap);
       // force send to dlq early
-      addressSettingsMap.put("exampleQueue", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(2));
+      addressSettingsMap.put("exampleQueue", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(2));
       // force send to dlq late
-      addressSettingsMap.put("exampleQueueTwo", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(-1));
+      addressSettingsMap.put("exampleQueueTwo", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(-1));
    }
 
    @Override
@@ -110,7 +110,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    public void  doTestConsumerSingleMessageLoop(boolean exclusive) throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(exclusive));
 
       try {
@@ -156,7 +156,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    public void testExclusiveConsumerOrderOnReconnectionLargePrefetch() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
 
       try {
@@ -226,7 +226,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    public void testServerSideRollbackOnCloseOrder() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());
@@ -388,7 +388,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    public void testExclusiveConsumerBatchOrderUnderLoad() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());
@@ -553,7 +553,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
 
    public void underLoad(final int numProducers, Runnable r) throws Exception {
       // produce some load with a producer(s)/consumer
-      SimpleString durableQueue = new SimpleString("exampleQueue");
+      SimpleString durableQueue = SimpleString.of("exampleQueue");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       ExecutorService executor = Executors.newFixedThreadPool(numProducers + 1);
@@ -648,7 +648,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
       Connection exConn = null;
 
       ExecutorService executorService = Executors.newFixedThreadPool(10);
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
       AtomicInteger batchConsumed = new AtomicInteger(0);
 

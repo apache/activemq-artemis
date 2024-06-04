@@ -265,7 +265,7 @@ public class QueueControlTest extends ManagementTestBase {
    public void testAttributes() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString filter = new SimpleString("color = 'blue'");
+      SimpleString filter = SimpleString.of("color = 'blue'");
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(filter).setDurable(durable));
 
@@ -405,7 +405,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(new SimpleString(deadLetterAddress));
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(SimpleString.of(deadLetterAddress));
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       assertEquals(deadLetterAddress, queueControl.getDeadLetterAddress());
@@ -441,7 +441,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryAddress));
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(SimpleString.of(expiryAddress));
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       assertEquals(expiryAddress, queueControl.getExpiryAddress());
@@ -1194,7 +1194,7 @@ public class QueueControlTest extends ManagementTestBase {
       final String twentyBytes = new String(new char[20]).replace("\0", "#");
 
       ClientMessage clientMessage = session.createMessage(Message.TEXT_TYPE, durable);
-      clientMessage.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(twentyBytes));
+      clientMessage.getBodyBuffer().writeNullableSimpleString(SimpleString.of(twentyBytes));
       clientMessage.putStringProperty("x", twentyBytes);
 
       QueueControl queueControl = createManagementControl(address, queue);
@@ -1415,7 +1415,7 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < numMsg; i++) {
             ClientMessage message = transSession.createMessage(durable);
-            message.putIntProperty(new SimpleString("seqno"), i);
+            message.putIntProperty(SimpleString.of("seqno"), i);
             producer.send(message);
          }
 
@@ -1500,7 +1500,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(durable);
-      message.putIntProperty(new SimpleString("key"), intValue);
+      message.putIntProperty(SimpleString.of("key"), intValue);
       producer.send(message);
       producer.send(session.createMessage(durable));
 
@@ -1542,7 +1542,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(durable);
-      message.putIntProperty(new SimpleString("key"), intValue);
+      message.putIntProperty(SimpleString.of("key"), intValue);
       producer.send(message);
       producer.send(session.createMessage(durable));
 
@@ -1577,7 +1577,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(durable);
       message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
-      message.putIntProperty(new SimpleString("key"), intValue);
+      message.putIntProperty(SimpleString.of("key"), intValue);
       producer.send(message);
       // unscheduled message
       producer.send(session.createMessage(durable));
@@ -1611,7 +1611,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
       message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
-      message.putIntProperty(new SimpleString("key"), intValue);
+      message.putIntProperty(SimpleString.of("key"), intValue);
       producer.send(message);
       // unscheduled message
       producer.send(session.createMessage(durable));
@@ -1752,7 +1752,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(durable);
-      message.putIntProperty(new SimpleString("key"), intValue);
+      message.putIntProperty(SimpleString.of("key"), intValue);
       producer.send(message);
 
       String jsonString = queueControl.listMessagesAsJSON(null);
@@ -1775,7 +1775,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessagesWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;
@@ -1852,7 +1852,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessagesAsJSONWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;
@@ -1894,10 +1894,10 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryMessage() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
-      final SimpleString dlq = new SimpleString("DLQ1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString dlq = SimpleString.of("DLQ1");
       final String sampleText = "Put me on DLQ";
 
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
@@ -1949,9 +1949,9 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryMessageWithAutoCreatedResources() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
       final String sampleText = "Put me on DLQ";
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(adName.toString());
@@ -2001,10 +2001,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRetryMessageWithoutDLQ() throws Exception {
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString qName2 = new SimpleString("q2");
-      final SimpleString adName = new SimpleString("ad1");
-      final SimpleString adName2 = new SimpleString("ad2");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString qName2 = SimpleString.of("q2");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString adName2 = SimpleString.of("ad2");
       final String sampleText = "Put me on DLQ";
 
       session.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(durable));
@@ -2055,11 +2055,11 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryDivertedMessage() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString dlq = new SimpleString("DLQ");
-      final SimpleString forwardingQueue = new SimpleString("forwardingQueue");
-      final SimpleString forwardingAddress = new SimpleString("forwardingAddress");
-      final SimpleString myTopic = new SimpleString("myTopic");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString dlq = SimpleString.of("DLQ");
+      final SimpleString forwardingQueue = SimpleString.of("forwardingQueue");
+      final SimpleString forwardingAddress = SimpleString.of("forwardingAddress");
+      final SimpleString myTopic = SimpleString.of("myTopic");
       final String sampleText = "Put me on DLQ";
 
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
@@ -2118,10 +2118,10 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryMultipleMessages() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
-      final SimpleString dlq = new SimpleString("DLQ1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString dlq = SimpleString.of("DLQ1");
       final String sampleText = "Put me on DLQ";
       final int numMessagesToTest = 10;
 
@@ -2197,10 +2197,10 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testSendToDLAIncludesPagedMessages() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
-      final SimpleString dlq = new SimpleString("DLQ1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString dlq = SimpleString.of("DLQ1");
       final String sampleText = "Put me on DLQ";
       final int messageCount = 10;
 
@@ -2237,10 +2237,10 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testSendMessageToDLAIncludesPagedMessage() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
-      final SimpleString dlq = new SimpleString("DLQ1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString dlq = SimpleString.of("DLQ1");
       final String sampleText = "Message Content";
       final int messageCount = 10;
 
@@ -2339,9 +2339,9 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testMoveMessages2() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queueA = new SimpleString("A");
-      SimpleString queueB = new SimpleString("B");
-      SimpleString queueC = new SimpleString("C");
+      SimpleString queueA = SimpleString.of("A");
+      SimpleString queueB = SimpleString.of("B");
+      SimpleString queueC = SimpleString.of("C");
 
       server.createQueue(new QueueConfiguration(queueA).setAddress(address).setDurable(durable));
       server.createQueue(new QueueConfiguration(queueB).setAddress(address).setDurable(durable));
@@ -2443,7 +2443,7 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testMoveMessagesWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -2584,11 +2584,11 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testMoveMessageToFQQN() throws Exception {
-      SimpleString address = new SimpleString("ErrorQueue");
-      SimpleString queue = new SimpleString("ErrorQueue");
-      SimpleString otherAddress = new SimpleString("parent.addr.1");
-      SimpleString otherQueue1 = new SimpleString("child.queue.1");
-      SimpleString otherQueue2 = new SimpleString("child.queue.2");
+      SimpleString address = SimpleString.of("ErrorQueue");
+      SimpleString queue = SimpleString.of("ErrorQueue");
+      SimpleString otherAddress = SimpleString.of("parent.addr.1");
+      SimpleString otherQueue1 = SimpleString.of("child.queue.1");
+      SimpleString otherQueue2 = SimpleString.of("child.queue.2");
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(durable));
       session.createQueue(new QueueConfiguration(otherQueue1).setAddress(otherAddress).setDurable(durable));
@@ -2660,7 +2660,7 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testCopiedMessageProperties() throws Exception {
       final String testAddress = "testAddress";
-      final SimpleString queue = SimpleString.toSimpleString("queue");
+      final SimpleString queue = SimpleString.of("queue");
       final int COUNT = 5;
 
       for (int i = 0; i < COUNT; i++) {
@@ -2672,14 +2672,14 @@ public class QueueControlTest extends ManagementTestBase {
       ClientSession session = sf.createSession(false, true, true);
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress + "0"));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress + "0"));
       ClientMessage message = session.createMessage(durable);
       producer.send(message);
       producer.close();
 
       for (int i = 0; i < COUNT - 1; i++) {
-         QueueControl queueControl = createManagementControl(SimpleString.toSimpleString(testAddress + i), queue.concat(Integer.toString(i)), RoutingType.ANYCAST);
-         QueueControl otherQueueControl = createManagementControl(SimpleString.toSimpleString(testAddress + (i + 1)), queue.concat(Integer.toString(i + 1)), RoutingType.ANYCAST);
+         QueueControl queueControl = createManagementControl(SimpleString.of(testAddress + i), queue.concat(Integer.toString(i)), RoutingType.ANYCAST);
+         QueueControl otherQueueControl = createManagementControl(SimpleString.of(testAddress + (i + 1)), queue.concat(Integer.toString(i + 1)), RoutingType.ANYCAST);
          assertMessageMetrics(queueControl, 1, durable);
          assertMessageMetrics(otherQueueControl, 0, durable);
 
@@ -2708,7 +2708,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessages() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -2752,7 +2752,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessagesWithLimit() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3073,7 +3073,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountDeliveringMessageCountWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomPositiveLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3109,7 +3109,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountDeliveringMessageCountNoFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3141,7 +3141,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountDeliveringMessageCountNoGroupNoFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3258,7 +3258,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountMessagesWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3289,7 +3289,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountMessagesWithInvalidFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       String matchingValue = "MATCH";
       String nonMatchingValue = "DIFFERENT";
 
@@ -3302,20 +3302,20 @@ public class QueueControlTest extends ManagementTestBase {
       // send on queue
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(durable);
-         msg.putStringProperty(key, SimpleString.toSimpleString(matchingValue));
+         msg.putStringProperty(key, SimpleString.of(matchingValue));
          producer.send(msg);
       }
 
       for (int i = 0; i < 10; i++) {
          ClientMessage msg = session.createMessage(durable);
-         msg.putStringProperty(key, SimpleString.toSimpleString(nonMatchingValue));
+         msg.putStringProperty(key, SimpleString.of(nonMatchingValue));
          producer.send(msg);
       }
 
       // this is just to guarantee a round trip and avoid in transit messages, so they are all accounted for
       session.commit();
 
-      ClientConsumer consumer = session.createConsumer(queue, SimpleString.toSimpleString("nonExistentProperty like \'%Temp/88\'"));
+      ClientConsumer consumer = session.createConsumer(queue, SimpleString.of("nonExistentProperty like \'%Temp/88\'"));
 
       session.start();
 
@@ -3396,7 +3396,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testExpireMessagesWithFilter() throws Exception {
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
@@ -3764,8 +3764,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessagesBack() throws Exception {
-      server.createQueue(new QueueConfiguration(new SimpleString("q1")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
-      server.createQueue(new QueueConfiguration(new SimpleString("q2")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
+      server.createQueue(new QueueConfiguration(SimpleString.of("q1")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
+      server.createQueue(new QueueConfiguration(SimpleString.of("q2")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -3778,7 +3778,7 @@ public class QueueControlTest extends ManagementTestBase {
       for (int i = 0; i < 10; i++) {
          ClientMessage msg = session.createMessage(durable);
 
-         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of("dupl-" + i));
 
          prod1.send(msg);
       }
@@ -3791,9 +3791,9 @@ public class QueueControlTest extends ManagementTestBase {
       assertNotNull(consumer.receive(5000));
       consumer.close();
 
-      QueueControl q1Control = ManagementControlHelper.createQueueControl(new SimpleString("q1"), new SimpleString("q1"), mbeanServer);
+      QueueControl q1Control = ManagementControlHelper.createQueueControl(SimpleString.of("q1"), SimpleString.of("q1"), mbeanServer);
 
-      QueueControl q2Control = ManagementControlHelper.createQueueControl(new SimpleString("q2"), new SimpleString("q2"), mbeanServer);
+      QueueControl q2Control = ManagementControlHelper.createQueueControl(SimpleString.of("q2"), SimpleString.of("q2"), mbeanServer);
 
       assertEquals(10, q1Control.moveMessages(null, "q2"));
 
@@ -3828,8 +3828,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessagesBack2() throws Exception {
-      server.createQueue(new QueueConfiguration(new SimpleString("q1")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
-      server.createQueue(new QueueConfiguration(new SimpleString("q2")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
+      server.createQueue(new QueueConfiguration(SimpleString.of("q1")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
+      server.createQueue(new QueueConfiguration(SimpleString.of("q2")).setRoutingType(RoutingType.MULTICAST).setDurable(durable));
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -3844,7 +3844,7 @@ public class QueueControlTest extends ManagementTestBase {
       for (int i = 0; i < NUMBER_OF_MSGS; i++) {
          ClientMessage msg = session.createMessage(durable);
 
-         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of("dupl-" + i));
 
          prod1.send(msg);
       }
@@ -3857,9 +3857,9 @@ public class QueueControlTest extends ManagementTestBase {
       assertNotNull(consumer.receive(5000));
       consumer.close();
 
-      QueueControl q1Control = ManagementControlHelper.createQueueControl(new SimpleString("q1"), new SimpleString("q1"), mbeanServer);
+      QueueControl q1Control = ManagementControlHelper.createQueueControl(SimpleString.of("q1"), SimpleString.of("q1"), mbeanServer);
 
-      QueueControl q2Control = ManagementControlHelper.createQueueControl(new SimpleString("q2"), new SimpleString("q2"), mbeanServer);
+      QueueControl q2Control = ManagementControlHelper.createQueueControl(SimpleString.of("q2"), SimpleString.of("q2"), mbeanServer);
 
       assertEquals(NUMBER_OF_MSGS, q1Control.moveMessages(null, "q2"));
 
@@ -4073,7 +4073,7 @@ public class QueueControlTest extends ManagementTestBase {
       JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
       this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName(), listener, null, null);
 
-      SimpleString testQueueName = new SimpleString("newQueue");
+      SimpleString testQueueName = SimpleString.of("newQueue");
       String testQueueName2 = "newQueue2";
       this.server.createQueue(new QueueConfiguration(testQueueName).setDurable(durable));
 
@@ -4134,8 +4134,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageWithAMQP() throws Exception {
-      SimpleString address = new SimpleString("address_testSendMessageWithAMQP");
-      SimpleString queue = new SimpleString("queue_testSendMessageWithAMQP");
+      SimpleString address = SimpleString.of("address_testSendMessageWithAMQP");
+      SimpleString queue = SimpleString.of("queue_testSendMessageWithAMQP");
 
       server.addAddressInfo(new AddressInfo(address).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
@@ -4204,8 +4204,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageWithAMQPLarge() throws Exception {
-      SimpleString address = new SimpleString("address_testSendMessageWithAMQP");
-      SimpleString queue = new SimpleString("queue_testSendMessageWithAMQP");
+      SimpleString address = SimpleString.of("address_testSendMessageWithAMQP");
+      SimpleString queue = SimpleString.of("queue_testSendMessageWithAMQP");
 
       server.addAddressInfo(new AddressInfo(address).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
@@ -4495,9 +4495,9 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryMessageWithAutoCreatedResourcesAndOrigRoutingType() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
       final String sampleText = "Put me on DLQ";
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(adName.toString());
@@ -4554,9 +4554,9 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testRetryMessageReturnedWhenNoOrigQueue() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("q1");
-      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
       final String sampleText = "Put me on DLQ";
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(adName.toString());

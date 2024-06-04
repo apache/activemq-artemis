@@ -78,7 +78,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       final Sender sender = senderContext.getSender();
       final Source source = (Source) sender.getRemoteSource();
       final String selector;
-      final SimpleString queueName = SimpleString.toSimpleString(sender.getName());
+      final SimpleString queueName = SimpleString.of(sender.getName());
       final Connection protonConnection = sender.getSession().getConnection();
       final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
 
@@ -136,7 +136,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
          selector = jmsSelector;
       }
 
-      final SimpleString address = SimpleString.toSimpleString(source.getAddress());
+      final SimpleString address = SimpleString.of(source.getAddress());
       final AddressQueryResult addressQueryResult;
 
       try {

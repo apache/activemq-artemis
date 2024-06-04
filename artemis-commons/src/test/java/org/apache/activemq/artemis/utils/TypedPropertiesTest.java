@@ -238,7 +238,7 @@ public class TypedPropertiesTest {
       TypedPropertiesTest.assertEqualsTypeProperties(emptyProps, decodedProps);
    }
 
-   private static final SimpleString PROP_NAME = SimpleString.toSimpleString("TEST_PROP");
+   private static final SimpleString PROP_NAME = SimpleString.of("TEST_PROP");
 
    @Test
    public void testCannotClearInternalPropertiesIfEmpty() {
@@ -268,7 +268,7 @@ public class TypedPropertiesTest {
       ByteBuf buf = Unpooled.buffer(Byte.BYTES, Byte.BYTES);
       props.encode(buf);
       buf.resetReaderIndex();
-      assertFalse(searchProperty(SimpleString.toSimpleString(""), buf, 0), "There is no property");
+      assertFalse(searchProperty(SimpleString.of(""), buf, 0), "There is no property");
    }
 
    @Test
@@ -294,7 +294,7 @@ public class TypedPropertiesTest {
       assertFalse(searchProperty(value, buf, 0));
       props.forEachKey(key -> {
          assertTrue(searchProperty(key, buf, 0));
-         assertTrue(searchProperty(SimpleString.toSimpleString(key.toString()), buf, 0));
+         assertTrue(searchProperty(SimpleString.of(key.toString()), buf, 0));
          // concat a string just to check if the search won't perform an eager search to find the string pattern
          assertFalse(searchProperty(key.concat(" "), buf, 0));
       });
@@ -308,7 +308,7 @@ public class TypedPropertiesTest {
          buf.writeByte(DataConstants.NOT_NULL);
          buf.writeInt(1);
          buf.resetReaderIndex();
-         searchProperty(SimpleString.toSimpleString(" "), buf, 0);
+         searchProperty(SimpleString.of(" "), buf, 0);
       });
    }
 
@@ -322,7 +322,7 @@ public class TypedPropertiesTest {
          //SimpleString::data length
          buf.writeInt(2);
          buf.resetReaderIndex();
-         searchProperty(SimpleString.toSimpleString("a"), buf, 0);
+         searchProperty(SimpleString.of("a"), buf, 0);
       });
    }
 
@@ -339,7 +339,7 @@ public class TypedPropertiesTest {
          // invalid type
          buf.writeByte(Byte.MIN_VALUE);
          buf.resetReaderIndex();
-         searchProperty(SimpleString.toSimpleString(""), buf, 0);
+         searchProperty(SimpleString.of(""), buf, 0);
       });
    }
 
@@ -355,7 +355,7 @@ public class TypedPropertiesTest {
       // invalid type
       buf.writeByte(Byte.MIN_VALUE);
       buf.resetReaderIndex();
-      assertFalse(searchProperty(SimpleString.toSimpleString(""), buf, 0));
+      assertFalse(searchProperty(SimpleString.of(""), buf, 0));
    }
 
    @BeforeEach
@@ -369,10 +369,10 @@ public class TypedPropertiesTest {
       final int capacity = 8;
       final int chars = Integer.toString(capacity).length();
       final TypedProperties.StringValue.ByteBufStringValuePool pool = new TypedProperties.StringValue.ByteBufStringValuePool(capacity, chars);
-      final int bytes = new SimpleString(Integer.toString(capacity)).sizeof();
+      final int bytes = SimpleString.of(Integer.toString(capacity)).sizeof();
       final ByteBuf bb = Unpooled.buffer(bytes, bytes);
       for (int i = 0; i < capacity; i++) {
-         final SimpleString s = new SimpleString(Integer.toString(i));
+         final SimpleString s = SimpleString.of(Integer.toString(i));
          bb.resetWriterIndex();
          SimpleString.writeSimpleString(bb, s);
          bb.resetReaderIndex();
@@ -385,7 +385,7 @@ public class TypedPropertiesTest {
 
    @Test
    public void testByteBufStringValuePoolTooLong() {
-      final SimpleString tooLong = new SimpleString("aa");
+      final SimpleString tooLong = SimpleString.of("aa");
       final ByteBuf bb = Unpooled.buffer(tooLong.sizeof(), tooLong.sizeof());
       SimpleString.writeSimpleString(bb, tooLong);
       final TypedProperties.StringValue.ByteBufStringValuePool pool = new TypedProperties.StringValue.ByteBufStringValuePool(1, tooLong.length() - 1);
@@ -414,7 +414,7 @@ public class TypedPropertiesTest {
       };
       t.start();
       for (int i = 0; !error.get() && (i < 100 || copies.get() < 50); i++) {
-         properties.putIntProperty(SimpleString.toSimpleString("key" + i), i);
+         properties.putIntProperty(SimpleString.of("key" + i), i);
       }
 
       running.set(false);

@@ -147,7 +147,7 @@ public class AMQPFederationPolicySupportTest {
 
       final AMQPMessage message = AMQPFederationPolicySupport.encodeQueuePolicyControlMessage(policy);
 
-      assertEquals(ADD_QUEUE_POLICY, message.getAnnotation(SimpleString.toSimpleString(OPERATION_TYPE.toString())));
+      assertEquals(ADD_QUEUE_POLICY, message.getAnnotation(SimpleString.of(OPERATION_TYPE.toString())));
 
       assertNotNull(message.getBody());
       assertTrue(message.getBody() instanceof AmqpValue);
@@ -251,7 +251,7 @@ public class AMQPFederationPolicySupportTest {
 
       final AMQPMessage message = AMQPFederationPolicySupport.encodeAddressPolicyControlMessage(policy);
 
-      assertEquals(ADD_ADDRESS_POLICY, message.getAnnotation(SimpleString.toSimpleString(OPERATION_TYPE.toString())));
+      assertEquals(ADD_ADDRESS_POLICY, message.getAnnotation(SimpleString.of(OPERATION_TYPE.toString())));
 
       assertNotNull(message.getBody());
       assertTrue(message.getBody() instanceof AmqpValue);

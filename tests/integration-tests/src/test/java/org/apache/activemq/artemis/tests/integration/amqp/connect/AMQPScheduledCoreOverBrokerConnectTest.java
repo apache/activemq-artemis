@@ -60,7 +60,7 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       String queueName = "withScheduled";
       server.setIdentity("targetServer");
       server.start();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);

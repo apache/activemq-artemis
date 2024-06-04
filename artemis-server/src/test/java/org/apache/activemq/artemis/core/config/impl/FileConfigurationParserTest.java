@@ -102,7 +102,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       deploymentManager.readConfiguration();
       ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null, null).get("core"));
       server.start();
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString("q")).getMaxConsumers());
+      assertEquals(0, server.locateQueue(SimpleString.of("q")).getMaxConsumers());
    }
 
    @Test

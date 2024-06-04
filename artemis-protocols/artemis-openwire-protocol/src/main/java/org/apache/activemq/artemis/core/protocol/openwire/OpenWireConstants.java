@@ -19,22 +19,22 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class OpenWireConstants {
-   private static final SimpleString AMQ_PREFIX = new SimpleString("__HDR_");
-   public static final SimpleString AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY = new SimpleString(AMQ_PREFIX + "dlqDeliveryFailureCause");
-   public static final SimpleString AMQ_MSG_ARRIVAL = new SimpleString(AMQ_PREFIX + "ARRIVAL");
-   public static final SimpleString AMQ_MSG_BROKER_IN_TIME = new SimpleString(AMQ_PREFIX + "BROKER_IN_TIME");
-   public static final SimpleString AMQ_MSG_BROKER_PATH = new SimpleString(AMQ_PREFIX + "BROKER_PATH");
-   public static final SimpleString AMQ_MSG_CLUSTER = new SimpleString(AMQ_PREFIX + "CLUSTER");
-   public static final SimpleString AMQ_MSG_COMMAND_ID = new SimpleString(AMQ_PREFIX + "COMMAND_ID");
-   public static final SimpleString AMQ_MSG_DATASTRUCTURE = new SimpleString(AMQ_PREFIX + "DATASTRUCTURE");
-   public static final SimpleString AMQ_MSG_MESSAGE_ID = new SimpleString(AMQ_PREFIX + "MESSAGE_ID");
-   public static final SimpleString AMQ_MSG_ORIG_DESTINATION =  new SimpleString(AMQ_PREFIX + "ORIG_DESTINATION");
-   public static final SimpleString AMQ_MSG_PRODUCER_ID =  new SimpleString(AMQ_PREFIX + "PRODUCER_ID");
-   public static final SimpleString AMQ_MSG_REPLY_TO = new SimpleString(AMQ_PREFIX + "REPLY_TO");
-   public static final SimpleString AMQ_MSG_USER_ID = new SimpleString(AMQ_PREFIX + "USER_ID");
-   public static final SimpleString AMQ_MSG_DROPPABLE =  new SimpleString(AMQ_PREFIX + "DROPPABLE");
-   public static final SimpleString AMQ_MSG_COMPRESSED = new SimpleString(AMQ_PREFIX + "COMPRESSED");
+   private static final SimpleString AMQ_PREFIX = SimpleString.of("__HDR_");
+   public static final SimpleString AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY = SimpleString.of(AMQ_PREFIX + "dlqDeliveryFailureCause");
+   public static final SimpleString AMQ_MSG_ARRIVAL = SimpleString.of(AMQ_PREFIX + "ARRIVAL");
+   public static final SimpleString AMQ_MSG_BROKER_IN_TIME = SimpleString.of(AMQ_PREFIX + "BROKER_IN_TIME");
+   public static final SimpleString AMQ_MSG_BROKER_PATH = SimpleString.of(AMQ_PREFIX + "BROKER_PATH");
+   public static final SimpleString AMQ_MSG_CLUSTER = SimpleString.of(AMQ_PREFIX + "CLUSTER");
+   public static final SimpleString AMQ_MSG_COMMAND_ID = SimpleString.of(AMQ_PREFIX + "COMMAND_ID");
+   public static final SimpleString AMQ_MSG_DATASTRUCTURE = SimpleString.of(AMQ_PREFIX + "DATASTRUCTURE");
+   public static final SimpleString AMQ_MSG_MESSAGE_ID = SimpleString.of(AMQ_PREFIX + "MESSAGE_ID");
+   public static final SimpleString AMQ_MSG_ORIG_DESTINATION =  SimpleString.of(AMQ_PREFIX + "ORIG_DESTINATION");
+   public static final SimpleString AMQ_MSG_PRODUCER_ID =  SimpleString.of(AMQ_PREFIX + "PRODUCER_ID");
+   public static final SimpleString AMQ_MSG_REPLY_TO = SimpleString.of(AMQ_PREFIX + "REPLY_TO");
+   public static final SimpleString AMQ_MSG_USER_ID = SimpleString.of(AMQ_PREFIX + "USER_ID");
+   public static final SimpleString AMQ_MSG_DROPPABLE =  SimpleString.of(AMQ_PREFIX + "DROPPABLE");
+   public static final SimpleString AMQ_MSG_COMPRESSED = SimpleString.of(AMQ_PREFIX + "COMPRESSED");
 
-   public static final SimpleString JMS_TYPE_PROPERTY = new SimpleString("JMSType");
-   public static final SimpleString JMS_CORRELATION_ID_PROPERTY = new SimpleString("JMSCorrelationID");
+   public static final SimpleString JMS_TYPE_PROPERTY = SimpleString.of("JMSType");
+   public static final SimpleString JMS_CORRELATION_ID_PROPERTY = SimpleString.of("JMSCorrelationID");
 }

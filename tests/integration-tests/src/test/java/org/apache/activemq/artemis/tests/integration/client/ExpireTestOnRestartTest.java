@@ -52,7 +52,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true);
-      AddressSettings setting = new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("exp")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(100 * 1024).setMaxSizeBytes(200 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
+      AddressSettings setting = new AddressSettings().setExpiryAddress(SimpleString.of("exp")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(100 * 1024).setMaxSizeBytes(200 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
       server.getConfiguration().setJournalSyncTransactional(false);
@@ -99,7 +99,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue = server.locateQueue(SimpleString.toSimpleString("test"));
+      Queue queue = server.locateQueue(SimpleString.of("test"));
 
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false);

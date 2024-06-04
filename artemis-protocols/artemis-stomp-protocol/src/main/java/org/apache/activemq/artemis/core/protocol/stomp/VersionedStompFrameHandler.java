@@ -198,7 +198,7 @@ public abstract class VersionedStompFrameHandler {
             message.setRoutingType(routingType);
          }
          message.setTimestamp(timestamp);
-         message.setAddress(SimpleString.toSimpleString(destination));
+         message.setAddress(SimpleString.of(destination));
          StompUtils.copyStandardHeadersFromFrameToMessage(frame, message, getPrefix(frame));
          if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             message.setType(Message.BYTES_TYPE);
@@ -206,7 +206,7 @@ public abstract class VersionedStompFrameHandler {
          } else {
             message.setType(Message.TEXT_TYPE);
             String text = frame.getBody();
-            message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(text));
+            message.getBodyBuffer().writeNullableSimpleString(SimpleString.of(text));
          }
 
          connection.sendServerMessage(message, txID);
@@ -293,7 +293,7 @@ public abstract class VersionedStompFrameHandler {
       if (destination == null) {
          return null;
       }
-      return connection.getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString();
+      return connection.getSession().getCoreSession().removePrefix(SimpleString.of(destination)).toString();
    }
 
    public String getPrefix(StompFrame request) throws Exception {
@@ -301,7 +301,7 @@ public abstract class VersionedStompFrameHandler {
       if (destination == null) {
          return null;
       }
-      SimpleString prefix = connection.getSession().getCoreSession().getPrefix(SimpleString.toSimpleString(destination));
+      SimpleString prefix = connection.getSession().getCoreSession().getPrefix(SimpleString.of(destination));
       return prefix == null ? null : prefix.toString();
    }
 
@@ -377,7 +377,7 @@ public abstract class VersionedStompFrameHandler {
       if (typeHeader != null) {
          routingType = RoutingType.valueOf(typeHeader);
       } else {
-         routingType = connection.getSession().getCoreSession().getRoutingTypeFromPrefix(new SimpleString(destination), null);
+         routingType = connection.getSession().getCoreSession().getRoutingTypeFromPrefix(SimpleString.of(destination), null);
       }
       return routingType;
    }

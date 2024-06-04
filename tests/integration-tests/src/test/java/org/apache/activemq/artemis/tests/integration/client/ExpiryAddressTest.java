@@ -52,10 +52,10 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSend() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString adSend = new SimpleString("a1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString adSend = SimpleString.of("a1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
@@ -86,10 +86,10 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testExpireSingleMessage() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString adSend = new SimpleString("a1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString adSend = SimpleString.of("a1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
@@ -132,17 +132,17 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
    @Test
    public void testBasicSendWithRetroActiveAddressSettings() throws Exception {
       // apply "original" address settings
-      SimpleString expiryAddress1 = new SimpleString("expiryAddress1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString expiryQueue1 = new SimpleString("expiryQueue1");
+      SimpleString expiryAddress1 = SimpleString.of("expiryAddress1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString expiryQueue1 = SimpleString.of("expiryQueue1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(new QueueConfiguration(expiryQueue1).setAddress(expiryAddress1).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
 
       // override "original" address settings
-      SimpleString expiryAddress2 = new SimpleString("expiryAddress2");
-      SimpleString expiryQueue2 = new SimpleString("expiryQueue2");
+      SimpleString expiryAddress2 = SimpleString.of("expiryAddress2");
+      SimpleString expiryQueue2 = SimpleString.of("expiryQueue2");
       addressSettings = new AddressSettings().setExpiryAddress(expiryAddress2);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(new QueueConfiguration(expiryQueue2).setAddress(expiryAddress2).setDurable(false));
@@ -181,10 +181,10 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToMultipleQueues() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EQ1");
-      SimpleString eq2 = new SimpleString("EQ2");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EQ1");
+      SimpleString eq2 = SimpleString.of("EQ2");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
@@ -239,10 +239,10 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToNoQueue() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EQ1");
-      SimpleString eq2 = new SimpleString("EQ2");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EQ1");
+      SimpleString eq2 = SimpleString.of("EQ2");
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(eq2).setAddress(ea).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
@@ -261,11 +261,11 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
    @Test
    public void testHeadersSet() throws Exception {
       final int NUM_MESSAGES = 5;
-      SimpleString ea = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString ea = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString eq = SimpleString.of("EA1");
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ServerLocator locator1 = createInVMNonHALocator();
@@ -311,9 +311,9 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testExpireWithDefaultAddressSettings() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().setDefault(addressSettings);
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
@@ -339,9 +339,9 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testExpireWithWildcardAddressSettings() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
       clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
@@ -367,7 +367,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testExpireWithOverridenSublevelAddressSettings() throws Exception {
-      SimpleString address = new SimpleString("prefix.address");
+      SimpleString address = SimpleString.of("prefix.address");
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString defaultExpiryAddress = RandomUtil.randomSimpleString();
       SimpleString defaultExpiryQueue = RandomUtil.randomSimpleString();

@@ -64,7 +64,7 @@ public class SessionFailureXATest extends ActiveMQTestBase {
 
    private Configuration configuration;
 
-   private final SimpleString atestq = new SimpleString("BasicXaTestq");
+   private final SimpleString atestq = SimpleString.of("BasicXaTestq");
 
    private ServerLocator locator;
 

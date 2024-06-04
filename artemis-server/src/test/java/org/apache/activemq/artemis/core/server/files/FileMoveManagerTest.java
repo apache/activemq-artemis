@@ -307,7 +307,7 @@ public class FileMoveManagerTest extends ArtemisTestCase {
 
             managerImpl.start();
 
-            PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
+            PagingStore store = managerImpl.getPageStore(SimpleString.of("simple-test"));
 
             store.startPaging();
 

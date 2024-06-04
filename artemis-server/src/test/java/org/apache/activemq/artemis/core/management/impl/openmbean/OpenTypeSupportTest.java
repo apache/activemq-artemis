@@ -36,7 +36,7 @@ public class OpenTypeSupportTest {
       coreMessage.initBuffer(1024);
       coreMessage.setType(Message.TEXT_TYPE);
 
-      TextMessageUtil.writeBodyText(coreMessage.getBodyBuffer(), SimpleString.toSimpleString(bodyText));
+      TextMessageUtil.writeBodyText(coreMessage.getBodyBuffer(), SimpleString.of(bodyText));
 
       CompositeData cd = coreMessage.toCompositeData(256, 1);
 

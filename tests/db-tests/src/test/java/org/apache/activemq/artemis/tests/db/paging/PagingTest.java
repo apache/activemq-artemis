@@ -138,7 +138,7 @@ public class PagingTest extends ParameterDBTestBase {
    protected static final int PAGE_SIZE = 10 * 1024;
    static final int MESSAGE_SIZE = 1024; // 1k
    static final int LARGE_MESSAGE_SIZE = 100 * 1024;
-   static final SimpleString ADDRESS = new SimpleString("TestADDRESS");
+   static final SimpleString ADDRESS = SimpleString.of("TestADDRESS");
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected ServerLocator locator;
    protected ActiveMQServer server;
@@ -1095,8 +1095,8 @@ public class PagingTest extends ParameterDBTestBase {
       producer.close();
       session.close();
 
-      Queue queue = server.locateQueue(new SimpleString(PagingTest.ADDRESS + "Queue"));
-      Queue originalQueue = server.locateQueue(new SimpleString(PagingTest.ADDRESS + "QueueOriginal"));
+      Queue queue = server.locateQueue(SimpleString.of(PagingTest.ADDRESS + "Queue"));
+      Queue originalQueue = server.locateQueue(SimpleString.of(PagingTest.ADDRESS + "QueueOriginal"));
 
       Wait.assertEquals(numberOfMessages * 4, queue::getMessageCount);
       Wait.assertEquals(0, originalQueue::getMessageCount);
@@ -1147,7 +1147,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -1575,7 +1575,7 @@ public class PagingTest extends ParameterDBTestBase {
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
       server.start();
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(0).setExpiryAddress(new SimpleString("EXP")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(0).setExpiryAddress(SimpleString.of("EXP")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getAddressSettingsRepository().clear();
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
@@ -1592,7 +1592,7 @@ public class PagingTest extends ParameterDBTestBase {
       session.createQueue(new QueueConfiguration("EXP"));
 
       Queue queue1 = server.locateQueue(ADDRESS);
-      Queue qEXP = server.locateQueue(new SimpleString("EXP"));
+      Queue qEXP = server.locateQueue(SimpleString.of("EXP"));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -1837,7 +1837,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       server.start();
 
-      SimpleString queue = new SimpleString("testPurge:" + RandomUtil.randomString());
+      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
       QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(false).setAutoCreateAddress(false));
 
@@ -1910,7 +1910,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -2084,7 +2084,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
 
@@ -2150,7 +2150,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 10 == 0) {
@@ -2262,7 +2262,7 @@ public class PagingTest extends ParameterDBTestBase {
 
             bodyLocal.writeBytes(body);
 
-            message.putIntProperty(new SimpleString("id"), i);
+            message.putIntProperty(SimpleString.of("id"), i);
 
             producer.send(message);
             if (i % messagesPerTX == 0) {
@@ -2315,8 +2315,8 @@ public class PagingTest extends ParameterDBTestBase {
       ClientConsumer cons2 = sess.createConsumer("q2");
       assertNull(cons2.receiveImmediate());
 
-      Queue q1 = server.locateQueue(new SimpleString("q1"));
-      Queue q2 = server.locateQueue(new SimpleString("q2"));
+      Queue q1 = server.locateQueue(SimpleString.of("q1"));
+      Queue q2 = server.locateQueue(SimpleString.of("q2"));
 
       q1.getPageSubscription().cleanupEntries(false);
       q2.getPageSubscription().cleanupEntries(false);
@@ -2473,7 +2473,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-invalid")).setAddress(PagingTest.ADDRESS).setFilterString(new SimpleString(Filter.GENERIC_IGNORED_FILTER)));
+      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-invalid")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of(Filter.GENERIC_IGNORED_FILTER)));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2488,7 +2488,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 10 == 0) {
@@ -2615,7 +2615,7 @@ public class PagingTest extends ParameterDBTestBase {
 
                bodyLocal.writeBytes(body);
 
-               message.putIntProperty(new SimpleString("id"), i);
+               message.putIntProperty(SimpleString.of("id"), i);
 
                producer.send(message);
             }
@@ -2787,7 +2787,7 @@ public class PagingTest extends ParameterDBTestBase {
 
             bodyLocal.writeBytes(body);
 
-            message.putIntProperty(new SimpleString("id"), i);
+            message.putIntProperty(SimpleString.of("id"), i);
 
             producer.send(message);
          }
@@ -2889,7 +2889,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -3011,7 +3011,7 @@ public class PagingTest extends ParameterDBTestBase {
       for (int i = 0; i < 10; i++) {
          message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          // Consume messages to force an eventual out of order delivery
          if (i == 5) {
@@ -3026,7 +3026,7 @@ public class PagingTest extends ParameterDBTestBase {
             consumer.close();
          }
 
-         Integer messageID = (Integer) message.getObjectProperty(new SimpleString("id"));
+         Integer messageID = (Integer) message.getObjectProperty(SimpleString.of("id"));
          assertNotNull(messageID);
          assertEquals(messageID.intValue(), i);
 
@@ -3046,7 +3046,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          assertNotNull(message);
 
-         Integer messageID = (Integer) message.getObjectProperty(new SimpleString("id"));
+         Integer messageID = (Integer) message.getObjectProperty(SimpleString.of("id"));
 
          assertNotNull(messageID);
          assertEquals(messageID.intValue(), i, "message received out of order");
@@ -3094,7 +3094,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientMessage firstMessage = sessionTransacted.createMessage(IS_DURABLE_MESSAGE);
       firstMessage.getBodyBuffer().writeBytes(body);
-      firstMessage.putIntProperty(new SimpleString("id"), 0);
+      firstMessage.putIntProperty(SimpleString.of("id"), 0);
 
       producerTransacted.send(firstMessage);
 
@@ -3129,7 +3129,7 @@ public class PagingTest extends ParameterDBTestBase {
       for (int i = 1; i < 10; i++) {
          message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          // Consume messages to force an eventual out of order delivery
          if (i == 5) {
@@ -3148,7 +3148,7 @@ public class PagingTest extends ParameterDBTestBase {
             consumer.close();
          }
 
-         Integer messageID = (Integer) message.getObjectProperty(new SimpleString("id"));
+         Integer messageID = (Integer) message.getObjectProperty(SimpleString.of("id"));
          assertNotNull(messageID);
          assertEquals(messageID.intValue(), i);
 
@@ -3168,7 +3168,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          assertNotNull(message);
 
-         Integer messageID = (Integer) message.getObjectProperty(new SimpleString("id"));
+         Integer messageID = (Integer) message.getObjectProperty(SimpleString.of("id"));
 
          assertNotNull(messageID);
          assertEquals(i, messageID.intValue(), "message received out of order");
@@ -3218,9 +3218,9 @@ public class PagingTest extends ParameterDBTestBase {
       for (int i = 0; i < MAX_TX; i++) {
          ClientMessage message = sessionNonTX.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
-         message.putIntProperty(new SimpleString("id"), i);
-         message.putStringProperty(new SimpleString("tst"), new SimpleString("i=" + i));
-         message.putStringProperty(new SimpleString("TX"), "true");
+         message.putIntProperty(SimpleString.of("id"), i);
+         message.putStringProperty(SimpleString.of("tst"), SimpleString.of("i=" + i));
+         message.putStringProperty(SimpleString.of("TX"), "true");
 
          producerTransacted.send(message);
 
@@ -3228,8 +3228,8 @@ public class PagingTest extends ParameterDBTestBase {
             logger.debug("Sending");
             for (int j = 0; j < 10; j++) {
                ClientMessage msgSend = sessionNonTX.createMessage(true);
-               msgSend.putStringProperty(new SimpleString("tst"), new SimpleString("i=" + i + ", j=" + j));
-               msgSend.putStringProperty(new SimpleString("TX"), "false");
+               msgSend.putStringProperty(SimpleString.of("tst"), SimpleString.of("i=" + i + ", j=" + j));
+               msgSend.putStringProperty(SimpleString.of("TX"), "false");
                msgSend.getBodyBuffer().writeBytes(new byte[20 * 1024]);
                producerNonTransacted.send(msgSend);
             }
@@ -3259,7 +3259,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          assertNotNull(message);
 
-         Integer messageID = (Integer) message.getObjectProperty(new SimpleString("id"));
+         Integer messageID = (Integer) message.getObjectProperty(SimpleString.of("id"));
 
          assertNotNull(messageID);
          assertEquals(i, messageID.intValue(), "message received out of order");
@@ -3497,7 +3497,7 @@ public class PagingTest extends ParameterDBTestBase {
          message = session.createMessage(true);
 
          message.getBodyBuffer().writeBytes(body);
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          PagingStore store = server.getPagingManager().getPageStore(PagingTest.ADDRESS);
 
@@ -3590,7 +3590,7 @@ public class PagingTest extends ParameterDBTestBase {
             bodyLocal.writeInt(j);
          }
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -3637,7 +3637,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(new byte[100 * 4]);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          session.commit();
@@ -3652,7 +3652,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(new byte[100 * 4]);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -3666,7 +3666,7 @@ public class PagingTest extends ParameterDBTestBase {
       PageCursorProviderTestAccessor.cleanup(queue.getPagingStore().getCursorProvider());
 
       consumerSession.start();
-      ClientConsumer consumer = consumerSession.createConsumer(ADDRESS, SimpleString.toSimpleString("id > 0"));
+      ClientConsumer consumer = consumerSession.createConsumer(ADDRESS, SimpleString.of("id > 0"));
       for (int i = 0; i < 19; i++) {
          ClientMessage messageRec = consumer.receive(5000);
          logger.debug("msg::{}", messageRec);
@@ -3760,7 +3760,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(new byte[100 * 4]);
 
-         message.putIntProperty(new SimpleString("idi"), i);
+         message.putIntProperty(SimpleString.of("idi"), i);
 
          producer.send(message);
          session.commit();
@@ -3806,7 +3806,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(new byte[100 * 4]);
 
-         message.putIntProperty(new SimpleString("newid"), i);
+         message.putIntProperty(SimpleString.of("newid"), i);
 
          producer.send(message);
          session.commit();
@@ -3865,7 +3865,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          bodyLocal.writeBytes(new byte[1024]);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }
@@ -4152,7 +4152,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientSession session = sf.createSession(null, null, false, !transacted, true, false, 0);
 
       for (int i = 0; i < NUMBER_OF_BINDINGS; i++) {
-         session.createQueue(new QueueConfiguration(new SimpleString("someQueue" + i)).setAddress(PagingTest.ADDRESS).setDurable(true));
+         session.createQueue(new QueueConfiguration(SimpleString.of("someQueue" + i)).setAddress(PagingTest.ADDRESS).setDurable(true));
       }
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -4188,7 +4188,7 @@ public class PagingTest extends ParameterDBTestBase {
       for (int msg = 0; msg < NUMBER_OF_MESSAGES; msg++) {
 
          for (int i = 0; i < NUMBER_OF_BINDINGS; i++) {
-            ClientConsumer consumer = session.createConsumer(new SimpleString("someQueue" + i));
+            ClientConsumer consumer = session.createConsumer(SimpleString.of("someQueue" + i));
 
             ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
 
@@ -4206,7 +4206,7 @@ public class PagingTest extends ParameterDBTestBase {
       session.close();
 
       for (int i = 0; i < NUMBER_OF_BINDINGS; i++) {
-         Queue queue = (Queue) server.getPostOffice().getBinding(new SimpleString("someQueue" + i)).getBindable();
+         Queue queue = (Queue) server.getPostOffice().getBinding(SimpleString.of("someQueue" + i)).getBindable();
 
          assertEquals(0, getMessageCount(queue), "Queue someQueue" + i + " was supposed to be empty");
          assertEquals(0, queue.getDeliveringCount(), "Queue someQueue" + i + " was supposed to be empty");
@@ -4283,8 +4283,8 @@ public class PagingTest extends ParameterDBTestBase {
 
    @TestTemplate
    public void testPagingOneDestinationOnly() throws Exception {
-      SimpleString PAGED_ADDRESS = new SimpleString("paged");
-      SimpleString NON_PAGED_ADDRESS = new SimpleString("non-paged");
+      SimpleString PAGED_ADDRESS = SimpleString.of("paged");
+      SimpleString NON_PAGED_ADDRESS = SimpleString.of("non-paged");
 
       Configuration configuration = createDefaultInVMConfig();
 
@@ -4369,7 +4369,7 @@ public class PagingTest extends ParameterDBTestBase {
 
    @TestTemplate
    public void testSimplePaging() throws Exception {
-      SimpleString PAGED_ADDRESS = new SimpleString("paged");
+      SimpleString PAGED_ADDRESS = SimpleString.of("paged");
 
       Configuration configuration = createDefaultInVMConfig();
 
@@ -4450,7 +4450,7 @@ public class PagingTest extends ParameterDBTestBase {
       int NQUEUES = 2;
 
       for (int i = 0; i < NQUEUES; i++) {
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=" + i)).setAddress(PagingTest.ADDRESS).setFilterString(new SimpleString("propTest=" + i)).setDurable(true));
+         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=" + i)).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("propTest=" + i)).setDurable(true));
       }
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -4613,7 +4613,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
 
          // A queue with an impossible filter
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-3")).setAddress(PagingTest.ADDRESS).setFilterString(new SimpleString("nothing='something'")));
+         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-3")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("nothing='something'")));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -4768,7 +4768,7 @@ public class PagingTest extends ParameterDBTestBase {
       Configuration config = createDefaultInVMConfig().setThreadPoolMaxSize(10).setJournalSyncNonTransactional(false);
 
       Map<String, AddressSettings> settings = new HashMap<>();
-      AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(new SimpleString("DLA")).setRedeliveryDelay(0).setMaxReadPageBytes(-1);
+      AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(SimpleString.of("DLA")).setRedeliveryDelay(0).setMaxReadPageBytes(-1);
       settings.put(ADDRESS.toString(), dla);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, settings);
@@ -4797,7 +4797,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          PagingStore pgStoreAddress = server.getPagingManager().getPageStore(ADDRESS);
          pgStoreAddress.startPaging();
-         PagingStore pgStoreDLA = server.getPagingManager().getPageStore(new SimpleString("DLA"));
+         PagingStore pgStoreDLA = server.getPagingManager().getPageStore(SimpleString.of("DLA"));
 
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -4972,7 +4972,7 @@ public class PagingTest extends ParameterDBTestBase {
       Configuration config = createDefaultInVMConfig().setMessageExpiryScanPeriod(500).setJournalSyncNonTransactional(false);
 
       Map<String, AddressSettings> settings = new HashMap<>();
-      AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(new SimpleString("DLA")).setExpiryAddress(new SimpleString("DLA")).setMaxReadPageBytes(-1);
+      AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("DLA")).setMaxReadPageBytes(-1);
       settings.put(ADDRESS.toString(), dla);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, settings);
@@ -5279,7 +5279,7 @@ public class PagingTest extends ParameterDBTestBase {
       Wait.assertEquals(3, q::getMessageCount);
 
       // send a message with a dup ID that should fail b/c the address is full
-      SimpleString dupID1 = new SimpleString("abcdefg");
+      SimpleString dupID1 = SimpleString.of("abcdefg");
       message.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID1.getData());
       message.putStringProperty("key", dupID1.toString());
 
@@ -5358,7 +5358,7 @@ public class PagingTest extends ParameterDBTestBase {
       session.createQueue(new QueueConfiguration("Q2").setAddress("Q").setFilterString("dest=2"));
       session.createQueue(new QueueConfiguration("Q3").setAddress("Q").setFilterString("dest=3"));
 
-      Queue queue = server.locateQueue(new SimpleString("Q1"));
+      Queue queue = server.locateQueue(SimpleString.of("Q1"));
       queue.getPageSubscription().getPagingStore().startPaging();
 
       ClientProducer prod = session.createProducer("Q");
@@ -5450,7 +5450,7 @@ public class PagingTest extends ParameterDBTestBase {
          final int MESSAGE_SIZE = 300;
          final byte[] bodyWrite = new byte[MESSAGE_SIZE];
 
-         Queue serverQueue = server.locateQueue(new SimpleString("Q1"));
+         Queue serverQueue = server.locateQueue(SimpleString.of("Q1"));
          PagingStore pageStore = serverQueue.getPageSubscription().getPagingStore();
 
          ClientProducer producer = session.createProducer(ADDRESS);
@@ -5953,7 +5953,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.createQueue(new QueueConfiguration("Q1"));
          session.createQueue(new QueueConfiguration("Q2"));
 
-         PagingStore store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+         PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
 
          ClientProducer prod = session.createProducer("Q1");
 
@@ -5982,9 +5982,9 @@ public class PagingTest extends ParameterDBTestBase {
          }
          session.commit();
 
-         Queue queue = server.locateQueue(new SimpleString("Q1"));
+         Queue queue = server.locateQueue(SimpleString.of("Q1"));
 
-         queue.moveReferences(10, (Filter) null, new SimpleString("Q2"), false, server.getPostOffice().getBinding(new SimpleString("Q2")));
+         queue.moveReferences(10, (Filter) null, SimpleString.of("Q2"), false, server.getPostOffice().getBinding(SimpleString.of("Q2")));
 
          waitForNotPaging(store);
 
@@ -6020,7 +6020,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          assertNull(cons.receiveImmediate());
 
-         waitForNotPaging(server.locateQueue(new SimpleString("Q2")));
+         waitForNotPaging(server.locateQueue(SimpleString.of("Q2")));
 
          session.close();
          sf.close();
@@ -6261,8 +6261,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(false, false, false);
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.toSimpleString("destQ=1 or both=true")));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.toSimpleString("destQ=2 or both=true")));
+         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=1 or both=true")));
+         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=2 or both=true")));
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
          Queue queue = server.locateQueue(PagingTest.ADDRESS.concat("=1"));
          queue.getPageSubscription().getPagingStore().startPaging();
@@ -6334,8 +6334,8 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.toSimpleString("destQ=1")));
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.toSimpleString("destQ=2")));
+      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=1")));
+      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=2")));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
       ClientConsumer consumer1 = session.createConsumer(PagingTest.ADDRESS.concat("=1"));

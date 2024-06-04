@@ -117,7 +117,7 @@ public class ConsumerTest extends ActiveMQTestBase {
    private final boolean netty;
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
@@ -254,7 +254,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("topic")));
+      assertNull(server.getAddressInfo(SimpleString.of("topic")));
 
       ConnectionFactory factorySend = createFactory(2);
       Connection connection = factorySend.createConnection();
@@ -272,8 +272,8 @@ public class ConsumerTest extends ActiveMQTestBase {
          connection.close();
       }
 
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("topic")));
-      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.toSimpleString("topic")).getRoutingType());
+      assertNotNull(server.getAddressInfo(SimpleString.of("topic")));
+      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.of("topic")).getRoutingType());
       assertEquals(0, server.getTotalMessageCount());
    }
 
@@ -294,7 +294,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    private void testAutoCreate(int protocol) throws Throwable {
 
-      final SimpleString thisQueue = SimpleString.toSimpleString("ThisQueue");
+      final SimpleString thisQueue = SimpleString.of("ThisQueue");
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
          return;
@@ -334,7 +334,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
+      assertNull(server.getAddressInfo(SimpleString.of("queue")));
 
       ConnectionFactory factory = createFactory(2);
       JMSContext context = factory.createContext("admin", "admin", Session.AUTO_ACKNOWLEDGE);
@@ -375,7 +375,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
+      assertNull(server.getAddressInfo(SimpleString.of("queue")));
 
       ConnectionFactory factorySend = createFactory(2);
       Connection connection = factorySend.createConnection();
@@ -397,8 +397,8 @@ public class ConsumerTest extends ActiveMQTestBase {
          connection.close();
       }
 
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("queue")) == null);
-      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString("queue")) == null);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of("queue")) == null);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.of("queue")) == null);
       Wait.assertEquals(0, server::getTotalMessageCount);
    }
 
@@ -935,7 +935,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       final Set<Object> sessions = new ConcurrentHashSet<>();
       final AtomicInteger errors = new AtomicInteger(0);
 
-      final SimpleString QUEUE_RESPONSE = SimpleString.toSimpleString("QUEUE_RESPONSE");
+      final SimpleString QUEUE_RESPONSE = SimpleString.of("QUEUE_RESPONSE");
 
       final int numberOfSessions = 50;
       final int numberOfMessages = 10;
@@ -1286,7 +1286,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testConsumerXpathSelector() throws Exception {
-      final SimpleString BODY = SimpleString.toSimpleString("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
+      final SimpleString BODY = SimpleString.of("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, false, true);
@@ -1295,7 +1295,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientMessage message = session.createMessage(false);
       message.setType(Message.TEXT_TYPE);
-      message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString("wrong"));
+      message.getBodyBuffer().writeNullableSimpleString(SimpleString.of("wrong"));
       producer.send(message);
       message = session.createMessage(false);
       message.setType(Message.TEXT_TYPE);

@@ -52,7 +52,7 @@ public class SubAckTests extends MQTT5TestSupport {
       final String TOPIC = RandomUtil.randomString();
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         topicNames[i] = new SimpleString(i + "-" + TOPIC);
+         topicNames[i] = SimpleString.of(i + "-" + TOPIC);
       }
 
       MqttAsyncClient consumer = createAsyncPahoClient("consumer");

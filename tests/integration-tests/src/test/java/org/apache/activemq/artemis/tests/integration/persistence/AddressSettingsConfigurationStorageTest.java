@@ -54,7 +54,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
    }
 
    protected void addAddress(StorageManager journal1, String address, AddressSettings setting) throws Exception {
-      SimpleString str = new SimpleString(address);
+      SimpleString str = SimpleString.of(address);
       PersistedAddressSettingJSON persistedSetting = new PersistedAddressSettingJSON(str, setting, setting.toJSON());
       mapExpectedAddresses.put(str, persistedSetting);
       journal1.storeAddressSetting(persistedSetting);
@@ -66,7 +66,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
       AddressSettings setting = new AddressSettings();
 
-      setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setDeadLetterAddress(new SimpleString("some-test"));
+      setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setDeadLetterAddress(SimpleString.of("some-test"));
 
       addAddress(journal, "a2", setting);
 
@@ -76,7 +76,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
       checkAddresses(journal);
 
-      setting = new AddressSettings().setDeadLetterAddress(new SimpleString("new-adddress"));
+      setting = new AddressSettings().setDeadLetterAddress(SimpleString.of("new-adddress"));
 
       // Replacing the first setting
       addAddress(journal, "a1", setting);

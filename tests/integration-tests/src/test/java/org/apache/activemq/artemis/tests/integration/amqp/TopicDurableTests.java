@@ -181,7 +181,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
          //TEAR-DOWN-E
 
          // ensure the topic is auto-deleted before continuing to the next iteration
-         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("jmsTopic")) == null, 2000, 100);
+         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of("jmsTopic")) == null, 2000, 100);
       }
    }
 

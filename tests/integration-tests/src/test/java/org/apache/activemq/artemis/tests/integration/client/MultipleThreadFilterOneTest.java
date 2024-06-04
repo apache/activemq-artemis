@@ -263,7 +263,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
             }
          }
 
-         waitForNotPaging(server.locateQueue(new SimpleString("Q1")));
+         waitForNotPaging(server.locateQueue(SimpleString.of("Q1")));
 
       } finally {
          server.stop();

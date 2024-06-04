@@ -46,17 +46,17 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
-   private SimpleString mixedAddress = new SimpleString("address.mixed");
+   private SimpleString anycastAddress = SimpleString.of("address.anycast");
+   private SimpleString multicastAddress = SimpleString.of("address.multicast");
+   private SimpleString mixedAddress = SimpleString.of("address.mixed");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.of("q1");
+   private SimpleString anycastQ2 = SimpleString.of("q2");
+   private SimpleString anycastQ3 = SimpleString.of("q3");
 
-   private SimpleString multicastQ1 = new SimpleString("q4");
-   private SimpleString multicastQ2 = new SimpleString("q5");
-   private SimpleString multicastQ3 = new SimpleString("q6");
+   private SimpleString multicastQ1 = SimpleString.of("q4");
+   private SimpleString multicastQ2 = SimpleString.of("q5");
+   private SimpleString multicastQ3 = SimpleString.of("q6");
 
    private ActiveMQServer server;
    private ServerLocator locator;
@@ -256,7 +256,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       sendMessages(session, producer, 1);
 
       //::queue
-      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1));
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(SimpleString.of(""), anycastQ1));
       session.start();
 
       ClientMessage m = consumer1.receive(2000);
@@ -268,7 +268,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //queue::
-         session.createConsumer(CompositeAddress.toFullyQualified(anycastQ1, new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(anycastQ1, SimpleString.of("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.
@@ -276,7 +276,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //::
-         session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(SimpleString.of(""), SimpleString.of("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.

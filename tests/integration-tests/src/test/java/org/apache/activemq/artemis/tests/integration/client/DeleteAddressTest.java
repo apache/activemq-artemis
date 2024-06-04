@@ -68,7 +68,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
    private void localServer(boolean autoCreate) throws Exception {
       server = createServer(false, true);
 
-      AddressSettings settings = new AddressSettings().setAutoDeleteAddresses(autoCreate).setAutoCreateAddresses(autoCreate).setAutoCreateQueues(autoCreate).setAutoDeleteQueues(autoCreate).setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setSendToDLAOnNoRoute(true);
+      AddressSettings settings = new AddressSettings().setAutoDeleteAddresses(autoCreate).setAutoCreateAddresses(autoCreate).setAutoCreateQueues(autoCreate).setAutoDeleteQueues(autoCreate).setDeadLetterAddress(SimpleString.of("DLQ")).setSendToDLAOnNoRoute(true);
       server.start();
       server.createQueue(new QueueConfiguration("DLQ").setRoutingType(RoutingType.ANYCAST));
       server.getAddressSettingsRepository().addMatch(getName() + "*", settings);
@@ -137,7 +137,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(ADDRESS_NAME);
          Wait.assertEquals(0, serverQueue::getConsumerCount);
 
-         server.destroyQueue(SimpleString.toSimpleString(ADDRESS_NAME));
+         server.destroyQueue(SimpleString.of(ADDRESS_NAME));
 
          boolean exception = false;
          try {
@@ -239,7 +239,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
          session.commit();
 
-         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.toSimpleString(ADDRESS_NAME));
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.of(ADDRESS_NAME));
          for (Binding b : bindings.getBindings()) {
             if (b instanceof LocalQueueBinding) {
                Wait.assertEquals(0, () -> ((LocalQueueBinding)b).getQueue().getConsumerCount());
@@ -250,7 +250,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          producer.send(session.createTextMessage(dlqText));
          session.commit();
 
-         server.removeAddressInfo(SimpleString.toSimpleString(ADDRESS_NAME), null);
+         server.removeAddressInfo(SimpleString.of(ADDRESS_NAME), null);
 
          try {
             logger.debug("Sending good bye message");

@@ -43,7 +43,7 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
 
    @Override
    public JsonObjectBuilder toJson(QueueControl queue) {
-      Queue q = server.locateQueue(new SimpleString(queue.getName()));
+      Queue q = server.locateQueue(SimpleString.of(queue.getName()));
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(QueueField.ID.getName(), toString(queue.getID()))
          .add(QueueField.NAME.getName(), toString(queue.getName()))
@@ -84,7 +84,7 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
 
    @Override
    public Object getField(QueueControl queue, String fieldName) {
-      Queue q = server.locateQueue(new SimpleString(queue.getName()));
+      Queue q = server.locateQueue(SimpleString.of(queue.getName()));
 
       QueueField field = QueueField.valueOfName(fieldName);
 

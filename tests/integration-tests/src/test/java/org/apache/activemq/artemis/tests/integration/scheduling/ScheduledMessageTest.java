@@ -50,9 +50,9 @@ import org.junit.jupiter.api.Test;
 
 public class ScheduledMessageTest extends ActiveMQTestBase {
 
-   private final SimpleString atestq = new SimpleString("ascheduledtestq");
+   private final SimpleString atestq = SimpleString.of("ascheduledtestq");
 
-   private final SimpleString atestq2 = new SimpleString("ascheduledtestq2");
+   private final SimpleString atestq2 = SimpleString.of("ascheduledtestq2");
 
    private Configuration configuration;
 

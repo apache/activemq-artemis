@@ -72,7 +72,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
    @Test
    public void testGlobalMaxMessages() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("testGlobalMaxMessages");
+      final SimpleString ADDRESS = SimpleString.of("testGlobalMaxMessages");
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig();
@@ -183,12 +183,12 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          session.createQueue(new QueueConfiguration(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -249,12 +249,12 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          session.createQueue(new QueueConfiguration(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 1; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -304,7 +304,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 0; adr < 11; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          session.createQueue(new QueueConfiguration(address).setAddress(address));
          ClientProducer producer = session.createProducer(address);
 

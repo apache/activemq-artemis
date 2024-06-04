@@ -56,7 +56,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    protected static final String MDBQUEUE = "mdbQueue";
    protected static final String DLQ = "dlqQueue";
    protected static final String MDBQUEUEPREFIXED = "mdbQueue";
-   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = new SimpleString("mdbQueue");
+   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = SimpleString.of("mdbQueue");
 
    @Override
    @BeforeEach
@@ -69,7 +69,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    }
 
    protected void setupDLQ(int maxDeliveries) {
-      AddressSettings settings = new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString(DLQ)).setMaxDeliveryAttempts(maxDeliveries);
+      AddressSettings settings = new AddressSettings().setDeadLetterAddress(SimpleString.of(DLQ)).setMaxDeliveryAttempts(maxDeliveries);
       server.getAddressSettingsRepository().addMatch("#", settings);
    }
 

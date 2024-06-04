@@ -75,8 +75,8 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
                                       .setSecurityEnabled(false)
                                       .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
                                       .addAddressSetting("#",
-                                                         new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("dla"))
-                                                                              .setExpiryAddress(SimpleString.toSimpleString("expiry")));
+                                                         new AddressSettings().setDeadLetterAddress(SimpleString.of("dla"))
+                                                                              .setExpiryAddress(SimpleString.of("expiry")));
       init();
    }
 
@@ -237,7 +237,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public long getMessageCount(String queueName) {
-      return getMessageCount(SimpleString.toSimpleString(queueName));
+      return getMessageCount(SimpleString.of(queueName));
    }
 
    @Override
@@ -253,7 +253,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public Queue locateQueue(String queueName) {
-      return locateQueue(SimpleString.toSimpleString(queueName));
+      return locateQueue(SimpleString.of(queueName));
    }
 
    @Override
@@ -263,7 +263,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public List<Queue> getBoundQueues(String address) {
-      return getBoundQueues(SimpleString.toSimpleString(address));
+      return getBoundQueues(SimpleString.of(address));
    }
 
    @Override
@@ -290,12 +290,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public Queue createQueue(String name) {
-      return createQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
+      return createQueue(SimpleString.of(name), SimpleString.of(name));
    }
 
    @Override
    public Queue createQueue(String address, String name) {
-      return createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(name));
+      return createQueue(SimpleString.of(address), SimpleString.of(name));
    }
 
    @Override
@@ -315,14 +315,14 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public void createSharedQueue(String name, String user) {
-      createSharedQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name),
-                        SimpleString.toSimpleString(user));
+      createSharedQueue(SimpleString.of(name), SimpleString.of(name),
+                        SimpleString.of(user));
    }
 
    @Override
    public void createSharedQueue(String address, String name, String user) {
-      createSharedQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(name),
-                        SimpleString.toSimpleString(user));
+      createSharedQueue(SimpleString.of(address), SimpleString.of(name),
+                        SimpleString.of(user));
    }
 
    @Override
@@ -401,32 +401,32 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public void sendMessage(String address, ClientMessage message) {
-      sendMessage(SimpleString.toSimpleString(address), message);
+      sendMessage(SimpleString.of(address), message);
    }
 
    @Override
    public ClientMessage sendMessage(String address, byte[] body) {
-      return sendMessage(SimpleString.toSimpleString(address), body);
+      return sendMessage(SimpleString.of(address), body);
    }
 
    @Override
    public ClientMessage sendMessage(String address, String body) {
-      return sendMessage(SimpleString.toSimpleString(address), body);
+      return sendMessage(SimpleString.of(address), body);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), properties);
+      return sendMessageWithProperties(SimpleString.of(address), properties);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, byte[] body, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), body, properties);
+      return sendMessageWithProperties(SimpleString.of(address), body, properties);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, String body, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), body, properties);
+      return sendMessageWithProperties(SimpleString.of(address), body, properties);
    }
 
    @Override
@@ -478,12 +478,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public ClientMessage receiveMessage(String queueName) {
-      return receiveMessage(SimpleString.toSimpleString(queueName));
+      return receiveMessage(SimpleString.of(queueName));
    }
 
    @Override
    public ClientMessage receiveMessage(String queueName, long timeout) {
-      return receiveMessage(SimpleString.toSimpleString(queueName), timeout);
+      return receiveMessage(SimpleString.of(queueName), timeout);
    }
 
    @Override
@@ -500,12 +500,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public ClientMessage browseMessage(String queueName) {
-      return browseMessage(SimpleString.toSimpleString(queueName), defaultReceiveTimeout);
+      return browseMessage(SimpleString.of(queueName), defaultReceiveTimeout);
    }
 
    @Override
    public ClientMessage browseMessage(String queueName, long timeout) {
-      return browseMessage(SimpleString.toSimpleString(queueName), timeout);
+      return browseMessage(SimpleString.of(queueName), timeout);
    }
 
    @Override

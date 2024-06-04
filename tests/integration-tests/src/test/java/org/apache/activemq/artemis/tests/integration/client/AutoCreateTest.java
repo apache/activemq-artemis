@@ -60,8 +60,8 @@ import java.lang.invoke.MethodHandles;
 public class AutoCreateTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
    private ActiveMQServer server;
 
@@ -162,7 +162,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          connection.start();
       }
 
-      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
@@ -188,7 +188,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
 
       AddressInfo info = new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.MULTICAST).setAutoCreated(true);
       server.getPostOffice().addAddressInfo(info);
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(ADDRESS_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(ADDRESS_NAME));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = cf.createConnection()) {
@@ -226,7 +226,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
 
       AddressInfo info = new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.MULTICAST).setAutoCreated(true);
       server.getPostOffice().addAddressInfo(info);
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(ADDRESS_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(ADDRESS_NAME));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = cf.createConnection()) {
@@ -272,7 +272,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          connection.start();
       }
 
-      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
@@ -308,7 +308,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          connection.start();
       }
 
-      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
@@ -369,7 +369,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          connection.start();
       }
 
-      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
@@ -393,11 +393,11 @@ public class AutoCreateTest extends ActiveMQTestBase {
          producer.send(topic, session.createTextMessage(randomString));
       }
 
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(TOPIC_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
@@ -412,11 +412,11 @@ public class AutoCreateTest extends ActiveMQTestBase {
          assertTrue(loggerHandler.matchText("AMQ224113.*" + TOPIC_NAME));
       }
 
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(QUEUE_NAME));
       assertNotNull(info);
       assertTrue(info.isAutoCreated());
 
-      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(TOPIC_NAME));
+      info = server.getPostOffice().getAddressInfo(SimpleString.of(TOPIC_NAME));
       assertNull(info);
 
       { // just a namespace

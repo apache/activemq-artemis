@@ -46,7 +46,7 @@ public class MetaBeanTest {
       sourceObject.setC(RandomUtil.randomInt());
       sourceObject.setD(null);
       sourceObject.setIdCacheSize(333);
-      sourceObject.setSimpleString(SimpleString.toSimpleString("mySimpleString"));
+      sourceObject.setSimpleString(SimpleString.of("mySimpleString"));
       sourceObject.setFloatValue(33.33f);
       sourceObject.setDoubleValue(11.11);
       sourceObject.setBoolValue(true);
@@ -71,7 +71,7 @@ public class MetaBeanTest {
       assertEquals(MyEnum.TWO, result.getMyEnum());
       assertTrue(result.getBoolValue());
 
-      sourceObject.setGated(SimpleString.toSimpleString("gated-now-has-value"));
+      sourceObject.setGated(SimpleString.of("gated-now-has-value"));
       jsonObject = MYClass.metaBean.toJSON(sourceObject, false);
       assertTrue(jsonObject.containsKey("gated"));
       assertEquals("gated-now-has-value", jsonObject.getString("gated"));

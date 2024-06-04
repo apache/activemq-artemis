@@ -42,7 +42,7 @@ public class ExpiryMessageTest extends JMSTestBase {
    @Test
    public void testSendTopicNoSubscription() throws Exception {
       Topic topic = createTopic("test-topic");
-      AddressControl control = ManagementControlHelper.createAddressControl(new SimpleString(topic.getTopicName()), mbeanServer);
+      AddressControl control = ManagementControlHelper.createAddressControl(SimpleString.of(topic.getTopicName()), mbeanServer);
 
       Connection conn2 = cf.createConnection();
 

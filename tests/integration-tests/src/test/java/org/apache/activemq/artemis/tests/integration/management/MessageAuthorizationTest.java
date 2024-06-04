@@ -60,8 +60,8 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
    }
 
    private ActiveMQServer server;
-   private SimpleString QUEUE = new SimpleString("TestQueue");
-   private SimpleString TOPIC = new SimpleString("TestTopic");
+   private SimpleString QUEUE = SimpleString.of("TestQueue");
+   private SimpleString TOPIC = SimpleString.of("TestTopic");
 
    @Override
    @BeforeEach

@@ -167,12 +167,12 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists());
 
          // Captures state of JMS consumers and federation consumers attached on each node
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
-         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerR = sessionR.createProducer(topic);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -233,7 +233,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       server.start();
       server.deployDivert(divert);
       // Currently the address must exist on the local before we will federate from the remote
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
       final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT);
       final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory(clientProtocol, "tcp://localhost:" + SERVER_PORT_REMOTE);
@@ -253,11 +253,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("source")).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("source")).isExists());
 
          // Captures state of JMS consumers and federation consumers attached on each node
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("target"), false).getQueueNames().size() >= 1);
-         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("source"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("target"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("source"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerR = sessionR.createProducer(source);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -327,7 +327,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(queue);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -397,12 +397,12 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists());
 
          // Captures state of JMS consumers and federation consumers attached on each node
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
-         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerL = sessionL.createProducer(topic);
          final TextMessage message = sessionL.createTextMessage("Hello World");
@@ -472,7 +472,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on remote queue should trigger receiver on remote.
-         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerL = sessionL.createProducer(queue);
          final TextMessage message = sessionL.createTextMessage("Hello World");
@@ -533,7 +533,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       // Currently the address must exist on the local before we will federate from the remote
       // and in this case since we are instructing the remote to federate from us the address must
       // exist on the remote for that to happen.
-      remoteServer.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      remoteServer.addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
       server.getConfiguration().addAMQPConnection(amqpConnection);
       server.start();
 
@@ -555,11 +555,11 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("source")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("source")).isExists());
 
          // Captures state of JMS consumers and federation consumers attached on each node
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("source"), false).getQueueNames().size() >= 1);
-         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("target"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("source"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("target"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerL = sessionL.createProducer(source);
          final TextMessage message = sessionL.createTextMessage("Hello World");
@@ -645,12 +645,12 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists());
 
          // Captures state of JMS consumers and federation consumers attached on each node
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
-         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.toSimpleString("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("test"), false).getQueueNames().size() >= 1);
 
          final MessageProducer producerR = sessionR.createProducer(topic);
          final BytesMessage message = sessionR.createBytesMessage();
@@ -745,8 +745,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(queue);
          final BytesMessage message = sessionR.createBytesMessage();
@@ -795,7 +795,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       remoteServer2 = createServer(SERVER2_PORT_REMOTE, false);
 
       final String ADDRESS_NAME = "target";
-      final SimpleString ADDRESS_NAME_SS = SimpleString.toSimpleString(ADDRESS_NAME);
+      final SimpleString ADDRESS_NAME_SS = SimpleString.of(ADDRESS_NAME);
 
       final AMQPFederationAddressPolicyElement localAddressPolicy = new AMQPFederationAddressPolicyElement();
       localAddressPolicy.setName("two-hop-policy");
@@ -1022,8 +1022,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(sessionR.createQueue("test"));
          final BytesMessage message = sessionR.createBytesMessage();
@@ -1113,7 +1113,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
 
          final MessageProducer producerR = sessionR.createProducer(queue);
 
@@ -1223,7 +1223,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionL.start();
          connectionR.start();
 
-         final SimpleString addressName = SimpleString.toSimpleString("test");
+         final SimpleString addressName = SimpleString.of("test");
 
          Wait.assertTrue(() -> server.addressQuery(addressName).isExists());
          Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists());
@@ -1342,7 +1342,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          connectionL.start();
          connectionR.start();
 
-         final SimpleString addressName = SimpleString.toSimpleString("test");
+         final SimpleString addressName = SimpleString.of("test");
 
          Wait.assertTrue(() -> server.addressQuery(addressName).isExists());
          Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists());

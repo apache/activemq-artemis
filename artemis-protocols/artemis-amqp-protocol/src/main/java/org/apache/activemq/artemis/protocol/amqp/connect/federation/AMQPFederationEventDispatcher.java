@@ -136,7 +136,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
       }
 
       try {
-         session.createTemporaryQueue(SimpleString.toSimpleString(getEventsLinkAddress()), RoutingType.ANYCAST, 1);
+         session.createTemporaryQueue(SimpleString.of(getEventsLinkAddress()), RoutingType.ANYCAST, 1);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
@@ -146,7 +146,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
 
       server.registerBrokerPlugin(this); // Start listening for bindings and consumer events.
 
-      return (Consumer) session.createSender(senderContext, SimpleString.toSimpleString(getEventsLinkAddress()), null, false);
+      return (Consumer) session.createSender(senderContext, SimpleString.of(getEventsLinkAddress()), null, false);
    }
 
    @Override
@@ -155,7 +155,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
       server.unRegisterBrokerPlugin(this);
 
       try {
-         session.removeTemporaryQueue(SimpleString.toSimpleString(getEventsLinkAddress()));
+         session.removeTemporaryQueue(SimpleString.of(getEventsLinkAddress()));
       } catch (Exception e) {
          // Ignored as the temporary queue should be removed on connection termination.
       }

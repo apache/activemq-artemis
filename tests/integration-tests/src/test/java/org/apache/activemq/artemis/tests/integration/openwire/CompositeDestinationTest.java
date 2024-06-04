@@ -37,9 +37,9 @@ public class CompositeDestinationTest extends BasicOpenWireTest {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      AddressInfo addressInfo = new AddressInfo(new SimpleString("p.IN"), RoutingType.MULTICAST);
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of("p.IN"), RoutingType.MULTICAST);
       this.server.addAddressInfo(addressInfo);
-      addressInfo = new AddressInfo(new SimpleString("q.IN"), RoutingType.MULTICAST);
+      addressInfo = new AddressInfo(SimpleString.of("q.IN"), RoutingType.MULTICAST);
       this.server.addAddressInfo(addressInfo);
    }
 

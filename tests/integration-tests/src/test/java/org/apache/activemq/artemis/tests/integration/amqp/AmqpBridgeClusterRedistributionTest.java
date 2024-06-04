@@ -123,10 +123,10 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
       server1.getConfiguration().addDivertConfiguration(frameworkNotificationsDivertServer1);
       server2.getConfiguration().addDivertConfiguration(frameworkNotificationsDivertServer2);
 
-      customNotificationQueue = SimpleString.toSimpleString("*.Provider.*.Agent.*.CustomNotification");
-      frameworkNotificationsQueue = SimpleString.toSimpleString("FrameworkNotifications");
-      bridgeNotificationsQueue = SimpleString.toSimpleString("BridgeNotifications");
-      notificationsQueue = SimpleString.toSimpleString("Notifications");
+      customNotificationQueue = SimpleString.of("*.Provider.*.Agent.*.CustomNotification");
+      frameworkNotificationsQueue = SimpleString.of("FrameworkNotifications");
+      bridgeNotificationsQueue = SimpleString.of("BridgeNotifications");
+      notificationsQueue = SimpleString.of("Notifications");
 
       setupClusterConnection("cluster-1->2", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 2);
       setupClusterConnection("cluster-2->1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 2, 1);

@@ -1072,7 +1072,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public boolean isAddressBound(String address) throws Exception {
-      return postOffice.isAddressBound(SimpleString.toSimpleString(address));
+      return postOffice.isAddressBound(SimpleString.of(address));
    }
 
    @Override
@@ -1873,7 +1873,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    public int getQueueCountForUser(String username) throws Exception {
-      SimpleString userNameSimpleString = SimpleString.toSimpleString(username);
+      SimpleString userNameSimpleString = SimpleString.of(username);
 
       AtomicInteger bindingsCount = new AtomicInteger(0);
       postOffice.getAllBindings().forEach((b) -> {
@@ -1914,7 +1914,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                                        autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
       }
 
-      ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes, securityDomain, isLegacyProducer);
+      ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : SimpleString.of(defaultAddress), callback, context, pagingManager, prefixes, securityDomain, isLegacyProducer);
 
       sessions.put(name, session);
 
@@ -2411,7 +2411,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final String filterString,
                             final boolean durable,
                             final boolean temporary) throws Exception {
-      return deployQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(resourceName), SimpleString.toSimpleString(filterString), durable, temporary);
+      return deployQueue(SimpleString.of(address), SimpleString.of(resourceName), SimpleString.of(filterString), durable, temporary);
    }
 
    @Override
@@ -2918,7 +2918,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return null;
       }
 
-      SimpleString sName = new SimpleString(config.getName());
+      SimpleString sName = SimpleString.of(config.getName());
 
       if (postOffice.getBinding(sName) != null) {
          ActiveMQServerLogger.LOGGER.divertBindingAlreadyExists(sName);
@@ -2926,14 +2926,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return null;
       }
 
-      SimpleString sAddress = new SimpleString(config.getAddress());
+      SimpleString sAddress = SimpleString.of(config.getAddress());
 
       Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName(), config.getTransformerConfiguration());
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
-      Divert divert = new DivertImpl(sName, sAddress, new SimpleString(config.getForwardingAddress()),
-                                     new SimpleString(config.getRoutingName()), config.isExclusive(),
+      Divert divert = new DivertImpl(sName, sAddress, SimpleString.of(config.getForwardingAddress()),
+                                     SimpleString.of(config.getRoutingName()), config.isExclusive(),
                                      filter, transformer, postOffice, storageManager, config.getRoutingType());
 
       Binding binding = new DivertBinding(storageManager.generateID(), sAddress, divert);
@@ -2949,7 +2949,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public Divert updateDivert(DivertConfiguration config) throws Exception {
-      final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(SimpleString.toSimpleString(config.getName()));
+      final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(SimpleString.of(config.getName()));
       if (divertBinding == null) {
          return null;
       }
@@ -2973,7 +2973,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       if (config.getForwardingAddress() != null) {
-         SimpleString forwardAddress = SimpleString.toSimpleString(config.getForwardingAddress());
+         SimpleString forwardAddress = SimpleString.of(config.getForwardingAddress());
          if (!forwardAddress.equals(divert.getForwardAddress())) {
             divert.setForwardAddress(forwardAddress);
          }
@@ -3783,7 +3783,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
          try {
             ActiveMQServerLogger.LOGGER.deployAddress(config.getName(), config.getRoutingTypes().toString());
-            SimpleString address = SimpleString.toSimpleString(config.getName());
+            SimpleString address = SimpleString.of(config.getName());
 
             AddressInfo tobe = new AddressInfo(address, config.getRoutingTypes());
 
@@ -4713,7 +4713,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       setDefaultIfUnset(c::isNonDestructive, c::setNonDestructive, ActiveMQDefaultConfiguration.getDefaultNonDestructive());
       setDefaultIfUnset(c::getConsumersBeforeDispatch, c::setConsumersBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
       setDefaultIfUnset(c::getDelayBeforeDispatch, c::setDelayBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
-      setDefaultIfUnset(c::getFilterString, c::setFilterString, new SimpleString(""));
+      setDefaultIfUnset(c::getFilterString, c::setFilterString, SimpleString.of(""));
       // Defaults to false automatically as per isConfigurationManaged() JavaDoc
       setDefaultIfUnset(c::isConfigurationManaged, c::setConfigurationManaged, false);
       // Setting to null might have side effects
@@ -4740,9 +4740,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // Go through the currently configured diverts
          for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
             // Retain diverts still configured to exist
-            divertsToRemove.remove(SimpleString.toSimpleString(divertConfig.getName()));
+            divertsToRemove.remove(SimpleString.of(divertConfig.getName()));
             // Deploy newly added diverts, reconfigure existing
-            final SimpleString divertName = new SimpleString(divertConfig.getName());
+            final SimpleString divertName = SimpleString.of(divertConfig.getName());
             final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(divertName);
             if (divertBinding == null) {
                deployDivert(divertConfig);

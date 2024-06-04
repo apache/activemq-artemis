@@ -141,7 +141,7 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
             brokerDomain = activeMQServer.getConfiguration().getJMXDomain();
 
             viewPermissionMatcher = Pattern.compile(activeMQServer.getConfiguration().getViewPermissionMethodMatchPattern());
-            rbacPrefix = SimpleString.toSimpleString(activeMQServer.getConfiguration().getManagementRbacPrefix());
+            rbacPrefix = SimpleString.of(activeMQServer.getConfiguration().getManagementRbacPrefix());
             mBeanServerRbacAddressPrefix = rbacPrefix.concat(".mbeanserver.");
 
             ((ActiveMQServerControlImpl) args[0]).getServer().registerActivateCallback(new ActivateCallback() {

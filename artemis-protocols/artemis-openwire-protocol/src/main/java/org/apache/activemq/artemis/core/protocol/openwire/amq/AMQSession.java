@@ -106,7 +106,7 @@ public class AMQSession implements SessionCallback {
                      OpenWireProtocolManager protocolManager, CoreMessageObjectPools coreMessageObjectPools) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
-      this.clientId = SimpleString.toSimpleString(connInfo.getClientId());
+      this.clientId = SimpleString.of(connInfo.getClientId());
       this.server = server;
       this.connection = connection;
       this.protocolManager = protocolManager;
@@ -181,7 +181,7 @@ public class AMQSession implements SessionCallback {
          }
          if (openWireDest.isQueue()) {
             openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
-            SimpleString queueName = new SimpleString(convertWildcard(openWireDest));
+            SimpleString queueName = SimpleString.of(convertWildcard(openWireDest));
 
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary(), OpenWireUtil.extractFilterStringOrNull(info, openWireDest))) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
@@ -385,7 +385,7 @@ public class AMQSession implements SessionCallback {
       * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend. */
 
       if (connection.getContext().isFaultTolerant() && protocolManager.isOpenwireUseDuplicateDetectionOnFailover() && !messageSend.getProperties().containsKey(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString()) && !isTemporary(producerInfo)) {
-         originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString(messageSend.getMessageId().toString()));
+         originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(messageSend.getMessageId().toString()));
       }
 
       final boolean shouldBlockProducer = producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired();
@@ -399,7 +399,7 @@ public class AMQSession implements SessionCallback {
       for (int i = 0; i < actualDestinationsCount; i++) {
          final ActiveMQDestination dest = actualDestinations != null ? actualDestinations[i] : destination;
          final String physicalName = dest.getPhysicalName();
-         final SimpleString address = SimpleString.toSimpleString(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
+         final SimpleString address = SimpleString.of(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
          //the last coreMsg could be directly the original one -> it avoid 1 copy if actualDestinations > 1 and ANY copy if actualDestinations == 1
          final org.apache.activemq.artemis.api.core.Message coreMsg = (i == actualDestinationsCount - 1) ? originalCoreMsg : originalCoreMsg.copy();
          coreMsg.setAddress(address);

@@ -28,7 +28,7 @@ public class ParameterisedAddress {
 
    public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) {
       if (parameters != null && !parameters.isEmpty()) {
-         return SimpleString.toSimpleString(toParameterisedAddress(address.toString(), parameters));
+         return SimpleString.of(toParameterisedAddress(address.toString(), parameters));
       } else {
          return address;
       }
@@ -71,11 +71,11 @@ public class ParameterisedAddress {
 
    @Deprecated
    public ParameterisedAddress(String address, QueueAttributes queueAttributes) {
-      this(SimpleString.toSimpleString(address), queueAttributes.toQueueConfiguration());
+      this(SimpleString.of(address), queueAttributes.toQueueConfiguration());
    }
 
    public ParameterisedAddress(String address, QueueConfiguration queueConfiguration) {
-      this(SimpleString.toSimpleString(address), queueConfiguration);
+      this(SimpleString.of(address), queueConfiguration);
    }
 
    public ParameterisedAddress(SimpleString address) {
@@ -85,10 +85,10 @@ public class ParameterisedAddress {
    public ParameterisedAddress(String address) {
       int index = address.indexOf('?');
       if (index == -1) {
-         this.address = SimpleString.toSimpleString(address);
+         this.address = SimpleString.of(address);
          this.queueConfiguration = null;
       } else {
-         this.address = SimpleString.toSimpleString(address.substring(0, index));
+         this.address = SimpleString.of(address.substring(0, index));
          QueueConfiguration queueConfiguration = new QueueConfiguration(address);
          parseQuery(address).forEach(queueConfiguration::set);
          this.queueConfiguration = queueConfiguration;
@@ -108,7 +108,7 @@ public class ParameterisedAddress {
    }
 
    public static SimpleString extractAddress(SimpleString address) {
-      return SimpleString.toSimpleString(extractAddress(address.toString()));
+      return SimpleString.of(extractAddress(address.toString()));
    }
 
    /**

@@ -287,7 +287,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    @TestTemplate
    @Timeout(30)
    public void testDurableConsumerWithSelectorChange() throws Exception {
-      SimpleString qName = new SimpleString("foo.SharedConsumer");
+      SimpleString qName = SimpleString.of("foo.SharedConsumer");
       Connection connection = createConnection("foo", true);
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

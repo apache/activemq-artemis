@@ -105,7 +105,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       sender.close();
       final Queue queueView = getProxyToQueue(getQueueName());
       Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
-      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
+      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.of(getQueueName()));
       assertTrue(pagingStore.isPaging());
       final long pageCacheMaxSize = server.getConfiguration().getAddressSettings().get("#").getPageCacheMaxSize();
       assertThat("the size of the messages or the number of messages isn't enough",
@@ -157,7 +157,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       }
       sender.send(message);
 
-      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
+      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.of(getQueueName()));
 
       // verify page usage reflects data + 2*application properties (encoded and decoded)
       assertTrue(Wait.waitFor(() -> {

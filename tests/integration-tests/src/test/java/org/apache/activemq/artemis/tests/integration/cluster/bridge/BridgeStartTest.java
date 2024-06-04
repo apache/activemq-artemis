@@ -134,7 +134,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          ClientSession session1 = sf1.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
 
          ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -142,7 +142,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          final int numMessages = 10;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.of("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);
@@ -274,11 +274,11 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          ClientSession session0 = sf0.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
 
          final int numMessages = 10;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.of("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);
@@ -448,11 +448,11 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          ClientSession session0 = sf0.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
 
          final int numMessages = 10;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.of("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);
@@ -579,11 +579,11 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          ClientSession session0 = sf0.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
 
          final int numMessages = 10;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.of("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);

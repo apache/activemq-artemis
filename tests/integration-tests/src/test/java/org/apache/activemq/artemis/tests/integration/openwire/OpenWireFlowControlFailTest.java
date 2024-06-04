@@ -51,14 +51,14 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
       addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).
-         setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeBytes(10000));
+         setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeBytes(10000));
    }
 
    @Test
    @Timeout(60)
    public void testMessagesNotSent() throws Exception {
 
-      AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString("Test"), RoutingType.ANYCAST);
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of("Test"), RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
       server.createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
 

@@ -404,7 +404,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       if (server.getManagementService().getManagementAddress().toString().equals(destination)) {
          return true;
       }
-      return server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(destination)) != null;
+      return server.getPostOffice().getAddressInfo(SimpleString.of(destination)) != null;
    }
 
    public ActiveMQServer getServer() {

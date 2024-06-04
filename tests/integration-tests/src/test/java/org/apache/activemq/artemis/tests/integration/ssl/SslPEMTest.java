@@ -118,7 +118,7 @@ public class SslPEMTest extends ActiveMQTestBase {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      QUEUE = new SimpleString(getName());
+      QUEUE = SimpleString.of(getName());
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);

@@ -61,9 +61,9 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
    String protocolConsumer;
    ConnectionFactory senderCF;
    ConnectionFactory consumerCF;
-   private static final SimpleString queueName = SimpleString.toSimpleString("RequestReplyQueueTest");
-   private static final SimpleString topicName = SimpleString.toSimpleString("RequestReplyTopicTest");
-   private static final SimpleString replyQueue = SimpleString.toSimpleString("ReplyOnRequestReplyQueueTest");
+   private static final SimpleString queueName = SimpleString.of("RequestReplyQueueTest");
+   private static final SimpleString topicName = SimpleString.of("RequestReplyTopicTest");
+   private static final SimpleString replyQueue = SimpleString.of("ReplyOnRequestReplyQueueTest");
 
    public RequestReplyMultiProtocolTest(String protocolSender, String protocolConsumer) {
       this.protocolSender = protocolSender;

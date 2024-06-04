@@ -224,7 +224,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString jmsAddress = new SimpleString("Test");
+      SimpleString jmsAddress = SimpleString.of("Test");
 
       server.createQueue(new QueueConfiguration(jmsAddress).setRoutingType(RoutingType.ANYCAST));
 

@@ -489,7 +489,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       final CoreMessageObjectPools objectPools = context.getConnection().getCoreMessageObjectPools();
       final org.apache.activemq.artemis.api.core.Message coreMessage = OpenWireMessageConverter.inbound(advisoryMessage, wireFormat, objectPools);
 
-      final SimpleString address = SimpleString.toSimpleString(topic.getPhysicalName(), objectPools.getAddressStringSimpleStringPool());
+      final SimpleString address = SimpleString.of(topic.getPhysicalName(), objectPools.getAddressStringSimpleStringPool());
       coreMessage.setAddress(address);
       coreMessage.setRoutingType(RoutingType.MULTICAST);
       // follow pattern from management notification to route directly
@@ -666,14 +666,14 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.ANYCAST);
       }
    }
 
    @Override
    public void setMulticastPrefix(String multicastPrefix) {
       for (String prefix : multicastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.MULTICAST);
       }
    }
 

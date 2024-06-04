@@ -779,11 +779,11 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    public synchronized boolean destroyQueue(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
 
-      server.destroyQueue(SimpleString.toSimpleString(name), null, !removeConsumers, removeConsumers);
+      server.destroyQueue(SimpleString.of(name), null, !removeConsumers, removeConsumers);
 
       // if the queue has consumers and 'removeConsumers' is false then the queue won't actually be removed
       // therefore only remove the queue from Bindings, etc. if the queue is actually removed
-      if (this.server.getPostOffice().getBinding(SimpleString.toSimpleString(name)) == null) {
+      if (this.server.getPostOffice().getBinding(SimpleString.of(name)) == null) {
          removeFromBindings(queues, queueBindings, name);
 
          queues.remove(name);
@@ -809,7 +809,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + name);
       if (addressControl != null) {
          for (String queueName : addressControl.getAllQueueNames()) {
-            Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
+            Binding binding = server.getPostOffice().getBinding(SimpleString.of(queueName));
             if (binding == null) {
                ActiveMQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
                continue;
@@ -817,13 +817,13 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
             // We can't remove the remote binding. As this would be the bridge associated with the topic on this case
             if (binding.getType() != BindingType.REMOTE_QUEUE) {
-               server.destroyQueue(SimpleString.toSimpleString(queueName), null, !removeConsumers, removeConsumers, false);
+               server.destroyQueue(SimpleString.of(queueName), null, !removeConsumers, removeConsumers, false);
             }
          }
 
          if (addressControl.getAllQueueNames().length == 0) {
             try {
-               server.removeAddressInfo(SimpleString.toSimpleString(name), null);
+               server.removeAddressInfo(SimpleString.of(name), null);
             } catch (ActiveMQAddressDoesNotExistException e) {
                // ignore
             }
@@ -1030,7 +1030,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
    private void sendNotification(JMSNotificationType type, String message) {
       TypedProperties prop = new TypedProperties();
-      prop.putSimpleStringProperty(JMSNotificationType.MESSAGE, SimpleString.toSimpleString(message));
+      prop.putSimpleStringProperty(JMSNotificationType.MESSAGE, SimpleString.of(message));
       Notification notif = new Notification(null, type, prop);
       try {
          server.getManagementService().sendNotification(notif);
@@ -1080,7 +1080,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
-         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName)).addRoutingType(RoutingType.ANYCAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(queueName)).addRoutingType(RoutingType.ANYCAST));
 
          server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
 
@@ -1114,7 +1114,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       } else {
          // Create the JMS topic with topicName as the logical name of the topic *and* address as its address
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(address, topicName);
-         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(activeMQTopic.getAddress()), RoutingType.MULTICAST));
 
          topics.put(address, activeMQTopic);
 

@@ -45,7 +45,7 @@ public class BufferHelper {
    }
 
    public static void writeAsNullableSimpleString(ActiveMQBuffer buffer, String str) {
-      buffer.writeNullableSimpleString(SimpleString.toSimpleString(str));
+      buffer.writeNullableSimpleString(SimpleString.of(str));
    }
 
    public static String readNullableSimpleStringAsString(ActiveMQBuffer buffer) {
@@ -54,7 +54,7 @@ public class BufferHelper {
    }
 
    public static void writeAsSimpleString(ActiveMQBuffer buffer, String str) {
-      buffer.writeSimpleString(new SimpleString(str));
+      buffer.writeSimpleString(SimpleString.of(str));
    }
 
    /**

@@ -63,7 +63,7 @@ public final class AMQPMessageSupport {
 
    public static final int MESSAGE_DEFAULT_PRIORITY = 4;
 
-   public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.toSimpleString("x-opt-ORIG-ADDRESS");
+   public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.of("x-opt-ORIG-ADDRESS");
 
    public static final String JMS_REPLY_TO_TYPE_MSG_ANNOTATION_SYMBOL_NAME = "x-opt-jms-reply-to";
    public static final String X_OPT_DELIVERY_TIME = "x-opt-delivery-time";

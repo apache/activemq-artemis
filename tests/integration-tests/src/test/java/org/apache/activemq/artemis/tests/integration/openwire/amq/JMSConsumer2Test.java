@@ -247,7 +247,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       assertTrue(gotMessage.await(1, TimeUnit.SECONDS));
 
       // want to ensure the ack has had a chance to get back to the broker
-      final Queue queueInstance = server.locateQueue(new SimpleString(queueName));
+      final Queue queueInstance = server.locateQueue(SimpleString.of(queueName));
       Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisfied() throws Exception {

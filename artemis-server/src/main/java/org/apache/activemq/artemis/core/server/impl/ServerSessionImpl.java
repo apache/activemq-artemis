@@ -495,13 +495,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       final TypedProperties props = new TypedProperties();
       if (this.getConnectionID() != null) {
-         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(this.getConnectionID().toString()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(this.getConnectionID().toString()));
       }
-      props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(this.getUsername()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(this.getName()));
+      props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(this.getUsername()));
+      props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(this.getName()));
 
-      props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(this.remotingConnection.getClientID()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.toSimpleString(this.remotingConnection.getProtocolName()));
+      props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(this.remotingConnection.getClientID()));
+      props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.of(this.remotingConnection.getProtocolName()));
       props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, managementService.getManagementNotificationAddress());
       props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
       managementService.sendNotification(new Notification(null, type, props));
@@ -609,9 +609,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, theQueue.getConsumerCount());
 
          // HORNETQ-946
-         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(username));
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(username));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
+         props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.of(validatedUser));
 
          String certSubjectDN = "unavailable";
          X509Certificate[] certs = CertificateUtil.getCertsFromConnection(this.remotingConnection);
@@ -619,18 +619,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             certSubjectDN = certs[0].getSubjectDN().getName();
          }
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.of(certSubjectDN));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(this.remotingConnection.getRemoteAddress()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(this.remotingConnection.getRemoteAddress()));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(name));
+         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(name));
 
          if (filter != null) {
             props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filter.getFilterString());
          }
 
          if (remotingConnection.getClientID() != null) {
-            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(remotingConnection.getClientID()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(remotingConnection.getClientID()));
          }
 
          props.putLongProperty(ManagementHelper.HDR_CONSUMER_NAME, consumer.getID());
@@ -2225,9 +2225,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (replyTo != null) {
          // TODO: move this check somewhere else? this is a JMS-specific bit of logic in the core impl
          if (replyTo.toString().startsWith("queue://") || replyTo.toString().startsWith("topic://")) {
-            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(8));
+            replyTo = SimpleString.of(replyTo.toString().substring(8));
          } else if (replyTo.toString().startsWith("temp-queue://") || replyTo.toString().startsWith("temp-topic://")) {
-            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(13));
+            replyTo = SimpleString.of(replyTo.toString().substring(13));
          }
          reply.setAddress(replyTo);
 

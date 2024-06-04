@@ -483,9 +483,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPersistIDCache(getBoolean(e, "persist-id-cache", config.isPersistIDCache()));
 
-      config.setManagementAddress(new SimpleString(getString(e, "management-address", config.getManagementAddress().toString(), NOT_NULL_OR_EMPTY)));
+      config.setManagementAddress(SimpleString.of(getString(e, "management-address", config.getManagementAddress().toString(), NOT_NULL_OR_EMPTY)));
 
-      config.setManagementNotificationAddress(new SimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), NOT_NULL_OR_EMPTY)));
+      config.setManagementNotificationAddress(SimpleString.of(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), NOT_NULL_OR_EMPTY)));
 
       config.setMaskPassword(getBoolean(e, "mask-password", null));
 
@@ -1331,9 +1331,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          final Node child = children.item(i);
          final String name = child.getNodeName();
          if (DEAD_LETTER_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDeadLetterAddress(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDeadLetterAddress(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setExpiryAddress(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setExpiryAddress(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setExpiryDelay(XMLUtil.parseLong(child));
          } else if (MIN_EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1386,7 +1386,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (LVQ_NODE_NAME.equalsIgnoreCase(name) || DEFAULT_LVQ_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultLastValueQueue(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_LVQ_KEY_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDefaultLastValueKey(SimpleString.toSimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDefaultLastValueKey(SimpleString.of(getTrimmedTextContent(child)));
          } else if (DEFAULT_NON_DESTRUCTIVE_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultNonDestructive(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_EXCLUSIVE_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1398,7 +1398,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (DEFAULT_GROUP_BUCKETS.equalsIgnoreCase(name)) {
             addressSettings.setDefaultGroupBuckets(XMLUtil.parseInt(child));
          } else if (DEFAULT_GROUP_FIRST_KEY.equalsIgnoreCase(name)) {
-            addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDefaultGroupFirstKey(SimpleString.of(getTrimmedTextContent(child)));
          } else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
             addressSettings.setMaxDeliveryAttempts(XMLUtil.parseInt(child));
          } else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1472,15 +1472,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (AUTO_CREATE_DEAD_LETTER_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateDeadLetterResources(XMLUtil.parseBoolean(child));
          } else if (DEAD_LETTER_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDeadLetterQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDeadLetterQueuePrefix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (DEAD_LETTER_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDeadLetterQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDeadLetterQueueSuffix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (AUTO_CREATE_EXPIRY_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateExpiryResources(XMLUtil.parseBoolean(child));
          } else if (EXPIRY_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setExpiryQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setExpiryQueuePrefix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setExpiryQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setExpiryQueueSuffix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (ENABLE_METRICS.equalsIgnoreCase(name)) {
             addressSettings.setEnableMetrics(XMLUtil.parseBoolean(child));
          } else if (ENABLE_INGRESS_TIMESTAMP.equalsIgnoreCase(name)) {
@@ -1499,7 +1499,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    protected ResourceLimitSettings parseResourceLimitSettings(final Node node) {
       ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
 
-      resourceLimitSettings.setMatch(SimpleString.toSimpleString(getAttributeValue(node, "match")));
+      resourceLimitSettings.setMatch(SimpleString.of(getAttributeValue(node, "match")));
 
       NodeList children = node.getChildNodes();
 
@@ -2244,8 +2244,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                String match = getAttributeValue(e2, "address-match");
                String queue = getAttributeValue(e2, "queue-name");
                connectionElement = new AMQPBrokerConnectionElement();
-               connectionElement.setMatchAddress(SimpleString.toSimpleString(match)).setType(nodeType);
-               connectionElement.setQueueName(SimpleString.toSimpleString(queue));
+               connectionElement.setMatchAddress(SimpleString.of(match)).setType(nodeType);
+               connectionElement.setQueueName(SimpleString.of(queue));
             }
 
             config.addElement(connectionElement);
@@ -2437,7 +2437,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), GT_ZERO);
       Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), MINUS_ONE_OR_GT_ZERO);
       Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), GT_ZERO);
-      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
+      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(SimpleString.of(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
    }
 
    private TransformerConfiguration getTransformerConfiguration(final Node node) {

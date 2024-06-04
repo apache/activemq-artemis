@@ -280,7 +280,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                       boolean browserOnly,
                                       Number priority) throws Exception {
       final long consumerID = consumerIDGenerator.generateID();
-      final SimpleString filterString = SimpleString.toSimpleString(SelectorTranslator.convertToActiveMQFilterString(filter));
+      final SimpleString filterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(filter));
       final int consumerPriority = priority != null ? priority.intValue() : ActiveMQDefaultConfiguration.getDefaultConsumerPriority();
       final ServerConsumer consumer = serverSession.createConsumer(
          consumerID, queue, filterString, consumerPriority, browserOnly, false, null);

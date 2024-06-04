@@ -144,9 +144,9 @@ public class TestConversions {
 
    private TypedProperties createTypedPropertiesMap() {
       TypedProperties typedProperties = new TypedProperties();
-      typedProperties.putBooleanProperty(new SimpleString("true"), Boolean.TRUE);
-      typedProperties.putBooleanProperty(new SimpleString("false"), Boolean.FALSE);
-      typedProperties.putSimpleStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+      typedProperties.putBooleanProperty(SimpleString.of("true"), Boolean.TRUE);
+      typedProperties.putBooleanProperty(SimpleString.of("false"), Boolean.FALSE);
+      typedProperties.putSimpleStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
       return typedProperties;
    }
 
@@ -238,7 +238,7 @@ public class TestConversions {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = createTypedPropertiesMap();
-      extraProperties.putBytesProperty(new SimpleString("bytesProp"), "value".getBytes());
+      extraProperties.putBytesProperty(SimpleString.of("bytesProp"), "value".getBytes());
       encodedMessage.setExtraProperties(extraProperties);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
@@ -419,7 +419,7 @@ public class TestConversions {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 10; i++) {
          if (logger.isDebugEnabled()) {
@@ -453,7 +453,7 @@ public class TestConversions {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 100; i++) {
          encodedMessage.putStringProperty("another" + i, "value" + i);
@@ -497,14 +497,14 @@ public class TestConversions {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 100; i++) {
          encodedMessage.setMessageID(333L);
          if (i % 3 == 0) {
-            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.toSimpleString("SOME-OTHER-QUEUE-DOES-NOT-MATTER-WHAT"));
+            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.of("SOME-OTHER-QUEUE-DOES-NOT-MATTER-WHAT"));
          } else {
-            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.toSimpleString("XXX"));
+            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.of("XXX"));
          }
          encodedMessage.putStringProperty("another " + i, "value " + i);
          encodedMessage.messageChanged();

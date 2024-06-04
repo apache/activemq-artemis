@@ -382,7 +382,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                   try {
                      storageManager.commitBindings(txID);
                   } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.toSimpleString("TX:" + txID), e);
+                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.of("TX:" + txID), e);
                   }
                }
             }
@@ -446,7 +446,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                try {
                   storageManager.commitBindings(txID);
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.toSimpleString("TX:" + txID), e);
+                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.of("TX:" + txID), e);
                }
             }
          }

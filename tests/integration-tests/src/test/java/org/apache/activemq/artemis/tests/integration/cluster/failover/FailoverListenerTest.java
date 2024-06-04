@@ -228,7 +228,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -242,7 +242,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
          assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(SimpleString.of("count")));
 
          message2.acknowledge();
       }

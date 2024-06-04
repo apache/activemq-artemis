@@ -37,7 +37,7 @@ public class RandomUtil {
    }
 
    public static SimpleString randomSimpleString() {
-      return new SimpleString(RandomUtil.randomString());
+      return SimpleString.of(RandomUtil.randomString());
    }
 
    public static char randomChar() {

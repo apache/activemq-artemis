@@ -204,7 +204,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    }
 
    private Queue lookupSubscriptionQueue() {
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(getContainerID() + "." + getSubscriptionName()));
+      Binding binding = server.getPostOffice().getBinding(SimpleString.of(getContainerID() + "." + getSubscriptionName()));
       if (binding != null && binding instanceof LocalQueueBinding) {
          return ((LocalQueueBinding) binding).getQueue();
       }
@@ -213,6 +213,6 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    }
 
    private AddressQueryResult getProxyToAddress(String addressName) throws Exception {
-      return server.addressQuery(SimpleString.toSimpleString(addressName));
+      return server.addressQuery(SimpleString.of(addressName));
    }
 }

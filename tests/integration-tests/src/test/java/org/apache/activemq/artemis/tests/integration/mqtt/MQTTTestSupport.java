@@ -213,8 +213,8 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    private ActiveMQServer createServerForMQTT() throws Exception {
       Configuration defaultConfig = createDefaultConfig(true).setIncomingInterceptorClassNames(singletonList(MQTTIncomingInterceptor.class.getName())).setOutgoingInterceptorClassNames(singletonList(MQTTOutoingInterceptor.class.getName()));
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString("EXPIRY"));
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLA"));
+      addressSettings.setExpiryAddress(SimpleString.of("EXPIRY"));
       defaultConfig.getAddressSettings().put("#", addressSettings);
       return createServer(true, defaultConfig);
    }

@@ -325,8 +325,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                TypedProperties props = new TypedProperties();
 
                props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, bareAddress);
-               props.putSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE, new SimpleString(checkType.toString()));
-               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(getCaller(user, session.getRemotingConnection().getSubject())));
+               props.putSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE, SimpleString.of(checkType.toString()));
+               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(getCaller(user, session.getRemotingConnection().getSubject())));
 
                Notification notification = new Notification(null, CoreNotificationType.SECURITY_PERMISSION_VIOLATION, props);
 
@@ -406,9 +406,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
-         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
-         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection == null ? "null" : connection.getRemoteAddress()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(user));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.of(certSubjectDN));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(connection == null ? "null" : connection.getRemoteAddress()));
 
          Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
 

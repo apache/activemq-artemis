@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 
 public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupport {
 
-   private SimpleString queueName = SimpleString.toSimpleString("jms.consumer.delay.queue");
-   private SimpleString normalQueueName = SimpleString.toSimpleString("jms.normal.queue");
+   private SimpleString queueName = SimpleString.of("jms.consumer.delay.queue");
+   private SimpleString normalQueueName = SimpleString.of("jms.normal.queue");
 
    private static final long DELAY_BEFORE_DISPATCH = 2000L;
 

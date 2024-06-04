@@ -56,7 +56,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DualAuthenticationTest extends ActiveMQTestBase {
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.of("QueueOverSSL");
 
    static {
       String path = System.getProperty("java.security.auth.login.config");

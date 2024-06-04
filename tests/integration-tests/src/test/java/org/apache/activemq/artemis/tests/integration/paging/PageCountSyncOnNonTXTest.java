@@ -173,7 +173,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
          locator = createNettyNonHALocator();
 
          try {
-            Queue queue = server.locateQueue(new SimpleString(QUEUE_NAME));
+            Queue queue = server.locateQueue(SimpleString.of(QUEUE_NAME));
 
             assertNotNull(queue);
 

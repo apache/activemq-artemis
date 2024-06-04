@@ -98,13 +98,13 @@ public class QueueImplTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   private static final SimpleString queue1 = new SimpleString("queue1");
+   private static final SimpleString queue1 = SimpleString.of("queue1");
 
-   private static final SimpleString address1 = new SimpleString("address1");
+   private static final SimpleString address1 = SimpleString.of("address1");
 
    @Test
    public void testName() {
-      final SimpleString name = new SimpleString("oobblle");
+      final SimpleString name = SimpleString.of("oobblle");
 
       QueueImpl queue = getNamedQueue(name);
 
@@ -751,13 +751,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref1 = generateReference(queue, 1);
 
-      ref1.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref1.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref1);
 
       MessageReference ref2 = generateReference(queue, 2);
 
-      ref2.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref2.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       queue.addTail(ref2);
 
@@ -787,13 +787,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref3 = generateReference(queue, 3);
 
-      ref3.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref3.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref3);
 
       MessageReference ref4 = generateReference(queue, 4);
 
-      ref4.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref4.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       queue.addTail(ref4);
 
@@ -1113,25 +1113,25 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref1 = generateReference(queue, 1);
 
-      ref1.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref1.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref1);
 
       MessageReference ref2 = generateReference(queue, 2);
 
-      ref2.getMessage().putStringProperty(new SimpleString("cheese"), new SimpleString("stilton"));
+      ref2.getMessage().putStringProperty(SimpleString.of("cheese"), SimpleString.of("stilton"));
 
       queue.addTail(ref2);
 
       MessageReference ref3 = generateReference(queue, 3);
 
-      ref3.getMessage().putStringProperty(new SimpleString("cake"), new SimpleString("sponge"));
+      ref3.getMessage().putStringProperty(SimpleString.of("cake"), SimpleString.of("sponge"));
 
       queue.addTail(ref3);
 
       MessageReference ref4 = generateReference(queue, 4);
 
-      ref4.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref4.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       refs.add(ref4);
 
@@ -1139,13 +1139,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref5 = generateReference(queue, 5);
 
-      ref5.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("apple"));
+      ref5.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("apple"));
 
       queue.addTail(ref5);
 
       MessageReference ref6 = generateReference(queue, 6);
 
-      ref6.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref6.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       refs.add(ref6);
 
@@ -1425,7 +1425,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       factory.close();
       locator.close();
 
-      Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(new SimpleString(MY_QUEUE))).getQueue();
+      Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(SimpleString.of(MY_QUEUE))).getQueue();
       LinkedListIterator<MessageReference> totalIterator = queue.browserIterator();
 
       try {
@@ -1478,14 +1478,14 @@ public class QueueImplTest extends ActiveMQTestBase {
             throw new AssertionError();
          }
       };
-      final QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1,
+      final QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), QueueImplTest.queue1,
                                             null, null, false, true, false,
                                             scheduledExecutor, null, null, null,
                                             ArtemisExecutor.delegate(executor), defaultServer, null);
       queue.addConsumer(groupConsumer);
       queue.addConsumer(noConsumer);
       final MessageReference firstMessageReference = generateReference(queue, 1);
-      final SimpleString groupName = SimpleString.toSimpleString("group");
+      final SimpleString groupName = SimpleString.of("group");
       firstMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);
       final MessageReference secondMessageReference = generateReference(queue, 2);
       secondMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);

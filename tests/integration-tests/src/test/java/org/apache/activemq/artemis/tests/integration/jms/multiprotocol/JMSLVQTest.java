@@ -49,7 +49,7 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
       server.getConfiguration().setMessageExpiryScanPeriod(1000);
       server.getAddressSettingsRepository().addMatch(NORMAL_QUEUE_NAME, new AddressSettings());
       server.getAddressSettingsRepository().addMatch(LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true));
-      server.getAddressSettingsRepository().addMatch(LVQ_CUSTOM_KEY_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultLastValueKey(SimpleString.toSimpleString(CUSTOM_KEY)));
+      server.getAddressSettingsRepository().addMatch(LVQ_CUSTOM_KEY_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultLastValueKey(SimpleString.of(CUSTOM_KEY)));
    }
 
    @Override
@@ -57,16 +57,16 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
       super.createAddressAndQueues(server);
 
       //Add Standard Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
 
       //Add LVQ using Default Message.HDR_LAST_VALUE_NAME
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add LVQ using Custom Key
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 

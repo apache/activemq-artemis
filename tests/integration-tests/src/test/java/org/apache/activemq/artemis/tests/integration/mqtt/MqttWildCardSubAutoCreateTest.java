@@ -96,7 +96,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
       sender.publish(publishTo, UUID.randomUUID().toString().getBytes(), 2, false);
       sender.publish(publishTo, UUID.randomUUID().toString().getBytes(), 2, false);
 
-      assertTrue(server.getPagingManager().getPageStore(new SimpleString(MQTTUtil.getCoreAddressFromMqttTopic(subscribeTo, server.getConfiguration().getWildcardConfiguration()))).isPaging());
+      assertTrue(server.getPagingManager().getPageStore(SimpleString.of(MQTTUtil.getCoreAddressFromMqttTopic(subscribeTo, server.getConfiguration().getWildcardConfiguration()))).isPaging());
 
       subscriber = createMqttClient(subscriberId);
       subscriber.subscribe(subscribeTo, 2);
@@ -228,7 +228,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
          int countOfPageStores = 0;
          SimpleString[] storeNames = server.getPagingManager().getStoreNames();
          for (int i = 0; i < storeNames.length; i++) {
-            if (!storeNames[i].equals(SimpleString.toSimpleString(MQTTUtil.MQTT_SESSION_STORE))) {
+            if (!storeNames[i].equals(SimpleString.of(MQTTUtil.MQTT_SESSION_STORE))) {
                countOfPageStores++;
             }
          }

@@ -138,7 +138,7 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
 
          message.putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getLongProperty(Message.HDR_ORIG_MESSAGE_ID));
       } else {
-         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, new SimpleString(other.getAddress()));
+         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, SimpleString.of(other.getAddress()));
 
          message.putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getMessageID());
       }

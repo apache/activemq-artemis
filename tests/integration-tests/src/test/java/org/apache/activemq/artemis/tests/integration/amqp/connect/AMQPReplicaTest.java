@@ -171,12 +171,12 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          // Adding some PostAck event that will never be found on the target for an expiry
-         org.apache.activemq.artemis.api.core.Message message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3333L, AckReason.EXPIRED).setDurable(true);
+         org.apache.activemq.artemis.api.core.Message message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.of("sometest"), SimpleString.of("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3333L, AckReason.EXPIRED).setDurable(true);
          message.setMessageID(server_2.getStorageManager().generateID());
          server_2.getPostOffice().route(message, false);
 
          // Adding some PostAck event that will never be found on the target for a regular ack
-         message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3334L, AckReason.NORMAL).setDurable(true);
+         message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.of("sometest"), SimpleString.of("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3334L, AckReason.NORMAL).setDurable(true);
          message.setMessageID(server_2.getStorageManager().generateID());
          server_2.getPostOffice().route(message, false);
 
@@ -235,7 +235,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    private void doSendCreateQueueTestImpl(boolean sendCreate) throws Exception {
       server.start();
 
-      final SimpleString ADDRESS_NAME = SimpleString.toSimpleString("address");
+      final SimpleString ADDRESS_NAME = SimpleString.of("address");
 
       server_2 = createServer(AMQP_PORT_2, false);
 

@@ -68,7 +68,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
       waitForTopology(getServer(1), 3);
       waitForTopology(getServer(2), 3);
 
-      SimpleString expiryQueue = SimpleString.toSimpleString("expiryQueue");
+      SimpleString expiryQueue = SimpleString.of("expiryQueue");
 
       AddressSettings as = new AddressSettings();
       as.setDeadLetterAddress(expiryQueue);

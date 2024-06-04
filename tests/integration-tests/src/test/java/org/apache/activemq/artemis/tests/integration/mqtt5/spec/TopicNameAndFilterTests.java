@@ -85,7 +85,7 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
       });
       consumer.subscribe(wildcard, 0);
 
-      final SimpleString DOLLAR_TOPIC = SimpleString.toSimpleString("$foo");
+      final SimpleString DOLLAR_TOPIC = SimpleString.of("$foo");
       ServerLocator locator = ActiveMQClient.createServerLocator("vm://0");
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession s = csf.createSession();

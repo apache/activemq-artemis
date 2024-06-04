@@ -34,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompTestMultiThreaded extends StompTestBase {
 
-   private static final SimpleString QUEUE = new SimpleString("x");
+   private static final SimpleString QUEUE = SimpleString.of("x");
 
    class SomeConsumer extends Thread {
 

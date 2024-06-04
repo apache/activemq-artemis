@@ -36,19 +36,19 @@ public class MessageUtil {
 
    public static final String CORRELATIONID_HEADER_NAME_STRING = "JMSCorrelationID";
 
-   public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString(CORRELATIONID_HEADER_NAME_STRING);
+   public static final SimpleString CORRELATIONID_HEADER_NAME = SimpleString.of(CORRELATIONID_HEADER_NAME_STRING);
 
-   public static final SimpleString REPLYTO_HEADER_NAME = new SimpleString("JMSReplyTo");
+   public static final SimpleString REPLYTO_HEADER_NAME = SimpleString.of("JMSReplyTo");
 
    public static final String TYPE_HEADER_NAME_STRING = "JMSType";
 
-   public static final SimpleString TYPE_HEADER_NAME = new SimpleString(TYPE_HEADER_NAME_STRING);
+   public static final SimpleString TYPE_HEADER_NAME = SimpleString.of(TYPE_HEADER_NAME_STRING);
 
-   public static final SimpleString JMS = new SimpleString("JMS");
+   public static final SimpleString JMS = SimpleString.of("JMS");
 
-   public static final SimpleString JMSX = new SimpleString("JMSX");
+   public static final SimpleString JMSX = SimpleString.of("JMSX");
 
-   public static final SimpleString JMS_ = new SimpleString("JMS_");
+   public static final SimpleString JMS_ = SimpleString.of("JMS_");
 
    public static final String JMSXDELIVERYCOUNT = "JMSXDeliveryCount";
 
@@ -60,7 +60,7 @@ public class MessageUtil {
 
    public static final String CONNECTION_ID_PROPERTY_NAME_STRING = "__AMQ_CID";
 
-   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString(CONNECTION_ID_PROPERTY_NAME_STRING);
+   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = SimpleString.of(CONNECTION_ID_PROPERTY_NAME_STRING);
 
    //   public static ActiveMQBuffer getBodyBuffer(Message message) {
    //      return message.getBodyBuffer();
@@ -77,7 +77,7 @@ public class MessageUtil {
    }
 
    public static void setJMSType(Message message, String type) {
-      message.putStringProperty(TYPE_HEADER_NAME, new SimpleString(type));
+      message.putStringProperty(TYPE_HEADER_NAME, SimpleString.of(type));
    }
 
    public static String getJMSType(Message message) {
@@ -102,7 +102,7 @@ public class MessageUtil {
       if (correlationID == null) {
          message.removeProperty(CORRELATIONID_HEADER_NAME);
       } else {
-         message.putStringProperty(CORRELATIONID_HEADER_NAME, new SimpleString(correlationID));
+         message.putStringProperty(CORRELATIONID_HEADER_NAME, SimpleString.of(correlationID));
       }
    }
 
@@ -178,7 +178,7 @@ public class MessageUtil {
    }
 
    public static boolean propertyExists(Message message, String name) {
-      return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
+      return message.containsProperty(SimpleString.of(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
          (MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID)) ||
          (MessageUtil.JMSXGROUPSEQ.equals(name) && message.containsProperty(Message.HDR_GROUP_SEQUENCE)) ||
          (MessageUtil.JMSXUSERID.equals(name) && message.containsProperty(Message.HDR_VALIDATED_USER));

@@ -54,7 +54,7 @@ public class ResourceNamesTest {
       super();
       this.delimiterChar = delimiterChar;
       delimiter = "" + delimiterChar;
-      testAddress = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      testAddress = SimpleString.of(UUID.randomUUID().toString());
       prefix = ActiveMQDefaultConfiguration.getInternalNamingPrefix().replace('.', delimiterChar);
       baseName = prefix + testAddress + delimiter;
       testResourceAddressName = baseName + ResourceNames.ADDRESS.replace('.', delimiterChar) + ResourceNames.RETROACTIVE_SUFFIX;
@@ -86,8 +86,8 @@ public class ResourceNamesTest {
 
    @TestTemplate
    public void testIsRetroactiveResource() {
-      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.toSimpleString(testResourceAddressName)));
-      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.toSimpleString(testResourceMulticastQueueName)));
-      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.toSimpleString(testResourceDivertName)));
+      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.of(testResourceAddressName)));
+      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.of(testResourceMulticastQueueName)));
+      assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.of(testResourceDivertName)));
    }
 }

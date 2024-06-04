@@ -49,7 +49,7 @@ import java.util.Map;
 public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
-   private SimpleString ADDRESS = new SimpleString("TestQueue");
+   private SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    @Override
    @BeforeEach

@@ -917,7 +917,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          return;
       }
 
-      SimpleString qName = SimpleString.toSimpleString(dest.getPhysicalName());
+      SimpleString qName = SimpleString.of(dest.getPhysicalName());
 
       AutoCreateResult autoCreateResult = internalSession.checkAutoCreate(new QueueConfiguration(qName)
                                                                              .setRoutingType(dest.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST)
@@ -1158,7 +1158,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             logger.warn("OpenWire client sending a queue remove towards {}", dest.getPhysicalName());
          }
          try {
-            server.destroyQueue(new SimpleString(dest.getPhysicalName()), getRemotingConnection());
+            server.destroyQueue(SimpleString.of(dest.getPhysicalName()), getRemotingConnection());
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             logger.debug("queue never existed");

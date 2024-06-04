@@ -56,7 +56,7 @@ public class HQFilterConversionInterceptor implements Interceptor {
       if (filterString == null) {
          return null;
       }
-      return SimpleString.toSimpleString(convertHQToActiveMQFilterString(filterString.toString()));
+      return SimpleString.of(convertHQToActiveMQFilterString(filterString.toString()));
    }
 
 

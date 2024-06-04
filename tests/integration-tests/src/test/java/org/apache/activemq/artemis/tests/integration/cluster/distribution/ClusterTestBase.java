@@ -125,9 +125,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    private static final long TIMEOUT_START_SERVER = 10;
 
-   private static final SimpleString COUNT_PROP = new SimpleString("count_prop");
+   private static final SimpleString COUNT_PROP = SimpleString.of("count_prop");
 
-   protected static final SimpleString FILTER_PROP = new SimpleString("animal");
+   protected static final SimpleString FILTER_PROP = SimpleString.of("animal");
 
    private static final int MAX_SERVERS = 10;
 
@@ -469,7 +469,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
 
       PostOffice po = server.getPostOffice();
-      Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
       logger.debug("=======================================================================");
       logger.debug("Binding information for address = {} on node {}", address, node);
@@ -520,7 +520,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (po == null) {
          return "server is shutdown";
       }
-      Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
       out.println("=======================================================================");
       out.println("Binding information for address = " + address + " on " + server);
@@ -597,7 +597,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final RoutingType routingType,
                                     final int defaulMaxConsumers,
                                     boolean defaultPurgeOnNoConsumers) throws Exception {
-      AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of(address));
       addressInfo.addRoutingType(routingType);
       servers[node].addOrUpdateAddressInfo(addressInfo);
    }
@@ -771,12 +771,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             ClientMessage message = session.createMessage(durable);
 
             if (filterVal != null) {
-               message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString(filterVal));
+               message.putStringProperty(ClusterTestBase.FILTER_PROP, SimpleString.of(filterVal));
             }
 
             if (duplicateDetectionSeq != null) {
                String str = Integer.toString(duplicateDetectionSeq.incrementAndGet());
-               message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(str));
+               message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(str));
             }
 
             if (routingType != null) {
@@ -859,7 +859,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final int timeout,
                                     final long groupTimeout,
                                     final long reaperPeriod) {
-      servers[node].getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("grouparbitrator")).setType(type).setAddress(new SimpleString("queues")).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
+      servers[node].getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("grouparbitrator")).setType(type).setAddress(SimpleString.of("queues")).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
    }
 
    protected void setUpGroupHandler(final GroupingHandler groupingHandler, final int node) {

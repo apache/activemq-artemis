@@ -53,7 +53,7 @@ public class AddressConfigTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration("myQueue").setAddress("myAddress"));
       server.stop();
       server.start();
-      AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));
+      AddressInfo addressInfo = server.getAddressInfo(SimpleString.of("myAddress"));
       assertNotNull(addressInfo);
 
       Set<RoutingType> routingTypeSet = new HashSet<>();
@@ -68,7 +68,7 @@ public class AddressConfigTest extends ActiveMQTestBase {
       long id = addressInfo.getId();
       server.stop();
       server.start();
-      addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));
+      addressInfo = server.getAddressInfo(SimpleString.of("myAddress"));
       assertNotNull(addressInfo);
       routingTypeSet = new HashSet<>();
       routingTypeSet.add(RoutingType.MULTICAST);

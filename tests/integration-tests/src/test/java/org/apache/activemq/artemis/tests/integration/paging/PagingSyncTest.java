@@ -48,7 +48,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
 
 
-   static final SimpleString ADDRESS = new SimpleString("TestQueue");
+   static final SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    @Test
    public void testOrder1() throws Throwable {
@@ -90,7 +90,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }

@@ -97,11 +97,11 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       final SimpleString targetQueue;
 
       if (CompositeAddress.isFullyQualified(source.getAddress())) {
-         targetAddress = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
-         targetQueue = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
+         targetAddress = SimpleString.of(CompositeAddress.extractAddressName(source.getAddress()));
+         targetQueue = SimpleString.of(CompositeAddress.extractQueueName(source.getAddress()));
       } else {
          targetAddress = null;
-         targetQueue = SimpleString.toSimpleString(source.getAddress());
+         targetQueue = SimpleString.of(source.getAddress());
       }
 
       final QueueQueryResult result = sessionSPI.queueQuery(targetQueue, routingType, false, null);

@@ -261,7 +261,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Message m = messageConsumer.receive(500);
       assertNull(m);
 
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(QUEUE_NAME)).getBindable();
       assertEquals(0, q.getMessageCount());
       assertEquals(0, q.getMessagesAdded());
       connection.close();
@@ -283,7 +283,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Message m = messageConsumer.receive(500);
       assertNull(m);
 
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
       assertEquals(0, q.getMessageCount());
       assertEquals(0, q.getMessagesAdded());
       connection.close();
@@ -331,7 +331,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + "test"));
 
-      assertNotNull(server.locateQueue(SimpleString.toSimpleString("myClientID.myDurableSub")));
+      assertNotNull(server.locateQueue(SimpleString.of("myClientID.myDurableSub")));
    }
 
    @Test

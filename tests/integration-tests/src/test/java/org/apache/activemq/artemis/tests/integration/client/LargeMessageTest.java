@@ -274,7 +274,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.createQueue(new QueueConfiguration(DIVERTED));
 
-      server.getAddressSettingsRepository().addMatch(DIVERTED, new AddressSettings().setExpiryDelay(250L).setExpiryAddress(SimpleString.toSimpleString(DIVERTED + "Expiry")).setAutoCreateExpiryResources(true));
+      server.getAddressSettingsRepository().addMatch(DIVERTED, new AddressSettings().setExpiryDelay(250L).setExpiryAddress(SimpleString.of(DIVERTED + "Expiry")).setAutoCreateExpiryResources(true));
 
       server.deployDivert(new DivertConfiguration().setName("myDivert").setAddress(ADDRESS.toString()).setForwardingAddress(DIVERTED).setExclusive(true));
 
@@ -561,7 +561,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -810,8 +810,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @TestTemplate
    public void testDLQAlmostLarge() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString("SomewhatHugeNameToBeUsedxxxxxxxxxxxxxxxxxxxiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-      SimpleString dlqName = SimpleString.toSimpleString("DLQ" + addressName.toString());
+      SimpleString addressName = SimpleString.of("SomewhatHugeNameToBeUsedxxxxxxxxxxxxxxxxxxxiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+      SimpleString dlqName = SimpleString.of("DLQ" + addressName.toString());
 
 
       ClientSession session = null;
@@ -1652,7 +1652,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+      SimpleString[] queue = new SimpleString[]{SimpleString.of("queue1"), SimpleString.of("queue2")};
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -1719,7 +1719,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+      SimpleString[] queue = new SimpleString[]{SimpleString.of("queue1"), SimpleString.of("queue2")};
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2567,7 +2567,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          producer.send(msg);
 
          logger.debug("Sent msg {}", i);
@@ -2587,7 +2587,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          ClientMessage msg = consumer.receive(50000);
          assertNotNull(msg);
 
-         assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         assertEquals(i, msg.getObjectProperty(SimpleString.of("key")));
 
          msg.acknowledge();
       }
@@ -2940,7 +2940,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       assumeTrue(os instanceof UnixOperatingSystemMXBean);
 
-      final SimpleString MY_QUEUE = new SimpleString("MY-QUEUE");
+      final SimpleString MY_QUEUE = SimpleString.of("MY-QUEUE");
       final int numberOfMessages = 30;
       ActiveMQServer server = createServer(true, true);
 

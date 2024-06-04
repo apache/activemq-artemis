@@ -46,7 +46,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       for (int i = 0; i < 4; i++) {
          server.stop();
          server.start();
-         queue = server.locateQueue(SimpleString.toSimpleString("q1"));
+         queue = server.locateQueue(SimpleString.of("q1"));
          assertTrue(queue.isPaused());
       }
 
@@ -55,7 +55,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       for (int i = 0; i < 4; i++) {
          server.stop();
          server.start();
-         queue = server.locateQueue(SimpleString.toSimpleString("q1"));
+         queue = server.locateQueue(SimpleString.of("q1"));
          assertFalse(queue.isPaused());
       }
 

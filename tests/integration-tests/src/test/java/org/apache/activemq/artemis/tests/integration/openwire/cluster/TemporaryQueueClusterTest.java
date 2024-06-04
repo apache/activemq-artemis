@@ -88,7 +88,7 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
 
          prod1.send(msg);
 
-         Wait.assertTrue(() -> getServer(1).locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 5000, 100);
+         Wait.assertTrue(() -> getServer(1).locateQueue(SimpleString.of(QUEUE_NAME)).getMessageCount() == 1, 5000, 100);
 
          TextMessage msgReceived = (TextMessage) cons2.receive(5000);
 

@@ -88,7 +88,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testManagementAddressAlwaysExists() throws Exception {
-      ClientSession.AddressQuery query = session.addressQuery(new SimpleString("activemq.management"));
+      ClientSession.AddressQuery query = session.addressQuery(SimpleString.of("activemq.management"));
       assertTrue(query.isExists());
    }
 
@@ -675,7 +675,7 @@ public class AddressControlTest extends ManagementTestBase {
       String queue = "testQueue" + RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
-      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.of(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -735,7 +735,7 @@ public class AddressControlTest extends ManagementTestBase {
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
 
-      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.of(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {

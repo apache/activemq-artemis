@@ -57,15 +57,15 @@ public class StompUtils {
       }
       String groupID = headers.remove(MessageUtil.JMSXGROUPID);
       if (groupID != null) {
-         msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
+         msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.of(groupID));
       }
       String contentType = headers.remove(Stomp.Headers.CONTENT_TYPE);
       if (contentType != null) {
-         msg.putStringProperty(Message.HDR_CONTENT_TYPE, SimpleString.toSimpleString(contentType));
+         msg.putStringProperty(Message.HDR_CONTENT_TYPE, SimpleString.of(contentType));
       }
       Object replyTo = headers.remove(Stomp.Headers.Send.REPLY_TO);
       if (replyTo != null) {
-         msg.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, SimpleString.toSimpleString((String) replyTo));
+         msg.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, SimpleString.of((String) replyTo));
       }
       String expiration = headers.remove(Stomp.Headers.Send.EXPIRATION_TIME);
       if (expiration != null) {

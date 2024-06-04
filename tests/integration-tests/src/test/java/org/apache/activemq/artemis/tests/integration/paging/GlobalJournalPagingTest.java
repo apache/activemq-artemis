@@ -242,7 +242,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
             assertNull(server.getPagingManager().getPageStore(managementAddress));
 
-            final SimpleString address = SimpleString.toSimpleString("queue");
+            final SimpleString address = SimpleString.of("queue");
 
             if (server.locateQueue(address) == null) {
 
@@ -322,7 +322,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
                session.createQueue(new QueueConfiguration(managementAddress));
             }
 
-            final SimpleString address = SimpleString.toSimpleString("queue");
+            final SimpleString address = SimpleString.of("queue");
 
             if (server.locateQueue(address) == null) {
 
@@ -330,7 +330,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
             }
 
             try (ClientProducer requestProducer = session.createProducer(managementAddress)) {
-               final SimpleString replyQueue = new SimpleString(managementAddress + "." + UUID.randomUUID().toString());
+               final SimpleString replyQueue = SimpleString.of(managementAddress + "." + UUID.randomUUID().toString());
                session.createQueue(new QueueConfiguration(replyQueue).setRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType()).setDurable(false).setTemporary(true));
                int id = 1000;
                try (ClientConsumer consumer = session.createConsumer(replyQueue)) {
