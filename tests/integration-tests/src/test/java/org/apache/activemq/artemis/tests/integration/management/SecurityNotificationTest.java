@@ -117,7 +117,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       try {
-         guestSession.createQueue(new QueueConfiguration(queue).setAddress(address));
+         guestSession.createQueue(QueueConfiguration.of(queue).setAddress(address));
          fail("session creation must fail and a notification of security violation must be sent");
       } catch (Exception e) {
       }
@@ -200,7 +200,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      guestSession.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      guestSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       SecurityNotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
@@ -249,7 +249,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       adminSession = sf.createSession("admin", "admin", false, true, true, false, 1);
       adminSession.start();
 
-      adminSession.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
+      adminSession.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }

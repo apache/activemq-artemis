@@ -101,7 +101,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+         Queue queue = server.createQueue(QueueConfiguration.of("A1").setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -132,7 +132,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+         Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
          final PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -200,7 +200,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+         Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
          final PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -264,7 +264,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+         Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -328,7 +328,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
       try {
 
          server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+         Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -383,7 +383,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
    @Test
    public void testRestartCounter() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.of("A1"), RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
       PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -457,7 +457,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
    public void testCommitCounter() throws Exception {
       Xid xid = newXID();
 
-      Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
       PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -498,7 +498,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
    @Test
    public void testSendNoRebuild() throws Exception {
-      Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(SimpleString.of("A1")).setRoutingType(RoutingType.ANYCAST));
 
       queue.getPagingStore().startPaging();
 

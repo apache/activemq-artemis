@@ -77,7 +77,7 @@ public class LockManagerNettyNoGroupNameReplicatedFailoverTest extends FailoverT
 
          ClientSession session = createSession(sf, true, true);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          crash(session);
 

@@ -102,19 +102,19 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
 
       //Add Non Destructive Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NON_DESTRUCTIVE_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Expiry Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Last Value Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add  Non Destructive Last Value Queue for Tombstone Test
       server.addAddressInfo(new AddressInfo(SimpleString.of(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
    }
 

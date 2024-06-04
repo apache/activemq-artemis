@@ -82,7 +82,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
       server = createServer(true, true);
       server.start();
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setEnableIngressTimestamp(true));
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
    }
 
    @TestTemplate

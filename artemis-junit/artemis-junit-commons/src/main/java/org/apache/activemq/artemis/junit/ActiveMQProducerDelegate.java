@@ -109,7 +109,7 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
          if (!session.addressQuery(address).isExists() && autoCreateQueue) {
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}",
                      this.getClass().getSimpleName(), address.toString(), address.toString());
-            session.createQueue(new QueueConfiguration(address));
+            session.createQueue(QueueConfiguration.of(address));
          }
          producer = session.createProducer(address);
       } catch (ActiveMQException amqEx) {

@@ -54,10 +54,10 @@ public class ReplayTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo("t1").addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("t1").setAddress("t1").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("t1").setAddress("t1").setRoutingType(RoutingType.ANYCAST));
 
       server.addAddressInfo(new AddressInfo("t2").addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("t2").setAddress("t2").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("t2").setAddress("t2").setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

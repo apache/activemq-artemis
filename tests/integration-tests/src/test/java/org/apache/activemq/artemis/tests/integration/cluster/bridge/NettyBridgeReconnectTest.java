@@ -259,13 +259,13 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
                                                  final NodeManager nodeManager) throws Exception {
       ActiveMQServer server = super.createActiveMQServer(id, params, netty, nodeManager);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
 
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration();
       addressConfiguration.setName(testAddress).addRoutingType(RoutingType.ANYCAST);
-      addressConfiguration.addQueueConfiguration(new QueueConfiguration(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST));
+      addressConfiguration.addQueueConfiguration(QueueConfiguration.of(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().addAddressConfiguration(addressConfiguration);
 
       server.getConfiguration().setPersistIDCache(true);

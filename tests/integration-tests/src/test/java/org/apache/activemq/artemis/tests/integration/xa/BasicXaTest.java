@@ -118,7 +118,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       clientSession = addClientSession(sessionFactory.createSession(true, false, false));
 
-      clientSession.createQueue(new QueueConfiguration(atestq));
+      clientSession.createQueue(QueueConfiguration.of(atestq));
    }
 
    @TestTemplate
@@ -130,7 +130,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(true, false, false));
 
-      session.createQueue(new QueueConfiguration("Test").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("Test").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("Test");
 
@@ -151,7 +151,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration("Test").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("Test").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("Test");
 
@@ -735,8 +735,8 @@ public class BasicXaTest extends ActiveMQTestBase {
       SimpleString ADDRESS1 = SimpleString.of("Address-1");
       SimpleString ADDRESS2 = SimpleString.of("Address-2");
 
-      clientSession.createQueue(new QueueConfiguration(ADDRESS1));
-      clientSession.createQueue(new QueueConfiguration(ADDRESS2));
+      clientSession.createQueue(QueueConfiguration.of(ADDRESS1));
+      clientSession.createQueue(QueueConfiguration.of(ADDRESS2));
 
       Xid xid = newXID();
 
@@ -816,9 +816,9 @@ public class BasicXaTest extends ActiveMQTestBase {
 
          if (createQueues) {
             for (int i = 0; i < NUMBER_OF_QUEUES; i++) {
-               session.createQueue(new QueueConfiguration(ADDRESS.concat(Integer.toString(i))).setAddress(ADDRESS));
+               session.createQueue(QueueConfiguration.of(ADDRESS.concat(Integer.toString(i))).setAddress(ADDRESS));
                if (isJoinSession) {
-                  clientSession.createQueue(new QueueConfiguration(ADDRESS.concat("-join." + i)).setAddress(ADDRESS.concat("-join")).setDurable(true));
+                  clientSession.createQueue(QueueConfiguration.of(ADDRESS.concat("-join." + i)).setAddress(ADDRESS.concat("-join")).setDurable(true));
                }
 
             }

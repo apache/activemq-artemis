@@ -66,7 +66,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
    public void testSetMessageHandlerWithMessagesPending() throws Exception {
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -121,7 +121,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
    public void testSetResetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -211,7 +211,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
    public void testSetUnsetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -290,7 +290,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
    public void testSetUnsetResetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 

@@ -104,7 +104,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       final ClientProducer producer = session.createProducer(MY_ADDRESS);
 

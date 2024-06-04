@@ -59,9 +59,9 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
       ClientProducer producer = coreSession.createProducer(SimpleString.of(testAddress));
       final int numMessages = 1;
@@ -133,8 +133,8 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
       final SimpleString queueName1 = SimpleString.of("queue1");
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       coreSession.close();
 
       //use openwire to receive

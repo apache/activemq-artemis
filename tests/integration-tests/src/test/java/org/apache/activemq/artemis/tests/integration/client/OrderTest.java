@@ -76,7 +76,7 @@ public class OrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 
@@ -141,7 +141,7 @@ public class OrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, true, 0);
 
       int numberOfMessages = 500;
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 
@@ -199,7 +199,7 @@ public class OrderTest extends ActiveMQTestBase {
 
       int numberOfMessages = 500;
 
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 

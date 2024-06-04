@@ -49,7 +49,7 @@ final class SimpleClient {
             ClientSessionFactory sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
 
-            session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+            session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
             ClientProducer producer = session.createProducer(queueName);
             ClientConsumer consumer = session.createConsumer(queueName);
 

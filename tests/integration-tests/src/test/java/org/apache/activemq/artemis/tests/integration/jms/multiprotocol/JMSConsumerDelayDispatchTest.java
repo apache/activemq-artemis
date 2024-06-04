@@ -43,8 +43,8 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true).setConsumersBeforeDispatch(2).setDelayBeforeDispatch(DELAY_BEFORE_DISPATCH));
-      server.createQueue(new QueueConfiguration(normalQueueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true).setConsumersBeforeDispatch(2).setDelayBeforeDispatch(DELAY_BEFORE_DISPATCH));
+      server.createQueue(QueueConfiguration.of(normalQueueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
    }
 
    @Test

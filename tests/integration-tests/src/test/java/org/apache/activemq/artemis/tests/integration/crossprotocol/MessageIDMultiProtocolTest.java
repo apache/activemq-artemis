@@ -88,7 +88,7 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
 
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
-      this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
    }
 
 

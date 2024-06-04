@@ -56,7 +56,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       final SimpleString user = SimpleString.of("newUser");
 
-      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setUser(user));
+      Queue queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST).setUser(user));
 
       Long originalID = queue.getID();
 
@@ -70,7 +70,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setExclusive(false));
+      server.updateQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setExclusive(false));
 
       conn.close();
       factory.close();
@@ -124,7 +124,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       SimpleString ADDRESS = SimpleString.of("queue.0");
 
-      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       Long originalID = queue.getID();
 
@@ -138,7 +138,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(new QueueConfiguration(ADDRESS.toString())
+      server.updateQueue(QueueConfiguration.of(ADDRESS.toString())
                             .setRoutingType(RoutingType.ANYCAST)
                             .setMaxConsumers(1)
                             .setPurgeOnNoConsumers(false)

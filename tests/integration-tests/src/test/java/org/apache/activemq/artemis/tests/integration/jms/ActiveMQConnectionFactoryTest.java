@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -244,9 +243,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private void testDeserializationOptions(boolean useJndi, boolean useBrowser) throws Exception {
       String qname = "SerialTestQueue";
-      SimpleString qaddr = SimpleString.of(qname);
-      liveService.createQueue(new QueueConfiguration(qaddr)
-                                 .setRoutingType(RoutingType.ANYCAST));
+      liveService.createQueue(QueueConfiguration.of(qname).setRoutingType(RoutingType.ANYCAST));
 
       //default ok
       String denyList = null;
@@ -318,8 +315,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       System.setProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "some.other.package");
 
       String qname = "SerialTestQueue";
-      SimpleString qaddr = SimpleString.of(qname);
-      liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
+      liveService.createQueue(QueueConfiguration.of(qname).setRoutingType(RoutingType.ANYCAST));
 
       try {
          String denyList = null;
@@ -350,8 +346,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       System.setProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY, "some.other.package");
 
       String qname = "SerialTestQueue";
-      SimpleString qaddr = SimpleString.of(qname);
-      liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
+      liveService.createQueue(QueueConfiguration.of(qname).setRoutingType(RoutingType.ANYCAST));
 
       try {
          String denyList = null;

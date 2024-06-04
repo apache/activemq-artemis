@@ -106,7 +106,7 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
          try {
             try {
-               session.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST));
+               session.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST));
             } catch (Exception e) {
                // ignore
             }
@@ -160,7 +160,7 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
          try {
             try {
-               session.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST));
+               session.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST));
             } catch (Exception e) {
                // ignore
             }

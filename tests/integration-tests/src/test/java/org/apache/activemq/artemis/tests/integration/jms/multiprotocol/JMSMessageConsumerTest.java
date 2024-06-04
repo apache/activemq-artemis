@@ -129,7 +129,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    private void testQueueRoutingTypeMismatch(Connection connection) throws Exception {
       server.getAddressSettingsRepository().getMatch("#").setAutoCreateQueues(false).setAutoCreateAddresses(false);
       String name = getTopicName();
-      server.createQueue(new QueueConfiguration(name).setAddress(name).setRoutingType(RoutingType.MULTICAST).setAutoCreateAddress(true));
+      server.createQueue(QueueConfiguration.of(name).setAddress(name).setRoutingType(RoutingType.MULTICAST).setAutoCreateAddress(true));
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          session.createConsumer(session.createQueue(name));
@@ -227,7 +227,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
       final String subName = "foo";
       final String queueName = DestinationUtil.createQueueNameForSubscription(true, clientId, subName).toString();
       server.stop();
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setAddress("myTopic").setFilterString("color = 'BLUE'").setRoutingType(RoutingType.MULTICAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(queueName).setAddress("myTopic").setFilterString("color = 'BLUE'").setRoutingType(RoutingType.MULTICAST));
       server.getConfiguration().setAmqpUseCoreSubscriptionNaming(true);
       server.start();
 

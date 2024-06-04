@@ -51,7 +51,7 @@ public class ScheduledMessageRestartTest extends ActiveMQTestBase {
    public void testSchedulePropertyExistsAfterRestart() throws Exception {
       final String queueName = RandomUtil.randomString();
       final long scheduledTime = System.currentTimeMillis() * 2;
-      server.createQueue(new QueueConfiguration(queueName).setAddress(queueName));
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(queueName));
       ServerLocator locator = createInVMLocator(0);
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession();

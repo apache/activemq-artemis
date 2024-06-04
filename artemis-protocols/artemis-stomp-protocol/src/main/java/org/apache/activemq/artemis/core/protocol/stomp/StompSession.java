@@ -322,14 +322,14 @@ public class StompSession implements SessionCallback {
             queueName = SimpleString.of(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
                try {
-                  session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selectorSimple));
+                  session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selectorSimple));
                } catch (ActiveMQQueueExistsException e) {
                   // ignore; can be caused by concurrent durable subscribers
                }
             }
          } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-            session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selectorSimple).setDurable(false).setTemporary(true));
+            session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selectorSimple).setDurable(false).setTemporary(true));
          }
       }
       final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);

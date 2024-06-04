@@ -66,7 +66,7 @@ public class SimpleManagementTest extends ActiveMQTestBase {
       server.start();
       String queueName = RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName).setDurable(true));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName).setDurable(true));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", LOCALHOST);
 

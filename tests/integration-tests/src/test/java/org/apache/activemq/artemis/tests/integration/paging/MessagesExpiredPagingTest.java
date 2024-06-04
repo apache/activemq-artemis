@@ -104,7 +104,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.MULTICAST));
 
       for (int i = 0; i < NUMBER_OF_QUEUES; i++) {
-         Queue queue = server.createQueue(new QueueConfiguration("q" + i).setRoutingType(RoutingType.MULTICAST).setAddress(ADDRESS));
+         Queue queue = server.createQueue(QueueConfiguration.of("q" + i).setRoutingType(RoutingType.MULTICAST).setAddress(ADDRESS));
          queues[i] = queue;
          expiresExecutor.execute(() -> {
             Thread.currentThread().setName("Expiry on " + queue.getName() + ".." + Thread.currentThread().getName());

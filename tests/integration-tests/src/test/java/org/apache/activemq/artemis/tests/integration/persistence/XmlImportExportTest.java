@@ -113,7 +113,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -226,7 +226,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -296,7 +296,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.TEXT_TYPE, true);
@@ -343,7 +343,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
@@ -388,7 +388,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -436,8 +436,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testBindingAttributes() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration("queueName1").setAddress("addressName1"));
-      session.createQueue(new QueueConfiguration("queueName2").setAddress("addressName1").setFilterString("bob"));
+      session.createQueue(QueueConfiguration.of("queueName1").setAddress("addressName1"));
+      session.createQueue(QueueConfiguration.of("queueName2").setAddress("addressName1").setFilterString("bob"));
 
       session.close();
       locator.close();
@@ -496,7 +496,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.releaseResources(false, true);
 
-      session.createQueue(new QueueConfiguration("A"));
+      session.createQueue(QueueConfiguration.of("A"));
 
       ClientProducer prod = session.createProducer("A");
 
@@ -570,7 +570,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.releaseResources(false, true);
 
-      session.createQueue(new QueueConfiguration("A"));
+      session.createQueue(QueueConfiguration.of("A"));
 
       ClientProducer prod = session.createProducer("A");
 
@@ -643,7 +643,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "test");
       Connection c = cf.createConnection();
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      server.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("A").setRoutingType(RoutingType.ANYCAST));
       MessageProducer p = s.createProducer(ActiveMQJMSClient.createQueue("A"));
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
       StringBuilder stringBuilder = new StringBuilder();
@@ -694,8 +694,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testPartialQueue() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration("myQueue1").setAddress("myAddress"));
-      session.createQueue(new QueueConfiguration("myQueue2").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("myQueue1").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("myQueue2").setAddress("myAddress"));
 
       ClientProducer producer = session.createProducer("myAddress");
 
@@ -763,8 +763,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
-      session.createQueue(new QueueConfiguration(MY_QUEUE2).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE2).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -835,7 +835,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -900,7 +900,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -979,7 +979,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testTransactional() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -1026,7 +1026,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -1079,7 +1079,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -1140,8 +1140,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       session.createAddress(myAddress, routingTypes, false);
 
-      session.createQueue(new QueueConfiguration("myQueue1").setAddress(myAddress));
-      session.createQueue(new QueueConfiguration("myQueue2").setAddress(myAddress));
+      session.createQueue(QueueConfiguration.of("myQueue1").setAddress(myAddress));
+      session.createQueue(QueueConfiguration.of("myQueue2").setAddress(myAddress));
 
       locator.close();
       server.stop();
@@ -1224,7 +1224,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       //Create ANYCAST queue and set "AutoCreateDeadLetterResources"
       //Send message with ANYCAST RoutingType
       server.getAddressSettingsRepository().addMatch(myAddress.toString(), new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true).setDeadLetterQueuePrefix(dlaPrefix).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1));
-      session.createQueue(new QueueConfiguration(myQueue).setAddress(myAddress).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(myQueue).setAddress(myAddress).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer producer = session.createProducer(myAddress);
       producer.send(createTextMessage(session, payload).putByteProperty(Message.HDR_ROUTING_TYPE, (byte) 1));

@@ -80,7 +80,7 @@ public class FailoverWithDivertTest extends FailoverTestBase {
       CoreAddressConfiguration addrCfg = new CoreAddressConfiguration();
       addrCfg.setName(address);
       addrCfg.addRoutingType(RoutingType.ANYCAST);
-      addrCfg.addQueueConfiguration(new QueueConfiguration(name).setAddress(address));
+      addrCfg.addQueueConfiguration(QueueConfiguration.of(name).setAddress(address));
       addrConfigs.add(addrCfg);
    }
 

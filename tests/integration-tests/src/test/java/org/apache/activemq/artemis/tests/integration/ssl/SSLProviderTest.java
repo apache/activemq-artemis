@@ -69,7 +69,7 @@ public class SSLProviderTest extends SSLTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
 
       ClientMessage message = createTextMessage(session, text);

@@ -136,8 +136,8 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
       SimpleString destination = SimpleString.of("destination");
       int concurrency = 2;
 
-      server0.createQueue(new QueueConfiguration(source).setRoutingType(sourceRoutingType));
-      server1.createQueue(new QueueConfiguration(destination).setRoutingType(destinationRoutingType));
+      server0.createQueue(QueueConfiguration.of(source).setRoutingType(sourceRoutingType));
+      server1.createQueue(QueueConfiguration.of(destination).setRoutingType(destinationRoutingType));
 
       server0.deployBridge(new BridgeConfiguration()
                               .setRoutingType(bridgeRoutingType)

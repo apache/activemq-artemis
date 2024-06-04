@@ -98,7 +98,7 @@ public class ClientExitTest extends ClientTestBase {
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(ClientExitTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientExitTest.QUEUE).setDurable(false));
       consumer = session.createConsumer(ClientExitTest.QUEUE);
       session.start();
    }

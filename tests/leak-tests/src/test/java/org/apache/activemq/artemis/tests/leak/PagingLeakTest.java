@@ -119,7 +119,7 @@ public class PagingLeakTest extends AbstractLeakTest {
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
       server.addAddressInfo(new AddressInfo(getName()).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getName()).setAddress(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(getName()).setAddress(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Queue serverQueue = server.locateQueue(getName());
       serverQueue.getPagingStore().startPaging();

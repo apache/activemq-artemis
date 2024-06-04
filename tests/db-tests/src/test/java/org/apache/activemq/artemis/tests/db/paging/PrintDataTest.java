@@ -69,7 +69,7 @@ public class PrintDataTest extends ParameterDBTestBase {
 
       String queueName = RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration().setAddress(queueName).setName(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
       queue.getPagingStore().startPaging();
 
       int numberOfMessages = 10;

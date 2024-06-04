@@ -571,7 +571,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    @Timeout(60)
    public void testExpirationAfterDivert() throws Throwable {
       final String FORWARDING_ADDRESS = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       server.deployDivert(new DivertConfiguration()
                              .setName(RandomUtil.randomString())
                              .setAddress(getQueueName())

@@ -70,7 +70,7 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(getName()).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(getName()) != null);
 

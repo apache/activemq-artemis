@@ -74,7 +74,7 @@ public class NotificationTest extends ActiveMQTestBase {
       NotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       //the first message received will be for the address creation
       ClientMessage[] notifications = NotificationTest.consumeMessages(2, notifConsumer);
@@ -101,7 +101,7 @@ public class NotificationTest extends ActiveMQTestBase {
       NotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
       assertEquals(BINDING_ADDED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
@@ -125,7 +125,7 @@ public class NotificationTest extends ActiveMQTestBase {
          queue + "' AND " + ManagementHelper.HDR_ADDRESS + " <> '" + address + "'");
       NotificationTest.flush(notifConsumer);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.consumeMessages(0, notifConsumer);
 
@@ -138,7 +138,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.flush(notifConsumer);
 
@@ -166,7 +166,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.flush(notifConsumer);
 
@@ -206,7 +206,7 @@ public class NotificationTest extends ActiveMQTestBase {
             ClientSession clientSession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
       ) {
          clientSession.start();
-         session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+         session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
          NotificationTest.flush(notifConsumer);
          try (ClientConsumer ignored = clientSession.createConsumer(queue, filter)) {
             ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
@@ -254,7 +254,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      mySession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      mySession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientConsumer consumer = mySession.createConsumer(queue);
       SimpleString sessionName = SimpleString.of(((ClientSessionInternal) mySession).getName());
 
@@ -371,7 +371,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       ClientConsumer consumer = mySession.createConsumer(queue);
       ClientProducer producer = mySession.createProducer(address);
@@ -411,7 +411,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       ClientConsumer consumer = mySession.createConsumer(queue);
       ClientProducer producer = mySession.createProducer(address);
@@ -451,7 +451,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = mySession.createProducer(address);
 
       NotificationTest.flush(notifConsumer);
@@ -499,7 +499,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
+      session.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 
       notifConsumer = session.createConsumer(notifQueue);
    }

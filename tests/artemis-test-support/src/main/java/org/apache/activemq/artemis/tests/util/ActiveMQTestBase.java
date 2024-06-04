@@ -1616,7 +1616,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    protected void createAnycastPair(ActiveMQServer server, String queueName) throws Exception {
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName));
    }
 
    protected void createQueue(final String address, final String queue) throws Exception {
@@ -1624,7 +1624,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
       try {
-         session.createQueue(new QueueConfiguration(queue).setAddress(address));
+         session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       } finally {
          session.close();
          closeSessionFactory(sf);

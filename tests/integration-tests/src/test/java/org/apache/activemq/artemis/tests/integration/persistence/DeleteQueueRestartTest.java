@@ -63,7 +63,7 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
       final ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(DeleteQueueRestartTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(DeleteQueueRestartTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(DeleteQueueRestartTest.ADDRESS);
 

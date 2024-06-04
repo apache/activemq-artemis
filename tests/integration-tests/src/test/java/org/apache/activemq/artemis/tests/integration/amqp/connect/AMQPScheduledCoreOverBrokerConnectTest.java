@@ -61,7 +61,7 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       server.setIdentity("targetServer");
       server.start();
       server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -69,7 +69,7 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR));
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST));
-      server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       server_2.setIdentity("serverWithBridge");
 
       server_2.start();

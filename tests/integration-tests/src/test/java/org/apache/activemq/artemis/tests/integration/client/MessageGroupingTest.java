@@ -543,7 +543,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
       clientSessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(clientSessionFactory.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
    }
 
    private static class DummyMessageHandler implements MessageHandler {

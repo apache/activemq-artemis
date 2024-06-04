@@ -115,7 +115,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          fileMessage.releaseResources(false, true);
 
-         session.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of("A").setRoutingType(RoutingType.ANYCAST));
 
          ClientProducer prod = session.createProducer("A");
 
@@ -170,7 +170,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
          ClientMessage clientMessage = session.createMessage(false);
          clientMessage.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
 
-         session.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of("A").setRoutingType(RoutingType.ANYCAST));
 
          ClientProducer prod = session.createProducer("A");
          prod.send(clientMessage);

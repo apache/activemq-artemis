@@ -130,7 +130,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
       final ClientProducer mainProducer = consumeSession.createProducer(ADDRESS);
 
-      consumeSession.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(ADDRESS));
+      consumeSession.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(ADDRESS));
 
       ClientConsumer consumer = consumeSession.createConsumer(QUEUE_NAME);
 

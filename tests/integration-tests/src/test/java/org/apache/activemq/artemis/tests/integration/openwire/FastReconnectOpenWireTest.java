@@ -71,7 +71,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
       SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());
 
@@ -134,7 +134,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
       SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());
 

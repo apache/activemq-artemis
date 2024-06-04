@@ -238,7 +238,7 @@ public class ConnectionLeakTest extends AbstractLeakTest {
       ExecutorService executorService = Executors.newFixedThreadPool(CONSUMERS + 1); // there's always one producer
       runAfter(executorService::shutdownNow);
 
-      Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory cf = createConnectionFactory(protocol);
 
@@ -344,7 +344,7 @@ public class ConnectionLeakTest extends AbstractLeakTest {
 
       String queueName = getName();
 
-      Queue queue = server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory cf = createConnectionFactory(protocol);
       for (int i = 0; i < 10; i++) {

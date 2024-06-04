@@ -259,7 +259,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
    private void addBogusData(final int nmessages, final String queue) throws ActiveMQException {
       ClientSession session = sf.createSession(false, false);
       try {
-         session.createQueue(new QueueConfiguration(queue));
+         session.createQueue(QueueConfiguration.of(queue));
       } catch (Exception ignored) {
       }
 
@@ -315,7 +315,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
+         sess.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS));
       } catch (Exception ignored) {
       }
 

@@ -76,7 +76,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(ADDRESS);
 
       // just to make it page forever
-      Queue serverQueue = server.createQueue(new QueueConfiguration("everPage").setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("everPage").setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       serverQueue.getPageSubscription().getPagingStore().startPaging();
 
       Consumer[] consumers = new Consumer[10];
@@ -121,7 +121,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
             for (int i = 0; i < 100 && running; i++) {
                SimpleString queueName = ADDRESS.concat("_" + sequence.incrementAndGet());
-               session.createQueue(new QueueConfiguration(queueName).setAddress(ADDRESS));
+               session.createQueue(QueueConfiguration.of(queueName).setAddress(ADDRESS));
                ClientConsumer consumer = session.createConsumer(queueName);
                while (running) {
                   ClientMessage msg = consumer.receive(500);

@@ -382,7 +382,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_QUEUE: {
                   CreateQueueMessage request = (CreateQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createQueue(new QueueConfiguration(request.getQueueName())
+                  session.createQueue(QueueConfiguration.of(request.getQueueName())
                                          .setAddress(request.getAddress())
                                          .setRoutingType(getRoutingTypeFromAddress(request.getAddress()))
                                          .setFilterString(request.getFilterString())
@@ -408,7 +408,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
                   if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
-                     session.createSharedQueue(new QueueConfiguration(request.getQueueName())
+                     session.createSharedQueue(QueueConfiguration.of(request.getQueueName())
                                                   .setAddress(request.getAddress())
                                                   .setFilterString(request.getFilterString())
                                                   .setDurable(request.isDurable()));

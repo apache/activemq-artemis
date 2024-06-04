@@ -80,7 +80,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
       ClientSession session = sf.createSession(true, true);
       sessionList.add(session);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

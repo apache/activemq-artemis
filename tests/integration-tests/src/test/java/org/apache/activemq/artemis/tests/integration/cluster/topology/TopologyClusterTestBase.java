@@ -157,7 +157,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
    protected ClientSession checkSessionOrReconnect(ClientSession session, ServerLocator locator) throws Exception {
       try {
          String rand = RandomUtil.randomString();
-         session.createQueue(new QueueConfiguration(rand));
+         session.createQueue(QueueConfiguration.of(rand));
          session.deleteQueue(rand);
          return session;
       } catch (ActiveMQObjectClosedException oce) {
@@ -367,7 +367,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(config.getClusterUser(), ActiveMQTestBase.CLUSTER_PASSWORD, false, true, true, false, 1);
-      session.createQueue(new QueueConfiguration(address));
+      session.createQueue(QueueConfiguration.of(address));
       ClientProducer producer = session.createProducer(address);
       sendMessages(session, producer, 100);
       ClientConsumer consumer = session.createConsumer(address);

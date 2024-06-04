@@ -94,7 +94,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
+      clientSession.createQueue(QueueConfiguration.of("slow").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
       // start backup
@@ -114,7 +114,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.createQueue(QueueConfiguration.of("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
       waitForTopology(backupServer, 1, 0, 30000);
@@ -135,7 +135,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.createQueue(QueueConfiguration.of("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
       // verify the primary restart as a backup to the restarted backupServer that has taken on the primary role, no failback
@@ -143,7 +143,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.createQueue(QueueConfiguration.of("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
       assertTrue(Wait.waitFor(primaryServer::isReplicaSync));
@@ -661,7 +661,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
 
    private void sendTo(ClientSessionFactory clientSessionFactory, String addr) throws Exception {
       ClientSession clientSession = clientSessionFactory.createSession(true, true);
-      clientSession.createQueue(new QueueConfiguration(addr).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      clientSession.createQueue(QueueConfiguration.of(addr).setRoutingType(RoutingType.ANYCAST).setDurable(true));
       ClientProducer producer = clientSession.createProducer(addr);
       ClientMessage message = clientSession.createMessage(true);
       message.putStringProperty("K", addr);

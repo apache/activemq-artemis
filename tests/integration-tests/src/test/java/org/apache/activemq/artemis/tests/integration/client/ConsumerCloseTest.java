@@ -284,7 +284,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
 
       session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
    }
 
 }

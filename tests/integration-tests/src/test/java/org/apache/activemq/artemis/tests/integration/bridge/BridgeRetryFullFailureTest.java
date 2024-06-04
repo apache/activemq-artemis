@@ -81,8 +81,8 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
       SimpleString source = SimpleString.of("source");
       SimpleString destination = SimpleString.of("destination");
 
-      server0.createQueue(new QueueConfiguration(source).setRoutingType(RoutingType.ANYCAST));
-      Queue queueServer1 = server1.createQueue(new QueueConfiguration(destination).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(QueueConfiguration.of(source).setRoutingType(RoutingType.ANYCAST));
+      Queue queueServer1 = server1.createQueue(QueueConfiguration.of(destination).setRoutingType(RoutingType.ANYCAST));
 
       server0.deployBridge(new BridgeConfiguration().setRoutingType(ComponentConfigurationRoutingType.ANYCAST).setName("bridge").setForwardingAddress(destination.toString()).setQueueName(source.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("connector")).setRetryInterval(100).setReconnectAttempts(-1));
 

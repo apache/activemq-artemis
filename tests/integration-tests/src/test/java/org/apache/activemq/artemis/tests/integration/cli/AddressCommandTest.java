@@ -125,7 +125,7 @@ public class AddressCommandTest extends JMSTestBase {
       final SimpleString addressSimpleString = SimpleString.of(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("queue1").setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
 
       final DeleteAddress deleteAddress = new DeleteAddress();
       deleteAddress.setName(addressName);
@@ -140,7 +140,7 @@ public class AddressCommandTest extends JMSTestBase {
       final String queueName = "queue1";
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      Queue queue = server.createQueue(new QueueConfiguration(SimpleString.of(queueName)).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(queueName).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616");
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession session = csf.createSession();
@@ -185,9 +185,9 @@ public class AddressCommandTest extends JMSTestBase {
       // Create bindings
       SimpleString address = SimpleString.of("address");
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(SimpleString.of("queue2")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(SimpleString.of("queue3")).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("queue1").setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("queue2").setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("queue3").setAddress(address).setRoutingType(RoutingType.MULTICAST));
 
       DivertConfiguration divertConfiguration = new DivertConfiguration();
       divertConfiguration.setName(address.toString());
@@ -234,7 +234,7 @@ public class AddressCommandTest extends JMSTestBase {
       final SimpleString addressSimpleString = SimpleString.of(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(SimpleString.of("queue1")).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("queue1").setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
 
       final UpdateAddress updateAddress = new UpdateAddress();
       updateAddress.setName(addressName);

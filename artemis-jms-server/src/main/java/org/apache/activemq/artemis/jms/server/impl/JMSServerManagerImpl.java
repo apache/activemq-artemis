@@ -1082,7 +1082,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
          server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(queueName)).addRoutingType(RoutingType.ANYCAST));
 
-         server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
+         server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
 
          // create the JMS queue with the logical name jmsQueueName and keeps queueName for its *core* queue name
          queues.put(queueName, ActiveMQDestination.createQueue(queueName, jmsQueueName));

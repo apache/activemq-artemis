@@ -678,7 +678,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
       nodes.get(1).getConfiguration().getConnectionRouters().get(0).setLocalTargetFilter(null); // initially won't accept any till we pause
 
       // new Head needs the address configured, such that we can start the routerControl0 with the address paused
-      nodes.get(1).getConfiguration().getAddressConfigurations().add(new CoreAddressConfiguration().setName(qName).addRoutingType(RoutingType.ANYCAST).addQueueConfiguration(new QueueConfiguration(qName).setRoutingType(RoutingType.ANYCAST)));
+      nodes.get(1).getConfiguration().getAddressConfigurations().add(new CoreAddressConfiguration().setName(qName).addRoutingType(RoutingType.ANYCAST).addQueueConfiguration(QueueConfiguration.of(qName).setRoutingType(RoutingType.ANYCAST)));
       nodes.get(1).start();
 
       // ensure nothing can be consumed from the head

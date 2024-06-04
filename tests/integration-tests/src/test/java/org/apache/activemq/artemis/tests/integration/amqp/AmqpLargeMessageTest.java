@@ -556,7 +556,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
    private void testLargeHeaderTX(boolean largeBody) throws Exception {
       String testQueueName = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST));
       ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
 
       String largeString;

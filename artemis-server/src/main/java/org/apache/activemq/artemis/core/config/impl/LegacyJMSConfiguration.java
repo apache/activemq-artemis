@@ -177,7 +177,7 @@ public class LegacyJMSConfiguration implements Deployable {
       configuration.addAddressConfiguration(new CoreAddressConfiguration()
                                                .setName(queueName)
                                                .addRoutingType(RoutingType.ANYCAST)
-                                               .addQueueConfiguration(new QueueConfiguration(queueName)
+                                               .addQueueConfiguration(QueueConfiguration.of(queueName)
                                                                          .setFilterString(selectorString)
                                                                          .setDurable(durable)
                                                                          .setRoutingType(RoutingType.ANYCAST)));

@@ -215,7 +215,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          server.start();
 
          server.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false));
-         server.createQueue(new QueueConfiguration("sometest").setDurable(true));
+         server.createQueue(QueueConfiguration.of("sometest").setDurable(true));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -389,7 +389,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          amqpConnection.setPassword("pass");
          amqpConnection.addElement(mirrorElement);
 
-         server.createQueue(new QueueConfiguration("myQueue").setDurable(true));
+         server.createQueue(QueueConfiguration.of("myQueue").setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
@@ -453,7 +453,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          amqpConnection.setPassword("pass");
          amqpConnection.addElement(mirrorElement);
 
-         server.createQueue(new QueueConfiguration("myQueue").setDurable(true));
+         server.createQueue(QueueConfiguration.of("myQueue").setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
@@ -517,7 +517,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          amqpConnection.setPassword("pass");
          amqpConnection.addElement(mirrorElement);
 
-         server.createQueue(new QueueConfiguration("myQueue").setDurable(true));
+         server.createQueue(QueueConfiguration.of("myQueue").setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 

@@ -68,8 +68,8 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(true, true);
 
-      session.createQueue(new QueueConfiguration("test"));
-      session.createQueue(new QueueConfiguration("exp"));
+      session.createQueue(QueueConfiguration.of("test"));
+      session.createQueue(QueueConfiguration.of("exp"));
       ClientProducer prod = session.createProducer("test");
 
       for (int i = 0; i < 10; i++) {

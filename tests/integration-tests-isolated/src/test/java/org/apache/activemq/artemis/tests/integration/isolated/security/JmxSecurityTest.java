@@ -161,7 +161,7 @@ public class JmxSecurityTest {
       server.getConfiguration().putSecurityRoles("jmx.queue.Q1.*", roles);
 
       CoreAddressConfiguration address = new CoreAddressConfiguration();
-      address.setName("Q1").addQueueConfig(new QueueConfiguration("Q1").setRoutingType(RoutingType.ANYCAST));
+      address.setName("Q1").addQueueConfig(QueueConfiguration.of("Q1").setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().getAddressConfigurations().add(address);
 
       server.start();
@@ -288,8 +288,8 @@ public class JmxSecurityTest {
       server.start();
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(QUEUE_A).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(QUEUE_B).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE_A).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE_B).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControlA = JMX.newMBeanProxy(
          ManagementFactory.getPlatformMBeanServer(),

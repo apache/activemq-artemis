@@ -69,7 +69,7 @@ public class ActiveMQDynamicProducerDelegate extends ActiveMQProducerDelegate
          if (address != null && !session.addressQuery(address).isExists() && autoCreateQueue) {
             log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(),
                      address.toString());
-            session.createQueue(new QueueConfiguration(address));
+            session.createQueue(QueueConfiguration.of(address));
          }
          producer = session.createProducer((SimpleString) null);
       } catch (ActiveMQException amqEx) {
@@ -98,7 +98,7 @@ public class ActiveMQDynamicProducerDelegate extends ActiveMQProducerDelegate
          if (autoCreateQueue && !session.addressQuery(targetAddress).isExists()) {
             log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(),
                      address.toString());
-            session.createQueue(new QueueConfiguration(targetAddress));
+            session.createQueue(QueueConfiguration.of(targetAddress));
          }
       } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Queue creation failed for queue: address = %s, name = %s",

@@ -212,7 +212,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          waitForServerToStart(server);
 
          server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-         server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
          Wait.waitFor(() -> slowServer.locateQueue(getQueueName()) != null);
          Queue replicatedQueue = slowServer.locateQueue(getQueueName());
@@ -550,7 +550,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
       assertEquals(AddressFullMessagePolicy.BLOCK, snf.getPagingStore().getAddressFullMessagePolicy());
 
       server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       Wait.waitFor(() -> slowServer.locateQueue(getQueueName()) != null);
       Queue replicatedQueue = slowServer.locateQueue(getQueueName());

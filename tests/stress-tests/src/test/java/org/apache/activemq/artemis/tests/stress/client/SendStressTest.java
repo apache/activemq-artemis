@@ -61,7 +61,7 @@ public class SendStressTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, false);
 
-         session.createQueue(new QueueConfiguration("queue").setAddress("address"));
+         session.createQueue(QueueConfiguration.of("queue").setAddress("address"));
 
          ClientProducer producer = session.createProducer("address");
 

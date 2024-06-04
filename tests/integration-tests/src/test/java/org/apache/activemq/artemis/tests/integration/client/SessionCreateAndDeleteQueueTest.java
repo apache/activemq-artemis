@@ -51,7 +51,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testDurableFalse() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
       assertFalse(q.isDurable());
@@ -62,7 +62,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testDurableTrue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
       assertTrue(q.isDurable());
@@ -73,7 +73,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testTemporaryFalse() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
       assertFalse(q.isTemporary());
@@ -84,7 +84,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testTemporaryTrue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false).setTemporary(true));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
       assertTrue(q.isTemporary());
@@ -96,7 +96,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    public void testcreateWithFilter() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       SimpleString filterString = SimpleString.of("x=y");
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
       assertEquals(q.getFilter().getFilterString(), filterString);
@@ -108,8 +108,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    public void testAddressSettingUSed() throws Exception {
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDefaultLastValueQueue(true));
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      SimpleString filterString = SimpleString.of("x=y");
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString("x=y").setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       assertTrue(binding.getBindable() instanceof LastValueQueue);
 
@@ -119,7 +118,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testDeleteQueue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       assertNotNull(binding);
       session.deleteQueue(queueName);

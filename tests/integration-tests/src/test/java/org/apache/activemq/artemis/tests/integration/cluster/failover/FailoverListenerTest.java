@@ -219,7 +219,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
       }
 
       ClientProducer producer = session.createProducer(ADDRESS);

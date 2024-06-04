@@ -270,7 +270,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration(queueName)
+      return QueueConfiguration.of(queueName)
          .setAddress(address)
          .setDurable(durable)
          .setRoutingType(routingType)

@@ -84,8 +84,8 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
 
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
-      this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
-      this.server.createQueue(new QueueConfiguration(replyQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(replyQueue).setRoutingType(RoutingType.ANYCAST));
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
       this.server.addAddressInfo(info);
    }

@@ -131,7 +131,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
@@ -270,7 +270,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
@@ -326,7 +326,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
-      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
+      QueueImpl purgeQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
       Connection connection = cf.createConnection();
@@ -424,7 +424,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS));
 
       Queue queue = server.locateQueue(JournalPagingTest.ADDRESS);
 
@@ -539,7 +539,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
          ClientSession session = sf.createSession(false, true, true);
 
-         session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS));
 
          ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
@@ -600,7 +600,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 

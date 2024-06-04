@@ -112,7 +112,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
    }
 
    private void createQueue(SimpleString queueName) throws Exception {
-      QueueConfiguration queueConfiguration = new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST);
       servers[0].createQueue(queueConfiguration);
       servers[1].createQueue(queueConfiguration);
    }

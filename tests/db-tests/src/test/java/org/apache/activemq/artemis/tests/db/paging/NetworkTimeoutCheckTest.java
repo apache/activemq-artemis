@@ -72,7 +72,7 @@ public class NetworkTimeoutCheckTest extends ParameterDBTestBase {
 
 
       server.addAddressInfo(new AddressInfo(getName()).addRoutingType(RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      Queue queue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
       queue.getPagingStore().startPaging();
       PagingStoreImpl store = (PagingStoreImpl) queue.getPagingStore();
       Page page = store.getCurrentPage();

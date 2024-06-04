@@ -780,7 +780,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       queueList.clear();
 
       try {
-         queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+         queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
          queue.pause();
       } catch (Exception ignored) {
       }

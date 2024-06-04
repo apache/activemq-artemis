@@ -110,7 +110,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       server = internalCreateServer();
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       queue.getPageSubscription().getPagingStore().startPaging();
 
       for (int i = 0; i < 10; i++) {

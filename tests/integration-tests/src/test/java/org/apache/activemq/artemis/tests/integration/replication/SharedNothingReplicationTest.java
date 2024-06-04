@@ -130,7 +130,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
+      sess.createQueue(QueueConfiguration.of("slow").setRoutingType(RoutingType.ANYCAST));
       sess.close();
 
       // let's write some messages

@@ -64,7 +64,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    @Timeout(60)
    public void testAddressControlSendMessage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
       assertEquals(1, addressControl.getQueueNames().length);
@@ -95,7 +95,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    @Timeout(60)
    public void testAddressControlSendMessageWithText() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
       assertEquals(1, addressControl.getQueueNames().length);

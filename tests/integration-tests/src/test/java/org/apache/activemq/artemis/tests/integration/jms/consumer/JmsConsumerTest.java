@@ -837,7 +837,7 @@ public class JmsConsumerTest extends JMSTestBase {
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
       server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
       server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
@@ -870,7 +870,7 @@ public class JmsConsumerTest extends JMSTestBase {
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
       server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
       server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));

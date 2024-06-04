@@ -58,7 +58,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
       requestConsumer.setMessageHandler(new SimpleMessageHandler(key, session));
@@ -89,7 +89,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       final ClientSession sessionRequest = sf.createSession(false, true, true);
 
-      sessionRequest.createQueue(new QueueConfiguration(requestQueue).setAddress(requestAddress));
+      sessionRequest.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress));
 
       sessionRequest.start();
 
@@ -129,7 +129,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
       requestConsumer.setMessageHandler(new SimpleMessageHandler(key, session));
@@ -162,7 +162,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
       requestConsumer.setMessageHandler(new MessageHandler() {
@@ -213,7 +213,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
       requestConsumer.setMessageHandler(new SimpleMessageHandler(key, session));

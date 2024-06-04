@@ -76,8 +76,8 @@ public class MulticastTest extends ActiveMQTestBase {
    @Test
    public void testTxCommitReceive() throws Exception {
 
-      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q1 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".1")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".2")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();
@@ -125,8 +125,8 @@ public class MulticastTest extends ActiveMQTestBase {
    @Test
    public void testTxRollbackReceive() throws Exception {
 
-      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q1 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".1")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".2")).setAddress(baseAddress).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();

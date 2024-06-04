@@ -72,7 +72,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       }
 
       // confirm we can still do work on the original connection even though the server is stopping
-      session.createQueue(new QueueConfiguration("testQueue").setAddress("testAddress").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("testQueue").setAddress("testAddress").setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer("testAddress");
       producer.send(session.createMessage(true));
       session.start();

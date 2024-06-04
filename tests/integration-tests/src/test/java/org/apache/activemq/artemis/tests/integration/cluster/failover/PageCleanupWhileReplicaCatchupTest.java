@@ -95,7 +95,7 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
 
       for (int i = 0; i < NUMBER_OF_WORKERS; i++) {
          primaryServer.getServer().addAddressInfo(new AddressInfo("WORKER_" + i).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-         primaryServer.getServer().createQueue(new QueueConfiguration("WORKER_" + i).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+         primaryServer.getServer().createQueue(QueueConfiguration.of("WORKER_" + i).setRoutingType(RoutingType.ANYCAST).setDurable(true));
          workers[i] = new Worker("WORKER_" + i);
          workers[i].start();
       }

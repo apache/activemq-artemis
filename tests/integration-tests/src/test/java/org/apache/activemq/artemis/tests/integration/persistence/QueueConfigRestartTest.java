@@ -44,7 +44,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertTrue(queueBinding1.getQueue().isPurgeOnNoConsumers());
@@ -66,7 +66,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertTrue(queueBinding1.getQueue().isLastValue());
@@ -88,7 +88,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertTrue(queueBinding1.getQueue().isExclusive());
@@ -111,7 +111,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setConsumersBeforeDispatch(consumersBeforeDispatch));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setConsumersBeforeDispatch(consumersBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
@@ -134,7 +134,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setDelayBeforeDispatch(delayBeforeDispatch));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setDelayBeforeDispatch(delayBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
@@ -157,7 +157,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setUser("bob").setMaxConsumers(10).setPurgeOnNoConsumers(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setUser("bob").setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertEquals(SimpleString.of("bob"), queueBinding1.getQueue().getUser());
@@ -179,7 +179,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setEnabled(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertTrue(queueBinding1.getQueue().isEnabled());
@@ -201,7 +201,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(false));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setEnabled(false));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       assertFalse(queueBinding1.getQueue().isEnabled());

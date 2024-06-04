@@ -73,7 +73,7 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(ClientNonDivertedSoakTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(ClientNonDivertedSoakTest.ADDRESS));
 
       session.close();
 

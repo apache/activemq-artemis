@@ -55,7 +55,7 @@ public class MessageRateTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
       long start = System.currentTimeMillis();
@@ -80,7 +80,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -115,7 +115,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -151,7 +151,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

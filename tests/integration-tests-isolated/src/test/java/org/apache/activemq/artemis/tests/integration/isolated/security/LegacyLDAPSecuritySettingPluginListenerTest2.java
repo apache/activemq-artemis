@@ -189,7 +189,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest2 extends AbstractLdapTe
       // authz should succeed
       try {
          ClientSession session = cf.createSession("user5", "secret", false, true, true, false, 0);
-         session.createQueue(new QueueConfiguration("project5.test"));
+         session.createQueue(QueueConfiguration.of("project5.test"));
       } catch (ActiveMQException e) {
          Assert.fail("Should NOT fail");
       }
@@ -206,7 +206,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest2 extends AbstractLdapTe
       // authz should fail
       try {
          ClientSession session = cf.createSession("userFoo", "secret", false, true, true, false, 0);
-         session.createQueue(new QueueConfiguration("project5.foo"));
+         session.createQueue(QueueConfiguration.of("project5.foo"));
          Assert.fail("Creating queue here should fail!");
       } catch (ActiveMQException e) {
          Assert.assertTrue(e.getMessage().contains("229213")); // authorization exception

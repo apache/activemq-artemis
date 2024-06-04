@@ -62,7 +62,7 @@ public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
       ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.start();
       SimpleString notificationQueue = RandomUtil.randomSimpleString();
-      session.createQueue(new QueueConfiguration(notificationQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
+      session.createQueue(QueueConfiguration.of(notificationQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
       notificationConsumer = addClientConsumer(session.createConsumer(notificationQueue));
    }
 

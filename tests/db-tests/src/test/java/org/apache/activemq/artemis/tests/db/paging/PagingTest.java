@@ -197,8 +197,8 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-1")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-0")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-1")).setAddress(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -278,7 +278,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-         session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS.concat("-0")).setAddress(ADDRESS));
 
          server.getPagingManager().getPageStore(ADDRESS).forceAnotherPage();
          server.getPagingManager().getPageStore(ADDRESS).disableCleanup();
@@ -365,7 +365,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-0")).setAddress(ADDRESS));
 
       server.getPagingManager().getPageStore(ADDRESS).startPaging();
       server.getPagingManager().getPageStore(ADDRESS).disableCleanup();
@@ -433,7 +433,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-0")).setAddress(ADDRESS));
 
       server.getPagingManager().getPageStore(ADDRESS).startPaging();
       server.getPagingManager().getPageStore(ADDRESS).disableCleanup();
@@ -492,7 +492,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -594,7 +594,7 @@ public class PagingTest extends ParameterDBTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(getName()).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
 
       Queue serverQueue = server.locateQueue(getName());
 
@@ -662,7 +662,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -746,7 +746,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -815,8 +815,8 @@ public class PagingTest extends ParameterDBTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(address + "_1").setAddress(address).setRoutingType(RoutingType.MULTICAST).setDurable(true).setFilterString("page<>5"));
-      server.createQueue(new QueueConfiguration(address + "_2").setAddress(address).setRoutingType(RoutingType.MULTICAST).setDurable(true).setFilterString("page=5"));
+      server.createQueue(QueueConfiguration.of(address + "_1").setAddress(address).setRoutingType(RoutingType.MULTICAST).setDurable(true).setFilterString("page<>5"));
+      server.createQueue(QueueConfiguration.of(address + "_2").setAddress(address).setRoutingType(RoutingType.MULTICAST).setDurable(true).setFilterString("page=5"));
 
       final int numberOfMessages = 100;
 
@@ -949,7 +949,7 @@ public class PagingTest extends ParameterDBTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(address).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(address).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       final int numberOfMessages = 20;
 
@@ -1032,8 +1032,8 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "Queue").setAddress(PagingTest.ADDRESS));
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "QueueOriginal").setAddress(PagingTest.ADDRESS + "Original"));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "Queue").setAddress(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "QueueOriginal").setAddress(PagingTest.ADDRESS + "Original"));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -1132,7 +1132,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(fqqn).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(fqqn).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer producer = session.createProducer(fqqn);
 
@@ -1193,7 +1193,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
       server.addAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       queue.getPageSubscription().getPagingStore().startPaging();
 
@@ -1295,7 +1295,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       Queue queue = server.locateQueue(PagingTest.ADDRESS);
 
@@ -1474,7 +1474,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, true, true);
 
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
          Queue queue = server.locateQueue(PagingTest.ADDRESS);
 
@@ -1587,9 +1587,9 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
-      session.createQueue(new QueueConfiguration("EXP"));
+      session.createQueue(QueueConfiguration.of("EXP"));
 
       Queue queue1 = server.locateQueue(ADDRESS);
       Queue qEXP = server.locateQueue(SimpleString.of("EXP"));
@@ -1711,9 +1711,9 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
-      session.createQueue(new QueueConfiguration(QUEUE2).setAddress(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(QUEUE2).setAddress(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -1839,7 +1839,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
-      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(false).setAutoCreateAddress(false));
+      QueueImpl purgeQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(false).setAutoCreateAddress(false));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
       Connection connection = cf.createConnection();
@@ -1889,7 +1889,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2063,7 +2063,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2129,7 +2129,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2239,9 +2239,9 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration("q1").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("q1").setAddress(ADDRESS.toString()));
 
-         session.createQueue(new QueueConfiguration("q2").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("q2").setAddress(ADDRESS.toString()));
 
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2351,9 +2351,9 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration("q1").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("q1").setAddress(ADDRESS.toString()));
 
-         session.createQueue(new QueueConfiguration("q2").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("q2").setAddress(ADDRESS.toString()));
 
          server.getPagingManager().getPageStore(ADDRESS).startPaging();
 
@@ -2472,8 +2472,8 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-invalid")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of(Filter.GENERIC_IGNORED_FILTER)));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("-invalid")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of(Filter.GENERIC_IGNORED_FILTER)));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2593,11 +2593,11 @@ public class PagingTest extends ParameterDBTestBase {
             ClientSession session = sf.createSession(false, false, false);
 
             if (divert) {
-               session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-1"));
-               session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-2"));
+               session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-1"));
+               session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-2"));
             } else {
-               session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-1").setAddress(PagingTest.ADDRESS));
-               session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-2").setAddress(PagingTest.ADDRESS));
+               session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-1").setAddress(PagingTest.ADDRESS));
+               session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-2").setAddress(PagingTest.ADDRESS));
             }
 
             ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -2770,8 +2770,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-1").setAddress(PagingTest.ADDRESS));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS + "-2").setAddress(PagingTest.ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-1").setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS + "-2").setAddress(PagingTest.ADDRESS).setDurable(false));
 
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -2871,7 +2871,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       Queue queue = server.locateQueue(ADDRESS);
       queue.getPageSubscription().getPagingStore().startPaging();
@@ -2975,7 +2975,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -3090,7 +3090,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientProducer producerTransacted = sessionTransacted.createProducer(PagingTest.ADDRESS);
 
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientMessage firstMessage = sessionTransacted.createMessage(IS_DURABLE_MESSAGE);
       firstMessage.getBodyBuffer().writeBytes(body);
@@ -3205,7 +3205,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientProducer producerTransacted = sessionTransacted.createProducer(PagingTest.ADDRESS);
 
       ClientSession sessionNonTX = sf.createSession(true, true, 0);
-      sessionNonTX.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      sessionNonTX.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producerNonTransacted = sessionNonTX.createProducer(PagingTest.ADDRESS);
 
@@ -3298,7 +3298,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, 0);
       session.start();
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       executorService.execute(() -> {
          ClientSession sessionProducer = null;
@@ -3426,7 +3426,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
       session.start();
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       producerThread.start();
 
@@ -3479,7 +3479,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -3575,7 +3575,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -3620,7 +3620,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       Queue queue = server.locateQueue(ADDRESS);
 
@@ -3743,7 +3743,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       final Queue queue1 = server.locateQueue(ADDRESS);
 
@@ -3852,7 +3852,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -3969,7 +3969,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -4080,7 +4080,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession sessionProducer = sf.createSession();
 
-      sessionProducer.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(PagingTest.ADDRESS);
 
@@ -4152,7 +4152,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientSession session = sf.createSession(null, null, false, !transacted, true, false, 0);
 
       for (int i = 0; i < NUMBER_OF_BINDINGS; i++) {
-         session.createQueue(new QueueConfiguration(SimpleString.of("someQueue" + i)).setAddress(PagingTest.ADDRESS).setDurable(true));
+         session.createQueue(QueueConfiguration.of(SimpleString.of("someQueue" + i)).setAddress(PagingTest.ADDRESS).setDurable(true));
       }
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -4223,7 +4223,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(PagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(PagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
          final CountDownLatch pageUp = new CountDownLatch(0);
          final CountDownLatch pageDone = new CountDownLatch(1);
@@ -4262,7 +4262,7 @@ public class PagingTest extends ParameterDBTestBase {
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
       server.start();
-      server.createQueue(new QueueConfiguration(PagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(PagingTest.ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       final CountDownLatch pageUp = new CountDownLatch(0);
       final CountDownLatch pageDone = new CountDownLatch(1);
@@ -4306,9 +4306,9 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, true, false);
 
-      session.createQueue(new QueueConfiguration(PAGED_ADDRESS));
+      session.createQueue(QueueConfiguration.of(PAGED_ADDRESS));
 
-      session.createQueue(new QueueConfiguration(NON_PAGED_ADDRESS));
+      session.createQueue(QueueConfiguration.of(NON_PAGED_ADDRESS));
 
       ClientProducer producerPaged = session.createProducer(PAGED_ADDRESS);
       ClientProducer producerNonPaged = session.createProducer(NON_PAGED_ADDRESS);
@@ -4389,7 +4389,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PAGED_ADDRESS));
+      session.createQueue(QueueConfiguration.of(PAGED_ADDRESS));
 
       Wait.assertTrue(() -> null != server.locateQueue(PAGED_ADDRESS));
 
@@ -4450,7 +4450,7 @@ public class PagingTest extends ParameterDBTestBase {
       int NQUEUES = 2;
 
       for (int i = 0; i < NQUEUES; i++) {
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=" + i)).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("propTest=" + i)).setDurable(true));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=" + i)).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("propTest=" + i)).setDurable(true));
       }
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -4530,8 +4530,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
 
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -4609,11 +4609,11 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
 
          // A queue with an impossible filter
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("-3")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("nothing='something'")));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("-3")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("nothing='something'")));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -4686,8 +4686,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS));
 
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -4790,8 +4790,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
-         session.createQueue(new QueueConfiguration("DLA"));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
+         session.createQueue(QueueConfiguration.of("DLA"));
 
          Queue serverQueue = server.locateQueue(ADDRESS);
 
@@ -4988,9 +4988,9 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSession session = sf.createSession(false, false, false);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
-         session.createQueue(new QueueConfiguration("DLA"));
+         session.createQueue(QueueConfiguration.of("DLA"));
 
          PagingStore pgStoreAddress = server.getPagingManager().getPageStore(ADDRESS);
          pgStoreAddress.startPaging();
@@ -5113,7 +5113,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -5184,7 +5184,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -5255,7 +5255,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = addClientSession(sf.createSession(true, true, 0));
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -5354,9 +5354,9 @@ public class PagingTest extends ParameterDBTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, 0);
 
-      session.createQueue(new QueueConfiguration("Q1").setAddress("Q").setFilterString("dest=1"));
-      session.createQueue(new QueueConfiguration("Q2").setAddress("Q").setFilterString("dest=2"));
-      session.createQueue(new QueueConfiguration("Q3").setAddress("Q").setFilterString("dest=3"));
+      session.createQueue(QueueConfiguration.of("Q1").setAddress("Q").setFilterString("dest=1"));
+      session.createQueue(QueueConfiguration.of("Q2").setAddress("Q").setFilterString("dest=2"));
+      session.createQueue(QueueConfiguration.of("Q3").setAddress("Q").setFilterString("dest=3"));
 
       Queue queue = server.locateQueue(SimpleString.of("Q1"));
       queue.getPageSubscription().getPagingStore().startPaging();
@@ -5415,15 +5415,15 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, false);
 
-         session.createQueue(new QueueConfiguration("Q1").setAddress(PagingTest.ADDRESS).setFilterString("destQ=1 or both=true"));
-         session.createQueue(new QueueConfiguration("Q2").setAddress(PagingTest.ADDRESS).setFilterString("destQ=2 or both=true"));
+         session.createQueue(QueueConfiguration.of("Q1").setAddress(PagingTest.ADDRESS).setFilterString("destQ=1 or both=true"));
+         session.createQueue(QueueConfiguration.of("Q2").setAddress(PagingTest.ADDRESS).setFilterString("destQ=2 or both=true"));
 
          if (deadConsumer) {
             // This queue won't receive any messages
-            session.createQueue(new QueueConfiguration("Q3").setAddress(ADDRESS.toString()).setFilterString("destQ=3"));
+            session.createQueue(QueueConfiguration.of("Q3").setAddress(ADDRESS.toString()).setFilterString("destQ=3"));
          }
 
-         session.createQueue(new QueueConfiguration("Q_initial").setAddress(ADDRESS.toString()).setFilterString("initialBurst=true"));
+         session.createQueue(QueueConfiguration.of("Q_initial").setAddress(ADDRESS.toString()).setFilterString("initialBurst=true"));
 
          ClientSession sessionConsumerQ3 = null;
 
@@ -5585,8 +5585,8 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
-         session.createQueue(new QueueConfiguration("Q1").setAddress(ADDRESS.toString()).setFilterString("dest=1"));
-         session.createQueue(new QueueConfiguration("Q2").setAddress(ADDRESS.toString()).setFilterString("dest=2"));
+         session.createQueue(QueueConfiguration.of("Q1").setAddress(ADDRESS.toString()).setFilterString("dest=1"));
+         session.createQueue(QueueConfiguration.of("Q2").setAddress(ADDRESS.toString()).setFilterString("dest=2"));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -5677,7 +5677,7 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
-         session.createQueue(new QueueConfiguration("Q1").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("Q1").setAddress(ADDRESS.toString()));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -5758,7 +5758,7 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
-         session.createQueue(new QueueConfiguration("Q1").setAddress(ADDRESS.toString()));
+         session.createQueue(QueueConfiguration.of("Q1").setAddress(ADDRESS.toString()));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -5840,8 +5840,8 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
-         session.createQueue(new QueueConfiguration("Q1").setAddress(ADDRESS.toString()).setFilterString("dest=1"));
-         session.createQueue(new QueueConfiguration("Q2").setAddress(ADDRESS.toString()).setFilterString("dest=2"));
+         session.createQueue(QueueConfiguration.of("Q1").setAddress(ADDRESS.toString()).setFilterString("dest=1"));
+         session.createQueue(QueueConfiguration.of("Q2").setAddress(ADDRESS.toString()).setFilterString("dest=2"));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 
@@ -5910,7 +5910,7 @@ public class PagingTest extends ParameterDBTestBase {
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
       ClientProducer prod = session.createProducer(ADDRESS);
 
       for (int i = 0; i < 100; i++) {
@@ -5950,8 +5950,8 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(false, false, 0);
 
-         session.createQueue(new QueueConfiguration("Q1"));
-         session.createQueue(new QueueConfiguration("Q2"));
+         session.createQueue(QueueConfiguration.of("Q1"));
+         session.createQueue(QueueConfiguration.of("Q2"));
 
          PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
 
@@ -6106,7 +6106,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, true, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -6186,7 +6186,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -6261,8 +6261,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(false, false, false);
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=1 or both=true")));
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=2 or both=true")));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString("destQ=1 or both=true"));
+         session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString("destQ=2 or both=true"));
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
          Queue queue = server.locateQueue(PagingTest.ADDRESS.concat("=1"));
          queue.getPageSubscription().getPagingStore().startPaging();
@@ -6334,8 +6334,8 @@ public class PagingTest extends ParameterDBTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=1")));
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString(SimpleString.of("destQ=2")));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=1")).setAddress(PagingTest.ADDRESS).setFilterString("destQ=1"));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS.concat("=2")).setAddress(PagingTest.ADDRESS).setFilterString("destQ=2"));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
       ClientConsumer consumer1 = session.createConsumer(PagingTest.ADDRESS.concat("=1"));
@@ -6404,7 +6404,7 @@ public class PagingTest extends ParameterDBTestBase {
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
          store.startPaging();
@@ -6477,7 +6477,7 @@ public class PagingTest extends ParameterDBTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingTest.ADDRESS));
 
       Queue queue = server.locateQueue(PagingTest.ADDRESS);
 
@@ -6541,7 +6541,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       } catch (Exception ignored) {
       }
 

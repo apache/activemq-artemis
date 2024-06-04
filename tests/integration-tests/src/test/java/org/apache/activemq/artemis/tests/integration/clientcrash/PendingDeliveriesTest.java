@@ -46,7 +46,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
    @BeforeEach
    public void createQueue() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.of("queue1"), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.ANYCAST));
    }
 
    private static final String AMQP_URI = "amqp://localhost:61616?amqp.saslLayer=false";

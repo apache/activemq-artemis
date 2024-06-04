@@ -1585,7 +1585,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new QueueConfiguration(name)
+      return QueueConfiguration.of(name)
               .setAddress(address)
               .setFilterString(filterString)
               .setDurable(durable)

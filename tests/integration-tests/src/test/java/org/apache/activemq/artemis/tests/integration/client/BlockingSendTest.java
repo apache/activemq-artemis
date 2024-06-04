@@ -57,7 +57,7 @@ public class BlockingSendTest extends ActiveMQTestBase {
 
       session = factory.createSession();
 
-      session.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("address");
 

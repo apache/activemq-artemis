@@ -119,7 +119,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testHangOnDelivery() throws Exception {
-      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      queue = server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
       try {
 
          ClientSessionFactory factory = locator.createSessionFactory();
@@ -288,7 +288,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       ((ActiveMQServerImpl) server).replaceQueueFactory(queueFactory);
 
-      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      queue = server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       blocked.acquire();
 
@@ -316,7 +316,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
 
       try {
-         server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
       } catch (Exception expected) {
       }
 
@@ -344,7 +344,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
     */
    @Test
    public void testForceDuplicationOnBindings() throws Exception {
-      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      queue = server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
@@ -378,7 +378,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
    // An exception during delivery shouldn't make the message disappear
    @Test
    public void testExceptionWhileDelivering() throws Exception {
-      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      queue = server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       HangInterceptor hangInt = new HangInterceptor();
       try {
@@ -432,7 +432,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < 5; i++) {
             if (server.locateQueue(SimpleString.of("tt")) == null) {
-               server.createQueue(new QueueConfiguration("tt").setRoutingType(RoutingType.ANYCAST).setFilterString(Filter.GENERIC_IGNORED_FILTER));
+               server.createQueue(QueueConfiguration.of("tt").setRoutingType(RoutingType.ANYCAST).setFilterString(Filter.GENERIC_IGNORED_FILTER));
             }
 
             server.stop();

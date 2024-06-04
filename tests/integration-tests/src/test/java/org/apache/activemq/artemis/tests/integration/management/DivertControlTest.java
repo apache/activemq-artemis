@@ -70,8 +70,8 @@ public class DivertControlTest extends ManagementTestBase {
    @Test
    public void testRetroactiveResourceAttribute() throws Exception {
       String address = RandomUtil.randomString();
-      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration forwardQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setAddress(address).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setAddress(address).setDurable(false);
 
       divertConfig = new DivertConfiguration()
          .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.of(address)).toString())
@@ -96,8 +96,8 @@ public class DivertControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration forwardQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
 
       divertConfig = new DivertConfiguration()
          .setName(RandomUtil.randomString())

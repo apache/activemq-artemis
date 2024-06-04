@@ -69,7 +69,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedAddress() throws Exception {
       // auto-delete-addresses defaults to true
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.getAddressInfo(addressA));
       cf.createSession().createConsumer(queueA).close();
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
@@ -79,7 +79,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
    @Test
    public void testNegativeAutoDeleteAutoCreatedAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteAddresses(false));
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.getAddressInfo(addressA));
       cf.createSession().createConsumer(queueA).close();
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
@@ -111,7 +111,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
       final int MESSAGE_COUNT = 10;
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(wildcardAddress).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(wildcardAddress).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
 
       ClientSession consumerSession = cf.createSession();
       ClientConsumer consumer = consumerSession.createConsumer(queue);

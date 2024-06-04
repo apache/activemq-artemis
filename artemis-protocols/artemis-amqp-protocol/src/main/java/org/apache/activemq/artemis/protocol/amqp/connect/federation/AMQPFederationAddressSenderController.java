@@ -167,7 +167,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       // Recover or create the queue we use to reflect the messages sent to the address to the remote
       QueueQueryResult queueQuery = sessionSPI.queueQuery(queueName, routingType, false);
       if (!queueQuery.isExists()) {
-         final QueueConfiguration configuration = new QueueConfiguration(queueName);
+         final QueueConfiguration configuration = QueueConfiguration.of(queueName);
 
          configuration.setAddress(address);
          configuration.setRoutingType(routingType);

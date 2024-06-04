@@ -87,7 +87,7 @@ public class CoreClientLeakTest extends AbstractLeakTest {
            ClientSession clientSession = sf.createSession()) {
          try {
             clientSession.start();
-            clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(true));
+            clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(true));
             CheckLeak checkLeak = new CheckLeak();
             int initialSimpleString = 0;
 

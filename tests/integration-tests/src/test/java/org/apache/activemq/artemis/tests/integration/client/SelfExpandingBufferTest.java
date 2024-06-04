@@ -71,7 +71,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
       try {
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          ClientMessage msg = session.createMessage(true);
 

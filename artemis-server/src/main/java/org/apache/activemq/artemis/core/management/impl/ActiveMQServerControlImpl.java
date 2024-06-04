@@ -1037,7 +1037,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createQueue(new QueueConfiguration(name).setAddress(address).setFilterString(filterStr).setDurable(durable));
+         server.createQueue(QueueConfiguration.of(name).setAddress(address).setFilterString(filterStr).setDurable(durable));
       } finally {
          blockOnIO();
       }
@@ -1275,7 +1275,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = SimpleString.of(filterStr);
          }
 
-         final Queue queue = server.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.valueOf(routingType.toUpperCase())).setFilterString(filter).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setExclusive(exclusive).setGroupRebalance(groupRebalance).setGroupBuckets(groupBuckets).setGroupFirstKey(groupFirstKey).setLastValue(lastValue).setLastValueKey(lastValueKey).setNonDestructive(nonDestructive).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch).setAutoDelete(autoDelete).setAutoDeleteDelay(autoDeleteDelay).setAutoDeleteMessageCount(autoDeleteMessageCount).setAutoCreateAddress(autoCreateAddress).setRingSize(ringSize));
+         final Queue queue = server.createQueue(QueueConfiguration.of(name).setAddress(address).setRoutingType(RoutingType.valueOf(routingType.toUpperCase())).setFilterString(filter).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setExclusive(exclusive).setGroupRebalance(groupRebalance).setGroupBuckets(groupBuckets).setGroupFirstKey(groupFirstKey).setLastValue(lastValue).setLastValueKey(lastValueKey).setNonDestructive(nonDestructive).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch).setAutoDelete(autoDelete).setAutoDeleteDelay(autoDeleteDelay).setAutoDeleteMessageCount(autoDeleteMessageCount).setAutoCreateAddress(autoCreateAddress).setRingSize(ringSize));
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.createQueueSuccess(name, address, routingType);
          }

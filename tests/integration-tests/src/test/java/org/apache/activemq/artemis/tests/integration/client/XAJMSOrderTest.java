@@ -92,7 +92,7 @@ public class XAJMSOrderTest extends JMSTestBase {
 
    @TestTemplate
    public void testPreparedRollbackACKWithRestart() throws Exception {
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       final int NUMBER_OF_MESSAGES = 30;
 

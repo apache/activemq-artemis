@@ -96,8 +96,8 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(0, 1);
 
-      getServer(0).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(0).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl0 = (QueueControl)getServer(0).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
@@ -196,7 +196,7 @@ public class RedirectTest extends RoutingTestBase {
       startServers(nodes);
 
       for (int node : nodes) {
-         getServer(node).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getServer(node).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
          queueControls[node] = (QueueControl)getServer(node).getManagementService()
             .getResource(ResourceNames.QUEUE + queueName);
@@ -282,8 +282,8 @@ public class RedirectTest extends RoutingTestBase {
 
       assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
 
-      getServer(0).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(0).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl0 = (QueueControl)getServer(0).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
@@ -352,9 +352,9 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(0, 1, 2);
 
-      getServer(0).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
-      getServer(2).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(0).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      getServer(2).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl0 = (QueueControl)getServer(0).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);

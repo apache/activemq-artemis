@@ -97,7 +97,7 @@ public class ProducerTest extends ActiveMQTestBase {
       server.getConfiguration().getAddressSettings().put(QUEUE.toString(), setting);
       server.start();
 
-      server.createQueue(new QueueConfiguration(QUEUE));
+      server.createQueue(QueueConfiguration.of(QUEUE));
 
       for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);

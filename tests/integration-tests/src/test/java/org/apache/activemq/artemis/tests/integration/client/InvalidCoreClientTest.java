@@ -79,7 +79,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
 
       clientSession = addClientSession(sessionFactory.createSession(true, false, false));
 
-      clientSession.createQueue(new QueueConfiguration(atestq));
+      clientSession.createQueue(QueueConfiguration.of(atestq));
    }
 
    @Test

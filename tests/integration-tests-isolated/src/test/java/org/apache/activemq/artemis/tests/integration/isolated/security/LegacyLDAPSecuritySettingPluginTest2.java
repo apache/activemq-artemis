@@ -164,7 +164,7 @@ public class LegacyLDAPSecuritySettingPluginTest2 extends AbstractLdapTestUnit {
 
       try {
          ClientSession session = cf.createSession("admin", "secret", false, true, true, false, 0);
-         session.createQueue(new QueueConfiguration(name));
+         session.createQueue(QueueConfiguration.of(name));
          ClientProducer producer = session.createProducer();
          producer.send(name, session.createMessage(false));
          session.close();

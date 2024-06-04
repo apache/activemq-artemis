@@ -76,7 +76,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
 
       assertTrue(failed, "Expected a failure on setting ACK Handler");
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
    }
 
    @Test
@@ -107,7 +107,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession(null, null, false, true, true, false, 1);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
 
       ClientProducer prod = session.createProducer(address);
 
@@ -139,7 +139,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession(null, null, false, true, true, false, 1);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
 
       ClientProducer prod = session.createProducer(address);
 

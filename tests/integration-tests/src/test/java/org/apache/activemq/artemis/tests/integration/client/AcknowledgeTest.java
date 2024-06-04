@@ -75,7 +75,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -105,7 +105,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 3;
@@ -143,7 +143,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -194,7 +194,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       sessionConsumer.start();
 
-      sessionConsumer.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+      sessionConsumer.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
 
       ClientConsumer consumer = sessionConsumer.createConsumer(queueA);
 
@@ -257,7 +257,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;

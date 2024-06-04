@@ -51,7 +51,7 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       SimpleString dlq = SimpleString.of("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
       ClientProducer producer = clientSession.createProducer(address);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();

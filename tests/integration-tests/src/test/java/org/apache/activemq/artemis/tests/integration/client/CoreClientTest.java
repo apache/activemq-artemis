@@ -125,7 +125,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -236,7 +236,7 @@ public class CoreClientTest extends ActiveMQTestBase {
          String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
-         session.createQueue(new QueueConfiguration(queueName).setAddress(prefix + baseAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(prefix + baseAddress).setDurable(false));
          consumerMap.put(address, session.createConsumer(queueName));
       }
 
@@ -244,7 +244,7 @@ public class CoreClientTest extends ActiveMQTestBase {
          String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
-         session.createQueue(new QueueConfiguration(queueName).setAddress(prefix + baseAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(prefix + baseAddress).setDurable(false));
          consumerMap.put(address, session.createConsumer(queueName));
       }
 

@@ -416,7 +416,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(false, false, false));
       try {
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
       } catch (ActiveMQException expected) {
          // in case of restart
       }

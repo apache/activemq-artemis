@@ -303,7 +303,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
       Queue queue = null;
       try {
          queue = server.getActiveMQServer()
-                       .createQueue(new QueueConfiguration(name).setAddress(address).setDurable(isUseDurableQueue()));
+                       .createQueue(QueueConfiguration.of(name).setAddress(address).setDurable(isUseDurableQueue()));
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s",
                                                                    address.toString(), name.toString()),
@@ -329,7 +329,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
    public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
       try {
          server.getActiveMQServer()
-               .createSharedQueue(new QueueConfiguration(name).setAddress(address)
+               .createSharedQueue(QueueConfiguration.of(name).setAddress(address)
                                                               .setRoutingType(RoutingType.MULTICAST)
                                                               .setDurable(isUseDurableQueue())
                                                               .setUser(user));

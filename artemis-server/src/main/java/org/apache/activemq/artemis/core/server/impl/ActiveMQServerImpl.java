@@ -2335,7 +2335,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                  boolean autoDelete,
                                  long autoDeleteDelay,
                                  long autoDeleteMessageCount) throws Exception {
-      createSharedQueue(new QueueConfiguration(name)
+      createSharedQueue(QueueConfiguration.of(name)
                            .setAddress(address)
                            .setRoutingType(routingType)
                            .setFilterString(filterString)
@@ -4067,7 +4067,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean autoCreateAddress,
                             final boolean configurationManaged,
                             final long ringSize) throws Exception {
-      return createQueue(new QueueConfiguration(queueName)
+      return createQueue(QueueConfiguration.of(queueName)
                             .setAddress(addrInfo == null ? null : addrInfo.getName())
                             .setRoutingType(addrInfo == null ? null : addrInfo.getRoutingType())
                             .setFilterString(filterString)
@@ -4395,7 +4395,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Long delayBeforeDispatch,
                             String user,
                             Long ringSize) throws Exception {
-      return updateQueue(new QueueConfiguration(name)
+      return updateQueue(QueueConfiguration.of(name)
                             .setRoutingType(routingType)
                             .setFilterString(filterString)
                             .setMaxConsumers(maxConsumers)

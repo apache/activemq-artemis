@@ -79,9 +79,9 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue = server.createQueue(new QueueConfiguration("performanceQueue").setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of("performanceQueue").setRoutingType(RoutingType.ANYCAST));
 
-      Queue queue2 = server.createQueue(new QueueConfiguration("stationaryQueue").setRoutingType(RoutingType.ANYCAST));
+      Queue queue2 = server.createQueue(QueueConfiguration.of("stationaryQueue").setRoutingType(RoutingType.ANYCAST));
 
       MyThread[] threads = new MyThread[NUMBER_OF_THREADS];
 

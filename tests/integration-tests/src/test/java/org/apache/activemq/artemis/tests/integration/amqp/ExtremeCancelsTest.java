@@ -72,7 +72,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    @Timeout(120)
    public void testLotsOfCloseOpenConsumer() throws Exception {
 
-      server.createQueue(new QueueConfiguration(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       AtomicInteger errors = new AtomicInteger(0);
       AtomicBoolean runnning = new AtomicBoolean(true);

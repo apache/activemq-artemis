@@ -294,7 +294,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
 
    private void createRemoteQueue(ClientSession clientSession, FederatedConsumerKey key) throws ActiveMQException {
       if (!clientSession.queueQuery(key.getQueueName()).isExists()) {
-         clientSession.createQueue(new QueueConfiguration(key.getQueueName())
+         clientSession.createQueue(QueueConfiguration.of(key.getQueueName())
                                       .setAddress(key.getAddress())
                                       .setRoutingType(key.getRoutingType())
                                       .setFilterString(key.getQueueFilterString())

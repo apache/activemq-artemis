@@ -60,7 +60,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
 
       AddressInfo addressInfo = new AddressInfo(SimpleString.of("Test"), RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
 
       StringBuffer textBody = new StringBuffer();
       for (int i = 0; i < 10; i++) {

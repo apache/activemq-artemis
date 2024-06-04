@@ -1278,7 +1278,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       CoreAddressConfiguration coreAddressConfiguration = new CoreAddressConfiguration();
       coreAddressConfiguration.addRoutingType(RoutingType.ANYCAST);
       coreAddressConfiguration.setName(TOPIC);
-      coreAddressConfiguration.addQueueConfiguration(new QueueConfiguration(TOPIC).setRoutingType(RoutingType.ANYCAST));
+      coreAddressConfiguration.addQueueConfiguration(QueueConfiguration.of(TOPIC).setRoutingType(RoutingType.ANYCAST));
       return coreAddressConfiguration;
    }
 

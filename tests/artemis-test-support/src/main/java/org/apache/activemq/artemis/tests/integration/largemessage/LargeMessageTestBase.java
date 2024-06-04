@@ -161,7 +161,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
             session.start(xid, XAResource.TMNOFLAGS);
          }
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 

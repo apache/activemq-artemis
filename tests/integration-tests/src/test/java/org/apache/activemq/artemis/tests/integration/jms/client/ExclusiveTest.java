@@ -53,7 +53,7 @@ public class ExclusiveTest extends JMSTestBase {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
    }
 
 

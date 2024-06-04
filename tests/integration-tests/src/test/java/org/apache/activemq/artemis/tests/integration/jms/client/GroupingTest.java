@@ -322,7 +322,7 @@ public class GroupingTest extends JMSTestBase {
 
       String testQueueName = getName() + "_bucket_group";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(2));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(2));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -403,7 +403,7 @@ public class GroupingTest extends JMSTestBase {
       assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -540,7 +540,7 @@ public class GroupingTest extends JMSTestBase {
       assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupRebalancePauseDispatch(true));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupRebalancePauseDispatch(true));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -684,7 +684,7 @@ public class GroupingTest extends JMSTestBase {
       assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_first_key";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupFirstKey(customFirstGroupKey));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupFirstKey(customFirstGroupKey));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -780,7 +780,7 @@ public class GroupingTest extends JMSTestBase {
       assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_disable";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(0));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(0));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 

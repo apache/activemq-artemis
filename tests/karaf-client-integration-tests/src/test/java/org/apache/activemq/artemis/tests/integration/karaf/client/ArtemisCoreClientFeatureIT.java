@@ -72,7 +72,7 @@ public class ArtemisCoreClientFeatureIT {
          // send message
          String textMessage = "Hello";
          message.getBodyBuffer().writeString(textMessage);
-         session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
          producer.send(message);
 
          // assert

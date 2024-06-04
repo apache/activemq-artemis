@@ -829,7 +829,7 @@ public class ScaleDownTest extends ClusterTestBase {
          SimpleString curQ = qName.concat(String.valueOf(i));
          SimpleString dlq = dla.concat(curAddr);
 
-         session.createQueue(new QueueConfiguration(curQ).setAddress(curAddr).setDurable(true));
+         session.createQueue(QueueConfiguration.of(curQ).setAddress(curAddr).setDurable(true));
          ClientProducer producer = session.createProducer(curAddr);
 
          for (int p = 0; p < messageCount; p++) {

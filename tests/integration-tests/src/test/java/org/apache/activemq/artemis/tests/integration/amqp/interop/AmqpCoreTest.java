@@ -75,9 +75,9 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       try {
          Session session = coreJmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ClientSession coreSession = ((ActiveMQSession) session).getCoreSession();
-         coreSession.createQueue(new QueueConfiguration("exampleQueue1").setAddress("exampleQueueAddress"));
-         coreSession.createQueue(new QueueConfiguration("exampleQueue2").setAddress("exampleQueueAddress"));
-         coreSession.createQueue(new QueueConfiguration("exampleQueue3").setAddress("exampleQueueAddress"));
+         coreSession.createQueue(QueueConfiguration.of("exampleQueue1").setAddress("exampleQueueAddress"));
+         coreSession.createQueue(QueueConfiguration.of("exampleQueue2").setAddress("exampleQueueAddress"));
+         coreSession.createQueue(QueueConfiguration.of("exampleQueue3").setAddress("exampleQueueAddress"));
 
          ClientConsumer consumer1 = coreSession.createConsumer("exampleQueue1");
          CoreMessageHandler handler1 = new CoreMessageHandler(1);

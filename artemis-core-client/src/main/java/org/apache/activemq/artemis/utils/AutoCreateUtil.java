@@ -49,7 +49,7 @@ public class AutoCreateUtil {
       if (!response.isExists() || !response.getQueueNames().contains(queueName)) {
          if (response.isAutoCreateQueues()) {
             try {
-               QueueConfiguration queueConfiguration = new QueueConfiguration(queueName)
+               QueueConfiguration queueConfiguration = QueueConfiguration.of(queueName)
                      .setAutoCreated(true)
                      .setAddress(destAddress);
                setRequiredQueueConfigurationIfNotSet(queueConfiguration,response, RoutingType.ANYCAST, selectorString, true);

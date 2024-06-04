@@ -141,8 +141,8 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
       assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
       assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
-      session.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST));
-      session.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("queue").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.ANYCAST));
       assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
       assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
       session.commit();

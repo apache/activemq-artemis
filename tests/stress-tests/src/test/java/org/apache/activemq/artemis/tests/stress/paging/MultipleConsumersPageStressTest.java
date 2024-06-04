@@ -104,7 +104,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
       server = createServer(true, createDefaultInVMConfig(), 10024, 200024, settings);
       server.start();
 
-      pagedServerQueue = (QueueImpl) server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      pagedServerQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
    }
 

@@ -52,7 +52,7 @@ public class XmlImportExportStressTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 

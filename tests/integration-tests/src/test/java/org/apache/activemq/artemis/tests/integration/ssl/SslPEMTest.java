@@ -98,7 +98,7 @@ public class SslPEMTest extends ActiveMQTestBase {
 
       producerSession = producerSessionFactory.createSession(false, true, true);
 
-      producerSession.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      producerSession.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
       ClientProducer producer = producerSession.createProducer(QUEUE);
 
       ClientMessage message = createTextMessage(producerSession, RandomUtil.randomString());

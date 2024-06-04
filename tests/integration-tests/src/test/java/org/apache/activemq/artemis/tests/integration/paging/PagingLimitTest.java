@@ -100,9 +100,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(queueNameTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameTX).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(queueNameNonTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(queueNameNonTX) != null);
       Wait.assertTrue(() -> server.locateQueue(queueNameTX) != null);
@@ -295,9 +295,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(queueNameTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameTX).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(queueNameNonTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(queueNameNonTX) != null);
       Wait.assertTrue(() -> server.locateQueue(queueNameTX) != null);

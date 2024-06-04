@@ -175,7 +175,7 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
          ClientSession session = createSession(sf, true, true);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          crash(primaryServer, backupServer, session);
 

@@ -447,7 +447,7 @@ public class ScaleDownHandler {
                                                               RoutingType routingType) throws Exception {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
-         session.createQueue(new QueueConfiguration(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
+         session.createQueue(QueueConfiguration.of(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
          if (logger.isDebugEnabled()) {
             logger.debug("Failed to get queue ID, creating queue [addressName={}, queueName={}, routingType={}, filter={}, durable={}]",
                       addressName, queue.getName(), queue.getRoutingType(), (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()), queue.isDurable());

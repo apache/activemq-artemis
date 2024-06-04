@@ -85,7 +85,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
       server.getConfiguration().clearAcceptorConfigurations().addAcceptorConfiguration("openwire", "tcp://localhost:61616?openwireUseDuplicateDetectionOnFailover=" + useDuplicate);
       server.start();
       server.waitForActivation(10, TimeUnit.SECONDS);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("failover:tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {

@@ -86,7 +86,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
       assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = Base64.encodeBytes(UUID.randomUUID().toString().getBytes());
       addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
@@ -104,7 +104,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
 
       assertEquals(1, addressControl.getQueueNames().length);
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       Wait.waitFor(() -> addressControl2.getQueueNames().length == 1);
 
       ClientProducer producer = session.createProducer(address);
@@ -153,7 +153,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
       assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = RandomUtil.randomString();
 

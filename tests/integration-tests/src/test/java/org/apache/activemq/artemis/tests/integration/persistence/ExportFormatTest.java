@@ -82,7 +82,7 @@ public class ExportFormatTest extends ActiveMQTestBase {
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration("A1"));
+      session.createQueue(QueueConfiguration.of("A1"));
 
       ClientProducer producer = session.createProducer("A1");
       for (int i = 0; i < 5; i++) {

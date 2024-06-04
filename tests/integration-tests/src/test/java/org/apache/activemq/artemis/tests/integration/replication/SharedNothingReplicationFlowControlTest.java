@@ -126,7 +126,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
+      sess.createQueue(QueueConfiguration.of("flowcontrol").setRoutingType(RoutingType.ANYCAST));
       sess.close();
 
       int i = 0;
@@ -237,7 +237,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
+      sess.createQueue(QueueConfiguration.of("flowcontrol").setRoutingType(RoutingType.ANYCAST));
 
       PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.of("flowcontrol"));
       store.startPaging();

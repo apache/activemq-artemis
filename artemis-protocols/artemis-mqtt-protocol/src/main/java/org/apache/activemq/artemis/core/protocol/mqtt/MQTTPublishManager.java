@@ -136,7 +136,7 @@ public class MQTTPublishManager {
    private void createManagementQueue() throws Exception {
       Queue q = session.getServer().locateQueue(managementAddress);
       if (q == null) {
-         session.getServer().createQueue(new QueueConfiguration(managementAddress)
+         session.getServer().createQueue(QueueConfiguration.of(managementAddress)
                                             .setRoutingType(RoutingType.ANYCAST)
                                             .setDurable(MQTTUtil.DURABLE_MESSAGES));
       }

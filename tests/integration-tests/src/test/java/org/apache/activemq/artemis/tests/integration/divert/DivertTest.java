@@ -137,9 +137,9 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -206,7 +206,7 @@ public class DivertTest extends ActiveMQTestBase {
       server.start();
 
       try {
-         server.createQueue(new QueueConfiguration(name));
+         server.createQueue(QueueConfiguration.of(name));
          fail();
       } catch (ActiveMQIllegalStateException e) {
          // expected
@@ -241,11 +241,11 @@ public class DivertTest extends ActiveMQTestBase {
 
          ClientSession session = sf.createSession(false, true, true);
 
-         session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName1).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST));
 
-         session.createQueue(new QueueConfiguration(SimpleString.of(testForConvert)).setAddress(testForConvert).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(SimpleString.of(testForConvert)).setAddress(testForConvert).setRoutingType(RoutingType.ANYCAST));
 
-         session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
       }
 
       ConnectionFactory coreCF = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
@@ -316,9 +316,9 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -391,9 +391,9 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -456,11 +456,11 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress));
 
-      session.createQueue(new QueueConfiguration(expiryAddress));
+      session.createQueue(QueueConfiguration.of(expiryAddress));
 
       session.start();
 
@@ -561,13 +561,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -663,7 +663,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName1 = SimpleString.of("queue1");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
       session.start();
 
@@ -723,11 +723,11 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -804,9 +804,9 @@ public class DivertTest extends ActiveMQTestBase {
       final SimpleString queueName2 = SimpleString.of("queue2");
       final SimpleString queueName3 = SimpleString.of("queue3");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
       session.start();
 
@@ -853,7 +853,7 @@ public class DivertTest extends ActiveMQTestBase {
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
 
 
-      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration q1 = QueueConfiguration.of("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
 
       Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
 
@@ -883,7 +883,7 @@ public class DivertTest extends ActiveMQTestBase {
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
 
 
-      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration q1 = QueueConfiguration.of("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
 
       Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
 
@@ -917,7 +917,7 @@ public class DivertTest extends ActiveMQTestBase {
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
 
 
-      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration q1 = QueueConfiguration.of("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
 
       Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
 
@@ -947,7 +947,7 @@ public class DivertTest extends ActiveMQTestBase {
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
 
 
-      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration q1 = QueueConfiguration.of("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
 
       AddressSettings addressSettings = new AddressSettings();
 
@@ -989,7 +989,7 @@ public class DivertTest extends ActiveMQTestBase {
       DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress2).setForwardingAddress(forwardAddress2).setExclusive(true);
 
 
-      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration q1 = QueueConfiguration.of("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
 
       AddressSettings addressSettings = new AddressSettings();
 
@@ -1058,13 +1058,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1173,13 +1173,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1277,13 +1277,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1375,13 +1375,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1521,13 +1521,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1646,13 +1646,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       session.start();
 
@@ -1734,7 +1734,7 @@ public class DivertTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(createBasicConfig(), null, null, null, serviceRegistry));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.createQueue(new QueueConfiguration("myQueue").setAddress(ADDRESS).setDurable(false));
+      server.createQueue(QueueConfiguration.of("myQueue").setAddress(ADDRESS).setDurable(false));
       server.deployDivert(new DivertConfiguration().setName(DIVERT).setAddress(ADDRESS.toString()).setForwardingAddress(ADDRESS.toString()));
       Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(ADDRESS).getBindings();
       Divert divert = null;
@@ -1759,7 +1759,7 @@ public class DivertTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(testAddress + (COUNT)).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(testAddress + (COUNT)).setRoutingType(RoutingType.ANYCAST));
       for (int i = 0; i < COUNT; i++) {
          server.deployDivert(new DivertConfiguration()
                                 .setName("divert" + i)
@@ -1808,7 +1808,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(queueName));
+      server.createQueue(QueueConfiguration.of(queueName));
       server.deployDivert(new DivertConfiguration()
                              .setName(DIVERT)
                              .setAddress(queueName)
@@ -1878,8 +1878,8 @@ public class DivertTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      session.createQueue(new QueueConfiguration(forwardAddress).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      session.createQueue(QueueConfiguration.of(testAddress).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      session.createQueue(QueueConfiguration.of(forwardAddress).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
       session.start();
 
       ClientProducer producer = session.createProducer(testAddress);

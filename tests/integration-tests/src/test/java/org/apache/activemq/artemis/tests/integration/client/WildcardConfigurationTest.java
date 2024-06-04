@@ -66,9 +66,9 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
       SimpleString queueName1 = SimpleString.of("Q1");
       SimpleString queueName2 = SimpleString.of("Q2");
       SimpleString queueName = SimpleString.of("Q");
-      clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName1).setAddress(addressAB).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName2).setAddress(addressAC).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
       ClientConsumer clientConsumer = clientSession.createConsumer(queueName);

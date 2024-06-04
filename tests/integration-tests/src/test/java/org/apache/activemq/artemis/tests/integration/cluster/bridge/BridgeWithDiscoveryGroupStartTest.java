@@ -124,12 +124,12 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
          List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
          List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigs(queueConfigs1);

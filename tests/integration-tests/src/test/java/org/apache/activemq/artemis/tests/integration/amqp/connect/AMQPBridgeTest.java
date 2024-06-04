@@ -90,7 +90,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       server.setIdentity("targetServer");
       server.start();
       server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -99,7 +99,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       if (!deferCreation) {
          server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST));
-         server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       server_2.setIdentity("serverWithBridge");
 
@@ -108,7 +108,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
 
       if (deferCreation) {
          server_2.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-         server_2.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         server_2.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
 
       if (restartBC) {
@@ -180,7 +180,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       server.start();
 
       server.addAddressInfo(new AddressInfo(SimpleString.of("TEST"), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("TEST").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("TEST").setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -194,7 +194,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("TEST").setType(AMQPBrokerConnectionAddressType.RECEIVER));
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("TEST").addRoutingType(RoutingType.ANYCAST));
-      server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration("TEST").setRoutingType(RoutingType.ANYCAST));
+      server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of("TEST").setRoutingType(RoutingType.ANYCAST));
       server_2.setIdentity("serverWithBridge");
 
       server_2.start();

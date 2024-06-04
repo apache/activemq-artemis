@@ -72,8 +72,8 @@ public class MQTTRedirectTest extends RoutingTestBase {
 
       startServers(0, 1);
 
-      getServer(0).createQueue(new QueueConfiguration(topicName).setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration(topicName).setRoutingType(RoutingType.ANYCAST));
+      getServer(0).createQueue(QueueConfiguration.of(topicName).setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of(topicName).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl0 = (QueueControl)getServer(0).getManagementService()
          .getResource(ResourceNames.QUEUE + topicName);

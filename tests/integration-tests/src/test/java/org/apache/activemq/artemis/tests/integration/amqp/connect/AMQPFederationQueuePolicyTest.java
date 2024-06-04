@@ -194,7 +194,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(routingType)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(routingType)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -264,7 +264,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setFilterString("color='red'")
                                                           .setAutoCreated(false));
@@ -331,7 +331,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setFilterString("color='red' OR color = 'blue'")
                                                           .setAutoCreated(false));
@@ -436,7 +436,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setFilterString("color='red' OR color = 'blue'")
                                                           .setAutoCreated(false));
@@ -509,7 +509,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -575,7 +575,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -640,7 +640,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -729,7 +729,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -796,10 +796,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.1").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.1").setRoutingType(RoutingType.ANYCAST)
                                                             .setAddress("addr1")
                                                             .setAutoCreated(false));
-         server.createQueue(new QueueConfiguration("test.2").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.2").setRoutingType(RoutingType.ANYCAST)
                                                             .setAddress("addr2")
                                                             .setAutoCreated(false));
 
@@ -877,7 +877,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -942,7 +942,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -1010,7 +1010,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -1105,7 +1105,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -1189,7 +1189,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -1284,7 +1284,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.queue").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.queue").setRoutingType(RoutingType.ANYCAST)
                                                                 .setAddress("test")
                                                                 .setAutoCreated(false));
 
@@ -1379,7 +1379,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -1462,7 +1462,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -1533,13 +1533,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test.1").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.1").setRoutingType(RoutingType.ANYCAST)
                                                             .setAddress("addr")
                                                             .setAutoCreated(false));
-         server.createQueue(new QueueConfiguration("test.2").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.2").setRoutingType(RoutingType.ANYCAST)
                                                             .setAddress("addr")
                                                             .setAutoCreated(false));
-         server.createQueue(new QueueConfiguration("test.3").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test.3").setRoutingType(RoutingType.ANYCAST)
                                                             .setAddress("addr")
                                                             .setAutoCreated(false));
 
@@ -1951,7 +1951,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    @Timeout(20)
    public void testRemoteBrokerAnswersAttachOfFederationReceiverProperly() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -1995,7 +1995,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    @Timeout(20)
    public void testRemoteBrokerRoutesInboundMessageToFederatedReceiver() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -2092,7 +2092,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                        .withSource().withAddress("test::test");
 
          // Now create it and try again
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2129,7 +2129,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       server.start();
 
       // Now create it and try again
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -2237,7 +2237,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    @Timeout(20)
    public void testRemoteBrokerRoutesInboundMessageToFederatedReceiverWithFilterApplied() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -2349,7 +2349,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2459,7 +2459,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2565,7 +2565,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2674,7 +2674,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2934,7 +2934,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    private void doTestCoreMessageHandlingBasedOnTunnelingState(boolean tunneling) throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -3015,7 +3015,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    private void doTestCoreLargeMessageHandlingBasedOnTunnelingState(boolean tunneling) throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -3114,7 +3114,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3380,7 +3380,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          // Manually add the address and a queue binding to create local demand.
          server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3570,7 +3570,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    @Timeout(20)
    public void testRemoteBrokerClosesFederationReceiverAfterQueueRemoved() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -3621,7 +3621,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          // has been added once more and it could restore the previous federation state.
          peer.expectTransfer().withPayload(payloadMatcher).withSettled(true);
 
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3630,7 +3630,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          // This time removing and restoring should generate no traffic as there was not
          // another federation receiver added.
          server.destroyQueue(SimpleString.of("test"), null, false, true);
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3680,7 +3680,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3793,7 +3793,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.registerBrokerPlugin(federationPlugin);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 

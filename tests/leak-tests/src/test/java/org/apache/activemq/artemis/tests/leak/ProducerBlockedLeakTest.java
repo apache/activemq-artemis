@@ -105,7 +105,7 @@ public class ProducerBlockedLeakTest extends AbstractLeakTest {
          AtomicInteger messagesSent = new AtomicInteger(0);
 
          server.addAddressInfo(new AddressInfo(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+         server.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
          // clients need to be disconnected while blocked. For that reason a new VM is being spawned
          Process process = SpawnedVMSupport.spawnVM(ProducerBlockedLeakTest.class.getName(), protocol, "10");

@@ -75,7 +75,7 @@ public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(false, createDefaultConfig(true));
       server.start();
 
-      Queue queue = server.createQueue(new QueueConfiguration(getName()).setDurable(true).setName(getName()).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(getName()).setDurable(true).setName(getName()).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();

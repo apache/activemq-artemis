@@ -311,8 +311,8 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagFalseWithSessionExpiryDelay() throws Exception {
       // enable send-to-dla-on-no-route so that we can detect an errant will message on disconnect
-      server.createQueue(new QueueConfiguration("activemq.notifications"));
-      server.createQueue(new QueueConfiguration("DLA"));
+      server.createQueue(QueueConfiguration.of("activemq.notifications"));
+      server.createQueue(QueueConfiguration.of("DLA"));
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setSendToDLAOnNoRoute(true).setDeadLetterAddress(SimpleString.of("DLA")));
 
       MqttClient client = createPahoClient("willGenerator");
@@ -348,7 +348,7 @@ public class MQTT5Test extends MQTT5TestSupport {
    public void testRecursiveWill() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final String WILL_QUEUE = "will";
-         server.createQueue(new QueueConfiguration(WILL_QUEUE).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(WILL_QUEUE).setRoutingType(RoutingType.ANYCAST));
          PagingManagerImplAccessor.setDiskFull((PagingManagerImpl) server.getPagingManager(), true);
          MqttClient client = createPahoClient("willGenerator");
          MqttConnectionOptions options = new MqttConnectionOptionsBuilder().will(WILL_QUEUE, new MqttMessage(RandomUtil.randomBytes())).build();

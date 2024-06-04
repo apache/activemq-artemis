@@ -281,7 +281,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    createPermissiveManagementNotificationToFilter() +
                                                    ")");
 
-         sessionConsumer.createQueue(new QueueConfiguration(notifQueueName)
+         sessionConsumer.createQueue(QueueConfiguration.of(notifQueueName)
                                         .setAddress(managementNotificationAddress)
                                         .setFilterString(filter)
                                         .setDurable(false)

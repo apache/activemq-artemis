@@ -30,7 +30,7 @@ public class QueueConfigurationTest {
 
    @Test
    public void testSetGroupRebalancePauseDispatch() {
-      QueueConfiguration queueConfiguration = new QueueConfiguration("TEST");
+      QueueConfiguration queueConfiguration = QueueConfiguration.of("TEST");
 
       assertNull(queueConfiguration.isGroupRebalancePauseDispatch());
 
@@ -55,7 +55,7 @@ public class QueueConfigurationTest {
    public void testFqqn() {
       final SimpleString ADDRESS = RandomUtil.randomSimpleString();
       final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
       assertTrue(queueConfiguration.isFqqn());
@@ -65,7 +65,7 @@ public class QueueConfigurationTest {
    public void testFqqnNegative() {
       final SimpleString ADDRESS = RandomUtil.randomSimpleString();
       final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(QUEUE).setAddress(ADDRESS);
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(QUEUE).setAddress(ADDRESS);
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
       assertFalse(queueConfiguration.isFqqn());
@@ -75,7 +75,7 @@ public class QueueConfigurationTest {
    public void testFqqnViaAddress() {
       final SimpleString ADDRESS = RandomUtil.randomSimpleString();
       final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(RandomUtil.randomSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
       assertTrue(queueConfiguration.isFqqn());

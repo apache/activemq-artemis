@@ -364,7 +364,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    protected void createProducerSendSomeMessages() throws ActiveMQException {
       session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
       if (producer != null)
          producer.close();
       producer = addClientProducer(session.createProducer(ADDRESS));

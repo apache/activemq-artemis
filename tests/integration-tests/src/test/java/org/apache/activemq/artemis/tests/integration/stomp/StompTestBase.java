@@ -199,7 +199,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                                 .addAcceptorConfiguration("stomp", stompAcceptorURI)
                                                 .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
                                                 .setConnectionTtlCheckInterval(500)
-                                                .addQueueConfiguration(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST))
+                                                .addQueueConfiguration(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST))
                                                 .addAddressConfiguration(new CoreAddressConfiguration().setName(getTopicName()).addRoutingType(RoutingType.MULTICAST));
 
       if (getIncomingInterceptors() != null) {

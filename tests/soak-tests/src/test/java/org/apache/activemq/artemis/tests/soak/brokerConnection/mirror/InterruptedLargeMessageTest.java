@@ -166,7 +166,7 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
       server.start();
       try {
          server.addAddressInfo(new AddressInfo(SNF_QUEUE).addRoutingType(RoutingType.ANYCAST).setInternal(false));
-         server.createQueue(new QueueConfiguration(SNF_QUEUE).setRoutingType(RoutingType.ANYCAST).setAddress(SNF_QUEUE).setDurable(true).setInternal(false));
+         server.createQueue(QueueConfiguration.of(SNF_QUEUE).setRoutingType(RoutingType.ANYCAST).setAddress(SNF_QUEUE).setDurable(true).setInternal(false));
       } catch (Throwable error) {
          logger.warn(error.getMessage(), error);
       }

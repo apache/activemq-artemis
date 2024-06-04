@@ -302,7 +302,7 @@ public class JMSOrderTest extends JMSTestBase {
    private void internalMultipleConsumers(final boolean rollback) throws Exception {
 
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       int numberOfMessages = 100;
       int numberOfConsumers = 3;

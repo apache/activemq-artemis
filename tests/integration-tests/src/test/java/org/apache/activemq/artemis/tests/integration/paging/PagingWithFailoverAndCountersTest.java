@@ -252,7 +252,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession();
 
-               session.createQueue(new QueueConfiguration("new-queue").setRoutingType(RoutingType.ANYCAST));
+               session.createQueue(QueueConfiguration.of("new-queue").setRoutingType(RoutingType.ANYCAST));
 
                session.start();
                ClientProducer prod = session.createProducer("new-queue");
@@ -292,8 +292,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
       ClientSession session = factory.createSession();
 
-      session.createQueue(new QueueConfiguration("DeadConsumer").setAddress("myAddress"));
-      session.createQueue(new QueueConfiguration("cons2").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("DeadConsumer").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("cons2").setAddress("myAddress"));
 
       startBackupInProcess();
 

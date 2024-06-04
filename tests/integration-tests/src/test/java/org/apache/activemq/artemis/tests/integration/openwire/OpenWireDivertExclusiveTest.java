@@ -61,10 +61,10 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress).setDurable(false));
 
       ClientProducer producer = coreSession.createProducer(SimpleString.of(testAddress));
 
@@ -127,8 +127,8 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
       final SimpleString queueName1 = SimpleString.of("queue1");
       final SimpleString queueName2 = SimpleString.of("queue2");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       coreSession.close();
 
       factory = new ActiveMQConnectionFactory(urlString);

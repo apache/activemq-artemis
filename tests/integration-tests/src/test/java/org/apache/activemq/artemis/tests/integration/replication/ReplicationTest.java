@@ -329,7 +329,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession();
       final ClientSession session2 = sf.createSession();
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       final ClientProducer producer = session.createProducer(ADDRESS);
 

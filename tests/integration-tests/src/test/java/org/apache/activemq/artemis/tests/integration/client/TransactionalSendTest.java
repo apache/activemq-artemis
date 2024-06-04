@@ -56,7 +56,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
@@ -82,7 +82,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {

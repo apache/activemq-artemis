@@ -76,7 +76,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 
@@ -96,7 +96,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 

@@ -104,7 +104,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
             factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:33333");
       }
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = factory.createConnection();
       runAfter(connection::close);
@@ -206,7 +206,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
             factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:44444");
       }
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = factory.createConnection();
       runAfter(connection::close);
@@ -311,7 +311,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
             factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:33333");
       }
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = factory.createConnection();
       runAfter(connection::close);

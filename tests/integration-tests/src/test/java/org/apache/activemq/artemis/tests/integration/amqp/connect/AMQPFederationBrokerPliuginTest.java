@@ -211,7 +211,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setAutoCreated(false));
       server.registerBrokerPlugin(federationPlugin);
@@ -370,7 +370,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setAutoCreated(false));
       server.registerBrokerPlugin(federationPlugin);

@@ -103,10 +103,10 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(createNonHALocator(false));
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
-      clientSession.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       try {
-         clientSession.createQueue(new QueueConfiguration("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSecurityException);
@@ -114,17 +114,17 @@ public class ResourceLimitTest extends ActiveMQTestBase {
 
       clientSession.deleteQueue("queue");
 
-      clientSession.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       try {
-         clientSession.createQueue(new QueueConfiguration("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSecurityException);
       }
 
       try {
-         clientSession.createSharedQueue(new QueueConfiguration("anotherQueue").setAddress("address").setDurable(false));
+         clientSession.createSharedQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSecurityException);

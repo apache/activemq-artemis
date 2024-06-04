@@ -124,7 +124,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, false);
-      clientSession.createQueue(new QueueConfiguration(atestq));
+      clientSession.createQueue(QueueConfiguration.of(atestq));
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);
    }
@@ -393,7 +393,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
          simpleTXSession.commit();
 
          // This test needs 2 queues
-         simpleTXSession.createQueue(new QueueConfiguration(outQueue));
+         simpleTXSession.createQueue(QueueConfiguration.of(outQueue));
 
          simpleTXSession.close();
       }

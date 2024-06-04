@@ -133,7 +133,7 @@ public class FailBackManualTest extends FailoverTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(ADDRESS).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(ADDRESS);

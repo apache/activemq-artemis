@@ -72,7 +72,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(SimpleSendReceiveSoakTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(SimpleSendReceiveSoakTest.ADDRESS));
 
       session.close();
    }

@@ -70,7 +70,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -136,7 +136,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -190,7 +190,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);

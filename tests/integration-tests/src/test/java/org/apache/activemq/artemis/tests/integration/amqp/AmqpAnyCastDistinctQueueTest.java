@@ -53,7 +53,7 @@ public class AmqpAnyCastDistinctQueueTest extends AmqpClientTestSupport {
       String ADDRESS_NAME = "DISTINCT_ADDRESS_testDistinctAddressAnyCast";
       String QUEUE_NAME = "DISTINCT_QUEUE_testDistinctQUEUE_AnyCast";
       server.addAddressInfo(new AddressInfo(ADDRESS_NAME).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(ADDRESS_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(ADDRESS_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       final int NUMBER_OF_MESSAGES = 100;
 

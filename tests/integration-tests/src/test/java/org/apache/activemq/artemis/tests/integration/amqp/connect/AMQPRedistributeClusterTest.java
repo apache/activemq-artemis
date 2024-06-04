@@ -108,7 +108,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
    private ActiveMQServer createClusteredServer(String name, int thisPort, int clusterPort, int mirrorPort) throws Exception {
       ActiveMQServer server = createServer(thisPort, false);
-      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST).addQueueConfig(new QueueConfiguration(QUEUE_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST)));
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST).addQueueConfig(QueueConfiguration.of(QUEUE_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST)));
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
       server.getConfiguration().clearAddressSettings();
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setRedistributionDelay(0));

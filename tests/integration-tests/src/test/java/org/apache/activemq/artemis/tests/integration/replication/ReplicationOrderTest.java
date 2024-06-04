@@ -61,7 +61,7 @@ public class ReplicationOrderTest extends FailoverTestBase {
          session = csf.createSession(true, true);
       }
       addClientSession(session);
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       ClientProducer producer = session.createProducer(address);
       boolean durable = false;
       for (int i = 0; i < ReplicationOrderTest.NUM; i++) {

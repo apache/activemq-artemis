@@ -262,7 +262,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          if (coreQ == null) {
             coreQ = SimpleString.of(qname);
             try {
-               this.server.createQueue(new QueueConfiguration(coreQ).setDurable(false));
+               this.server.createQueue(QueueConfiguration.of(coreQ).setDurable(false));
                testQueues.put(qname, coreQ);
             } catch (ActiveMQQueueExistsException e) {
                //ignore

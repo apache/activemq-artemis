@@ -262,7 +262,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(new QueueConfiguration(pageQueue));
+      clientSession.createQueue(QueueConfiguration.of(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -339,7 +339,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(new QueueConfiguration(pageQueue));
+      clientSession.createQueue(QueueConfiguration.of(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -988,7 +988,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
       SimpleString anewtestq = SimpleString.of("anewtestq");
-      clientSession.createQueue(new QueueConfiguration(anewtestq));
+      clientSession.createQueue(QueueConfiguration.of(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1074,7 +1074,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
       SimpleString anewtestq = SimpleString.of("anewtestq");
-      clientSession.createQueue(new QueueConfiguration(anewtestq));
+      clientSession.createQueue(QueueConfiguration.of(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1210,7 +1210,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, commitACKs);
       if (createQueue) {
-         clientSession.createQueue(new QueueConfiguration(atestq));
+         clientSession.createQueue(QueueConfiguration.of(atestq));
       }
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);

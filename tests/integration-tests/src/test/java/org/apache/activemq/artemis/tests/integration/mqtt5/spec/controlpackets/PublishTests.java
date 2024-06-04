@@ -830,7 +830,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalElapsed() throws Exception {
-      server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
 
@@ -878,7 +878,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalReturnValue() throws Exception {
-      server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 5L;

@@ -62,7 +62,7 @@ public class ShutdownServerTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 

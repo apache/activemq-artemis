@@ -171,7 +171,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
       long recordTime = getTimePerSync();
 
-      server.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
+      server.createQueue(QueueConfiguration.of("queue").setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
 
       ConnectionFactory factory = newCF();
 

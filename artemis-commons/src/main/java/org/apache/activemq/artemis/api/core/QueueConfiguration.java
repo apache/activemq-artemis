@@ -111,10 +111,51 @@ public class QueueConfiguration implements Serializable {
    private Boolean autoCreated;
    private Boolean fqqn;
 
+   /**
+    * Instance factory which invokes {@link #setName(SimpleString)}
+    *
+    * @see #setName(SimpleString)
+    *
+    * @param name the name to use for the queue
+    */
+   public static QueueConfiguration of(final String name) {
+      return new QueueConfiguration(name);
+   }
+
+   /**
+    * Instance factory which invokes {@link #setName(SimpleString)}
+    *
+    * @see #setName(SimpleString)
+    *
+    * @param name the name to use for the queue
+    */
+   public static QueueConfiguration of(final SimpleString name) {
+      return new QueueConfiguration(name);
+   }
+
+   /**
+    * @param queueConfiguration create a copy of this
+    */
+   public static QueueConfiguration of(final QueueConfiguration queueConfiguration) {
+      return new QueueConfiguration(queueConfiguration);
+   }
+
+   /**
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration() {
    }
 
-   public QueueConfiguration(QueueConfiguration o) {
+   /**
+    * @deprecated
+    * Use {@link #of(QueueConfiguration)} instead.
+    *
+    * @param o create a copy of this
+    */
+   @Deprecated(forRemoval = true)
+   public QueueConfiguration(final QueueConfiguration o) {
       id = o.id;
       name = o.name;
       address = o.address;
@@ -154,8 +195,12 @@ public class QueueConfiguration implements Serializable {
     *
     * @see #setName(SimpleString)
     *
+    * @deprecated
+    * Use {@link #of(SimpleString)} instead.
+    *
     * @param name the name to use for the queue
     */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration(SimpleString name) {
       setName(name);
    }
@@ -165,8 +210,12 @@ public class QueueConfiguration implements Serializable {
     *
     * @see #setName(SimpleString)
     *
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    *
     * @param name the name to use for the queue
     */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration(String name) {
       this(SimpleString.of(name));
    }
@@ -779,7 +828,7 @@ public class QueueConfiguration implements Serializable {
       if (!json.keySet().contains(NAME)) {
          return null;
       }
-      QueueConfiguration result = new QueueConfiguration(json.getString(NAME));
+      QueueConfiguration result = QueueConfiguration.of(json.getString(NAME));
 
       for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
          result.set(entry.getKey(), entry.getValue().getValueType() == JsonValue.ValueType.STRING ? ((JsonString)entry.getValue()).getString() : entry.getValue().toString());

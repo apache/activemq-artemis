@@ -99,7 +99,7 @@ public class NettyReplicationStopTest extends FailoverTestBase {
 
       ClientSession session = sf.createSession(true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

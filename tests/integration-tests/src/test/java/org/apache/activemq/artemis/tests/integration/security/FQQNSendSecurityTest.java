@@ -71,7 +71,7 @@ public class FQQNSendSecurityTest extends ActiveMQTestBase {
       securityManager.setConfiguration(securityConfiguration);
       server.setSecurityManager(securityManager);
 
-      configuration.addQueueConfiguration(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      configuration.addQueueConfiguration(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       server.start();
    }

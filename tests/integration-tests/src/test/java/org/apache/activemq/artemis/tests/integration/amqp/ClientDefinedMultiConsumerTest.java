@@ -84,7 +84,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration("myClientId.mySub:shared-volatile").setAddress(address).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of("myClientId.mySub:shared-volatile").setAddress(address).setAutoCreateAddress(false));
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));

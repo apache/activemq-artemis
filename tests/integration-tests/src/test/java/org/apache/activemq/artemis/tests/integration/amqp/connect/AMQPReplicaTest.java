@@ -125,7 +125,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true));
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
 
@@ -157,7 +157,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true));
 
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
@@ -205,7 +205,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       SimpleString queueName = RandomUtil.randomSimpleString();
 
       server_2.addAddressInfo(new AddressInfo(queueName).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(queueName).setDurable(true));
+      server_2.createQueue(QueueConfiguration.of(queueName).setDurable(true));
 
       Wait.assertTrue(() -> server_2.locateQueue(queueName) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
@@ -254,7 +254,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertTrue(server::isActive);
 
       server_2.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(ADDRESS_NAME).setDurable(true).setAddress(ADDRESS_NAME));
+      server_2.createQueue(QueueConfiguration.of(ADDRESS_NAME).setDurable(true).setAddress(ADDRESS_NAME));
 
       if (sendCreate) {
          Wait.assertTrue(() -> server.locateQueue(ADDRESS_NAME) != null);
@@ -274,7 +274,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server.setIdentity("Server1");
       server.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false).addRoutingType(RoutingType.MULTICAST));
       // This queue will disappear from the source, so it should go
-      server.createQueue(new QueueConfiguration("ToBeGone").setDurable(true).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("ToBeGone").setDurable(true).setRoutingType(RoutingType.MULTICAST));
       server.stop();
 
       server_2 = createServer(AMQP_PORT_2, false);
@@ -287,7 +287,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false).addRoutingType(RoutingType.MULTICAST));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true).setRoutingType(RoutingType.MULTICAST));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true).setRoutingType(RoutingType.MULTICAST));
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
 
@@ -329,7 +329,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false).addRoutingType(RoutingType.MULTICAST));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true).setRoutingType(RoutingType.MULTICAST));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true).setRoutingType(RoutingType.MULTICAST));
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
 
@@ -434,7 +434,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       // We create the address to avoid auto delete on the queue
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       assertFalse(loggerHandler.findText("AMQ222214"));
 
@@ -504,7 +504,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       // We create the address to avoid auto delete on the queue
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       assertFalse(loggerHandler.findText("AMQ222214"));
 
@@ -640,7 +640,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       // We create the address to avoid auto delete on the queue
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       int NUMBER_OF_MESSAGES = 200;
 
@@ -719,7 +719,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       // We create the address to avoid auto delete on the queue
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
       Connection connection = factory.createConnection();
@@ -1336,7 +1336,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       // We create the address to avoid auto delete on the queue
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
       Connection connection = factory.createConnection();

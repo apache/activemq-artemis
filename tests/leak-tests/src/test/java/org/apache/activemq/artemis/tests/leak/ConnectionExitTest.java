@@ -103,7 +103,7 @@ public class ConnectionExitTest extends AbstractLeakTest {
       server.start();
       server.addAddressInfo(new AddressInfo(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST));
 
-      serverQueue = server.createQueue(new QueueConfiguration().setAddress(QUEUE_NAME).setName(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      serverQueue = server.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
    }
 
    @Test

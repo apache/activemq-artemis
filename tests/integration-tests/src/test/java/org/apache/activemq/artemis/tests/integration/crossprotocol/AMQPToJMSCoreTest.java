@@ -51,7 +51,6 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    protected String queueName = "amqTestQueue1";
-   private SimpleString coreQueue;
 
    @Override
    @BeforeEach
@@ -66,8 +65,7 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
                                                                         .setAutoCreateAddresses(false)
                                                                         .setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
-      coreQueue = SimpleString.of(queueName);
-      server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
    }
 
    @Override

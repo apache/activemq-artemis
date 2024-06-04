@@ -257,7 +257,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       session = cf.createSession();
 
-      session.createQueue(new QueueConfiguration(InVMNonPersistentMessageBufferTest.queueName).setAddress(InVMNonPersistentMessageBufferTest.address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(InVMNonPersistentMessageBufferTest.queueName).setAddress(InVMNonPersistentMessageBufferTest.address).setRoutingType(RoutingType.ANYCAST));
 
       producer = session.createProducer(InVMNonPersistentMessageBufferTest.address);
 

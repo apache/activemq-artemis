@@ -80,7 +80,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
 
       // Session for creating the queue
       ClientSession session = sessionFactory.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration(queueName));
+      session.createQueue(QueueConfiguration.of(queueName));
       session.close();
 
       // Session for sending the message

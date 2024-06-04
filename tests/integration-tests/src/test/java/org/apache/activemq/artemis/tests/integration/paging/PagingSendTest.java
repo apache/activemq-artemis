@@ -100,7 +100,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingSendTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingSendTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingSendTest.ADDRESS);
 
@@ -144,7 +144,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       ClientSession sessionConsumer = sf.createSession(true, true, 0);
 
-      sessionConsumer.createQueue(new QueueConfiguration(PagingSendTest.ADDRESS));
+      sessionConsumer.createQueue(QueueConfiguration.of(PagingSendTest.ADDRESS));
 
       final ClientSession sessionProducer = sf.createSession(false, false);
       final ClientProducer producer = sessionProducer.createProducer(PagingSendTest.ADDRESS);
@@ -220,7 +220,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       // Create a queue
       SimpleString queueAddr = SimpleString.of("testQueue");
-      session.createQueue(new QueueConfiguration(queueAddr));
+      session.createQueue(QueueConfiguration.of(queueAddr));
 
       // Set up paging on the queue address
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
@@ -266,7 +266,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       // Create a queue
       SimpleString queueAddr = SimpleString.of("testQueue");
-      session.createQueue(new QueueConfiguration(queueAddr));
+      session.createQueue(QueueConfiguration.of(queueAddr));
 
       // Set up paging on the queue address
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)

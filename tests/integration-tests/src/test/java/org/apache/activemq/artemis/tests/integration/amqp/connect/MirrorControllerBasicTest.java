@@ -95,7 +95,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
    @Test
    public void testDirectSend() throws Exception {
       server.addAddressInfo(new AddressInfo("test").addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("test").setAddress("test").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("test").setAddress("test").setRoutingType(RoutingType.ANYCAST));
 
       Message message = AMQPMirrorMessageFactory.createMessage("test", SimpleString.of("ad1"), SimpleString.of("qu1"), "test", "someUID", "body-test", AckReason.KILLED);
       AMQPMirrorControllerSource.routeMirrorCommand(server, message);

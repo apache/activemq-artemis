@@ -74,14 +74,14 @@ public class SessionCloseTest extends ActiveMQTestBase {
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
          @Override
          public void run() throws ActiveMQException {
-            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setDurable(RandomUtil.randomBoolean()));
+            session.createQueue(QueueConfiguration.of(RandomUtil.randomSimpleString()).setDurable(RandomUtil.randomBoolean()));
          }
       });
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
          @Override
          public void run() throws ActiveMQException {
-            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(RandomUtil.randomSimpleString()).setDurable(false).setTemporary(true));
+            session.createQueue(QueueConfiguration.of(RandomUtil.randomSimpleString()).setAddress(RandomUtil.randomSimpleString()).setDurable(false).setTemporary(true));
          }
       });
 
@@ -204,7 +204,7 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);

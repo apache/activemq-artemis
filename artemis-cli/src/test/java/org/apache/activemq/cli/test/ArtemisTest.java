@@ -1855,7 +1855,7 @@ public class ArtemisTest extends CliTestBase {
       try {
          final int COUNT = 20_000;
          for (int i = 0; i < COUNT; i++) {
-            activeMQServer.createQueue(new QueueConfiguration("" + i));
+            activeMQServer.createQueue(QueueConfiguration.of("" + i));
          }
          TestActionContext context = new TestActionContext();
          StatQueue statQueue = new StatQueue();

@@ -66,7 +66,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+      session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -118,7 +118,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       final String prefix = "jms.queue.";
       final String destinationName = "test";
       final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
-      server.createQueue(new QueueConfiguration(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.start(new BootstrapContext());
@@ -867,7 +867,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+      session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();

@@ -197,7 +197,7 @@ public final class StompConnection extends AbstractRemotingConnection {
 
          // auto create the queue if the address is ANYCAST or FQQN
          if ((CompositeAddress.isFullyQualified(destination) || effectiveAddressRoutingType == RoutingType.ANYCAST) && addressSettings.isAutoCreateQueues() && manager.getServer().locateQueue(simpleDestination) == null) {
-            session.createQueue(new QueueConfiguration(destination).setRoutingType(effectiveAddressRoutingType).setAutoCreated(true));
+            session.createQueue(QueueConfiguration.of(destination).setRoutingType(effectiveAddressRoutingType).setAutoCreated(true));
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore

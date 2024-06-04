@@ -79,7 +79,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       int NUMBER_OF_CONNECTIONS = 100;
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
-      Queue serverQueue = server.createQueue(new QueueConfiguration("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
 
       ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_CONNECTIONS);
       runAfter(executorService::shutdownNow);
@@ -124,7 +124,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       int REPEATS = 10;
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
-      Queue serverQueue = server.createQueue(new QueueConfiguration("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
 
       ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_CONNECTIONS);
       runAfter(executorService::shutdownNow);
@@ -198,7 +198,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       int REPEATS = 10;
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
-      Queue serverQueue = server.createQueue(new QueueConfiguration("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
 
       ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_CONNECTIONS);
       runAfter(executorService::shutdownNow);
@@ -333,7 +333,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       ExecutorService executorService = Executors.newFixedThreadPool(1);
       runAfter(executorService::shutdownNow);
       runAfter(() -> running.set(false));
-      Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setAddress(getName()).setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setAddress(getName()).setAutoCreated(false));
 
       for (int i = 0; i < TEST_REPEATS; i++) {
          assertEquals(0, serverQueue.getConsumerCount());
@@ -404,7 +404,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
 
-      Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setAddress(getName()).setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setAddress(getName()).setAutoCreated(false));
 
       AtomicBoolean running = new AtomicBoolean(true);
       ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -514,7 +514,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();
 
-      Queue serverQueue = server.createQueue(new QueueConfiguration("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("test-queue").setRoutingType(RoutingType.ANYCAST).setAddress("test-queue").setAutoCreated(false));
 
       CountDownLatch beforeCreateCalled = new CountDownLatch(1);
       CountDownLatch goCreateConsumer = new CountDownLatch(1);

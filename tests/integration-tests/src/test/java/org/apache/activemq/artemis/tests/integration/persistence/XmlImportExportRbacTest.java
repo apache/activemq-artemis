@@ -106,7 +106,7 @@ public class XmlImportExportRbacTest extends ActiveMQTestBase {
    public void testExportWithOutAndWithQueueControlPerms() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 

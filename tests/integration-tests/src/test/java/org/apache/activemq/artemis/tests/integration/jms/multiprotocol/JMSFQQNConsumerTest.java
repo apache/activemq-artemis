@@ -185,7 +185,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
       // predefining the queue without a filter
       // so consumers will filter out messages
       server.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration().setAddress(address).setName(queue).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
 
       try (Connection c = factory.createConnection()) {
          c.start();

@@ -64,7 +64,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       server.getPostOffice()
             .addAddressInfo(new AddressInfo(SimpleString.of(defaultQueueName), RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override
