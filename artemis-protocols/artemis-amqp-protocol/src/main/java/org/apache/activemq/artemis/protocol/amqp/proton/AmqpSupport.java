@@ -116,6 +116,43 @@ public class AmqpSupport {
    public static final String TUNNEL_CORE_MESSAGES = "tunnel-core-messages";
 
    /**
+    * A priority value added to a remote receiver link attach that indicates the desired priority
+    * for the receiver created for the link.
+    */
+   public static final Symbol RECEIVER_PRIORITY = Symbol.getSymbol("priority");
+
+   /**
+    * Check the set of remote properties sent on link attach for any values that
+    * are treated as indicating priority and return the match if any. If no priority
+    * is indicated in the link properties this method returns null.
+    *
+    * @param remoteProperties
+    *       The {@link Map} of remote properties sent on the remote attach.
+    *
+    * @return a {@link Number} indicating the desired link priority or null if none.
+    */
+   public static Number getReceiverPriority(Map<Symbol, Object> remoteProperties) {
+      return getReceiverPriority(remoteProperties, null);
+   }
+
+   /**
+    * Check the set of remote properties sent on link attach for any values that
+    * are treated as indicating priority and return the match if any. If no priority
+    * is indicated in the link properties this method returns null.
+    *
+    * @param remoteProperties
+    *       The {@link Map} of remote properties sent on the remote attach.
+    * @param defaultPriority
+    *       The default value that should be returned if no remote priority indicated.
+    *
+    * @return a {@link Number} indicating the desired link priority or null if none.
+    */
+   public static Number getReceiverPriority(Map<Symbol, Object> remoteProperties, Number defaultPriority) {
+      final Number remotePriority = remoteProperties != null ? (Number) remoteProperties.get(RECEIVER_PRIORITY) : null;
+      return remotePriority != null ? remotePriority : defaultPriority;
+   }
+
+   /**
     * Search for a given Symbol in a given array of Symbol object.
     *
     * @param symbols the set of Symbols to search.

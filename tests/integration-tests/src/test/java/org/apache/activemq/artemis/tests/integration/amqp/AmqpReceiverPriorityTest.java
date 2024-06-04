@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -42,7 +43,6 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    @Test
    @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
    public void testPriority() throws Exception {
-
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
@@ -64,7 +64,6 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
 
       sendMessages(getQueueName(), 5);
 
-
       for (int i = 0; i < 5; i++) {
          AmqpMessage message1 = receiver1.receiveNoWait();
          AmqpMessage message2 = receiver2.receive(250, TimeUnit.MILLISECONDS);
@@ -75,6 +74,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
          assertNull(message1, "message is not meant to goto lower priority receiver");
          assertNull(message3, "message is not meant to goto lower priority receiver");
       }
+
       assertNoMessage(receiver1);
       assertNoMessage(receiver3);
 
@@ -92,8 +92,143 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
          message3.accept();
          assertNull(message1, "message is not meant to goto lower priority receiver");
       }
+
       assertNoMessage(receiver1);
 
+      connection.close();
+   }
+
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   public void testPrioritySetOnAddress() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      String queueName1 = getQueueName() + "?consumer-priority=5";
+      AmqpReceiver receiver1 = session.createReceiver(queueName1, null, false, false);
+      receiver1.flow(100);
+
+      String queueName2 = getQueueName() + "?consumer-priority=50";
+      AmqpReceiver receiver2 = session.createReceiver(queueName2, null, false, false);
+      receiver2.flow(100);
+
+      String queueName3 = getQueueName() + "?consumer-priority=10";
+      AmqpReceiver receiver3 = session.createReceiver(queueName3, null, false, false);
+      receiver3.flow(100);
+
+      sendMessages(getQueueName(), 5);
+
+      for (int i = 0; i < 5; i++) {
+         AmqpMessage message1 = receiver1.receiveNoWait();
+         AmqpMessage message2 = receiver2.receive(250, TimeUnit.MILLISECONDS);
+         AmqpMessage message3 = receiver3.receiveNoWait();
+         assertNotNull(message2, "did not receive message first time");
+         assertEquals("MessageID:" + i, message2.getMessageId());
+         message2.accept();
+         assertNull(message1, "message is not meant to goto lower priority receiver");
+         assertNull(message3, "message is not meant to goto lower priority receiver");
+      }
+
+      assertNoMessage(receiver1);
+      assertNoMessage(receiver3);
+
+      //Close the high priority receiver
+      receiver2.close();
+
+      sendMessages(getQueueName(), 5);
+
+      //Check messages now goto next priority receiver
+      for (int i = 0; i < 5; i++) {
+         AmqpMessage message1 = receiver1.receiveNoWait();
+         AmqpMessage message3 = receiver3.receive(250, TimeUnit.MILLISECONDS);
+         assertNotNull(message3, "did not receive message first time");
+         assertEquals("MessageID:" + i, message3.getMessageId());
+         message3.accept();
+         assertNull(message1, "message is not meant to goto lower priority receiver");
+      }
+
+      assertNoMessage(receiver1);
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   public void testAttachPropertiesPriorityTakesPrecedenceOverAddress() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      Map<Symbol, Object> properties1 = new HashMap<>();
+      properties1.put(Symbol.getSymbol("priority"), 5);
+      String queueName1 = getQueueName() + "?consumer-priority=50";
+      AmqpReceiver receiver1 = session.createReceiver(queueName1, null, false, false, properties1);
+      receiver1.flow(100);
+
+      Map<Symbol, Object> properties2 = new HashMap<>();
+      properties2.put(Symbol.getSymbol("priority"), 50);
+      String queueName2 = getQueueName() + "?consumer-priority=10&ingored-parameter=false";
+      AmqpReceiver receiver2 = session.createReceiver(queueName2, null, false, false, properties2);
+      receiver2.flow(100);
+
+      Map<Symbol, Object> properties3 = new HashMap<>();
+      properties3.put(Symbol.getSymbol("priority"), 10);
+      String queueName3 = getQueueName() + "?consumer-priority=5";
+      AmqpReceiver receiver3 = session.createReceiver(queueName3, null, false, false, properties3);
+      receiver3.flow(100);
+
+      sendMessages(getQueueName(), 5);
+
+      for (int i = 0; i < 5; i++) {
+         AmqpMessage message1 = receiver1.receiveNoWait();
+         AmqpMessage message2 = receiver2.receive(250, TimeUnit.MILLISECONDS);
+         AmqpMessage message3 = receiver3.receiveNoWait();
+         assertNotNull(message2, "did not receive message first time");
+         assertEquals("MessageID:" + i, message2.getMessageId());
+         message2.accept();
+         assertNull(message1, "message is not meant to goto lower priority receiver");
+         assertNull(message3, "message is not meant to goto lower priority receiver");
+      }
+
+      assertNoMessage(receiver1);
+      assertNoMessage(receiver3);
+
+      //Close the high priority receiver
+      receiver2.close();
+
+      sendMessages(getQueueName(), 5);
+
+      //Check messages now goto next priority receiver
+      for (int i = 0; i < 5; i++) {
+         AmqpMessage message1 = receiver1.receiveNoWait();
+         AmqpMessage message3 = receiver3.receive(250, TimeUnit.MILLISECONDS);
+         assertNotNull(message3, "did not receive message first time");
+         assertEquals("MessageID:" + i, message3.getMessageId());
+         message3.accept();
+         assertNull(message1, "message is not meant to goto lower priority receiver");
+      }
+
+      assertNoMessage(receiver1);
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   public void testBadValueInPriorityPropertyOnAddress() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      String queueName1 = getQueueName() + "?consumer-priority=test";
+
+      try {
+         session.createReceiver(queueName1, null, false, false);
+         fail("Should fail to create as query string is malformed.");
+      } catch (Exception e) {
+         // expected
+      }
 
       connection.close();
    }
@@ -116,9 +251,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
       testPriorityNumber(UnsignedInteger.valueOf(5));
    }
 
-
    private void testPriorityNumber(Number number) throws Exception {
-
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
@@ -129,7 +262,6 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
       receiver1.flow(100);
 
       sendMessages(getQueueName(), 2);
-
 
       for (int i = 0; i < 2; i++) {
          AmqpMessage message1 = receiver1.receive(3000, TimeUnit.MILLISECONDS);
