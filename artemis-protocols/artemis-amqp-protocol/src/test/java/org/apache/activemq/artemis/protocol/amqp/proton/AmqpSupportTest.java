@@ -17,9 +17,15 @@
 
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.RECEIVER_PRIORITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
@@ -151,5 +157,21 @@ public class AmqpSupportTest {
       Mockito.when(target.getCapabilities()).thenReturn(null);
 
       assertFalse(AmqpSupport.verifyTargetCapability(target, A));
+   }
+
+   @Test
+   public void testGetReceiverPriority() {
+      final Map<Symbol, Object> priorityPresent = Map.of(RECEIVER_PRIORITY, 10);
+      final Map<Symbol, Object> priorityNotPresent = Map.of(Symbol.valueOf("test"), 10);
+      final Map<Symbol, Object> priorityPresentButNotNumeric = Map.of(RECEIVER_PRIORITY, "test");
+
+      assertEquals(10, getReceiverPriority(priorityPresent));
+      assertEquals(10, getReceiverPriority(priorityPresent, 20));
+
+      assertNull(getReceiverPriority(priorityNotPresent));
+      assertEquals(10, getReceiverPriority(priorityNotPresent, 10));
+      assertEquals(10, getReceiverPriority(null, 10));
+
+      assertThrows(ClassCastException.class, () -> getReceiverPriority(priorityPresentButNotNumeric));
    }
 }

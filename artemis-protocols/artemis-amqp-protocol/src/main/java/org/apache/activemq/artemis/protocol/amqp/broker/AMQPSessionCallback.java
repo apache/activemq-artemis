@@ -16,8 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
+
 import java.lang.invoke.MethodHandles;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -82,8 +83,6 @@ import org.slf4j.LoggerFactory;
 public class AMQPSessionCallback implements SessionCallback {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final Symbol PRIORITY = Symbol.getSymbol("priority");
 
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
@@ -231,29 +230,66 @@ public class AMQPSessionCallback implements SessionCallback {
 
    }
 
-   public Object createSender(ProtonServerSenderContext protonSender,
-                              SimpleString queue,
-                              String filter,
-                              boolean browserOnly) throws Exception {
-      long consumerID = consumerIDGenerator.generateID();
+   /**
+    * Creates a server consume that reads from the given named queue and forwards the read messages to
+    * the AMQP sender to dispatch to the remote peer. The consumer priority value is extracted from the
+    * remote link properties that were assigned by the remote receiver.
+    *
+    * @param protonSender
+    *    The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
+    * @param queue
+    *    The target queue that the consumer reads from.
+    * @param filter
+    *    The filter assigned to the consumer of the target queue.
+    * @param browserOnly
+    *    Should the consumer act as a browser on the target queue.
+    *
+    * @return a new {@link ServerConsumer} attached to the given queue.
+    *
+    * @throws Exception if an error occurs while creating the consumer instance.
+    */
+   public ServerConsumer createSender(ProtonServerSenderContext protonSender,
+                                      SimpleString queue,
+                                      String filter,
+                                      boolean browserOnly) throws Exception {
+      return createSender(protonSender, queue, filter, browserOnly, getReceiverPriority(protonSender.getSender().getRemoteProperties()));
+   }
 
-      filter = SelectorTranslator.convertToActiveMQFilterString(filter);
-
-      int priority = getPriority(protonSender.getSender().getRemoteProperties());
-
-      ServerConsumer consumer = serverSession.createConsumer(consumerID, queue, SimpleString.toSimpleString(filter), priority, browserOnly, false, null);
+   /**
+    * Creates a server consume that reads from the given named queue and forwards the read messages to
+    * the AMQP sender to dispatch to the remote peer.
+    *
+    * @param protonSender
+    *    The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
+    * @param queue
+    *    The target queue that the consumer reads from.
+    * @param filter
+    *    The filter assigned to the consumer of the target queue.
+    * @param browserOnly
+    *    Should the consumer act as a browser on the target queue.
+    * @param priority
+    *    The priority to assign the new consumer (server defaults are used if not set).
+    *
+    * @return a new {@link ServerConsumer} attached to the given queue.
+    *
+    * @throws Exception if an error occurs while creating the consumer instance.
+    */
+   public ServerConsumer createSender(ProtonServerSenderContext protonSender,
+                                      SimpleString queue,
+                                      String filter,
+                                      boolean browserOnly,
+                                      Number priority) throws Exception {
+      final long consumerID = consumerIDGenerator.generateID();
+      final SimpleString filterString = SimpleString.toSimpleString(SelectorTranslator.convertToActiveMQFilterString(filter));
+      final int consumerPriority = priority != null ? priority.intValue() : ActiveMQDefaultConfiguration.getDefaultConsumerPriority();
+      final ServerConsumer consumer = serverSession.createConsumer(
+         consumerID, queue, filterString, consumerPriority, browserOnly, false, null);
 
       // AMQP handles its own flow control for when it's started
       consumer.setStarted(true);
-
       consumer.setProtocolContext(protonSender);
 
       return consumer;
-   }
-
-   private int getPriority(Map<Symbol, Object> properties) {
-      Number value = properties == null ? null : (Number) properties.get(PRIORITY);
-      return value == null ? ActiveMQDefaultConfiguration.getDefaultConsumerPriority() : value.intValue();
    }
 
    public void startSender(Object brokerConsumer) throws Exception {

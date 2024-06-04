@@ -23,10 +23,12 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SHARED;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.createQueueName;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifySourceCapability;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +39,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.ParameterisedAddress;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
@@ -115,6 +119,7 @@ public class DefaultSenderController implements SenderController {
       this.standardMessageWriter = new AMQPMessageWriter(senderContext);
       this.largeMessageWriter = new AMQPLargeMessageWriter(senderContext);
 
+      Map<String, String> addressParameters = Collections.EMPTY_MAP;
       Source source = (Source) protonSender.getRemoteSource();
       final Map<Symbol, Object> supportedFilters = new HashMap<>();
 
@@ -207,6 +212,10 @@ public class DefaultSenderController implements SenderController {
          }
          source.setAddress(queue.toString());
       } else {
+         final String sourceAddress = ParameterisedAddress.extractAddress(source.getAddress());
+
+         addressParameters = ParameterisedAddress.extractParameters(source.getAddress());
+
          SimpleString addressToUse;
          SimpleString queueNameToUse = null;
          shared = verifySourceCapability(source, SHARED);
@@ -215,14 +224,15 @@ public class DefaultSenderController implements SenderController {
          final boolean isFQQN;
 
          //find out if we have an address made up of the address and queue name, if yes then set queue name
-         if (CompositeAddress.isFullyQualified(source.getAddress())) {
+         if (CompositeAddress.isFullyQualified(sourceAddress)) {
             isFQQN = true;
-            addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
-            queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
+            addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(sourceAddress));
+            queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(sourceAddress));
          } else {
             isFQQN = false;
-            addressToUse = SimpleString.toSimpleString(source.getAddress());
+            addressToUse = SimpleString.toSimpleString(sourceAddress);
          }
+
          //check to see if the client has defined how we act
          boolean clientDefined = verifySourceCapability(source, TOPIC_CAPABILITY) || verifySourceCapability(source, QUEUE_CAPABILITY);
          if (clientDefined) {
@@ -409,16 +419,40 @@ public class DefaultSenderController implements SenderController {
       // have not honored what it asked for.
       source.setFilter(supportedFilters.isEmpty() ? null : supportedFilters);
 
-      boolean browseOnly = !multicast && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
+      final boolean browseOnly = !multicast && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
+      final Number consumerPriority = getReceiverPriority(protonSender.getRemoteProperties(), extractConsumerPriority(addressParameters));
 
-      return (Consumer) sessionSPI.createSender(senderContext, queue, multicast ? null : selector, browseOnly);
+      // Any new parameters used should be extracted from the values parsed from the address to avoid this log message.
+      if (!addressParameters.isEmpty()) {
+         final String unusedParametersMessage = ""
+            + " Not all specified address options were applicable to the created server consumer."
+            + " Check the options are spelled correctly."
+            + " Unused parameters=[" + addressParameters + "].";
+
+         logger.debug(unusedParametersMessage);
+      }
+
+      return sessionSPI.createSender(senderContext, queue, multicast ? null : selector, browseOnly, consumerPriority);
+   }
+
+   private static Number extractConsumerPriority(Map<String, String> addressParameters) {
+      if (addressParameters != null && !addressParameters.isEmpty() ) {
+         final String priorityString = addressParameters.remove(QueueConfiguration.CONSUMER_PRIORITY);
+         if (priorityString != null) {
+            return Integer.valueOf(priorityString);
+         }
+      }
+
+      return null;
    }
 
    @Override
    public void close() throws Exception {
       Source source = (Source) protonSender.getSource();
-      if (source != null && source.getAddress() != null && multicast) {
-         SimpleString queueName = SimpleString.toSimpleString(source.getAddress());
+      String sourceAddress = getSourceAddress(source);
+
+      if (source != null && sourceAddress != null && multicast) {
+         SimpleString queueName = SimpleString.toSimpleString(sourceAddress);
          QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);
          if (result.isExists() && source.getDynamic()) {
             sessionSPI.deleteQueue(queueName);
@@ -440,7 +474,7 @@ public class DefaultSenderController implements SenderController {
          }
       } else if (source != null && source.getDynamic() && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(source.getAddress()));
+            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(sourceAddress));
          } catch (Exception e) {
             // Ignore on close, its temporary anyway and will be removed later
          }
@@ -478,6 +512,14 @@ public class DefaultSenderController implements SenderController {
       }
 
       return null;
+   }
+
+   private static String getSourceAddress(Source source) {
+      if (source != null && source.getAddress() != null) {
+         return ParameterisedAddress.extractAddress(source.getAddress());
+      } else {
+         return null;
+      }
    }
 
    private void validateConnectionState() throws ActiveMQException {
