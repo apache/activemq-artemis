@@ -79,7 +79,7 @@ public class PageSizeTest extends ParameterDBTestBase {
       server.start();
       String addressName = "Q" + RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = cf.createConnection()) {

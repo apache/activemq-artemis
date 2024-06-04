@@ -1062,8 +1062,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = SimpleString.of("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1104,8 +1103,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMultipleConsumers() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = SimpleString.of("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1141,12 +1139,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = SimpleString.of("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      String durableQueue = "exampleQueue";
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 
-      Queue queue = new ActiveMQQueue("exampleQueue");
+      Queue queue = new ActiveMQQueue(durableQueue);
 
       openConn = openCF.createConnection();
 
@@ -1181,10 +1179,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample2() throws Exception {
       Connection conn1 = null;
 
-      SimpleString durableQueue = SimpleString.of("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      String durableQueue = "exampleQueue";
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
-      Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
+      Queue queue = ActiveMQJMSClient.createQueue(durableQueue);
 
       org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory artemisCF = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory();
 

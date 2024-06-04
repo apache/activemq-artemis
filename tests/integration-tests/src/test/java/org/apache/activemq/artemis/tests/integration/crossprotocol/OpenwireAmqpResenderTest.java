@@ -66,9 +66,9 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
       serverConfig.setSecurityEnabled(false);
       server.start();
 
-      server.createQueue(new QueueConfiguration(QUEUE_ZERO_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(QUEUE_ZERO_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
-      server.createQueue(new QueueConfiguration(QUEUE_ONE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(QUEUE_ONE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
    }
 
    @Override

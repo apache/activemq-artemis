@@ -87,7 +87,7 @@ public class ActiveMQConsumerDelegate extends AbstractActiveMQClientDelegate imp
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}",
                      this.getClass().getSimpleName(), queueName.toString(), queueName.toString());
             session.createAddress(queueName, RoutingType.MULTICAST, true);
-            session.createQueue(new QueueConfiguration(queueName));
+            session.createQueue(QueueConfiguration.of(queueName));
          }
          consumer = session.createConsumer(queueName, browseOnly);
       } catch (ActiveMQException amqEx) {

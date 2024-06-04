@@ -110,7 +110,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          ClientSession session = createSession(sf, false, true, true);
 
-         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
          assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
 

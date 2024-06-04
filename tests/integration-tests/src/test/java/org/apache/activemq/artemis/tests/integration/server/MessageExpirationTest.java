@@ -58,7 +58,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 
@@ -80,7 +80,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 
@@ -105,7 +105,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.close();
 
       session = addClientSession(sf.createSession(false, true, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -130,7 +130,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.close();
 
       session = addClientSession(sf.createSession(false, true, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -156,7 +156,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.close();
 
       session = addClientSession(sf.createSession(false, true, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -181,7 +181,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.close();
 
       session = addClientSession(sf.createSession(false, true, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -206,7 +206,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.close();
 
       session = addClientSession(sf.createSession(false, true, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);

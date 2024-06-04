@@ -59,8 +59,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(TARGET_QUEUE));
       }
 
       startServers();
@@ -127,8 +127,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(TARGET_QUEUE));
       }
 
       startServers();
@@ -230,8 +230,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
-         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(TARGET_QUEUE));
       }
 
       startBackups(0, 1, 3, 4);

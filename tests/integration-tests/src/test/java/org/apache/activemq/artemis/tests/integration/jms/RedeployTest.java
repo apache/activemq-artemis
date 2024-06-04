@@ -731,8 +731,8 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
 
-         embeddedActiveMQ.getActiveMQServer().createQueue(new QueueConfiguration("virtualQueue").setUser("bob"));
-         embeddedActiveMQ.getActiveMQServer().updateQueue(new QueueConfiguration("virtualQueue").setFilterString("foo"));
+         embeddedActiveMQ.getActiveMQServer().createQueue(QueueConfiguration.of("virtualQueue").setUser("bob"));
+         embeddedActiveMQ.getActiveMQServer().updateQueue(QueueConfiguration.of("virtualQueue").setFilterString("foo"));
 
          LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
                  .getBinding(SimpleString.of("virtualQueue"));

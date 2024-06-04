@@ -97,7 +97,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().addMatch(QUEUE.toString(), addressSettings);
 
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST)).getPageSubscription().getPagingStore().startPaging();
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST)).getPageSubscription().getPagingStore().startPaging();
 
       locator = createFactory(isNetty);
    }
@@ -106,7 +106,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
    public void testSlowConsumerWithSmallThreadPool() throws Exception {
       final int MESSAGE_COUNT = 2;
       CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
       /*
        * Even though the threadPoolMaxSize is 1 the client shouldn't stall on flow control due to the independent flow
        * control thread pool.
@@ -252,7 +252,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       SimpleString notifQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
+      session.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 
       ClientConsumer notifConsumer = session.createConsumer(notifQueue.toString(), ManagementHelper.HDR_NOTIFICATION_TYPE + "='" + CoreNotificationType.CONSUMER_SLOW + "'");
 
@@ -397,9 +397,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = addClientSession(sf.createSession(false, true, true, false));
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(addressAB).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(addressAC).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(addressAB);
       ClientProducer producer2 = session.createProducer(addressAC);
 

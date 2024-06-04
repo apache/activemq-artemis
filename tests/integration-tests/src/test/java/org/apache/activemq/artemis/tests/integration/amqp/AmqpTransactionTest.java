@@ -881,7 +881,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
    public void testSendPersistentTX() throws Exception {
       int MESSAGE_COUNT = 2000;
       AtomicInteger errors = new AtomicInteger(0);
-      server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1));
+      server.createQueue(QueueConfiguration.of("q1").setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1));
       ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:" + AMQP_PORT);
       Connection sendConnection = factory.createConnection();
       Connection consumerConnection = factory.createConnection();

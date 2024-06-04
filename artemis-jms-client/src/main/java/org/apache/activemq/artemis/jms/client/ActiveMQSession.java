@@ -1039,7 +1039,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          SimpleString simpleAddress = queue.getSimpleAddress();
 
-         session.createQueue(new QueueConfiguration(simpleAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false).setTemporary(true));
+         session.createQueue(QueueConfiguration.of(simpleAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false).setTemporary(true));
 
          connection.addTemporaryQueue(simpleAddress);
 
@@ -1073,7 +1073,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          // does not exist - otherwise we would not be able to distinguish from a non existent topic and one with no
          // subscriptions - core has no notion of a topic
 
-         session.createQueue(new QueueConfiguration(simpleAddress).setAddress(simpleAddress).setFilterString(ActiveMQSession.REJECTING_FILTER).setDurable(false).setTemporary(true));
+         session.createQueue(QueueConfiguration.of(simpleAddress).setAddress(simpleAddress).setFilterString(ActiveMQSession.REJECTING_FILTER).setDurable(false).setTemporary(true));
 
          connection.addTemporaryQueue(simpleAddress);
 
@@ -1292,19 +1292,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    }
 
    void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, false);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(false).setTemporary(true));
    }
 
    void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createSharedQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(durable));
    }
 
    void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setAutoCreated(autoCreated).setDurable(durable));
    }

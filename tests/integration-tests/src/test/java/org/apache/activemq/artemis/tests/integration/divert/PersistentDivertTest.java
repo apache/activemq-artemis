@@ -85,13 +85,13 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress));
 
       session.start();
 
@@ -240,13 +240,13 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress));
 
       ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 

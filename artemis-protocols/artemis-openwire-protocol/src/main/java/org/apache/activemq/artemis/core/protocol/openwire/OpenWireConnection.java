@@ -919,7 +919,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       SimpleString qName = SimpleString.of(dest.getPhysicalName());
 
-      AutoCreateResult autoCreateResult = internalSession.checkAutoCreate(new QueueConfiguration(qName)
+      AutoCreateResult autoCreateResult = internalSession.checkAutoCreate(QueueConfiguration.of(qName)
                                                                              .setRoutingType(dest.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST)
                                                                              .setDurable(!dest.isTemporary())
                                                                              .setTemporary(dest.isTemporary()));

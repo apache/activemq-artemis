@@ -107,7 +107,7 @@ public class StompStressTest extends ActiveMQTestBase {
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addQueueConfiguration(new QueueConfiguration(destination).setDurable(false));
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addQueueConfiguration(QueueConfiguration.of(destination).setDurable(false));
 
       return addServer(ActiveMQServers.newActiveMQServer(config));
    }

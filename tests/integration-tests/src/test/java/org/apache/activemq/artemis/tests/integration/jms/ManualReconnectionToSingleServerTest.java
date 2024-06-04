@@ -136,7 +136,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       Configuration configuration = new ConfigurationImpl();
 
-      configuration.getQueueConfigs().add(new QueueConfiguration(QUEUE_NAME));
+      configuration.getQueueConfigs().add(QueueConfiguration.of(QUEUE_NAME));
 
       ArrayList<TransportConfiguration> configs = new ArrayList<>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));

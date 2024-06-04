@@ -90,7 +90,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -160,7 +160,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -271,7 +271,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       for (int i = 0; i < TEST_SIZE; i++) {
          final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue_" + i);
 
-         session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setDurable(!temporary).setTemporary(temporary));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setDurable(!temporary).setTemporary(temporary));
 
          ClientProducer producer = session.createProducer(addressName);
 
@@ -337,7 +337,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       session.start();
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
-      session.createQueue(new QueueConfiguration(queueName));
+      session.createQueue(QueueConfiguration.of(queueName));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -391,7 +391,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -455,11 +455,11 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName3 = SimpleString.of("DuplicateDetectionTestQueue3");
 
-      session.createQueue(new QueueConfiguration(queueName1).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName1).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName2).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queueName3).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName3).setDurable(false));
 
       ClientProducer producer1 = session.createProducer(queueName1);
       ClientConsumer consumer1 = session.createConsumer(queueName1);
@@ -606,8 +606,8 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, true, true);
       session.start();
 
-      session.createQueue(new QueueConfiguration(globalSettingsQueueName).setDurable(false));
-      session.createQueue(new QueueConfiguration(addressSettingsQueueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(globalSettingsQueueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(addressSettingsQueueName).setDurable(false));
 
       ClientProducer addressSettingsProducer = session.createProducer(addressSettingsQueueName);
       ClientConsumer addressSettingsConsumer = session.createConsumer(addressSettingsQueueName);
@@ -673,7 +673,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -715,7 +715,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -751,7 +751,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -803,7 +803,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -843,9 +843,9 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queue2 = SimpleString.of("queue2");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
-      session.createQueue(new QueueConfiguration(queue2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue2).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -923,7 +923,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -992,7 +992,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1063,7 +1063,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1133,7 +1133,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1195,7 +1195,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName));
+      session.createQueue(QueueConfiguration.of(queueName));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1273,7 +1273,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1364,7 +1364,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1400,7 +1400,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1439,7 +1439,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1470,7 +1470,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1504,7 +1504,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1540,7 +1540,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1577,7 +1577,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1615,7 +1615,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1645,7 +1645,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1687,7 +1687,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1746,7 +1746,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1786,7 +1786,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1827,7 +1827,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1863,7 +1863,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 
@@ -1906,7 +1906,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       final SimpleString queueName = SimpleString.of("DuplicateDetectionTestQueue");
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       ClientProducer producer = session.createProducer(queueName);
 
@@ -1946,7 +1946,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       session.start();
 
-      session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
 
       producer = session.createProducer(queueName);
 

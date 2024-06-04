@@ -48,7 +48,7 @@ public class MixRoutingTest extends SingleServerTestBase {
    @Test
    public void testMix() throws Exception {
       SimpleString queueName = SimpleString.of(getName());
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -93,13 +93,12 @@ public class MixRoutingTest extends SingleServerTestBase {
 
    @Test
    public void testMix2() throws Exception {
-      SimpleString queueName = SimpleString.of(getName());
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      Queue queue = session.createQueue(queueName.toString());
+      Queue queue = session.createQueue(getName());
 
       MessageProducer prodQueue = session.createProducer(queue);
 
@@ -147,7 +146,7 @@ public class MixRoutingTest extends SingleServerTestBase {
       SimpleString topicName = SimpleString.of("topic" + getName());
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
       server.addAddressInfo(info);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

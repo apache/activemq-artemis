@@ -116,7 +116,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator().setGroupID("grp1");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
    }
 
    private static class DummyMessageHandler implements MessageHandler {

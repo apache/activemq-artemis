@@ -162,7 +162,7 @@ public class AMQPClusterReplicaTest extends AmqpClientTestSupport {
    private void configureAddressAndQueue(ActiveMQServer node) throws Exception {
       node.addAddressInfo(new AddressInfo("test").setAutoCreated(false));
       node.getAddressSettingsRepository().addMatch("test", new AddressSettings().setRedistributionDelay(0));
-      node.createQueue(new QueueConfiguration("test").setAddress("test").setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      node.createQueue(QueueConfiguration.of("test").setAddress("test").setRoutingType(RoutingType.ANYCAST).setDurable(true));
    }
 
    @Override

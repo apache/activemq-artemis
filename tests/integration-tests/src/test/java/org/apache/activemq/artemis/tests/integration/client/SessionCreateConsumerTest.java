@@ -56,7 +56,7 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumer() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName);
       assertNotNull(consumer);
    }
@@ -75,14 +75,14 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithFilter() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, "foo=bar");
       assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithInvalidFilter() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       try {
          clientSession.createConsumer(queueName, "this is not valid filter");
          fail("should throw exception");
@@ -95,14 +95,14 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithBrowseOnly() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, true);
       assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithOverrides() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, 100, 100, false);
       assertNotNull(consumer);
    }

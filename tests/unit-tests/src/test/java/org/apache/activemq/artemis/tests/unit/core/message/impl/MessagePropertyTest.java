@@ -60,7 +60,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
 
       String filter = null;
       session.createAddress(SimpleString.of(ADDRESS), RoutingType.MULTICAST, false);
-      session.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.MULTICAST).setFilterString(filter));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.MULTICAST).setFilterString(filter));
       ClientProducer producer = session.createProducer(ADDRESS);
 
       for (int i = 0; i < numMessages; i++) {

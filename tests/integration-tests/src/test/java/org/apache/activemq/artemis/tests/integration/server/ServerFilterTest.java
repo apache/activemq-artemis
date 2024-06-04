@@ -56,8 +56,8 @@ public class ServerFilterTest extends ActiveMQTestBase {
       final String xpathFilter = "XPATH '/a/b/c/d[text()=\"foo\"]'";
       final String text = "<a><b><c><d>foo</d></c></b></a>";
 
-      server.createQueue(new QueueConfiguration("A").setAddress(address).setFilterString(xpathFilter).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration("B").setAddress(address).setFilterString(xpathFilter).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("A").setAddress(address).setFilterString(xpathFilter).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of("B").setAddress(address).setFilterString(xpathFilter).setRoutingType(RoutingType.MULTICAST));
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       ExecutorService executor = Executors.newFixedThreadPool((int) threadCount);
       for (int i = 0; i < threadCount; i++) {

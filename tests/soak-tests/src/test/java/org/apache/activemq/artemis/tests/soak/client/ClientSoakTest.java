@@ -90,11 +90,11 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.ADDRESS));
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD1));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.DIVERTED_AD1));
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD2));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.DIVERTED_AD2));
 
       session.close();
 

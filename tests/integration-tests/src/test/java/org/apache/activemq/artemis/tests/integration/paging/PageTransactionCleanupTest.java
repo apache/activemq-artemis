@@ -68,8 +68,8 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue1 = server.createQueue(new QueueConfiguration("test1").setRoutingType(RoutingType.ANYCAST));
-      Queue queue2 = server.createQueue(new QueueConfiguration("test2").setRoutingType(RoutingType.ANYCAST));
+      Queue queue1 = server.createQueue(QueueConfiguration.of("test1").setRoutingType(RoutingType.ANYCAST));
+      Queue queue2 = server.createQueue(QueueConfiguration.of("test2").setRoutingType(RoutingType.ANYCAST));
 
       queue1.getPagingStore().startPaging();
       queue2.getPagingStore().startPaging();

@@ -92,7 +92,7 @@ public class JournalCrashTest extends SpawnedTestBase {
       try (ClientSession session = factory.createSession(false, false)) {
 
          try {
-            session.createQueue(new QueueConfiguration(QUEUE));
+            session.createQueue(QueueConfiguration.of(QUEUE));
          } catch (Exception ignored) {
          }
 

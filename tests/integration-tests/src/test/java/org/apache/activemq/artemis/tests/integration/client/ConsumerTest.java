@@ -138,7 +138,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       locator = createFactory(isNetty());
 
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
    }
 
    @TestTemplate
@@ -949,10 +949,10 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          sessions.add(session);
 
-         session.createQueue(new QueueConfiguration(QUEUE.concat("" + i)).setAddress(QUEUE).setDurable(true));
+         session.createQueue(QueueConfiguration.of(QUEUE.concat("" + i)).setAddress(QUEUE).setDurable(true));
 
          if (i == 0) {
-            session.createQueue(new QueueConfiguration(QUEUE_RESPONSE));
+            session.createQueue(QueueConfiguration.of(QUEUE_RESPONSE));
          }
 
          ClientConsumer consumer = session.createConsumer(QUEUE.concat("" + i));

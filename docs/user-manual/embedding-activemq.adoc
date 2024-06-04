@@ -47,7 +47,7 @@ ServerLocator serverLocator =  ActiveMQClient.createServerLocator("vm://0");
 ClientSessionFactory factory =  serverLocator.createSessionFactory();
 ClientSession session = factory.createSession();
 
-session.createQueue(new QueueConfiguration("example"));
+session.createQueue(QueueConfiguration.of("example"));
 
 ClientProducer producer = session.createProducer("example");
 ClientMessage message = session.createMessage(true);

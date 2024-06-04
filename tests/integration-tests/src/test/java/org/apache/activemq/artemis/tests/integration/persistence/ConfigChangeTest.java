@@ -54,7 +54,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.ANYCAST));
       addressConfigurations.add(addressConfiguration);
@@ -74,7 +74,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.MULTICAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.MULTICAST));
       addressConfigurations.clear();
@@ -105,7 +105,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter1)
                                    .setRoutingType(RoutingType.ANYCAST));
@@ -126,7 +126,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter2)
                                    .setRoutingType(RoutingType.ANYCAST));
@@ -163,8 +163,8 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       String queue = "Q1";
       String forward = "Q2";
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(queue).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
-      session.createQueue(new QueueConfiguration(forward).setAddress(forward).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(queue).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.createQueue(QueueConfiguration.of(forward).setAddress(forward).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
       session.close();
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName)

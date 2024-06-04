@@ -95,7 +95,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -168,7 +168,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -246,7 +246,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -349,7 +349,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 

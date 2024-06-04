@@ -89,7 +89,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);

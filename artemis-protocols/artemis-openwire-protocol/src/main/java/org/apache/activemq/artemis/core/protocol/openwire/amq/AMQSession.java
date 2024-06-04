@@ -243,7 +243,7 @@ public class AMQSession implements SessionCallback {
                routingTypeToUse = as.getDefaultAddressRoutingType();
             }
          }
-         AutoCreateResult autoCreateResult = coreSession.checkAutoCreate(new QueueConfiguration(queueName)
+         AutoCreateResult autoCreateResult = coreSession.checkAutoCreate(QueueConfiguration.of(queueName)
                                                                             .setAddress(queueName)
                                                                             .setRoutingType(routingTypeToUse)
                                                                             .setTemporary(isTemporary)

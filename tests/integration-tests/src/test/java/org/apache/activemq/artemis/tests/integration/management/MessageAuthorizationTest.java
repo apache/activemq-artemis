@@ -80,8 +80,8 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       plugin.init(Collections.emptyMap());
       server.registerBrokerPlugin(plugin);
       server.start();
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(TOPIC).setRoutingType(RoutingType.MULTICAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(TOPIC).setRoutingType(RoutingType.MULTICAST).setDurable(true));
    }
 
    @Test

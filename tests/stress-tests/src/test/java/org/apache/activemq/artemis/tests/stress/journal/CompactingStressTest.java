@@ -362,17 +362,17 @@ public class CompactingStressTest extends ActiveMQTestBase {
       ClientSession sess = addClientSession(sf.createSession());
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q1).setAddress(CompactingStressTest.AD1));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q1).setAddress(CompactingStressTest.AD1));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q2).setAddress(CompactingStressTest.AD2));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q2).setAddress(CompactingStressTest.AD2));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q3).setAddress(CompactingStressTest.AD3));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q3).setAddress(CompactingStressTest.AD3));
       } catch (Exception ignored) {
       }
 

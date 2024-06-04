@@ -89,7 +89,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
 
-      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 
@@ -165,7 +165,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(false, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 

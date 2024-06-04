@@ -243,7 +243,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          sessConsume.start();
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -343,7 +343,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -445,7 +445,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          sessConsume.start();
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -583,7 +583,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -722,7 +722,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          sessConsume.start();
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -796,7 +796,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -882,7 +882,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          sessConsume.start();
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -992,7 +992,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
          ClientSession sessConsume = sf.createSession(false, false, false);
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 
@@ -1094,7 +1094,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    protected void doTestI(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
+      sessCreate.createQueue(QueueConfiguration.of(ADDRESS).setDurable(false));
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1123,7 +1123,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    protected void doTestJ(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
+      sessCreate.createQueue(QueueConfiguration.of(ADDRESS).setDurable(false));
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1152,7 +1152,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    protected void doTestK(final ClientSessionFactory sf) throws Exception {
       ClientSession s = sf.createSession(false, false, false);
 
-      s.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
+      s.createQueue(QueueConfiguration.of(ADDRESS).setDurable(false));
 
       final int numConsumers = 100;
 
@@ -1180,7 +1180,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
    protected void doTestN(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(new QueueConfiguration(SimpleString.of(ADDRESS.toString())).setAddress(ADDRESS).setDurable(false));
+      sessCreate.createQueue(QueueConfiguration.of(ADDRESS).setDurable(false));
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1190,7 +1190,7 @@ public abstract class RandomReattachTestBase extends ActiveMQTestBase {
 
       sess.stop();
 
-      ClientConsumer consumer = sess.createConsumer(SimpleString.of(ADDRESS.toString()));
+      ClientConsumer consumer = sess.createConsumer(ADDRESS);
 
       ClientProducer producer = sess.createProducer(ADDRESS);
 

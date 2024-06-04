@@ -111,7 +111,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -172,7 +172,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -210,7 +210,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -253,7 +253,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -311,7 +311,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -372,7 +372,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -448,7 +448,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -525,7 +525,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
       ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       for (int i = 0; i < payload.length; i++) {
          payload[i] = RandomUtil.randomByte();
@@ -604,9 +604,9 @@ public class LargeMessageCompressTest extends LargeMessageTest {
       ClientProducer producer2 = session2.createProducer(address2);
       ClientProducer producer3 = session3.createProducer(address3);
 
-      session1.createQueue(new QueueConfiguration(address1));
-      session2.createQueue(new QueueConfiguration(address2));
-      session3.createQueue(new QueueConfiguration(address3));
+      session1.createQueue(QueueConfiguration.of(address1));
+      session2.createQueue(QueueConfiguration.of(address2));
+      session3.createQueue(QueueConfiguration.of(address3));
 
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       for (int i = 0; i < 20; i++) {

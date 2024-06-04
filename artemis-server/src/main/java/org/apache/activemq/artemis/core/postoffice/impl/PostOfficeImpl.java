@@ -607,13 +607,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             .setInternal(false);
          addAddressInfo(addressInfo);
 
-         server.createQueue(new QueueConfiguration(internalMulticastQueueName)
+         server.createQueue(QueueConfiguration.of(internalMulticastQueueName)
                                .setAddress(internalAddressName)
                                .setRoutingType(RoutingType.MULTICAST)
                                .setMaxConsumers(0)
                                .setRingSize(retroactiveMessageCount));
 
-         server.createQueue(new QueueConfiguration(internalAnycastQueueName)
+         server.createQueue(QueueConfiguration.of(internalAnycastQueueName)
                                .setAddress(internalAddressName)
                                .setRoutingType(RoutingType.ANYCAST)
                                .setMaxConsumers(0)
@@ -689,7 +689,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                    SimpleString user,
                                    Boolean configurationManaged,
                                    Long ringSize) throws Exception {
-      return updateQueue(new QueueConfiguration(name)
+      return updateQueue(QueueConfiguration.of(name)
                             .setRoutingType(routingType)
                             .setFilterString(filter.getFilterString())
                             .setMaxConsumers(maxConsumers)
@@ -1272,7 +1272,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    private AddressInfo checkAddress(RoutingContext context, SimpleString address) throws Exception {
       AddressInfo addressInfo = addressManager.getAddressInfo(address);
       if (addressInfo == null && context.getServerSession() != null) {
-         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(new QueueConfiguration(address).setRoutingType(context.getRoutingType()));
+         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(QueueConfiguration.of(address).setRoutingType(context.getRoutingType()));
          if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
             ActiveMQException ex = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
             if (context.getTransaction() != null) {
@@ -1289,7 +1289,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    Bindings simpleRoute(SimpleString address, RoutingContext context, Message message, AddressInfo addressInfo) throws Exception {
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
       if ((bindings == null || !bindings.hasLocalBinding()) && context.getServerSession() != null) {
-         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(new QueueConfiguration(address).setRoutingType(context.getRoutingType()));
+         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(QueueConfiguration.of(address).setRoutingType(context.getRoutingType()));
          if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
             ActiveMQException e = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
             Transaction tx = context.getTransaction();

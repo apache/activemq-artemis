@@ -215,7 +215,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                             .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
 
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -2499,7 +2499,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3119,7 +3119,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          // Manually add the address and a queue binding to create local demand.
          server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3204,7 +3204,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().optional();
          peer.expectDetach();
 
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
@@ -3285,7 +3285,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.expectDetach();
 
          // Triggers the initial attach based on demand.
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 

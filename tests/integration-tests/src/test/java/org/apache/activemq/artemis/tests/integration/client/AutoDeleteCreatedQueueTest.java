@@ -58,7 +58,7 @@ public class AutoDeleteCreatedQueueTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteCreatedQueueOnLastConsumerClose() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteCreatedQueues(true));
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       assertNotNull(server.locateQueue(queueA));
       assertTrue(server.locateQueue(queueA).isAutoDelete());
       cf.createSession().createConsumer(queueA).close();
@@ -70,8 +70,8 @@ public class AutoDeleteCreatedQueueTest extends ActiveMQTestBase {
    public void testAutoDeleteCreatedQueueDoesNOTDeleteConfigurationManagedQueuesOnLastConsumerClose() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteCreatedQueues(true));
 
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(queueConfigurationManaged).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false).setConfigurationManaged(true));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(queueConfigurationManaged).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false).setConfigurationManaged(true));
       assertNotNull(server.locateQueue(queueA));
       assertNotNull(server.locateQueue(queueConfigurationManaged));
       assertTrue(server.locateQueue(queueA).isAutoDelete());

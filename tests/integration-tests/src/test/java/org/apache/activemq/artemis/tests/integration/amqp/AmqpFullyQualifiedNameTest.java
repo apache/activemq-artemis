@@ -114,7 +114,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       if (autocreate) {
          server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
       } else {
-         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+         server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(multicastAddress).setDurable(false));
       }
 
       try (Connection connection = createConnection(false)) {
@@ -150,8 +150,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(new QueueConfiguration(queue1).setAddress(address1).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue2).setAddress(address2).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue1).setAddress(address1).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue2).setAddress(address2).setRoutingType(RoutingType.ANYCAST));
 
       Exception e = null;
 
@@ -182,8 +182,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(new QueueConfiguration(queue1).setAddress(address1));
-      server.createQueue(new QueueConfiguration(queue2).setAddress(address2));
+      server.createQueue(QueueConfiguration.of(queue1).setAddress(address1));
+      server.createQueue(QueueConfiguration.of(queue2).setAddress(address2));
 
       Exception e = null;
 
@@ -212,7 +212,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    public void testTopic() throws Exception {
 
       SimpleString queueName = SimpleString.of("someAddress");
-      server.createQueue(new QueueConfiguration(queueName).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -260,8 +260,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
       SimpleString queueName1 = SimpleString.of("sub.queue1");
       SimpleString queueName2 = SimpleString.of("sub.queue2");
-      server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
-      server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName1).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -294,9 +294,9 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false));
 
       server.addAddressInfo(new AddressInfo(anycastAddress).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = createConnection();
       try {
@@ -374,7 +374,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
     */
    @Test
    public void testQueueSpecial() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       Connection connection = createConnection();
       Exception expectedException = null;

@@ -64,7 +64,7 @@ public class PageStressTest extends ActiveMQTestBase {
 
       SimpleString address = SimpleString.of("page-adr");
 
-      session.createQueue(new QueueConfiguration(address));
+      session.createQueue(QueueConfiguration.of(address));
 
       ClientProducer prod = session.createProducer(address);
 
@@ -151,8 +151,8 @@ public class PageStressTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("page-adr");
       SimpleString[] queue = new SimpleString[]{SimpleString.of("queue1"), SimpleString.of("queue2")};
 
-      session.createQueue(new QueueConfiguration(queue[0]).setAddress(address));
-      session.createQueue(new QueueConfiguration(queue[1]).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue[0]).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue[1]).setAddress(address));
 
       ClientProducer prod = session.createProducer(address);
 

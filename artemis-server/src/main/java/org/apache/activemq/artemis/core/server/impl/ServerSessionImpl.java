@@ -712,7 +712,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final long autoDeleteMessageCount,
                             final boolean autoCreated,
                             final long ringSize) throws Exception {
-      return createQueue(new QueueConfiguration(name)
+      return createQueue(QueueConfiguration.of(name)
                             .setAddress(addressInfo.getName())
                             .setRoutingType(addressInfo.getRoutingType())
                             .setFilterString(filterString)
@@ -1041,7 +1041,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Boolean autoDelete,
                                  Long autoDeleteDelay,
                                  Long autoDeleteMessageCount) throws Exception {
-      createSharedQueue(new QueueConfiguration(name)
+      createSharedQueue(QueueConfiguration.of(name)
                                   .setAddress(address)
                                   .setFilterString(filterString)
                                   .setUser(getUsername())
@@ -1855,7 +1855,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             } else if (addressSettings.isAutoCreateQueues() || queueConfig.isTemporary()) {
                // Try to create the queue.
                try {
-                  createQueue(new QueueConfiguration(queueConfig).setAutoCreated(true));
+                  createQueue(QueueConfiguration.of(queueConfig).setAutoCreated(true));
                } catch (ActiveMQQueueExistsException e) {
                   // The queue may have been created by another thread in the mean-time. Catch and do nothing.
                }

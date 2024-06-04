@@ -101,14 +101,14 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       backupConfig = createDefaultInVMConfig().setBindingsDirectory(getBindingsDir(0, true)).
          setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).
          setLargeMessagesDirectory(getLargeMessagesDir(0, true));
-      backupConfig.addQueueConfiguration(new QueueConfiguration(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
-      backupConfig.addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      backupConfig.addQueueConfiguration(QueueConfiguration.of(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      backupConfig.addQueueConfiguration(QueueConfiguration.of(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       DivertConfiguration divertConfiguration = new DivertConfiguration().setName("Test").setAddress(SOURCE_QUEUE).setForwardingAddress(TARGET_QUEUE).setRoutingName("Test");
 
       primaryConfig = createDefaultInVMConfig();
-      primaryConfig.addQueueConfiguration(new QueueConfiguration(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
-      primaryConfig.addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      primaryConfig.addQueueConfiguration(QueueConfiguration.of(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      primaryConfig.addQueueConfiguration(QueueConfiguration.of(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
       primaryConfig.addDivertConfiguration(divertConfiguration);
 
       backupConfig.addDivertConfiguration(divertConfiguration);

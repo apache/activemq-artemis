@@ -611,7 +611,7 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       //Set queue up on all three brokers
 //      for (int i = 0; i < 3; i++) {
-//         getServer(i).createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+//         getServer(i).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 //      }
 
       //Connect broker 0 (consumer will be here at end of chain) to broker 1

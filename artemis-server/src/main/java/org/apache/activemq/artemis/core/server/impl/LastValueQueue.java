@@ -89,7 +89,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      this(new QueueConfiguration(name)
+      this(QueueConfiguration.of(name)
               .setId(persistenceID)
               .setAddress(address)
               .setFilterString(filter.getFilterString())

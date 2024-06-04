@@ -80,8 +80,8 @@ public class AddressingTest extends ActiveMQTestBase {
          addressInfo.addRoutingType(RoutingType.MULTICAST);
 
          server.addOrUpdateAddressInfo(addressInfo);
-         Queue q1 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".1")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.MULTICAST));
-         Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".2")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.MULTICAST));
+         Queue q1 = server.createQueue(QueueConfiguration.of(consumeAddress + ".1").setAddress(consumeAddress).setRoutingType(RoutingType.MULTICAST));
+         Queue q2 = server.createQueue(QueueConfiguration.of(consumeAddress + ".2").setAddress(consumeAddress).setRoutingType(RoutingType.MULTICAST));
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -112,8 +112,8 @@ public class AddressingTest extends ActiveMQTestBase {
       addressInfo.addRoutingType(RoutingType.MULTICAST);
 
       server.addOrUpdateAddressInfo(addressInfo);
-      Queue q1 = server.createQueue(new QueueConfiguration(SimpleString.of("1.test.address")).setAddress("test.address").setRoutingType(RoutingType.MULTICAST));
-      Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of("2.test.#")).setAddress("test.#").setRoutingType(RoutingType.MULTICAST));
+      Queue q1 = server.createQueue(QueueConfiguration.of("1.test.address").setAddress("test.address").setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(QueueConfiguration.of("2.test.#").setAddress("test.#").setRoutingType(RoutingType.MULTICAST));
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -133,7 +133,7 @@ public class AddressingTest extends ActiveMQTestBase {
       assertNotNull(consumer2.receive(2000));
 
       // add in a new wildcard producer, bindings version will be incremented
-      Queue q3 = server.createQueue(new QueueConfiguration(SimpleString.of("3.test.*")).setAddress("test.*").setRoutingType(RoutingType.MULTICAST));
+      Queue q3 = server.createQueue(QueueConfiguration.of("3.test.*").setAddress("test.*").setRoutingType(RoutingType.MULTICAST));
       ClientConsumer consumer3 = session.createConsumer(q3.getName());
 
       producer.send(m);
@@ -162,8 +162,8 @@ public class AddressingTest extends ActiveMQTestBase {
          addressInfo.addRoutingType(RoutingType.ANYCAST);
 
          server.addOrUpdateAddressInfo(addressInfo);
-         Queue q1 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".1")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-         Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".2")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+         Queue q1 = server.createQueue(QueueConfiguration.of(consumeAddress + ".1").setAddress(consumeAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+         Queue q2 = server.createQueue(QueueConfiguration.of(consumeAddress + ".2").setAddress(consumeAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -196,9 +196,9 @@ public class AddressingTest extends ActiveMQTestBase {
       addressInfo.addRoutingType(RoutingType.ANYCAST);
 
       server.addOrUpdateAddressInfo(addressInfo);
-      Queue q1 = server.createQueue(new QueueConfiguration(address.concat(".1")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q2 = server.createQueue(new QueueConfiguration(address.concat(".2")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q3 = server.createQueue(new QueueConfiguration(address.concat(".3")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q1 = server.createQueue(QueueConfiguration.of(address.concat(".1")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(QueueConfiguration.of(address.concat(".2")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q3 = server.createQueue(QueueConfiguration.of(address.concat(".3")).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -249,8 +249,8 @@ public class AddressingTest extends ActiveMQTestBase {
       for (String consumeAddress : testAddresses) {
 
          // For each address, create 2 Queues with the same address, assert both queues receive message
-         Queue q1 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".1")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.MULTICAST));
-         Queue q2 = server.createQueue(new QueueConfiguration(SimpleString.of(consumeAddress + ".2")).setAddress(SimpleString.of(consumeAddress)).setRoutingType(RoutingType.MULTICAST));
+         Queue q1 = server.createQueue(QueueConfiguration.of(consumeAddress + ".1").setAddress(consumeAddress).setRoutingType(RoutingType.MULTICAST));
+         Queue q2 = server.createQueue(QueueConfiguration.of(consumeAddress + ".2").setAddress(consumeAddress).setRoutingType(RoutingType.MULTICAST));
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -276,7 +276,7 @@ public class AddressingTest extends ActiveMQTestBase {
    public void testPurgeOnNoConsumersTrue() throws Exception {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
-      server.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true));
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true));
       Queue queue = server.locateQueue(queueName);
       assertNotNull(queue);
       ClientSession session = sessionFactory.createSession();
@@ -306,7 +306,7 @@ public class AddressingTest extends ActiveMQTestBase {
    public void testPurgeOnNoConsumersFalse() throws Exception {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
-      server.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1));
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1));
       assertNotNull(server.locateQueue(queueName));
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(address);
@@ -327,9 +327,9 @@ public class AddressingTest extends ActiveMQTestBase {
 
       //Validate default is enabled, and check that queues enabled receive messages and disabled do not on same address.
 
-      server.createQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.createQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.createQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.createQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
 
       assertNotNull(server.locateQueue(defaultQueue));
       assertNotNull(server.locateQueue(enabledQueue));
@@ -347,9 +347,9 @@ public class AddressingTest extends ActiveMQTestBase {
       Wait.assertEquals(0, server.locateQueue(disabledQueue)::getMessageCount);
 
       //Update Queue Disable All
-      server.updateQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
 
       producer.send(session.createMessage(true));
 
@@ -359,9 +359,9 @@ public class AddressingTest extends ActiveMQTestBase {
 
 
       //Update Queue Enable All
-      server.updateQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.updateQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.updateQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
 
 
       producer.send(session.createMessage(true));
@@ -378,7 +378,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean purgeOnNoConsumers = false;
-      Queue q1 = server.createQueue(new QueueConfiguration(queueName).setAddress(address).setMaxConsumers(0).setPurgeOnNoConsumers(purgeOnNoConsumers));
+      Queue q1 = server.createQueue(QueueConfiguration.of(queueName).setAddress(address).setMaxConsumers(0).setPurgeOnNoConsumers(purgeOnNoConsumers));
 
       Exception expectedException = null;
       String expectedMessage = "Maximum Consumer Limit Reached on Queue";
@@ -404,7 +404,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean purgeOnNoConsumers = false;
-      Queue q1 = server.createQueue(new QueueConfiguration(queueName).setAddress(address).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED).setPurgeOnNoConsumers(purgeOnNoConsumers));
+      Queue q1 = server.createQueue(QueueConfiguration.of(queueName).setAddress(address).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED).setPurgeOnNoConsumers(purgeOnNoConsumers));
 
       ClientSession session = sessionFactory.createSession();
       session.start();

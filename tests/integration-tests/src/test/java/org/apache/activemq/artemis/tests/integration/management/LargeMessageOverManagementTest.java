@@ -80,8 +80,8 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString emptyqueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
-      session.createQueue(new QueueConfiguration(emptyqueue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(emptyqueue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -122,7 +122,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
       int bodySize = server.getConfiguration().getJournalBufferSize_AIO();
       byte[] bigData = createBytesData(bodySize);

@@ -136,7 +136,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      guestSession.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      guestSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       SSLSecurityNotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
@@ -229,7 +229,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       adminSession = sf.createSession(true, true, 1);
       adminSession.start();
 
-      adminSession.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
+      adminSession.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }

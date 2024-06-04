@@ -42,7 +42,7 @@ public class TempQueueNamespaceTest extends SingleServerTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue);
       assertEquals(RING_SIZE, queueControl.getRingSize());
@@ -57,7 +57,7 @@ public class TempQueueNamespaceTest extends SingleServerTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       assertNotEquals(10, (long) server.locateQueue(queue).getQueueConfiguration().getRingSize());
 

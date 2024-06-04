@@ -196,7 +196,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
       SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection("guest", "guest");
@@ -221,7 +221,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
       SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -267,7 +267,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistentJMS2() throws Exception {
       SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -313,7 +313,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendLargeNonPersistent() throws Exception {
       SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);

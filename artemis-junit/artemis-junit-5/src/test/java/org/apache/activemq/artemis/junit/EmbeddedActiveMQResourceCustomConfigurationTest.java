@@ -38,7 +38,7 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
-   QueueConfiguration queueConfiguration = new QueueConfiguration(TEST_QUEUE).setAddress(TEST_ADDRESS);
+   QueueConfiguration queueConfiguration = QueueConfiguration.of(TEST_QUEUE).setAddress(TEST_ADDRESS);
    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
    @RegisterExtension

@@ -62,7 +62,7 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
                for (int i = 0; i < retries; i++) {
                   logger.debug("Removed queue on thread 1 ::{}", i);
-                  server.createQueue(new QueueConfiguration("queueName_1_" + i).setAddress("address_1_" + i).setRoutingType(RoutingType.ANYCAST));
+                  server.createQueue(QueueConfiguration.of("queueName_1_" + i).setAddress("address_1_" + i).setRoutingType(RoutingType.ANYCAST));
                   server.destroyQueue(SimpleString.of("queueName_1_" + i));
                }
             } catch (Throwable e) {
@@ -81,7 +81,7 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
                for (int i = 0; i < retries; i++) {
                   logger.debug("Removed queue on thread 2 ::{}", i);
-                  server.createQueue(new QueueConfiguration("queueName_2_" + i).setAddress("address_2_" + i).setRoutingType(RoutingType.ANYCAST));
+                  server.createQueue(QueueConfiguration.of("queueName_2_" + i).setAddress("address_2_" + i).setRoutingType(RoutingType.ANYCAST));
                   server.removeAddressInfo(SimpleString.of("address_2_" + i), null, true);
                }
             } catch (Throwable e) {

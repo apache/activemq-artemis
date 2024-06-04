@@ -189,7 +189,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration(queueName)
+      return QueueConfiguration.of(queueName)
          .setAddress(address)
          .setDurable(durable)
          .setRoutingType(routingType)

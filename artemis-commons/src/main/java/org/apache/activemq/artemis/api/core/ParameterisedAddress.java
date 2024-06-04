@@ -89,7 +89,7 @@ public class ParameterisedAddress {
          this.queueConfiguration = null;
       } else {
          this.address = SimpleString.of(address.substring(0, index));
-         QueueConfiguration queueConfiguration = new QueueConfiguration(address);
+         QueueConfiguration queueConfiguration = QueueConfiguration.of(address);
          parseQuery(address).forEach(queueConfiguration::set);
          this.queueConfiguration = queueConfiguration;
       }

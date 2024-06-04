@@ -126,7 +126,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(new QueueConfiguration(ADDRESS));
+         session2.createQueue(QueueConfiguration.of(ADDRESS));
          addSessionFactory(sf2);
       }
 
@@ -154,7 +154,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(new QueueConfiguration(ADDRESS));
+         session2.createQueue(QueueConfiguration.of(ADDRESS));
          addSessionFactory(sf2);
       }
       return sf;
@@ -180,7 +180,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
          addSessionFactory(sf2);
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(new QueueConfiguration(ADDRESS));
+         session2.createQueue(QueueConfiguration.of(ADDRESS));
       }
    }
 
@@ -204,7 +204,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
 
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -246,7 +246,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
 
       ClientSession session = createSession(sf);
 
-      //session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      //session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

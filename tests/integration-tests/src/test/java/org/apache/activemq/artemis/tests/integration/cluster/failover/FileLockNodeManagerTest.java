@@ -201,7 +201,7 @@ public class FileLockNodeManagerTest extends FailoverTestBase {
 
       ClientSession session = createSession(sf, true, true, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

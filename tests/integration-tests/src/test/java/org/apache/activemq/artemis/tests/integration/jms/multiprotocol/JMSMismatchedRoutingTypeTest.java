@@ -57,10 +57,10 @@ public class JMSMismatchedRoutingTypeTest extends MultiprotocolJMSClientTestSupp
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.of(ANYCAST_ADDRESS), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(RandomUtil.randomString()).setAddress(ANYCAST_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(RandomUtil.randomString()).setAddress(ANYCAST_ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       server.addAddressInfo(new AddressInfo(SimpleString.of(MULTICAST_ADDRESS), RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(RandomUtil.randomString()).setAddress(MULTICAST_ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(RandomUtil.randomString()).setAddress(MULTICAST_ADDRESS).setRoutingType(RoutingType.MULTICAST));
    }
 
    @Test

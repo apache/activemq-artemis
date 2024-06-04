@@ -210,8 +210,8 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       sessionOne = sfs[1].createSession(true, true);
       sessionThree = sfs[3].createSession(false, false);
 
-      sessionOne.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
-      sessionThree.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
+      sessionOne.createQueue(QueueConfiguration.of(ReplicatedDistributionTest.ADDRESS));
+      sessionThree.createQueue(QueueConfiguration.of(ReplicatedDistributionTest.ADDRESS));
 
       consThree = sessionThree.createConsumer(ReplicatedDistributionTest.ADDRESS);
 

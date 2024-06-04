@@ -106,7 +106,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = SimpleString.of("myqueue");
 
-      coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
+      coreSession.createQueue(QueueConfiguration.of(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -184,7 +184,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       Destination dest;
 
       if (nonDurableSub) {
-         coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
+         coreSession.createQueue(QueueConfiguration.of("blahblah").setAddress("mytopic").setDurable(false));
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
       } else {
@@ -247,7 +247,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of("blahblah").setAddress("mytopic").setDurable(false));
 
       Topic topic = ActiveMQJMSClient.createTopic("mytopic");
 

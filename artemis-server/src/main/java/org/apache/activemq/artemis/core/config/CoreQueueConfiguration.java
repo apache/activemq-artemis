@@ -133,7 +133,7 @@ public class CoreQueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration(this.getName())
+      return QueueConfiguration.of(this.getName())
          .setAddress(this.getAddress())
          .setDurable(this.isDurable())
          .setRoutingType(this.getRoutingType())

@@ -116,7 +116,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
       final ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(JournalPagingTest.ADDRESS));
 
       final ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
@@ -233,7 +233,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
             if (server.locateQueue(managementAddress) == null) {
 
-               session.createQueue(new QueueConfiguration(managementAddress));
+               session.createQueue(QueueConfiguration.of(managementAddress));
             }
 
             final Queue managementQueue = server.locateQueue(managementAddress);
@@ -246,7 +246,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
             if (server.locateQueue(address) == null) {
 
-               session.createQueue(new QueueConfiguration(address));
+               session.createQueue(QueueConfiguration.of(address));
             }
 
             final CountDownLatch startSendMessages = new CountDownLatch(1);
@@ -319,19 +319,19 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
             if (server.locateQueue(managementAddress) == null) {
 
-               session.createQueue(new QueueConfiguration(managementAddress));
+               session.createQueue(QueueConfiguration.of(managementAddress));
             }
 
             final SimpleString address = SimpleString.of("queue");
 
             if (server.locateQueue(address) == null) {
 
-               session.createQueue(new QueueConfiguration(address));
+               session.createQueue(QueueConfiguration.of(address));
             }
 
             try (ClientProducer requestProducer = session.createProducer(managementAddress)) {
                final SimpleString replyQueue = SimpleString.of(managementAddress + "." + UUID.randomUUID().toString());
-               session.createQueue(new QueueConfiguration(replyQueue).setRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType()).setDurable(false).setTemporary(true));
+               session.createQueue(QueueConfiguration.of(replyQueue).setRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType()).setDurable(false).setTemporary(true));
                int id = 1000;
                try (ClientConsumer consumer = session.createConsumer(replyQueue)) {
                   final Queue queue = server.locateQueue(replyQueue);

@@ -144,7 +144,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-         server.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
          ClientProducer producer = session.createProducer("address");
          producer.send(session.createMessage(true));
          session.commit();
@@ -187,15 +187,15 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
          fail("should throw exception here");
       } catch (ActiveMQException e) {
          assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address address"), "Unexpected exception message: " + e.getMessage());
@@ -211,7 +211,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          fail("should throw exception here");
       } catch (ActiveMQException e) {
          assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"), "Unexpected exception message: " + e.getMessage());
@@ -277,7 +277,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
       } catch (ActiveMQException e) {
          fail("should not throw exception here");
       }
@@ -291,7 +291,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
       } catch (ActiveMQException e) {
          fail("should not throw exception here");
       }
@@ -303,7 +303,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          fail("should not throw exception here");
       }
 
-      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
 
       // PRODUCE
       try {

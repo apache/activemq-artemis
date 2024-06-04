@@ -103,7 +103,7 @@ public class JmsProducerTest extends JMSTestBase {
 
    @Test
    public void multipleSendsUsingSetters() throws Exception {
-      server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("q1").setRoutingType(RoutingType.ANYCAST));
 
       Queue q1 = context.createQueue("q1");
 

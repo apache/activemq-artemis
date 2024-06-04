@@ -63,7 +63,7 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
       server.registerBrokerPlugin(plugin);
       server.start();
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

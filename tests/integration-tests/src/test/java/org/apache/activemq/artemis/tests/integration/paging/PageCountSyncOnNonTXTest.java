@@ -103,7 +103,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession session = factory.createSession(true, true);
-         session.createQueue(new QueueConfiguration(QUEUE_NAME));
+         session.createQueue(QueueConfiguration.of(QUEUE_NAME));
          ClientProducer producer = session.createProducer(QUEUE_NAME);
          ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
          session.start();

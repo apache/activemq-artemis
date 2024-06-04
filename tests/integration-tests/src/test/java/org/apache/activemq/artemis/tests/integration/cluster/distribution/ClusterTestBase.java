@@ -587,7 +587,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       logger.debug("Creating {} , address {} on {}", queueName, address, servers[node]);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filterString).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filterString).setDurable(durable));
 
       session.close();
    }

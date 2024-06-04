@@ -72,8 +72,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
    public void setUp() throws Exception {
       this.realStore = true;
       super.setUp();
-      server.createQueue(new QueueConfiguration(lmAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(lmDropAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(lmAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(lmDropAddress).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override

@@ -65,7 +65,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -113,7 +113,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -167,7 +167,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 

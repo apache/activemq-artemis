@@ -129,7 +129,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
 
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       Connection c = cf.createConnection("first", "secret");
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);

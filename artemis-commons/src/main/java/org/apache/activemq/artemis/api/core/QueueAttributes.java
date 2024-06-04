@@ -115,7 +115,7 @@ public class QueueAttributes implements Serializable {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration("")
+      return QueueConfiguration.of("")
          .setDurable(this.getDurable())
          .setRoutingType(this.getRoutingType())
          .setExclusive(this.getExclusive())

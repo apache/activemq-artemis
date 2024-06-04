@@ -95,7 +95,7 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
       SendAcknowledgementHandler sendHandler = message -> {
       };
       session.setSendAcknowledgementHandler(sendHandler);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(queueName);
       QueueControl queueControl = (QueueControl)server.getManagementService().getResource(ResourceNames.QUEUE + queueName);
 

@@ -96,7 +96,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
    public void internalTest(String protocol, boolean realFiles, int threads, int numberOfMessages, boolean durableSub) throws Exception {
       server = createServer(realFiles, true);
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(SUB_NAME).addRoutingType(RoutingType.MULTICAST));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration().setName("Sub_1").setAddress(SUB_NAME).setRoutingType(RoutingType.MULTICAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("Sub_1").setAddress(SUB_NAME).setRoutingType(RoutingType.MULTICAST));
       server.start();
 
       CountDownLatch runningLatch = new CountDownLatch(threads);

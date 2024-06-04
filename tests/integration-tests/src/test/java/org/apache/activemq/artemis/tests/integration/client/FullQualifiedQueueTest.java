@@ -74,12 +74,12 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMixedQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(multicastQ1).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ2).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ3).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -144,9 +144,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMulticastQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(multicastAddress));
-      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(multicastAddress));
-      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ1).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ2).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ3).setAddress(multicastAddress));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -185,9 +185,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testAnycastQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -246,7 +246,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testSpecialCase() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();

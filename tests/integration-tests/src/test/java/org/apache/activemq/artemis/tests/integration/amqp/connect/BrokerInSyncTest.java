@@ -131,13 +131,13 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true));
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
       Wait.assertTrue(() -> server.locateQueue("sometest") != null);
 
       server.addAddressInfo(new AddressInfo("OnServer1").setAutoCreated(false));
-      server.createQueue(new QueueConfiguration("OnServer1").setDurable(true));
+      server.createQueue(QueueConfiguration.of("OnServer1").setDurable(true));
 
       Wait.assertTrue(() -> server.locateQueue("OnServer1") != null);
       Wait.assertTrue("Sync is not working on the way back", () -> server_2.locateQueue("OnServer1") != null, 2000);
@@ -147,8 +147,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 10; i++) {
          final int queueID = i;
-         server_2.createQueue(new QueueConfiguration("test2_" + i).setDurable(true));
-         server.createQueue(new QueueConfiguration("test1_" + i).setDurable(true));
+         server_2.createQueue(QueueConfiguration.of("test2_" + i).setDurable(true));
+         server.createQueue(QueueConfiguration.of("test1_" + i).setDurable(true));
          Wait.assertTrue(() -> server.locateQueue("test2_" + queueID) != null);
          Wait.assertTrue(() -> server.locateQueue("test1_" + queueID) != null);
          Wait.assertTrue(() -> server_2.locateQueue("test2_" + queueID) != null);
@@ -182,7 +182,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
@@ -265,7 +265,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.of("expiryQueue")));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("expiryQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("expiryQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("expiryQueue").setRoutingType(RoutingType.ANYCAST));
       if (!useReaper) {
          server.getConfiguration().setMessageExpiryScanPeriod(-1);
       }
@@ -275,7 +275,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("expiryQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("expiryQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("expiryQueue").setRoutingType(RoutingType.ANYCAST));
       if (!useReaper) {
          server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
       }
@@ -298,7 +298,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       org.apache.activemq.artemis.core.server.Queue expiry2 = locateQueueWithWait(server_2, "expiryQueue");
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = locateQueueWithWait(server, getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = locateQueueWithWait(server_2, getQueueName());
@@ -369,7 +369,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server.start();
@@ -377,7 +377,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server_2.setIdentity("Server2");
@@ -398,7 +398,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       org.apache.activemq.artemis.core.server.Queue dlq2 = locateQueueWithWait(server_2, "deadLetterQueue");
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = locateQueueWithWait(server, getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = locateQueueWithWait(server_2, getQueueName());
@@ -485,7 +485,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server.start();
@@ -493,7 +493,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server_2.setIdentity("Server2");
@@ -516,10 +516,10 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       String internalQueueName = getQueueName() + "Internal";
 
       server.addAddressInfo(new AddressInfo(internalQueueName).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST).setInternal(true));
-      server.createQueue(new QueueConfiguration(internalQueueName).setDurable(true).setRoutingType(RoutingType.ANYCAST).setInternal(true));
+      server.createQueue(QueueConfiguration.of(internalQueueName).setDurable(true).setRoutingType(RoutingType.ANYCAST).setInternal(true));
 
       server.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null, 5000);
       assertTrue(server_2.getAddressInfo(SimpleString.of(internalQueueName)) == null);
@@ -549,12 +549,12 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
 
       String lvqName = "testLVQ_" + RandomUtil.randomString();
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(lvqName));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration(lvqName).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setLastValueKey("KEY"));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(lvqName).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setLastValueKey("KEY"));
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server.start();
@@ -562,7 +562,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server_2.setIdentity("Server2");
@@ -635,7 +635,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
@@ -753,7 +753,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null, 5000);
@@ -862,7 +862,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
@@ -949,7 +949,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(queueName).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(queueName) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);

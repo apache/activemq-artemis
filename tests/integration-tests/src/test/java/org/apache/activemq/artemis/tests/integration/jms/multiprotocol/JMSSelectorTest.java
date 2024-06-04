@@ -53,7 +53,7 @@ public class JMSSelectorTest extends MultiprotocolJMSClientTestSupport {
 
       //Add Standard Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

@@ -185,7 +185,7 @@ public class MQTTSubscriptionManager {
        */
       boolean durable = session.getVersion() == MQTTVersion.MQTT_5 || (session.getVersion() != MQTTVersion.MQTT_5 && !session.isClean());
       if (addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
-         return session.getServerSession().createQueue(new QueueConfiguration(queue).setAddress(addressInfo.getName()).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(durable));
+         return session.getServerSession().createQueue(QueueConfiguration.of(queue).setAddress(addressInfo.getName()).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(durable));
       }
 
       if (addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
@@ -201,7 +201,7 @@ public class MQTTSubscriptionManager {
             return session.getServer().locateQueue(name);
          } else {
             try {
-               return session.getServerSession().createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(durable));
+               return session.getServerSession().createQueue(QueueConfiguration.of(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(durable));
             } catch (ActiveMQQueueExistsException e) {
                return session.getServer().locateQueue(addressInfo.getName());
             }

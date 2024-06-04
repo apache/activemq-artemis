@@ -617,10 +617,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    @Timeout(20)
    public void testReloadAmqpConnectionQueuePolicyMatches() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.ANYCAST)
                                                          .setAddress("queue1")
                                                          .setAutoCreated(false));
-      server.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.ANYCAST)
                                                          .setAddress("queue2")
                                                          .setAutoCreated(false));
 
@@ -707,7 +707,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    @Timeout(20)
    public void testReloadAmqpConnectionAddressPolicyReplacedWithQueuePolicy() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.ANYCAST)
                                                          .setAddress("queue1")
                                                          .setAutoCreated(false));
 
@@ -781,10 +781,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    @Timeout(20)
    public void testReloadAmqpConnectionQueuePolicyMatchesFromBrokerProperties() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.ANYCAST)
                                                          .setAddress("queue1")
                                                          .setAutoCreated(false));
-      server.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.ANYCAST)
                                                          .setAddress("queue2")
                                                          .setAutoCreated(false));
 

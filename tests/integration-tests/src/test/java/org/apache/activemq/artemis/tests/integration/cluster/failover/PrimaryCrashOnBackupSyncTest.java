@@ -160,7 +160,7 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
       locator.setConnectionTTL(60_000L);
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession session = csf.createSession();
-      session.createQueue(new QueueConfiguration("PrimaryCrashTestQueue").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("PrimaryCrashTestQueue").setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer("PrimaryCrashTestQueue");
       ClientMessage msgs = session.createMessage(true);
       msgs.getBodyBuffer().writeBytes(buffer);

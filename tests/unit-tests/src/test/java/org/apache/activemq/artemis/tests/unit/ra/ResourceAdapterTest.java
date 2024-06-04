@@ -432,7 +432,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
          ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+         session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
          session.close();
 
          ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -487,7 +487,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
          ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+         session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
          session.close();
 
          ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();

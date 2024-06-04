@@ -57,7 +57,7 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo("AD1").addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration("Q1").setAddress("AD1").setDurable(true).setFilterString("color='red'"));
+      server.createQueue(QueueConfiguration.of("Q1").setAddress("AD1").setDurable(true).setFilterString("color='red'"));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
       Connection connection = cf.createConnection();

@@ -78,7 +78,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 
@@ -117,7 +117,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
       ClientProducer producer2 = session.createProducer(groupTestQ);
@@ -163,7 +163,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 

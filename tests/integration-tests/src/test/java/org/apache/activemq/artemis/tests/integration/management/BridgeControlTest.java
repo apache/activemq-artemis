@@ -130,8 +130,8 @@ public class BridgeControlTest extends ManagementTestBase {
 
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
 
-      QueueConfiguration sourceQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration targetQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration sourceQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration targetQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
       List<String> connectors = new ArrayList<>();
       connectors.add(connectorConfig.getName());
 

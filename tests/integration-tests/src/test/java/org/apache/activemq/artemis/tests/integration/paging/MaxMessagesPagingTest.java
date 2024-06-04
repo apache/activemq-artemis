@@ -93,7 +93,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -184,7 +184,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       for (int adr = 1; adr <= 2; adr++) {
          SimpleString address = SimpleString.of(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 2; adr++) {
@@ -250,7 +250,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       for (int adr = 1; adr <= 2; adr++) {
          SimpleString address = SimpleString.of(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 1; adr++) {
@@ -305,7 +305,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       for (int adr = 0; adr < 11; adr++) {
          SimpleString address = SimpleString.of(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -373,7 +373,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
@@ -481,7 +481,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(ADDRESS, set);
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factorySend = CFUtil.createConnectionFactory(protocolSend, "tcp://localhost:61616");
       Connection connSend = factorySend.createConnection();
@@ -589,7 +589,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(ADDRESS, set);
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factorySend = CFUtil.createConnectionFactory(protocolSend, "tcp://localhost:61616");
       Connection connSend = factorySend.createConnection();

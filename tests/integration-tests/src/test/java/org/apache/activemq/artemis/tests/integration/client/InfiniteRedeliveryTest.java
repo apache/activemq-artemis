@@ -154,7 +154,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
    public void testInifinteRedeliveryWithScheduling(boolean reschedule) throws Exception {
       startServer(reschedule);
       primaryServer.getServer().addAddressInfo(new AddressInfo("test").setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      primaryServer.getServer().createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
+      primaryServer.getServer().createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
 
       ConnectionFactory factory;
 

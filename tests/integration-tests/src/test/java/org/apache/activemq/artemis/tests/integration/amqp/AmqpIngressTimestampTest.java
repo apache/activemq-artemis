@@ -91,7 +91,7 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
 
    private void internalTestIngressTimestamp(Protocol protocol) throws Exception {
       final String QUEUE_NAME = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
       server.getAddressSettingsRepository().addMatch(QUEUE_NAME, new AddressSettings().setEnableIngressTimestamp(true));
       long beforeSend = System.currentTimeMillis();
       if (protocol == Protocol.CORE) {

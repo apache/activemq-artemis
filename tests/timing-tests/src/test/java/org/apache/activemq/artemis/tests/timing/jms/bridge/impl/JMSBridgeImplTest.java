@@ -699,8 +699,8 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.SOURCE).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.TARGET).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(JMSBridgeImplTest.SOURCE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(JMSBridgeImplTest.TARGET).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

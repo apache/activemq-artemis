@@ -426,7 +426,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
          ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
          if (!queueQuery.isExists()) {
-            session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
+            session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
             if (logger.isDebugEnabled()) {
                logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
             }
@@ -466,7 +466,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
       ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
       if (!queueQuery.isExists()) {
-         session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
          if (logger.isDebugEnabled()) {
             logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
          }

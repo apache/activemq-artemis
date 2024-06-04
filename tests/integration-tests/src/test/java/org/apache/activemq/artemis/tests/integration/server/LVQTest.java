@@ -92,7 +92,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
       final String EXCLUSIVE_QUEUE = "exclusiveQueue";
 
-      clientSession.createQueue(new QueueConfiguration(EXCLUSIVE_QUEUE).setExclusive(true).setLastValue(true));
+      clientSession.createQueue(QueueConfiguration.of(EXCLUSIVE_QUEUE).setExclusive(true).setLastValue(true));
       ClientProducer producer = clientSession.createProducer(EXCLUSIVE_QUEUE);
       ClientConsumer consumer = clientSession.createConsumer(EXCLUSIVE_QUEUE);
       clientSession.start();
@@ -939,6 +939,6 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession = addClientSession(sf.createSession(false, true, true));
       clientSessionTxReceives = addClientSession(sf.createSession(false, true, false));
       clientSessionTxSends = addClientSession(sf.createSession(false, false, true));
-      clientSession.createQueue(new QueueConfiguration(qName1).setAddress(address));
+      clientSession.createQueue(QueueConfiguration.of(qName1).setAddress(address));
    }
 }

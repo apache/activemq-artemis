@@ -153,7 +153,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       /** keep unused variables in order to maintain references to both objects */
       @SuppressWarnings("unused")
@@ -199,11 +199,11 @@ public class SessionTest extends ActiveMQTestBase {
          clientSession.createQueue("a2", "q4", false);
          clientSession.createQueue("a2", "q5", false);
       } else {
-         clientSession.createQueue(new QueueConfiguration("q1").setAddress("a1").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q2").setAddress("a1").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q3").setAddress("a2").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q4").setAddress("a2").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q5").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q1").setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q2").setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q3").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q4").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q5").setAddress("a2").setDurable(false));
       }
       ClientSession.AddressQuery resp = clientSession.addressQuery(SimpleString.of("a"));
       List<SimpleString> queues = resp.getQueueNames();
@@ -229,7 +229,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue("a1", queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setAddress("a1").setDurable(false));
       }
       // I'm holding a reference here on purpose to avoid GC and unexpected closes.. etc
       ClientConsumer consumer1 = clientSession.createConsumer(queueName);
@@ -266,7 +266,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue("a1", queueName, "foo=bar", false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setAddress("a1").setFilterString("foo=bar").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setAddress("a1").setFilterString("foo=bar").setDurable(false));
       }
       clientSession.createConsumer(queueName);
       clientSession.createConsumer(queueName);
@@ -298,7 +298,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer p = clientSession.createProducer();
       ClientProducer p1 = clientSession.createProducer(queueName);
@@ -366,7 +366,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       clientSession.start();
       clientSession.close();
@@ -379,7 +379,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       clientSession.start();
       clientSession.stop();
@@ -393,7 +393,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer cp = clientSession.createProducer(queueName);
       for (int i = 0; i < 10; i++) {
@@ -413,7 +413,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer cp = clientSession.createProducer(queueName);
       for (int i = 0; i < 10; i++) {
@@ -439,7 +439,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
@@ -471,7 +471,7 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
@@ -508,7 +508,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -520,7 +520,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString());
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -532,7 +532,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -545,7 +545,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -558,7 +558,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -572,7 +572,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -586,7 +586,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -601,7 +601,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -616,7 +616,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true, 0, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -633,7 +633,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -650,7 +650,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true, 0, true, true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -669,7 +669,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true, true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -687,7 +687,7 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (!legacyCreateQueue) {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true).setEnabled(false));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true).setEnabled(false));
             Queue result = server.locateQueue(queueName);
             assertEquals(addressName, result.getAddress());
             assertEquals(queueName, result.getName());

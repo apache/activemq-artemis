@@ -58,7 +58,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
       SimpleString ssQueue = SimpleString.of(queue);
 
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       AmqpClient client = createAmqpClient();
       connection = addConnection(client.connect());
@@ -114,7 +114,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
       String queue = "purgeQueue";
       SimpleString ssQueue = SimpleString.of(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = cf.createConnection();

@@ -158,7 +158,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       tempServer.getConfiguration().setJournalFileSize(10 * 1024 * 1024);
       tempServer.start();
       tempServer.addAddressInfo(new AddressInfo(internalQueue).addRoutingType(RoutingType.ANYCAST).setInternal(true));
-      tempServer.createQueue(new QueueConfiguration(internalQueue).setDurable(true).setRoutingType(RoutingType.ANYCAST).setInternal(true).setAddress(internalQueue));
+      tempServer.createQueue(QueueConfiguration.of(internalQueue).setDurable(true).setRoutingType(RoutingType.ANYCAST).setInternal(true).setAddress(internalQueue));
       tempServer.stop();
 
       startServers();

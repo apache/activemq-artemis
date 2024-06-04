@@ -197,7 +197,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
 
-      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
       List<String> connectors = new ArrayList<>();
       connectors.add(connectorConfig.getName());
 

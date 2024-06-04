@@ -232,7 +232,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -364,7 +364,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -646,7 +646,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       final ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 

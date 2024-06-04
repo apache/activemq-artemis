@@ -48,7 +48,7 @@ public class SingleServerSimpleTest extends SingleServerTestBase {
       final String addressName = "simpleAddress";
 
       // Create a queue bound to a particular address where the test will send to & consume from.
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
 
       // Create a producer to send a message to the previously created address.
       ClientProducer producer = session.createProducer(addressName);

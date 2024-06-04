@@ -137,7 +137,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          consumerSession = factory.createSession(false, false);
-         consumerSession.createQueue(new QueueConfiguration("Q" + nr).setAddress(ADDRESS).setFilterString("prodNR=" + nr));
+         consumerSession.createQueue(QueueConfiguration.of("Q" + nr).setAddress(ADDRESS).setFilterString("prodNR=" + nr));
          consumer = consumerSession.createConsumer("Q" + nr);
          consumerSession.start();
          this.nr = nr;

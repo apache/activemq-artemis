@@ -89,7 +89,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
       session.start();
@@ -118,7 +118,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -152,7 +152,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -193,7 +193,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, browser);
       session.start();
@@ -210,7 +210,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

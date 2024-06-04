@@ -275,7 +275,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCreateQueue(final CreateQueueMessage request) {
       try {
-         server.createQueue(new QueueConfiguration(request.getQueueName())
+         server.createQueue(QueueConfiguration.of(request.getQueueName())
                                .setAddress(request.getAddress())
                                .setFilterString(request.getFilterString())
                                .setDurable(request.isDurable())

@@ -176,20 +176,20 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
       // Default DLQ
       server.addAddressInfo(new AddressInfo(SimpleString.of(getDeadLetterAddress()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
 
       // Default Topic
       server.addAddressInfo(new AddressInfo(SimpleString.of(getTopicName()), RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(getTopicName()));
+      server.createQueue(QueueConfiguration.of(getTopicName()));
 
       // Additional Test Queues
       for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
          server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName(i)), RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
       }
    }
 

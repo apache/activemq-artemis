@@ -58,7 +58,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -94,7 +94,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       session.start();
 
@@ -131,7 +131,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -199,7 +199,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -257,7 +257,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
 

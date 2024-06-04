@@ -58,16 +58,16 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
 
       //Add Standard Queue
       server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
 
       //Add LVQ using Default Message.HDR_LAST_VALUE_NAME
       server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add LVQ using Custom Key
       server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 
 
@@ -177,7 +177,7 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
    public void testNonDestructiveWithSelector() throws Exception {
       final String MY_QUEUE = RandomUtil.randomString();
       final boolean NON_DESTRUCTIVE = true;
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
 
       ConnectionSupplier connectionSupplier = CoreConnection;
 

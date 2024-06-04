@@ -409,7 +409,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -476,9 +476,9 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession sessionAnotherUser = sf.createSession("an", "other", false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
-      sessionAnotherUser.createQueue(new QueueConfiguration(ANOTHER_QUEUE).setAddress(QUEUE));
+      sessionAnotherUser.createQueue(QueueConfiguration.of(ANOTHER_QUEUE).setAddress(QUEUE));
 
       ClientProducer prod = session.createProducer(QUEUE);
 
@@ -529,7 +529,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession sessionAnotherUser = sf.createSession("an", "other", false, false, false, false, 0);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
       ClientProducer prod = session.createProducer(QUEUE);
 
@@ -576,7 +576,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -609,7 +609,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -662,7 +662,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -715,7 +715,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -749,7 +749,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -784,7 +784,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -815,7 +815,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -899,7 +899,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -977,7 +977,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -1038,7 +1038,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -1065,7 +1065,7 @@ public class InterceptorTest extends ActiveMQTestBase {
    public void testInterceptorOnURI() throws Exception {
       locator.close();
 
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 

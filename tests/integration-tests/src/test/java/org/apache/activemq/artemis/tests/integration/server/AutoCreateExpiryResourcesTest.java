@@ -135,7 +135,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       for (int i = 0; i < ITERATIONS; i++) {
          SimpleString address = RandomUtil.randomSimpleString();
          SimpleString queue = RandomUtil.randomSimpleString();
-         server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(routingType));
+         server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);
          ClientSession s = addClientSession(cf.createSession(true, false));
@@ -205,7 +205,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       final long COUNT = 5;
 
       for (int i = 0; i < COUNT; i++) {
-         server.createQueue(new QueueConfiguration(i + "").setAddress(addressA).setRoutingType(RoutingType.MULTICAST));
+         server.createQueue(QueueConfiguration.of(i + "").setAddress(addressA).setRoutingType(RoutingType.MULTICAST));
       }
 
       triggerExpiration(false);
@@ -224,7 +224,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    private void triggerExpiration(boolean createQueue) throws Exception {
       if (createQueue) {
-         server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
       }
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);

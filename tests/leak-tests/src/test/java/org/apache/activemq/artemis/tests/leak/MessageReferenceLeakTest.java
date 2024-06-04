@@ -85,7 +85,7 @@ public class MessageReferenceLeakTest extends AbstractLeakTest {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration().setAddress(address).setName(queue).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       Queue serverQueue = server.locateQueue(queue);
 
       try (ClientProducer producer = session.createProducer(address)) {

@@ -85,7 +85,7 @@ public class RedistributorLeakTest extends AbstractLeakTest {
 
       String addressName = "Queue" + RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
-      QueueImpl queue = (QueueImpl) server.createQueue(new QueueConfiguration().setName(addressName).setRoutingType(RoutingType.ANYCAST));
+      QueueImpl queue = (QueueImpl) server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {

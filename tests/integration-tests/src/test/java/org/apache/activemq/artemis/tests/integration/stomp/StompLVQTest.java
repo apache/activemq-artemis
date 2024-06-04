@@ -52,7 +52,7 @@ public class StompLVQTest extends StompTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      server.createQueue(new QueueConfiguration(queue).setLastValue(true).setExclusive(true));
+      server.createQueue(QueueConfiguration.of(queue).setLastValue(true).setExclusive(true));
 
       producerConn = StompClientConnectionFactory.createClientConnection(uri);
       consumerConn = StompClientConnectionFactory.createClientConnection(uri);

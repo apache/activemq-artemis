@@ -86,7 +86,7 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
       createSessionFactory();
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 

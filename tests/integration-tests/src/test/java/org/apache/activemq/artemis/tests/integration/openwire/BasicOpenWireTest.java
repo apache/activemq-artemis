@@ -67,15 +67,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
       createFactories();
       SimpleString coreQueue = SimpleString.of(queueName);
-      this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(coreQueue).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(queueName, coreQueue);
 
       SimpleString coreQueue2 = SimpleString.of(queueName2);
-      this.server.createQueue(new QueueConfiguration(coreQueue2).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(coreQueue2).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(queueName2, coreQueue2);
 
       SimpleString durableQueue = SimpleString.of(durableQueueName);
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(durableQueueName, durableQueue);
 
       if (!enableSecurity) {
@@ -146,7 +146,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       SimpleString coreQ = testQueues.get(qname);
       if (coreQ == null) {
          coreQ = SimpleString.of(qname);
-         this.server.createQueue(new QueueConfiguration(coreQ).setRoutingType(RoutingType.ANYCAST));
+         this.server.createQueue(QueueConfiguration.of(coreQ).setRoutingType(RoutingType.ANYCAST));
          testQueues.put(qname, coreQ);
       }
    }

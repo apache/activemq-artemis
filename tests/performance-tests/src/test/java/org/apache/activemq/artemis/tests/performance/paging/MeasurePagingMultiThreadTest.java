@@ -190,7 +190,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
    private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException {
       {
          ClientSession session = factory.createSession(false, false, false);
-         session.createQueue(new QueueConfiguration(adr));
+         session.createQueue(QueueConfiguration.of(adr));
          session.close();
       }
    }

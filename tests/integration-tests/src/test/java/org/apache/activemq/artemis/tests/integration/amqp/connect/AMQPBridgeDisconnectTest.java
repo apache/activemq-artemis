@@ -92,7 +92,7 @@ public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
       ActiveMQServer server = super.createServer(port, start);
       server.getConfiguration().setPersistenceEnabled(false);
       server.getConfiguration().addAddressConfiguration((new CoreAddressConfiguration()).setName(DESTINATION_NAME).addRoutingType(RoutingType.ANYCAST));
-      server.getConfiguration().addQueueConfiguration((new QueueConfiguration(DESTINATION_NAME)).setAddress(DESTINATION_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.getConfiguration().addQueueConfiguration((QueueConfiguration.of(DESTINATION_NAME)).setAddress(DESTINATION_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
       return server;
    }
 

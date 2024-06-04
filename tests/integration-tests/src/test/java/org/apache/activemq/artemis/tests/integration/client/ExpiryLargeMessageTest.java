@@ -82,11 +82,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -276,11 +276,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
@@ -366,11 +366,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 

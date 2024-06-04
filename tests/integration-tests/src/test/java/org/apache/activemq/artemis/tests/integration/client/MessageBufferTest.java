@@ -65,7 +65,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
 
       ClientMessageImpl message = (ClientMessageImpl) session.createMessage(true);
@@ -100,7 +100,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
 
       {

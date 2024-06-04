@@ -167,7 +167,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       server.start();
       for (int i = 0; i < numberOfQueues; i++) {
          server.addAddressInfo(new AddressInfo("queue.test" + i).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(false));
-         server.createQueue(new QueueConfiguration(createQueueName(i, distinctNaming)).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(createQueueName(i, distinctNaming)).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
       }
 
       for (int dest = 0; dest < numberOfQueues; dest++) {

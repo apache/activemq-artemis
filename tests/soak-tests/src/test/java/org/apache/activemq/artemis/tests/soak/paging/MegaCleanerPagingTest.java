@@ -143,7 +143,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       String queueName = "testPageAndDepage";
 
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       Connection connection = factory.createConnection();
@@ -270,7 +270,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       String queueName = "testPageAndDepage";
 
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       Connection connection = factory.createConnection();

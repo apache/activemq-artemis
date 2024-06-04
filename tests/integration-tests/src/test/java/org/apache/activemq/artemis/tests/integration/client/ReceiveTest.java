@@ -76,7 +76,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       cp.send(sendSession.createMessage(false));
@@ -90,7 +90,7 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       long time = System.currentTimeMillis();
@@ -104,7 +104,7 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       session.close();
@@ -124,7 +124,7 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       cc.setMessageHandler(new MessageHandler() {
@@ -151,7 +151,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueA);
       session.start();
@@ -181,8 +181,8 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientProducer cp2 = sendSession.createProducer(addressB);
 
       ClientSession session = cf.createSession(false, true, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueB).setAddress(addressB).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueB).setAddress(addressB).setDurable(false));
 
       ClientConsumer cc1 = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueB);

@@ -317,7 +317,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                     SimpleString filter,
                                     Integer maxConsumers) throws Exception {
       try {
-         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address)
+         serverSession.createQueue(QueueConfiguration.of(queueName).setAddress(address)
                                                                     .setRoutingType(routingType)
                                                                     .setFilterString(filter)
                                                                     .setTemporary(true)
@@ -333,7 +333,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                           SimpleString queueName,
                                           SimpleString filter) throws Exception {
       try {
-         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setMaxConsumers(1));
+         serverSession.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setMaxConsumers(1));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       }
@@ -344,7 +344,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                         SimpleString queueName,
                                         SimpleString filter) throws Exception {
       try {
-         serverSession.createSharedQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
+         serverSession.createSharedQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
       } catch (ActiveMQQueueExistsException alreadyExists) {
          // nothing to be done.. just ignore it. if you have many consumers all doing the same another one probably already done it
       } catch (ActiveMQSecurityException se) {
@@ -357,7 +357,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                          SimpleString queueName,
                                          SimpleString filter) throws Exception {
       try {
-         serverSession.createSharedQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setDurable(false));
+         serverSession.createSharedQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setDurable(false));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       } catch (ActiveMQQueueExistsException e) {
@@ -395,11 +395,11 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate, SimpleString filter) throws Exception {
-      return queueQuery(new QueueConfiguration(queueName).setRoutingType(routingType).setFilterString(filter), autoCreate);
+      return queueQuery(QueueConfiguration.of(queueName).setRoutingType(routingType).setFilterString(filter), autoCreate);
    }
 
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
-      AutoCreateResult autoCreateResult = serverSession.checkAutoCreate(new QueueConfiguration(address).setRoutingType(routingType));
+      AutoCreateResult autoCreateResult = serverSession.checkAutoCreate(QueueConfiguration.of(address).setRoutingType(routingType));
       return autoCreateResult != AutoCreateResult.NOT_FOUND;
    }
 

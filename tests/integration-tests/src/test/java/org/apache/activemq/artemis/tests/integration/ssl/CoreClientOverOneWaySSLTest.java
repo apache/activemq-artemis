@@ -148,7 +148,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -177,7 +177,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -246,7 +246,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -274,7 +274,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -305,7 +305,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       assertTrue(TestTrustManagerFactoryPlugin.triggered.get());
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -335,7 +335,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -369,7 +369,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(url));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -405,7 +405,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 //      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616?sslEnabled=true;trustStoreProvider=" + storeProvider + ";trustStoreType=" + storeType + ";trustStorePath=" + CLIENT_SIDE_TRUSTSTORE + ";trustStorePassword=ENC(" + masked + ")"));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -438,7 +438,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -467,7 +467,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -506,7 +506,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLReloaded() throws Exception {
       createCustomSslServer();
-      server.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       String text = RandomUtil.randomString();
 
       // create a valid SSL connection and keep it for use later
@@ -724,7 +724,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverOneWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
@@ -759,7 +759,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverOneWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
@@ -795,7 +795,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverOneWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
@@ -830,7 +830,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverOneWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);

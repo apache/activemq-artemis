@@ -568,7 +568,7 @@ public class QoSTests extends MQTT5TestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-      Queue queue = server.createQueue(new QueueConfiguration(TOPIC));
+      Queue queue = server.createQueue(QueueConfiguration.of(TOPIC));
 
       MqttClient producer = createPahoClient("producer");
       MqttConnectionOptions connectionOptions = new MqttConnectionOptions();
@@ -649,7 +649,7 @@ public class QoSTests extends MQTT5TestSupport {
    public void testQoS2WithExpiration2() throws Exception {
       final String TOPIC = "myTopic";
       final String CONSUMER_ID = "consumer";
-      server.createQueue(new QueueConfiguration(MQTTUtil.getCoreQueueFromMqttTopic(TOPIC, CONSUMER_ID, server.getConfiguration().getWildcardConfiguration()))
+      server.createQueue(QueueConfiguration.of(MQTTUtil.getCoreQueueFromMqttTopic(TOPIC, CONSUMER_ID, server.getConfiguration().getWildcardConfiguration()))
                             .setAddress(MQTTUtil.getCoreAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration()))
                             .setRoutingType(RoutingType.MULTICAST));
       final CountDownLatch ackLatch = new CountDownLatch(1);

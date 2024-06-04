@@ -606,7 +606,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      this(new QueueConfiguration(name)
+      this(QueueConfiguration.of(name)
               .setId(id)
               .setAddress(address)
               .setFilterString(filter == null ? null : filter.getFilterString())
@@ -3965,7 +3965,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             SimpleString destinationQueueName = prefix.concat(getAddress()).concat(suffix);
             SimpleString filter = SimpleString.of(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
             try {
-               server.createQueue(new QueueConfiguration(destinationQueueName).setAddress(destinationAddress).setFilterString(filter).setAutoCreated(true).setAutoCreateAddress(true), true);
+               server.createQueue(QueueConfiguration.of(destinationQueueName).setAddress(destinationAddress).setFilterString(filter).setAutoCreated(true).setAutoCreateAddress(true), true);
             } catch (ActiveMQQueueExistsException e) {
                // ignore
             }
@@ -4343,7 +4343,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public QueueConfiguration getQueueConfiguration() {
-      return new QueueConfiguration(name)
+      return QueueConfiguration.of(name)
          .setAddress(address)
          .setId(id)
          .setRoutingType(routingType)

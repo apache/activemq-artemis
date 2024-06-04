@@ -58,8 +58,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adSend).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adSend).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(adSend);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -92,8 +92,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adSend).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adSend).setDurable(false));
 
 
       ClientProducer producer = clientSession.createProducer(adSend);
@@ -137,15 +137,15 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString expiryQueue1 = SimpleString.of("expiryQueue1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue1).setAddress(expiryAddress1).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue1).setAddress(expiryAddress1).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       // override "original" address settings
       SimpleString expiryAddress2 = SimpleString.of("expiryAddress2");
       SimpleString expiryQueue2 = SimpleString.of("expiryQueue2");
       addressSettings = new AddressSettings().setExpiryAddress(expiryAddress2);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue2).setAddress(expiryAddress2).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue2).setAddress(expiryAddress2).setDurable(false));
 
       // send message that will expire ASAP
       ClientProducer producer = clientSession.createProducer(qName);
@@ -187,9 +187,9 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString eq2 = SimpleString.of("EQ2");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(eq2).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq2).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
       clientMessage.setExpiration(System.currentTimeMillis());
@@ -243,9 +243,9 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString qName = SimpleString.of("q1");
       SimpleString eq = SimpleString.of("EQ1");
       SimpleString eq2 = SimpleString.of("EQ2");
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(eq2).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq2).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
       clientMessage.setExpiration(System.currentTimeMillis());
@@ -266,8 +266,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString eq = SimpleString.of("EA1");
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ServerLocator locator1 = createInVMNonHALocator();
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator1);
@@ -316,8 +316,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().setDefault(addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -344,8 +344,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -379,9 +379,9 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       AddressSettings specificAddressSettings = new AddressSettings().setExpiryAddress(specificExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.address", specificAddressSettings);
 
-      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(defaultExpiryQueue).setAddress(defaultExpiryAddress).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(specificExpiryQueue).setAddress(specificExpiryAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(defaultExpiryQueue).setAddress(defaultExpiryAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(specificExpiryQueue).setAddress(specificExpiryAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");

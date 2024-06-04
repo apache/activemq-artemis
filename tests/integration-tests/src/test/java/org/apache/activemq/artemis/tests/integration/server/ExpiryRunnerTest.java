@@ -84,7 +84,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
    @Test
    public void testExpireFromMultipleQueues() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
-      clientSession.createQueue(new QueueConfiguration(qName2).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName2).setDurable(false));
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       ClientProducer producer2 = clientSession.createProducer(qName2);
@@ -149,8 +149,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.deleteQueue(qName);
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName2).setAddress(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName2).setAddress(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
@@ -251,7 +251,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setExpiryAddress(expiryAddress));
       for (int ad = 0; ad < 1000; ad++) {
          server.addAddressInfo(new AddressInfo("test" + ad));
-         server.createQueue(new QueueConfiguration("test" + ad).setAddress("test" + ad).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of("test" + ad).setAddress("test" + ad).setRoutingType(RoutingType.ANYCAST));
       }
 
       ClientProducer producer = clientSession.createProducer();
@@ -284,13 +284,13 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
       clientSession = sessionFactory.createSession(false, true, true);
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       expiryAddress = SimpleString.of("EA");
       expiryQueue = SimpleString.of("expiryQ");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(true));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryAddress).setDurable(true));
       artemisExpiryQueue = server.locateQueue(expiryQueue);
       assertNotNull(artemisExpiryQueue);
    }

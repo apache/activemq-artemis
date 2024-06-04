@@ -149,7 +149,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       if (autocreate) {
          server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
       } else {
-         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+         server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(multicastAddress).setDurable(false));
       }
 
       try (Connection connection = factory.createConnection()) {
@@ -181,8 +181,8 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
 
       SimpleString queueName1 = SimpleString.of("sub.queue1");
       SimpleString queueName2 = SimpleString.of("sub.queue2");
-      server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
-      server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName1).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = factory.createConnection();
 
       try {
@@ -289,7 +289,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       Connection exConn = null;
 
       SimpleString durableQueue = SimpleString.of("myqueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -327,7 +327,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       Connection exConn = null;
 
       SimpleString durableQueue = SimpleString.of("myqueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -378,7 +378,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));
-      this.server.createQueue(new QueueConfiguration(subscriptionQ).setAddress(topic));
+      this.server.createQueue(QueueConfiguration.of(subscriptionQ).setAddress(topic));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();

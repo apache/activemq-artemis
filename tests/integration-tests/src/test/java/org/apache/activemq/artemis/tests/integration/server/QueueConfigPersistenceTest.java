@@ -36,7 +36,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, false);
       server.start();
 
-      Queue queue = server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of("q1").setRoutingType(RoutingType.ANYCAST));
 
       queue.pause(true);
 
@@ -67,7 +67,7 @@ public class QueueConfigPersistenceTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, false);
       server.start();
 
-      server.createQueue(new QueueConfiguration(getName()).setInternal(true));
+      server.createQueue(QueueConfiguration.of(getName()).setInternal(true));
       server.stop();
       server.start();
       Queue queue = server.locateQueue(getName());

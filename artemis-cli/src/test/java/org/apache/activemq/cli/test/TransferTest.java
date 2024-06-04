@@ -71,8 +71,8 @@ public class TransferTest extends CliTestBase {
       String sourceQueueName = "SOURCE_QUEUE";
       String targetQueueName = "TARGET_QUEUE";
 
-      server.createQueue(new QueueConfiguration(sourceQueueName).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(targetQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(sourceQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(targetQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Session session = createSession(connection);
       produceMessages(session, sourceQueueName, messages, false);

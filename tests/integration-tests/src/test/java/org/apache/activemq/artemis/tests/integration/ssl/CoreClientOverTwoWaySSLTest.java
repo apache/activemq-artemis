@@ -167,7 +167,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverTwoWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
@@ -206,7 +206,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverTwoWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);
@@ -278,7 +278,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
       ClientProducer producer = session.createProducer(CoreClientOverTwoWaySSLTest.QUEUE);
 
       ClientMessage message = createTextMessage(session, text);

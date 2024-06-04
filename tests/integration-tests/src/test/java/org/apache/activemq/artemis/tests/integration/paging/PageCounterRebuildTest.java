@@ -169,8 +169,8 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       String queueName = getName();
       String nonConsumedQueueName = getName() + "_nonConsumed";
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(nonConsumedQueueName).setAddress(queueName).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(nonConsumedQueueName).setAddress(queueName).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.MULTICAST));
 
       Queue serverQueue = server.locateQueue(queueName);
       Queue serverNonConsumedQueue = server.locateQueue(nonConsumedQueueName);

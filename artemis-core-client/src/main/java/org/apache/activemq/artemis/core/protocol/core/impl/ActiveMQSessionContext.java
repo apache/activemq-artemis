@@ -303,7 +303,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  Boolean purgeOnNoConsumers,
                                  Boolean exclusive,
                                  Boolean lastValue) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setRoutingType(routingType)
                            .setFilterString(filterString)
@@ -334,7 +334,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  RoutingType routingType,
                                  SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setRoutingType(routingType)
                            .setFilterString(filterString)
@@ -347,7 +347,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  SimpleString queueName,
                                  SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setFilterString(filterString)
                            .setDurable(durable));
@@ -770,7 +770,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean durable,
                            boolean temp,
                            boolean autoCreated) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setFilterString(filterString)
                      .setDurable(durable)
@@ -806,7 +806,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean autoCreated,
                            Boolean exclusive,
                            Boolean lastValue) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setTemporary(temp)
                      .setAutoCreated(autoCreated)
@@ -830,7 +830,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            int maxConsumers,
                            boolean purgeOnNoConsumers,
                            boolean autoCreated) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setRoutingType(routingType)
                      .setFilterString(filterString)

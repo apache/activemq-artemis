@@ -241,12 +241,12 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(new QueueConfiguration(LargeJournalStressTest.Q1).setAddress(LargeJournalStressTest.AD1));
+         sess.createQueue(QueueConfiguration.of(LargeJournalStressTest.Q1).setAddress(LargeJournalStressTest.AD1));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(new QueueConfiguration(LargeJournalStressTest.Q2).setAddress(LargeJournalStressTest.AD2));
+         sess.createQueue(QueueConfiguration.of(LargeJournalStressTest.Q2).setAddress(LargeJournalStressTest.AD2));
       } catch (Exception ignored) {
       }
 

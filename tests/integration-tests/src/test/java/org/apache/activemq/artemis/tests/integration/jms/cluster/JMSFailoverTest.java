@@ -206,7 +206,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = SimpleString.of("myqueue");
 
-      coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
+      coreSession.createQueue(QueueConfiguration.of(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -280,7 +280,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = SimpleString.of("myqueue");
 
-      coreSessionPrimary.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
+      coreSessionPrimary.createQueue(QueueConfiguration.of(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sessPrimary.createQueue("myqueue");
 
@@ -383,7 +383,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
          }
       };
 
-      coreSession.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      coreSession.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("somequeue");
 

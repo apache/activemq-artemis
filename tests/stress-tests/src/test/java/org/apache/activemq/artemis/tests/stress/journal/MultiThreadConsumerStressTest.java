@@ -72,7 +72,7 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
       int commitIntervalConsume = 100;
 
       ClientSession session = sf.createSession(false, false);
-      session.createQueue(new QueueConfiguration("compact-queue").setAddress("compact"));
+      session.createQueue(QueueConfiguration.of("compact-queue").setAddress("compact"));
 
       ClientProducer producer = session.createProducer("compact");
 
@@ -156,7 +156,7 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
+         sess.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS));
       } catch (Exception ignored) {
       }
 

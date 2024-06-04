@@ -156,7 +156,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 

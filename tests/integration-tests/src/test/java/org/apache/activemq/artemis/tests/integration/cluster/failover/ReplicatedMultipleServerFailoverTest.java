@@ -85,7 +85,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          ClientSession[] sessions = new ClientSession[primaryServers.size()];
          for (int i = 0; i < factories.length; i++) {
             sessions[i] = createSession(factories[i], true, true);
-            sessions[i].createQueue(new QueueConfiguration(ADDRESS));
+            sessions[i].createQueue(QueueConfiguration.of(ADDRESS));
          }
 
          //make sure bindings are ready before sending messages

@@ -48,7 +48,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
    public void testSessionClosedOnRemotingConnectionFailure() throws Exception {
       ClientSession session = addClientSession(sf.createSession());
 
-      session.createQueue(new QueueConfiguration("fooqueue").setAddress("fooaddress").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("fooqueue").setAddress("fooaddress").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("fooaddress");
 

@@ -82,7 +82,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -125,7 +125,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -177,7 +177,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -228,7 +228,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -301,8 +301,8 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-2")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-2")).setAddress(ADDRESS));
 
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
 
@@ -310,7 +310,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
-      session.createQueue(new QueueConfiguration(ADDRESS_DLA));
+      session.createQueue(QueueConfiguration.of(ADDRESS_DLA));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

@@ -62,7 +62,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       session = sf.createSession();
 
       session.start();
-      session.createQueue(new QueueConfiguration("foo").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("foo").setRoutingType(RoutingType.ANYCAST));
 
       producer = session.createProducer("foo");
       consumer = session.createConsumer("foo", "animal='giraffe'");

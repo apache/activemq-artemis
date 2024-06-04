@@ -71,7 +71,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -162,7 +162,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       final int numMessages = 10000;
 

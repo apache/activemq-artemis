@@ -94,7 +94,7 @@ public class ClientCrashTest extends ClientTestBase {
       assertActiveConnections(1);
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientCrashTest.QUEUE).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       // It has to be spawned after the queue was created.
@@ -146,7 +146,7 @@ public class ClientCrashTest extends ClientTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientCrashTest.QUEUE2).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());

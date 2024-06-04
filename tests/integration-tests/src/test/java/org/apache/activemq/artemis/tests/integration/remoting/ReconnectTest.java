@@ -414,7 +414,7 @@ public class ReconnectTest extends ActiveMQTestBase {
       SimpleString addressName1 = SimpleString.of("my_address_one");
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST));
       ClientConsumer clientConsumer1 = session.createConsumer(queueName1);
       ClientConsumer clientConsumer2 = session.createConsumer(queueName1);
       clientConsumer1.close();

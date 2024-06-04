@@ -83,7 +83,7 @@ public class FederatedTestBase extends ActiveMQTestBase {
    protected void createSimpleQueue(ActiveMQServer server, String queueName) throws Exception {
       SimpleString simpleStringQueueName = SimpleString.of(queueName);
       try {
-         server.createQueue(new QueueConfiguration(simpleStringQueueName).setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
+         server.createQueue(QueueConfiguration.of(simpleStringQueueName).setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
       } catch (Exception ignored) {
       }
 

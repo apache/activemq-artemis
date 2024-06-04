@@ -71,7 +71,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, false, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
@@ -96,7 +96,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, false);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
@@ -124,7 +124,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
    public void testMultipleConsumersMessageOrder() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession recSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       int numReceivers = 100;
       AtomicInteger count = new AtomicInteger(0);
       int numMessage = 10000;

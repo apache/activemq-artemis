@@ -305,7 +305,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setAutoCreated(false));
       server.start();
@@ -451,7 +451,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
       server.start();
-      server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                        .setAddress("test")
                                                        .setAutoCreated(false));
 
@@ -716,7 +716,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setAutoCreated(false));
       server.start();
@@ -1002,7 +1002,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setAutoCreated(false));
       server.start();
@@ -1089,7 +1089,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
       remoteServer.start();
-      remoteServer.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
+      remoteServer.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
                                                              .setAddress("test")
                                                              .setFilterString("color='red' OR color='green' OR color='blue'")
                                                              .setAutoCreated(false));

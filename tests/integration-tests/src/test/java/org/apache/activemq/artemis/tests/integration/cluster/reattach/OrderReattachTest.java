@@ -157,7 +157,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
          ClientSession sessConsume = sf.createSession(false, true, true);
 
-         sessConsume.createQueue(new QueueConfiguration(subName).setAddress(ADDRESS).setDurable(false));
+         sessConsume.createQueue(QueueConfiguration.of(subName).setAddress(ADDRESS).setDurable(false));
 
          ClientConsumer consumer = sessConsume.createConsumer(subName);
 

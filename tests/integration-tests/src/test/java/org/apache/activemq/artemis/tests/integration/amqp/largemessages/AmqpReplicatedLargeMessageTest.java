@@ -72,7 +72,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       backupServer.start();
 
       primaryServer.getServer().addAddressInfo(new AddressInfo(getQueueName(), RoutingType.ANYCAST));
-      primaryServer.getServer().createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      primaryServer.getServer().createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
 
       waitForRemoteBackupSynchronization(backupServer.getServer());

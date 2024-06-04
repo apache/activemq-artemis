@@ -50,7 +50,7 @@ public class AddressConfigTest extends ActiveMQTestBase {
 
    @Test
    public void persistAddressConfigTest() throws Exception {
-      server.createQueue(new QueueConfiguration("myQueue").setAddress("myAddress"));
+      server.createQueue(QueueConfiguration.of("myQueue").setAddress("myAddress"));
       server.stop();
       server.start();
       AddressInfo addressInfo = server.getAddressInfo(SimpleString.of("myAddress"));

@@ -254,7 +254,7 @@ public class CheckTest extends SmokeTestBase {
 
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
       try (ClientSessionFactory factory = locator.createSessionFactory(); ClientSession session = factory.createSession()) {
-         session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
 
       try {

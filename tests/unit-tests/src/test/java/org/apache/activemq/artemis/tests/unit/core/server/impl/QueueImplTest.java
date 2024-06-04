@@ -1409,7 +1409,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = addClientProducer(session.createProducer(MY_ADDRESS));
 

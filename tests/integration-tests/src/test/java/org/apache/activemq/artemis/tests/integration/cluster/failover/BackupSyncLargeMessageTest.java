@@ -120,7 +120,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
    @Test
    public void testBackupStartsWhenPrimaryIsReceivingLargeMessage() throws Exception {
       final ClientSession session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
       final ClientMessage message = session.createMessage(true);
       final int largeMessageSize = 1000 * MIN_LARGE_MESSAGE;

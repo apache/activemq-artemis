@@ -1262,7 +1262,7 @@ public class MQTTTest extends MQTTTestSupport {
    @Test
    @Timeout(60)
    public void testClientConnectionFailureSendsWillMessage() throws Exception {
-      getServer().createQueue(new QueueConfiguration("will"));
+      getServer().createQueue(QueueConfiguration.of("will"));
 
       MQTT mqtt = createMQTTConnection("1", false);
       mqtt.setKeepAlive((short) 1);
@@ -1290,7 +1290,7 @@ public class MQTTTest extends MQTTTestSupport {
    @Test
    @Timeout(60)
    public void testWillMessageIsRetained() throws Exception {
-      getServer().createQueue(new QueueConfiguration("will"));
+      getServer().createQueue(QueueConfiguration.of("will"));
 
       MQTT mqtt = createMQTTConnection("1", false);
       mqtt.setKeepAlive((short) 1);
@@ -2020,7 +2020,7 @@ public class MQTTTest extends MQTTTestSupport {
          String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic("foo/bar", server.getConfiguration().getWildcardConfiguration());
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
-         getServer().createQueue(new QueueConfiguration(MQTTUtil.getCoreQueueFromMqttTopic("foo/bar", clientId, server.getConfiguration().getWildcardConfiguration())).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
+         getServer().createQueue(QueueConfiguration.of(MQTTUtil.getCoreQueueFromMqttTopic("foo/bar", clientId, server.getConfiguration().getWildcardConfiguration())).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -2181,7 +2181,7 @@ public class MQTTTest extends MQTTTestSupport {
       CoreAddressConfiguration coreAddressConfiguration = new CoreAddressConfiguration();
       coreAddressConfiguration.setName("DLA");
       coreAddressConfiguration.addRoutingType(RoutingType.ANYCAST);
-      coreAddressConfiguration.addQueueConfiguration(new QueueConfiguration("DLQ")
+      coreAddressConfiguration.addQueueConfiguration(QueueConfiguration.of("DLQ")
                                                         .setAddress("DLA")
                                                         .setRoutingType(RoutingType.ANYCAST));
 

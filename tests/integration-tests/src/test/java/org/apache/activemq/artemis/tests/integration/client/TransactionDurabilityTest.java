@@ -68,9 +68,9 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       ClientSession session2 = addClientSession(sf.createSession(false, false, false));
 
-      session1.createQueue(new QueueConfiguration(queue1).setAddress(testAddress));
+      session1.createQueue(QueueConfiguration.of(queue1).setAddress(testAddress));
 
-      session1.createQueue(new QueueConfiguration(queue2).setAddress(testAddress));
+      session1.createQueue(QueueConfiguration.of(queue2).setAddress(testAddress));
 
       ClientProducer producer = session1.createProducer(testAddress);
 

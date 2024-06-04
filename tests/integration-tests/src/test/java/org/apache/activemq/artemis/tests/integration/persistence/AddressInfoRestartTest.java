@@ -36,7 +36,7 @@ public class AddressInfoRestartTest extends ActiveMQTestBase {
       SimpleString address = SimpleString.of("test.address");
       SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       AddressInfo addressInfo1 = server.getPostOffice().getAddressInfo(address);
       assertTrue(addressInfo1.isAutoCreated());

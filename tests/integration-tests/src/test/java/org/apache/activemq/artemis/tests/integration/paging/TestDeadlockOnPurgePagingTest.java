@@ -71,7 +71,7 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
       String queue = "purgeQueue";
       SimpleString ssQueue = SimpleString.of(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
+      QueueImpl purgeQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
       Connection connection = cf.createConnection();

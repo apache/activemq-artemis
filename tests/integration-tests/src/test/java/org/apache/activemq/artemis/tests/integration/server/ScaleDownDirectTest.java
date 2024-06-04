@@ -93,7 +93,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
 
       ClientSession session = sf.createSession(true, true);
 
-      session.createQueue(new QueueConfiguration("queue1").setAddress("ad1"));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress("ad1"));
 
       ClientProducer producer = session.createProducer("ad1");
 
@@ -109,7 +109,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
          producer.send(message);
       }
 
-      session.createQueue(new QueueConfiguration("queue2").setAddress("ad1"));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress("ad1"));
 
       for (int i = numberOfMessages; i < (numberOfMessages * 2); i++) {
          ClientMessage message = session.createMessage(true);
@@ -273,10 +273,10 @@ public class ScaleDownDirectTest extends ClusterTestBase {
 
       ClientSession session = sf.createSession(true, true);
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(addressName1).setDurable(false).setTemporary(true));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(addressName2));
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(addressName2).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(addressName2));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(addressName2).setDurable(false).setTemporary(true));
 
       ClientProducer producer1 = session.createProducer(addressName1);
       producer1.send(session.createMessage(true));

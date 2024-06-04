@@ -103,8 +103,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.of("q1");
       final SimpleString q2Name = SimpleString.of("q2");
 
-      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
-      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
+      Queue q1 = server.createQueue(QueueConfiguration.of(q1Name).setAddress(myAddress));
+      Queue q2 = server.createQueue(QueueConfiguration.of(q2Name).setAddress(myAddress));
 
       sendJmsMessage("Hello World!", ActiveMQJMSClient.createTopic(myAddress.toString()));
       assertTrue(Wait.waitFor(() -> q1.getMessageCount() == 1, 2000, 100));
@@ -127,8 +127,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.of("q1");
       final SimpleString q2Name = SimpleString.of("q2");
 
-      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
-      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
+      Queue q1 = server.createQueue(QueueConfiguration.of(q1Name).setAddress(myAddress));
+      Queue q2 = server.createQueue(QueueConfiguration.of(q2Name).setAddress(myAddress));
 
       conn.connect(defUser, defPass);
       send(conn, myAddress + "\\c\\c" + q1Name, null, "Hello World!");
@@ -152,8 +152,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.of("q1");
       final SimpleString q2Name = SimpleString.of("q2");
 
-      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
-      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
+      Queue q1 = server.createQueue(QueueConfiguration.of(q1Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
+      Queue q2 = server.createQueue(QueueConfiguration.of(q2Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
 
       conn.connect(defUser, defPass);
       send(conn, myAddress.toString(), null, "Hello World!", false, RoutingType.ANYCAST);

@@ -70,7 +70,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setAutoDeleteAddresses(autoCreate).setAutoCreateAddresses(autoCreate).setAutoCreateQueues(autoCreate).setAutoDeleteQueues(autoCreate).setDeadLetterAddress(SimpleString.of("DLQ")).setSendToDLAOnNoRoute(true);
       server.start();
-      server.createQueue(new QueueConfiguration("DLQ").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("DLQ").setRoutingType(RoutingType.ANYCAST));
       server.getAddressSettingsRepository().addMatch(getName() + "*", settings);
    }
 
@@ -112,7 +112,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
       if (!autocreate) {
          server.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(ADDRESS_NAME).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of(ADDRESS_NAME).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       }
 
 

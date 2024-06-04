@@ -92,7 +92,7 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
 
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == MESSAGE_COUNT);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName) != null);
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName).getMessageCount() == MESSAGE_COUNT);
 

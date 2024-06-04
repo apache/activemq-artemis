@@ -94,9 +94,9 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
 
       session = cf.createSession();
 
-      session.createQueue(new QueueConfiguration("queue1").setAddress(SimpleSendMultipleQueuesTest.address));
-      session.createQueue(new QueueConfiguration("queue2").setAddress(SimpleSendMultipleQueuesTest.address));
-      session.createQueue(new QueueConfiguration("queue3").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue3").setAddress(SimpleSendMultipleQueuesTest.address));
 
       producer = session.createProducer(SimpleSendMultipleQueuesTest.address);
 

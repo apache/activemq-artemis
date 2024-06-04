@@ -55,7 +55,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
          server.addAddressInfo(new AddressInfo(address)
                                   .addRoutingType(RoutingType.MULTICAST));
 
-         server.createQueue(new QueueConfiguration(queueName)
+         server.createQueue(QueueConfiguration.of(queueName)
                                .setAddress(address)
                                .setRoutingType(RoutingType.MULTICAST)
                                .setConfigurationManaged(true));

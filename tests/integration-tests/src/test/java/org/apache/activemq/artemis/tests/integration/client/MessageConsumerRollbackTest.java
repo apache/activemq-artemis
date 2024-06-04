@@ -72,9 +72,9 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createTransactedSession();
 
-      session.createQueue(new QueueConfiguration(inQueue));
+      session.createQueue(QueueConfiguration.of(inQueue));
 
-      session.createQueue(new QueueConfiguration(outQueue));
+      session.createQueue(QueueConfiguration.of(outQueue));
 
       session.close();
    }

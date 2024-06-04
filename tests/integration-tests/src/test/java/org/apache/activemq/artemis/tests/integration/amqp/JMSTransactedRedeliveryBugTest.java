@@ -54,9 +54,9 @@ public class JMSTransactedRedeliveryBugTest extends JMSClientTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);
       server.addAddressInfo(new AddressInfo(INITIAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(INITIAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(INITIAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(FINAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(FINAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(FINAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override

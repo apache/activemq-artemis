@@ -140,7 +140,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       assertEquals(2, AckManagerProvider.getSize());
 
       server1.addAddressInfo(new AddressInfo(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST));
-      org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server1.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server1.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Wait.assertTrue(() -> server2.locateQueue(QUEUE_NAME) != null);
 
@@ -188,7 +188,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       logger.info("I currently have {} ACk Managers", AckManagerProvider.getSize());
 
       server1.addAddressInfo(new AddressInfo(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST));
-      org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server1.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server1.createQueue(QueueConfiguration.of(QUEUE_NAME).setAddress(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Wait.assertTrue(() -> server2.locateQueue(QUEUE_NAME) != null);
 

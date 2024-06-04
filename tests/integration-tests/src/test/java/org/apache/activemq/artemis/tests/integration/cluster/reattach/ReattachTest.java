@@ -86,7 +86,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       final int numIterations = 10;
 
@@ -234,7 +234,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -270,7 +270,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -372,7 +372,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       session2.addFailureListener(listener);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -453,7 +453,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -726,7 +726,7 @@ public class ReattachTest extends ActiveMQTestBase {
       t.start();
 
       for (int i = 0; i < 10; i++) {
-         session.createQueue(new QueueConfiguration("queue" + i).setAddress("address").setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of("queue" + i).setAddress("address").setRoutingType(RoutingType.ANYCAST));
       }
 
       //
@@ -767,7 +767,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -826,7 +826,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -905,7 +905,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -974,7 +974,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 

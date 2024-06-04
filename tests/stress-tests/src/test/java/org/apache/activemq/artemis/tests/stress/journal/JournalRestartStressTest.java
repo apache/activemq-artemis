@@ -60,7 +60,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
          ClientSession session = sf.createSession(true, true);
 
          try {
-            session.createQueue(new QueueConfiguration("slow-queue"));
+            session.createQueue(QueueConfiguration.of("slow-queue"));
          } catch (Exception ignored) {
          }
 
@@ -103,7 +103,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
       ClientProducer prod2 = sessionSend.createProducer("slow-queue");
 
       try {
-         sessionSend.createQueue(new QueueConfiguration("Queue"));
+         sessionSend.createQueue(QueueConfiguration.of("Queue"));
       } catch (Exception ignored) {
       }
 

@@ -68,11 +68,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName3 = "queue3";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
-      QueueConfiguration queue3 = new QueueConfiguration(queueName3).setAddress(testAddress);
+      QueueConfiguration queue3 = QueueConfiguration.of(queueName3).setAddress(testAddress);
 
       List<QueueConfiguration> queueConfs = new ArrayList<>();
 
@@ -93,7 +93,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       try {
-         session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress).setFilterString("").setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName1).setAddress(testAddress).setFilterString("").setDurable(false));
 
          fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
@@ -102,7 +102,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
-         session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
          fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
@@ -111,7 +111,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
-         session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress).setDurable(false));
 
          fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
@@ -129,9 +129,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName2 = "queue2";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
       configuration.addQueueConfiguration(queue1).addQueueConfiguration(queue2);
 
@@ -205,11 +205,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(testAddress));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress));
 
       session.close();
 
@@ -217,11 +217,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       server.stop();
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
-      QueueConfiguration queue3 = new QueueConfiguration(queueName3).setAddress(testAddress);
+      QueueConfiguration queue3 = QueueConfiguration.of(queueName3).setAddress(testAddress);
 
       configuration.addQueueConfiguration(queue1).addQueueConfiguration(queue2).addQueueConfiguration(queue3);
 
@@ -283,9 +283,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName2 = "queue2";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress).setDurable(false);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress).setDurable(false);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
       List<QueueConfiguration> queueConfs = new ArrayList<>();
 
@@ -363,7 +363,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String filter = "cheese='camembert'";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress).setFilterString(filter).setDurable(false);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress).setFilterString(filter).setDurable(false);
 
       configuration.addQueueConfiguration(queue1);
 

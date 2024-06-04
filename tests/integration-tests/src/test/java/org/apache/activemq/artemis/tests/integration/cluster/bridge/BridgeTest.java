@@ -193,12 +193,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -303,12 +303,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -439,12 +439,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -594,12 +594,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -728,7 +728,7 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
@@ -770,7 +770,7 @@ public class BridgeTest extends ActiveMQTestBase {
       ClientSession session1 = sf1.createSession(false, true, true);
 
       try {
-         session1.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
+         session1.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
       } catch (Throwable ignored) {
          ignored.printStackTrace();
       }
@@ -837,10 +837,10 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
-      queueConfig0 = new QueueConfiguration(secondQueue).setAddress(testAddress);
+      queueConfig0 = QueueConfiguration.of(secondQueue).setAddress(testAddress);
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
@@ -903,7 +903,7 @@ public class BridgeTest extends ActiveMQTestBase {
       ClientSession session1 = sf1.createSession(false, true, true);
 
       try {
-         session1.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
+         session1.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST));
       } catch (Throwable ignored) {
          ignored.printStackTrace();
       }
@@ -1005,12 +1005,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1115,12 +1115,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1217,12 +1217,12 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1418,12 +1418,12 @@ public class BridgeTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
          List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
          List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1643,12 +1643,12 @@ public class BridgeTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
          List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
          List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1775,12 +1775,12 @@ public class BridgeTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
          List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
          List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -1928,13 +1928,13 @@ public class BridgeTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
       // on server #1, we bind queueName1 to same address testAddress
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -2012,7 +2012,7 @@ public class BridgeTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(config, null, null, null, serviceRegistry));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       List<String> connectors = new ArrayList<>();
       connectors.add("in-vm");
       server.deployBridge(new BridgeConfiguration().setName(BRIDGE).setQueueName(QUEUE.toString()).setForwardingAddress(ADDRESS.toString()).setStaticConnectors(connectors));
@@ -2033,8 +2033,8 @@ public class BridgeTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(config));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      server.createQueue(new QueueConfiguration(FORWARDING_QUEUE).setAddress(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(FORWARDING_QUEUE).setAddress(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ArrayList<String> connectors = new ArrayList<>();
       connectors.add("myConnector");
       server.deployBridge(new BridgeConfiguration()
@@ -2065,11 +2065,11 @@ public class BridgeTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(createDefaultConfig(0, isNetty()).addConnectorConfiguration("myConnector", new TransportConfiguration(getConnector()))));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.createQueue(new QueueConfiguration(QUEUE)
+      server.createQueue(QueueConfiguration.of(QUEUE)
                             .setAddress(ADDRESS)
                             .setRoutingType(RoutingType.ANYCAST)
                             .setDurable(false));
-      server.createQueue(new QueueConfiguration(FORWARDING_QUEUE)
+      server.createQueue(QueueConfiguration.of(FORWARDING_QUEUE)
                             .setAddress(FORWARDING_ADDRESS)
                             .setRoutingType(RoutingType.ANYCAST)
                             .setDurable(false));

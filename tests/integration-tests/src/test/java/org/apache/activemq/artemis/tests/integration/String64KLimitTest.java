@@ -67,7 +67,7 @@ public class String64KLimitTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);
@@ -131,7 +131,7 @@ public class String64KLimitTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);

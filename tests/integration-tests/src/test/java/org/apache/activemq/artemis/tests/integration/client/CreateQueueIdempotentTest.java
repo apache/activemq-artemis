@@ -56,10 +56,10 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
       try {
-         session.createQueue(new QueueConfiguration(QUEUE));
+         session.createQueue(QueueConfiguration.of(QUEUE));
          fail("Expected exception, queue already exists");
       } catch (ActiveMQQueueExistsException qee) {
          //ok
@@ -122,7 +122,7 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
             ClientSessionFactory sf = createSessionFactory(locator);
             session = sf.createSession(false, true, true);
             final SimpleString QUEUE = SimpleString.of(queueName);
-            session.createQueue(new QueueConfiguration(QUEUE));
+            session.createQueue(QueueConfiguration.of(QUEUE));
             queuesCreated.incrementAndGet();
          } catch (ActiveMQQueueExistsException qne) {
             failedAttempts.incrementAndGet();

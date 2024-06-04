@@ -219,7 +219,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
       SimpleString dla = SimpleString.of("DLA");
       SimpleString dlq = SimpleString.of("DLQ1");
-      server.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      server.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
       server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDeadLetterAddress(dla));
 
       sendMultipleTextMessagesUsingCoreJms(queueName, text, 100);

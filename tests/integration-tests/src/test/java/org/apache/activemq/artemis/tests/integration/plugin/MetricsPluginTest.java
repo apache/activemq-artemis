@@ -140,7 +140,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
 
       Map<Meter.Id, Double> metrics = getMetrics();
       List<Metric> artemisMetrics = metrics.entrySet().stream()
@@ -212,7 +212,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().getMatch(addressName).setEnableMetrics(enabled);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
@@ -270,7 +270,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().getMatch(addressName).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 10).setPageSizeBytes(1024 * 5);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);

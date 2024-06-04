@@ -108,8 +108,8 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
 
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
 
-      QueueConfiguration sourceQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration targetQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration sourceQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration targetQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
       List<String> connectors = new ArrayList<>();
       connectors.add(connectorConfig.getName());
       bridgeConfig = new BridgeConfiguration().setName(RandomUtil.randomString()).setQueueName(sourceQueueConfig.getName().toString()).setForwardingAddress(targetQueueConfig.getAddress().toString()).setRetryInterval(RandomUtil.randomPositiveLong()).setRetryIntervalMultiplier(RandomUtil.randomDouble()).setInitialConnectAttempts(RandomUtil.randomPositiveInt()).setReconnectAttempts(RandomUtil.randomPositiveInt()).setReconnectAttemptsOnSameNode(RandomUtil.randomPositiveInt()).setUseDuplicateDetection(RandomUtil.randomBoolean()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setStaticConnectors(connectors);

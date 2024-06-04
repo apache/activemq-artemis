@@ -64,8 +64,8 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       server = createServer(false, createDefaultInVMConfig());
       server.start();
 
-      server.createQueue(new QueueConfiguration(SOURCE).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(TARGET).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(SOURCE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(TARGET).setRoutingType(RoutingType.ANYCAST));
    }
 
    private static ConnectionFactory createConnectionFactory() {

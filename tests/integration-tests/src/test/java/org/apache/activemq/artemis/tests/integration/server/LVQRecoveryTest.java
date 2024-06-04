@@ -181,7 +181,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);
-      clientSession.createQueue(new QueueConfiguration(qName1).setAddress(address));
+      clientSession.createQueue(QueueConfiguration.of(qName1).setAddress(address));
    }
 
    private void restartServer() throws Exception {

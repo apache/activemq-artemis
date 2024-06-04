@@ -138,7 +138,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             }
          }
 
-         final Queue queue = queueFactory.createQueueWith(new QueueConfiguration(queueBindingInfo.getQueueName())
+         final Queue queue = queueFactory.createQueueWith(QueueConfiguration.of(queueBindingInfo.getQueueName())
                                                              .setId(queueBindingInfo.getId())
                                                              .setAddress(queueBindingInfo.getAddress())
                                                              .setFilterString(queueBindingInfo.getFilterString())

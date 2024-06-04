@@ -93,7 +93,7 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       ServerLocator producerLocator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory producerSessionFactory = createSessionFactory(producerLocator);
       ClientSession producerSession = producerSessionFactory.createSession(false, true, true);
-      producerSession.createQueue(new QueueConfiguration(DualAuthenticationTest.QUEUE).setDurable(false));
+      producerSession.createQueue(QueueConfiguration.of(DualAuthenticationTest.QUEUE).setDurable(false));
       ClientProducer producer = producerSession.createProducer(DualAuthenticationTest.QUEUE);
 
       ClientMessage message = createTextMessage(producerSession, text);

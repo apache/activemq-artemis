@@ -59,7 +59,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase {
       String tempQueue = "tempqueue";
       // create temp queue on node #0
       ClientSession session = sfs[0].createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(tempQueue).setAddress(tempAddress).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(tempQueue).setAddress(tempAddress).setDurable(false).setTemporary(true));
       ClientConsumer consumer = session.createConsumer(tempQueue);
 
       // check the binding is created on node #1

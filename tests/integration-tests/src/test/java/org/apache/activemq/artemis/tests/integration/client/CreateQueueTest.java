@@ -91,7 +91,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressA, RoutingType.MULTICAST, queueA);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+            sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
@@ -106,7 +106,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressB, RoutingType.ANYCAST, queueB);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressB).setRoutingType(RoutingType.ANYCAST));
+            sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressB).setRoutingType(RoutingType.ANYCAST));
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
@@ -127,7 +127,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressA, RoutingType.MULTICAST, queueA);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+            sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
          }
          fail("Creating a queue here should fail since the queue's address doesn't exist and auto-create-addresses = false.");
       } catch (Exception e) {
