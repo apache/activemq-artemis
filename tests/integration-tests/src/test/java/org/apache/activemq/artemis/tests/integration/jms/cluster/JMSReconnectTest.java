@@ -104,7 +104,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       RemotingConnection coreConn = ((ClientSessionInternal) coreSession).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.of("myqueue");
 
       coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 

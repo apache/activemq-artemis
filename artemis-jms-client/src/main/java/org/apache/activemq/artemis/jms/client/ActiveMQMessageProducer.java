@@ -83,7 +83,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       this.options = options;
       this.connection = connection;
 
-      connID = connection.getClientID() != null ? new SimpleString(connection.getClientID()) : connection.getUID();
+      connID = connection.getClientID() != null ? SimpleString.of(connection.getClientID()) : connection.getUID();
 
       this.clientProducer = producer;
 

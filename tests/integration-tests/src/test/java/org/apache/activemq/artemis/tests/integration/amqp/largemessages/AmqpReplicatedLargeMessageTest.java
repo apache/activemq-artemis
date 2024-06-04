@@ -79,7 +79,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
    }
 
    public SimpleString getQueueName() {
-      return SimpleString.toSimpleString("replicatedTest");
+      return SimpleString.of("replicatedTest");
    }
 
 

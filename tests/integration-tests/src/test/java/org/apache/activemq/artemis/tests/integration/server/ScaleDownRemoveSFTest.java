@@ -101,7 +101,7 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       clientMessage.acknowledge();
       consumers[1].getSession().commit();
 
-      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
+      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
 
       //check sf queue on server1 exists
       ClusterConnectionImpl clusterconn1 = (ClusterConnectionImpl) servers[1].getClusterManager().getClusterConnection("cluster0");

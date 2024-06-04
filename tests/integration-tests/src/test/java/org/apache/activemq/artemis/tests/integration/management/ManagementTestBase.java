@@ -90,7 +90,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    }
 
    protected QueueControl createManagementControl(final String address, final String queue) throws Exception {
-      return createManagementControl(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queue));
+      return createManagementControl(SimpleString.of(address), SimpleString.of(queue));
    }
 
    protected QueueControl createManagementControl(final SimpleString address,

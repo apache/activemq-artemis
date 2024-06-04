@@ -64,9 +64,9 @@ public class AMQPMirrorBrokerConnectionElementTest {
       assertEquals(mirror1, mirror2);
 
       // Mirror SNF
-      mirror1.setMirrorSNF(SimpleString.toSimpleString("test"));
+      mirror1.setMirrorSNF(SimpleString.of("test"));
       assertNotEquals(mirror1, mirror2);
-      mirror2.setMirrorSNF(SimpleString.toSimpleString("test"));
+      mirror2.setMirrorSNF(SimpleString.of("test"));
       assertEquals(mirror1, mirror2);
 
       // Address Filter
@@ -112,9 +112,9 @@ public class AMQPMirrorBrokerConnectionElementTest {
       assertEquals(mirror1.hashCode(), mirror2.hashCode());
 
       // Mirror SNF
-      mirror1.setMirrorSNF(SimpleString.toSimpleString("test"));
+      mirror1.setMirrorSNF(SimpleString.of("test"));
       assertNotEquals(mirror1.hashCode(), mirror2.hashCode());
-      mirror2.setMirrorSNF(SimpleString.toSimpleString("test"));
+      mirror2.setMirrorSNF(SimpleString.of("test"));
       assertEquals(mirror1.hashCode(), mirror2.hashCode());
 
       // Address Filter

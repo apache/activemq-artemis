@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(ParameterizedTestExtension.class)
 public class ExtremeCancelsTest extends JMSClientTestSupport {
 
-   private SimpleString anycastAddress = new SimpleString("theQueue");
+   private SimpleString anycastAddress = SimpleString.of("theQueue");
 
 
    @Override

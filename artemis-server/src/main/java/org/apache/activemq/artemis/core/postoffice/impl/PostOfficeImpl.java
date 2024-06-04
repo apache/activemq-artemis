@@ -118,11 +118,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_AMQ_RESET_QUEUE_DATA");
+   public static final SimpleString HDR_RESET_QUEUE_DATA = SimpleString.of("_AMQ_RESET_QUEUE_DATA");
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = new SimpleString("_AMQ_RESET_QUEUE_DATA_COMPLETE");
+   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = SimpleString.of("_AMQ_RESET_QUEUE_DATA_COMPLETE");
 
-   public static final SimpleString BRIDGE_CACHE_STR = new SimpleString("BRIDGE.");
+   public static final SimpleString BRIDGE_CACHE_STR = SimpleString.of("BRIDGE.");
 
    private final AddressManager addressManager;
 
@@ -579,11 +579,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
          String address = ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, name.toString());
          AddressSettings settings = addressSettingsRepository.getMatch(address);
-         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.ANYCAST));
+         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.ANYCAST));
          if (internalAnycastQueue != null && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
             internalAnycastQueue.setRingSize(settings.getRetroactiveMessageCount());
          }
-         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.MULTICAST));
          if (internalMulticastQueue != null && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
             internalMulticastQueue.setRingSize(settings.getRetroactiveMessageCount());
          }
@@ -792,7 +792,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                changed = true;
                queue.setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch());
             }
-            final SimpleString empty = new SimpleString("");
+            final SimpleString empty = SimpleString.of("");
             Filter oldFilter = FilterImpl.createFilter(queue.getFilter() == null ? empty : queue.getFilter().getFilterString());
             Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString() == null ? empty : queueConfiguration.getFilterString());
             if ((forceUpdate || newFilter != oldFilter) && !Objects.equals(oldFilter, newFilter)) {
@@ -1930,7 +1930,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.setAddress(queueName);
 
-      message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(type.toString()));
+      message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, SimpleString.of(type.toString()));
 
       long timestamp = System.currentTimeMillis();
       message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, timestamp);

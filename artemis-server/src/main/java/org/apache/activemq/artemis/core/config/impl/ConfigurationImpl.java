@@ -830,7 +830,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            return (T) SimpleString.toSimpleString(value.toString());
+            return (T) SimpleString.of(value.toString());
          }
       }, SimpleString.class);
 

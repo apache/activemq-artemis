@@ -101,7 +101,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       MessagePersister.registerPersister(AMQPMessagePersister.getInstance());
    }
 
-   private static final SimpleString destinationTestName = new SimpleString("test");
+   private static final SimpleString destinationTestName = SimpleString.of("test");
 
    protected ExecutorService executor;
 
@@ -181,7 +181,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       ActiveMQBuffer buffer = createRandomBuffer(0, 10);
 
       buffers.add(buffer);
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       Message msg = createMessage(1, storeImpl, destination, buffer);
 
@@ -207,7 +207,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testDepageOnCurrentPage() throws Exception {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -271,7 +271,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testRemoveInTheMiddle() throws Exception {
       SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
 
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -389,7 +389,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testRemoveCurrentPage() throws Exception {
       SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
 
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -493,7 +493,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testReadNumberOfMessages() throws Exception {
       SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
 
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -540,7 +540,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Test
    public void testDepageMultiplePages() throws Exception {
       SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1).setDatasync(false);
-      SimpleString destination = new SimpleString("test");
+      SimpleString destination = SimpleString.of("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -686,7 +686,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
 
       storeImpl.start();
 
@@ -697,7 +697,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       assertEquals(1, storeImpl.getNumberOfPages());
 
-      final SimpleString destination = new SimpleString("test");
+      final SimpleString destination = SimpleString.of("test");
 
       class WriterThread extends Thread {
 
@@ -819,7 +819,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          fileTmp.close();
       }
 
-      PagingStore storeImpl2 = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
+      PagingStore storeImpl2 = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
       storeImpl2.start();
 
       long numberOfPages = storeImpl2.getNumberOfPages();
@@ -890,7 +890,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
 
       storeImpl.start();
 
@@ -923,7 +923,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-         final PagingStore store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), false);
+         final PagingStore store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), false);
 
          store.start();
 
@@ -934,7 +934,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          assertEquals(1, store.getNumberOfPages());
 
-         final SimpleString destination = new SimpleString("test");
+         final SimpleString destination = SimpleString.of("test");
 
          final long NUMBER_OF_MESSAGES = 10000;
 
@@ -1020,7 +1020,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, new SimpleString("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
 
       storeImpl.start();
 

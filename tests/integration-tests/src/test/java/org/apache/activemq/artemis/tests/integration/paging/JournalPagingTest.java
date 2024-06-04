@@ -76,7 +76,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
    protected static final int PAGE_MAX = 100 * 1024;
    protected static final int PAGE_SIZE = 10 * 1024;
    static final int MESSAGE_SIZE = 1024; // 1k
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = SimpleString.of("SimpleAddress");
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected ServerLocator locator;
    protected ActiveMQServer server;
@@ -182,7 +182,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       consumer.close();
 
-      consumer = session.createConsumer(ADDRESS, SimpleString.toSimpleString("i=29"));
+      consumer = session.createConsumer(ADDRESS, SimpleString.of("i=29"));
 
       message = consumer.receive(5000);
       assertNotNull(message);
@@ -324,7 +324,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString queue = new SimpleString("testPurge:" + RandomUtil.randomString());
+      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
       QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
@@ -560,7 +560,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
             bodyLocal.writeBytes(body);
 
-            message.putIntProperty(new SimpleString("id"), i);
+            message.putIntProperty(SimpleString.of("id"), i);
 
             try {
                producer.send(message);
@@ -621,7 +621,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -706,7 +706,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("theid"), i);
+         message.putIntProperty(SimpleString.of("theid"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {

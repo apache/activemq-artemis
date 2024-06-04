@@ -91,7 +91,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          commonSettings = new AddressSettings();
          addressSettingsMap.put(match, commonSettings);
       }
-      SimpleString dla = new SimpleString("ActiveMQ.DLQ");
+      SimpleString dla = SimpleString.of("ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
       commonSettings.setExpiryAddress(dla);
       commonSettings.setAutoCreateQueues(true);
@@ -260,7 +260,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       synchronized (testQueues) {
          SimpleString coreQ = testQueues.get(qname);
          if (coreQ == null) {
-            coreQ = new SimpleString(qname);
+            coreQ = SimpleString.of(qname);
             try {
                this.server.createQueue(new QueueConfiguration(coreQ).setDurable(false));
                testQueues.put(qname, coreQ);
@@ -282,7 +282,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       } else {
          qname = amq5Dest.getPhysicalName();
       }
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));
+      Binding binding = server.getPostOffice().getBinding(SimpleString.of(qname));
       if (binding != null) {
          QueueImpl q = (QueueImpl) binding.getBindable();
          count = q.getMessageCount();

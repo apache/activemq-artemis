@@ -44,12 +44,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRouting() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -73,10 +73,10 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRoutingQueuesDontExist() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
@@ -104,11 +104,11 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRoutingQueuesDontExist2() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName = new SimpleString("Q");
-      SimpleString queueName2 = new SimpleString("Q2");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName = SimpleString.of("Q");
+      SimpleString queueName2 = SimpleString.of("Q2");
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
@@ -143,12 +143,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRoutingWithHash() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -172,12 +172,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingQueuesAddedAfter() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
@@ -201,12 +201,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingQueuesAddedThenDeleted() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -234,26 +234,26 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingLotsOfQueuesAddedThenDeleted() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString addressAD = new SimpleString("a.d");
-      SimpleString addressAE = new SimpleString("a.e");
-      SimpleString addressAF = new SimpleString("a.f");
-      SimpleString addressAG = new SimpleString("a.g");
-      SimpleString addressAH = new SimpleString("a.h");
-      SimpleString addressAJ = new SimpleString("a.j");
-      SimpleString addressAK = new SimpleString("a.k");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName3 = new SimpleString("Q3");
-      SimpleString queueName4 = new SimpleString("Q4");
-      SimpleString queueName5 = new SimpleString("Q5");
-      SimpleString queueName6 = new SimpleString("Q6");
-      SimpleString queueName7 = new SimpleString("Q7");
-      SimpleString queueName8 = new SimpleString("Q8");
-      SimpleString queueName9 = new SimpleString("Q9");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString addressAD = SimpleString.of("a.d");
+      SimpleString addressAE = SimpleString.of("a.e");
+      SimpleString addressAF = SimpleString.of("a.f");
+      SimpleString addressAG = SimpleString.of("a.g");
+      SimpleString addressAH = SimpleString.of("a.h");
+      SimpleString addressAJ = SimpleString.of("a.j");
+      SimpleString addressAK = SimpleString.of("a.k");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName3 = SimpleString.of("Q3");
+      SimpleString queueName4 = SimpleString.of("Q4");
+      SimpleString queueName5 = SimpleString.of("Q5");
+      SimpleString queueName6 = SimpleString.of("Q6");
+      SimpleString queueName7 = SimpleString.of("Q7");
+      SimpleString queueName8 = SimpleString.of("Q8");
+      SimpleString queueName9 = SimpleString.of("Q9");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName3).setAddress(addressAD).setDurable(false));
@@ -331,26 +331,26 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingLotsOfQueuesAddedThenDeletedHash() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString addressAD = new SimpleString("a.d");
-      SimpleString addressAE = new SimpleString("a.e");
-      SimpleString addressAF = new SimpleString("a.f");
-      SimpleString addressAG = new SimpleString("a.g");
-      SimpleString addressAH = new SimpleString("a.h");
-      SimpleString addressAJ = new SimpleString("a.j");
-      SimpleString addressAK = new SimpleString("a.k");
-      SimpleString address = new SimpleString("#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName3 = new SimpleString("Q3");
-      SimpleString queueName4 = new SimpleString("Q4");
-      SimpleString queueName5 = new SimpleString("Q5");
-      SimpleString queueName6 = new SimpleString("Q6");
-      SimpleString queueName7 = new SimpleString("Q7");
-      SimpleString queueName8 = new SimpleString("Q8");
-      SimpleString queueName9 = new SimpleString("Q9");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString addressAD = SimpleString.of("a.d");
+      SimpleString addressAE = SimpleString.of("a.e");
+      SimpleString addressAF = SimpleString.of("a.f");
+      SimpleString addressAG = SimpleString.of("a.g");
+      SimpleString addressAH = SimpleString.of("a.h");
+      SimpleString addressAJ = SimpleString.of("a.j");
+      SimpleString addressAK = SimpleString.of("a.k");
+      SimpleString address = SimpleString.of("#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName3 = SimpleString.of("Q3");
+      SimpleString queueName4 = SimpleString.of("Q4");
+      SimpleString queueName5 = SimpleString.of("Q5");
+      SimpleString queueName6 = SimpleString.of("Q6");
+      SimpleString queueName7 = SimpleString.of("Q7");
+      SimpleString queueName8 = SimpleString.of("Q8");
+      SimpleString queueName9 = SimpleString.of("Q9");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName3).setAddress(addressAD).setDurable(false));
@@ -428,12 +428,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingWithSingleHash() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -457,12 +457,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingWithHash() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.f");
-      SimpleString addressAC = new SimpleString("a.c.f");
-      SimpleString address = new SimpleString("a.#.f");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.f");
+      SimpleString addressAC = SimpleString.of("a.c.f");
+      SimpleString address = SimpleString.of("a.#.f");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -486,12 +486,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingWithHashMultiLengthAddresses() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c.f");
-      SimpleString addressAC = new SimpleString("a.c.f");
-      SimpleString address = new SimpleString("a.#.f");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c.f");
+      SimpleString addressAC = SimpleString.of("a.c.f");
+      SimpleString address = SimpleString.of("a.#.f");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -515,12 +515,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingWithDoubleStar() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("*.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("*.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -544,12 +544,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingPartialMatchStar() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("*.b");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("*.b");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -569,12 +569,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingVariableLengths() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -596,12 +596,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingVariableLengthsStar() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -621,12 +621,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingMultipleStars() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("*.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("*.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -646,12 +646,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingStarInMiddle() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("*.b.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("*.b.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -671,12 +671,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingStarAndHash() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c.d");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("*.b.#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c.d");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("*.b.#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -696,12 +696,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testWildcardRoutingHashAndStar() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("#.b.*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("#.b.*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
@@ -721,12 +721,12 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
 
    @Test
    public void testLargeWildcardRouting() throws Exception {
-      SimpleString addressAB = new SimpleString("a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z");
-      SimpleString addressAC = new SimpleString("a.c");
-      SimpleString address = new SimpleString("a.#");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
+      SimpleString addressAB = SimpleString.of("a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z");
+      SimpleString addressAC = SimpleString.of("a.c");
+      SimpleString address = SimpleString.of("a.#");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
       clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));

@@ -57,7 +57,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class IngressTimestampTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    @Parameters(name = "restart={0}, large={1}")
    public static Collection<Object[]> parameters() {

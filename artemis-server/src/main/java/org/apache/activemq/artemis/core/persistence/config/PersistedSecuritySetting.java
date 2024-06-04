@@ -87,19 +87,19 @@ public class PersistedSecuritySetting implements EncodingSupport {
                                    final String viewRoles,
                                    final String editRoles) {
       super();
-      this.addressMatch = SimpleString.toSimpleString(addressMatch);
-      this.sendRoles = SimpleString.toSimpleString(sendRoles);
-      this.consumeRoles = SimpleString.toSimpleString(consumeRoles);
-      this.createDurableQueueRoles = SimpleString.toSimpleString(createDurableQueueRoles);
-      this.deleteDurableQueueRoles = SimpleString.toSimpleString(deleteDurableQueueRoles);
-      this.createNonDurableQueueRoles = SimpleString.toSimpleString(createNonDurableQueueRoles);
-      this.deleteNonDurableQueueRoles = SimpleString.toSimpleString(deleteNonDurableQueueRoles);
-      this.manageRoles = SimpleString.toSimpleString(manageRoles);
-      this.browseRoles = SimpleString.toSimpleString(browseRoles);
-      this.createAddressRoles = SimpleString.toSimpleString(createAddressRoles);
-      this.deleteAddressRoles = SimpleString.toSimpleString(deleteAddressRoles);
-      this.viewRoles = SimpleString.toSimpleString(viewRoles);
-      this.editRoles = SimpleString.toSimpleString(editRoles);
+      this.addressMatch = SimpleString.of(addressMatch);
+      this.sendRoles = SimpleString.of(sendRoles);
+      this.consumeRoles = SimpleString.of(consumeRoles);
+      this.createDurableQueueRoles = SimpleString.of(createDurableQueueRoles);
+      this.deleteDurableQueueRoles = SimpleString.of(deleteDurableQueueRoles);
+      this.createNonDurableQueueRoles = SimpleString.of(createNonDurableQueueRoles);
+      this.deleteNonDurableQueueRoles = SimpleString.of(deleteNonDurableQueueRoles);
+      this.manageRoles = SimpleString.of(manageRoles);
+      this.browseRoles = SimpleString.of(browseRoles);
+      this.createAddressRoles = SimpleString.of(createAddressRoles);
+      this.deleteAddressRoles = SimpleString.of(deleteAddressRoles);
+      this.viewRoles = SimpleString.of(viewRoles);
+      this.editRoles = SimpleString.of(editRoles);
    }
 
 
@@ -204,7 +204,7 @@ public class PersistedSecuritySetting implements EncodingSupport {
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       if (addressMatch == null) {
-         addressMatch = new SimpleString("");
+         addressMatch = SimpleString.of("");
       }
       buffer.writeSimpleString(addressMatch);
       buffer.writeNullableSimpleString(sendRoles);

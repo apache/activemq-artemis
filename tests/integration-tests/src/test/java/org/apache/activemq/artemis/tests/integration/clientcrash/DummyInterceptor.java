@@ -58,7 +58,7 @@ public class DummyInterceptor implements Interceptor {
          if (packet instanceof SessionReceiveMessage) {
             SessionReceiveMessage deliver = (SessionReceiveMessage) packet;
             logger.debug("msg = {}", deliver.getMessage().getClass().getName());
-            deliver.getMessage().putStringProperty(new SimpleString("DummyInterceptor"), new SimpleString("was here"));
+            deliver.getMessage().putStringProperty(SimpleString.of("DummyInterceptor"), SimpleString.of("was here"));
          }
       }
       return true;

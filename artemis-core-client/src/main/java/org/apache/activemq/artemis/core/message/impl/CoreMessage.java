@@ -313,7 +313,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setGroupID(String groupId) {
-      return this.setGroupID(SimpleString.toSimpleString(groupId, coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool()));
+      return this.setGroupID(SimpleString.of(groupId, coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool()));
    }
 
    @Override
@@ -860,7 +860,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public CoreMessage setAddress(String address) {
       messageChanged();
-      this.address = SimpleString.toSimpleString(address, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
+      this.address = SimpleString.of(address, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
       return this;
    }
 
@@ -1308,11 +1308,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private SimpleString key(String key) {
-      return SimpleString.toSimpleString(key, getPropertyKeysPool());
+      return SimpleString.of(key, getPropertyKeysPool());
    }
 
    private SimpleString value(String value) {
-      return SimpleString.toSimpleString(value, getPropertyValuesPool());
+      return SimpleString.of(value, getPropertyValuesPool());
    }
 
    private SimpleString.StringSimpleStringPool getPropertyKeysPool() {

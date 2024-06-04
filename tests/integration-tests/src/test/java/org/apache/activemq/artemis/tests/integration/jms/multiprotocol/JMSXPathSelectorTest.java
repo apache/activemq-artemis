@@ -62,7 +62,7 @@ public class JMSXPathSelectorTest extends MultiprotocolJMSClientTestSupport {
       super.createAddressAndQueues(server);
 
       //Add Standard Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 

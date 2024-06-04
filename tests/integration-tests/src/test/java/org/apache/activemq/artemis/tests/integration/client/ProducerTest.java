@@ -51,7 +51,7 @@ public class ProducerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    @Override
    @BeforeEach

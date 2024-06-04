@@ -1165,7 +1165,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertEquals(1, configuration.getAddressConfigurations().size());
       assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
-      assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
+      assertEquals(SimpleString.of("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
       assertNotNull(configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
       assertFalse(configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
    }
@@ -1338,17 +1338,17 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(4, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
-      assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
-      assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+      assertEquals(SimpleString.of("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      assertEquals(SimpleString.of("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
       assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoCreateExpiryResources());
-      assertEquals(SimpleString.toSimpleString("iamDeadLetterAdd"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterAddress());
-      assertEquals(SimpleString.toSimpleString("add1Expiry"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueuePrefix());
+      assertEquals(SimpleString.of("iamDeadLetterAdd"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterAddress());
+      assertEquals(SimpleString.of("add1Expiry"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueuePrefix());
       assertEquals(20000000, configuration.getAddressSettings().get("NeedToSet").getMaxReadPageBytes());
       assertEquals(512, configuration.getAddressSettings().get("NeedToSet").getManagementMessageAttributeSizeLimit());
-      assertEquals(SimpleString.toSimpleString("iamDeadLetterQueuePre"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueuePrefix());
+      assertEquals(SimpleString.of("iamDeadLetterQueuePre"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueuePrefix());
       assertEquals(12345, configuration.getAddressSettings().get("NeedToSet").getPageSizeBytes());
-      assertEquals(SimpleString.toSimpleString("add1ExpirySuffix"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueueSuffix());
+      assertEquals(SimpleString.of("add1ExpirySuffix"), configuration.getAddressSettings().get("NeedToSet").getExpiryQueueSuffix());
       assertEquals(Long.valueOf(44), configuration.getAddressSettings().get("NeedToSet").getExpiryDelay());
       assertEquals(Long.valueOf(5), configuration.getAddressSettings().get("NeedToSet").getMinExpiryDelay());
       assertEquals(Long.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getMaxExpiryDelay());
@@ -1356,9 +1356,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(300, configuration.getAddressSettings().get("NeedToSet").getManagementBrowsePageSize());
       assertEquals(-1, configuration.getAddressSettings().get("NeedToSet").getRetroactiveMessageCount());
       assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getMaxDeliveryAttempts());
-      assertEquals(SimpleString.toSimpleString("add1Key"), configuration.getAddressSettings().get("NeedToSet").getDefaultGroupFirstKey());
+      assertEquals(SimpleString.of("add1Key"), configuration.getAddressSettings().get("NeedToSet").getDefaultGroupFirstKey());
       assertEquals(100, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerCheckPeriod());
-      assertEquals(SimpleString.toSimpleString("add1Lvk"), configuration.getAddressSettings().get("NeedToSet").getDefaultLastValueKey());
+      assertEquals(SimpleString.of("add1Lvk"), configuration.getAddressSettings().get("NeedToSet").getDefaultLastValueKey());
       assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteDiverts());
       assertEquals(1000, configuration.getAddressSettings().get("NeedToSet").getDefaultConsumerWindowSize());
       assertEquals(7, configuration.getAddressSettings().get("NeedToSet").getMessageCounterHistoryDayLimit());
@@ -1384,7 +1384,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertTrue(configuration.getAddressSettings().get("NeedToSet").isSendToDLAOnNoRoute());
       assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThresholdMeasurementUnit());
       assertEquals(900, configuration.getAddressSettings().get("NeedToSet").getQueuePrefetch());
-      assertEquals(SimpleString.toSimpleString("iamDeadLetterQueueSuf"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueueSuffix());
+      assertEquals(SimpleString.of("iamDeadLetterQueueSuf"), configuration.getAddressSettings().get("NeedToSet").getDeadLetterQueueSuffix());
       assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultNonDestructive());
       assertEquals(DeletionPolicy.FORCE, configuration.getAddressSettings().get("NeedToSet").getConfigDeleteAddresses());
       assertEquals(10, configuration.getAddressSettings().get("NeedToSet").getSlowConsumerThreshold());
@@ -1418,12 +1418,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertEquals(300L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
       assertEquals(300000L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
       assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertEquals(300L, storeImpl.getPageLimitMessages().longValue());
       assertEquals(300000L, storeImpl.getPageLimitBytes().longValue());
@@ -1448,12 +1448,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
       assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
       assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertNull(storeImpl.getPageLimitMessages());
       assertNull(storeImpl.getPageLimitBytes());
@@ -1479,12 +1479,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertEquals((Long)300L, configuration.getAddressSettings().get("#").getPageLimitMessages());
       assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
       assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertNull(storeImpl.getPageLimitMessages());
       assertNull(storeImpl.getPageLimitBytes());
@@ -1509,12 +1509,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
       assertEquals((Long)300000L, configuration.getAddressSettings().get("#").getPageLimitBytes());
       assertNull(configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertNull(storeImpl.getPageLimitMessages());
       assertNull(storeImpl.getPageLimitBytes());
@@ -1539,12 +1539,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertNull(configuration.getAddressSettings().get("#").getPageLimitMessages());
       assertNull(configuration.getAddressSettings().get("#").getPageLimitBytes());
       assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertNull(storeImpl.getPageLimitMessages());
       assertNull(storeImpl.getPageLimitBytes());
@@ -1569,12 +1569,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
       assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
       assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertNull(storeImpl.getPageLimitMessages());
       assertNull(storeImpl.getPageLimitBytes());
@@ -1596,11 +1596,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(1, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
       assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
       assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertEquals(333, storeImpl.getPrefetchPageMessages());
       assertEquals(777, storeImpl.getPrefetchPageBytes());
@@ -1625,7 +1625,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(333, configuration.getAddressSettings().get("#").getMaxReadPageMessages());
       assertEquals(777, configuration.getAddressSettings().get("#").getMaxReadPageBytes());
 
-      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      PagingStore storeImpl = new PagingStoreImpl(SimpleString.of("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("Test"), configuration.getAddressSettings().get("#"), null, null, true);
 
       assertEquals(333, storeImpl.getPrefetchPageMessages());
       assertEquals(777, storeImpl.getPrefetchPageBytes());
@@ -2026,9 +2026,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       assertEquals(3, configuration.getAddressSettings().size());
-      assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
-      assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
-      assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+      assertEquals(SimpleString.of("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      assertEquals(SimpleString.of("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      assertEquals(SimpleString.of("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
 
       assertTrue(configuration.getStatus().contains("\"errors\":[]"));
    }

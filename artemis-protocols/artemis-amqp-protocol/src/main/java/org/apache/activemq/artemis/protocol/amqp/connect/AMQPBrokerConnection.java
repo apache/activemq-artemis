@@ -297,7 +297,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    SimpleString getMirrorSNF(AMQPMirrorBrokerConnectionElement mirrorElement) {
       SimpleString snf = mirrorElement.getMirrorSNF();
       if (snf == null) {
-         snf = SimpleString.toSimpleString(ProtonProtocolManager.getMirrorAddress(this.brokerConnectConfiguration.getName()));
+         snf = SimpleString.of(ProtonProtocolManager.getMirrorAddress(this.brokerConnectConfiguration.getName()));
          mirrorElement.setMirrorSNF(snf);
       }
       return snf;

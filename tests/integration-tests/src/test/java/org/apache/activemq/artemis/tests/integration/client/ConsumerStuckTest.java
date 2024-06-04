@@ -45,7 +45,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    protected boolean isNetty() {
       return true;

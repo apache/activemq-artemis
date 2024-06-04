@@ -665,7 +665,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectDetach().respond();
 
-            server.destroyQueue(SimpleString.toSimpleString("test"), null, false, true);
+            server.destroyQueue(SimpleString.of("test"), null, false, true);
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          }
@@ -2820,7 +2820,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.expectFlow().withLinkCredit(10);
          peer.start();
 
-         final SimpleString queueName = SimpleString.toSimpleString("test");
+         final SimpleString queueName = SimpleString.of("test");
 
          final URI remoteURI = peer.getServerURI();
          logger.info("Test started, peer listening on: {}", remoteURI);
@@ -3379,7 +3379,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.expectTransfer().withPayload(payloadMatcher).accept(); // Address added event
 
          // Manually add the address and a queue binding to create local demand.
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
          server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.MULTICAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
@@ -3602,7 +3602,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.expectDetach().withError(AmqpError.RESOURCE_DELETED.toString());
 
          // Force remove consumers from the queue should indicate the resource was deleted.
-         server.destroyQueue(SimpleString.toSimpleString("test"), null, false, true);
+         server.destroyQueue(SimpleString.of("test"), null, false, true);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -3629,7 +3629,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          // This time removing and restoring should generate no traffic as there was not
          // another federation receiver added.
-         server.destroyQueue(SimpleString.toSimpleString("test"), null, false, true);
+         server.destroyQueue(SimpleString.of("test"), null, false, true);
          server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
                                                           .setAddress("test")
                                                           .setAutoCreated(false));

@@ -313,7 +313,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+      ClientProducer producer = session.createProducer(SimpleString.of(queue));
 
       try {
          producer.send(session.createMessage(true));

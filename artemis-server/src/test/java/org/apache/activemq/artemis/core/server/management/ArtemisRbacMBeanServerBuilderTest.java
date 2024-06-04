@@ -80,7 +80,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
       ArtemisRbacInvocationHandler handler = (ArtemisRbacInvocationHandler) Proxy.getInvocationHandler(proxy);
       handler.brokerDomain = "a.b";
-      handler.rbacPrefix = SimpleString.toSimpleString("jmx");
+      handler.rbacPrefix = SimpleString.of("jmx");
 
       try {
          handler.addressFrom(null);
@@ -90,15 +90,15 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
 
       SimpleString rbacAddress = handler.addressFrom(new ObjectName("java.lang", "type", "Runtime"));
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.java.lang.Runtime")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.java.lang.Runtime")));
 
       rbacAddress = handler.addressFrom(new ObjectName("a.b", "type", "Runtime"));
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx")));
 
       rbacAddress = handler.addressFrom(new ObjectName("a.b", "broker", "bb"));
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.broker")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.broker")));
 
       Hashtable<String, String> attrs = new Hashtable<>();
       attrs.put("broker", "bb");
@@ -107,17 +107,17 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       attrs.put("name", "n");
       rbacAddress = handler.addressFrom(new ObjectName("a.b", attrs));
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.c.n")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.c.n")));
 
 
       rbacAddress = handler.addressFrom(new ObjectName("a.b", attrs), "doIt");
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.c.n.doIt")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.c.n.doIt")));
 
       // non broker domain
       rbacAddress = handler.addressFrom(new ObjectName("j.l", attrs));
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.j.l.t.c.n")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.j.l.t.c.n")));
 
       // address
       attrs.clear();
@@ -127,7 +127,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       attrs.put("component", "addresses");
       rbacAddress = handler.addressFrom(new ObjectName("a.b", attrs), "opOnA");
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.address.a.opOnA")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.address.a.opOnA")));
 
       // queue
       attrs.clear();
@@ -140,7 +140,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
 
       rbacAddress = handler.addressFrom(new ObjectName("a.b", attrs), "opOnQ");
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.queue.q.opOnQ")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.queue.q.opOnQ")));
 
       // divert
       attrs.clear();
@@ -154,7 +154,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
 
       rbacAddress = handler.addressFrom(new ObjectName("a.b", attrs), "opOnDivert");
       assertNotNull(rbacAddress);
-      assertEquals(0, rbacAddress.compareTo(SimpleString.toSimpleString("jmx.divert.d.opOnDivert")));
+      assertEquals(0, rbacAddress.compareTo(SimpleString.of("jmx.divert.d.opOnDivert")));
 
    }
 
@@ -164,7 +164,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       ArtemisRbacInvocationHandler handler =
          (ArtemisRbacInvocationHandler) Proxy.getInvocationHandler(proxy);
       handler.brokerDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
-      handler.rbacPrefix = SimpleString.toSimpleString(ActiveMQDefaultConfiguration.getManagementRbacPrefix());
+      handler.rbacPrefix = SimpleString.of(ActiveMQDefaultConfiguration.getManagementRbacPrefix());
 
       for (Method m : ObjectNameBuilder.class.getDeclaredMethods() ) {
          if (Modifier.isPublic(m.getModifiers()) && ObjectName.class == m.getReturnType()) {

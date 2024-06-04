@@ -88,7 +88,7 @@ public class CoreTextMessageWrapper extends CoreMessageWrapper {
 
    public void setText(final String text)  {
       if (text != null) {
-         this.text = new SimpleString(text);
+         this.text = SimpleString.of(text);
       } else {
          this.text = null;
       }

@@ -46,8 +46,8 @@ server.setConfiguration(configuration);
 server.setJmsConfiguration(jmsConfiguration);
 server.start();
 
-server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueAddress), RoutingType.ANYCAST));
-server.getActiveMQServer().createQueue(SimpleString.toSimpleString(queueAddress), RoutingType.ANYCAST, SimpleString.toSimpleString(queueAddress), null, true, false);
+server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.of(queueAddress), RoutingType.ANYCAST));
+server.getActiveMQServer().createQueue(SimpleString.of(queueAddress), RoutingType.ANYCAST, SimpleString.of(queueAddress), null, true, false);
 
-server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(replyQueueAddress), RoutingType.ANYCAST));
-server.getActiveMQServer().createQueue(SimpleString.toSimpleString(replyQueueAddress), RoutingType.ANYCAST, SimpleString.toSimpleString(replyQueueAddress), null, true, false);
+server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.of(replyQueueAddress), RoutingType.ANYCAST));
+server.getActiveMQServer().createQueue(SimpleString.of(replyQueueAddress), RoutingType.ANYCAST, SimpleString.of(replyQueueAddress), null, true, false);

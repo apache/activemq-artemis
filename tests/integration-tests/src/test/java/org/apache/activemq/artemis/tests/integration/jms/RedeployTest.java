@@ -104,13 +104,13 @@ public class RedeployTest extends ActiveMQTestBase {
 
       // this simulates a remote queue or other type being added that wouldnt get deleted, its not valid to have this happen but it can happen when addresses and queues are auto created in a clustered env
       embeddedActiveMQ.getActiveMQServer().getPostOffice().addBinding(new RemoteQueueBindingImpl(5L,
-              new SimpleString("autoQueue"),
-              new SimpleString("uniqueName"),
-              new SimpleString("routingName"),
+              SimpleString.of("autoQueue"),
+              SimpleString.of("uniqueName"),
+              SimpleString.of("routingName"),
               6L,
               null,
-              new FakeQueue(new SimpleString("foo"), 6L),
-              new SimpleString("bridge"),
+              new FakeQueue(SimpleString.of("foo"), 6L),
+              SimpleString.of("bridge"),
               1,
               MessageLoadBalancingType.OFF));
 
@@ -379,7 +379,7 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals("a", addressSettings.getDeadLetterAddress().toString());
 
          AddressSettings settings = new AddressSettings();
-         settings.setDeadLetterAddress(SimpleString.toSimpleString("c")).setExpiryDelay(0L);
+         settings.setDeadLetterAddress(SimpleString.of("c")).setExpiryDelay(0L);
 
          embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addAddressSettings("bar", settings.toJSON());
          addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("bar");
@@ -422,7 +422,7 @@ public class RedeployTest extends ActiveMQTestBase {
       try {
          latch.await(10, TimeUnit.SECONDS);
 
-         DivertBinding divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("a"));
+         DivertBinding divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("a"));
          assertNotNull(divertBinding);
          assertEquals("a", divertBinding.getDivert().getAddress().toString());
 
@@ -434,11 +434,11 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
 
-         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("b"));
+         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("b"));
          assertNotNull(divertBinding);
          assertEquals("b", divertBinding.getDivert().getAddress().toString());
 
-         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("c"));
+         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("c"));
          assertNotNull(divertBinding);
          assertEquals("c", divertBinding.getDivert().getAddress().toString());
 
@@ -493,7 +493,7 @@ public class RedeployTest extends ActiveMQTestBase {
             producer.send(message);
          }
 
-         Binding binding = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myFilterQueue"));
+         Binding binding = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("myFilterQueue"));
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -501,7 +501,7 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
 
-         Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("myFilterQueue"));
+         Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("myFilterQueue"));
 
          assertTrue(binding == bindingAfterChange, "Instance should be the same (as should be non destructive)");
          assertEquals(binding.getID(), bindingAfterChange.getID());
@@ -651,7 +651,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
             // Test that the original filter has been set up
             LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                    .getBinding(new SimpleString("myFilterQueue"));
+                    .getBinding(SimpleString.of("myFilterQueue"));
             // The "x = 'x'" value is found in "reload-queue-filter.xml"
             assertEquals("x = 'x'", queueBinding.getFilter().getFilterString().toString());
 
@@ -687,7 +687,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
             // Test that the filter has been removed
             LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                    .getBinding(new SimpleString("myFilterQueue"));
+                    .getBinding(SimpleString.of("myFilterQueue"));
             assertNull(queueBinding.getFilter());
 
             MessageProducer producer = session.createProducer(queue);
@@ -735,11 +735,11 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedActiveMQ.getActiveMQServer().updateQueue(new QueueConfiguration("virtualQueue").setFilterString("foo"));
 
          LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                 .getBinding(new SimpleString("virtualQueue"));
+                 .getBinding(SimpleString.of("virtualQueue"));
          org.apache.activemq.artemis.core.server.Queue queue = queueBinding.getQueue();
 
-         assertEquals(new SimpleString("bob"), queue.getUser());
-         assertEquals(new SimpleString("foo"), queue.getFilter().getFilterString());
+         assertEquals(SimpleString.of("bob"), queue.getUser());
+         assertEquals(SimpleString.of("foo"), queue.getFilter().getFilterString());
 
       } finally {
          embeddedActiveMQ.stop();
@@ -754,7 +754,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
          LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                 .getBinding(new SimpleString("myQueue"));
+                 .getBinding(SimpleString.of("myQueue"));
          org.apache.activemq.artemis.core.server.Queue queue = queueBinding.getQueue();
 
          assertNotEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queue.getMaxConsumers());
@@ -769,7 +769,7 @@ public class RedeployTest extends ActiveMQTestBase {
          assertNotEquals(ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch(), queue.getConsumersBeforeDispatch());
          assertNotEquals(ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch(), queue.getDelayBeforeDispatch());
          assertNotNull(queue.getFilter());
-         assertEquals(new SimpleString("jdoe"), queue.getUser());
+         assertEquals(SimpleString.of("jdoe"), queue.getUser());
          assertNotEquals(ActiveMQDefaultConfiguration.getDefaultRingSize(), queue.getRingSize());
 
          deployBrokerConfig(embeddedActiveMQ, "reload-queue-defaults-after.xml");
@@ -801,7 +801,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
          DivertBinding divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                 .getBinding(new SimpleString("divert"));
+                 .getBinding(SimpleString.of("divert"));
          assertNotNull(divertBinding);
 
          final Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
@@ -824,9 +824,9 @@ public class RedeployTest extends ActiveMQTestBase {
          deployBrokerConfig(embeddedActiveMQ, "reload-divert-undeploy-after.xml");
 
          Wait.waitFor(() -> embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                         .getBinding(new SimpleString("divert")) == null);
+                         .getBinding(SimpleString.of("divert")) == null);
          divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
-                 .getBinding(new SimpleString("divert"));
+                 .getBinding(SimpleString.of("divert"));
          assertNull(divertBinding);
 
          try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
@@ -896,7 +896,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final EmbeddedActiveMQ embeddedActiveMQ = createEmbeddedActiveMQServer("reload-divert-filter-none.xml");
 
-      final SimpleString divertName = new SimpleString("source-to-target");
+      final SimpleString divertName = SimpleString.of("source-to-target");
       final Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
       final Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
       final Map<String, String> emptyTestMessageProperties = Map.of();
@@ -907,7 +907,7 @@ public class RedeployTest extends ActiveMQTestBase {
          assertNotNull(divertBinding, "Divert '" + divertName + "' binding should exist.");
          assertNull(divertBinding.getFilter(), "The divert '" + divertName + "' should have no filter applied at first.");
 
-         assertNull(embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("foo")));
+         assertNull(embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("foo")));
 
          // Message with no properties should be diverted.
          sendDivertedTestMessage(sourceQueue, targetQueue, false, true, emptyTestMessageProperties);
@@ -934,7 +934,7 @@ public class RedeployTest extends ActiveMQTestBase {
    public void testRemoveDivertFilter() throws Exception {
 
       final EmbeddedActiveMQ embeddedActiveMQ = createEmbeddedActiveMQServer("reload-divert-filter-x-eq-x.xml");
-      final SimpleString divertName = new SimpleString("source-to-target");
+      final SimpleString divertName = SimpleString.of("source-to-target");
       final Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
       final Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
       final Map<String, String> emptyTestMessageProperties = Map.of();
@@ -970,7 +970,7 @@ public class RedeployTest extends ActiveMQTestBase {
    public void testChangeDivertFilter() throws Exception {
 
       final EmbeddedActiveMQ embeddedActiveMQ = createEmbeddedActiveMQServer("reload-divert-filter-x-eq-x.xml");
-      final SimpleString divertName = new SimpleString("source-to-target");
+      final SimpleString divertName = SimpleString.of("source-to-target");
       final Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
       final Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
       final Map<String, String> testMessagePropertiesXX = Map.of("x", "x");
@@ -1006,7 +1006,7 @@ public class RedeployTest extends ActiveMQTestBase {
    public void testChangeDivertExclusivity() throws Exception {
 
       final EmbeddedActiveMQ embeddedActiveMQ = createEmbeddedActiveMQServer("reload-divert-exclusive.xml");
-      final SimpleString divertName = new SimpleString("source-to-target");
+      final SimpleString divertName = SimpleString.of("source-to-target");
       final Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
       final Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
 
@@ -1033,7 +1033,7 @@ public class RedeployTest extends ActiveMQTestBase {
    public void testChangeDivertAddress() throws Exception {
 
       final EmbeddedActiveMQ embeddedActiveMQ = createEmbeddedActiveMQServer("reload-divert-address-source1.xml");
-      final SimpleString divertName = new SimpleString("source-to-target");
+      final SimpleString divertName = SimpleString.of("source-to-target");
       final Queue sourceQueue1 = (Queue) ActiveMQDestination.createDestination("queue://source1", ActiveMQDestination.TYPE.QUEUE);
       final Queue sourceQueue2 = (Queue) ActiveMQDestination.createDestination("queue://source2", ActiveMQDestination.TYPE.QUEUE);
       final Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
@@ -1368,8 +1368,8 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").size(), 1);
          assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "b");
 
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.toSimpleString("OriginalDLQ"));
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.toSimpleString("OriginalExpiryQueue"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("OriginalDLQ"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.of("OriginalExpiryQueue"));
 
          assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal_no_queue"));
          assertNotNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal"));
@@ -1397,8 +1397,8 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "c");
 
          //Assert that the address settings change applied
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.toSimpleString("NewDLQ"));
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.toSimpleString("NewExpiryQueue"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("NewDLQ"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.of("NewExpiryQueue"));
 
          //Assert the address and queue changes applied
          assertNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal_no_queue"));
@@ -1429,8 +1429,8 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "c");
 
          //Assert that the address settings changes persist a stop and start server (e.g. like what occurs if network health check stops the node), but JVM remains up.
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.toSimpleString("NewDLQ"));
-         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.toSimpleString("NewExpiryQueue"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("NewDLQ"));
+         assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.of("NewExpiryQueue"));
 
          //Assert that the address and queue changes persist a stop and start server (e.g. like what occurs if network health check stops the node), but JVM remains up.
          assertNull(getAddressInfo(embeddedActiveMQ, "config_test_address_removal_no_queue"));
@@ -1461,16 +1461,16 @@ public class RedeployTest extends ActiveMQTestBase {
    }
 
    private AddressInfo getAddressInfo(EmbeddedActiveMQ embeddedActiveMQ, String address) {
-      return embeddedActiveMQ.getActiveMQServer().getPostOffice().getAddressInfo(SimpleString.toSimpleString(address));
+      return embeddedActiveMQ.getActiveMQServer().getPostOffice().getAddressInfo(SimpleString.of(address));
    }
 
    private org.apache.activemq.artemis.core.server.Queue getQueue(EmbeddedActiveMQ embeddedActiveMQ, String queueName) throws Exception {
-      QueueBinding queueBinding = (QueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
+      QueueBinding queueBinding = (QueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of(queueName));
       return queueBinding == null ? null : queueBinding.getQueue();
    }
 
    private List<String> listQueuesNamesForAddress(EmbeddedActiveMQ embeddedActiveMQ, String address) throws Exception {
-      return embeddedActiveMQ.getActiveMQServer().getPostOffice().listQueuesForAddress(SimpleString.toSimpleString(address)).stream().map(
+      return embeddedActiveMQ.getActiveMQServer().getPostOffice().listQueuesForAddress(SimpleString.of(address)).stream().map(
           org.apache.activemq.artemis.core.server.Queue::getName).map(SimpleString::toString).collect(Collectors.toList());
    }
 

@@ -168,7 +168,7 @@ public class QueueConfiguration implements Serializable {
     * @param name the name to use for the queue
     */
    public QueueConfiguration(String name) {
-      this(SimpleString.toSimpleString(name));
+      this(SimpleString.of(name));
    }
 
    /**
@@ -227,7 +227,7 @@ public class QueueConfiguration implements Serializable {
          } else if (key.equals(DURABLE)) {
             setDurable(Boolean.valueOf(value));
          } else if (key.equals(USER)) {
-            setUser(SimpleString.toSimpleString(value));
+            setUser(SimpleString.of(value));
          } else if (key.equals(MAX_CONSUMERS)) {
             setMaxConsumers(Integer.valueOf(value));
          } else if (key.equals(EXCLUSIVE)) {
@@ -320,7 +320,7 @@ public class QueueConfiguration implements Serializable {
     * @see QueueConfiguration#setAddress(SimpleString)
     */
    public QueueConfiguration setAddress(String address) {
-      return setAddress(SimpleString.toSimpleString(address));
+      return setAddress(SimpleString.of(address));
    }
 
    public SimpleString getName() {
@@ -350,7 +350,7 @@ public class QueueConfiguration implements Serializable {
     * @see QueueConfiguration#setName(SimpleString)
     */
    public QueueConfiguration setName(String name) {
-      return setName(SimpleString.toSimpleString(name));
+      return setName(SimpleString.of(name));
    }
 
    public RoutingType getRoutingType() {
@@ -372,7 +372,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setFilterString(String filterString) {
-      return setFilterString(filterString == null ? null : SimpleString.toSimpleString(filterString));
+      return setFilterString(filterString == null ? null : SimpleString.of(filterString));
    }
 
    /**
@@ -398,7 +398,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setUser(String user) {
-      return setUser(SimpleString.toSimpleString(user));
+      return setUser(SimpleString.of(user));
    }
 
    public Integer getMaxConsumers() {
@@ -438,7 +438,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setLastValueKey(String lastValueKey) {
-      return setLastValueKey(SimpleString.toSimpleString(lastValueKey));
+      return setLastValueKey(SimpleString.of(lastValueKey));
    }
 
    public Boolean isNonDestructive() {
@@ -533,7 +533,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setGroupFirstKey(String groupFirstKey) {
-      return setGroupFirstKey(SimpleString.toSimpleString(groupFirstKey));
+      return setGroupFirstKey(SimpleString.of(groupFirstKey));
    }
 
    public Boolean isAutoDelete() {

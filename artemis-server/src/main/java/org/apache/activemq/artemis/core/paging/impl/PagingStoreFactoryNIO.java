@@ -224,7 +224,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                continue;
             }
 
-            SimpleString address = new SimpleString(addressString);
+            SimpleString address = SimpleString.of(addressString);
 
             SequentialFileFactory factory = newFileFactory(guid);
 

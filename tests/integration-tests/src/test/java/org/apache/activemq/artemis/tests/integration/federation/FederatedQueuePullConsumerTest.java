@@ -81,8 +81,8 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
       getServer(0).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
       getServer(1).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
 
-      getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
-      getServer(1).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      getServer(0).addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
+      getServer(1).addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
       getServer(0).getConfiguration().getFederationConfigurations().add(new FederationConfiguration().setName("default").addFederationPolicy(new FederationAddressPolicyConfiguration().setName("myAddressPolicy").addInclude(new FederationAddressPolicyConfiguration.Matcher().setAddressMatch("#"))).addUpstreamConfiguration(new FederationUpstreamConfiguration().setName("server1-upstream").addPolicyRef("myAddressPolicy").setStaticConnectors(Collections.singletonList(connector))));
 

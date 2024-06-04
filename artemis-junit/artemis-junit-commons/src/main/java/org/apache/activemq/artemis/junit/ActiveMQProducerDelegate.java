@@ -51,7 +51,7 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
    }
 
    protected ActiveMQProducerDelegate(String url, String address, String username, String password) {
-      this(url, SimpleString.toSimpleString(address), username, password);
+      this(url, SimpleString.of(address), username, password);
    }
 
    protected ActiveMQProducerDelegate(String url, String address) {
@@ -72,11 +72,11 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, String address, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(address), username, password);
+      this(serverLocator, SimpleString.of(address), username, password);
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, String address) {
-      this(serverLocator, SimpleString.toSimpleString(address));
+      this(serverLocator, SimpleString.of(address));
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, SimpleString address, String username,

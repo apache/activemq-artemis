@@ -112,7 +112,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          assertEquals(i, configuration.getJournalMaxIO_NIO());
 
          s = RandomUtil.randomString();
-         configuration.setManagementAddress(new SimpleString(s));
+         configuration.setManagementAddress(SimpleString.of(s));
          assertEquals(s, configuration.getManagementAddress().toString());
 
          l = RandomUtil.randomLong();
@@ -314,7 +314,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       assertEquals(i, configuration.getJournalMaxIO_NIO());
 
       s = RandomUtil.randomString();
-      configuration.setManagementAddress(new SimpleString(s));
+      configuration.setManagementAddress(SimpleString.of(s));
       assertEquals(s, configuration.getManagementAddress().toString());
 
       l = RandomUtil.randomLong();

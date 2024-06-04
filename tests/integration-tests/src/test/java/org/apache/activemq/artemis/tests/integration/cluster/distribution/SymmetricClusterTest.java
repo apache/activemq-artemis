@@ -251,7 +251,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       }
 
       for (int i = 0; i < 5; i++) {
-         servers[i].addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queues.testaddress"), RoutingType.MULTICAST));
+         servers[i].addAddressInfo(new AddressInfo(SimpleString.of("queues.testaddress"), RoutingType.MULTICAST));
          createQueue(i, "queues.testaddress", "queue0", null, false);
       }
 

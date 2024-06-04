@@ -118,11 +118,11 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
  */
 public abstract class AMQPMessage extends RefCountMessage implements org.apache.activemq.artemis.api.core.Message {
 
-   private static final SimpleString ANNOTATION_AREA_PREFIX = SimpleString.toSimpleString("m.");
+   private static final SimpleString ANNOTATION_AREA_PREFIX = SimpleString.of("m.");
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
+   public static final SimpleString ADDRESS_PROPERTY = SimpleString.of("_AMQ_AD");
    // used to perform quick search
    private static final Symbol[] SCHEDULED_DELIVERY_SYMBOLS = new Symbol[]{
       AMQPMessageSupport.SCHEDULED_DELIVERY_TIME, AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY};
@@ -1299,7 +1299,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    @Override
    public final SimpleString getReplyTo() {
       if (properties != null) {
-         return SimpleString.toSimpleString(properties.getReplyTo());
+         return SimpleString.of(properties.getReplyTo());
       } else {
          return null;
       }
@@ -1353,8 +1353,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       ensureMessageDataScanned();
 
       if (properties != null && properties.getGroupId() != null) {
-         return SimpleString.toSimpleString(properties.getGroupId(),
-            coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool());
+         return SimpleString.of(properties.getGroupId(),
+                                coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool());
       } else {
          return null;
       }
@@ -1612,7 +1612,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public final Set<SimpleString> getPropertyNames() {
       HashSet<SimpleString> values = new HashSet<>();
       for (Object k : getApplicationPropertiesMap(false).keySet()) {
-         values.add(SimpleString.toSimpleString(k.toString(), getPropertyKeysPool()));
+         values.add(SimpleString.of(k.toString(), getPropertyKeysPool()));
       }
       return values;
    }
@@ -1678,7 +1678,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
    @Override
    public final SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
-      return SimpleString.toSimpleString((String) getApplicationPropertiesMap(false).get(key), getPropertyValuesPool());
+      return SimpleString.of((String) getApplicationPropertiesMap(false).get(key), getPropertyValuesPool());
    }
 
    // Core Message Application Property update methods, calling these puts the message in a dirty

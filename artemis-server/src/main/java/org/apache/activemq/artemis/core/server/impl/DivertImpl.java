@@ -210,7 +210,7 @@ public class DivertImpl implements Divert {
       String[] split = forwardAddress.toString().split(",");
       SimpleString[] forwardAddresses = new SimpleString[split.length];
       for (int i = 0; i < split.length; i++) {
-         forwardAddresses[i] = new SimpleString(split[i].trim());
+         forwardAddresses[i] = SimpleString.of(split[i].trim());
       }
 
       this.forwardAddresses = forwardAddresses;

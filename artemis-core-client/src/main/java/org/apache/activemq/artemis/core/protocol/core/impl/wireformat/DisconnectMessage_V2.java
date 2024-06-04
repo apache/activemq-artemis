@@ -28,7 +28,7 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
 
       this.nodeID = nodeID;
 
-      this.scaleDownNodeID = SimpleString.toSimpleString(scaleDownNodeID);
+      this.scaleDownNodeID = SimpleString.of(scaleDownNodeID);
    }
 
    public DisconnectMessage_V2() {

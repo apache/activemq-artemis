@@ -157,7 +157,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
    }
 
    private void assertQueueLength(int len) throws Exception, IOException {
-      QueueImpl queue = (QueueImpl) bs.getActiveMQServer().getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
+      QueueImpl queue = (QueueImpl) bs.getActiveMQServer().getPostOffice().getBinding(SimpleString.of(QUEUE_NAME)).getBindable();
       if (len > queue.getMessageCount()) {
          //we wait for a moment as the tx might still in afterCommit stage (async op)
          Thread.sleep(5000);

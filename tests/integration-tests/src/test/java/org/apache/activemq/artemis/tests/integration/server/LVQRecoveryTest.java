@@ -46,9 +46,9 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString address = new SimpleString("LVQTestAddress");
+   private final SimpleString address = SimpleString.of("LVQTestAddress");
 
-   private final SimpleString qName1 = new SimpleString("LVQTestQ1");
+   private final SimpleString qName1 = SimpleString.of("LVQTestQ1");
 
    private ClientSession clientSessionXa;
 
@@ -61,8 +61,8 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
    public void testMultipleMessagesAfterRecovery() throws Exception {
       Xid xid = new XidImpl("bq1".getBytes(), 4, "gtid1".getBytes());
       ClientProducer producer = clientSessionXa.createProducer(address);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.of("SMID1");
+      SimpleString messageId2 = SimpleString.of("SMID2");
       clientSessionXa.start(xid, XAResource.TMNOFLAGS);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
@@ -102,7 +102,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSessionXa.createConsumer(qName1);
 
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);

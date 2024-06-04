@@ -55,7 +55,7 @@ public class FederatedAddressConsumerKey implements FederatedConsumerKey {
          data.put("routeType", routingType.name().toLowerCase());
          data.put("upstream", upstream.toString());
          data.put("federation", federation.toString());
-         queueName = SimpleString.toSimpleString(StrSubstitutor.replace(queueNameFormat, data));
+         queueName = SimpleString.of(StrSubstitutor.replace(queueNameFormat, data));
       }
       return queueName;
    }

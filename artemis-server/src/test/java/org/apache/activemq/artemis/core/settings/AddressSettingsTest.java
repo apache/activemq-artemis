@@ -75,8 +75,8 @@ public class AddressSettingsTest extends ServerTestBase {
    private void testSingleMerge(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.of("testDLQ");
+      SimpleString exp = SimpleString.of("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxDeliveryAttempts(1000);
@@ -128,8 +128,8 @@ public class AddressSettingsTest extends ServerTestBase {
    private void testMultipleMerge(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.of("testDLQ");
+      SimpleString exp = SimpleString.of("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxDeliveryAttempts(1000);
@@ -144,7 +144,7 @@ public class AddressSettingsTest extends ServerTestBase {
       }
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
-      SimpleString exp2 = new SimpleString("testExpiryQueue2");
+      SimpleString exp2 = SimpleString.of("testExpiryQueue2");
       addressSettingsToMerge2.setExpiryAddress(exp2);
       addressSettingsToMerge2.setMaxSizeBytes(2001);
       addressSettingsToMerge2.setRedeliveryDelay(2003);
@@ -179,8 +179,8 @@ public class AddressSettingsTest extends ServerTestBase {
    private void testMultipleMergeAll(boolean copy) {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.of("testDLQ");
+      SimpleString exp = SimpleString.of("testExpiryQueue");
       addressSettingsToMerge.setDeadLetterAddress(DLQ);
       addressSettingsToMerge.setExpiryAddress(exp);
       addressSettingsToMerge.setMaxSizeBytes(1001);
@@ -194,8 +194,8 @@ public class AddressSettingsTest extends ServerTestBase {
       }
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
-      SimpleString exp2 = new SimpleString("testExpiryQueue2");
-      SimpleString DLQ2 = new SimpleString("testDlq2");
+      SimpleString exp2 = SimpleString.of("testExpiryQueue2");
+      SimpleString DLQ2 = SimpleString.of("testDlq2");
       addressSettingsToMerge2.setExpiryAddress(exp2);
       addressSettingsToMerge2.setDeadLetterAddress(DLQ2);
       addressSettingsToMerge2.setMaxDeliveryAttempts(2000);
@@ -225,8 +225,8 @@ public class AddressSettingsTest extends ServerTestBase {
    @Test
    public void testToJSON() {
       AddressSettings addressSettings = new AddressSettings();
-      SimpleString DLQ = new SimpleString("testDLQ");
-      SimpleString exp = new SimpleString("testExpiryQueue");
+      SimpleString DLQ = SimpleString.of("testDLQ");
+      SimpleString exp = SimpleString.of("testExpiryQueue");
       addressSettings.setDeadLetterAddress(DLQ);
       addressSettings.setExpiryAddress(exp);
       addressSettings.setMaxSizeBytes(1001);

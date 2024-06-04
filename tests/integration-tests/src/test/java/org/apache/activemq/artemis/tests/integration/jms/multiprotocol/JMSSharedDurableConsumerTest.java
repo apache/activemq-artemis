@@ -152,7 +152,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    @TestTemplate
    @Timeout(30)
    public void testSharedDurableConsumerWithSelectorChange() throws Exception {
-      SimpleString qName = amqpUseCoreSubscriptionNaming ? new SimpleString("SharedConsumer") : new SimpleString("SharedConsumer:global");
+      SimpleString qName = amqpUseCoreSubscriptionNaming ? SimpleString.of("SharedConsumer") : SimpleString.of("SharedConsumer:global");
       Connection connection = createConnection(true);
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

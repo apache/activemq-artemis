@@ -94,13 +94,13 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(queueName);
          message.setText(getTestName());
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
          sender.close();
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.ANYCAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -138,12 +138,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(topicName);
          message.setText("creating-topic-address");
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.MULTICAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -199,13 +199,13 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(queueName);
          message.setText(getTestName());
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
          sender.close();
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.ANYCAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -244,12 +244,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(topicName);
          message.setText("creating-topic-address");
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.MULTICAST));
          assertTrue(addressQueryResult.isAutoCreated());

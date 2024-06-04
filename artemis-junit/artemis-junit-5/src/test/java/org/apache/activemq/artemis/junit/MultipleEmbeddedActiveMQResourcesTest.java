@@ -31,10 +31,10 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class MultipleEmbeddedActiveMQResourcesTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
-   static final SimpleString TEST_ADDRESS_ONE = new SimpleString("test.address.one");
-   static final SimpleString TEST_ADDRESS_TWO = new SimpleString("test.address.two");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.of("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = SimpleString.of("test.queue.two");
+   static final SimpleString TEST_ADDRESS_ONE = SimpleString.of("test.address.one");
+   static final SimpleString TEST_ADDRESS_TWO = SimpleString.of("test.address.two");
 
    static final String TEST_BODY = "Test Message";
 
@@ -51,8 +51,8 @@ public class MultipleEmbeddedActiveMQResourcesTest {
 
    @BeforeAll
    public void setUp() throws Exception {
-      serverOne.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
-      serverTwo.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      serverOne.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
+      serverTwo.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
 
       serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
       serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);

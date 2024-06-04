@@ -147,7 +147,7 @@ public class AMQConsumer {
 
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
-      SimpleString selector = info.getSelector() == null ? null : new SimpleString(convertOpenWireToActiveMQFilterString(info.getSelector()));
+      SimpleString selector = info.getSelector() == null ? null : SimpleString.of(convertOpenWireToActiveMQFilterString(info.getSelector()));
       boolean preAck = false;
       if (info.isNoLocal()) {
          if (!AdvisorySupport.isAdvisoryTopic(openwireDestination)) {
@@ -159,13 +159,13 @@ public class AMQConsumer {
          String id = info.getClientId() != null ? info.getClientId() : this.getId().getConnectionId();
          String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME + "<>'" + id + "'";
          if (selector == null) {
-            selector = new SimpleString(noLocalSelector);
+            selector = SimpleString.of(noLocalSelector);
          } else {
-            selector = new SimpleString(info.getSelector() + " AND " + noLocalSelector);
+            selector = SimpleString.of(info.getSelector() + " AND " + noLocalSelector);
          }
       }
 
-      SimpleString destinationName = new SimpleString(session.convertWildcard(openwireDestination));
+      SimpleString destinationName = SimpleString.of(session.convertWildcard(openwireDestination));
 
       if (openwireDestination.isTopic()) {
          SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), destinationName.toString(), info.getSubscriptionName(), selector, destinationName);
@@ -245,12 +245,12 @@ public class AMQConsumer {
           * The consumer may be using FQQN in which case the queue might already exist.
           */
          if (CompositeAddress.isFullyQualified(physicalName)) {
-            queueName = CompositeAddress.extractQueueName(SimpleString.toSimpleString(physicalName));
+            queueName = CompositeAddress.extractQueueName(SimpleString.of(physicalName));
             if (session.getCoreServer().locateQueue(queueName) != null) {
                return queueName;
             }
          } else {
-            queueName = new SimpleString(UUID.randomUUID().toString());
+            queueName = SimpleString.of(UUID.randomUUID().toString());
          }
 
          session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress));
@@ -379,7 +379,7 @@ public class AMQConsumer {
                   Throwable poisonCause = ack.getPoisonCause();
                   if (poisonCause != null) {
                      ((QueueImpl) ref.getQueue()).decDelivering(ref);
-                     ref.getMessage().putStringProperty(OpenWireConstants.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+                     ref.getMessage().putStringProperty(OpenWireConstants.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, SimpleString.of(poisonCause.toString()));
                      ((QueueImpl) ref.getQueue()).incDelivering(ref);
                   }
                   ref.getQueue().sendToDeadLetterAddress(transaction, ref);

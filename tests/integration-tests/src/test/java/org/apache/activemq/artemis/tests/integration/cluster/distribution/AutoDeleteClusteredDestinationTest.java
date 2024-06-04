@@ -70,7 +70,7 @@ public class AutoDeleteClusteredDestinationTest extends ClusterTestBase {
       final String queueName = "queue";
       final String url0 = "tcp://localhost:61616?useTopologyForLoadBalancing=false";
       final String url1 = "tcp://localhost:61617?useTopologyForLoadBalancing=false";
-      final SimpleString simpleName = SimpleString.toSimpleString(queueName);
+      final SimpleString simpleName = SimpleString.of(queueName);
       final int messageCount = 10;
       final int TIMEOUT = 5000;
 

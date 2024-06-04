@@ -202,7 +202,7 @@ public class DefaultSenderController implements SenderController {
       } else if (source.getDynamic()) {
          // if dynamic we have to create the node (queue) and set the address on the target, the
          // node is temporary and  will be deleted on closing of the session
-         queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
+         queue = SimpleString.of(java.util.UUID.randomUUID().toString());
          tempQueueName = queue;
          try {
             sessionSPI.createTemporaryQueue(queue, RoutingType.ANYCAST);
@@ -226,11 +226,11 @@ public class DefaultSenderController implements SenderController {
          //find out if we have an address made up of the address and queue name, if yes then set queue name
          if (CompositeAddress.isFullyQualified(sourceAddress)) {
             isFQQN = true;
-            addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(sourceAddress));
-            queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(sourceAddress));
+            addressToUse = SimpleString.of(CompositeAddress.extractAddressName(sourceAddress));
+            queueNameToUse = SimpleString.of(CompositeAddress.extractQueueName(sourceAddress));
          } else {
             isFQQN = false;
-            addressToUse = SimpleString.toSimpleString(sourceAddress);
+            addressToUse = SimpleString.of(sourceAddress);
          }
 
          //check to see if the client has defined how we act
@@ -312,7 +312,7 @@ public class DefaultSenderController implements SenderController {
                supportedFilters.put(filter.getKey(), filter.getValue());
             }
 
-            SimpleString simpleStringSelector = SimpleString.toSimpleString(selector);
+            SimpleString simpleStringSelector = SimpleString.of(selector);
             queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST, simpleStringSelector, isFQQN);
 
             //if the address specifies a broker configured queue then we always use this, treat it as a queue
@@ -365,7 +365,7 @@ public class DefaultSenderController implements SenderController {
                      sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
                   }
                } else {
-                  queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
+                  queue = SimpleString.of(java.util.UUID.randomUUID().toString());
                   tempQueueName = queue;
                   try {
                      sessionSPI.createTemporaryQueue(addressToUse, queue, RoutingType.MULTICAST, simpleStringSelector);
@@ -452,7 +452,7 @@ public class DefaultSenderController implements SenderController {
       String sourceAddress = getSourceAddress(source);
 
       if (source != null && sourceAddress != null && multicast) {
-         SimpleString queueName = SimpleString.toSimpleString(sourceAddress);
+         SimpleString queueName = SimpleString.of(sourceAddress);
          QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);
          if (result.isExists() && source.getDynamic()) {
             sessionSPI.deleteQueue(queueName);
@@ -474,7 +474,7 @@ public class DefaultSenderController implements SenderController {
          }
       } else if (source != null && source.getDynamic() && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(sourceAddress));
+            sessionSPI.removeTemporaryQueue(SimpleString.of(sourceAddress));
          } catch (Exception e) {
             // Ignore on close, its temporary anyway and will be removed later
          }

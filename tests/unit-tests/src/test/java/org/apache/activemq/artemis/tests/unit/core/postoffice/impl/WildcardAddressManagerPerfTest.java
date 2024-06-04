@@ -72,9 +72,9 @@ public class WildcardAddressManagerPerfTest {
                }
 
                // subscribe as wildcard
-               ad.addBinding(new BindingFake(SimpleString.toSimpleString("Topic1." +  id % partitions +  ".>"), SimpleString.toSimpleString("" + id), id));
+               ad.addBinding(new BindingFake(SimpleString.of("Topic1." +  id % partitions +  ".>"), SimpleString.of("" + id), id));
 
-               SimpleString pubAddr = SimpleString.toSimpleString("Topic1." +  id % partitions + "." + id );
+               SimpleString pubAddr = SimpleString.of("Topic1." +  id % partitions + "." + id );
 
 
                if (id != 0 && id % 1000 == 0) {
@@ -109,7 +109,7 @@ public class WildcardAddressManagerPerfTest {
 
       final AtomicLong addresses = new AtomicLong();
       final AtomicLong bindings = new AtomicLong();
-      ad.getAddressMap().visitMatchingWildcards(SimpleString.toSimpleString(">"), new AddressMapVisitor<Bindings>() {
+      ad.getAddressMap().visitMatchingWildcards(SimpleString.of(">"), new AddressMapVisitor<Bindings>() {
          @Override
          public void visit(Bindings value) {
             addresses.incrementAndGet();

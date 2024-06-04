@@ -47,8 +47,8 @@ import org.junit.jupiter.api.Test;
 
 public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -133,15 +133,15 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
       assertTrue(latch.await(2, TimeUnit.SECONDS));
 
       for (String address : addresses) {
-         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         assertNotNull(server.getAddressInfo(SimpleString.of(address)));
+         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.of(address)), 2000, 100);
       }
 
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
-         assertNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         assertNull(server.getAddressInfo(SimpleString.of(address)));
+         Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.of(address)), 2000, 100);
       }
 
       consumerSession.close();

@@ -69,7 +69,7 @@ public final class UTF8Util {
          saveUTF(buffer, val);
       } else {
          // Store as SimpleString, since can't store utf > 0xffff in length
-         SimpleString.writeSimpleString(buffer, new SimpleString(val));
+         SimpleString.writeSimpleString(buffer, SimpleString.of(val));
       }
    }
 

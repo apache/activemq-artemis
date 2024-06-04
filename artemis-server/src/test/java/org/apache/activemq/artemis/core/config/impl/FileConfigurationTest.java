@@ -189,8 +189,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(333, conf.getAuthenticationCacheSize());
       assertEquals(444, conf.getAuthorizationCacheSize());
       assertTrue(conf.isWildcardRoutingEnabled());
-      assertEquals(new SimpleString("Giraffe"), conf.getManagementAddress());
-      assertEquals(new SimpleString("Whatever"), conf.getManagementNotificationAddress());
+      assertEquals(SimpleString.of("Giraffe"), conf.getManagementAddress());
+      assertEquals(SimpleString.of("Whatever"), conf.getManagementNotificationAddress());
       assertEquals("Frog", conf.getClusterUser());
       assertEquals("Wombat", conf.getClusterPassword());
       assertFalse(conf.isJMXManagementEnabled());

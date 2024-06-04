@@ -46,7 +46,7 @@ public class QueueImplTest {
 
    @Test
    public void deleteAllPagedReferencesTest() throws Exception {
-      SimpleString address = new SimpleString("test");
+      SimpleString address = SimpleString.of("test");
       AtomicInteger pageIteratorIndex = new AtomicInteger(0);
       PageIterator pageIterator = Mockito.mock(PageIterator.class);
       PageSubscription pageSubscription = Mockito.mock(PageSubscription.class);

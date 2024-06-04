@@ -53,7 +53,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicate() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = DuplicateIDCaches.persistent(new SimpleString("test"), 2000, journal);
+      DuplicateIDCache cache = DuplicateIDCaches.persistent(SimpleString.of("test"), 2000, journal);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
@@ -109,7 +109,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicateNonPersistent() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = DuplicateIDCaches.inMemory(new SimpleString("test"), 2000);
+      DuplicateIDCache cache = DuplicateIDCaches.inMemory(SimpleString.of("test"), 2000);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
@@ -133,7 +133,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    @TestTemplate
    public void testDisabledPersistentCache() throws Exception {
       createStorage();
-      DuplicateIDCache cache = DuplicateIDCaches.persistent(new SimpleString("test"), 0, journal);
+      DuplicateIDCache cache = DuplicateIDCaches.persistent(SimpleString.of("test"), 0, journal);
       byte[] bytes = RandomUtil.randomBytes();
       // Previously this would throw an ArrayIndexOutOfBoundsException
       cache.addToCache(bytes);
@@ -142,7 +142,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    @TestTemplate
    public void testDisabledInMemoryCache() throws Exception {
       createStorage();
-      DuplicateIDCache cache = DuplicateIDCaches.inMemory(new SimpleString("test"), 0);
+      DuplicateIDCache cache = DuplicateIDCaches.inMemory(SimpleString.of("test"), 0);
       byte[] bytes = RandomUtil.randomBytes();
       // Previously this would throw an ArrayIndexOutOfBoundsException
       cache.addToCache(bytes);

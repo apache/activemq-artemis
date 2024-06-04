@@ -241,7 +241,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                   String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, ADDRESS);
                   String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, QUEUE);
 
-                  deleteQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+                  deleteQueue(SimpleString.of(address), SimpleString.of(queueName));
                } else if (eventType.equals(POST_ACK)) {
                   String nodeID = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, BROKER_ID);
 
@@ -458,7 +458,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.trace("Setting up duplicate detection cache on {}, ServerID={} with {} elements, being the number of credits", ProtonProtocolManager.MIRROR_ADDRESS, internalMirrorID, connection.getAmqpCredits());
 
          lruDuplicateIDKey = internalMirrorID;
-         lruduplicateIDCache = server.getPostOffice().getDuplicateIDCache(SimpleString.toSimpleString(ProtonProtocolManager.MIRROR_ADDRESS + "_" + internalMirrorID), connection.getAmqpCredits());
+         lruduplicateIDCache = server.getPostOffice().getDuplicateIDCache(SimpleString.of(ProtonProtocolManager.MIRROR_ADDRESS + "_" + internalMirrorID), connection.getAmqpCredits());
          duplicateIDCache = lruduplicateIDCache;
       }
 

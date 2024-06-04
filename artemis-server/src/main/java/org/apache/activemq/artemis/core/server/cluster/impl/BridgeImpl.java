@@ -263,7 +263,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), SimpleString.toSimpleString(configuration.getName()));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(configuration.getName()));
          Notification notification = new Notification(nodeUUID.toString(), CoreNotificationType.BRIDGE_STARTED, props);
          notificationService.sendNotification(notification);
       }
@@ -383,7 +383,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), SimpleString.toSimpleString(configuration.getName()));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(configuration.getName()));
          Notification notification = new Notification(nodeUUID.toString(), CoreNotificationType.BRIDGE_STOPPED, props);
          try {
             notificationService.sendNotification(notification);
@@ -401,7 +401,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), SimpleString.toSimpleString(configuration.getName()));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(configuration.getName()));
          Notification notification = new Notification(nodeUUID.toString(), CoreNotificationType.BRIDGE_STOPPED, props);
          try {
             notificationService.sendNotification(notification);
@@ -428,7 +428,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public SimpleString getName() {
-      return SimpleString.toSimpleString(configuration.getName());
+      return SimpleString.of(configuration.getName());
    }
 
    @Override
@@ -445,7 +445,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public SimpleString getForwardingAddress() {
-      return SimpleString.toSimpleString(configuration.getForwardingAddress());
+      return SimpleString.of(configuration.getForwardingAddress());
    }
 
    // For testing only
@@ -605,7 +605,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          final SimpleString dest;
 
          if (configuration.getForwardingAddress() != null) {
-            dest = SimpleString.toSimpleString(configuration.getForwardingAddress());
+            dest = SimpleString.of(configuration.getForwardingAddress());
          } else {
             // Preserve the original address
             dest = ref.getMessage().getAddressSimpleString();
@@ -708,7 +708,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             if (logger.isDebugEnabled()) {
                logger.debug("Moving {} messages from {} to {}", queue.getMessageCount(), queue.getName(), scaleDownTargetNodeID);
             }
-            ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
+            ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.of(scaleDownTargetNodeID));
 
             // stop the bridge from trying to reconnect and clean up all the bindings
             fail(true, true);
@@ -960,7 +960,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                ClientSession.AddressQuery query = null;
 
                try {
-                  query = session.addressQuery(SimpleString.toSimpleString(configuration.getForwardingAddress()));
+                  query = session.addressQuery(SimpleString.of(configuration.getForwardingAddress()));
                } catch (Throwable e) {
                   ActiveMQServerLogger.LOGGER.errorQueryingBridge(configuration.getName(), e);
                   // This was an issue during startup, we will not count this retry

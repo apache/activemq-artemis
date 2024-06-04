@@ -202,7 +202,7 @@ public abstract class ActiveMQServerTestCase {
 
    protected void deployAdministeredObjects() throws Exception {
       // set DLA and expiry to avoid spamming the log with warnings
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
       createTopic("Topic1");
       createTopic("Topic2");
       createTopic("Topic3");
@@ -340,7 +340,7 @@ public abstract class ActiveMQServerTestCase {
 
    protected boolean assertRemainingMessages(final int expected) throws Exception {
       String queueName = "Queue1";
-      Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
+      Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.of(queueName));
       if (binding != null && binding instanceof LocalQueueBinding) {
          ((LocalQueueBinding) binding).getQueue().flushExecutor();
       }

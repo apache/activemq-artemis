@@ -365,7 +365,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    public String lookupSubscription() {
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(getContainerID() + "." + getSubscriptionName()));
+      Binding binding = server.getPostOffice().getBinding(SimpleString.of(getContainerID() + "." + getSubscriptionName()));
       if (binding != null) {
          return binding.getAddress().toString();
       }

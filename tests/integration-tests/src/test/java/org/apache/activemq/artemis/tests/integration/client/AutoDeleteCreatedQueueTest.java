@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Test;
 
 public class AutoDeleteCreatedQueueTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString queueConfigurationManaged = new SimpleString("queueConfigurationManaged");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString queueConfigurationManaged = SimpleString.of("queueConfigurationManaged");
 
    private ServerLocator locator;
    private ActiveMQServer server;

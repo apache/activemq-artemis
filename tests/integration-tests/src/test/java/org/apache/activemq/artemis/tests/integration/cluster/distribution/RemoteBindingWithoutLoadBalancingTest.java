@@ -114,7 +114,7 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
 
       waitForBindings(1, QUEUE_NAME, 1, 0, true);
 
-      assertTrue(Wait.waitFor(() -> servers[1].locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> servers[1].locateQueue(SimpleString.of(QUEUE_NAME)).getMessageCount() == 1, 2000, 100));
 
       c1.close();
       c2.close();

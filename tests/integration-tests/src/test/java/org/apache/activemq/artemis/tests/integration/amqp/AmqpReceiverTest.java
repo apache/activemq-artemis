@@ -252,7 +252,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
    @Test
    @Timeout(60)
    public void testClientIdIsSetInSubscriptionList() throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("mytopic"), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("mytopic"), RoutingType.ANYCAST));
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -268,7 +268,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          source.setAddress("mytopic");
          session.createReceiver(source, "testSub");
 
-         SimpleString fo = new SimpleString("testClient.testSub:mytopic");
+         SimpleString fo = SimpleString.of("testClient.testSub:mytopic");
          assertNotNull(server.locateQueue(fo));
 
       } catch (Exception e) {
@@ -288,7 +288,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          AmqpSession session = connection.createSession();
          AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-         server.destroyQueue(new SimpleString(getQueueName()), null, false, true);
+         server.destroyQueue(SimpleString.of(getQueueName()), null, false, true);
 
          Wait.assertTrue("Receiver should have closed", receiver::isClosed);
       } finally {

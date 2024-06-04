@@ -342,7 +342,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertEquals(payload, new String(message));
       }
 
-      final Queue queue = server.locateQueue(new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
+      final Queue queue = server.locateQueue(SimpleString.of(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
 
       Wait.waitFor(() -> queue.getMessageCount() == 0, 1000, 100);
 
@@ -2074,7 +2074,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void testAnycastAddressWorksWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
-      getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), RoutingType.ANYCAST));
+      getServer().addAddressInfo(new AddressInfo(SimpleString.of("foo.bar"), RoutingType.ANYCAST));
       String clientId = "testMqtt";
 
       Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
@@ -2111,7 +2111,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       EnumSet<RoutingType> routingTypeSet = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
-      getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
+      getServer().addAddressInfo(new AddressInfo(SimpleString.of("foo.bar"), routingTypeSet));
       String clientId = "testMqtt";
 
       Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
@@ -2148,7 +2148,7 @@ public class MQTTTest extends MQTTTestSupport {
       String payload = "This is a test message";
 
       // Create address
-      getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+      getServer().addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
 
       // Send MQTT Retain Message
       Topic[] mqttTopic = new Topic[]{new Topic(address, QoS.AT_LEAST_ONCE)};
@@ -2259,11 +2259,11 @@ public class MQTTTest extends MQTTTestSupport {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
       subscriptionProvider.subscribe("foo/bar", AT_MOST_ONCE);
-      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
+      assertNotNull(server.getAddressInfo(SimpleString.of("foo.bar")));
 
       subscriptionProvider.disconnect();
 
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("foo.bar")) == null);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of("foo.bar")) == null);
    }
 
    @Test

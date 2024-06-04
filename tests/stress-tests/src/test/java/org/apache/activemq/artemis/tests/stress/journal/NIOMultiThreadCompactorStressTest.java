@@ -52,9 +52,9 @@ import org.junit.jupiter.api.Test;
 public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
 
-   final SimpleString ADDRESS = new SimpleString("SomeAddress");
+   final SimpleString ADDRESS = SimpleString.of("SomeAddress");
 
-   final SimpleString QUEUE = new SimpleString("SomeQueue");
+   final SimpleString QUEUE = SimpleString.of("SomeQueue");
 
    private ActiveMQServer server;
 
@@ -214,13 +214,13 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       setupServer(getJournalType());
 
       drainQueue(numberOfMessagesExpected, QUEUE);
-      drainQueue(100, new SimpleString("LAZY-QUEUE"));
+      drainQueue(100, SimpleString.of("LAZY-QUEUE"));
 
       server.stop();
 
       setupServer(getJournalType());
       drainQueue(0, QUEUE);
-      drainQueue(0, new SimpleString("LAZY-QUEUE"));
+      drainQueue(0, SimpleString.of("LAZY-QUEUE"));
 
       checkEmptyXID(xid);
 

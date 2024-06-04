@@ -170,7 +170,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       session.commit();
 
 
-      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.toSimpleString(queueName));
+      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.of(queueName));
       store.disableCleanup();
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -227,7 +227,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       session.commit();
 
 
-      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.toSimpleString(queueName));
+      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.of(queueName));
       store.disableCleanup();
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -317,7 +317,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       session.commit();
 
 
-      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.toSimpleString(queueName));
+      PagingStoreImpl store = (PagingStoreImpl) server.getPagingManager().getPageStore(SimpleString.of(queueName));
       store.disableCleanup();
 
       MessageConsumer consumer = session.createConsumer(queue);

@@ -1088,7 +1088,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Map<String, Long> result = new HashMap<>();
          try {
             Filter filter = FilterImpl.createFilter(filterStr);
-            SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+            SimpleString groupByProperty = SimpleString.of(groupByPropertyStr);
             if (filter == null && groupByProperty == null) {
                result.put(null, getMessageCount());
             } else {
@@ -1141,7 +1141,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Map<String, Long> result = new HashMap<>();
          try {
             Filter filter = FilterImpl.createFilter(filterStr);
-            SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+            SimpleString groupByProperty = SimpleString.of(groupByPropertyStr);
             if (filter == null && groupByProperty == null) {
                result.put(null, (long) getDeliveringCount());
             } else {
@@ -1299,7 +1299,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
                @Override
                public SimpleString getFilterString() {
-                  return new SimpleString("custom filter for MESSAGEID= messageID");
+                  return SimpleString.of("custom filter for MESSAGEID= messageID");
                }
             };
 
@@ -1346,7 +1346,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
          clearIO();
          try {
-            Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
+            Binding binding = server.getPostOffice().getBinding(SimpleString.of(otherQueueName));
 
             if (binding == null) {
                throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -1390,7 +1390,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          try {
             Filter filter = FilterImpl.createFilter(filterStr);
 
-            Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
+            Binding binding = server.getPostOffice().getBinding(SimpleString.of(otherQueueName));
 
             if (binding == null) {
                throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
@@ -1846,7 +1846,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         queue.resetGroup(SimpleString.toSimpleString(groupID));
+         queue.resetGroup(SimpleString.of(groupID));
       } finally {
          blockOnIO();
       }

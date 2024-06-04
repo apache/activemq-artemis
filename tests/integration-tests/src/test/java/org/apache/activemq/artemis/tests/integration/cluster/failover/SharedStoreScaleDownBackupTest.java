@@ -94,8 +94,8 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
       //      removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
+      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();

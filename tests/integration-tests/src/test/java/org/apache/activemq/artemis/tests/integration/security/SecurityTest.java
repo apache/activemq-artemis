@@ -396,9 +396,9 @@ public class SecurityTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //Add the corresponding addresses to the server
-         SimpleString address = SimpleString.toSimpleString("test.queue");
+         SimpleString address = SimpleString.of("test.queue");
          server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-         SimpleString address2 = SimpleString.toSimpleString("test.topic");
+         SimpleString address2 = SimpleString.of("test.topic");
          server.addAddressInfo(new AddressInfo(address2, RoutingType.MULTICAST));
 
          //Test queue creation permission
@@ -557,9 +557,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -661,9 +661,9 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    private void internalJAASSecurityManagerAuthorizationSameAddressDifferentQueues(boolean fqqnSyntax) throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString QUEUE_A = new SimpleString("a");
-      final SimpleString QUEUE_B = new SimpleString("b");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString QUEUE_A = SimpleString.of("a");
+      final SimpleString QUEUE_B = SimpleString.of("b");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -725,8 +725,8 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testFallbackConsumerAuthorization() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("a.c.b");
-      final SimpleString QUEUE = new SimpleString("a.c.b");
+      final SimpleString ADDRESS = SimpleString.of("a.c.b");
+      final SimpleString QUEUE = SimpleString.of("a.c.b");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -756,9 +756,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerFQQNAuthorizationWithJMS() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString QUEUE_A = new SimpleString("a");
-      final SimpleString QUEUE_B = new SimpleString("b");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString QUEUE_A = SimpleString.of("a");
+      final SimpleString QUEUE_B = SimpleString.of("b");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -820,9 +820,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationNegativeWithCerts() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -927,9 +927,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -1013,9 +1013,9 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    protected void testJAASSecurityManagerAuthorizationPositiveWithCerts(String clientAuthPropName) throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -1108,9 +1108,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositiveGuest() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("GuestLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -1545,7 +1545,7 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       session.close();
 
-      Queue binding = (Queue) server.getPostOffice().getBinding(new SimpleString(SecurityTest.queueA)).getBindable();
+      Queue binding = (Queue) server.getPostOffice().getBinding(SimpleString.of(SecurityTest.queueA)).getBindable();
       assertEquals(0, getMessageCount(binding));
    }
 
@@ -1887,7 +1887,7 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       session.close();
 
-      Queue binding = (Queue) server.getPostOffice().getBinding(new SimpleString(SecurityTest.queueA)).getBindable();
+      Queue binding = (Queue) server.getPostOffice().getBinding(SimpleString.of(SecurityTest.queueA)).getBindable();
       assertEquals(0, getMessageCount(binding));
 
    }

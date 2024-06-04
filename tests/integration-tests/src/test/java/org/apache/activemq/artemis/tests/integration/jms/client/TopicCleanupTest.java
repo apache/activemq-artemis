@@ -86,8 +86,8 @@ public class TopicCleanupTest extends JMSTestBase {
          for (int i = 0; i < 100; i++) {
             long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("topic"),
-                                              SimpleString.toSimpleString("topic"),
+            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.of("topic"),
+                                              SimpleString.of("topic"),
                                               FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null,
                                               true, false, false, server.getScheduledPool(), server.getPostOffice(),
                                               storage, server.getAddressSettingsRepository(),
@@ -139,7 +139,7 @@ public class TopicCleanupTest extends JMSTestBase {
          conn.close();
 
          boolean foundStrayRoutingBinding = false;
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(topic.getAddress()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of(topic.getAddress()));
          Map<SimpleString, List<Binding>> routingNames = ((BindingsImpl) bindings).getRoutingNameBindingMap();
          for (SimpleString key : routingNames.keySet()) {
             if (!key.toString().equals(topic.getAddress())) {

@@ -51,7 +51,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   final SimpleString ADDRESS = new SimpleString("ADDRESS");
+   final SimpleString ADDRESS = SimpleString.of("ADDRESS");
 
    final String body = "this is the body";
 

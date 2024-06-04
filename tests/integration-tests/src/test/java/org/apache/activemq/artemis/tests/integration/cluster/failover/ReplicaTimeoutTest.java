@@ -58,7 +58,7 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
    protected ServerLocator locator;
 
-   protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.of("FailoverTestAddress");
 
    @BeforeEach
    public void setup() {

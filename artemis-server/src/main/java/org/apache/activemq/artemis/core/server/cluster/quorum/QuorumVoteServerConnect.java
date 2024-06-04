@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  */
 public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
-   public static final SimpleString PRIMARY_FAILOVER_VOTE = new SimpleString("PrimaryFailoverQuorumVote");
+   public static final SimpleString PRIMARY_FAILOVER_VOTE = SimpleString.of("PrimaryFailoverQuorumVote");
    // this flag mark the end of the vote
    private final CountDownLatch voteCompleted;
    private final String targetNodeId;

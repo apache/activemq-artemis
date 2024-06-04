@@ -46,11 +46,11 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testSendToDLAWhenNoRoute() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString address = new SimpleString("empty_address");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString address = SimpleString.of("empty_address");
       AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       ClientProducer producer = clientSession.createProducer(address);
       producer.send(createTextMessage(clientSession, "heyho!"));

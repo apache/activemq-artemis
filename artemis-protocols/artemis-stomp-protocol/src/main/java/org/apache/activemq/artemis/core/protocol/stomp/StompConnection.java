@@ -171,7 +171,7 @@ public final class StompConnection extends AbstractRemotingConnection {
 
    public void autoCreateDestinationIfPossible(String destination, RoutingType routingType) throws ActiveMQStompException {
       try {
-         SimpleString simpleDestination = SimpleString.toSimpleString(destination);
+         SimpleString simpleDestination = SimpleString.of(destination);
          AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleDestination);
          AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(destination);
          RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
@@ -208,7 +208,7 @@ public final class StompConnection extends AbstractRemotingConnection {
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      AddressInfo addressInfo = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination));
+      AddressInfo addressInfo = manager.getServer().getAddressInfo(SimpleString.of(destination));
 
       // may be null here if, for example, the management address is being checked
       if (addressInfo != null) {

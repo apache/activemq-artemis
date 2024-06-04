@@ -79,8 +79,8 @@ public class CoreClientLeakTest extends AbstractLeakTest {
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString emptyString = SimpleString.toSimpleString("");
-      SimpleString dummyFilter = SimpleString.toSimpleString("dummy=true");
+      SimpleString emptyString = SimpleString.of("");
+      SimpleString dummyFilter = SimpleString.of("dummy=true");
 
 
       try (ClientSessionFactory sf = createSessionFactory(locator);

@@ -69,7 +69,7 @@ public class FilterImpl implements Filter {
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final String filterStr) throws ActiveMQException {
-      return FilterImpl.createFilter(SimpleString.toSimpleString(filterStr == null ? null : filterStr.trim()));
+      return FilterImpl.createFilter(SimpleString.of(filterStr == null ? null : filterStr.trim()));
    }
 
    /**
@@ -162,15 +162,15 @@ public class FilterImpl implements Filter {
             // Proton stores JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string
             String amqpNativeID = msg.getStringProperty(NATIVE_MESSAGE_ID);
             if (amqpNativeID != null) {
-               return SimpleString.toSimpleString(amqpNativeID);
+               return SimpleString.of(amqpNativeID);
             }
          }
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
          String userID = msg.getUserID().toString();
          if (userID.startsWith("ID:")) {
-            return SimpleString.toSimpleString(userID);
+            return SimpleString.of(userID);
          } else {
-            return SimpleString.toSimpleString("ID:" + msg.getUserID());
+            return SimpleString.of("ID:" + msg.getUserID());
          }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return (int) msg.getPriority();

@@ -113,7 +113,7 @@ public class CoreClientTest extends ActiveMQTestBase {
    }
 
    private void testCoreClient(final boolean netty, ServerLocator serverLocator) throws Exception {
-      final SimpleString QUEUE = new SimpleString("CoreClientTestQueue");
+      final SimpleString QUEUE = SimpleString.of("CoreClientTestQueue");
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(netty), false));
 

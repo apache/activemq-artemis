@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 public class ColocatedActivation extends PrimaryActivation {
 
-   private static final SimpleString REQUEST_BACKUP_QUORUM_VOTE = new SimpleString("RequestBackupQuorumVote");
+   private static final SimpleString REQUEST_BACKUP_QUORUM_VOTE = SimpleString.of("RequestBackupQuorumVote");
 
    private final ColocatedHAManager colocatedHAManager;
 

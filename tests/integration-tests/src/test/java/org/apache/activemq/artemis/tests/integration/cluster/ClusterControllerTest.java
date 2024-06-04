@@ -95,7 +95,7 @@ public class ClusterControllerTest extends ClusterTestBase {
       ActiveMQServer serverNode = getServer(node);
       ClusterManager clusterManager = serverNode.getClusterManager();
       ClusterController clusterController = clusterManager.getClusterController();
-      ServerLocator serverNodeLocator = clusterController.getServerLocator(new SimpleString(clusterConnectionConfigurationBeforeStart.getName()));
+      ServerLocator serverNodeLocator = clusterController.getServerLocator(SimpleString.of(clusterConnectionConfigurationBeforeStart.getName()));
       List<ClusterConnectionConfiguration> serverNodeClusterConnectionConfigurations = serverNodeConfiguration.getClusterConfigurations();
 
       do {

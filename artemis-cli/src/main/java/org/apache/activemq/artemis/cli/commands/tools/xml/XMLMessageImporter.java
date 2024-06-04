@@ -225,7 +225,7 @@ public class XMLMessageImporter {
             message.putLongProperty(key, Long.parseLong(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING:
-            message.putStringProperty(new SimpleString(key), value == null ? null : SimpleString.toSimpleString(value));
+            message.putStringProperty(SimpleString.of(key), value == null ? null : SimpleString.of(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_STRING:
             message.putStringProperty(key, value);
@@ -270,7 +270,7 @@ public class XMLMessageImporter {
              * the processor, and reset the cdata for the next event(s)
              */
             if (decodeTextMessage) {
-               SimpleString text = new SimpleString(cdata.toString());
+               SimpleString text = SimpleString.of(cdata.toString());
                ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer(SimpleString.sizeofNullableString(text));
                SimpleString.writeNullableSimpleString(byteBuf, text);
                byte[] bytes = new byte[SimpleString.sizeofNullableString(text)];

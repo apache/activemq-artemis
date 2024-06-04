@@ -189,7 +189,7 @@ public class CorePluginTest extends JMSTestBase {
       sess.createProducer(queue);
       conn.close();
 
-      server.destroyQueue(new SimpleString(queue.getQueueName()));
+      server.destroyQueue(SimpleString.of(queue.getQueueName()));
 
       verifier.validatePluginMethodsEquals(2, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsEquals(1, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_DESTROY_QUEUE,
@@ -362,12 +362,12 @@ public class CorePluginTest extends JMSTestBase {
 
       ClientSession session0 = sf0.createSession(false, true, true);
       ClientSession session1 = sf1.createSession(false, true, true);
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
       session1.start();
 
       final byte[] bytes = new byte[messageSize];
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -406,8 +406,8 @@ public class CorePluginTest extends JMSTestBase {
 
    @Test
    public void testUpdateAddress() throws Exception {
-      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.ANYCAST));
-      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.ANYCAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
       verifier.validatePluginMethodsEquals(1, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS);
    }

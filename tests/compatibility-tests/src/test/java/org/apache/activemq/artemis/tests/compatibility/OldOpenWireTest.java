@@ -59,7 +59,7 @@ public class OldOpenWireTest extends ClasspathBase {
       server.getActiveMQServer().addAddressInfo(new AddressInfo("DLQ").addRoutingType(RoutingType.ANYCAST));
       server.getActiveMQServer().createQueue(new QueueConfiguration("DLQ").setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
-      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLQ")));
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLQ")));
    }
 
    @AfterEach

@@ -69,7 +69,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol ADDRESS = Symbol.getSymbol("x-opt-amq-mr-adr");
    public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
    public static final Symbol BROKER_ID = Symbol.getSymbol("x-opt-amq-bkr-id");
-   public static final SimpleString BROKER_ID_SIMPLE_STRING = SimpleString.toSimpleString(BROKER_ID.toString());
+   public static final SimpleString BROKER_ID_SIMPLE_STRING = SimpleString.of(BROKER_ID.toString());
 
    // Events:
    public static final Symbol ADD_ADDRESS = Symbol.getSymbol("addAddress");
@@ -90,8 +90,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
    public static final Symbol QPID_DISPATCH_WAYPOINT_CAPABILITY = Symbol.valueOf("qd.waypoint");
 
-   public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(INTERNAL_ID.toString());
-   public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(BROKER_ID.toString());
+   public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.of(INTERNAL_ID.toString());
+   public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.of(BROKER_ID.toString());
 
    private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null));
 

@@ -28,7 +28,7 @@ public class AddHeadersTransformer implements Transformer {
 
    @Override
    public void init(Map<String, String> properties) {
-      properties.forEach((k,v) -> headers.put(SimpleString.toSimpleString(k), SimpleString.toSimpleString(v)));
+      properties.forEach((k,v) -> headers.put(SimpleString.of(k), SimpleString.of(v)));
    }
 
    @Override

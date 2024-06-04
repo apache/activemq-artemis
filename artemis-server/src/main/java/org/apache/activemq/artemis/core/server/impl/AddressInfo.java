@@ -102,7 +102,7 @@ public class AddressInfo {
    }
 
    public AddressInfo(String name) {
-      this(SimpleString.toSimpleString(name), createEmptySet());
+      this(SimpleString.of(name), createEmptySet());
    }
 
    public AddressInfo(SimpleString name) {
@@ -410,7 +410,7 @@ public class AddressInfo {
          this.id = jsonLong.longValue();
       } else if (key.equals("name")) {
          JsonString jasonString = (JsonString) value;
-         this.name = SimpleString.toSimpleString(jasonString.getString());
+         this.name = SimpleString.of(jasonString.getString());
       } else if (key.equals("auto-created")) {
          this.autoCreated = Boolean.valueOf(value.toString());
       } else if (key.equals("temporary")) {

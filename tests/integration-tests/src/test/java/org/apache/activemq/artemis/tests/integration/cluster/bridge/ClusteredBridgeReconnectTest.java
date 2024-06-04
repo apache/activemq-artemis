@@ -270,7 +270,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       //is created on the other node.
       removeConsumer(0);
       servers[0].getManagementService().enableNotifications(false);
-      servers[0].destroyQueue(new SimpleString(QUEUE));
+      servers[0].destroyQueue(SimpleString.of(QUEUE));
       servers[0].getManagementService().enableNotifications(true);
 
       createQueue(0, ADDRESS, QUEUE, null, false);

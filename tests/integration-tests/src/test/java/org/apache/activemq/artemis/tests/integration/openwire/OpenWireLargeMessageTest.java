@@ -64,8 +64,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       super();
    }
 
-   public SimpleString lmAddress = new SimpleString("LargeMessageAddress");
-   public SimpleString lmDropAddress = new SimpleString("LargeMessageDropAddress");
+   public SimpleString lmAddress = SimpleString.of("LargeMessageAddress");
+   public SimpleString lmDropAddress = SimpleString.of("LargeMessageDropAddress");
 
    @Override
    @BeforeEach
@@ -78,7 +78,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
       addressSettingsMap.put(lmDropAddress.toString(),
                              new AddressSettings()
                                 .setMaxSizeBytes(100 * 1024)

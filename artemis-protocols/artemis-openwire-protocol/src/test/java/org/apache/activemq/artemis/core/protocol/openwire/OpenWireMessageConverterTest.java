@@ -229,7 +229,7 @@ public class OpenWireMessageConverterTest {
       final String CORRELATION_ID = RandomUtil.randomString();
 
       ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
-      coreMessage.putStringProperty(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY, new SimpleString(CORRELATION_ID));
+      coreMessage.putStringProperty(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY, SimpleString.of(CORRELATION_ID));
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);

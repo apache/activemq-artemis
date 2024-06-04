@@ -37,7 +37,7 @@ public class DuplicateRecordIdTest extends ActiveMQTestBase {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      server = createServer(false, createDefaultInVMConfig().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(new SimpleString("dlq")).setExpiryAddress(new SimpleString("dlq")).setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)));
+      server = createServer(false, createDefaultInVMConfig().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("dlq")).setExpiryAddress(SimpleString.of("dlq")).setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)));
       server.getConfiguration().setPersistenceEnabled(true);
    }
 
@@ -49,7 +49,7 @@ public class DuplicateRecordIdTest extends ActiveMQTestBase {
          serverControl.removeAddressSettings("q");
          AddressSettingsInfo defaultSettings = AddressSettingsInfo.fromJSON(serverControl.getAddressSettingsAsJSON("#"));
          AddressSettings settings = new AddressSettings();
-         settings.setExpiryAddress(SimpleString.toSimpleString(defaultSettings.getExpiryAddress())).setExpiryDelay(defaultSettings.getExpiryDelay()).setMaxDeliveryAttempts(1)
+         settings.setExpiryAddress(SimpleString.of(defaultSettings.getExpiryAddress())).setExpiryDelay(defaultSettings.getExpiryDelay()).setMaxDeliveryAttempts(1)
                  .setMaxSizeBytes(defaultSettings.getMaxSizeBytes()).setPageSizeBytes(defaultSettings.getPageSizeBytes())
                  .setPageCacheMaxSize(defaultSettings.getPageCacheMaxSize()).setRedeliveryDelay(defaultSettings.getRedeliveryDelay())
                  .setMaxExpiryDelay(defaultSettings.getMaxRedeliveryDelay()).setRedistributionDelay(defaultSettings.getRedistributionDelay())

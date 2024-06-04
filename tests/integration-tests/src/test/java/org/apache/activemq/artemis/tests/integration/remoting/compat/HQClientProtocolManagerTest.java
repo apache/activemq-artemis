@@ -66,7 +66,7 @@ public class HQClientProtocolManagerTest extends ActiveMQTestBase {
          server.start();
 
          //issue a query to make sure session is reconnected.
-         ClientSession.QueueQuery query = session.queueQuery(new SimpleString("anyvalue"));
+         ClientSession.QueueQuery query = session.queueQuery(SimpleString.of("anyvalue"));
          assertFalse(query.isExists());
 
          locator.close();

@@ -118,7 +118,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          Thread.sleep(100);
       }
 
-      Queue queue0 = servers[0].locateQueue(new SimpleString("queue0"));
+      Queue queue0 = servers[0].locateQueue(SimpleString.of("queue0"));
       assertTrue(queue0.getPageSubscription().isPaging());
 
       closeAllSessionFactories();
@@ -163,8 +163,8 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
             addrSettings = new AddressSettings();
             addressSettingsMap0.put("#", addrSettings);
          }
-         addrSettings.setDeadLetterAddress(new SimpleString("jms.queue.DLQ"));
-         addrSettings.setExpiryAddress(new SimpleString("jms.queue.ExpiryQueue"));
+         addrSettings.setDeadLetterAddress(SimpleString.of("jms.queue.DLQ"));
+         addrSettings.setExpiryAddress(SimpleString.of("jms.queue.ExpiryQueue"));
          addrSettings.setRedeliveryDelay(30);
          addrSettings.setMaxDeliveryAttempts(5);
          addrSettings.setMaxSizeBytes(1048576);

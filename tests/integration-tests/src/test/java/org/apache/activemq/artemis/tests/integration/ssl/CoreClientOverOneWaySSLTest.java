@@ -68,7 +68,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(ParameterizedTestExtension.class)
 public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.of("QueueOverSSL");
 
    private boolean generateWarning;
    private boolean useKeystoreAlias;

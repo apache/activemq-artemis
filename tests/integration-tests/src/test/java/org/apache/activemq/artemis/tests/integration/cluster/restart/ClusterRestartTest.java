@@ -156,7 +156,7 @@ public class ClusterRestartTest extends ClusterTestBase {
 
    private void printBindings(final int num) throws Exception {
       for (int i = 0; i < num; i++) {
-         Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress")).getBindings();
+         Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(SimpleString.of("queues.testaddress")).getBindings();
          for (Binding binding : bindings0) {
             logger.debug("{} on node {} at {}", binding, i, binding.getID());
          }

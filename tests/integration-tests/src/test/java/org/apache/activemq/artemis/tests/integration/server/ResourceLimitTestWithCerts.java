@@ -68,7 +68,7 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
       ResourceLimitSettings limit = new ResourceLimitSettings();
       limit.setMaxConnections(1);
       limit.setMaxQueues(1);
-      limit.setMatch(new SimpleString("first"));
+      limit.setMatch(SimpleString.of("first"));
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addResourceLimitSettings(limit), ManagementFactory.getPlatformMBeanServer(), securityManager, false));

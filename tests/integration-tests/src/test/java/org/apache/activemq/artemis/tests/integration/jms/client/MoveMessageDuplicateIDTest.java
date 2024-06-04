@@ -62,7 +62,7 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
    @TestTemplate
    public void testTwoQueuesSingleDLQ() throws Exception {
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")).setMaxDeliveryAttempts(1));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("JUNKYARD")).setExpiryAddress(SimpleString.of("JUNKYARD")).setMaxDeliveryAttempts(1));
 
       createQueue("JUNKYARD");
       Queue junkQueue = server.locateQueue("JUNKYARD");
@@ -116,13 +116,13 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
    @TestTemplate
    public void testMultiplSubscriptionSingleExpire() throws Exception {
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")));
 
       createQueue("DLQ");
       Queue dlqServerQueue = server.locateQueue("DLQ");
       assertNotNull(dlqServerQueue);
       Topic topic = createTopic("test-topic");
-      AddressControl control = ManagementControlHelper.createAddressControl(new SimpleString(topic.getTopicName()), mbeanServer);
+      AddressControl control = ManagementControlHelper.createAddressControl(SimpleString.of(topic.getTopicName()), mbeanServer);
 
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
@@ -160,7 +160,7 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
    @TestTemplate
    public void testTwoQueuesSingleExpire() throws Exception {
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("JUNKYARD")).setExpiryAddress(SimpleString.of("JUNKYARD")));
 
       createQueue("JUNKYARD");
       Queue junkQueue = server.locateQueue("JUNKYARD");

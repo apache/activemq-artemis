@@ -938,7 +938,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
-         final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
+         final AddressInfo addressInfo = new AddressInfo(SimpleString.of(name), set);
          if (server.addAddressInfo(addressInfo)) {
             String result = AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
             if (AuditLogger.isResourceLoggingEnabled()) {
@@ -973,16 +973,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                routingTypeSet.add(RoutingType.valueOf(routingTypeName));
             }
          }
-         if (!server.updateAddressInfo(SimpleString.toSimpleString(name), routingTypeSet)) {
+         if (!server.updateAddressInfo(SimpleString.of(name), routingTypeSet)) {
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.updateAddressFailure(name, routingTypes);
             }
-            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(name));
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.of(name));
          }
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.updateAddressSuccess(name, routingTypes);
          }
-         return AddressInfoTextFormatter.Long.format(server.getAddressInfo(SimpleString.toSimpleString(name)), new StringBuilder()).toString();
+         return AddressInfoTextFormatter.Long.format(server.getAddressInfo(SimpleString.of(name)), new StringBuilder()).toString();
       } finally {
          blockOnIO();
       }
@@ -1003,7 +1003,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          clearIO();
          try {
-            server.removeAddressInfo(new SimpleString(name), null, force);
+            server.removeAddressInfo(SimpleString.of(name), null, force);
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.deleteAddressSuccess(name);
             }
@@ -1269,10 +1269,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
+      SimpleString filter = filterStr == null ? null : SimpleString.of(filterStr);
       try {
          if (filterStr != null && !filterStr.trim().equals("")) {
-            filter = new SimpleString(filterStr);
+            filter = SimpleString.of(filterStr);
          }
 
          final Queue queue = server.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.valueOf(routingType.toUpperCase())).setFilterString(filter).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setExclusive(exclusive).setGroupRebalance(groupRebalance).setGroupBuckets(groupBuckets).setGroupFirstKey(groupFirstKey).setLastValue(lastValue).setLastValueKey(lastValueKey).setNonDestructive(nonDestructive).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch).setAutoDelete(autoDelete).setAutoDeleteDelay(autoDeleteDelay).setAutoDeleteMessageCount(autoDeleteMessageCount).setAutoCreateAddress(autoCreateAddress).setRingSize(ringSize));
@@ -1433,7 +1433,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.updateQueueFailure(name, routingType);
             }
-            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(SimpleString.of(name));
          }
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.updateQueueSuccess(name, routingType);
@@ -1607,7 +1607,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          clearIO();
          try {
-            SimpleString queueName = new SimpleString(name);
+            SimpleString queueName = SimpleString.of(name);
             try {
                server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, forceAutoDeleteAddress);
             } catch (Exception e) {
@@ -1644,9 +1644,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
+         final AddressInfo addressInfo = server.getAddressInfo(SimpleString.of(address));
          if (addressInfo == null) {
-            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.of(address));
          } else {
             return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
          }
@@ -1664,7 +1664,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         final Bindings bindings = server.getPostOffice().lookupBindingsForAddress(new SimpleString(address));
+         final Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.of(address));
          return bindings == null ? "" : bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
       } finally {
          blockOnIO();
@@ -2305,7 +2305,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          clearIO();
          try {
-            for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address))) {
+            for (Binding binding : postOffice.getMatchingBindings(SimpleString.of(address))) {
                if (binding instanceof LocalQueueBinding) {
                   Queue queue = ((LocalQueueBinding) binding).getQueue();
                   for (Consumer consumer : queue.getConsumers()) {
@@ -2986,7 +2986,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.getSecurityRepository().removeMatch(addressMatch);
-         storageManager.deleteSecuritySetting(new SimpleString(addressMatch));
+         storageManager.deleteSecuritySetting(SimpleString.of(addressMatch));
       } finally {
          blockOnIO();
       }
@@ -3491,8 +3491,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(DLA == null ? null : new SimpleString(DLA));
-      addressSettings.setExpiryAddress(expiryAddress == null ? null : new SimpleString(expiryAddress));
+      addressSettings.setDeadLetterAddress(DLA == null ? null : SimpleString.of(DLA));
+      addressSettings.setExpiryAddress(expiryAddress == null ? null : SimpleString.of(expiryAddress));
       addressSettings.setExpiryDelay(expiryDelay);
       addressSettings.setMinExpiryDelay(minExpiryDelay);
       addressSettings.setMaxExpiryDelay(maxExpiryDelay);
@@ -3521,12 +3521,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setConfigDeleteQueues(configDeleteQueues == null || configDeleteQueues.isEmpty() ? AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES : DeletionPolicy.valueOf(configDeleteQueues.toUpperCase()));
       addressSettings.setConfigDeleteAddresses(configDeleteAddresses == null || configDeleteAddresses.isEmpty() ? AddressSettings.DEFAULT_CONFIG_DELETE_ADDRESSES : DeletionPolicy.valueOf(configDeleteAddresses.toUpperCase()));
       addressSettings.setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold);
-      addressSettings.setDefaultLastValueKey(defaultLastValueKey == null || defaultLastValueKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultLastValueKey() : new SimpleString(defaultLastValueKey));
+      addressSettings.setDefaultLastValueKey(defaultLastValueKey == null || defaultLastValueKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultLastValueKey() : SimpleString.of(defaultLastValueKey));
       addressSettings.setDefaultNonDestructive(defaultNonDestructive);
       addressSettings.setDefaultExclusiveQueue(defaultExclusiveQueue);
       addressSettings.setDefaultGroupRebalance(defaultGroupRebalance);
       addressSettings.setDefaultGroupBuckets(defaultGroupBuckets);
-      addressSettings.setDefaultGroupFirstKey(defaultGroupFirstKey == null || defaultGroupFirstKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : new SimpleString(defaultGroupFirstKey));
+      addressSettings.setDefaultGroupFirstKey(defaultGroupFirstKey == null || defaultGroupFirstKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : SimpleString.of(defaultGroupFirstKey));
       addressSettings.setDefaultMaxConsumers(defaultMaxConsumers);
       addressSettings.setDefaultPurgeOnNoConsumers(defaultPurgeOnNoConsumers);
       addressSettings.setDefaultConsumersBeforeDispatch(defaultConsumersBeforeDispatch);
@@ -3542,16 +3542,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor);
       addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
       addressSettings.setAutoCreateDeadLetterResources(autoCreateDeadLetterResources);
-      addressSettings.setDeadLetterQueuePrefix(deadLetterQueuePrefix == null || deadLetterQueuePrefix.isEmpty() ? null : new SimpleString(deadLetterQueuePrefix));
-      addressSettings.setDeadLetterQueueSuffix(deadLetterQueueSuffix == null || deadLetterQueueSuffix.isEmpty() ? null : new SimpleString(deadLetterQueueSuffix));
+      addressSettings.setDeadLetterQueuePrefix(deadLetterQueuePrefix == null || deadLetterQueuePrefix.isEmpty() ? null : SimpleString.of(deadLetterQueuePrefix));
+      addressSettings.setDeadLetterQueueSuffix(deadLetterQueueSuffix == null || deadLetterQueueSuffix.isEmpty() ? null : SimpleString.of(deadLetterQueueSuffix));
       addressSettings.setAutoCreateExpiryResources(autoCreateExpiryResources);
-      addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null || expiryQueuePrefix.isEmpty() ? null : new SimpleString(expiryQueuePrefix));
-      addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null || expiryQueueSuffix.isEmpty() ? null : new SimpleString(expiryQueueSuffix));
+      addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null || expiryQueuePrefix.isEmpty() ? null : SimpleString.of(expiryQueuePrefix));
+      addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null || expiryQueueSuffix.isEmpty() ? null : SimpleString.of(expiryQueueSuffix));
       addressSettings.setEnableMetrics(enableMetrics);
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
-      storageManager.storeAddressSetting(new PersistedAddressSettingJSON(new SimpleString(address), addressSettings, addressSettings.toJSON()));
+      storageManager.storeAddressSetting(new PersistedAddressSettingJSON(SimpleString.of(address), addressSettings, addressSettings.toJSON()));
 
    }
 
@@ -3580,7 +3580,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
          server.getAddressSettingsRepository().addMatch(address, addressSettingsConfiguration);
 
-         storageManager.storeAddressSetting(new PersistedAddressSettingJSON(new SimpleString(address), addressSettingsConfiguration, SimpleString.toSimpleString(addressSettingsConfigurationAsJson)));
+         storageManager.storeAddressSetting(new PersistedAddressSettingJSON(SimpleString.of(address), addressSettingsConfiguration, SimpleString.of(addressSettingsConfigurationAsJson)));
          return addressSettingsConfiguration.toJSON();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
@@ -3597,7 +3597,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
 
       server.getAddressSettingsRepository().removeMatch(addressMatch);
-      storageManager.deleteAddressSetting(new SimpleString(addressMatch));
+      storageManager.deleteAddressSetting(SimpleString.of(addressMatch));
    }
 
    public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
@@ -3605,7 +3605,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         postOffice.sendQueueInfoToQueue(new SimpleString(queueName), new SimpleString(address == null ? "" : address));
+         postOffice.sendQueueInfoToQueue(SimpleString.of(queueName), SimpleString.of(address == null ? "" : address));
 
          GroupingHandler handler = server.getGroupingHandler();
          if (handler != null) {
@@ -3743,7 +3743,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.destroyDivert(SimpleString.toSimpleString(name), true);
+         server.destroyDivert(SimpleString.of(name), true);
       } finally {
          blockOnIO();
       }
@@ -4145,7 +4145,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
       try {
-         DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(new SimpleString(address));
+         DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(SimpleString.of(address));
          for (Object id : ids) {
             duplicateIDCache.addToCache(((String) id).getBytes(), null);
          }

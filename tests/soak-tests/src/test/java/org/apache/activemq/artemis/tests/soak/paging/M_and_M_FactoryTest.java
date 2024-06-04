@@ -164,7 +164,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
 
-      ObjectName queueObjectName = objectNameBuilder.getQueueObjectName(SimpleString.toSimpleString("MMFactory"), SimpleString.toSimpleString("MMConsumer"), RoutingType.MULTICAST);
+      ObjectName queueObjectName = objectNameBuilder.getQueueObjectName(SimpleString.of("MMFactory"), SimpleString.of("MMConsumer"), RoutingType.MULTICAST);
       QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, queueObjectName, QueueControl.class, false);
 
       final int NUMBER_OF_CONSUMERS = 6;

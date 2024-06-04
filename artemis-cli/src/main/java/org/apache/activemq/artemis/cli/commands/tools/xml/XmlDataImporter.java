@@ -357,7 +357,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
       }
 
       message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-      producer.send(SimpleString.toSimpleString(destination), message);
+      producer.send(SimpleString.of(destination), message);
    }
 
    private void oldBinding() throws Exception {
@@ -416,14 +416,14 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
       }
 
 
-      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(address));
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.of(address));
 
       if (!addressQuery.isExists()) {
-         session.createAddress(SimpleString.toSimpleString(address), routingType, true);
+         session.createAddress(SimpleString.of(address), routingType, true);
       }
 
       if (!filter.equals(FilterImpl.GENERIC_IGNORED_FILTER)) {
-         ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+         ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
          if (!queueQuery.isExists()) {
             session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
@@ -463,7 +463,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
          }
       }
 
-      ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+      ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
       if (!queueQuery.isExists()) {
          session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
@@ -493,14 +493,14 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
          }
       }
 
-      ClientSession.AddressQuery addressQuery = session.addressQuery(new SimpleString(addressName));
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.of(addressName));
 
       if (!addressQuery.isExists()) {
          EnumSet<RoutingType> set = EnumSet.noneOf(RoutingType.class);
          for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
-         session.createAddress(SimpleString.toSimpleString(addressName), set, false);
+         session.createAddress(SimpleString.of(addressName), set, false);
          logger.debug("Binding address(name={}, routingTypes={})", addressName, routingTypes);
       } else {
          logger.debug("Binding {} already exists so won't re-bind.", addressName);

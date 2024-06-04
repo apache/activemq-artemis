@@ -29,8 +29,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testNoDots() {
-      SimpleString s1 = new SimpleString("abcde");
-      SimpleString s2 = new SimpleString("abcde");
+      SimpleString s1 = SimpleString.of("abcde");
+      SimpleString s2 = SimpleString.of("abcde");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       assertTrue(a1.matches(a2));
@@ -38,8 +38,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testDotsSameLength2() {
-      SimpleString s1 = new SimpleString("a.b");
-      SimpleString s2 = new SimpleString("a.b");
+      SimpleString s1 = SimpleString.of("a.b");
+      SimpleString s2 = SimpleString.of("a.b");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       assertTrue(a1.matches(a2));
@@ -47,8 +47,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testA() {
-      SimpleString s1 = new SimpleString("a.b.c");
-      SimpleString s2 = new SimpleString("a.b.c.d.e.f.g.h.i.j.k.l.m.n.*");
+      SimpleString s1 = SimpleString.of("a.b.c");
+      SimpleString s2 = SimpleString.of("a.b.c.d.e.f.g.h.i.j.k.l.m.n.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       assertFalse(a1.matches(a2));
@@ -56,9 +56,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testB() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s2 = new SimpleString("a.b.x.e");
-      SimpleString s3 = new SimpleString("a.b.c.*");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s2 = SimpleString.of("a.b.x.e");
+      SimpleString s3 = SimpleString.of("a.b.c.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -68,9 +68,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testC() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s2 = new SimpleString("a.b.c.x");
-      SimpleString s3 = new SimpleString("a.b.*.d");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s2 = SimpleString.of("a.b.c.x");
+      SimpleString s3 = SimpleString.of("a.b.*.d");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -80,9 +80,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testD() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e");
-      SimpleString s2 = new SimpleString("a.b.c.x.e");
-      SimpleString s3 = new SimpleString("a.b.*.d.*");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e");
+      SimpleString s3 = SimpleString.of("a.b.*.d.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -92,9 +92,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testE() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("a.b.*.d.*.f");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("a.b.*.d.*.f");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -104,9 +104,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testF() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("#");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -116,9 +116,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testG() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("a.#");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("a.#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -128,9 +128,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testH() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("#.b.#");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("#.b.#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -140,9 +140,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testI() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("a.#.b.#");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("a.#.b.#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -152,9 +152,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testJ() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.x.e.f");
-      SimpleString s3 = new SimpleString("a.#.c.d.e.f");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.x.e.f");
+      SimpleString s3 = SimpleString.of("a.#.c.d.e.f");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -164,9 +164,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testK() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.d.e.x");
-      SimpleString s3 = new SimpleString("a.#.c.d.e.*");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.d.e.x");
+      SimpleString s3 = SimpleString.of("a.#.c.d.e.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -176,9 +176,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testL() {
-      SimpleString s1 = new SimpleString("a.b.c.d.e.f");
-      SimpleString s2 = new SimpleString("a.b.c.d.e.x");
-      SimpleString s3 = new SimpleString("a.#.c.d.*.f");
+      SimpleString s1 = SimpleString.of("a.b.c.d.e.f");
+      SimpleString s2 = SimpleString.of("a.b.c.d.e.x");
+      SimpleString s3 = SimpleString.of("a.#.c.d.*.f");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -188,9 +188,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testM() {
-      SimpleString s1 = new SimpleString("a.b.c");
-      SimpleString s2 = new SimpleString("a.b.x.e");
-      SimpleString s3 = new SimpleString("a.b.c.#");
+      SimpleString s1 = SimpleString.of("a.b.c");
+      SimpleString s2 = SimpleString.of("a.b.x.e");
+      SimpleString s3 = SimpleString.of("a.b.c.#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -200,9 +200,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testN() {
-      SimpleString s1 = new SimpleString("usd.stock");
-      SimpleString s2 = new SimpleString("a.b.x.e");
-      SimpleString s3 = new SimpleString("*.stock.#");
+      SimpleString s1 = SimpleString.of("usd.stock");
+      SimpleString s2 = SimpleString.of("a.b.x.e");
+      SimpleString s3 = SimpleString.of("*.stock.#");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -212,9 +212,9 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testO() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s2 = new SimpleString("a.b.x.e");
-      SimpleString s3 = new SimpleString("a.b.c.*");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s2 = SimpleString.of("a.b.x.e");
+      SimpleString s3 = SimpleString.of("a.b.c.*");
       Address a1 = new AddressImpl(s1);
       Address a2 = new AddressImpl(s2);
       Address w = new AddressImpl(s3);
@@ -224,8 +224,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testP() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("a.b.c#");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("a.b.c#");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -233,8 +233,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testQ() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("#a.b.c");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("#a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -242,8 +242,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testR() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("#*a.b.c");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("#*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -251,8 +251,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testS() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("a.b.c*");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("a.b.c*");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -260,8 +260,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testT() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("*a.b.c");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -269,8 +269,8 @@ public class AddressImplTest extends ActiveMQTestBase {
 
    @Test
    public void testU() {
-      SimpleString s1 = new SimpleString("a.b.c.d");
-      SimpleString s3 = new SimpleString("*a.b.c");
+      SimpleString s1 = SimpleString.of("a.b.c.d");
+      SimpleString s3 = SimpleString.of("*a.b.c");
       Address a1 = new AddressImpl(s1);
       Address w = new AddressImpl(s3);
       assertFalse(a1.matches(w));
@@ -281,8 +281,8 @@ public class AddressImplTest extends ActiveMQTestBase {
     */
    @Test
    public void testV() {
-      final SimpleString s1 = new SimpleString("a.b.d");
-      final SimpleString s3 = new SimpleString("a.b.#.d");
+      final SimpleString s1 = SimpleString.of("a.b.d");
+      final SimpleString s3 = SimpleString.of("a.b.#.d");
       final Address a1 = new AddressImpl(s1);
       final Address w = new AddressImpl(s3);
       assertTrue(a1.matches(w));

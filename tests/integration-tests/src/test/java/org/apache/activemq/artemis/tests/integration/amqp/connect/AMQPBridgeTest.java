@@ -89,7 +89,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
    public void internalTransferPush(String queueName, boolean deferCreation, boolean restartBC) throws Exception {
       server.setIdentity("targetServer");
       server.start();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
@@ -179,7 +179,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
 
       server.start();
 
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("TEST"), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("TEST"), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration("TEST").setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);

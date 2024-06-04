@@ -101,7 +101,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
          if (amqpQueueName) {
             consumerQueueName = "SharedConsumer:shared-volatile:global";
          }
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(consumerQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(consumerQueueName));
          assertTrue(queueBinding.getQueue().isTemporary());
       } finally {
          connection1.close();

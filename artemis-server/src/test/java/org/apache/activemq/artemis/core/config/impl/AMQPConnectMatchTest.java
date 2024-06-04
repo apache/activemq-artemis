@@ -32,7 +32,7 @@ public class AMQPConnectMatchTest {
       String checkAddressMatching = "AD.TEST";
       String checkAddressNotMatching = "DD.TEST";
       WildcardConfiguration configuration = new WildcardConfiguration();
-      assertTrue(AMQPBrokerConnectionElement.match(SimpleString.toSimpleString(match), SimpleString.toSimpleString(checkAddressMatching), configuration));
-      assertFalse(AMQPBrokerConnectionElement.match(SimpleString.toSimpleString(match), SimpleString.toSimpleString(checkAddressNotMatching), configuration));
+      assertTrue(AMQPBrokerConnectionElement.match(SimpleString.of(match), SimpleString.of(checkAddressMatching), configuration));
+      assertFalse(AMQPBrokerConnectionElement.match(SimpleString.of(match), SimpleString.of(checkAddressNotMatching), configuration));
    }
 }

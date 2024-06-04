@@ -341,7 +341,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
          session.commit();
 
-         Queue queue = server.locateQueue(SimpleString.toSimpleString(getQueueName()));
+         Queue queue = server.locateQueue(SimpleString.of(getQueueName()));
 
          Wait.assertEquals(1, queue::getMessageCount);
 

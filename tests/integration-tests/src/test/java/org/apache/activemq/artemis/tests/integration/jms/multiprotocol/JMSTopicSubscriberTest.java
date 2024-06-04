@@ -64,9 +64,9 @@ public class JMSTopicSubscriberTest extends MultiprotocolJMSClientTestSupport {
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Topic topic = session.createTopic(getTopicName());
-         assertEquals(0, server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(getTopicName())).size());
+         assertEquals(0, server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName())).size());
          session.createConsumer(topic);
-         Wait.assertEquals(1, () -> server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(getTopicName())).size(), 2000, 100);
+         Wait.assertEquals(1, () -> server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName())).size(), 2000, 100);
       } finally {
          connection.close();
       }

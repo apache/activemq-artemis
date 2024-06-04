@@ -42,18 +42,18 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("foo.bah"));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of("foo.bah"));
          assertEquals(1, bindings.size());
          Binding b = bindings.getBindings().iterator().next();
          //check that query using bare queue name works as before
          QueueQueryResult result = server.queueQuery(b.getUniqueName());
          assertTrue(result.isExists());
-         assertEquals(result.getAddress(), new SimpleString("foo.bah"));
+         assertEquals(result.getAddress(), SimpleString.of("foo.bah"));
          assertEquals(b.getUniqueName(), result.getName());
          //check that queue query using FQQN returns FQQN
-         result = server.queueQuery(new SimpleString("foo.bah::" + b.getUniqueName()));
+         result = server.queueQuery(SimpleString.of("foo.bah::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.of("foo.bah"), result.getAddress());
          assertEquals(b.getUniqueName(), result.getName());
       } finally {
          subscriptionProvider.disconnect();
@@ -137,22 +137,22 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("foo.bah"));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of("foo.bah"));
          assertEquals(1, bindings.size());
          Binding b = bindings.getBindings().iterator().next();
 
          //check ::queue
-         QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));
+         QueueQueryResult result = server.queueQuery(SimpleString.of("::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.of("foo.bah"), result.getAddress());
          assertEquals(b.getUniqueName(), result.getName());
 
          //check queue::
-         result = server.queueQuery(new SimpleString(b.getUniqueName() + "::"));
+         result = server.queueQuery(SimpleString.of(b.getUniqueName() + "::"));
          assertFalse(result.isExists());
 
          //check ::
-         result = server.queueQuery(new SimpleString("::"));
+         result = server.queueQuery(SimpleString.of("::"));
          assertFalse(result.isExists());
       } finally {
          subscriptionProvider.disconnect();

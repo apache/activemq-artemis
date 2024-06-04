@@ -76,7 +76,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
       // and this may be useful to validate the journal on those tests
       // You may uncomment these two lines on that case and replcate the toString for the PrintData
 
-      // SimpleString simpleStr = new SimpleString(duplID);
+      // SimpleString simpleStr = SimpleString.of(duplID);
       // return "DuplicateIDEncoding [address=" + address + ", duplID=" + simpleStr + "]";
 
       String bridgeRepresentation = null;

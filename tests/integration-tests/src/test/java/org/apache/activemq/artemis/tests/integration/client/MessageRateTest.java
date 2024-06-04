@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 public class MessageRateTest extends ActiveMQTestBase {
 
 
-   private final SimpleString ADDRESS = new SimpleString("ADDRESS");
+   private final SimpleString ADDRESS = SimpleString.of("ADDRESS");
 
    private ServerLocator locator;
 

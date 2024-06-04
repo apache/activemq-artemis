@@ -38,15 +38,15 @@ import org.junit.jupiter.api.Test;
 public class AutogroupIdTest extends ActiveMQTestBase {
 
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
-   private final SimpleString groupTestQ = new SimpleString("testGroupQueue");
+   private final SimpleString groupTestQ = SimpleString.of("testGroupQueue");
 
    private ActiveMQServer server;
 

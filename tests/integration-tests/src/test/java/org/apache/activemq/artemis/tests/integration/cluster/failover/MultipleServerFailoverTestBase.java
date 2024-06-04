@@ -73,7 +73,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
    // TODO: find a better solution for this
    // this is necessary because the cluster connection is using "jms" as its match; see org.apache.activemq.artemis.tests.util.ActiveMQTestBase.basicClusterConnectionConfig()
-   protected static final SimpleString ADDRESS = new SimpleString("jms.FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.of("jms.FailoverTestAddress");
 
 
    protected List<TestableServer> primaryServers = new ArrayList<>();

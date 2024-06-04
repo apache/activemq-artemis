@@ -183,7 +183,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
          ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
 
          activeMQServerControl.createAddress(ADDRESS_TEST, RoutingType.MULTICAST.name());
-         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString(ADDRESS_TEST)), AddressControl.class, false);
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.of(ADDRESS_TEST)), AddressControl.class, false);
 
          testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
 
@@ -211,7 +211,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
       try {
          MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
          ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
-         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString("TEST")), AddressControl.class, false);
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.of("TEST")), AddressControl.class, false);
 
          try {
             testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);

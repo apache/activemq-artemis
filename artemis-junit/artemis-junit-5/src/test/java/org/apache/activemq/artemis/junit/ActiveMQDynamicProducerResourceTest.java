@@ -36,8 +36,8 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQDynamicProducerResourceTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.of("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = SimpleString.of("test.queue.two");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 

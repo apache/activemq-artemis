@@ -413,7 +413,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
          super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);
 
          this.localQueue = localQueue;
-         this.cachedFqqn = SimpleString.toSimpleString(consumerInfo.getFqqn());
+         this.cachedFqqn = SimpleString.of(consumerInfo.getFqqn());
       }
 
       @Override
@@ -449,7 +449,7 @@ public class AMQPFederationQueueConsumer implements FederationConsumerInternal {
             throw new ActiveMQAMQPInternalErrorException("Remote should have sent an valid Target but we got: " + target);
          }
 
-         address = SimpleString.toSimpleString(target.getAddress());
+         address = SimpleString.of(target.getAddress());
          defRoutingType = getRoutingType(target.getCapabilities(), address);
 
          try {

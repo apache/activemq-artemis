@@ -50,11 +50,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
     */
    @Test
    public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception {
-      final SimpleString testAddress = new SimpleString("testAddress");
+      final SimpleString testAddress = SimpleString.of("testAddress");
 
-      final SimpleString queue1 = new SimpleString("queue1");
+      final SimpleString queue1 = SimpleString.of("queue1");
 
-      final SimpleString queue2 = new SimpleString("queue2");
+      final SimpleString queue2 = SimpleString.of("queue2");
 
       ActiveMQServer server = createServer(true, createDefaultInVMConfig());
 

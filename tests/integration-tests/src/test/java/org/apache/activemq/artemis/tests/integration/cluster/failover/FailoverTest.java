@@ -1760,7 +1760,7 @@ public class FailoverTest extends FailoverTestBase {
          List<ClientConsumer> consumers = new ArrayList<>();
 
          for (int j = 0; j < numConsumersPerSession; j++) {
-            SimpleString queueName = new SimpleString("queue" + i + "-" + j);
+            SimpleString queueName = SimpleString.of("queue" + i + "-" + j);
 
             session.createQueue(new QueueConfiguration(queueName).setAddress(FailoverTestBase.ADDRESS));
 
@@ -2143,7 +2143,7 @@ public class FailoverTest extends FailoverTestBase {
 
          if (i == 0) {
             // Only need to add it on one message per tx
-            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(txID));
+            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(txID));
          }
 
          setBody(i, message);
@@ -2225,7 +2225,7 @@ public class FailoverTest extends FailoverTestBase {
 
          if (i == 0) {
             // Only need to add it on one message per tx
-            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(txID));
+            message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(txID));
          }
 
          setBody(i, message);
@@ -2595,7 +2595,7 @@ public class FailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -2609,7 +2609,7 @@ public class FailoverTest extends FailoverTestBase {
 
          assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(SimpleString.of("count")));
 
          message2.acknowledge();
       }

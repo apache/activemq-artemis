@@ -187,14 +187,14 @@ public class CoreMessageWrapper {
    }
 
    public final void setJMSReplyTo(String replyTo)  {
-      MessageUtil.setJMSReplyTo(message, SimpleString.toSimpleString(replyTo));
+      MessageUtil.setJMSReplyTo(message, SimpleString.of(replyTo));
    }
 
    public SimpleString getDestination()  {
       if (message.getAddress() == null || message.getAddress().isEmpty()) {
          return null;
       }
-      return SimpleString.toSimpleString(AMQPMessageSupport.destination(message.getRoutingType(), message.getAddress()));
+      return SimpleString.of(AMQPMessageSupport.destination(message.getRoutingType(), message.getAddress()));
    }
 
    public final void setDestination(String destination)  {

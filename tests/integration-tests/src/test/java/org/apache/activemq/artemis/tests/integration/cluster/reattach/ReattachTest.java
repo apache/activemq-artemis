@@ -65,7 +65,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("FailoverTestAddress");
    private ActiveMQServer server;
    private ServerLocator locator;
 
@@ -97,7 +97,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-            message.putIntProperty(new SimpleString("count"), i);
+            message.putIntProperty(SimpleString.of("count"), i);
             message.getBodyBuffer().writeString("aardvarks");
             producer.send(message);
          }
@@ -117,7 +117,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
             assertEquals("aardvarks", message.getBodyBuffer().readString());
 
-            assertEquals(i, message.getObjectProperty(new SimpleString("count")));
+            assertEquals(i, message.getObjectProperty(SimpleString.of("count")));
 
             message.acknowledge();
          }
@@ -242,7 +242,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeBytes(new byte[5000]);
          producer.send(message);
       }
@@ -278,7 +278,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -380,7 +380,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -461,7 +461,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -775,7 +775,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -834,7 +834,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -913,7 +913,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -938,7 +938,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
          assertEquals("aardvarks", message.getBodyBuffer().readString());
 
-         assertEquals(i, message.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message.getObjectProperty(SimpleString.of("count")));
 
          message.acknowledge();
       }
@@ -982,7 +982,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }

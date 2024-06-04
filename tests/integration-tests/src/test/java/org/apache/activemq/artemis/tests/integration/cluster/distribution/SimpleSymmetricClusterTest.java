@@ -320,7 +320,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       waitForBindings(1, ADDRESS, 1, 1, false);
 
       // there should be both a local and a remote binding
-      Collection<Binding> bindings = servers[0].getPostOffice().getDirectBindings(SimpleString.toSimpleString(ADDRESS));
+      Collection<Binding> bindings = servers[0].getPostOffice().getDirectBindings(SimpleString.of(ADDRESS));
       assertEquals(2, bindings.size());
 
       // the remote binding should point to the SnF queue
@@ -336,7 +336,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       servers[0].getActiveMQServerControl().deleteAddress(ADDRESS, true);
 
       // no bindings should remain but the SnF queue should still be there
-      bindings = servers[0].getPostOffice().getDirectBindings(SimpleString.toSimpleString(ADDRESS));
+      bindings = servers[0].getPostOffice().getDirectBindings(SimpleString.of(ADDRESS));
       assertEquals(0, bindings.size());
       assertNotNull(servers[0].locateQueue(snf));
    }
@@ -398,7 +398,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       waitForBindings(0, address, 1, 1, false);
       waitForBindings(1, address, 1, 1, false);
 
-      SimpleString SnFQueueName = SimpleString.toSimpleString(
+      SimpleString SnFQueueName = SimpleString.of(
          Arrays.stream(servers[0].getActiveMQServerControl().getQueueNames()).filter(
             queueName -> queueName.contains(servers[0].getInternalNamingPrefix()))
             .findFirst()

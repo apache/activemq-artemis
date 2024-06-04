@@ -90,7 +90,7 @@ public class RoutingContextTest {
 
       @Override
       public SimpleString getName() {
-         return SimpleString.toSimpleString(name);
+         return SimpleString.of(name);
       }
 
       @Override
@@ -862,7 +862,7 @@ public class RoutingContextTest {
 
       @Override
       public SimpleString getAddress() {
-         return SimpleString.toSimpleString(name);
+         return SimpleString.of(name);
       }
 
       @Override
@@ -946,25 +946,25 @@ public class RoutingContextTest {
       RoutingContext context = new RoutingContextImpl(new TransactionImpl(new NullStorageManager()));
       assertFalse(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
+      context.addQueue(SimpleString.of("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
       assertTrue(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t2"), new FakeQueueForRoutingContextTest("t2", false, true));
+      context.addQueue(SimpleString.of("t2"), new FakeQueueForRoutingContextTest("t2", false, true));
       assertFalse(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
+      context.addQueue(SimpleString.of("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
       assertFalse(context.isInternal());
 
       context.clear();
       assertFalse(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
+      context.addQueue(SimpleString.of("t1"), new FakeQueueForRoutingContextTest("t1", true, true));
       assertTrue(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t2"), new FakeQueueForRoutingContextTest("t2", true, true));
+      context.addQueue(SimpleString.of("t2"), new FakeQueueForRoutingContextTest("t2", true, true));
       assertTrue(context.isInternal());
 
-      context.addQueue(SimpleString.toSimpleString("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
+      context.addQueue(SimpleString.of("t3"), new FakeQueueForRoutingContextTest("t3", true, true));
       assertTrue(context.isInternal());
    }
 

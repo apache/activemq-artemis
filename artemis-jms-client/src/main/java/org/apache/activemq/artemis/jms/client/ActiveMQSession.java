@@ -92,7 +92,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    public static final int TYPE_TOPIC_SESSION = 2;
 
-   private static SimpleString REJECTING_FILTER = new SimpleString("_AMQX=-1");
+   private static SimpleString REJECTING_FILTER = SimpleString.of("_AMQX=-1");
 
    private final ConnectionFactoryOptions options;
 
@@ -736,7 +736,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -810,7 +810,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -854,7 +854,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                if (CompositeAddress.isFullyQualified(dest.getAddress())) {
                   queueName = createFQQNSubscription(dest, coreFilterString, response);
                } else {
-                  queueName = new SimpleString(UUID.randomUUID().toString());
+                  queueName = SimpleString.of(UUID.randomUUID().toString());
                   createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
                }
 
@@ -996,7 +996,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             SelectorParser.parse(filterString.trim());
          }
       } catch (FilterException e) {
-         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(new SimpleString(filterString), e));
+         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(SimpleString.of(filterString), e));
       }
 
       ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
@@ -1006,7 +1006,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
+         AddressQuery response = session.addressQuery(SimpleString.of(activeMQDestination.getAddress()));
          if (!response.isExists()) {
             if (response.isAutoCreateQueues()) {
                createQueue(activeMQDestination, RoutingType.ANYCAST, activeMQDestination.getSimpleAddress(), null, true, true, response);

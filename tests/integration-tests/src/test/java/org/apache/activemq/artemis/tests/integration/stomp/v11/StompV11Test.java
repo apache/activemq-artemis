@@ -1553,7 +1553,7 @@ public class StompV11Test extends StompTestBase {
 
    @TestTemplate
    public void testDurableUnSubscribe() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
+      SimpleString queueName = SimpleString.of(CLIENT_ID + "." + getName());
 
       conn.connect(defUser, defPass, CLIENT_ID);
 

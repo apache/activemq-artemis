@@ -924,14 +924,14 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
-      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       dg.stop();
 
       assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
-      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 
    @Test
@@ -954,13 +954,13 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
-      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       bg.stop();
 
       assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
-      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 }

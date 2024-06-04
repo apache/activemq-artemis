@@ -47,13 +47,13 @@ public class SendDLQNoRouteTest extends ActiveMQTestBase {
    @Timeout(20)
    public void testDLQNoRoute() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setSendToDLAOnNoRoute(true);
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLA"));
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
-      AddressInfo info = new AddressInfo(SimpleString.toSimpleString("info")).addRoutingType(RoutingType.MULTICAST);
+      AddressInfo info = new AddressInfo(SimpleString.of("info")).addRoutingType(RoutingType.MULTICAST);
       server.addAddressInfo(info);
 
-      AddressInfo dla = new AddressInfo(SimpleString.toSimpleString("DLA")).addRoutingType(RoutingType.MULTICAST);
+      AddressInfo dla = new AddressInfo(SimpleString.of("DLA")).addRoutingType(RoutingType.MULTICAST);
       server.addAddressInfo(dla);
 
 

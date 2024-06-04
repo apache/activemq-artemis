@@ -78,7 +78,7 @@ public class ServerFilterTest extends ActiveMQTestBase {
          });
       }
       runAfter(executor::shutdownNow);
-      Wait.assertEquals(threadCount * messageCount, () -> server.getAddressInfo(SimpleString.toSimpleString(address)).getRoutedMessageCount(), 2000, 100);
+      Wait.assertEquals(threadCount * messageCount, () -> server.getAddressInfo(SimpleString.of(address)).getRoutedMessageCount(), 2000, 100);
       Wait.assertEquals(threadCount * messageCount, () -> server.locateQueue("A").getMessageCount(), 2000, 100);
       Wait.assertEquals(threadCount * messageCount, () -> server.locateQueue("B").getMessageCount(), 2000, 100);
    }

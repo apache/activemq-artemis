@@ -151,7 +151,7 @@ public class AMQPSessionCallbackTest {
       // Credit is above threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT + 1);
 
-      session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
@@ -182,7 +182,7 @@ public class AMQPSessionCallbackTest {
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
 
-      session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
@@ -243,7 +243,7 @@ public class AMQPSessionCallbackTest {
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
 
-      session.flow(new SimpleString("test"), ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));

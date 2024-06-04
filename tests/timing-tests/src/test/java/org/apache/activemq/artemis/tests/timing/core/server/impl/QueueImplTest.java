@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test;
 
 public class QueueImplTest extends ActiveMQTestBase {
 
-   private static final SimpleString queue1 = new SimpleString("queue1");
+   private static final SimpleString queue1 = SimpleString.of("queue1");
 
    private static final long TIMEOUT = 10000;
 
@@ -73,7 +73,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduledNoConsumer() throws Exception {
-      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
+      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), SimpleString.of("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
 
       // Send one scheduled
 
@@ -138,7 +138,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduled() throws Exception {
-      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
+      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), SimpleString.of("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
 
       FakeConsumer consumer = null;
 
@@ -236,7 +236,7 @@ public class QueueImplTest extends ActiveMQTestBase {
          public void disconnect() {
          }
       };
-      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null,
+      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null,
                                       ArtemisExecutor.delegate(executor), null, null);
       MessageReference messageReference = generateReference(queue, 1);
       queue.addConsumer(consumer);

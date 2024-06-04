@@ -259,7 +259,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          id.position(0);
          id.get(bytes);
          UUID uuid = new UUID(UUID.TYPE_TIME_BASED, bytes);
-         SimpleString storedNodeId = new SimpleString(uuid.toString());
+         SimpleString storedNodeId = SimpleString.of(uuid.toString());
          assertEquals(backupServer.getServer().getNodeID(), storedNodeId, "nodeId must match");
       } finally {
          raFile.close();

@@ -73,7 +73,7 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
          assertTrue(findLogRecord(getAuditLog(),"successfully created queue:"));
          serverControl.updateQueue("auditQueue", "ANYCAST", -1, false);
          final QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection,
-               objectNameBuilder.getQueueObjectName(new SimpleString( "auditAddress"), new SimpleString("auditQueue"), RoutingType.ANYCAST),
+               objectNameBuilder.getQueueObjectName(SimpleString.of( "auditAddress"), SimpleString.of("auditQueue"), RoutingType.ANYCAST),
                QueueControl.class,
                false);
          assertTrue(findLogRecord(getAuditLog(),"successfully updated queue:"));

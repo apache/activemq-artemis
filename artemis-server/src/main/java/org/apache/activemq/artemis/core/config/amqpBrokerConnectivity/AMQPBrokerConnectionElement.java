@@ -50,7 +50,7 @@ public class AMQPBrokerConnectionElement implements Serializable {
    }
 
    public AMQPBrokerConnectionElement setQueueName(String queueName) {
-      return setQueueName(SimpleString.toSimpleString(queueName));
+      return setQueueName(SimpleString.of(queueName));
    }
 
    public AMQPBrokerConnectionElement setQueueName(SimpleString queueName) {
@@ -73,7 +73,7 @@ public class AMQPBrokerConnectionElement implements Serializable {
    }
 
    public AMQPBrokerConnectionElement setMatchAddress(String matchAddress) {
-      return this.setMatchAddress(SimpleString.toSimpleString(matchAddress));
+      return this.setMatchAddress(SimpleString.of(matchAddress));
    }
 
    public AMQPBrokerConnectionElement setMatchAddress(SimpleString matchAddress) {

@@ -91,7 +91,7 @@ public class RescheduleJDBCDeliveryTest extends ActiveMQTestBase {
       String testQueue = getName();
       Configuration configuration = createDefaultJDBCConfig(true);
       configuration.setMaxRedeliveryRecords(maxRecords);
-      configuration.addAddressSetting("#", new AddressSettings().setRedeliveryDelay(1).setMaxDeliveryAttempts(-1).setDeadLetterAddress(SimpleString.toSimpleString("DLQ")));
+      configuration.addAddressSetting("#", new AddressSettings().setRedeliveryDelay(1).setMaxDeliveryAttempts(-1).setDeadLetterAddress(SimpleString.of("DLQ")));
       configuration.addAddressConfiguration(new CoreAddressConfiguration().setName("DLQ").addRoutingType(RoutingType.ANYCAST));
       configuration.addQueueConfiguration(new QueueConfiguration("DLQ").setAddress("DLQ").setRoutingType(RoutingType.ANYCAST));
       configuration.addAddressConfiguration(new CoreAddressConfiguration().setName(testQueue).addRoutingType(RoutingType.ANYCAST));

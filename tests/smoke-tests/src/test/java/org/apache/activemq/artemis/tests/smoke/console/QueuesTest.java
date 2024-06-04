@@ -143,12 +143,12 @@ public class QueuesTest extends ConsoleTest {
       final String messageText = "TEST";
       final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
       final ObjectName expiryQueueObjectName = objectNameBuilder.getQueueObjectName(
-         SimpleString.toSimpleString(expiryQueueName),
-         SimpleString.toSimpleString(expiryQueueName),
+         SimpleString.of(expiryQueueName),
+         SimpleString.of(expiryQueueName),
          RoutingType.ANYCAST);
       final ObjectName testQueueObjectName = objectNameBuilder.getQueueObjectName(
-         SimpleString.toSimpleString(queueName),
-         SimpleString.toSimpleString(queueName),
+         SimpleString.of(queueName),
+         SimpleString.of(queueName),
          RoutingType.ANYCAST);
 
       driver.get(webServerUrl + "/console");

@@ -63,7 +63,7 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
    public void testDeleteMessagesOnStartup() throws Exception {
       createStorage();
 
-      Queue theQueue = new FakeQueue(new SimpleString(""));
+      Queue theQueue = new FakeQueue(SimpleString.of(""));
       HashMap<Long, Queue> queues = new HashMap<>();
       queues.put(100L, theQueue);
 

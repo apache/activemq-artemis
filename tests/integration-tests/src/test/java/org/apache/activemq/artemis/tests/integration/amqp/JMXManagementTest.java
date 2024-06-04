@@ -55,7 +55,7 @@ public class JMXManagementTest extends JMSClientTestSupport {
 
    @Test
    public void testListDeliveringMessages() throws Exception {
-      SimpleString queue = new SimpleString(getQueueName());
+      SimpleString queue = SimpleString.of(getQueueName());
 
       Connection connection1 = createConnection();
       Connection connection2 = createConnection();
@@ -135,7 +135,7 @@ public class JMXManagementTest extends JMSClientTestSupport {
          sender.send(message);
          session.commit();
 
-         SimpleString queue = new SimpleString(getQueueName());
+         SimpleString queue = SimpleString.of(getQueueName());
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
          assertNotNull(firstMessageAsJSON);
@@ -178,7 +178,7 @@ public class JMXManagementTest extends JMSClientTestSupport {
          sender.send(message);
          session.commit();
 
-         SimpleString queue = new SimpleString(getQueueName());
+         SimpleString queue = SimpleString.of(getQueueName());
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
          assertNotNull(firstMessageAsJSON);
@@ -214,12 +214,12 @@ public class JMXManagementTest extends JMSClientTestSupport {
          sender.send(message);
          session.commit();
 
-         PagingStore targetPagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
+         PagingStore targetPagingStore = server.getPagingManager().getPageStore(SimpleString.of(getQueueName()));
          assertNotNull(targetPagingStore);
 
          assertTrue(targetPagingStore.getAddressSize() > 0);
 
-         SimpleString queue = new SimpleString(getQueueName());
+         SimpleString queue = SimpleString.of(getQueueName());
          QueueControl queueControl = createManagementControl(queue, queue);
 
          Wait.assertEquals(2, queueControl::getMessageCount);

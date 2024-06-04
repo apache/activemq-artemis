@@ -62,7 +62,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
    @BeforeEach
    public void setupAddresses() throws Exception {
       server.getPostOffice()
-            .addAddressInfo(new AddressInfo(SimpleString.toSimpleString(defaultQueueName), RoutingType.ANYCAST));
+            .addAddressInfo(new AddressInfo(SimpleString.of(defaultQueueName), RoutingType.ANYCAST));
 
       server.createQueue(new QueueConfiguration(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
    }
@@ -494,7 +494,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
 
    protected List<Queue> getQueues(final String address) throws Exception {
       final List<Queue> queues = new ArrayList<>();
-      for (Binding binding : server.getPostOffice().getDirectBindings(SimpleString.toSimpleString(address))) {
+      for (Binding binding : server.getPostOffice().getDirectBindings(SimpleString.of(address))) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             LocalQueueBinding queueBinding = (LocalQueueBinding) binding;
             queues.add(queueBinding.getQueue());

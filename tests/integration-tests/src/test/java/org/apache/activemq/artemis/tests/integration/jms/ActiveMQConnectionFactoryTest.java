@@ -244,7 +244,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private void testDeserializationOptions(boolean useJndi, boolean useBrowser) throws Exception {
       String qname = "SerialTestQueue";
-      SimpleString qaddr = new SimpleString(qname);
+      SimpleString qaddr = SimpleString.of(qname);
       liveService.createQueue(new QueueConfiguration(qaddr)
                                  .setRoutingType(RoutingType.ANYCAST));
 
@@ -318,7 +318,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       System.setProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "some.other.package");
 
       String qname = "SerialTestQueue";
-      SimpleString qaddr = new SimpleString(qname);
+      SimpleString qaddr = SimpleString.of(qname);
       liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
 
       try {
@@ -350,7 +350,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       System.setProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY, "some.other.package");
 
       String qname = "SerialTestQueue";
-      SimpleString qaddr = new SimpleString(qname);
+      SimpleString qaddr = SimpleString.of(qname);
       liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
 
       try {

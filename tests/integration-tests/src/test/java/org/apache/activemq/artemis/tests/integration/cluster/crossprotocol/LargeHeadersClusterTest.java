@@ -60,7 +60,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString queueName = SimpleString.toSimpleString("queues.0");
+   private static final SimpleString queueName = SimpleString.of("queues.0");
 
    // I'm taking any number that /2 = Odd
    // to avoid perfect roundings and making sure messages are evenly distributed
@@ -87,7 +87,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
 
       setupCluster(loadBalancingType);
 
-      AddressSettings as = new AddressSettings().setRedistributionDelay(0).setExpiryAddress(SimpleString.toSimpleString("queues.expiry"));
+      AddressSettings as = new AddressSettings().setRedistributionDelay(0).setExpiryAddress(SimpleString.of("queues.expiry"));
 
       getServer(0).getAddressSettingsRepository().addMatch("queues.*", as);
       getServer(1).getAddressSettingsRepository().addMatch("queues.*", as);
@@ -95,7 +95,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
       startServers(0);
       startServers(1);
 
-      createQueue(SimpleString.toSimpleString("queues.expiry"));
+      createQueue(SimpleString.of("queues.expiry"));
       createQueue(queueName);
    }
 

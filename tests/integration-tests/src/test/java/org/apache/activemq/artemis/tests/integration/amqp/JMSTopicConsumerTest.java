@@ -85,7 +85,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    public void testSendAndReceiveOnAutoCreatedTopic() throws Exception {
       Connection connection = createConnection("myClientId");
       String topicName = UUID.randomUUID().toString();
-      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+      SimpleString simpleTopicName = SimpleString.of(topicName);
 
       try {
          TopicSession session = (TopicSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -127,7 +127,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       ConnectionFactory cf = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JMSContext context = cf.createContext();
       String topicName = UUID.randomUUID().toString();
-      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+      SimpleString simpleTopicName = SimpleString.of(topicName);
 
       try {
          Topic topic = context.createTopic(topicName);
@@ -212,9 +212,9 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          myDurSub = session.createDurableSubscriber(topic, "myDurSub");
          myDurSub.close();
 
-         assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          session.unsubscribe("myDurSub");
-         assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          session.close();
          connection.close();
       } finally {
@@ -231,12 +231,12 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) != null);
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) == null);
       } finally {
          connection.close();
       }
@@ -253,7 +253,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) != null);
          myDurSub.close();
          try {
             session.unsubscribe("myDurSub");
@@ -265,7 +265,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) == null);
       } finally {
          connection.close();
       }
@@ -280,12 +280,12 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) == null);
       } finally {
          connection.close();
       }
@@ -303,17 +303,17 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
          myDurSub2.close();
          session2.unsubscribe("myDurSub");
          session2.close();
          connection2.close();
-         assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
+         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) == null);
       } finally {
          connection.close();
       }
@@ -330,7 +330,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          TopicSubscriber myNonDurSub = session.createSubscriber(topic);
          assertNotNull(myNonDurSub);
 
-         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
+         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName()));
          assertEquals(2, bindingsForAddress.getBindings().size());
          session.close();
 
@@ -344,7 +344,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
          connection.close();
          latch.await(5, TimeUnit.SECONDS);
-         bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
+         bindingsForAddress = server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName()));
          assertEquals(1, bindingsForAddress.getBindings().size());
       } finally {
          connection.close();

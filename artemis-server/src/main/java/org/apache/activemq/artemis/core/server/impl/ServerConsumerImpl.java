@@ -614,14 +614,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, messageQueue.getConsumerCount());
 
          // HORNETQ-946
-         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(session.getUsername()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(session.getUsername()));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(session.getRemotingConnection().getRemoteAddress()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(session.getRemotingConnection().getRemoteAddress()));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(session.getName()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(session.getName()));
 
          if (session.getRemotingConnection().getClientID() != null) {
-            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(session.getRemotingConnection().getClientID()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(session.getRemotingConnection().getClientID()));
          }
 
          props.putLongProperty(ManagementHelper.HDR_CONSUMER_NAME, getID());

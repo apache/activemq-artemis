@@ -55,18 +55,18 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
       ClientSession coreSession = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.of("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
       coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
 
       coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
 
-      ClientProducer producer = coreSession.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = coreSession.createProducer(SimpleString.of(testAddress));
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = coreSession.createMessage(false);
@@ -130,8 +130,8 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession coreSession = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName1 = SimpleString.of("queue1");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
       coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));

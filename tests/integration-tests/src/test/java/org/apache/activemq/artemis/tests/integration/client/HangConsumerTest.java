@@ -95,7 +95,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private Queue queue;
 
@@ -431,7 +431,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
    public void testDuplicateDestinationsOnTopic() throws Exception {
       try {
          for (int i = 0; i < 5; i++) {
-            if (server.locateQueue(SimpleString.toSimpleString("tt")) == null) {
+            if (server.locateQueue(SimpleString.of("tt")) == null) {
                server.createQueue(new QueueConfiguration("tt").setRoutingType(RoutingType.ANYCAST).setFilterString(Filter.GENERIC_IGNORED_FILTER));
             }
 
@@ -599,7 +599,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                                                         Map<SimpleString, RoutingType> prefixes,
                                                         String securityDomain,
                                                         boolean isLegacyProducer) throws Exception {
-         return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), new MyCallback(callback), context, getPagingManager(), prefixes, securityDomain, isLegacyProducer);
+         return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : SimpleString.of(defaultAddress), new MyCallback(callback), context, getPagingManager(), prefixes, securityDomain, isLegacyProducer);
       }
    }
 

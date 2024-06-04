@@ -81,7 +81,7 @@ public class ManagementServiceImplTest {
       managementService.registerAcceptor(acceptor, transportConfig);
       managementService.getAttribute(ResourceNames.ACCEPTOR + transportConfig.getName(), "name", auth);
 
-      SimpleString expected = SimpleString.toSimpleString("mm.acceptor.a1.getName");
+      SimpleString expected = SimpleString.of("mm.acceptor.a1.getName");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       // address
@@ -91,19 +91,19 @@ public class ManagementServiceImplTest {
       managementService.registerAddress(new AddressInfo(addressName));
       managementService.getAttribute(ResourceNames.ADDRESS + addressName, "address", auth);
 
-      expected = SimpleString.toSimpleString("mm.address." + addressName + ".getAddress");
+      expected = SimpleString.of("mm.address." + addressName + ".getAddress");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       // isX needs UPDATE with view regexp above
       Mockito.clearInvocations(securityStore);
       managementService.getAttribute(ResourceNames.ADDRESS + addressName, "paging", auth);
 
-      expected = SimpleString.toSimpleString("mm.address." + addressName + ".isPaging");
+      expected = SimpleString.of("mm.address." + addressName + ".isPaging");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.EDIT), Mockito.any(SecurityAuth.class));
 
 
       // queue
-      final SimpleString queueName = SimpleString.toSimpleString("queueName");
+      final SimpleString queueName = SimpleString.of("queueName");
       Mockito.clearInvocations(securityStore);
 
       Queue queue = Mockito.mock(Queue.class);
@@ -114,13 +114,13 @@ public class ManagementServiceImplTest {
       managementService.registerQueue(queue, new AddressInfo(queueName), storageManager);
       managementService.getAttribute(ResourceNames.QUEUE + queueName, "ringSize", auth);
 
-      expected = SimpleString.toSimpleString("mm.queue." + queueName + ".getRingSize");
+      expected = SimpleString.of("mm.queue." + queueName + ".getRingSize");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       Mockito.clearInvocations(securityStore);
       managementService.getAttribute(ResourceNames.QUEUE + queueName, "ID", auth);
 
-      expected = SimpleString.toSimpleString("mm.queue." + queueName + ".getID");
+      expected = SimpleString.of("mm.queue." + queueName + ".getID");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
    }
@@ -152,7 +152,7 @@ public class ManagementServiceImplTest {
       managementService.registerAcceptor(acceptor, transportConfig);
       managementService.invokeOperation(ResourceNames.ACCEPTOR + transportConfig.getName(), "getName", new Object[]{}, auth);
 
-      SimpleString expected = SimpleString.toSimpleString("$mm.acceptor.a1.getName");
+      SimpleString expected = SimpleString.of("$mm.acceptor.a1.getName");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       // address
@@ -162,11 +162,11 @@ public class ManagementServiceImplTest {
       managementService.registerAddress(new AddressInfo(addressName));
       managementService.invokeOperation(ResourceNames.ADDRESS + addressName, "getAddress", new Object[]{}, auth);
 
-      expected = SimpleString.toSimpleString("$mm.address." + addressName + ".getAddress");
+      expected = SimpleString.of("$mm.address." + addressName + ".getAddress");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       // queue
-      final SimpleString queueName = SimpleString.toSimpleString("queueName");
+      final SimpleString queueName = SimpleString.of("queueName");
       Mockito.clearInvocations(securityStore);
 
       Queue queue = Mockito.mock(Queue.class);
@@ -177,14 +177,14 @@ public class ManagementServiceImplTest {
       managementService.registerQueue(queue, new AddressInfo(queueName), storageManager);
       managementService.invokeOperation(ResourceNames.QUEUE + queueName, "getRingSize", new Object[]{}, auth);
 
-      expected = SimpleString.toSimpleString("$mm.queue." + queueName + ".getRingSize");
+      expected = SimpleString.of("$mm.queue." + queueName + ".getRingSize");
 
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.VIEW), Mockito.any(SecurityAuth.class));
 
       // update permission required on pause operation
       Mockito.clearInvocations(securityStore);
       managementService.invokeOperation(ResourceNames.QUEUE + queueName, "pause", new Object[]{}, auth);
-      expected = SimpleString.toSimpleString("$mm.queue." + queueName + ".pause");
+      expected = SimpleString.of("$mm.queue." + queueName + ".pause");
       Mockito.verify(securityStore).check(Mockito.eq(expected), Mockito.eq(CheckType.EDIT), Mockito.any(SecurityAuth.class));
 
    }

@@ -152,7 +152,7 @@ public class XmlImportExportRbacTest extends ActiveMQTestBase {
       assertEquals(0L, queue.getMessageCount());
 
       // try again with permission
-      server.getSecurityRepository().addMatch(SimpleString.toSimpleString(server.getConfiguration().getManagementRbacPrefix()).concat(".queue." + QUEUE_NAME + ".getID").toString(), permissionsOnManagementAddress); // for send to manage address
+      server.getSecurityRepository().addMatch(SimpleString.of(server.getConfiguration().getManagementRbacPrefix()).concat(".queue." + QUEUE_NAME + ".getID").toString(), permissionsOnManagementAddress); // for send to manage address
 
       xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       xmlDataImporter = new XmlDataImporter();

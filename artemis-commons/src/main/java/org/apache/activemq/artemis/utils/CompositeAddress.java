@@ -23,7 +23,7 @@ public class CompositeAddress {
    public static final String SEPARATOR = "::";
 
    public static String toFullyQualified(String address, String qName) {
-      return toFullyQualified(SimpleString.toSimpleString(address), SimpleString.toSimpleString(qName)).toString();
+      return toFullyQualified(SimpleString.of(address), SimpleString.of(qName)).toString();
    }
 
    public static SimpleString toFullyQualified(SimpleString address, SimpleString qName) {
@@ -58,7 +58,7 @@ public class CompositeAddress {
       if (queueName.equals(nameString)) {
          return name;
       }
-      return new SimpleString(queueName);
+      return SimpleString.of(queueName);
    }
 
    public static String extractQueueName(String queue) {
@@ -81,7 +81,7 @@ public class CompositeAddress {
       if (addressName.equals(addrString)) {
          return address;
       }
-      return new SimpleString(addressName);
+      return SimpleString.of(addressName);
    }
 
    public static String extractAddressName(String address) {

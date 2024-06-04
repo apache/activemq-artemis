@@ -117,7 +117,7 @@ public class MessageLoadBalancingTest extends ClusterTestBase {
       PostOffice[] po = new PostOffice[2];
       for (int i = 0; i < 2; i++) {
          po[i] = servers[i].getPostOffice();
-         bindings[i] = po[i].getBinding(new SimpleString("queue0"));
+         bindings[i] = po[i].getBinding(SimpleString.of("queue0"));
          assertNotNull(bindings[i]);
 
          Queue queue0 = (Queue)bindings[i].getBindable();

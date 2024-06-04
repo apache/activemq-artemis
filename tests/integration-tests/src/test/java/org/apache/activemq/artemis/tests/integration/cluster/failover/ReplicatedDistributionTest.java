@@ -47,7 +47,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString ADDRESS = new SimpleString("test.SomeAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("test.SomeAddress");
    private ClientSession sessionOne;
    private ClientSession sessionThree;
    private ClientConsumer consThree;
@@ -98,7 +98,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
          // System.out.println(i + " msg = " + msg);
 
-         int received = (Integer) msg.getObjectProperty(new SimpleString("key"));
+         int received = (Integer) msg.getObjectProperty(SimpleString.of("key"));
 
          assertEquals(i, received);
 
@@ -153,7 +153,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = sessionOne.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          producer.send(msg);
       }
       sessionOne.commit();

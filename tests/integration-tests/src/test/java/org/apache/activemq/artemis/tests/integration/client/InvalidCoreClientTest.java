@@ -53,7 +53,7 @@ import org.junit.jupiter.api.Test;
 public class InvalidCoreClientTest extends ActiveMQTestBase {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
-   private final SimpleString atestq = new SimpleString("BasicXaTestq");
+   private final SimpleString atestq = SimpleString.of("BasicXaTestq");
    private ActiveMQServer messagingService;
    private ClientSession clientSession;
    private ClientSessionFactory sessionFactory;

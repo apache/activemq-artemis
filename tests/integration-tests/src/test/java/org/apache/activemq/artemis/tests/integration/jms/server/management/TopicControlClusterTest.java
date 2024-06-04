@@ -34,7 +34,7 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
    @Test
    public void testClusteredSubscriptionCount() throws Exception {
       final String topicName = "t1";
-      final SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+      final SimpleString simpleTopicName = SimpleString.of(topicName);
 
       try (Connection conn1 = cf1.createConnection();
            Connection conn2 = cf2.createConnection()) {

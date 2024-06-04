@@ -56,24 +56,24 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName()), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
       // Default DLQ
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getDeadLetterAddress()), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
 
       // Expiry
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getExpiryQueue()), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getExpiryQueue()), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(getExpiryQueue()).setRoutingType(RoutingType.ANYCAST));
 
       // Default Topic
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getTopicName()), RoutingType.MULTICAST));
       server.createQueue(new QueueConfiguration(getTopicName()));
 
       // Additional Test Queues
       for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName(i)), RoutingType.ANYCAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName(i)), RoutingType.ANYCAST));
          server.createQueue(new QueueConfiguration(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
       }
    }
@@ -86,8 +86,8 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getExpiryQueue()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getExpiryQueue()));
       addressSettings.setMaxDeliveryAttempts(1);
       server.getConfiguration().getAddressSettings().put("#", addressSettings);
       server.getConfiguration().getAddressSettings().put(getExpiryQueue(), addressSettings);

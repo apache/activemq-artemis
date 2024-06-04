@@ -213,11 +213,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static SimpleString createQueueAddressFromName(final String name) {
-      return new SimpleString(QUEUE_QUALIFIED_PREFIX + name);
+      return SimpleString.of(QUEUE_QUALIFIED_PREFIX + name);
    }
 
    public static SimpleString createTopicAddressFromName(final String name) {
-      return new SimpleString(TOPIC_QUALIFIED_PREFIX + name);
+      return SimpleString.of(TOPIC_QUALIFIED_PREFIX + name);
    }
 
    public static ActiveMQQueue createQueue(final String address) {
@@ -320,7 +320,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    protected ActiveMQDestination(final String address,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this(SimpleString.toSimpleString(address), type, session);
+      this(SimpleString.of(address), type, session);
    }
 
    protected ActiveMQDestination(final SimpleString address,
@@ -344,7 +344,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
                                  final String name,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this(SimpleString.toSimpleString(address), name, type, session);
+      this(SimpleString.of(address), name, type, session);
    }
 
    @Deprecated
@@ -360,7 +360,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public void setAddress(String address) {
-      setSimpleAddress(SimpleString.toSimpleString(address));
+      setSimpleAddress(SimpleString.of(address));
    }
 
    @Override
@@ -390,7 +390,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public void setSimpleAddress(String address) {
-      setSimpleAddress(new SimpleString(address));
+      setSimpleAddress(SimpleString.of(address));
    }
 
    public void delete() throws JMSException {

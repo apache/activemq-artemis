@@ -1601,7 +1601,7 @@ public class StompV12Test extends StompTestBase {
 
       unsubscribe(conn, getName(), null, false, true);
 
-      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
+      SimpleString queueName = SimpleString.of(CLIENT_ID + "." + getName());
       Wait.assertTrue(() -> server.locateQueue(queueName) == null);
 
       conn.disconnect();

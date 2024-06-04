@@ -218,8 +218,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
          MessageProducer producer = session.createProducer(dest);
          producer.send(session.createTextMessage("test message"));
          Message message = mySubscriber.receive(5000);
-         SimpleString  advQueue = new SimpleString("ActiveMQ.Advisory.TempQueue");
-         SimpleString  advTopic = new SimpleString("ActiveMQ.Advisory.TempTopic");
+         SimpleString  advQueue = SimpleString.of("ActiveMQ.Advisory.TempQueue");
+         SimpleString  advTopic = SimpleString.of("ActiveMQ.Advisory.TempTopic");
          //we create a consumer on node 2 and assert that the advisory subscription queue is not clustered
          assertEquals(1, servers[0].getPostOffice().getBindingsForAddress(advQueue).getBindings().size(), "");
          assertEquals(1, servers[0].getPostOffice().getBindingsForAddress(advTopic).getBindings().size(), "");
@@ -272,7 +272,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    private RemoteQueueBinding getRemoteQueueBinding(ActiveMQServer server) throws Exception {
       ActiveMQServer remoteServer = server;
-      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress"));
+      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(SimpleString.of("queues.testaddress"));
       Collection<Binding> bindingSet = bindings.getBindings();
 
       return getRemoteQueueBinding(bindingSet);

@@ -38,8 +38,8 @@ import org.junit.jupiter.api.Test;
 
 public class AutoDeleteQueueTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
    private ServerLocator locator;
    private ActiveMQServer server;

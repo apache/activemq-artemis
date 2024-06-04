@@ -457,7 +457,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.of("name"), name);
          //nodeID can be null if there's only a backup
          SimpleString nodeId = nodeManager.getNodeId();
          Notification notification = new Notification(nodeId == null ? null : nodeId.toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
@@ -718,7 +718,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.of("name"), name);
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STARTED, props);
          logger.debug("sending notification: {}", notification);
          managementService.sendNotification(notification);
@@ -822,7 +822,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    public SimpleString getSfQueueName(String nodeID) {
-      return new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+      return SimpleString.of(storeAndForwardPrefix + name + "." + nodeID);
    }
 
    @Override

@@ -80,7 +80,7 @@ public class SharedConsumerTest extends JMSTestBase {
       try (JMSContext context = cf.createContext("foo", "bar")) {
          context.createSharedDurableConsumer(topic1, "mySharedCon");
          boolean found = false;
-         for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1.getTopicName())).getBindings()) {
+         for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.of(topic1.getTopicName())).getBindings()) {
             found = true;
             assertTrue(binding instanceof LocalQueueBinding);
             assertEquals("mySharedCon", ((LocalQueueBinding)binding).getQueue().getName().toString());
@@ -114,10 +114,10 @@ public class SharedConsumerTest extends JMSTestBase {
          JMSConsumer con1 = context.createSharedConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedConsumer(topic1, "mySharedCon");
          con1.close();
-         Binding binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
+         Binding binding = server.getPostOffice().getBinding(SimpleString.of("nonDurable.mySharedCon"));
          assertNotNull(binding);
          con2.close();
-         Wait.assertTrue(() -> server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon")) == null, 2000, 100);
+         Wait.assertTrue(() -> server.getPostOffice().getBinding(SimpleString.of("nonDurable.mySharedCon")) == null, 2000, 100);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
       } finally {
          context.close();

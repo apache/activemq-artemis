@@ -47,7 +47,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
@@ -75,7 +75,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -116,7 +116,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -160,7 +160,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -239,7 +239,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -323,7 +323,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -417,7 +417,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -525,7 +525,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -577,7 +577,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 
@@ -615,7 +615,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("i"), i);
+         message.putIntProperty(SimpleString.of("i"), i);
          producer.send(message);
       }
 

@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
 public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
    private ActiveMQServerControl serverControl;
-   private SimpleString queueName1 = new SimpleString("queue1");
+   private SimpleString queueName1 = SimpleString.of("queue1");
 
    private ConnectionFactory factory;
 
@@ -64,8 +64,8 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
-      addressSettingsMap.put(queueName1.toString(), new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
+      addressSettingsMap.put(queueName1.toString(), new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
 
    }
 

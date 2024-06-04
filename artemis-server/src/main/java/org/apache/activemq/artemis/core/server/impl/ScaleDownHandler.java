@@ -101,7 +101,7 @@ public class ScaleDownHandler {
       ActiveMQServerLogger.LOGGER.infoScaledDownMessages(num);
       scaleDownTransactions(sessionFactory, resourceManager, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
-      clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
+      clusterControl.announceScaleDown(SimpleString.of(this.targetNodeId), nodeManager.getNodeId());
       return num;
    }
 

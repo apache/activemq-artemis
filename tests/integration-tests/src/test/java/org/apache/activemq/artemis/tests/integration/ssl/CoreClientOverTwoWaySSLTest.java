@@ -108,7 +108,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       CLIENT_SIDE_KEYSTORE = "client-keystore." + suffix;
    }
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.of("QueueOverSSL");
 
    private String storeType;
    private String storeProvider;

@@ -178,7 +178,7 @@ public class ManagementServiceImpl implements ManagementService {
       broadcaster = new NotificationBroadcasterSupport();
       notificationsEnabled = true;
       objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain(), configuration.getName(), configuration.isJMXUseBrokerName());
-      managementMessageRbacResourceNamePrefix = configuration.isManagementMessageRbac() ? SimpleString.toSimpleString(configuration.getManagementRbacPrefix()).concat('.') : null;
+      managementMessageRbacResourceNamePrefix = configuration.isManagementMessageRbac() ? SimpleString.of(configuration.getManagementRbacPrefix()).concat('.') : null;
       viewPermissionMatcher = Pattern.compile(configuration.getViewPermissionMethodMatchPattern());
    }
 
@@ -839,7 +839,7 @@ public class ManagementServiceImpl implements ManagementService {
                   props.forEach(notificationMessage::putObjectProperty);
                }
 
-               notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(notification.getType().toString()));
+               notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, SimpleString.of(notification.getType().toString()));
 
                long timestamp = System.currentTimeMillis();
                notificationMessage.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, timestamp);

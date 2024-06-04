@@ -59,9 +59,9 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
       super.configureAddressSettings(addressSettingsMap);
       // force send to dlq early
-      addressSettingsMap.put("exampleQueue", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(2));
+      addressSettingsMap.put("exampleQueue", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(2));
       // force send to dlq late
-      addressSettingsMap.put("exampleQueueTwo", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(-1));
+      addressSettingsMap.put("exampleQueueTwo", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true).setMaxDeliveryAttempts(-1));
    }
 
 
@@ -70,7 +70,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
    public void testFastReconnectCreateConsumerNoErrors() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());
@@ -133,7 +133,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
    public void testFastReconnectCreateConsumerNoErrorsNoClientId() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
-      SimpleString durableQueue = new SimpleString("exampleQueueTwo");
+      SimpleString durableQueue = SimpleString.of("exampleQueueTwo");
       this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = new ActiveMQQueue(durableQueue.toString());

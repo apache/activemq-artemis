@@ -58,11 +58,11 @@ public class PropertiesConversionTest {
    public void testParallelHornetQConversions() throws Throwable {
       CoreMessage coreMessage = new CoreMessage(1, 1024);
       for (int i = 0; i < 10; i++) {
-         coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
+         coreMessage.putBooleanProperty(SimpleString.of("key1"), true);
       }
-      coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
+      coreMessage.putStringProperty(SimpleString.of("_HQ_ORIG_ADDRESS"), SimpleString.of("hqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_QUEUE"), SimpleString.of("amqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_MESSAGE_ID"), SimpleString.of("asdfkhaksdjfhaskfdjhas"));
 
       int threads = 100;
       int conversions = 100;
@@ -134,11 +134,11 @@ public class PropertiesConversionTest {
    public void testMultiThreadChanges() throws Throwable {
       CoreMessage coreMessage = new CoreMessage(1, 1024);
       for (int i = 0; i < 10; i++) {
-         coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
+         coreMessage.putBooleanProperty(SimpleString.of("key1"), true);
       }
-      coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
+      coreMessage.putStringProperty(SimpleString.of("_HQ_ORIG_ADDRESS"), SimpleString.of("hqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_QUEUE"), SimpleString.of("amqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_MESSAGE_ID"), SimpleString.of("asdfkhaksdjfhaskfdjhas"));
 
       int threads = 100;
       int conversions = 100;

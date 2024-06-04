@@ -48,12 +48,12 @@ public class CreateQueueTest extends ActiveMQTestBase {
 
    private boolean legacyCreateQueue;
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString addressB = new SimpleString("addressB");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString queueB = new SimpleString("queueB");
-   public final SimpleString queueC = new SimpleString("queueC");
-   public final SimpleString queueD = new SimpleString("queueD");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString addressB = SimpleString.of("addressB");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString queueB = SimpleString.of("queueB");
+   public final SimpleString queueC = SimpleString.of("queueC");
+   public final SimpleString queueD = SimpleString.of("queueD");
 
    private ServerLocator locator;
    private ActiveMQServer server;

@@ -297,21 +297,21 @@ public class TypedProperties {
       if (value instanceof SimpleString) {
          return (SimpleString) value;
       } else if (value instanceof Boolean) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Character) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Byte) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Short) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Integer) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Long) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Float) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       } else if (value instanceof Double) {
-         return new SimpleString(value.toString());
+         return SimpleString.of(value.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -1199,7 +1199,7 @@ public class TypedProperties {
       } else if (value instanceof Double) {
          properties.putDoubleProperty(key, (Double) value);
       } else if (value instanceof String) {
-         properties.putSimpleStringProperty(key, new SimpleString((String) value));
+         properties.putSimpleStringProperty(key, SimpleString.of((String) value));
       } else if (value instanceof SimpleString) {
          properties.putSimpleStringProperty(key, (SimpleString) value);
       } else if (value instanceof byte[]) {

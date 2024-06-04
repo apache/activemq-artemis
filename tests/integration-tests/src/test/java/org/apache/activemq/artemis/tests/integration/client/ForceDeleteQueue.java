@@ -85,7 +85,7 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
 
    @TestTemplate
    public void testForceDelete() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("testForceDelete");
+      SimpleString queueName = SimpleString.of("testForceDelete");
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
 

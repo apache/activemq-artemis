@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
  */
 public final class SimpleString implements CharSequence, Serializable, Comparable<SimpleString> {
 
-   private static final SimpleString EMPTY = new SimpleString("");
+   private static final SimpleString EMPTY = SimpleString.of("");
    private static final long serialVersionUID = 4204223851422244307L;
 
    private final byte[] data;
@@ -56,26 +56,89 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * @param string String used to instantiate a SimpleString.
     * @return A new SimpleString
     */
-   public static SimpleString toSimpleString(final String string) {
+   public static SimpleString of(final String string) {
       if (string == null) {
          return null;
       }
       return new SimpleString(string);
    }
 
-   public static SimpleString toSimpleString(final String string, StringSimpleStringPool pool) {
+   /**
+    * Returns a SimpleString constructed from the {@code string} parameter.
+    * <p>
+    * If {@code string} is {@code null}, the return value will be {@code null} too.
+    *
+    * @param string String used to instantiate a SimpleString.
+    * @param pool   The pool from which to create the SimpleString
+    * @return A new SimpleString
+    */
+   public static SimpleString of(final String string, StringSimpleStringPool pool) {
       if (pool == null) {
-         return toSimpleString(string);
+         return of(string);
       }
       return pool.getOrCreate(string);
    }
 
+   /**
+    * creates a SimpleString from a byte array
+    *
+    * @param data the byte array to use
+    */
+   public static SimpleString of(final byte[] data) {
+      return new SimpleString(data);
+   }
+
+   /**
+    * creates a SimpleString from a character
+    *
+    * @param c the char to use
+    */
+   public static SimpleString of(final char c) {
+      return new SimpleString(c);
+   }
+
+   /**
+    * Returns a SimpleString constructed from the {@code string} parameter.
+    * <p>
+    * If {@code string} is {@code null}, the return value will be {@code null} too.
+    *
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    *
+    * @param string String used to instantiate a SimpleString.
+    * @return A new SimpleString
+    */
+   @Deprecated(forRemoval = true)
+   public static SimpleString toSimpleString(final String string) {
+      return of(string);
+   }
+
+   /**
+    * Returns a SimpleString constructed from the {@code string} parameter.
+    * <p>
+    * If {@code string} is {@code null}, the return value will be {@code null} too.
+    *
+    * @deprecated
+    * Use {@link #of(String, StringSimpleStringPool)} instead.
+    *
+    * @param string String used to instantiate a SimpleString.
+    * @param pool   The pool from which to create the SimpleString
+    * @return A new SimpleString
+    */
+   @Deprecated(forRemoval = true)
+   public static SimpleString toSimpleString(final String string, StringSimpleStringPool pool) {
+      return of(string, pool);
+   }
 
    /**
     * creates a SimpleString from a conventional String
     *
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    *
     * @param string the string to transform
     */
+   @Deprecated(forRemoval = true)
    public SimpleString(final String string) {
       int len = string.length();
 
@@ -101,12 +164,25 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    /**
     * creates a SimpleString from a byte array
     *
+    * @deprecated
+    * Use {@link #of(byte[])} instead.
+    *
     * @param data the byte array to use
     */
+   @Deprecated(forRemoval = true)
    public SimpleString(final byte[] data) {
       this.data = data;
    }
 
+   /**
+    * creates a SimpleString from a character
+    *
+    * @deprecated
+    * Use {@link #of(char)} instead.
+    *
+    * @param c the char to use
+    */
+   @Deprecated(forRemoval = true)
    public SimpleString(final char c) {
       data = new byte[2];
 
@@ -180,7 +256,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       }
       byte[] data = new byte[length];
       buffer.readBytes(data);
-      return new SimpleString(data);
+      return SimpleString.of(data);
    }
 
    public static void writeNullableSimpleString(ByteBuf buffer, SimpleString val) {
@@ -209,7 +285,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
          System.arraycopy(data, start << 1, bytes, 0, newlen);
 
-         return new SimpleString(bytes);
+         return SimpleString.of(bytes);
       }
    }
 
@@ -387,7 +463,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
                // Note by Clebert
                all = new ArrayList<>(2);
             }
-            all.add(new SimpleString(bytes));
+            all.add(SimpleString.of(bytes));
          }
       }
 
@@ -397,7 +473,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          // Adding the last one
          byte[] bytes = new byte[data.length - lasPos];
          System.arraycopy(data, lasPos, bytes, 0, bytes.length);
-         all.add(new SimpleString(bytes));
+         all.add(SimpleString.of(bytes));
 
          // Converting it to arrays
          SimpleString[] parts = new SimpleString[all.size()];
@@ -445,7 +521,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          final int ssIndex = startIndex << 1;
          final int delIndex = endIndex << 1;
          final byte[] bytes = Arrays.copyOfRange(data, ssIndex, delIndex);
-         ss = new SimpleString(bytes);
+         ss = SimpleString.of(bytes);
       }
       // We will create the ArrayList lazily
       if (all == null) {
@@ -513,7 +589,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          bytes[offset] = (byte) (c & 0xFF);
          bytes[offset + 1] = (byte) (c >> 8 & 0xFF);
       }
-      return new SimpleString(bytes);
+      return SimpleString.of(bytes);
    }
 
    /**
@@ -526,7 +602,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       byte[] bytes = new byte[data.length + toAdd.getData().length];
       System.arraycopy(data, 0, bytes, 0, data.length);
       System.arraycopy(toAdd.getData(), 0, bytes, data.length, toAdd.getData().length);
-      return new SimpleString(bytes);
+      return SimpleString.of(bytes);
    }
 
    /**
@@ -540,7 +616,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       System.arraycopy(data, 0, bytes, 0, data.length);
       bytes[data.length] = (byte) (c & 0xFF);
       bytes[data.length + 1] = (byte) (c >> 8 & 0xFF);
-      return new SimpleString(bytes);
+      return SimpleString.of(bytes);
    }
 
    /**
@@ -660,7 +736,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
       @Override
       protected SimpleString create(String value) {
-         return toSimpleString(value);
+         return of(value);
       }
 
       @Override

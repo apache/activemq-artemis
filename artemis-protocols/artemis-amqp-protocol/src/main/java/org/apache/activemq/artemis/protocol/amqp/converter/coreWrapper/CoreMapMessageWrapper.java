@@ -80,49 +80,49 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
    }
 
    public void setBoolean(final String name, final boolean value) {
-      map.putBooleanProperty(new SimpleString(name), value);
+      map.putBooleanProperty(SimpleString.of(name), value);
    }
 
    public void setByte(final String name, final byte value) {
-      map.putByteProperty(new SimpleString(name), value);
+      map.putByteProperty(SimpleString.of(name), value);
    }
 
    public void setShort(final String name, final short value) {
-      map.putShortProperty(new SimpleString(name), value);
+      map.putShortProperty(SimpleString.of(name), value);
    }
 
    public void setChar(final String name, final char value) {
-      map.putCharProperty(new SimpleString(name), value);
+      map.putCharProperty(SimpleString.of(name), value);
    }
 
    public void setInt(final String name, final int value) {
-      map.putIntProperty(new SimpleString(name), value);
+      map.putIntProperty(SimpleString.of(name), value);
    }
 
    public void setLong(final String name, final long value) {
-      map.putLongProperty(new SimpleString(name), value);
+      map.putLongProperty(SimpleString.of(name), value);
    }
 
    public void setFloat(final String name, final float value) {
-      map.putFloatProperty(new SimpleString(name), value);
+      map.putFloatProperty(SimpleString.of(name), value);
    }
 
    public void setDouble(final String name, final double value) {
-      map.putDoubleProperty(new SimpleString(name), value);
+      map.putDoubleProperty(SimpleString.of(name), value);
    }
 
    public void setString(final String name, final String value) {
-      map.putSimpleStringProperty(new SimpleString(name), SimpleString.toSimpleString(value));
+      map.putSimpleStringProperty(SimpleString.of(name), SimpleString.of(value));
    }
 
    public void setBytes(final String name, final byte[] value) {
-      map.putBytesProperty(new SimpleString(name), value);
+      map.putBytesProperty(SimpleString.of(name), value);
    }
 
    public void setBytes(final String name, final byte[] value, final int offset, final int length) {
       byte[] newBytes = new byte[length];
       System.arraycopy(value, offset, newBytes, 0, length);
-      map.putBytesProperty(new SimpleString(name), newBytes);
+      map.putBytesProperty(SimpleString.of(name), newBytes);
    }
 
    public void setObject(final String name, final Object value) throws ActiveMQPropertyConversionException {
@@ -137,43 +137,43 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
       } else if (value instanceof UnsignedLong) {
          val = ((UnsignedLong) value).longValue();
       }
-      TypedProperties.setObjectProperty(new SimpleString(name), val, map);
+      TypedProperties.setObjectProperty(SimpleString.of(name), val, map);
    }
 
    public boolean getBoolean(final String name) throws ActiveMQPropertyConversionException {
-      return map.getBooleanProperty(new SimpleString(name));
+      return map.getBooleanProperty(SimpleString.of(name));
    }
 
    public byte getByte(final String name) throws ActiveMQPropertyConversionException {
-      return map.getByteProperty(new SimpleString(name));
+      return map.getByteProperty(SimpleString.of(name));
    }
 
    public short getShort(final String name) throws ActiveMQPropertyConversionException {
-      return map.getShortProperty(new SimpleString(name));
+      return map.getShortProperty(SimpleString.of(name));
    }
 
    public char getChar(final String name) throws ActiveMQPropertyConversionException {
-      return map.getCharProperty(new SimpleString(name));
+      return map.getCharProperty(SimpleString.of(name));
    }
 
    public int getInt(final String name) throws ActiveMQPropertyConversionException {
-      return map.getIntProperty(new SimpleString(name));
+      return map.getIntProperty(SimpleString.of(name));
    }
 
    public long getLong(final String name) throws ActiveMQPropertyConversionException {
-      return map.getLongProperty(new SimpleString(name));
+      return map.getLongProperty(SimpleString.of(name));
    }
 
    public float getFloat(final String name) throws ActiveMQPropertyConversionException {
-      return map.getFloatProperty(new SimpleString(name));
+      return map.getFloatProperty(SimpleString.of(name));
    }
 
    public double getDouble(final String name) throws ActiveMQPropertyConversionException {
-      return map.getDoubleProperty(new SimpleString(name));
+      return map.getDoubleProperty(SimpleString.of(name));
    }
 
    public String getString(final String name) throws ActiveMQPropertyConversionException {
-      SimpleString str = map.getSimpleStringProperty(new SimpleString(name));
+      SimpleString str = map.getSimpleStringProperty(SimpleString.of(name));
       if (str == null) {
          return null;
       } else {
@@ -182,11 +182,11 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
    }
 
    public byte[] getBytes(final String name) throws ActiveMQPropertyConversionException {
-      return map.getBytesProperty(new SimpleString(name));
+      return map.getBytesProperty(SimpleString.of(name));
    }
 
    public Object getObject(final String name) {
-      Object val = map.getProperty(new SimpleString(name));
+      Object val = map.getProperty(SimpleString.of(name));
 
       if (val instanceof SimpleString) {
          val = ((SimpleString) val).toString();
@@ -200,7 +200,7 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
    }
 
    public boolean itemExists(final String name) {
-      return map.containsProperty(new SimpleString(name));
+      return map.containsProperty(SimpleString.of(name));
    }
 
    @Override

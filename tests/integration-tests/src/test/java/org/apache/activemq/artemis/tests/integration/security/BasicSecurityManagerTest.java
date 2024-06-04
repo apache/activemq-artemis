@@ -177,9 +177,9 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQServer server = initializeServer();
       Set<Role> roles = new HashSet<>();
@@ -262,9 +262,9 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
-      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
-      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
       ActiveMQServer server = initializeServer();
       Set<Role> roles = new HashSet<>();

@@ -36,7 +36,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    //   public static final Long DEFAULT_MAX_QUEUE_SIZE_BYTES = -1L;
 
-   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = new SimpleString(".+");
+   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = SimpleString.of(".+");
 
    SimpleString match = null;
 
@@ -49,7 +49,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    //   SimpleString queueNameRegex = null;
 
    public void setName(String name) {
-      setMatch(SimpleString.toSimpleString(name));
+      setMatch(SimpleString.of(name));
    }
 
    public SimpleString getMatch() {

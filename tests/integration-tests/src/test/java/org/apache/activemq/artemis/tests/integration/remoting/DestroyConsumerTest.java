@@ -32,7 +32,7 @@ public class DestroyConsumerTest extends ActiveMQTestBase {
    // ActiveMQServer server = createService(false, false, createDefaultInVMConfig(), new HashMap<String, AddressSettings>());
    // server.start();
    //
-   // SimpleString queue = new SimpleString("add1");
+   // SimpleString queue = SimpleString.of("add1");
    //
    // ClientSessionFactory factory = createInVMFactory();
    //

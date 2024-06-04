@@ -42,9 +42,9 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString address = new SimpleString("address");
+   private final SimpleString address = SimpleString.of("address");
 
-   private final SimpleString queueName = new SimpleString("queue");
+   private final SimpleString queueName = SimpleString.of("queue");
 
    private ServerLocator locator;
 
@@ -95,7 +95,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testcreateWithFilter() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      SimpleString filterString = new SimpleString("x=y");
+      SimpleString filterString = SimpleString.of("x=y");
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       Queue q = (Queue) binding.getBindable();
@@ -108,7 +108,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
    public void testAddressSettingUSed() throws Exception {
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDefaultLastValueQueue(true));
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      SimpleString filterString = new SimpleString("x=y");
+      SimpleString filterString = SimpleString.of("x=y");
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(filterString).setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
       assertTrue(binding.getBindable() instanceof LastValueQueue);

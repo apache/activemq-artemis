@@ -239,7 +239,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ClientSession sess = csf.createSession();
       sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
 
-      PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.toSimpleString("flowcontrol"));
+      PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.of("flowcontrol"));
       store.startPaging();
 
       ClientProducer prod = sess.createProducer("flowcontrol");

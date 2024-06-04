@@ -631,7 +631,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       int len = readInt();
       byte[] data = new byte[len];
       readBytes(data);
-      return new SimpleString(data);
+      return SimpleString.of(data);
    }
 
    @Override

@@ -38,8 +38,8 @@ import org.junit.jupiter.api.Test;
 
 public class CoreMTMessageTest {
 
-   public static final SimpleString ADDRESS = new SimpleString("this.local.address");
-   public static final SimpleString ADDRESS2 = new SimpleString("some.other.address");
+   public static final SimpleString ADDRESS = SimpleString.of("this.local.address");
+   public static final SimpleString ADDRESS2 = SimpleString.of("some.other.address");
    public static final byte MESSAGE_TYPE = Message.TEXT_TYPE;
    public static final boolean DURABLE = true;
    public static final long EXPIRATION = 123L;
@@ -62,11 +62,11 @@ public class CoreMTMessageTest {
       UUID userID = UUIDGenerator.getInstance().generateUUID();
       String body = UUIDGenerator.getInstance().generateStringUUID();
       ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024, objectPools);
-      TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.toSimpleString(body));
+      TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.of(body));
 
       message.setAddress(ADDRESS);
       message.setUserID(userID);
-      message.getProperties().putSimpleStringProperty(SimpleString.toSimpleString("str-prop"), propValue);
+      message.getProperties().putSimpleStringProperty(SimpleString.of("str-prop"), propValue);
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(10 * 1024);
       message.sendBuffer(buffer.byteBuf(), 0);
@@ -96,7 +96,7 @@ public class CoreMTMessageTest {
                recMessage.receiveBuffer(buffer.byteBuf());
                assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
                assertEquals(33, recMessage.getMessageID());
-               assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.toSimpleString("str-prop")));
+               assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.of("str-prop")));
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();

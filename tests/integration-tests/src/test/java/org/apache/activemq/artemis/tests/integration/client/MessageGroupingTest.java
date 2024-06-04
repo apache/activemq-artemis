@@ -61,7 +61,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
 
    private ClientSessionFactory clientSessionFactory;
 
-   private final SimpleString qName = new SimpleString("MessageGroupingTestQueue");
+   private final SimpleString qName = SimpleString.of("MessageGroupingTestQueue");
    private ServerLocator locator;
 
    @Test
@@ -153,7 +153,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
       clientSession.start();
 
-      SimpleString groupId = new SimpleString("grp1");
+      SimpleString groupId = SimpleString.of("grp1");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -183,8 +183,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       //need to wait a bit or consumers might be busy
       Thread.sleep(200);
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -219,8 +219,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       if (directDelivery) {
          clientSession.start();
       }
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -260,8 +260,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       //Wait a bit otherwise consumers might be busy
       Thread.sleep(200);
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -313,8 +313,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       //need to wait a bit or consumers might be busy
       Thread.sleep(200);
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -379,8 +379,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       Xid xid = new XidImpl("bq".getBytes(), 4, "gtid".getBytes());
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -433,8 +433,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       Xid xid = new XidImpl("bq".getBytes(), 4, "gtid".getBytes());
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
@@ -498,8 +498,8 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
       clientSession.start();
 
-      SimpleString groupId = new SimpleString("grp1");
-      SimpleString groupId2 = new SimpleString("grp2");
+      SimpleString groupId = SimpleString.of("grp1");
+      SimpleString groupId2 = SimpleString.of("grp2");
       int numMessages = 4;
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);

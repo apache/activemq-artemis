@@ -246,7 +246,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       assertEquals(data, message.getBodyBuffer().readString());
       session.commit(); // force the ack to be committed
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)).getMessagesAcknowledged() == 1, 1000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)).getMessagesAcknowledged() == 1, 1000, 100));
 
       consumer.close();
 
@@ -275,7 +275,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
       long messageCount = 0;
-      while (!server.getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!server.getPagingManager().getPageStore(SimpleString.of(addressName)).isPaging()) {
          producer.send(message);
          messageCount++;
       }

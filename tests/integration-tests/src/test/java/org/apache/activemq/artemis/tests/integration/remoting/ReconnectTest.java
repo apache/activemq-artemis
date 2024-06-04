@@ -410,8 +410,8 @@ public class ReconnectTest extends ActiveMQTestBase {
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
       ClientSessionInternal session = (ClientSessionInternal)sf.createSession(false, true, true);
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST));

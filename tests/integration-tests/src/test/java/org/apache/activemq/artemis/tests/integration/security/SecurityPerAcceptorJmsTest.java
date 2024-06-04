@@ -114,7 +114,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testJAASSecurityManagerAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString ADDRESS = SimpleString.of("address");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setResolveProtocols(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin").setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));

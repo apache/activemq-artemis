@@ -43,9 +43,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString expiryAddress = new SimpleString("myExpiry");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString expiryAddress = SimpleString.of("myExpiry");
    public final long EXPIRY_DELAY = 100L;
 
    private ActiveMQServer server;
@@ -79,7 +79,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreationOfExpiryResourcesWithEmptyExpiry() throws Exception {
-      testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString.toSimpleString(""));
+      testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString.of(""));
    }
 
    private void testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString expiryAddress) throws Exception {

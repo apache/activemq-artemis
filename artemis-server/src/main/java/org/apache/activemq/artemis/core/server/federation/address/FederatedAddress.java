@@ -72,7 +72,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
 
    public static final String FEDERATED_QUEUE_PREFIX = "federated";
 
-   public static final SimpleString HDR_HOPS = new SimpleString("_AMQ_Hops");
+   public static final SimpleString HDR_HOPS = SimpleString.of("_AMQ_Hops");
    private final SimpleString queueNameFormat;
    private final SimpleString filterString;
    private final Set<Matcher> includes;
@@ -90,7 +90,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
       } else {
          this.filterString = HDR_HOPS.concat(" IS NULL OR ").concat(HDR_HOPS).concat("<").concat(Integer.toString(config.getMaxHops()));
       }
-      this.queueNameFormat = SimpleString.toSimpleString(FEDERATED_QUEUE_PREFIX + ".${federation}.${upstream}.${address}.${routeType}");
+      this.queueNameFormat = SimpleString.of(FEDERATED_QUEUE_PREFIX + ".${federation}.${upstream}.${address}.${routeType}");
       if (config.getIncludes().isEmpty()) {
          includes = Collections.emptySet();
       } else {

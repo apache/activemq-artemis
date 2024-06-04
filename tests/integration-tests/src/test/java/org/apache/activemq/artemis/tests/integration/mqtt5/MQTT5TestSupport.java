@@ -77,8 +77,8 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    protected static final String WS = "ws";
    protected static final String SSL = "ssl";
    protected static final String WSS = "wss";
-   protected static final SimpleString DEAD_LETTER_ADDRESS = new SimpleString("DLA");
-   protected static final SimpleString EXPIRY_ADDRESS = new SimpleString("EXPIRY");
+   protected static final SimpleString DEAD_LETTER_ADDRESS = SimpleString.of("DLA");
+   protected static final SimpleString EXPIRY_ADDRESS = SimpleString.of("EXPIRY");
 
    protected MqttClient createPahoClient(String clientId) throws MqttException {
       return createPahoClient(TCP, clientId);

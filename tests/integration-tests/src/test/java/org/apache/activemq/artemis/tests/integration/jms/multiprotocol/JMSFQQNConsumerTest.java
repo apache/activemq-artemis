@@ -83,7 +83,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          MessageConsumer mc = s.createConsumer(t, filter);
 
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
-         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.of(queue));
 
          assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
          assertNotNull(serverQueue.getFilter());
@@ -130,7 +130,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
             MessageConsumer mc = s.createConsumer(t);
 
             Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
-            org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
+            org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.of(queue));
 
             Wait.assertEquals(1, () -> serverQueue.getConsumers().size());
             serverQueue.getConsumers().forEach(serverConsumer -> {
@@ -197,7 +197,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          MessageConsumer mc = s.createConsumer(t, filter);
 
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
-         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.of(queue));
          assertEquals(RoutingType.MULTICAST, serverQueue.getRoutingType());
          assertNull(serverQueue.getFilter()); // it was pre-created without a filter, so we will just filter on the consumer
 
@@ -305,7 +305,7 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
          MessageConsumer mc = s.createConsumer(q, filter);
 
          Wait.assertTrue(() -> server.locateQueue(queue) != null, 2000, 100);
-         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(queue));
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.of(queue));
 
          assertEquals(RoutingType.ANYCAST, serverQueue.getRoutingType());
 

@@ -46,12 +46,12 @@ public class SimpleStringTest {
     */
    @Test
    public void testGetChar() {
-      SimpleString p1 = new SimpleString("foo");
-      SimpleString p2 = new SimpleString("bar");
+      SimpleString p1 = SimpleString.of("foo");
+      SimpleString p2 = SimpleString.of("bar");
       for (int i = 0; i < 1 << 16; i++) {
          String msg = "expecting " + i;
          char c = (char) i;
-         SimpleString s = new SimpleString(String.valueOf(c));
+         SimpleString s = SimpleString.of(String.valueOf(c));
 
          // test getChars(...)
          char[] c1 = new char[1];
@@ -66,7 +66,7 @@ public class SimpleStringTest {
          assertEquals(c, s2.charAt(1), msg);
 
          // test splitting with chars
-         SimpleString sSplit = new SimpleString("foo" + String.valueOf(c) + "bar");
+         SimpleString sSplit = SimpleString.of("foo" + String.valueOf(c) + "bar");
          SimpleString[] chunks = sSplit.split(c);
          SimpleString[] split1 = p1.split(c);
          SimpleString[] split2 = p2.split(c);
@@ -86,7 +86,7 @@ public class SimpleStringTest {
    public void testString() throws Exception {
       final String str = "hello123ABC__524`16254`6125!%^$!%$!%$!%$!%!$%!$$!\uA324";
 
-      SimpleString s = new SimpleString(str);
+      SimpleString s = SimpleString.of(str);
 
       assertEquals(str, s.toString());
 
@@ -94,32 +94,32 @@ public class SimpleStringTest {
 
       byte[] data = s.getData();
 
-      SimpleString s2 = new SimpleString(data);
+      SimpleString s2 = SimpleString.of(data);
 
       assertEquals(str, s2.toString());
    }
 
    @Test
    public void testStartsWith() throws Exception {
-      SimpleString s1 = new SimpleString("abcdefghi");
+      SimpleString s1 = SimpleString.of("abcdefghi");
 
-      assertTrue(s1.startsWith(new SimpleString("abc")));
+      assertTrue(s1.startsWith(SimpleString.of("abc")));
 
-      assertTrue(s1.startsWith(new SimpleString("abcdef")));
+      assertTrue(s1.startsWith(SimpleString.of("abcdef")));
 
-      assertTrue(s1.startsWith(new SimpleString("abcdefghi")));
+      assertTrue(s1.startsWith(SimpleString.of("abcdefghi")));
 
-      assertFalse(s1.startsWith(new SimpleString("abcdefghijklmn")));
+      assertFalse(s1.startsWith(SimpleString.of("abcdefghijklmn")));
 
-      assertFalse(s1.startsWith(new SimpleString("aardvark")));
+      assertFalse(s1.startsWith(SimpleString.of("aardvark")));
 
-      assertFalse(s1.startsWith(new SimpleString("z")));
+      assertFalse(s1.startsWith(SimpleString.of("z")));
    }
 
    @Test
    public void testCharSequence() throws Exception {
       String s = "abcdefghijkl";
-      SimpleString s1 = new SimpleString(s);
+      SimpleString s1 = SimpleString.of(s);
 
       assertEquals('a', s1.charAt(0));
       assertEquals('b', s1.charAt(1));
@@ -162,13 +162,13 @@ public class SimpleStringTest {
       assertEquals(ss, s1);
 
       ss = s1.subSequence(1, 4);
-      assertEquals(ss, new SimpleString("bcd"));
+      assertEquals(ss, SimpleString.of("bcd"));
 
       ss = s1.subSequence(5, 10);
-      assertEquals(ss, new SimpleString("fghij"));
+      assertEquals(ss, SimpleString.of("fghij"));
 
       ss = s1.subSequence(5, 12);
-      assertEquals(ss, new SimpleString("fghijkl"));
+      assertEquals(ss, SimpleString.of("fghijkl"));
 
       try {
          s1.subSequence(-1, 2);
@@ -208,21 +208,21 @@ public class SimpleStringTest {
 
    @Test
    public void testEquals() throws Exception {
-      assertFalse(new SimpleString("abcdef").equals(new Object()));
+      assertFalse(SimpleString.of("abcdef").equals(new Object()));
 
-      assertFalse(new SimpleString("abcef").equals(null));
+      assertFalse(SimpleString.of("abcef").equals(null));
 
-      assertEquals(new SimpleString("abcdef"), new SimpleString("abcdef"));
+      assertEquals(SimpleString.of("abcdef"), SimpleString.of("abcdef"));
 
-      assertFalse(new SimpleString("abcdef").equals(new SimpleString("abggcdef")));
-      assertFalse(new SimpleString("abcdef").equals(new SimpleString("ghijkl")));
+      assertFalse(SimpleString.of("abcdef").equals(SimpleString.of("abggcdef")));
+      assertFalse(SimpleString.of("abcdef").equals(SimpleString.of("ghijkl")));
    }
 
    @Test
    public void testHashcode() throws Exception {
-      SimpleString str = new SimpleString("abcdef");
-      SimpleString sameStr = new SimpleString("abcdef");
-      SimpleString differentStr = new SimpleString("ghijk");
+      SimpleString str = SimpleString.of("abcdef");
+      SimpleString sameStr = SimpleString.of("abcdef");
+      SimpleString differentStr = SimpleString.of("ghijk");
 
       assertTrue(str.hashCode() == sameStr.hashCode());
       assertFalse(str.hashCode() == differentStr.hashCode());
@@ -232,9 +232,9 @@ public class SimpleStringTest {
    public void testUnicode() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
 
-      SimpleString s = new SimpleString(myString);
+      SimpleString s = SimpleString.of(myString);
       byte[] data = s.getData();
-      s = new SimpleString(data);
+      s = SimpleString.of(data);
 
       assertEquals(myString, s.toString());
    }
@@ -243,18 +243,18 @@ public class SimpleStringTest {
    public void testUnicodeWithSurrogates() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uD900\uDD00";
 
-      SimpleString s = new SimpleString(myString);
+      SimpleString s = SimpleString.of(myString);
       byte[] data = s.getData();
-      s = new SimpleString(data);
+      s = SimpleString.of(data);
 
       assertEquals(myString, s.toString());
    }
 
    @Test
    public void testSizeofString() throws Exception {
-      assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(new SimpleString("")));
+      assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(SimpleString.of("")));
 
-      SimpleString str = new SimpleString(RandomUtil.randomString());
+      SimpleString str = SimpleString.of(RandomUtil.randomString());
       assertEquals(DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofString(str));
    }
 
@@ -262,15 +262,15 @@ public class SimpleStringTest {
    public void testSizeofNullableString() throws Exception {
       assertEquals(1, SimpleString.sizeofNullableString(null));
 
-      assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(new SimpleString("")));
+      assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(SimpleString.of("")));
 
-      SimpleString str = new SimpleString(RandomUtil.randomString());
+      SimpleString str = SimpleString.of(RandomUtil.randomString());
       assertEquals(1 + DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofNullableString(str));
    }
 
    @Test
    public void testSplitNoDelimeter() throws Exception {
-      SimpleString s = new SimpleString("abcdefghi");
+      SimpleString s = SimpleString.of("abcdefghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
       assertEquals(strings.length, 1);
@@ -279,31 +279,31 @@ public class SimpleStringTest {
 
    @Test
    public void testSplit1Delimeter() throws Exception {
-      SimpleString s = new SimpleString("abcd.efghi");
+      SimpleString s = SimpleString.of("abcd.efghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
       assertEquals(strings.length, 2);
-      assertEquals(strings[0], new SimpleString("abcd"));
-      assertEquals(strings[1], new SimpleString("efghi"));
+      assertEquals(strings[0], SimpleString.of("abcd"));
+      assertEquals(strings[1], SimpleString.of("efghi"));
    }
 
    @Test
    public void testSplitmanyDelimeters() throws Exception {
-      SimpleString s = new SimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
+      SimpleString s = SimpleString.of("abcd.efghi.jklmn.opqrs.tuvw.xyz");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
       assertEquals(strings.length, 6);
-      assertEquals(strings[0], new SimpleString("abcd"));
-      assertEquals(strings[1], new SimpleString("efghi"));
-      assertEquals(strings[2], new SimpleString("jklmn"));
-      assertEquals(strings[3], new SimpleString("opqrs"));
-      assertEquals(strings[4], new SimpleString("tuvw"));
-      assertEquals(strings[5], new SimpleString("xyz"));
+      assertEquals(strings[0], SimpleString.of("abcd"));
+      assertEquals(strings[1], SimpleString.of("efghi"));
+      assertEquals(strings[2], SimpleString.of("jklmn"));
+      assertEquals(strings[3], SimpleString.of("opqrs"));
+      assertEquals(strings[4], SimpleString.of("tuvw"));
+      assertEquals(strings[5], SimpleString.of("xyz"));
    }
 
    @Test
    public void testContains() {
-      SimpleString simpleString = new SimpleString("abcdefghijklmnopqrst");
+      SimpleString simpleString = SimpleString.of("abcdefghijklmnopqrst");
       assertFalse(simpleString.contains('.'));
       assertFalse(simpleString.contains('%'));
       assertFalse(simpleString.contains('8'));
@@ -332,14 +332,14 @@ public class SimpleStringTest {
 
    @Test
    public void testConcat() {
-      SimpleString start = new SimpleString("abcdefg");
-      SimpleString middle = new SimpleString("hijklmnop");
-      SimpleString end = new SimpleString("qrstuvwxyz");
-      assertEquals(start.concat(middle).concat(end), new SimpleString("abcdefghijklmnopqrstuvwxyz"));
-      assertEquals(start.concat('.').concat(end), new SimpleString("abcdefg.qrstuvwxyz"));
+      SimpleString start = SimpleString.of("abcdefg");
+      SimpleString middle = SimpleString.of("hijklmnop");
+      SimpleString end = SimpleString.of("qrstuvwxyz");
+      assertEquals(start.concat(middle).concat(end), SimpleString.of("abcdefghijklmnopqrstuvwxyz"));
+      assertEquals(start.concat('.').concat(end), SimpleString.of("abcdefg.qrstuvwxyz"));
       // Testing concat of SimpleString with String
       for (int i = 0; i < 10; i++) {
-         assertEquals(new SimpleString("abcdefg-" + i), start.concat("-" + Integer.toString(i)));
+         assertEquals(SimpleString.of("abcdefg-" + i), start.concat("-" + Integer.toString(i)));
 
       }
    }
@@ -355,9 +355,9 @@ public class SimpleStringTest {
          }
          String strvalue = buffer.toString();
 
-         final int initialhash = new SimpleString(strvalue).hashCode();
+         final int initialhash = SimpleString.of(strvalue).hashCode();
 
-         final SimpleString value = new SimpleString(strvalue);
+         final SimpleString value = SimpleString.of(strvalue);
 
          int nThreads = 100;
          final CountDownLatch latch = new CountDownLatch(nThreads);
@@ -407,7 +407,7 @@ public class SimpleStringTest {
    @Test
    public void testToSimpleStringPoolStringArgument() throws Exception {
       final String s = "pooled";
-      final SimpleString ss = SimpleString.toSimpleString(s);
+      final SimpleString ss = SimpleString.of(s);
       final String s1 = ss.toString();
       assertSame(s, s1, "SimpleString::toSimpleString is not pooling the given String");
    }
@@ -417,10 +417,10 @@ public class SimpleStringTest {
       final int capacity = 8;
       final int chars = Integer.toString(capacity).length();
       final SimpleString.ByteBufSimpleStringPool pool = new SimpleString.ByteBufSimpleStringPool(capacity, chars);
-      final int bytes = new SimpleString(Integer.toString(capacity)).sizeof();
+      final int bytes = SimpleString.of(Integer.toString(capacity)).sizeof();
       final ByteBuf bb = Unpooled.buffer(bytes, bytes);
       for (int i = 0; i < capacity; i++) {
-         final SimpleString s = new SimpleString(Integer.toString(i));
+         final SimpleString s = SimpleString.of(Integer.toString(i));
          bb.resetWriterIndex();
          SimpleString.writeSimpleString(bb, s);
          bb.resetReaderIndex();
@@ -433,7 +433,7 @@ public class SimpleStringTest {
 
    @Test
    public void testByteBufSimpleStringPoolTooLong() {
-      final SimpleString tooLong = new SimpleString("aa");
+      final SimpleString tooLong = SimpleString.of("aa");
       final ByteBuf bb = Unpooled.buffer(tooLong.sizeof(), tooLong.sizeof());
       SimpleString.writeSimpleString(bb, tooLong);
       final SimpleString.ByteBufSimpleStringPool pool = new SimpleString.ByteBufSimpleStringPool(1, tooLong.length() - 1);

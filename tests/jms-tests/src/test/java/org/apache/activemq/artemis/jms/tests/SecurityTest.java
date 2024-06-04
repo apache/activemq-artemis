@@ -194,7 +194,7 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
          getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
@@ -219,7 +219,7 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
          getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
@@ -265,7 +265,7 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistentJMS2() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
          getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
@@ -311,7 +311,7 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendLargeNonPersistent() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
          getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }

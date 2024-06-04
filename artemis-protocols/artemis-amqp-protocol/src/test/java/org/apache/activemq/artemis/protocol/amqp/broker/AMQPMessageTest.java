@@ -298,7 +298,7 @@ public class AMQPMessageTest {
       assertTrue(encodedProtonMessage.length < decoded.getMemoryEstimate());
       assertEquals(estimate, decoded.getMemoryEstimate());
 
-      decoded.putStringProperty(new SimpleString("newProperty"), "newValue");
+      decoded.putStringProperty(SimpleString.of("newProperty"), "newValue");
       decoded.reencode();
 
       assertNotEquals(estimate, decoded.getMemoryEstimate());
@@ -424,7 +424,7 @@ public class AMQPMessageTest {
 
    @Test
    public void testSetLastValueFromMessageWithNone() {
-      SimpleString lastValue = new SimpleString("last-address");
+      SimpleString lastValue = SimpleString.of("last-address");
 
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
@@ -556,7 +556,7 @@ public class AMQPMessageTest {
    @Test
    public void testSetAddressFromMessage() {
       final String ADDRESS = "myQueue";
-      final SimpleString NEW_ADDRESS = new SimpleString("myQueue-1");
+      final SimpleString NEW_ADDRESS = SimpleString.of("myQueue-1");
 
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       protonMessage.setAddress(ADDRESS);
@@ -571,7 +571,7 @@ public class AMQPMessageTest {
    @Test
    public void testSetAddressFromMessageUpdatesPropertiesOnReencode() {
       final String ADDRESS = "myQueue";
-      final SimpleString NEW_ADDRESS = new SimpleString("myQueue-1");
+      final SimpleString NEW_ADDRESS = SimpleString.of("myQueue-1");
 
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       protonMessage.setAddress(ADDRESS);
@@ -857,7 +857,7 @@ public class AMQPMessageTest {
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
       assertNull(decoded.getReplyTo());
 
-      decoded.setReplyTo(new SimpleString(REPLY_TO));
+      decoded.setReplyTo(SimpleString.of(REPLY_TO));
       decoded.reencode();
 
       assertEquals(REPLY_TO, decoded.getReplyTo().toString());
@@ -872,7 +872,7 @@ public class AMQPMessageTest {
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
       assertNull(decoded.getReplyTo());
 
-      decoded.setReplyTo(new SimpleString(REPLY_TO));
+      decoded.setReplyTo(SimpleString.of(REPLY_TO));
       decoded.reencode();
 
       assertEquals(REPLY_TO, decoded.getReplyTo().toString());
@@ -1374,8 +1374,8 @@ public class AMQPMessageTest {
    public void testGetAnnotation() {
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
 
-      Object result = message.getAnnotation(new SimpleString(TEST_MESSAGE_ANNOTATION_KEY));
-      String stringResult = message.getAnnotationString(new SimpleString(TEST_MESSAGE_ANNOTATION_KEY));
+      Object result = message.getAnnotation(SimpleString.of(TEST_MESSAGE_ANNOTATION_KEY));
+      String stringResult = message.getAnnotationString(SimpleString.of(TEST_MESSAGE_ANNOTATION_KEY));
 
       assertEquals(result, stringResult);
    }
@@ -1384,9 +1384,9 @@ public class AMQPMessageTest {
    public void testRemoveAnnotation() {
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
 
-      assertNotNull(message.getAnnotation(new SimpleString(TEST_MESSAGE_ANNOTATION_KEY)));
-      message.removeAnnotation(new SimpleString(TEST_MESSAGE_ANNOTATION_KEY));
-      assertNull(message.getAnnotation(new SimpleString(TEST_MESSAGE_ANNOTATION_KEY)));
+      assertNotNull(message.getAnnotation(SimpleString.of(TEST_MESSAGE_ANNOTATION_KEY)));
+      message.removeAnnotation(SimpleString.of(TEST_MESSAGE_ANNOTATION_KEY));
+      assertNull(message.getAnnotation(SimpleString.of(TEST_MESSAGE_ANNOTATION_KEY)));
 
       message.reencode();
 
@@ -1397,7 +1397,7 @@ public class AMQPMessageTest {
    public void testSetAnnotation() {
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
 
-      final SimpleString newAnnotation = new SimpleString("testSetAnnotation");
+      final SimpleString newAnnotation = SimpleString.of("testSetAnnotation");
       final String newValue = "newValue";
 
       message.setAnnotation(newAnnotation, newValue);
@@ -1417,7 +1417,7 @@ public class AMQPMessageTest {
 
       assertProtonMessageEquals(protonMessage, message.getProtonMessage());
 
-      message.setAnnotation(new SimpleString("testGetProtonMessage"), "1");
+      message.setAnnotation(SimpleString.of("testGetProtonMessage"), "1");
       message.messageChanged();
 
       assertProtonMessageNotEquals(protonMessage, message.getProtonMessage());
@@ -1566,7 +1566,7 @@ public class AMQPMessageTest {
 
    @Test
    public void testMessageAnnotationsReencodeAfterUpdate() {
-      final SimpleString TEST_ANNOTATION = new SimpleString("testMessageAnnotationsReencodeAfterUpdate");
+      final SimpleString TEST_ANNOTATION = SimpleString.of("testMessageAnnotationsReencodeAfterUpdate");
 
       MessageImpl protonMessage = createProtonMessage();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
@@ -1588,7 +1588,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
 
       byte[] value = RandomUtil.randomBytes();
-      SimpleString name = SimpleString.toSimpleString("myProperty");
+      SimpleString name = SimpleString.of("myProperty");
 
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
@@ -1608,7 +1608,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
 
       byte[] original = RandomUtil.randomBytes();
-      SimpleString name = SimpleString.toSimpleString("myProperty");
+      SimpleString name = SimpleString.of("myProperty");
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
       decoded.setAddress("someAddress");
       decoded.setMessageID(33);
@@ -1780,9 +1780,9 @@ public class AMQPMessageTest {
       assertEquals(TEST_STRING_BODY, ((AmqpValue) message.getBody()).getValue());
 
       // Update the message
-      message.setAnnotation(new SimpleString("x-opt-extra-1"), "test-1");
-      message.setAnnotation(new SimpleString("x-opt-extra-2"), "test-2");
-      message.setAnnotation(new SimpleString("x-opt-extra-3"), "test-3");
+      message.setAnnotation(SimpleString.of("x-opt-extra-1"), "test-1");
+      message.setAnnotation(SimpleString.of("x-opt-extra-2"), "test-2");
+      message.setAnnotation(SimpleString.of("x-opt-extra-3"), "test-3");
 
       // Reencode and then decode the message again
       message.reencode();
@@ -2413,8 +2413,8 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
 
       TypedProperties extraProperties = new TypedProperties();
-      extraProperties.putProperty(new SimpleString(TEST_EXTRA_PROPERTY_KEY1), TEST_EXTRA_PROPERTY_VALUE1);
-      extraProperties.putProperty(new SimpleString(TEST_EXTRA_PROPERTY_KEY2), TEST_EXTRA_PROPERTY_VALUE2);
+      extraProperties.putProperty(SimpleString.of(TEST_EXTRA_PROPERTY_KEY1), TEST_EXTRA_PROPERTY_VALUE1);
+      extraProperties.putProperty(SimpleString.of(TEST_EXTRA_PROPERTY_KEY2), TEST_EXTRA_PROPERTY_VALUE2);
 
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage, extraProperties);
 
@@ -2543,8 +2543,8 @@ public class AMQPMessageTest {
       Message protonMessage = Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
       TypedProperties props = decoded.createExtraProperties();
-      props.putSimpleStringProperty(new SimpleString("firstString"), new SimpleString("firstValue"));
-      props.putLongProperty(new SimpleString("secondLong"), 1234567);
+      props.putSimpleStringProperty(SimpleString.of("firstString"), SimpleString.of("firstValue"));
+      props.putLongProperty(SimpleString.of("secondLong"), 1234567);
 
       // same as toPropertyMap(false,5)
       Map<String, Object> map = decoded.toPropertyMap(-1);

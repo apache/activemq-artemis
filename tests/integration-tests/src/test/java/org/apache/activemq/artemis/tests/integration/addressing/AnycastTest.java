@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class AnycastTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private SimpleString baseAddress = new SimpleString("anycast.address");
+   private SimpleString baseAddress = SimpleString.of("anycast.address");
 
    private AddressInfo addressInfo;
 

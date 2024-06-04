@@ -63,7 +63,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public abstract class FailoverTestBase extends ActiveMQTestBase {
 
-   protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.of("FailoverTestAddress");
 
    /*
     * Used only by tests of large messages.

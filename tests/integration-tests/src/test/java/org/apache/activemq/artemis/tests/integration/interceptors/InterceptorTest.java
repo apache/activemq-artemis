@@ -75,7 +75,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("InterceptorTestQueue");
 
    private ServerLocator locator;
 
@@ -117,7 +117,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.CREATE_QUEUE || packet.getType() == PacketImpl.CREATE_QUEUE_V2) {
             String userName = getUsername(packet, connection);
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
-            createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
+            createQueue.setFilterString(SimpleString.of("userName='" + userName + "'"));
 
             logger.debug("userName on createQueue = {}", userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
@@ -147,7 +147,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.SESS_CREATECONSUMER) {
             String userName = getUsername(packet, connection);
             SessionCreateConsumerMessage createQueue = (SessionCreateConsumerMessage) packet;
-            createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
+            createQueue.setFilterString(SimpleString.of("userName='" + userName + "'"));
 
             logger.debug("userName = {}", userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {

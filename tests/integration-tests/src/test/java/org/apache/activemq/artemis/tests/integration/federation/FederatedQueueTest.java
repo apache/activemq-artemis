@@ -501,17 +501,17 @@ public class FederatedQueueTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
 
-         Wait.assertTrue(() -> getServer(0).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
-         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
+         Wait.assertTrue(() -> getServer(0).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
+         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
          //Wait to see if extra consumers are created - this tests to make sure there is no loop and tests the FederatedQueue metaDataFilterString
          //is working properly - should only be 1 consumer on each (1 for the local consumer on broker0 and 1 for the federated consumer on broker1)
-         assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
-         assertFalse(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
+         assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.of(queueName)).getConsumerCount() > 1, 500, 100));
+         assertFalse(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.of(queueName)).getConsumerCount() > 1, 500, 100));
 
          //Test consumer move from broker 0, to broker 1
          final int server1ConsumerCount = getServer(1).getConnectionCount();
          consumer0.close();
-         Wait.waitFor(() -> ((QueueBinding) getServer(0).getPostOffice().getBinding(SimpleString.toSimpleString(queueName))).consumerCount() == 0, 1000);
+         Wait.waitFor(() -> ((QueueBinding) getServer(0).getPostOffice().getBinding(SimpleString.of(queueName))).consumerCount() == 0, 1000);
 
          //Make sure we don't drop connection if shared
          if (shared) {
@@ -634,7 +634,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    }
 
    private boolean getConsumerCount(ActiveMQServer server, String queueName, int count) {
-      QueueBinding binding = (QueueBinding)server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
+      QueueBinding binding = (QueueBinding)server.getPostOffice().getBinding(SimpleString.of(queueName));
       if (binding == null) {
          return false;
       }
@@ -690,10 +690,10 @@ public class FederatedQueueTest extends FederatedTestBase {
       consumer0 = session0.createConsumer(queue0);
       producer.send(session1.createTextMessage("hello"));
 
-      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
+      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
       Wait.waitFor(() -> ((QueueBinding) getServer(1)
             .getPostOffice()
-            .getBinding(SimpleString.toSimpleString(queueName)))
+            .getBinding(SimpleString.of(queueName)))
             .consumerCount() == 1);
 
       assertNotNull(consumer0.receive(5000));

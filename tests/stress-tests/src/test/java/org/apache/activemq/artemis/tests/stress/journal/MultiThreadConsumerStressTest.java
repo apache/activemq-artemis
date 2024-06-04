@@ -46,9 +46,9 @@ import org.junit.jupiter.api.Test;
 public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
 
-   final SimpleString ADDRESS = new SimpleString("SomeAddress");
+   final SimpleString ADDRESS = SimpleString.of("SomeAddress");
 
-   final SimpleString QUEUE = new SimpleString("SomeQueue");
+   final SimpleString QUEUE = SimpleString.of("SomeQueue");
 
    private ActiveMQServer server;
 

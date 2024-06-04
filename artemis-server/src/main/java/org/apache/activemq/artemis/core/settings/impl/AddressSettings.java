@@ -107,9 +107,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES = false;
 
-   public static final SimpleString DEFAULT_EXPIRY_QUEUE_PREFIX = SimpleString.toSimpleString("EXP.");
+   public static final SimpleString DEFAULT_EXPIRY_QUEUE_PREFIX = SimpleString.of("EXP.");
 
-   public static final SimpleString DEFAULT_EXPIRY_QUEUE_SUFFIX = SimpleString.toSimpleString("");
+   public static final SimpleString DEFAULT_EXPIRY_QUEUE_SUFFIX = SimpleString.of("");
 
    public static final long DEFAULT_EXPIRY_DELAY = -1;
 
@@ -134,9 +134,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES = false;
 
-   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_PREFIX = SimpleString.toSimpleString("DLQ.");
+   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_PREFIX = SimpleString.of("DLQ.");
 
-   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_SUFFIX = SimpleString.toSimpleString("");
+   public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_SUFFIX = SimpleString.of("");
 
    public static final boolean DEFAULT_ENABLE_METRICS = true;
 

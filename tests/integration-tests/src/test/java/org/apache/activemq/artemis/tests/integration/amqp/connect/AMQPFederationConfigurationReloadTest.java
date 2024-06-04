@@ -131,7 +131,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -231,7 +231,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -358,7 +358,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -448,7 +448,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
          final Map<String, Object> expectedSourceProperties = new HashMap<>();
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE, true);
@@ -579,7 +579,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          latch.await(10, TimeUnit.SECONDS);
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("address1")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("address1")).isExists());
 
          final TextMessage message = session.createTextMessage("test");
 
@@ -596,11 +596,11 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          latch.await(10, TimeUnit.SECONDS);
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("address2")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("address2")).isExists());
 
          // Should arrive on the original federated Address and the now added address
          // but we need to await the federation being setup and a binding added.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("address2")).getQueueNames().size() > 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("address2")).getQueueNames().size() > 0);
 
          address1Producer.send(message);
          address2Producer.send(message);
@@ -661,7 +661,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          final MessageProducer queue2Producer = serverSession.createProducer(queue2);
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue1")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
 
          final TextMessage message = session.createTextMessage("test");
 
@@ -672,7 +672,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          // currently federated.
 
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue1")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue1")).getMessageCount() == 1);
 
          assertNotNull(queue1Consumer.receiveNoWait());
          assertNull(queue2Consumer.receiveNoWait());
@@ -684,16 +684,16 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          latch.await(10, TimeUnit.SECONDS);
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue2")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists());
 
          // Should arrive on the original federated Queue and the updated Queue as it is now federated
 
          queue1Producer.send(message);
 
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue1")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue1")).getMessageCount() == 1);
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue2")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue2")).getMessageCount() == 1);
 
          assertNotNull(queue1Consumer.receiveNoWait());
          assertNotNull(queue2Consumer.receiveNoWait());
@@ -748,8 +748,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          latch.await(10, TimeUnit.SECONDS);
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.toSimpleString("address1")).isExists());
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue1")).isExists());
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("address1")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
 
          final TextMessage message = session.createTextMessage("test");
 
@@ -770,7 +770,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          // The original address consumer should have gone away and not returned when the federation
          // connection was recreated.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.toSimpleString("address2")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("address2")).getQueueNames().size() == 0);
 
       } finally  {
          embeddedActiveMQ.stop();
@@ -831,8 +831,8 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          final MessageProducer queue2Producer = serverSession.createProducer(queue2);
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue1")).isExists());
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue2")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists());
 
          final TextMessage message = session.createTextMessage("test");
 
@@ -841,7 +841,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          // Should get message sent to the single federated queue
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue1")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue1")).getMessageCount() == 1);
 
          assertNotNull(queue1Consumer.receiveNoWait());
          assertNull(queue2Consumer.receiveNoWait());
@@ -853,17 +853,17 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          latch.await(10, TimeUnit.SECONDS);
 
          // Demand on local queue should trigger receiver on remote.
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue1")).isExists());
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.toSimpleString("queue2")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists());
 
          // Send another message to the originally federated queue
          queue1Producer.send(message);
 
          // Should arrive on the federated Queues now that the broker configuration has been reloaded.
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue1")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue1")).getMessageCount() == 1);
          Wait.assertTrue(() ->
-            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.toSimpleString("queue2")).getMessageCount() == 1);
+            embeddedActiveMQ.getActiveMQServer().queueQuery(SimpleString.of("queue2")).getMessageCount() == 1);
 
          assertNotNull(queue1Consumer.receiveNoWait());
          assertNotNull(queue2Consumer.receiveNoWait());

@@ -88,7 +88,7 @@ public class JMSTransactionTest extends JMSTestBase {
          session.commit();
          Wait.assertEquals(messages, sentMessages::get);
 
-         org.apache.activemq.artemis.core.server.Queue queueView = server.locateQueue(SimpleString.toSimpleString(queueName));
+         org.apache.activemq.artemis.core.server.Queue queueView = server.locateQueue(SimpleString.of(queueName));
          Wait.assertEquals(messages, queueView::getMessageCount);
       }
    }

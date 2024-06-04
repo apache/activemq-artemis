@@ -44,7 +44,7 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.of("ADD");
 
    private static final SimpleString DIVERTED_AD1 = ClientSoakTest.ADDRESS.concat("-1");
 

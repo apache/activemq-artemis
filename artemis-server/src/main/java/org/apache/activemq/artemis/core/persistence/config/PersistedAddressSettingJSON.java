@@ -47,7 +47,7 @@ public class PersistedAddressSettingJSON extends AbstractPersistedAddressSetting
    }
 
    public PersistedAddressSettingJSON(SimpleString addressMatch, AddressSettings setting, String jsonSetting) {
-      this(addressMatch, setting, SimpleString.toSimpleString(jsonSetting));
+      this(addressMatch, setting, SimpleString.of(jsonSetting));
    }
 
    @Override

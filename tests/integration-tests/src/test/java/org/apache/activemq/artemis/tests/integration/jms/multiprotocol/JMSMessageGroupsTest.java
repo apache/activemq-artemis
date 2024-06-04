@@ -67,9 +67,9 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString("JMSXFirstInGroupID"));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setDefaultGroupFirstKey(SimpleString.of("JMSXFirstInGroupID"));
 
 
       server.getConfiguration().getAddressSettings().put("GroupFirst.#", addressSettings);
@@ -139,7 +139,7 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
 
 
    public void testGroupSeqCloseGroup(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
-      final QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(getQueueName()));
+      final QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(getQueueName()));
 
       try (Connection producerConnection = producerConnectionSupplier.createConnection();
            Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);

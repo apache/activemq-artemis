@@ -262,7 +262,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("expiryQueue")));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.of("expiryQueue")));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("expiryQueue"));
       server.getConfiguration().addQueueConfiguration(new QueueConfiguration("expiryQueue").setRoutingType(RoutingType.ANYCAST));
@@ -288,7 +288,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("expiryQueue")));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.of("expiryQueue")));
 
       server_2.start();
 
@@ -366,7 +366,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
       server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
@@ -388,7 +388,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server_2.start();
 
@@ -455,7 +455,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
          @Override
          public SimpleString getFilterString() {
-            return SimpleString.toSimpleString("Test");
+            return SimpleString.of("Test");
          }
       });
 
@@ -482,7 +482,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
       server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
@@ -504,7 +504,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server_2.start();
 
@@ -522,7 +522,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null, 5000);
-      assertTrue(server_2.getAddressInfo(SimpleString.toSimpleString(internalQueueName)) == null);
+      assertTrue(server_2.getAddressInfo(SimpleString.of(internalQueueName)) == null);
       assertTrue(server_2.locateQueue(internalQueueName) == null);
 
       assertEquals(messagesAddedOnS2, to1.getMessagesAdded());
@@ -546,7 +546,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
       server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
@@ -573,7 +573,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
       server_2.start();
 
       org.apache.activemq.artemis.core.server.Queue lvqQueue1 = locateQueueWithWait(server, lvqName);

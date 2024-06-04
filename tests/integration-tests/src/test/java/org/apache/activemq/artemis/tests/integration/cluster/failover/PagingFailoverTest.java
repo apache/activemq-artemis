@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PagingFailoverTest extends FailoverTestBase {
 
-   private static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("SimpleAddress");
 
    private ServerLocator locator;
 
@@ -100,7 +100,7 @@ public class PagingFailoverTest extends FailoverTestBase {
             session.commit();
          }
          ClientMessage msg = session.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          prod.send(msg);
       }
 
@@ -128,7 +128,7 @@ public class PagingFailoverTest extends FailoverTestBase {
          if (transacted && i % 10 == 0) {
             session.commit();
          }
-         assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         assertEquals(i, msg.getObjectProperty(SimpleString.of("key")));
       }
 
       session.commit();
@@ -153,7 +153,7 @@ public class PagingFailoverTest extends FailoverTestBase {
          assertNotNull(msg);
 
          msg.acknowledge();
-         int result = (Integer) msg.getObjectProperty(new SimpleString("key"));
+         int result = (Integer) msg.getObjectProperty(SimpleString.of("key"));
          assertEquals(i, result);
       }
    }
@@ -173,7 +173,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          msg.setExpiration(System.currentTimeMillis() + 100);
          prod.send(msg);
       }

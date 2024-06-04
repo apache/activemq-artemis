@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
  */
 public class ExclusiveTest extends JMSTestBase {
 
-   private SimpleString queueName = SimpleString.toSimpleString("jms.exclusive.queue");
+   private SimpleString queueName = SimpleString.of("jms.exclusive.queue");
 
    @Override
    @BeforeEach

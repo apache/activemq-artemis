@@ -149,8 +149,8 @@ public class ScaleDownTest extends ClusterTestBase {
       //      removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
+      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
@@ -288,9 +288,9 @@ public class ScaleDownTest extends ClusterTestBase {
       addConsumer(0, 1, queueName1, null);
       addConsumer(1, 1, queueName2, null);
 
-      LocalQueueBinding queue1Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1)));
-      LocalQueueBinding queue2Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2)));
-      LocalQueueBinding sfQueueBinding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(sfQueueName)));
+      LocalQueueBinding queue1Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1)));
+      LocalQueueBinding queue2Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2)));
+      LocalQueueBinding sfQueueBinding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(sfQueueName)));
 
       long timeout = 5000;
       long start = System.currentTimeMillis();
@@ -412,7 +412,7 @@ public class ScaleDownTest extends ClusterTestBase {
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName, null);
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
@@ -453,7 +453,7 @@ public class ScaleDownTest extends ClusterTestBase {
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName, null);
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
@@ -476,17 +476,17 @@ public class ScaleDownTest extends ClusterTestBase {
       // send messages to node 0
       sendAMQPMessages(addressName, TEST_SIZE, false);
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getBindable()).getMessageCount(), 2);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getBindable()).getMessageCount(), 2);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount(), 2);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount(), 2);
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName2))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getBindable()).getMessageCount(), 2);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName2))).getBindable()).getMessageCount(), 2);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount(), 2);
+      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount(), 2);
 
       // get the 1 message from queue 1
       addConsumer(0, 1, queueName1, null);
@@ -635,7 +635,7 @@ public class ScaleDownTest extends ClusterTestBase {
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!servers[0].getPagingManager().getPageStore(SimpleString.of(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
             ClientMessage message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
@@ -673,7 +673,7 @@ public class ScaleDownTest extends ClusterTestBase {
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!servers[0].getPagingManager().getPageStore(SimpleString.of(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
             ClientMessage message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
@@ -714,9 +714,9 @@ public class ScaleDownTest extends ClusterTestBase {
       for (int i = 0; i < TEST_SIZE; i++) {
          Message message = session.createMessage(false);
          if (i % 2 == 0)
-            message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString("0"));
+            message.putStringProperty(ClusterTestBase.FILTER_PROP, SimpleString.of("0"));
          else
-            message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString("1"));
+            message.putStringProperty(ClusterTestBase.FILTER_PROP, SimpleString.of("1"));
          producer.send(message);
       }
       session.commit();
@@ -746,9 +746,9 @@ public class ScaleDownTest extends ClusterTestBase {
 
    @TestTemplate
    public void testScaleDownMessageWithAutoCreatedDLAResources() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString queueName = new SimpleString("q1");
-      final SimpleString addressName = new SimpleString("q1");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString queueName = SimpleString.of("q1");
+      final SimpleString addressName = SimpleString.of("q1");
       final String sampleText = "Put me on DLA";
 
       //Set up resources for Auto-created DLAs
@@ -807,9 +807,9 @@ public class ScaleDownTest extends ClusterTestBase {
 
    @TestTemplate
    public void testScaleDownPagedMessageWithMultipleAutoCreatedDLAResources() throws Exception {
-      final SimpleString dla = new SimpleString("DLA");
-      final SimpleString qName = new SimpleString("Q");
-      final SimpleString adName = new SimpleString("ADDR");
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("Q");
+      final SimpleString adName = SimpleString.of("ADDR");
       final String sampleText = "Put me on DLQ";
       final int messageCount = 10;
       final int numQueues = 2;

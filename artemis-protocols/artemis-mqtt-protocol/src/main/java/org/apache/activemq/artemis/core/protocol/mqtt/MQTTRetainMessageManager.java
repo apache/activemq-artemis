@@ -66,7 +66,7 @@ public class MQTTRetainMessageManager {
    void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
       // The address filter that matches all retained message queues.
       String retainAddress = MQTTUtil.getCoreRetainAddressFromMqttTopic(address, session.getWildcardConfiguration());
-      BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
+      BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(SimpleString.of(retainAddress));
 
       // Iterate over all matching retain queues and add the queue
       Transaction tx = session.getServerSession().newTransaction();

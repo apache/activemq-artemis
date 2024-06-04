@@ -101,7 +101,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          assertFalse(((ActiveMQDestination) tempQueue).isCreated());
 
-         assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertFalse(conn.containsTemporaryQueue(SimpleString.of(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();
@@ -241,7 +241,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
 
-         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertNotNull(server.getAddressInfo(SimpleString.of(tempQueue.getQueueName())));
 
          server.stop();
 
@@ -251,7 +251,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          waitForServerToStart(server);
 
-         assertNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertNull(server.getAddressInfo(SimpleString.of(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();
@@ -289,7 +289,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
             assertFalse(((ServerSessionImpl)serverSession).cloneProducers().containsKey(temporaryQueue.getQueueName()));
          }
          Wait.assertTrue(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
       } finally {
          if (conn != null) {
             conn.close();
@@ -323,11 +323,11 @@ public class TemporaryDestinationTest extends JMSTestBase {
          // These next two assertions are here to validate the test itself
          // The queue and address should be found on the server while they still exist on the connection
          Wait.assertFalse(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-         Wait.assertFalse(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+         Wait.assertFalse(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
       }
 
       Wait.assertTrue(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
    }
 
    @Test

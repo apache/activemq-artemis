@@ -61,7 +61,7 @@ public final class ResourceNames {
    }
 
    private static SimpleString getRetroactiveResourceName(String prefix, String delimiter, SimpleString address, String resourceType) {
-      return SimpleString.toSimpleString(prefix.concat(address.toString()).concat(delimiter).concat(resourceType).concat(delimiter).concat(RETROACTIVE_SUFFIX));
+      return SimpleString.of(prefix.concat(address.toString()).concat(delimiter).concat(resourceType).concat(delimiter).concat(RETROACTIVE_SUFFIX));
    }
 
    public static boolean isRetroactiveResource(String prefix, SimpleString address) {

@@ -46,7 +46,7 @@ public class TypedPropertiesConcurrencyTest {
             try {
                countDownLatch.await();
                for (int h = 0; h < 100; h++) {
-                  props.putSimpleStringProperty(SimpleString.toSimpleString("S" + h), SimpleString.toSimpleString("hello"));
+                  props.putSimpleStringProperty(SimpleString.of("S" + h), SimpleString.of("hello"));
                }
                props.clear();
             } catch (ConcurrentModificationException t) {
@@ -94,7 +94,7 @@ public class TypedPropertiesConcurrencyTest {
             try {
                countDownLatch.await();
                for (int h = 0; h < 100; h++) {
-                  props.putSimpleStringProperty(SimpleString.toSimpleString("S" + h), SimpleString.toSimpleString("hello"));
+                  props.putSimpleStringProperty(SimpleString.of("S" + h), SimpleString.of("hello"));
                }
                props.getPropertyNames().clear();
             } catch (UnsupportedOperationException uoe) {
@@ -133,7 +133,7 @@ public class TypedPropertiesConcurrencyTest {
    @Test
    public void testEncodedSizeAfterClearIsSameAsNewTypedProperties() throws Exception {
       TypedProperties props = new TypedProperties();
-      props.putSimpleStringProperty(SimpleString.toSimpleString("helllllloooooo"), SimpleString.toSimpleString("raaaaaaaaaaaaaaaaaaaaaaaa"));
+      props.putSimpleStringProperty(SimpleString.of("helllllloooooo"), SimpleString.of("raaaaaaaaaaaaaaaaaaaaaaaa"));
 
       props.clear();
 
@@ -144,7 +144,7 @@ public class TypedPropertiesConcurrencyTest {
    @Test
    public void testMemoryOffsetAfterClearIsSameAsNewTypedProperties() throws Exception {
       TypedProperties props = new TypedProperties();
-      props.putSimpleStringProperty(SimpleString.toSimpleString("helllllloooooo"), SimpleString.toSimpleString("raaaaaaaaaaaaaaaaaaaaaaaa"));
+      props.putSimpleStringProperty(SimpleString.of("helllllloooooo"), SimpleString.of("raaaaaaaaaaaaaaaaaaaaaaaa"));
 
       props.clear();
 

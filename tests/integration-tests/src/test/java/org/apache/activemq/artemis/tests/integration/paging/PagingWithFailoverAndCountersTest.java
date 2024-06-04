@@ -267,7 +267,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                e.printStackTrace();
                fail(e.getMessage());
             }
-            Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.toSimpleString("cons2"));
+            Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.of("cons2"));
 
             while (isRunning(1)) {
                long count = getMessageCount(queue2);
@@ -349,7 +349,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       server.start();
 
       waitForServerToStart(server);
-      Queue queue = server.locateQueue(SimpleString.toSimpleString("cons2"));
+      Queue queue = server.locateQueue(SimpleString.of("cons2"));
 
       int messageCount = getMessageCount(queue);
 

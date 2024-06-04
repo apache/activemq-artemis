@@ -150,7 +150,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
          assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
-            SimpleString.toSimpleString(address)).getBindings().size() == 1));
+            SimpleString.of(address)).getBindings().size() == 1));
 
          producer1.send(session1.createTextMessage("hello"));
          Message message = consumer0.receive(1000);
@@ -322,7 +322,7 @@ public class FederatedAddressTest extends FederatedTestBase {
       String address2 = "fedOneWayDivertTest";
 
       if (addressFirst) {
-         getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+         getServer(0).addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
       }
 
       final FederationConfiguration federationConfiguration;
@@ -364,7 +364,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          MessageConsumer consumer0 = session0.createConsumer(queue0);
 
          if (!addressFirst) {
-            getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.MULTICAST));
+            getServer(0).addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
          }
 
          if (!divertBeforeConsumer) {
@@ -373,9 +373,9 @@ public class FederatedAddressTest extends FederatedTestBase {
                                          .setRoutingType(ComponentConfigurationRoutingType.ANYCAST));
          }
 
-         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1,
+         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1,
                                  1000, 100));
-         final QueueBinding remoteQueueBinding = (QueueBinding) getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address))
+         final QueueBinding remoteQueueBinding = (QueueBinding) getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address))
             .getBindings().iterator().next();
          Wait.assertEquals(1, () -> remoteQueueBinding.getQueue().getConsumerCount());
 
@@ -384,10 +384,10 @@ public class FederatedAddressTest extends FederatedTestBase {
 
          //Test consumer is cleaned up after divert destroyed
          if (destroyDivert) {
-            getServer(0).destroyDivert(SimpleString.toSimpleString(address + ":" + address2));
+            getServer(0).destroyDivert(SimpleString.of(address + ":" + address2));
          //Test consumer is cleaned up after queue destroyed
          } else {
-            getServer(0).destroyQueue(SimpleString.toSimpleString(address2), null, false);
+            getServer(0).destroyQueue(SimpleString.of(address2), null, false);
          }
          assertTrue(Wait.waitFor(() -> remoteQueueBinding.getQueue().getConsumerCount() == 0, 2000, 100));
       }
@@ -413,7 +413,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
          assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
-            SimpleString.toSimpleString(address)).getBindings().size() == 1, 2000, 100));
+            SimpleString.of(address)).getBindings().size() == 1, 2000, 100));
 
          producer.send(session1.createTextMessage("hello"));
 
@@ -479,7 +479,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          getServer(0).getFederationManager().deploy();
 
          Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
-            SimpleString.toSimpleString(address)).getBindings().size() == 1, 2000, 100);
+            SimpleString.of(address)).getBindings().size() == 1, 2000, 100);
 
          producer.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
@@ -511,7 +511,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          Topic topic0 = session0.createTopic(address);
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
-         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1);
+         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1);
 
          producer.send(session1.createTextMessage("hello"));
 
@@ -538,7 +538,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          topic1 = session1.createTopic(address);
          producer = session1.createProducer(topic1);
 
-         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1);
+         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1);
          producer.send(session1.createTextMessage("hello"));
 
          assertNotNull(consumer0.receive(1000));
@@ -570,7 +570,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          Topic topic0 = session0.createTopic(address);
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
-         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1);
+         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1);
 
          producer.send(session1.createTextMessage("hello"));
 
@@ -596,7 +596,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          topic0 =  session0.createTopic(address);
          consumer0 = session0.createConsumer(topic0);
 
-         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1);
+         Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1);
          producer.send(session1.createTextMessage("hello"));
 
          assertNotNull(consumer0.receive(1000));
@@ -643,8 +643,8 @@ public class FederatedAddressTest extends FederatedTestBase {
          MessageProducer producer2 = session2.createProducer(topic2);
          MessageConsumer consumer0 = session0.createConsumer(topic0);
 
-         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1));
-         assertTrue(Wait.waitFor(() -> getServer(2).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address)).getBindings().size() == 1));
+         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1));
+         assertTrue(Wait.waitFor(() -> getServer(2).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1));
 
          //Test producers being on broker 2 and consumer on broker 0, with broker 2 being in the middle of the chain.
          producer2.send(session2.createTextMessage("hello"));

@@ -167,8 +167,8 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
 
    @Test
    public void testPluginAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue2");
-      final SimpleString QUEUE = new SimpleString("queue2");
+      final SimpleString ADDRESS = SimpleString.of("queue2");
+      final SimpleString QUEUE = SimpleString.of("queue2");
 
       server.start();
       server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
@@ -239,8 +239,8 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
 
    @Test
    public void testPluginAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue1");
-      final SimpleString QUEUE = new SimpleString("queue1");
+      final SimpleString ADDRESS = SimpleString.of("queue1");
+      final SimpleString QUEUE = SimpleString.of("queue1");
 
       server.start();
 
@@ -343,7 +343,7 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
       server.start();
 
       // The address needs to exist already otherwise the "admin" permission is required to create it
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("topic1"), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("topic1"), RoutingType.MULTICAST));
 
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       try (Connection connection = cf.createConnection("third", "secret")) {

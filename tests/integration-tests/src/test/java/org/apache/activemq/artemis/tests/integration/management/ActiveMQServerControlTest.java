@@ -1231,7 +1231,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void mergeAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString("DLA"));
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLA"));
       String returnedSettings = serverControl.addAddressSettings("foo", addressSettings.toJSON());
       AddressSettings info = AddressSettings.fromJSON(returnedSettings);
       assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
@@ -1239,7 +1239,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getRedeliveryDelay(), 0);
 
 
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString("EA"));
+      addressSettings.setExpiryAddress(SimpleString.of("EA"));
       returnedSettings = serverControl.addAddressSettings("foo", addressSettings.toJSON());
       info = AddressSettings.fromJSON(returnedSettings);
       assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
@@ -1374,8 +1374,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean enableMetrics = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(DLA))
-              .setExpiryAddress(new SimpleString(expiryAddress))
+      addressSettings.setDeadLetterAddress(SimpleString.of(DLA))
+              .setExpiryAddress(SimpleString.of(expiryAddress))
               .setExpiryDelay(expiryDelay)
               .setDefaultLastValueQueue(lastValueQueue)
               .setMaxDeliveryAttempts(deliveryAttempts)
@@ -1398,12 +1398,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setConfigDeleteQueues(DeletionPolicy.valueOf(configDeleteQueues))
               .setConfigDeleteAddresses(DeletionPolicy.valueOf(configDeleteAddresses))
               .setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold)
-              .setDefaultLastValueKey(SimpleString.toSimpleString(defaultLastValueKey))
+              .setDefaultLastValueKey(SimpleString.of(defaultLastValueKey))
               .setDefaultNonDestructive(defaultNonDestructive)
               .setDefaultExclusiveQueue(defaultExclusiveQueue)
               .setDefaultGroupRebalance(defaultGroupRebalance)
               .setDefaultGroupBuckets(defaultGroupBuckets)
-              .setDefaultGroupFirstKey(SimpleString.toSimpleString(defaultGroupFirstKey))
+              .setDefaultGroupFirstKey(SimpleString.of(defaultGroupFirstKey))
               .setDefaultMaxConsumers(defaultMaxConsumers)
               .setDefaultPurgeOnNoConsumers(defaultPurgeOnNoConsumers)
               .setDefaultConsumersBeforeDispatch(defaultConsumersBeforeDispatch)
@@ -1419,11 +1419,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor)
               .setRetroactiveMessageCount(retroactiveMessageCount)
               .setAutoCreateDeadLetterResources(autoCreateDeadLetterResources)
-              .setDeadLetterQueuePrefix(SimpleString.toSimpleString(deadLetterQueuePrefix))
-              .setDeadLetterQueueSuffix(SimpleString.toSimpleString(deadLetterQueueSuffix))
+              .setDeadLetterQueuePrefix(SimpleString.of(deadLetterQueuePrefix))
+              .setDeadLetterQueueSuffix(SimpleString.of(deadLetterQueueSuffix))
               .setAutoCreateExpiryResources(autoCreateExpiryResources)
-              .setExpiryQueuePrefix(SimpleString.toSimpleString(expiryQueuePrefix))
-              .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
+              .setExpiryQueuePrefix(SimpleString.of(expiryQueuePrefix))
+              .setExpiryQueueSuffix(SimpleString.of(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
               .setEnableMetrics(enableMetrics);
@@ -1640,8 +1640,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean enableMetrics = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(DLA))
-              .setExpiryAddress(new SimpleString(expiryAddress))
+      addressSettings.setDeadLetterAddress(SimpleString.of(DLA))
+              .setExpiryAddress(SimpleString.of(expiryAddress))
               .setExpiryDelay(expiryDelay)
               .setDefaultLastValueQueue(lastValueQueue)
               .setMaxDeliveryAttempts(deliveryAttempts)
@@ -1664,12 +1664,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setConfigDeleteQueues(DeletionPolicy.valueOf(configDeleteQueues))
               .setConfigDeleteAddresses(DeletionPolicy.valueOf(configDeleteAddresses))
               .setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold)
-              .setDefaultLastValueKey(SimpleString.toSimpleString(defaultLastValueKey))
+              .setDefaultLastValueKey(SimpleString.of(defaultLastValueKey))
               .setDefaultNonDestructive(defaultNonDestructive)
               .setDefaultExclusiveQueue(defaultExclusiveQueue)
               .setDefaultGroupRebalance(defaultGroupRebalance)
               .setDefaultGroupBuckets(defaultGroupBuckets)
-              .setDefaultGroupFirstKey(SimpleString.toSimpleString(defaultGroupFirstKey))
+              .setDefaultGroupFirstKey(SimpleString.of(defaultGroupFirstKey))
               .setDefaultMaxConsumers(defaultMaxConsumers)
               .setDefaultPurgeOnNoConsumers(defaultPurgeOnNoConsumers)
               .setDefaultConsumersBeforeDispatch(defaultConsumersBeforeDispatch)
@@ -1685,11 +1685,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor)
               .setRetroactiveMessageCount(retroactiveMessageCount)
               .setAutoCreateDeadLetterResources(autoCreateDeadLetterResources)
-              .setDeadLetterQueuePrefix(SimpleString.toSimpleString(deadLetterQueuePrefix))
-              .setDeadLetterQueueSuffix(SimpleString.toSimpleString(deadLetterQueueSuffix))
+              .setDeadLetterQueuePrefix(SimpleString.of(deadLetterQueuePrefix))
+              .setDeadLetterQueueSuffix(SimpleString.of(deadLetterQueueSuffix))
               .setAutoCreateExpiryResources(autoCreateExpiryResources)
-              .setExpiryQueuePrefix(SimpleString.toSimpleString(expiryQueuePrefix))
-              .setExpiryQueueSuffix(SimpleString.toSimpleString(expiryQueueSuffix))
+              .setExpiryQueuePrefix(SimpleString.of(expiryQueuePrefix))
+              .setExpiryQueueSuffix(SimpleString.of(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
               .setEnableMetrics(enableMetrics);
@@ -2156,7 +2156,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListPreparedTransactionDetails() throws Exception {
-      SimpleString atestq = new SimpleString("BasicXaTestq");
+      SimpleString atestq = SimpleString.of("BasicXaTestq");
       Xid xid = newXID();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2231,7 +2231,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListPreparedTransactionDetailsOnConsumer() throws Exception {
-      SimpleString atestq = new SimpleString("BasicXaTestq");
+      SimpleString atestq = SimpleString.of("BasicXaTestq");
       Xid xid = newXID();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2284,7 +2284,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListPreparedTransactionDetailsAsHTML() throws Exception {
-      SimpleString atestq = new SimpleString("BasicXaTestq");
+      SimpleString atestq = SimpleString.of("BasicXaTestq");
       Xid xid = newXID();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2327,8 +2327,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCommitPreparedTransactions() throws Exception {
-      SimpleString recQueue = new SimpleString("BasicXaTestqRec");
-      SimpleString sendQueue = new SimpleString("BasicXaTestqSend");
+      SimpleString recQueue = SimpleString.of("BasicXaTestqRec");
+      SimpleString sendQueue = SimpleString.of("BasicXaTestqSend");
 
       byte[] globalTransactionId = UUIDGenerator.getInstance().generateStringUUID().getBytes();
       Xid xid = new XidImpl("xa1".getBytes(), 1, globalTransactionId);
@@ -2446,9 +2446,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       // flush executors on queues so we can get precise number of messages
-      Queue queue1 = server.locateQueue(SimpleString.toSimpleString(random1));
+      Queue queue1 = server.locateQueue(SimpleString.of(random1));
       queue1.flushExecutor();
-      Queue queue2 = server.locateQueue(SimpleString.toSimpleString(random1));
+      Queue queue2 = server.locateQueue(SimpleString.of(random1));
       queue2.flushExecutor();
 
       assertEquals(2, serverControl.getTotalMessageCount());
@@ -2587,8 +2587,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String random2 = RandomUtil.randomString();
 
       ActiveMQServerControl serverControl = createManagementControl();
-      QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random1), SimpleString.toSimpleString(random1), RoutingType.ANYCAST, mbeanServer);
-      QueueControl queueControl2 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random2), SimpleString.toSimpleString(random2), RoutingType.ANYCAST, mbeanServer);
+      QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.of(random1), SimpleString.of(random1), RoutingType.ANYCAST, mbeanServer);
+      QueueControl queueControl2 = ManagementControlHelper.createQueueControl(SimpleString.of(random2), SimpleString.of(random2), RoutingType.ANYCAST, mbeanServer);
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
@@ -2670,7 +2670,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConsumersAsJSON() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       final String filter = "x = 1";
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2685,7 +2685,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
       addClientConsumer(session.createConsumer(queueName));
       Thread.sleep(100); // We check the timestamp for the creation time. We need to make sure it's different
-      addClientConsumer(session.createConsumer(queueName, SimpleString.toSimpleString(filter), true));
+      addClientConsumer(session.createConsumer(queueName, SimpleString.of(filter), true));
 
       String jsonString = serverControl.listConsumersAsJSON(factory.getConnection().getID().toString());
       logger.debug(jsonString);
@@ -2731,7 +2731,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSON() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2819,7 +2819,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONTXCommit() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2908,7 +2908,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONTXCommitAck() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -2977,7 +2977,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONTXRollback() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -3097,7 +3097,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONCancel() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -3168,7 +3168,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONNoTX() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -3219,7 +3219,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONXACommit() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -3304,7 +3304,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllConsumersAsJSONXARollback() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -3390,7 +3390,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListSessionsAsJSON() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
          server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
@@ -3449,7 +3449,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllSessionsAsJSON() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
          server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
@@ -3496,7 +3496,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAllSessionsAsJSONWithJMS() throws Exception {
-      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
          server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
@@ -3522,9 +3522,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListQueues() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("my_queue_two");
-      SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("my_queue_two");
+      SimpleString queueName3 = SimpleString.of("other_queue_three");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -3609,15 +3609,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListQueuesOrder() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_1");
-      SimpleString queueName2 = new SimpleString("my_queue_2");
-      SimpleString queueName3 = new SimpleString("my_queue_3");
+      SimpleString queueName1 = SimpleString.of("my_queue_1");
+      SimpleString queueName2 = SimpleString.of("my_queue_2");
+      SimpleString queueName3 = SimpleString.of("my_queue_3");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, new SimpleString("filter1"),null,true,
+         server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, SimpleString.of("filter1"),null,true,
                             false, false,20,false,false);
       } else {
          server.createQueue(new QueueConfiguration(queueName1).setRoutingType(RoutingType.ANYCAST).setFilterString("filter1").setMaxConsumers(20).setAutoCreateAddress(false));
@@ -3625,7 +3625,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Thread.sleep(500);
       server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, new SimpleString("filter3"), null,true,
+         server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, SimpleString.of("filter3"), null,true,
                             false, true,40,false,false);
       } else {
          server.createQueue(new QueueConfiguration(queueName2).setRoutingType(RoutingType.ANYCAST).setFilterString("filter3").setAutoCreated(true).setMaxConsumers(40).setAutoCreateAddress(false));
@@ -3633,7 +3633,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Thread.sleep(500);
       server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  new SimpleString("filter0"),null,true,
+         server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  SimpleString.of("filter0"),null,true,
                             false, false,10,false,false);
       } else {
          server.createQueue(new QueueConfiguration(queueName3).setRoutingType(RoutingType.ANYCAST).setFilterString("filter0").setMaxConsumers(10).setAutoCreateAddress(false));
@@ -3734,10 +3734,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListQueuesNumericFilter() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("my_queue_two");
-      SimpleString queueName3 = new SimpleString("one_consumer_queue_three");
-      SimpleString queueName4 = new SimpleString("my_queue_four");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("my_queue_two");
+      SimpleString queueName3 = SimpleString.of("one_consumer_queue_three");
+      SimpleString queueName4 = SimpleString.of("my_queue_four");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -3890,10 +3890,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListQueuesNumericFilterInvalid() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("one_consumer_queue_two");
-      SimpleString queueName3 = new SimpleString("one_consumer_queue_three");
-      SimpleString queueName4 = new SimpleString("my_queue_four");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("one_consumer_queue_two");
+      SimpleString queueName3 = SimpleString.of("one_consumer_queue_three");
+      SimpleString queueName4 = SimpleString.of("my_queue_four");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4004,14 +4004,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListAddresses() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("my_queue_two");
-      SimpleString queueName3 = new SimpleString("other_queue_three");
-      SimpleString queueName4 = new SimpleString("other_queue_four");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("my_queue_two");
+      SimpleString queueName3 = SimpleString.of("other_queue_three");
+      SimpleString queueName4 = SimpleString.of("other_queue_four");
 
-      SimpleString addressName1 = new SimpleString("my_address_one");
-      SimpleString addressName2 = new SimpleString("my_address_two");
-      SimpleString addressName3 = new SimpleString("other_address_three");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+      SimpleString addressName2 = SimpleString.of("my_address_two");
+      SimpleString addressName3 = SimpleString.of("other_address_three");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4096,14 +4096,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListAddressOrder() throws Exception {
 
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("my_queue_two");
-      SimpleString queueName3 = new SimpleString("other_queue_three");
-      SimpleString queueName4 = new SimpleString("other_queue_four");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("my_queue_two");
+      SimpleString queueName3 = SimpleString.of("other_queue_three");
+      SimpleString queueName4 = SimpleString.of("other_queue_four");
 
-      SimpleString addressName1 = new SimpleString("my_address_1");
-      SimpleString addressName2 = new SimpleString("my_address_2");
-      SimpleString addressName3 = new SimpleString("my_address_3");
+      SimpleString addressName1 = SimpleString.of("my_address_1");
+      SimpleString addressName2 = SimpleString.of("my_address_2");
+      SimpleString addressName3 = SimpleString.of("my_address_3");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4159,11 +4159,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConsumers() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString queueName2 = new SimpleString("my_queue_two");
-      SimpleString queueName3 = new SimpleString("other_queue_three");
-      SimpleString addressName1 = new SimpleString("my_address_one");
-      SimpleString addressName2 = new SimpleString("my_address_two");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString queueName2 = SimpleString.of("my_queue_two");
+      SimpleString queueName3 = SimpleString.of("other_queue_three");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+      SimpleString addressName2 = SimpleString.of("my_address_two");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4268,8 +4268,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConsumersOrder() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4321,8 +4321,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListSessions() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4437,8 +4437,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConnections() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4580,8 +4580,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducers() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4641,8 +4641,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersLargeMessages() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4702,8 +4702,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersAsJSONAgainstServer() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4757,8 +4757,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersAgainstServer() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4820,7 +4820,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    public void testListProducersJMS(ConnectionFactory connectionFactory, String protocol) throws Exception {
       String queueName = "my_queue_one";
-      SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
+      SimpleString ssQueueName = SimpleString.of(queueName);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(ssQueueName, RoutingType.ANYCAST));
@@ -4876,7 +4876,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListProducersJMSLegacy() throws Exception {
       String queueName = "my_queue_one";
-      SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
+      SimpleString ssQueueName = SimpleString.of(queueName);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(ssQueueName, RoutingType.ANYCAST));
@@ -4972,9 +4972,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListFqqnProducersJMSLegacy() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
-      SimpleString FQQNName = new SimpleString(addressName1 + "::" + queueName1);
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+      SimpleString FQQNName = SimpleString.of(addressName1 + "::" + queueName1);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(FQQNName, RoutingType.ANYCAST));
@@ -5050,7 +5050,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListAnonProducersJMSLegacy() throws Exception {
       String queueName = "my_queue_one";
-      SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
+      SimpleString ssQueueName = SimpleString.of(queueName);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(ssQueueName, RoutingType.ANYCAST));
@@ -5151,7 +5151,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
    public void testListProducersJMSMultipleProducers(ConnectionFactory connectionFactory, String protocol) throws Exception {
       String queueName = "my_queue_one";
-      SimpleString ssQueueName = SimpleString.toSimpleString(queueName);
+      SimpleString ssQueueName = SimpleString.of(queueName);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(ssQueueName, RoutingType.ANYCAST));
@@ -5239,9 +5239,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String queueName1 = "my_queue_one";
       String queueName2 = "my_queue_two";
       String queueName3 = "my_queue_three";
-      SimpleString ssQueueName1 = SimpleString.toSimpleString(queueName1);
-      SimpleString ssQueueName2 = SimpleString.toSimpleString(queueName2);
-      SimpleString ssQueueName3 = SimpleString.toSimpleString(queueName3);
+      SimpleString ssQueueName1 = SimpleString.of(queueName1);
+      SimpleString ssQueueName2 = SimpleString.of(queueName2);
+      SimpleString ssQueueName3 = SimpleString.of(queueName3);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(ssQueueName1, RoutingType.ANYCAST));
@@ -5320,7 +5320,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       testListProducersJMSTopic(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), "OPENWIRE");
    }
    public void testListProducersJMSTopic(ConnectionFactory connectionFactory, String protocol) throws Exception {
-      SimpleString topicName = SimpleString.toSimpleString("my-topic");
+      SimpleString topicName = SimpleString.of("my-topic");
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(topicName, RoutingType.MULTICAST));
@@ -5387,9 +5387,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersFQQN() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
-      SimpleString FQQNName = new SimpleString(addressName1 + "::" + queueName1);
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+      SimpleString FQQNName = SimpleString.of(addressName1 + "::" + queueName1);
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
@@ -5470,8 +5470,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    public void testListProducersMessageCountsJMS(ConnectionFactory connectionFactory, String protocol) throws Exception {
       String myQueue = "my_queue";
-      SimpleString queueName1 = new SimpleString(myQueue);
-      SimpleString addressName1 = new SimpleString(myQueue);
+      SimpleString queueName1 = SimpleString.of(myQueue);
+      SimpleString addressName1 = SimpleString.of(myQueue);
 
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -5519,8 +5519,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersMessageCounts() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -5575,8 +5575,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListProducersMessageCounts2() throws Exception {
-      SimpleString queueName1 = new SimpleString("my_queue_one");
-      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -5648,7 +5648,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             session.createQueue(new QueueConfiguration(name1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
          }
 
-         Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
+         Queue serverQueue = server.locateQueue(SimpleString.of(name1));
          assertFalse(serverQueue.isDurable());
          ClientProducer producer1 = session.createProducer(name1);
          sendMessagesWithPredefinedSize(30, session, producer1, MESSAGE_SIZE);
@@ -5688,7 +5688,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             session.createQueue(new QueueConfiguration(name2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
          }
 
-         Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
+         Queue serverQueue = server.locateQueue(SimpleString.of(name1));
          assertFalse(serverQueue.isDurable());
 
          ClientProducer producer1 = session.createProducer(name1);
@@ -6157,7 +6157,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
-      SimpleString address = new SimpleString("testQueue");
+      SimpleString address = SimpleString.of("testQueue");
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
       Configuration config = createDefaultInVMConfig(2).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setSecurityEnabled(false);

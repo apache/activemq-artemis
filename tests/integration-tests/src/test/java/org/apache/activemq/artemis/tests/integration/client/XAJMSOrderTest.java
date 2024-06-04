@@ -86,7 +86,7 @@ public class XAJMSOrderTest extends JMSTestBase {
    @Override
    protected void extraServerConfig(ActiveMQServer server) {
       if (exclusive) {
-         server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setDefaultExclusiveQueue(true));
+         server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setDefaultExclusiveQueue(true));
       }
    }
 

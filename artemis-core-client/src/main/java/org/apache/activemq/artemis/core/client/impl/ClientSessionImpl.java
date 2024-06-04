@@ -276,7 +276,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createQueue(final String address,
                            final String queueName,
                            final boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), durable);
+      createQueue(SimpleString.of(address), SimpleString.of(queueName), durable);
    }
 
    @Override
@@ -346,9 +346,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final String queueName,
                            final String filterString,
                            final boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+      createQueue(SimpleString.of(address),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable);
    }
 
@@ -367,7 +367,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final String filterString,
                            final boolean durable,
                            final boolean autoCreated) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), durable, autoCreated);
+      createQueue(SimpleString.of(address), SimpleString.of(queueName), SimpleString.of(filterString), durable, autoCreated);
    }
 
    @Override
@@ -377,7 +377,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+      createTemporaryQueue(SimpleString.of(address), SimpleString.of(queueName));
    }
 
    @Override
@@ -391,7 +391,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createTemporaryQueue(final String address,
                                     final String queueName,
                                     final String filter) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
+      createTemporaryQueue(SimpleString.of(address), SimpleString.of(queueName), SimpleString.of(filter));
    }
 
 
@@ -421,10 +421,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
+      createQueue(SimpleString.of(address),
                   routingType,
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable,
                   autoCreated);
    }
@@ -493,10 +493,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
+      createQueue(SimpleString.of(address),
                   routingType,
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable,
                   autoCreated,
                   maxConsumers,
@@ -514,7 +514,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final RoutingType routingType, final String queueName) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName));
+      createTemporaryQueue(SimpleString.of(address), routingType, SimpleString.of(queueName));
    }
 
    @Deprecated
@@ -564,7 +564,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final RoutingType routingType, final String queueName, final String filter) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
+      createTemporaryQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), SimpleString.of(filter));
    }
 
    /**
@@ -679,7 +679,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), durable);
+      createQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), durable);
    }
 
    /**
@@ -693,8 +693,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Deprecated
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
-      internalCreateQueue(SimpleString.toSimpleString(address),
-                          SimpleString.toSimpleString(queueName),
+      internalCreateQueue(SimpleString.of(address),
+                          SimpleString.of(queueName),
                           false,
                           false,
                           new QueueAttributes()
@@ -766,7 +766,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter),
+      createQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), SimpleString.of(filter),
                   durable);
    }
 
@@ -785,7 +785,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void deleteQueue(final String queueName) throws ActiveMQException {
-      deleteQueue(SimpleString.toSimpleString(queueName));
+      deleteQueue(SimpleString.of(queueName));
    }
 
    @Override
@@ -815,7 +815,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName));
+      return createConsumer(SimpleString.of(queueName));
    }
 
    @Override
@@ -826,12 +826,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final String address, final String queueName) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+      createQueue(SimpleString.of(address), SimpleString.of(queueName));
    }
 
    @Override
    public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString));
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString));
    }
 
    @Override
@@ -859,12 +859,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public ClientConsumer createConsumer(final String queueName,
                                         final String filterString,
                                         final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), browseOnly);
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString), browseOnly);
    }
 
    @Override
    public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
+      return createConsumer(SimpleString.of(queueName), null, browseOnly);
    }
 
    @Override
@@ -907,7 +907,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final int windowSize,
                                         final int maxRate,
                                         final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), windowSize, maxRate, browseOnly);
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString), windowSize, maxRate, browseOnly);
    }
 
    @Override
@@ -922,7 +922,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public ClientProducer createProducer(final String address) throws ActiveMQException {
-      return createProducer(SimpleString.toSimpleString(address));
+      return createProducer(SimpleString.of(address));
    }
 
    @Override
@@ -931,7 +931,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException {
-      return createProducer(SimpleString.toSimpleString(address), rate);
+      return createProducer(SimpleString.of(address), rate);
    }
 
    @Override
@@ -2040,7 +2040,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                                       maxRate == -1 ? null : new TokenBucketLimiterImpl(maxRate, false),
                                                                       autoCommitSends && blockOnNonDurableSend,
                                                                       autoCommitSends && blockOnDurableSend,
-                                                                      autoGroup, groupID == null ? null : new SimpleString(groupID),
+                                                                      autoGroup, groupID == null ? null : SimpleString.of(groupID),
                                                                       minLargeMessageSize,
                                                                       sessionContext,
                                                                       producerIDs.incrementAndGet());

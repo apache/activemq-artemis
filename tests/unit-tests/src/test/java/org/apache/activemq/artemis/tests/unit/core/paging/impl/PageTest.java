@@ -124,7 +124,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       assertEquals(10, page.getPageId());
 
@@ -132,7 +132,7 @@ public class PageTest extends ActiveMQTestBase {
 
       assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       final long startMessageID = 1;
 
@@ -143,7 +143,7 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page.read(storageManager, largeMessages);
 
@@ -160,7 +160,7 @@ public class PageTest extends ActiveMQTestBase {
       }
 
       if (!largeMessages) {
-         Page tmpPage = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+         Page tmpPage = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
          assertEquals(0, tmpPage.read(storageManager, true).size());
          assertEquals(numberOfElements, tmpPage.getNumberOfMessages());
       }
@@ -181,7 +181,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), new NullStorageManager(), factory, file, 10);
 
       assertEquals(10, page.getPageId());
 
@@ -189,7 +189,7 @@ public class PageTest extends ActiveMQTestBase {
 
       assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       addPageElements(simpleDestination, page, numberOfElements, 1);
 
@@ -222,7 +222,7 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      Page page1 = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page page1 = new Page(SimpleString.of("something"), new NullStorageManager(), factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page1.read(new NullStorageManager());
 
@@ -264,7 +264,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       assertEquals(10, page.getPageId());
 
@@ -272,7 +272,7 @@ public class PageTest extends ActiveMQTestBase {
 
       assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       final long startMessageID = 1;
 
@@ -284,7 +284,7 @@ public class PageTest extends ActiveMQTestBase {
       page.close(false, false);
 
       file = factory.createSequentialFile("00010.page");
-      page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page.getMessages();
 

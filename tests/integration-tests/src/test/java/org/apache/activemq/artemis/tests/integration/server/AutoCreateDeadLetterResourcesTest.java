@@ -46,9 +46,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString dla = new SimpleString("myDLA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString dla = SimpleString.of("myDLA");
 
    private ActiveMQServer server;
 
@@ -81,7 +81,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreationOfDeadLetterResourcesWithEmptyDLA() throws Exception {
-      testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString.toSimpleString(""));
+      testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString.of(""));
    }
 
    private void testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString dla) throws Exception {
@@ -235,8 +235,8 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
    @Test
    public void testMovedMessage() throws Exception {
       SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
-      final SimpleString moveFromAddress = new SimpleString("moveFromAddress");
-      final SimpleString moveFromQueue = new SimpleString("moveFromQueue");
+      final SimpleString moveFromAddress = SimpleString.of("moveFromAddress");
+      final SimpleString moveFromQueue = SimpleString.of("moveFromQueue");
       server.createQueue(new QueueConfiguration(moveFromQueue).setAddress(moveFromAddress).setRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
 

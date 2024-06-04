@@ -60,12 +60,12 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSend() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString adName = new SimpleString("ad1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString adName = SimpleString.of("ad1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(adName);
@@ -98,13 +98,13 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
       long fdBaseline = ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
       final int SIZE = 2 * 1024;
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString adName = new SimpleString("ad1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString adName = SimpleString.of("ad1");
 
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
       for (int i = 0; i < 10; i++) {
@@ -130,11 +130,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    // HORNETQ- 1084
    @Test
    public void testBasicSendWithDLAButNoBinding() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      //SimpleString dlq = new SimpleString("DLQ1");
+      //SimpleString dlq = SimpleString.of("DLQ1");
       //clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
@@ -156,11 +156,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSend2times() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
@@ -191,11 +191,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testReceiveWithListeners() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
@@ -240,12 +240,12 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToMultipleQueues() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      SimpleString dlq2 = new SimpleString("DLQ2");
+      SimpleString dlq = SimpleString.of("DLQ1");
+      SimpleString dlq2 = SimpleString.of("DLQ2");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(dlq2).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
@@ -278,7 +278,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToNoQueue() throws Exception {
-      SimpleString qName = new SimpleString("q1");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
@@ -301,11 +301,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    public void testHeadersSet() throws Exception {
       final int MAX_DELIVERIES = 16;
       final int NUM_MESSAGES = 5;
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(MAX_DELIVERIES).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
+      SimpleString dlq = SimpleString.of("DLQ1");
       clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ServerLocator locator = createInVMNonHALocator();
@@ -453,7 +453,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       int defaultDeliveryAttempt = 3;
       int specificeDeliveryAttempt = defaultDeliveryAttempt + 1;
 
-      SimpleString address = new SimpleString("prefix.address");
+      SimpleString address = SimpleString.of("prefix.address");
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString defaultDeadLetterAddress = RandomUtil.randomSimpleString();
       SimpleString defaultDeadLetterQueue = RandomUtil.randomSimpleString();

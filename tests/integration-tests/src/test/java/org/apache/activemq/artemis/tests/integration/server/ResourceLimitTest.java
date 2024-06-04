@@ -53,7 +53,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       super.setUp();
 
       ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
-      resourceLimitSettings.setMatch(SimpleString.toSimpleString("myUser"));
+      resourceLimitSettings.setMatch(SimpleString.of("myUser"));
       resourceLimitSettings.setMaxConnections(1);
       resourceLimitSettings.setMaxQueues(1);
 

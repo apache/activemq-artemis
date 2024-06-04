@@ -28,7 +28,7 @@ public class PropertyExpression implements Expression {
    private final SimpleString name;
 
    public PropertyExpression(String name) {
-      this(SimpleString.toSimpleString(name));
+      this(SimpleString.of(name));
    }
 
    public PropertyExpression(SimpleString name) {

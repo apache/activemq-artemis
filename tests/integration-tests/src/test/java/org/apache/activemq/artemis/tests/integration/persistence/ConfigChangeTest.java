@@ -81,8 +81,8 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfigurations.add(addressConfiguration);
       configuration.setAddressConfigurations(addressConfigurations);
       server.start();
-      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.toSimpleString("myAddress")).getRoutingType());
-      assertEquals(RoutingType.MULTICAST, server.locateQueue(SimpleString.toSimpleString("myQueue")).getRoutingType());
+      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.of("myAddress")).getRoutingType());
+      assertEquals(RoutingType.MULTICAST, server.locateQueue(SimpleString.of("myQueue")).getRoutingType());
 
       //Ensures the queue isnt detroyed by checking message sent before change is consumable after (e.g. no message loss)
       try (JMSContext context = connectionFactory.createContext()) {
@@ -119,7 +119,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
          context.createProducer().setProperty("x", "x").send(context.createQueue("myAddress"), "hello");
       }
 
-      long originalBindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
+      long originalBindingId = server.getPostOffice().getBinding(SimpleString.of("myQueue")).getID();
 
       server.stop();
 
@@ -135,7 +135,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       configuration.setAddressConfigurations(addressConfigurations);
 
       server.start();
-      assertEquals(filter2, server.locateQueue(SimpleString.toSimpleString("myQueue")).getFilter().getFilterString().toString());
+      assertEquals(filter2, server.locateQueue(SimpleString.of("myQueue")).getFilter().getFilterString().toString());
 
       //Ensures the queue is not destroyed by checking message sent before change is consumable after (e.g. no message loss)
       try (JMSContext context = connectionFactory.createContext()) {
@@ -143,7 +143,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
          assertEquals("hello", ((TextMessage) message).getText());
       }
 
-      long bindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
+      long bindingId = server.getPostOffice().getBinding(SimpleString.of("myQueue")).getID();
       assertEquals(originalBindingId, bindingId, "Ensure the original queue is not destroyed by checking the binding id is the same");
 
       server.stop();

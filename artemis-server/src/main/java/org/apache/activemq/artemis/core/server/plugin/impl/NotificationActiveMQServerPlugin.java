@@ -175,9 +175,9 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
          try {
             String certSubjectDN = CertificateUtil.getCertSubjectDN(connection);
             final TypedProperties props = new TypedProperties();
-            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(connection.getID().toString()));
-            props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
-            props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(connection.getID().toString()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.of(certSubjectDN));
+            props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(connection.getRemoteAddress()));
 
             managementService.sendNotification(new Notification(null, type, props));
          } catch (Exception e) {

@@ -152,7 +152,7 @@ public class SendAckFailTest extends SpawnedTestBase {
             ClientSessionFactory sf = locator.createSessionFactory();
 
             ClientSession session = sf.createSession();
-            session.createAddress(SimpleString.toSimpleString("T1"), RoutingType.ANYCAST, true);
+            session.createAddress(SimpleString.of("T1"), RoutingType.ANYCAST, true);
             session.createQueue(new QueueConfiguration("T1").setRoutingType(RoutingType.ANYCAST));
 
             ClientProducer producer = session.createProducer("T1");

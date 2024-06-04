@@ -172,18 +172,18 @@ public class NotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       ClientConsumer consumer = mySession.createConsumer(queue);
-      SimpleString consumerName = SimpleString.toSimpleString(((ClientSessionInternal) mySession).getName());
+      SimpleString consumerName = SimpleString.of(((ClientSessionInternal) mySession).getName());
 
       ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
       assertEquals(CONSUMER_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       assertEquals(queue.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ROUTING_NAME).toString());
       assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       assertEquals(1, notifications[0].getObjectProperty(ManagementHelper.HDR_CONSUMER_COUNT));
-      assertEquals(SimpleString.toSimpleString("myUser"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_USER));
+      assertEquals(SimpleString.of("myUser"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_USER));
       assertNull(notifications[0].getSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER));
-      assertEquals(SimpleString.toSimpleString("invm:0"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
+      assertEquals(SimpleString.of("invm:0"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
       assertEquals(consumerName, notifications[0].getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME));
-      assertEquals(SimpleString.toSimpleString("unavailable"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
+      assertEquals(SimpleString.of("unavailable"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
       assertTrue(notifications[0].getTimestamp() >= start);
       assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
@@ -198,7 +198,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString filter = SimpleString.toSimpleString("");
+      SimpleString filter = SimpleString.of("");
       boolean durable = RandomUtil.randomBoolean();
 
       try (
@@ -256,7 +256,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
       ClientConsumer consumer = mySession.createConsumer(queue);
-      SimpleString sessionName = SimpleString.toSimpleString(((ClientSessionInternal) mySession).getName());
+      SimpleString sessionName = SimpleString.of(((ClientSessionInternal) mySession).getName());
 
       NotificationTest.flush(notifConsumer);
 
@@ -268,8 +268,8 @@ public class NotificationTest extends ActiveMQTestBase {
       assertEquals(queue.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ROUTING_NAME).toString());
       assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       assertEquals(0, notifications[0].getObjectProperty(ManagementHelper.HDR_CONSUMER_COUNT));
-      assertEquals(SimpleString.toSimpleString("myUser"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_USER));
-      assertEquals(SimpleString.toSimpleString("invm:0"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
+      assertEquals(SimpleString.of("myUser"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_USER));
+      assertEquals(SimpleString.of("invm:0"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
       assertEquals(sessionName, notifications[0].getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME));
       assertTrue(notifications[0].getTimestamp() >= start);
       assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
@@ -332,7 +332,7 @@ public class NotificationTest extends ActiveMQTestBase {
       assertEquals(SESSION_CREATED.toString(), notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       assertNotNull(notifications[1].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME));
       assertNotNull(notifications[1].getObjectProperty(ManagementHelper.HDR_SESSION_NAME));
-      assertEquals(SimpleString.toSimpleString("myUser"), notifications[1].getObjectProperty(ManagementHelper.HDR_USER));
+      assertEquals(SimpleString.of("myUser"), notifications[1].getObjectProperty(ManagementHelper.HDR_USER));
       assertTrue(notifications[1].getTimestamp() >= start);
       assertTrue((long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       assertEquals(notifications[1].getTimestamp(), (long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
@@ -348,7 +348,7 @@ public class NotificationTest extends ActiveMQTestBase {
       assertEquals(SESSION_CLOSED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       assertNotNull(notifications[0].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME));
       assertNotNull(notifications[0].getObjectProperty(ManagementHelper.HDR_SESSION_NAME));
-      assertEquals(SimpleString.toSimpleString("myUser"), notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
+      assertEquals(SimpleString.of("myUser"), notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
       assertTrue(notifications[0].getTimestamp() >= start);
       assertTrue((Long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
 

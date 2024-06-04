@@ -381,7 +381,7 @@ public class AmqpSupport {
             }
          }
 
-         return SimpleString.toSimpleString(queue);
+         return SimpleString.of(queue);
       }
    }
 }

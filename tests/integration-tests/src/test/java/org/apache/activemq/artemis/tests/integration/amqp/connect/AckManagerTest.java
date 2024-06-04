@@ -92,7 +92,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       String protocol = "AMQP";
 
-      SimpleString TOPIC_NAME = SimpleString.toSimpleString("tp" + RandomUtil.randomString());
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
 
       server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
 
@@ -300,7 +300,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       String protocol = "AMQP";
 
-      SimpleString TOPIC_NAME = SimpleString.toSimpleString("tp" + RandomUtil.randomString());
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
 
       server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
 

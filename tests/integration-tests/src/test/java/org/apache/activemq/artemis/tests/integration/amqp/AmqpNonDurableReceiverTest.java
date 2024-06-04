@@ -46,7 +46,7 @@ public class AmqpNonDurableReceiverTest extends AmqpClientTestSupport {
 
       AmqpSession session = connection.createSession();
 
-      SimpleString simpleTopicName = SimpleString.toSimpleString(getTopicName());
+      SimpleString simpleTopicName = SimpleString.of(getTopicName());
       final int bindingsBefore = server.getPostOffice().getBindingsForAddress(simpleTopicName).getBindings().size();
 
 

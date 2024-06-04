@@ -111,7 +111,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    }
 
    private void internalTestRetroactiveResourceCreation(String address, String match) throws Exception {
-      final SimpleString addressName = SimpleString.toSimpleString(address);
+      final SimpleString addressName = SimpleString.of(address);
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
@@ -128,7 +128,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testRetroactiveResourceRemoval() throws Exception {
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
@@ -152,8 +152,8 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    public void testRetroactiveAddress() throws Exception {
       final int COUNT = 15;
       final int LOOPS = 25;
-      final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName = SimpleString.of("simpleQueue");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(COUNT));
       server.addAddressInfo(new AddressInfo(addressName));
@@ -190,8 +190,8 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    @TestTemplate
    public void testRestart() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
-      final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName1 = SimpleString.of("simpleQueue1");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
       server.addAddressInfo(new AddressInfo(addressName));
@@ -243,7 +243,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    @TestTemplate
    public void testUpdateAfterRestart() throws Exception {
       final int COUNT = 10;
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(COUNT));
@@ -263,8 +263,8 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    @TestTemplate
    public void testMulticast() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
-      final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName1 = SimpleString.of("simpleQueue1");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
       server.addAddressInfo(new AddressInfo(addressName));
@@ -295,7 +295,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testJMSTopicSubscribers() throws Exception {
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final int COUNT = 10;
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(COUNT));
@@ -328,7 +328,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    @TestTemplate
    public void testUpdateAddressSettings() throws Exception {
       final int COUNT = 10;
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(COUNT));
@@ -344,9 +344,9 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    @TestTemplate
    public void testRoutingTypes() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
-      final SimpleString multicastQueue = SimpleString.toSimpleString("multicastQueue");
-      final SimpleString anycastQueue = SimpleString.toSimpleString("anycastQueue");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString multicastQueue = SimpleString.of("multicastQueue");
+      final SimpleString anycastQueue = SimpleString.of("anycastQueue");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
@@ -402,8 +402,8 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testFilter() throws Exception {
-      final SimpleString queueName1 = SimpleString.toSimpleString("simpleQueue1");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName1 = SimpleString.of("simpleQueue1");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
       server.addAddressInfo(new AddressInfo(addressName));
@@ -435,7 +435,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testAddressSettingOnRetroactiveResource() throws Exception {
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
       server.addAddressInfo(new AddressInfo(addressName));
@@ -446,9 +446,9 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testPaging() throws Exception {
-      final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
-      final SimpleString randomQueueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName = SimpleString.of("simpleQueue");
+      final SimpleString randomQueueName = SimpleString.of(UUID.randomUUID().toString());
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       final int MESSAGE_COUNT = 20;
       final int MESSAGE_SIZE = 1024;

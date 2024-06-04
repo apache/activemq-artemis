@@ -387,7 +387,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
             String[] keyValuePair = element.split("=");
             if (keyValuePair.length == 2) {
                if (keyValuePair[0].equals("user")) {
-                  user = SimpleString.toSimpleString(keyValuePair[1]);
+                  user = SimpleString.of(keyValuePair[1]);
                }
             }
          }
@@ -555,6 +555,6 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       if (user != null) {
          metadata.append("user=").append(user).append(";");
       }
-      return SimpleString.toSimpleString(metadata.toString());
+      return SimpleString.of(metadata.toString());
    }
 }

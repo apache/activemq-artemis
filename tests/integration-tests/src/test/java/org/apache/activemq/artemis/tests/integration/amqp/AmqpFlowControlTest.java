@@ -104,7 +104,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
 
       try {
-         AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+         AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.of(getQueueName()), mBeanServer);
          addressControl.block();
          AmqpSession session = connection.createSession();
          final AmqpSender sender = session.createSender(getQueueName());
@@ -148,7 +148,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
          // This should be -1. A single message is buffered in the client, and 0 credit has been allocated.
          assertTrue(sender.getSender().getCredit() == -1);
 
-         long addressSize = server.getPagingManager().getPageStore(new SimpleString(getQueueName())).getAddressSize();
+         long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();
          assertTrue(addressSize >= MAX_SIZE_BYTES && addressSize <= MAX_SIZE_BYTES_REJECT_THRESHOLD);
       } finally {
          connection.close();
@@ -174,7 +174,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       assertTrue(e instanceof ResourceAllocationException);
       assertTrue(e.getMessage().contains("resource-limit-exceeded"));
 
-      long addressSize = server.getPagingManager().getPageStore(new SimpleString(getQueueName())).getAddressSize();
+      long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();
       assertTrue(addressSize >= MAX_SIZE_BYTES_REJECT_THRESHOLD);
    }
 
@@ -189,7 +189,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       final CountDownLatch running = new CountDownLatch(1);
       final CountDownLatch done = new CountDownLatch(1);
 
-      AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.of(getQueueName()), mBeanServer);
 
       assertTrue(addressControl.block(), "blocked ok");
 
