@@ -345,7 +345,7 @@ public final class BindingsImpl implements Bindings {
          } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
             context.clear().setReusable(false);
             final Binding theBinding = bindingsNameMap.get(String.valueOf(CompositeAddress.extractQueueName(message.getAddressSimpleString())));
-            if (theBinding != null) {
+            if (theBinding != null && (theBinding.getFilter() == null || theBinding.getFilter().match(message))) {
                theBinding.route(message, context);
             }
          } else {
