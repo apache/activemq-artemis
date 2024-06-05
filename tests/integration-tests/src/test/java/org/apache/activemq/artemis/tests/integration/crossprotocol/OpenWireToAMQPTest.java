@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -85,7 +84,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
 
    @SuppressWarnings("unchecked")
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessage() throws Exception {
       Connection connection = null;
       try {
@@ -130,7 +129,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
 
    @SuppressWarnings("unchecked")
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testByteArrayProperties() throws Exception {
       Connection connection = null;
       try {

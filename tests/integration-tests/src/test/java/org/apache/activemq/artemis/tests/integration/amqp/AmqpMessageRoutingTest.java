@@ -29,7 +29,6 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -57,7 +56,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAnycastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -77,7 +76,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAnycastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -97,7 +96,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMulticastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -117,7 +116,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMulticastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -144,7 +143,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
     * @throws Exception
     */
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRoutingExclusivity() throws Exception {
 
       // Create Address with both ANYCAST and MULTICAST enabled
@@ -182,19 +181,19 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSOpenWire() throws Throwable {
       testAMQPRouteMessageToJMS(createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSAMQP() throws Throwable {
       testAMQPRouteMessageToJMS(createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSCore() throws Throwable {
       testAMQPRouteMessageToJMS(createCoreConnection());
    }

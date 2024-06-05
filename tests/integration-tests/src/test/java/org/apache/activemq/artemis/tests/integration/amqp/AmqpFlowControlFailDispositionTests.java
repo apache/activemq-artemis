@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
@@ -79,7 +78,7 @@ public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testAddressFullDisposition() throws Exception {
       AmqpClient client = createAmqpClient(getBrokerAmqpConnectionURI());
       AmqpConnection connection = client.connect();

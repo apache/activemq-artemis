@@ -82,7 +82,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAcceptWithoutSettling() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -108,7 +108,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverReadMessage() throws Exception {
       sendMessages(getQueueName(), 1);
 
@@ -131,7 +131,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCoreBridge() throws Exception {
       server.getRemotingService().createAcceptor("acceptor", "vm://0").start();
       server.getConfiguration().addConnectorConfiguration("connector", "vm://0");
@@ -169,7 +169,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageDurableFalse() throws Exception {
       sendMessages(getQueueName(), 1, false);
 
@@ -194,7 +194,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageDurableTrue() throws Exception {
       assertNotNull(server.locateQueue(getQueueName()));
       sendMessages(getQueueName(), 1, true);
@@ -220,7 +220,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTwoQueueReceiversOnSameConnectionReadMessagesNoDispositions() throws Exception {
       int MSG_COUNT = 4;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -257,7 +257,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTwoQueueReceiversOnSameConnectionReadMessagesAcceptOnEach() throws Exception {
       int MSG_COUNT = 4;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -316,7 +316,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSecondReceiverOnQueueGetsAllUnconsumedMessages() throws Exception {
       int MSG_COUNT = 20;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -370,7 +370,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSimpleSendOneReceiveOne() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -402,7 +402,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendFilterAnnotation() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -442,7 +442,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCloseBusyReceiver() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -489,7 +489,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveWithJMSSelectorFilter() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -523,7 +523,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveWithJMSSelectorFilterOnJMSType() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -555,7 +555,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAdvancedLinkFlowControl() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -617,7 +617,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDispatchOrderWithPrefetchOfOne() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -693,7 +693,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveMessageAndRefillCreditBeforeAccept() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -728,7 +728,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveMessageAndRefillCreditBeforeAcceptOnQueueAsync() throws Exception {
       final AmqpClient client = createAmqpClient();
       final LinkedList<Throwable> errors = new LinkedList<>();
@@ -795,7 +795,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageDurabliltyFollowsSpec() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -839,25 +839,25 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithHeaderMarkedDurableIsPersisted() throws Exception {
       doTestBrokerRestartAndDurability(true, true, false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithHeaderMarkedNonDurableIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, true, true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithHeaderDefaultedNonDurableIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, true, false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithNoHeaderIsNotPersisted() throws Exception {
       doTestBrokerRestartAndDurability(false, false, false);
    }
@@ -930,7 +930,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveMessageBeyondAckedAmountQueue() throws Exception {
       final int MSG_COUNT = 50;
 
@@ -979,7 +979,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTwoPresettledReceiversReceiveAllMessages() throws Exception {
       final int MSG_COUNT = 100;
 
@@ -1049,7 +1049,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDeliveryDelayOfferedWhenRequested() throws Exception {
       AmqpClient client = createAmqpClient();
       client.setValidator(new AmqpValidator() {
@@ -1077,31 +1077,31 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithToFieldSetToSenderAddress() throws Exception {
       doTestMessageWithToFieldSet(false, getQueueName());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithToFieldSetToRandomAddress() throws Exception {
       doTestMessageWithToFieldSet(false, UUID.randomUUID().toString());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithToFieldSetToEmpty() throws Exception {
       doTestMessageWithToFieldSet(false, "");
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithToFieldSetToNull() throws Exception {
       doTestMessageWithToFieldSet(false, null);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithToFieldSetWithAnonymousSender() throws Exception {
       doTestMessageWithToFieldSet(true, getQueueName());
    }
@@ -1137,7 +1137,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -1159,7 +1159,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendingAndReceivingToQueueWithDifferentAddressAndQueueName() throws Exception {
       String queueName = "TestQueueName";
       String address = "TestAddress";
@@ -1187,13 +1187,13 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendReceiveLotsOfDurableMessagesOnQueue() throws Exception {
       doTestSendReceiveLotsOfDurableMessages(Queue.class);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendReceiveLotsOfDurableMessagesOnTopic() throws Exception {
       doTestSendReceiveLotsOfDurableMessages(Topic.class);
    }
@@ -1258,7 +1258,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveRejecting() throws Exception {
       final int MSG_COUNT = 1000;
 

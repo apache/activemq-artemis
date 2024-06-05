@@ -45,7 +45,7 @@ public class PubAckTests extends MQTT5TestSupport {
     * [MQTT-3.4.2-1] The Client or Server sending the PUBACK packet MUST use one of the PUBACK Reason Codes.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubAckReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);

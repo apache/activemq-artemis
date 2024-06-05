@@ -68,7 +68,7 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * point the broker will disconnect the existing session.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDisconnectReasonCode() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -99,7 +99,7 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * Message associated with the current Connection without publishing it.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
       final String CLIENT_ID = org.apache.activemq.artemis.tests.util.RandomUtil.randomString();
       final byte[] WILL = RandomUtil.randomBytes();

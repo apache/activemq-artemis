@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Timeout;
 public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageWithDescribedTypeInBody() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -77,7 +77,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageWithDescribedTypeInBodyReceiveOverOpenWire() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -111,7 +111,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDescribedTypeMessageRoundTrips() throws Exception {
 
       AmqpClient client = createAmqpClient();

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -34,7 +33,7 @@ import org.junit.jupiter.api.Timeout;
 public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRejectedMQTTMessage() throws Exception {
       final String addressQueue = name;
       final String msgText = "Test rejected message";
@@ -66,7 +65,7 @@ public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRejectedMqttConnectMessage() throws Exception {
       CountDownLatch publishThreadReady = new CountDownLatch(1);
 

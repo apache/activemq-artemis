@@ -91,7 +91,7 @@ public class PublishTests extends MQTT5TestSupport {
     * packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlag() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -153,7 +153,7 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagQoSZero() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -189,7 +189,7 @@ public class PublishTests extends MQTT5TestSupport {
     * subscribers by the Server.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagNotPropagated() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -226,7 +226,7 @@ public class PublishTests extends MQTT5TestSupport {
     * replace any existing retained message for this topic and store the Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlag() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -267,7 +267,7 @@ public class PublishTests extends MQTT5TestSupport {
     * the Server.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagWithEmptyMessage() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -310,7 +310,7 @@ public class PublishTests extends MQTT5TestSupport {
     * the message as a retained message and MUST NOT remove or replace any existing retained message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagFalse() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -363,7 +363,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Simple test with just one subscription.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithOneSubscription() throws Exception {
       internalTestRetainHandlingZero(false, 1);
    }
@@ -380,7 +380,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Testing with lots of individual subscriptions from a single client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithMultipleSubscriptions() throws Exception {
       internalTestRetainHandlingZero(false, 25);
    }
@@ -397,7 +397,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Testing topic filter subscription.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithTopicFilterSubscription() throws Exception {
       internalTestRetainHandlingZero(true, 25);
    }
@@ -478,7 +478,7 @@ public class PublishTests extends MQTT5TestSupport {
     * exist the Server MUST NOT send the retained messages.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingOne() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -545,7 +545,7 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.1-11] If Retain Handling is set to 2, the Server MUST NOT send the retained messages
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingTwo() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -588,7 +588,7 @@ public class PublishTests extends MQTT5TestSupport {
     * PUBLISH packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedZeroOnEstablishedSubscription() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -632,7 +632,7 @@ public class PublishTests extends MQTT5TestSupport {
     * RETAIN flag equal to the RETAIN flag in the received PUBLISH packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedOneOnEstablishedSubscription() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -690,7 +690,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Subscription’s Topic Filter.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicFilter() throws Exception {
       final String PREFIX = "myTopic/";
       final String TOPIC = PREFIX + RandomUtil.randomString();
@@ -730,7 +730,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Subscription’s Topic Filter.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testX() throws Exception {
       final String PREFIX = "";
       final String TOPIC = PREFIX + RandomUtil.randomString();
@@ -768,7 +768,7 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPayloadFormatIndicatorTrue() throws Exception {
       internalTestPayloadFormatIndicator(true);
    }
@@ -777,7 +777,7 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPayloadFormatIndicatorFalse() throws Exception {
       internalTestPayloadFormatIndicator(false);
    }
@@ -828,7 +828,7 @@ public class PublishTests extends MQTT5TestSupport {
     * to a matching subscriber, then it MUST delete the copy of the message for that subscriber.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalElapsed() throws Exception {
       server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       final String CONSUMER_ID = RandomUtil.randomString();
@@ -876,7 +876,7 @@ public class PublishTests extends MQTT5TestSupport {
     * received value minus the time that the message has been waiting in the Server.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalReturnValue() throws Exception {
       server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       final String CONSUMER_ID = RandomUtil.randomString();
@@ -930,7 +930,7 @@ public class PublishTests extends MQTT5TestSupport {
     * value sent by the Client in the CONNECT packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testClientTopicAliasMaxFromServer() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -983,7 +983,7 @@ public class PublishTests extends MQTT5TestSupport {
     */
    @Disabled
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasesNotCarriedForward() throws Exception {
       final String TOPIC = "myTopicName";
 
@@ -1023,7 +1023,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Alias Maximum value that it returned in the CONNACK packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerTopicAliasMax() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1068,7 +1068,7 @@ public class PublishTests extends MQTT5TestSupport {
     * same Topic Alias value and a different non-zero length Topic Name.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testModifiedTopicAlias() throws Exception {
       final String TOPIC_1 = this.getTopicName() + "1";
       final String TOPIC_2 = this.getTopicName() + "2";
@@ -1132,7 +1132,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testResponseTopicUnaltered() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1171,7 +1171,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCorrelationDataUnaltered() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1212,7 +1212,7 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.2-18] The Server MUST maintain the order of User Properties when forwarding the Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUserProperties() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1259,7 +1259,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testContentTypeUnaltered() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1302,7 +1302,7 @@ public class PublishTests extends MQTT5TestSupport {
     * described at https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_QoS_2:_Exactly.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2() throws Exception {
       internalTestQoS(2);
    }
@@ -1314,7 +1314,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Spec says response should be PUBACK: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901120
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1() throws Exception {
       internalTestQoS(1);
    }
@@ -1326,7 +1326,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Spec says there should be no response: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901120
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS0() throws Exception {
       internalTestQoS(0);
    }
@@ -1381,7 +1381,7 @@ public class PublishTests extends MQTT5TestSupport {
     *  |================|=====================|================|
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testOverlappingSubscriptionsWithDifferentQoSMaximums() throws Exception {
       final String TOPIC = "foo/a/b/c";
 
@@ -1457,7 +1457,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Identifier of the matching subscription if it has a Subscription Identifier.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionIdentifierMultiLevel() throws Exception {
       // even though only 3 messages are sent, 6 messages will be received due to the overlapping subscriptions
       final CountDownLatch consumerLatch = new CountDownLatch(6);
@@ -1533,7 +1533,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Identifier of the matching subscription if it has a Subscription Identifier.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionIdentifierSingleLevel() throws Exception {
       final CountDownLatch consumerLatch = new CountDownLatch(3);
 
@@ -1601,7 +1601,7 @@ public class PublishTests extends MQTT5TestSupport {
     * properly.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReceiveMaximum() throws Exception {
       AtomicInteger count = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
@@ -1665,7 +1665,7 @@ public class PublishTests extends MQTT5TestSupport {
     * Flow control isn't enforced on QoS 0 messages.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReceiveMaximumQoS0() throws Exception {
       AtomicInteger count = new AtomicInteger(0);
       AtomicBoolean succeeded = new AtomicBoolean(false);
@@ -1730,7 +1730,7 @@ public class PublishTests extends MQTT5TestSupport {
     * PUBLISH packets then it is a success.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketDelayReceiveMaximum() throws Exception {
       AtomicBoolean succeeded = new AtomicBoolean(false);
       final int MESSAGE_COUNT = 2;

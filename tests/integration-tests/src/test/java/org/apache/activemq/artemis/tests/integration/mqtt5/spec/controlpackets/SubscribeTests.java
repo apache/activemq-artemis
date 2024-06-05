@@ -60,7 +60,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * Messages MUST NOT be forwarded to a connection with a ClientID equal to the ClientID of the publishing connection.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeNoLocal() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);
@@ -91,7 +91,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * don't receive the messages that they send themselves.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRequestResponseNoLocal() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String REQUEST = "request";
@@ -156,7 +156,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.8.4-1] When the Server receives a SUBSCRIBE packet from a Client, the Server MUST respond with a SUBACK packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
@@ -194,7 +194,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.8.4-2] The SUBACK packet MUST have the same Packet Identifier as the SUBSCRIBE packet that it is acknowledging.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAckPacketId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
@@ -242,7 +242,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * This test will be testing a difference in the "no local" subscription option
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscription() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(2);
@@ -275,7 +275,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * be re-sent, but Application Messages MUST NOT be lost due to replacing the Subscription.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscriptionRetainHandling() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CLIENT_ID = RandomUtil.randomString();
@@ -316,7 +316,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * indicate that the subscription failed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
       final String TOPIC = RandomUtil.randomString();
@@ -369,7 +369,7 @@ public class SubscribeTests extends MQTT5TestSupport {
     * QoS will still be dispatched to the subscriber, just at the subscriber's max QoS.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionQoS() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final int PUBLISH_LOOP = 25;

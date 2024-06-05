@@ -144,13 +144,13 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
    }
 
    @Test
-   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(240)
    public void testAMQP() throws Exception {
       testInterrupt("AMQP");
    }
 
    @Test
-   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(240)
    public void testCORE() throws Exception {
       testInterrupt("CORE");
    }

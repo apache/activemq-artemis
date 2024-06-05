@@ -42,7 +42,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateTemporaryQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -68,7 +68,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeleteTemporaryQueue() throws Exception {
       Connection connection = createConnection();
 
@@ -97,7 +97,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateTemporaryTopic() throws Throwable {
       Connection connection = createConnection();
 
@@ -120,7 +120,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeleteTemporaryTopic() throws Exception {
       Connection connection = createConnection();
 

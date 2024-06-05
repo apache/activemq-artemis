@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.EOFException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -43,7 +42,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConnection() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
 
@@ -65,7 +64,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConnectionWithNullPassword() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
 
@@ -91,7 +90,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPublishAuthorizationFailOn311WithDisconnect() throws Exception {
       String version = "3.1.1";
 
@@ -118,7 +117,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPublishAuthorizationFailOn311WithoutDisconnect() throws Exception {
       setAcceptorProperty("closeMqttConnectionOnPublishAuthorizationFailure=false");
       String version = "3.1.1";
@@ -144,7 +143,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPublishAuthorizationFailOn31() throws Exception {
       String version = "3.1";
 
@@ -169,7 +168,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSubscribeAuthorizationFail() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
          BlockingConnection connection = null;

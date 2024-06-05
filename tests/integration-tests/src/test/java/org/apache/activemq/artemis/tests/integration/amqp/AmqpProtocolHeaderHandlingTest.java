@@ -39,7 +39,7 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testNonSaslHeaderRejectedOnConnect() throws Exception {
       final AmqpHeader header = new AmqpHeader();
 

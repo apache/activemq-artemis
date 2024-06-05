@@ -45,7 +45,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    SimpleString address = new SimpleString("testAddress");
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -79,7 +79,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressBrokerDefined() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -109,7 +109,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressNoReceiverClose() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -141,7 +141,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -175,7 +175,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -204,7 +204,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressReconnect() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -243,7 +243,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressReconnectwithNull() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -282,7 +282,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -311,7 +311,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void test2ConsumersOnNonSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -336,7 +336,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAddressDoesntExist() throws Exception {
       AmqpClient client = createAmqpClient();
 

@@ -48,7 +48,7 @@ public class MessageReceiptTests extends MQTT5TestSupport {
     * This test is pretty generic. It just creates a bunch of individual consumers and sends a message to each one.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageReceipt() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";

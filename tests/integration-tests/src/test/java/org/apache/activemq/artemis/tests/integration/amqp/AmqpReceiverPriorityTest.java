@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriority() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -99,7 +99,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPrioritySetOnAddress() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -154,7 +154,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testAttachPropertiesPriorityTakesPrecedenceOverAddress() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -215,7 +215,7 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testBadValueInPriorityPropertyOnAddress() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -240,13 +240,13 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityProvidedAsByte() throws Exception {
       testPriorityNumber((byte) 5);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityProvidedAsUnsignedInteger() throws Exception {
       testPriorityNumber(UnsignedInteger.valueOf(5));
    }

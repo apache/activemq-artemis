@@ -61,13 +61,13 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSelectorOnTopic() throws Exception {
       doTestSelector(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSelectorOnQueue() throws Exception {
       doTestSelector(false);
    }
@@ -107,13 +107,13 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSTypeOnTopic() throws Exception {
       doTestSelectorsWithJMSType(true);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSTypeOnQueue() throws Exception {
       doTestSelectorsWithJMSType(false);
    }
@@ -156,7 +156,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSCorrelationID() throws Exception {
       Connection connection = createConnection();
 
@@ -199,7 +199,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSPriority() throws Exception {
       Connection connection = createConnection();
 
@@ -238,13 +238,13 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSXGroupIDOnTopic() throws Exception {
       doTestSelectorsWithJMSXGroupID(true);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSXGroupIDOnQueue() throws Exception {
       doTestSelectorsWithJMSXGroupID(false);
    }
@@ -298,7 +298,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSDeliveryOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -332,7 +332,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSTimestampOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -368,7 +368,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSelectorsWithJMSExpirationOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -401,7 +401,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testJMSSelectorFiltersJMSMessageIDOnTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -433,7 +433,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testZeroPrefetchWithTwoConsumers() throws Exception {
       JmsConnection connection = (JmsConnection) createConnection();
       ((JmsDefaultPrefetchPolicy) connection.getPrefetchPolicy()).setAll(0);
@@ -461,25 +461,25 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfTopicMessagesClientAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(true, Session.CLIENT_ACKNOWLEDGE);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfQueueMessagesClientAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(false, Session.CLIENT_ACKNOWLEDGE);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfTopicMessagesAutoAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(true, Session.AUTO_ACKNOWLEDGE);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfQueueMessagesAutoAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(false, Session.AUTO_ACKNOWLEDGE);
    }
@@ -528,7 +528,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPrefetchedMessagesAreNotConsumedOnConsumerClose() throws Exception {
       final int NUM_MESSAGES = 10;
 
@@ -569,7 +569,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessagesReceivedInParallel() throws Throwable {
       final int numMessages = 50000;
       long time = System.currentTimeMillis();
@@ -652,7 +652,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientAckMessages() throws Exception {
       final int numMessages = 10;
 
@@ -701,7 +701,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testTimedOutWaitingForWriteLogOnConsumer() throws Throwable {
       String name = "exampleQueue1";
       // disable auto-delete as it causes thrashing during the test
@@ -771,7 +771,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testBrokerRestartAMQPProducerAMQPConsumer() throws Exception {
       Connection connection = createFailoverConnection(); //AMQP
       Connection connection2 = createFailoverConnection(); //AMQP

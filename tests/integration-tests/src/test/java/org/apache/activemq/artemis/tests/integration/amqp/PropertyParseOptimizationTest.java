@@ -55,7 +55,7 @@ public class PropertyParseOptimizationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithPropertiesAndFilter() throws Exception {
       int size = 10 * 1024;
       AmqpClient client = createAmqpClient(new URI(noDuplicateAcceptor));

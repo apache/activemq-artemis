@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -48,7 +46,7 @@ public class SubAckTests extends MQTT5TestSupport {
     * Topic Filter received.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
       final String TOPIC = RandomUtil.randomString();

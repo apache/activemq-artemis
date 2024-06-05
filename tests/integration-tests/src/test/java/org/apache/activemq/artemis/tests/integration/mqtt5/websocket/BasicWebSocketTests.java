@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Timeout;
 public class BasicWebSocketTests extends MQTT5TestSupport {
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {
       String topic = RandomUtil.randomString();
       byte[] body = RandomUtil.randomBytes(32);

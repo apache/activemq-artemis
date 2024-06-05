@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Timeout;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
 
@@ -66,7 +65,7 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 

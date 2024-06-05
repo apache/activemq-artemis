@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
@@ -90,7 +89,7 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
    }
 
    @TestTemplate
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailoverListWithAMQP() throws Exception {
       JmsConnectionFactory factory = getJmsConnectionFactory();
       try (Connection connection = factory.createConnection()) {

@@ -74,7 +74,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConsumerDroppedWithProtonTestClient() throws Exception {
       int NUMBER_OF_CONNECTIONS = 100;
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
@@ -118,7 +118,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRegularClose() throws Exception {
       int NUMBER_OF_CONNECTIONS = 100;
       int REPEATS = 10;
@@ -509,7 +509,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
 
 
    @Test
-   @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testForceDropOpenWire() throws Throwable {
       ActiveMQServer server = createServer(true, createDefaultConfig(true));
       server.start();

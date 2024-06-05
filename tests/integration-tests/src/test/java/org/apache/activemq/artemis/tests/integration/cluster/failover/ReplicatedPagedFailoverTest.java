@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -64,14 +63,14 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
 
    @Override
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testReplicatedFailback() throws Exception {
       super.testReplicatedFailback();
    }
 
    @Override
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailoverOnInitialConnection() throws Exception {
       super.testFailoverOnInitialConnection();
    }

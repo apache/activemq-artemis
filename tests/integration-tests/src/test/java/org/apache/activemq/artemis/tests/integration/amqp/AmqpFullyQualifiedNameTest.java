@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
@@ -207,7 +206,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {

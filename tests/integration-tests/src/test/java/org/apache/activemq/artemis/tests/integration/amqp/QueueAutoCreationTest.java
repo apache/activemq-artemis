@@ -55,7 +55,6 @@ import java.lang.invoke.MethodHandles;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 //adapted from https://issues.apache.org/jira/browse/ARTEMIS-1416
 public class QueueAutoCreationTest extends JMSClientTestSupport {
@@ -112,20 +111,20 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSmallString() throws Exception {
       sendStringOfSize(1024, false);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testHugeString() throws Exception {
       sendStringOfSize(1024 * 1024, false);
    }
 
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopic() throws Exception {
@@ -145,7 +144,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopicManySends() throws Exception {
@@ -167,7 +166,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopicAndConsume() throws Exception {

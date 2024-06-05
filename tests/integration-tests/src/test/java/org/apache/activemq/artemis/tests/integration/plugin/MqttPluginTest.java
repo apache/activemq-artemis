@@ -80,7 +80,7 @@ public class MqttPluginTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -130,7 +130,7 @@ public class MqttPluginTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMQTTAutoCreate() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);

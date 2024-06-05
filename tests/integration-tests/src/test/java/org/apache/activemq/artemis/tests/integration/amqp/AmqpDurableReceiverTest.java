@@ -60,7 +60,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    private final String SELECTOR_STRING = "color = red";
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDurableReceiver() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -89,7 +89,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDetachedDurableReceiverRemainsActive() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -133,7 +133,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCloseDurableReceiverRemovesSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -154,7 +154,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReattachToDurableNode() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -175,7 +175,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLookupExistingSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -217,7 +217,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLookupExistingSubscriptionWithSelector() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -260,7 +260,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLookupExistingSubscriptionWithNoLocal() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -301,7 +301,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLookupExistingSubscriptionWithSelectorAndNoLocal() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -344,7 +344,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLookupNonExistingSubscription() throws Exception {
 
       AmqpClient client = createAmqpClient();

@@ -24,7 +24,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -45,7 +44,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProduceMessageAndCommit() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -68,7 +67,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProduceMessageAndRollback() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -90,7 +89,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProducedMessageAreRolledBackOnSessionClose() throws Exception {
       int numMessages = 10;
 
@@ -114,7 +113,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumeMessagesAndCommit() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -146,7 +145,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumeMessagesAndRollback() throws Throwable {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -177,7 +176,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRollbackSomeThenReceiveAndCommit() throws Exception {
       final int MSG_COUNT = 5;
       final int consumeBeforeRollback = 2;

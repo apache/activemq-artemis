@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 //adapted from https://issues.apache.org/jira/browse/ARTEMIS-1416
 @ExtendWith(ParameterizedTestExtension.class)
@@ -104,13 +103,13 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSmallString() throws Exception {
       sendStringOfSize(1024);
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testHugeString() throws Exception {
       sendStringOfSize(1024 * 1024);
    }

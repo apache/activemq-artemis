@@ -116,7 +116,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * associated with the Session.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlag() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
       final byte[] WILL = RandomUtil.randomBytes();
@@ -147,7 +147,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * intervals.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageWithNoSessionExpiryDelayAndNoWillDelay() throws Exception {
       final String CLIENT_ID_1 = RandomUtil.randomString();
       final String CLIENT_ID_2 = RandomUtil.randomString();
@@ -181,7 +181,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * interval.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithSessionExpiryDelayAndWillDelay() throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
 
@@ -218,7 +218,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * expiry interval.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithNoSessionExpiryDelayAndWillDelay() throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
 
@@ -252,7 +252,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * elapsed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithShorterSessionExpiryDelayThanWillDelay() throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
 
@@ -290,7 +290,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * hasn't elapsed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithSessionExpiryDelayAndWillDelayWithReconnect() throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
 
@@ -330,7 +330,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Do not publish will message if client disconnects normally.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithDisconnect() throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
 
@@ -357,7 +357,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * the Client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnceSent() throws Exception {
       final String WILL_CONSUMER = RandomUtil.randomString();
       final String WILL_SENDER = RandomUtil.randomString();
@@ -395,7 +395,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * the Client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
       final byte[] WILL = RandomUtil.randomBytes();
@@ -419,7 +419,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * as a non-retained message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithRetain() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
       final byte[] WILL = RandomUtil.randomBytes();
@@ -445,7 +445,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Client as if the network had failed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testKeepAlive() throws Exception {
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PINGREQ) {
@@ -475,7 +475,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * as if it had completed sending that Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMaxPacketSize() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -518,7 +518,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Explicitly set topic alias maximum to 0 on the client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasDisabledOnClient() throws Exception {
       testTopicAliasOnClient(true);
    }
@@ -530,7 +530,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Do not define the topic alias maximum on the client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasAbsentOnClient() throws Exception {
       testTopicAliasOnClient(true);
    }
@@ -574,7 +574,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * [MQTT-3.1.3-10] The Server MUST maintain the order of User Properties when forwarding the Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUserPropertiesOrder() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -621,7 +621,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * this MQTT Session between the Client and the Server.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testClientID() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
 
@@ -650,7 +650,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * not used by any other Session currently in the Server.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyClientID() throws Exception {
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -674,7 +674,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Network Connection.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyClientIDWithoutCleanStart() throws Exception {
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -700,7 +700,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Connection.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationFailure() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
 
@@ -719,7 +719,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * close the Network Connection of the existing Client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealing() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
 
@@ -761,7 +761,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * close the Network Connection of the existing Client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealingBy3_1_1() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
 
@@ -805,7 +805,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * in the CONNACK packet. In both cases it MUST set a 0x00 (Success) Reason Code in the CONNACK packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartFalse() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
 
@@ -838,7 +838,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * to 0 in the CONNACK packet in addition to setting a 0x00 (Success) Reason Code in the CONNACK packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartTrue() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
 
@@ -866,7 +866,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * the Client Identifier, the Server MUST create a new Session.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalse() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
 
@@ -897,7 +897,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * the Session Expiry Interval is greater than 0.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithReconnect() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -949,7 +949,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Expiry Interval has passed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWith0SessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -979,7 +979,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * Expiry Interval has passed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithNon0SessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1017,7 +1017,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * when the Network Connection is closed.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithAbsentSessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1045,7 +1045,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * If the Session Expiry Interval is 0xFFFFFFFF (UINT_MAX), the Session does not expire.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithMaxSessionExpiryInterval() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -1072,7 +1072,7 @@ public class ConnectTests extends MQTT5TestSupport {
     * [MQTT-3.1.2-4] If a CONNECT packet is received with Clean Start is set to 1, the Client and Server MUST discard any existing Session and start a new Session.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartTrue() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();

@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.tests.integration.mqtt;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -31,7 +29,7 @@ import org.junit.jupiter.api.Timeout;
 public class MQTTDisabledLinkStealingTest extends MQTTTestSupport {
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDisabledLinkStealing() throws Exception {
       final String clientId = RandomUtil.randomString();
       MQTT mqtt = createMQTTConnection(clientId, false);

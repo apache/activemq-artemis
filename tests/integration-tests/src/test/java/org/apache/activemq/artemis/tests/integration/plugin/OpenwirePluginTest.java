@@ -53,7 +53,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.JMSException;
@@ -106,7 +105,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -143,7 +142,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testAutoCreatedQueue() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

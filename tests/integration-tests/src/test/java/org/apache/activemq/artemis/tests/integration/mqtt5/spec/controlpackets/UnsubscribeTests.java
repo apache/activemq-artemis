@@ -63,7 +63,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * UNSUBACK response.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubscribe() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
       final String TOPIC = RandomUtil.randomString();
@@ -119,7 +119,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * Filters, for delivery to the Client.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testStopAddingMessagesOnUnsubscribe() throws Exception {
       final String TOPIC = RandomUtil.randomString();
 
@@ -161,7 +161,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.10.4-4] The Server MUST respond to an UNSUBSCRIBE request by sending an UNSUBACK packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
@@ -200,7 +200,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * Topic Subscriptions are deleted, the Server MUST respond with an UNSUBACK.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAckPacketId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);

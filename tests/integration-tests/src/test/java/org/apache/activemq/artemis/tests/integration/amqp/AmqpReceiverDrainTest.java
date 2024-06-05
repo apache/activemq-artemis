@@ -43,13 +43,13 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiverCanDrainMessagesQueue() throws Exception {
       doTestReceiverCanDrainMessages(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiverCanDrainMessagesTopic() throws Exception {
       doTestReceiverCanDrainMessages(true);
    }
@@ -90,13 +90,13 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPullWithNoMessageGetDrainedQueue() throws Exception {
       doTestPullWithNoMessageGetDrained(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPullWithNoMessageGetDrainedTopic() throws Exception {
       doTestPullWithNoMessageGetDrained(true);
    }
@@ -133,13 +133,13 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPullOneFromRemoteQueue() throws Exception {
       doTestPullOneFromRemote(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPullOneFromRemoteTopic() throws Exception {
       doTestPullOneFromRemote(true);
    }
@@ -180,13 +180,13 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMultipleZeroResultPullsQueue() throws Exception {
       doTestMultipleZeroResultPulls(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMultipleZeroResultPullsTopic() throws Exception {
       doTestMultipleZeroResultPulls(true);
    }

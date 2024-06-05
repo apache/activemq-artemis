@@ -101,7 +101,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateSender() throws Exception {
       final String addressName = getTestName();
 
@@ -133,7 +133,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateReceiver() throws Exception {
       final String addressName = getTestName();
 
@@ -165,13 +165,13 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateSenderThatRequestsMultiCast() throws Exception {
       dotestCreateSenderThatRequestsSpecificRoutingType(RoutingType.MULTICAST);
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateSenderThatRequestsAnyCast() throws Exception {
       dotestCreateSenderThatRequestsSpecificRoutingType(RoutingType.ANYCAST);
    }
@@ -215,13 +215,13 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateReceiverThatRequestsMultiCast() throws Exception {
       dotestCreateReceiverThatRequestsSpecificRoutingType(RoutingType.MULTICAST);
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateReceiverThatRequestsAnyCast() throws Exception {
       dotestCreateReceiverThatRequestsSpecificRoutingType(RoutingType.ANYCAST);
    }
@@ -265,13 +265,13 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateSenderThatRequestsMultiCastViaPrefix() throws Exception {
       dotestCreateSenderThatRequestsSpecificRoutingTypeViaPrefix(RoutingType.MULTICAST);
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateSenderThatRequestsAnyCastViaPrefix() throws Exception {
       dotestCreateSenderThatRequestsSpecificRoutingTypeViaPrefix(RoutingType.ANYCAST);
    }
@@ -315,13 +315,13 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateReceiverThatRequestsMultiCastViaPrefix() throws Exception {
       dotestCreateReceiverThatRequestsSpecificRoutingTypeViaPrefix(RoutingType.MULTICAST);
    }
 
    @TestTemplate
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateReceiverThatRequestsAnyCastViaPrefix() throws Exception {
       dotestCreateReceiverThatRequestsSpecificRoutingTypeViaPrefix(RoutingType.ANYCAST);
    }

@@ -102,13 +102,13 @@ public class MultiThreadConvertTest extends SmokeTestBase {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.PERSISTENT);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersNonPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.NON_PERSISTENT);
    }

@@ -57,13 +57,13 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
 
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
       runQueueReceiverReadMessageWithDivert(ComponentConfigurationRoutingType.ANYCAST.toString());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverReadMessageWithDivertDefaultRouting() throws Exception {
       runQueueReceiverReadMessageWithDivert(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
    }

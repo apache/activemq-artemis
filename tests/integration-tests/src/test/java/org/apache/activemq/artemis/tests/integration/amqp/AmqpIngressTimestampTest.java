@@ -72,19 +72,19 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
    public boolean large;
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testIngressTimestampSendCore() throws Exception {
       internalTestIngressTimestamp(Protocol.CORE);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testIngressTimestampSendAMQP() throws Exception {
       internalTestIngressTimestamp(Protocol.AMQP);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testIngressTimestampSendOpenWire() throws Exception {
       internalTestIngressTimestamp(Protocol.OPENWIRE);
    }

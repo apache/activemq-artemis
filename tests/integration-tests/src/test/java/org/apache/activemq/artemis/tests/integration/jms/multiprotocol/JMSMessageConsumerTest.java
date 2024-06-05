@@ -32,7 +32,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -49,7 +48,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeliveryModeAMQPProducerCoreConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createCoreConnection(); //CORE
@@ -57,7 +56,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeliveryModeAMQPProducerAMQPConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createConnection(); //AMQP
@@ -65,7 +64,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeliveryModeCoreProducerAMQPConsumer() throws Exception {
       Connection connection = createCoreConnection(); //CORE
       Connection connection2 = createConnection(); //AMQP
@@ -73,7 +72,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDeliveryModeCoreProducerCoreConsumer() throws Exception {
       Connection connection = createCoreConnection(); //CORE
       Connection connection2 = createCoreConnection(); //CORE
@@ -110,19 +109,19 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testQueueRoutingTypeMismatchCore() throws Exception {
       testQueueRoutingTypeMismatch(createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testQueueRoutingTypeMismatchOpenWire() throws Exception {
       testQueueRoutingTypeMismatch(createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testQueueRoutingTypeMismatchAMQP() throws Exception {
       testQueueRoutingTypeMismatch(createConnection());
    }
@@ -143,7 +142,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityAMQPProducerCoreConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createCoreConnection(); //CORE
@@ -151,7 +150,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityAMQPProducerAMQPConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createConnection(); //AMQP
@@ -159,7 +158,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityModeCoreProducerAMQPConsumer() throws Exception {
       Connection connection = createCoreConnection(); //CORE
       Connection connection2 = createConnection(); //AMQP
@@ -167,7 +166,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPriorityCoreProducerCoreConsumer() throws Exception {
       Connection connection = createCoreConnection(); //CORE
       Connection connection2 = createCoreConnection(); //CORE
@@ -204,21 +203,21 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSubscriptionWithConfigurationManagedQueueWithCore() throws Exception {
       testDurableSubscriptionWithConfigurationManagedQueue(() -> createCoreConnection(false));
 
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSubscriptionWithConfigurationManagedQueueWithOpenWire() throws Exception {
       testDurableSubscriptionWithConfigurationManagedQueue(() -> createOpenWireConnection(false));
 
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSubscriptionWithConfigurationManagedQueueWithAMQP() throws Exception {
       testDurableSubscriptionWithConfigurationManagedQueue(() -> JMSMessageConsumerTest.super.createConnection(false));
    }
@@ -248,37 +247,37 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenOpenWireAndAMQP() throws Exception {
       testEmptyMapMessageConversion(createOpenWireConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenAMQPAndOpenWire() throws Exception {
       testEmptyMapMessageConversion(createConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenCoreAndAMQP() throws Exception {
       testEmptyMapMessageConversion(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenAMQPAndCore() throws Exception {
       testEmptyMapMessageConversion(createConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenCoreAndOpenWire() throws Exception {
       testEmptyMapMessageConversion(createCoreConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testEmptyMapMessageConversionBetweenOpenWireAndCore() throws Exception {
       testEmptyMapMessageConversion(createOpenWireConnection(), createCoreConnection());
    }
@@ -304,31 +303,31 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMapMessageConversionBetweenAMQPAndOpenWire() throws Exception {
       testMapMessageConversion(createConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMapMessageConversionBetweenCoreAndAMQP() throws Exception {
       testMapMessageConversion(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMapMessageConversionBetweenAMQPAndCore() throws Exception {
       testMapMessageConversion(createConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMapMessageConversionBetweenCoreAndOpenWire() throws Exception {
       testMapMessageConversion(createCoreConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMapMessageConversionBetweenOpenWireAndCore() throws Exception {
       testMapMessageConversion(createOpenWireConnection(), createCoreConnection());
    }

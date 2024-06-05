@@ -36,7 +36,7 @@ public class PingReqTests  extends MQTT5TestSupport {
     * [MQTT-3.12.4-1] The Server MUST send a PINGRESP packet in response to a PINGREQ packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPingResp() throws Exception {
       final CountDownLatch latch = new CountDownLatch(4);
 

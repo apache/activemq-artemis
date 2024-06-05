@@ -125,13 +125,13 @@ public class PagedSNFSoakTest extends SoakTestBase {
    }
 
    @Test
-   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(240)
    public void testAMQP() throws Exception {
       testAccumulateAndSend("AMQP");
    }
 
    @Test
-   @Timeout(value = 240_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(240)
    public void testCORE() throws Exception {
       testAccumulateAndSend("CORE");
    }

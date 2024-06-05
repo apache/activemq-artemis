@@ -95,7 +95,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
     * Basic mutual SSL test with certificate-based authentication
     */
    @TestTemplate
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {
       final String topic = RandomUtil.randomString();
       final String clientId = "subscriber";

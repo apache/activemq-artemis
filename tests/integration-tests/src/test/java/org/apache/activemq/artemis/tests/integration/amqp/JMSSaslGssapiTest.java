@@ -208,7 +208,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 600000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConnection() throws Exception {
       Connection connection = createConnection("client", null);
       connection.start();
@@ -231,7 +231,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 600000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSaslPlainConnectionDenied() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
       try {
@@ -243,7 +243,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 900000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(90)
    public void testOutboundWithSlowMech() throws Exception {
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT));

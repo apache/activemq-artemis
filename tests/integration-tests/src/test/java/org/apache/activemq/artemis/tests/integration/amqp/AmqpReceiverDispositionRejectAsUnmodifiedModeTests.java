@@ -39,7 +39,7 @@ public class AmqpReceiverDispositionRejectAsUnmodifiedModeTests extends AmqpClie
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testRejectedDisposition() throws Exception {
       sendMessages(getQueueName(), 1);
 

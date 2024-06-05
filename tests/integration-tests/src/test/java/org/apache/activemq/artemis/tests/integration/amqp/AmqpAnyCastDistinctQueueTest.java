@@ -30,7 +30,6 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -49,7 +48,7 @@ public class AmqpAnyCastDistinctQueueTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDistinctQueueAddressAnyCast() throws Exception {
       String ADDRESS_NAME = "DISTINCT_ADDRESS_testDistinctAddressAnyCast";
       String QUEUE_NAME = "DISTINCT_QUEUE_testDistinctQUEUE_AnyCast";

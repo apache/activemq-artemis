@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -54,13 +53,13 @@ public class MQTTSecurityPerAcceptorTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConnectionPositive() throws Exception {
       internalTestConnection("first", true);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConnectionNegative() throws Exception {
       internalTestConnection("fail", false);
    }

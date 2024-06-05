@@ -48,19 +48,19 @@ public class FederationQueueMatchXMLConfigParsingTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testOpenWireOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("OPENWIRE");
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCoreOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("CORE");
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testAMQPOverCoreFederationDownstream() throws Exception {
       doTestSimpleQueueFederationOverCoreFederationDoownstream("AMQP");
    }
@@ -127,19 +127,19 @@ public class FederationQueueMatchXMLConfigParsingTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testQueuePolicyMatchesOnlyIndicatedQueueOpenwire() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("OPENWIRE");
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testQueuePolicyMatchesOnlyIndicatedQueueCore() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("CORE");
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testQueuePolicyMatchesOnlyIndicatedQueueAMQP() throws Exception {
       doTestQueueMatchPolicyOnlyMatchesIndicatedQueue("AMQP");
    }

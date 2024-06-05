@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -58,13 +57,13 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAcknowledgementQOS1() throws Exception {
       test(1);
    }
 
    @Test
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAcknowledgementQOS0() throws Exception {
       assertThrows(AssertionError.class, () -> {
          test(0);

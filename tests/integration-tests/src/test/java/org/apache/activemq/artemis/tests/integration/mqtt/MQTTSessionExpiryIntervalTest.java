@@ -28,14 +28,13 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCustomSessionExpiryInterval() throws Exception {
       final MQTT mqttSub = createMQTTConnection("MQTT-Sub-Client", false);
 

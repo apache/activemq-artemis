@@ -329,7 +329,7 @@ public class NetworkHealthTest {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPurePingTimeout() throws Exception {
       NetworkHealthCheck check = new NetworkHealthCheck(null, 100, 2000);
 

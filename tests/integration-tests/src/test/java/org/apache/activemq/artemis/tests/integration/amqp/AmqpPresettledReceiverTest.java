@@ -45,7 +45,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverAndNonPresettledReceiverOnSameQueue() throws Exception {
       final int MSG_COUNT = 2;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -96,7 +96,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverReadsAllMessages() throws Exception {
       final int MSG_COUNT = 100;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -133,7 +133,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverReadsAllMessagesInWhenReadInBatches() throws Exception {
       final int MSG_COUNT = 100;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -186,13 +186,13 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithCommit() throws Exception {
       doTestPresettledReceiverWithinBoundsOfActiveTX(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithRollback() throws Exception {
       doTestPresettledReceiverWithinBoundsOfActiveTX(false);
    }
@@ -233,7 +233,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithSendAndRollback() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

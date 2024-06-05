@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -61,7 +60,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    private static final String PRODUCT_NAME = "apache-activemq-artemis";
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCloseIsSentOnConnectionClose() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection amqpConnection = client.connect();
@@ -80,7 +79,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerContainerId() throws Exception {
       final String containerId = server.getNodeID().toString();
 
@@ -107,7 +106,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDefaultMaxFrameSize() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -133,7 +132,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerConnectionProperties() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -176,7 +175,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConnectionCarriesExpectedCapabilities() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -210,7 +209,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCanConnectWithDifferentContainerIds() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -235,7 +234,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCannotConnectWithSameContainerId() throws Exception {
       AmqpClient client = createAmqpClient();
 

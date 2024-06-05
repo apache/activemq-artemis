@@ -66,7 +66,7 @@ public class LockManagerNettyNoGroupNameReplicatedFailoverTest extends FailoverT
     * it is stopped permanently.
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testReplicatedFailback() throws Exception {
       try {
          beforeWaitForRemoteBackupSynchronization();

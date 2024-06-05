@@ -78,7 +78,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerMirrorConnectsWithAnonymous() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -113,7 +113,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerMirrorConnectsWithPlain() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -149,7 +149,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerHandlesSenderLinkOmitsMirrorCapability() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
@@ -181,7 +181,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerAddsAddressAndQueue() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -224,7 +224,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCreateDurableConsumerReplicatesAddressAndQueue() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -275,13 +275,13 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerMirrorHonorsCoreTunnelingEnable() throws Exception {
       testBrokerMirrorHonorsCoreTunnelingEnableOrDisable(true);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerMirrorHonorsCoreTunnelingDisable() throws Exception {
       testBrokerMirrorHonorsCoreTunnelingEnableOrDisable(false);
    }
@@ -332,13 +332,13 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testProducerMessageIsMirroredWithCoreTunnelingUsesCoreMessageFormat() throws Exception {
       doTestProducerMessageIsMirroredWithCorrectMessageFormat(true);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testProducerMessageIsMirroredWithoutCoreTunnelingUsesDefaultMessageFormat() throws Exception {
       doTestProducerMessageIsMirroredWithCorrectMessageFormat(false);
    }
@@ -417,7 +417,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteDoesNotOfferTunnelingResultsInDefaultAMQPFormattedMessages() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -481,7 +481,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testTunnelingDisabledButRemoteOffersDoesNotUseTunneling() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -545,7 +545,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testMirrorConnectionRemainsUnchangedAfterConfigurationUpdate() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -634,7 +634,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testMirrorConnectionRemainsUnchangedAfterConfigurationRemoved() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");

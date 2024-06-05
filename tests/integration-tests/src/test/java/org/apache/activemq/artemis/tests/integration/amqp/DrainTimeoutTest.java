@@ -26,7 +26,6 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -39,7 +38,7 @@ public class DrainTimeoutTest extends AmqpClientTestSupport {
    final int NUMBER_OF_MESSAGES = 1000;
 
    @Test
-   @Timeout(value = 300_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testFlowControl() throws Exception {
       final AtomicInteger errors = new AtomicInteger(0);
       final String queueName = getQueueName();

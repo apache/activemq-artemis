@@ -58,7 +58,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * [MQTT-2.2.1-2] A PUBLISH packet MUST NOT contain a Packet Identifier if its QoS value is set to 0.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdQoSZero() throws Exception {
       final String TOPIC = this.getTopicName();
       final String CONSUMER_CLIENT_ID = "consumer";
@@ -96,7 +96,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * zero Packet Identifier that is currently unused.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdQoSGreaterThanZero() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -141,7 +141,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * packet that was originally sent.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdPubAckQoS2() throws Exception {
       AtomicInteger id = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
@@ -213,7 +213,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * packet that was originally sent.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdPubAckQoS1() throws Exception {
       AtomicInteger id = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
@@ -285,7 +285,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * SUBSCRIBE and UNSUBSCRIBE packet respectively.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdSubAckAndUnsubAck() throws Exception {
       AtomicInteger subId = new AtomicInteger(0);
       AtomicInteger unsubId = new AtomicInteger(0);

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
@@ -58,7 +57,7 @@ public class JdbcSharedStateManagerTest extends ServerTestBase {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void shouldStartIfTableNotExist() throws Exception {
       final JdbcSharedStateManager sharedStateManager = createSharedStateManager();
       try {
@@ -69,7 +68,7 @@ public class JdbcSharedStateManagerTest extends ServerTestBase {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void shouldStartIfTableExistEmpty() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(false);
       fakeDriver.start();
@@ -83,7 +82,7 @@ public class JdbcSharedStateManagerTest extends ServerTestBase {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void shouldStartIfTableExistInitialized() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(true);
       fakeDriver.start();
@@ -97,7 +96,7 @@ public class JdbcSharedStateManagerTest extends ServerTestBase {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void shouldStartTwoIfTableNotExist() throws Exception {
       final JdbcSharedStateManager liveSharedStateManager = createSharedStateManager();
       final JdbcSharedStateManager backupSharedStateManager = createSharedStateManager();

@@ -42,19 +42,19 @@ import org.junit.jupiter.api.Timeout;
 public class MQTTStateManagerTest extends MQTT5TestSupport {
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testNullClientID() throws Exception {
       testBadStateMessage(null);
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyClientID() throws Exception {
       testBadStateMessage("");
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyStateMessage() throws Exception {
       testBadStateMessage(RandomUtil.randomString());
    }

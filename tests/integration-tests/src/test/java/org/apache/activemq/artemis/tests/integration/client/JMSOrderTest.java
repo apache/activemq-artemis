@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -107,7 +106,7 @@ public class JMSOrderTest extends JMSTestBase {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveSomeThenRollback() throws Exception {
       Connection connection = protocolCF.createConnection();
       try {
@@ -153,7 +152,7 @@ public class JMSOrderTest extends JMSTestBase {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveSomeThenClose() throws Exception {
       Connection connection = protocolCF.createConnection();
       try {
@@ -236,7 +235,7 @@ public class JMSOrderTest extends JMSTestBase {
 
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testReceiveOutOfOrderProducers() throws Exception {
       Connection connection = protocolCF.createConnection();
       try {

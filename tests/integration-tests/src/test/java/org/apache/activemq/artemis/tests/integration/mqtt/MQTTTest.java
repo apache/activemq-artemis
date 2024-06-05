@@ -129,13 +129,13 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       testSendAndReceiveMQTT("");
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveMQTTHugePayload() throws Exception {
       StringBuilder builder = new StringBuilder();
       builder.append("/");
@@ -243,7 +243,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDirectDeliverFalse() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -259,7 +259,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUnsubscribeMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -306,7 +306,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAtMostOnceReceiveExactlyOnce() throws Exception {
       /**
        * Although subscribing with EXACTLY ONCE, the message gets published
@@ -327,7 +327,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testManagementQueueMessagesAreAckd() throws Exception {
       String clientId = "test.client.id";
       final MQTTClientProvider provider = getMQTTClientProvider();
@@ -351,7 +351,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSendAtLeastOnceReceiveExactlyOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
@@ -367,7 +367,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSendAtLeastOnceReceiveAtMostOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
@@ -383,7 +383,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveAtMostOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
@@ -399,7 +399,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSendAndReceiveAtLeastOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
@@ -415,7 +415,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveExactlyOnceWithInterceptors() throws Exception {
       MQTTIncomingInterceptor.clear();
       MQTTOutoingInterceptor.clear();
@@ -441,7 +441,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Disabled
    @Test
-   @Timeout(value = 600 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(600)
    public void testSendMoreThanUniqueId() throws Exception {
       int messages = MQTTUtil.TWO_BYTE_INT_MAX;
 
@@ -468,7 +468,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 600 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(180)
    public void testNoMessageIdReuseBeforeAcknowledgment() throws Exception {
       final int messages = MQTTUtil.TWO_BYTE_INT_MAX;
 
@@ -526,7 +526,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveLargeMessages() throws Exception {
       byte[] payload = new byte[1024 * 32];
       for (int i = 0; i < payload.length; i++) {
@@ -551,7 +551,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveRetainedMessages() throws Exception {
       final MQTTClientProvider publisher = getMQTTClientProvider();
       initializeConnection(publisher);
@@ -586,7 +586,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveRetainedLargeMessage() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          byte[] payload = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2];
@@ -640,7 +640,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testValidZeroLengthClientId() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
@@ -652,7 +652,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testMQTTPathPatterns() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
@@ -725,7 +725,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMQTTRetainQoS() throws Exception {
       String[] topics = {"AT_MOST_ONCE", "AT_LEAST_ONCE", "EXACTLY_ONCE"};
       for (int i = 0; i < topics.length; i++) {
@@ -765,7 +765,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDuplicateSubscriptions() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
@@ -806,7 +806,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 120 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testRetainedMessage() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setKeepAlive((short) 60);
@@ -876,7 +876,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Disabled
    @Test
-   @Timeout(value = 120 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testRetainedMessageOnVirtualTopics() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setKeepAlive((short) 60);
@@ -946,7 +946,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUniqueMessageIds() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
@@ -1035,7 +1035,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testResendMessageId() throws Exception {
       final MQTT mqtt = createMQTTConnection("resend", false);
       mqtt.setKeepAlive((short) 5);
@@ -1093,7 +1093,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 90 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(90)
    public void testPacketIdGeneratorNonCleanSession() throws Exception {
       final MQTT mqtt = createMQTTConnection("nonclean-packetid", false);
       mqtt.setKeepAlive((short) 15);
@@ -1169,7 +1169,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Disabled
    @Test
-   @Timeout(value = 90 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(90)
    // TODO ActiveMQ 5.x does not reset the message id generator even after a clean session.  In Artemis we always reset.
    // If there is a good reason for this we should follow ActiveMQ.
    public void testPacketIdGeneratorCleanSession() throws Exception {
@@ -1231,7 +1231,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientConnectionFailure() throws Exception {
       MQTT mqtt = createMQTTConnection("reconnect", false);
       mqtt.setKeepAlive((short) 1);
@@ -1260,7 +1260,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientConnectionFailureSendsWillMessage() throws Exception {
       getServer().createQueue(new QueueConfiguration("will"));
 
@@ -1288,7 +1288,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWillMessageIsRetained() throws Exception {
       getServer().createQueue(new QueueConfiguration("will"));
 
@@ -1320,7 +1320,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCleanSessionForSubscriptions() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
@@ -1368,7 +1368,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCleanSessionForMessages() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
@@ -1395,13 +1395,13 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMQTTReceiveJMS() throws Exception {
       doTestSendMQTTReceiveJMS("foo.*", "foo/bar");
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLinkRouteAmqpReceiveMQTT() throws Exception {
 
       MQTT mqtt = createMQTTConnection();
@@ -1477,7 +1477,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 2 * 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSendJMSReceiveMQTT() throws Exception {
       doTestSendJMSReceiveMQTT("foo.far");
    }
@@ -1509,7 +1509,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPingKeepsInactivityMonitorAlive() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
@@ -1523,7 +1523,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTurnOffInactivityMonitor() throws Exception {
       stopBroker();
       protocolConfig = "transport.useInactivityMonitor=false";
@@ -1542,7 +1542,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Disabled
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    // TODO Make dollar topics configurable in code base.
    public void testPublishDollarTopics() throws Exception {
       MQTT mqtt = createMQTTConnection();
@@ -1582,7 +1582,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDuplicateClientId() throws Exception {
       final String clientId = "duplicateClient";
       MQTT mqtt = createMQTTConnection(clientId, false);
@@ -1606,7 +1606,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRepeatedLinkStealing() throws Exception {
       final String clientId = "duplicateClient";
       final AtomicReference<BlockingConnection> oldConnection = new AtomicReference<>();
@@ -1636,7 +1636,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30 * 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testJmsMapping() throws Exception {
       doTestJmsMapping("test.foo");
    }
@@ -1683,7 +1683,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30 * 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSubscribeMultipleTopics() throws Exception {
 
       byte[] payload = new byte[1024 * 32];
@@ -1721,7 +1721,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveMessageSentWhileOffline() throws Exception {
       final byte[] payload = new byte[1024 * 32];
       for (int i = 0; i < payload.length; i++) {
@@ -1780,7 +1780,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDefaultSessionExpiryInterval() throws Exception {
       final MQTT mqttSub = createMQTTConnection("MQTT-Sub-Client", false);
 
@@ -1798,7 +1798,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDefaultKeepAliveWhenClientSpecifiesZero() throws Exception {
       stopBroker();
       protocolConfig = "transport.defaultKeepAlive=2000";
@@ -1814,7 +1814,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReuseConnection() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("Test-Client");
@@ -1834,7 +1834,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testNoMessageReceivedAfterUnsubscribeMQTT() throws Exception {
       Topic[] topics = {new Topic("TopicA", QoS.EXACTLY_ONCE)};
 
@@ -1887,7 +1887,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMQTT311Connection() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
@@ -1995,7 +1995,7 @@ public class MQTTTest extends MQTTTestSupport {
    //   }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPingOnMQTT() throws Exception {
       stopBroker();
       protocolConfig = "maxInactivityDuration=-1";
@@ -2012,7 +2012,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientDisconnectedOnMaxConsumerLimitReached() throws Exception {
       Exception peerDisconnectedException = null;
       try {
@@ -2036,7 +2036,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAnycastPrefixWorksWithMQTT() throws Exception {
       String clientId = "testMqtt";
 
@@ -2070,7 +2070,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAnycastAddressWorksWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
@@ -2105,7 +2105,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAmbiguousRoutingWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
@@ -2174,7 +2174,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerRestartAfterSubHashWithConfigurationQueues() throws Exception {
 
       // Add some pre configured queues
@@ -2267,7 +2267,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAutoDeleteRetainedQueue() throws Exception {
       final String TOPIC = "/abc/123";
       final String RETAINED_QUEUE = MQTTUtil.getCoreRetainAddressFromMqttTopic(TOPIC, server.getConfiguration().getWildcardConfiguration());
@@ -2345,7 +2345,7 @@ public class MQTTTest extends MQTTTestSupport {
     * the message it received.
     */
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRetainFlagOnEstablishedSubscription() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
       final String topic = getTopicName();
@@ -2379,7 +2379,7 @@ public class MQTTTest extends MQTTTestSupport {
     * sent as a result of a new subscription being made by a Client.
     */
    @Test
-   @Timeout(value = 60 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRetainFlagOnNewSubscription() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
       final String topic = getTopicName();

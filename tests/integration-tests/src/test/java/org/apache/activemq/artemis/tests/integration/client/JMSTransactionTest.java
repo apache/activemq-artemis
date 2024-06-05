@@ -33,13 +33,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JMSTransactionTest extends JMSTestBase {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAsyncProduceMessageAndCommit() throws Throwable {
       final String queueName = "TEST";
       final int messages = 10;

@@ -149,13 +149,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkForQueueMatchAnycast() throws Exception {
       doTestFederationCreatesQueueReceiverLinkForQueueMatch(RoutingType.ANYCAST);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkForQueueMatchMulticast() throws Exception {
       doTestFederationCreatesQueueReceiverLinkForQueueMatch(RoutingType.MULTICAST);
    }
@@ -230,7 +230,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationQueueReceiverCarriesConfiguredQueueFilter() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -297,7 +297,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationQueueReceiverCarriesConsumerQueueFilter() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -401,7 +401,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationQueueReceiverCanIgnoreConsumerQueueFilter() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -473,7 +473,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkForQueueMatchUsingPolicyCredit() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -542,7 +542,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationClosesQueueReceiverWhenDemandIsRemovedFromQueue() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -607,7 +607,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationHandlesQueueDeletedAndConsumerRecreates() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -696,7 +696,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testSecondQueueConsumerDoesNotGenerateAdditionalFederationReceiver() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -762,7 +762,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testLinkCreatedForEachDistinctQueueMatchInSameConfiguredPolicy() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -844,7 +844,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationReceiverCreatedWhenWildcardPolicyMatchesConsumerQueue() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -909,7 +909,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteCloseOfQueueReceiverRespondsToDetach() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -977,7 +977,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRejectedQueueReceiverAttachWhenLocalMatchingQueueNotFoundIsHandled() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1062,13 +1062,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteCloseQueueReceiverWhenRemoteResourceIsDeletedIsHandled() throws Exception {
       doTestRemoteCloseQueueReceiverForExpectedConditionsIsHandled("amqp:resource-deleted");
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteCloseQueueReceiverWhenRemoteReceiverIsForcedToDetachIsHandled() throws Exception {
       doTestRemoteCloseQueueReceiverForExpectedConditionsIsHandled("amqp:link:detach-forced");
    }
@@ -1155,7 +1155,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testUnhandledRemoteReceiverCloseConditionCausesConnectionRebuild() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1251,7 +1251,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testInboundMessageRoutedToReceiverOnLocalQueue() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1328,19 +1328,19 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkWithDefaultPrioirty() throws Exception {
       doTestFederationCreatesQueueReceiverLinkWithAdjustedPriority(0);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkWithIncreasedPriority() throws Exception {
       doTestFederationCreatesQueueReceiverLinkWithAdjustedPriority(5);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkWithDecreasedPriority() throws Exception {
       doTestFederationCreatesQueueReceiverLinkWithAdjustedPriority(-5);
    }
@@ -1411,13 +1411,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkConsumerPriorityOffset() throws Exception {
       doTestFederationCreatesQueueReceiverWithCorrectPriorityOffset(false);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkIngoringConsumerPriorityOffset() throws Exception {
       doTestFederationCreatesQueueReceiverWithCorrectPriorityOffset(true);
    }
@@ -1497,7 +1497,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testLinkCreatedForEachDistinctQueueMatchInSameConfiguredPolicyWithSameAddressMatch() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -1597,7 +1597,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerAcceptsQueuePolicyFromControlLink() throws Exception {
       server.start();
 
@@ -1633,7 +1633,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerAcceptsQueuePolicyFromControlLinkWithTransformerConfiguration() throws Exception {
       server.start();
 
@@ -1678,7 +1678,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteFederatesQueueWhenDemandIsApplied() throws Exception {
       server.start();
 
@@ -1741,7 +1741,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteFederatesQueueWhenDemandIsAppliedUsingControllerDefinedLinkCredit() throws Exception {
       server.start();
 
@@ -1805,7 +1805,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteFederatesQueueWhenDemandIsAppliedUsingPolicyDefinedLinkCredit() throws Exception {
       server.start();
 
@@ -1874,7 +1874,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteFederatesQueueAndAppliesTransformerWhenDemandIsApplied() throws Exception {
       server.start();
 
@@ -1948,7 +1948,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerAnswersAttachOfFederationReceiverProperly() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
@@ -1992,7 +1992,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerRoutesInboundMessageToFederatedReceiver() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
@@ -2060,7 +2060,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerCanFailLinkAttachIfQueueDoesNotExistWithoutClosingTheConnection() throws Exception {
       server.start();
 
@@ -2124,7 +2124,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerCanFailLinkAttachIfQueueDoesNotMatchFullExpectationWithoutClosingTheConnection() throws Exception {
       server.start();
 
@@ -2188,7 +2188,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteConnectionCannotAttachQueueFederationLinkWithoutControlLink() throws Exception {
       server.start();
 
@@ -2234,7 +2234,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerRoutesInboundMessageToFederatedReceiverWithFilterApplied() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
@@ -2314,7 +2314,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerDoesNotFederateQueueIfOnlyDemandIsFromAnotherBrokerFederationSubscription() throws Exception {
       try (ProtonTestServer target = new ProtonTestServer()) {
          target.expectSASLAnonymousConnect();
@@ -2424,7 +2424,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerCanFederateQueueIfOnlyDemandIsFromAnotherBrokerFederationSubscription() throws Exception {
       try (ProtonTestServer target = new ProtonTestServer()) {
          target.expectSASLAnonymousConnect();
@@ -2523,7 +2523,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testTransformInboundFederatedMessageBeforeDispatch() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -2609,25 +2609,25 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPullQueueConsumerGrantsDefaultCreditOnEmptyQueue() throws Exception {
       doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(0, false, 0, false, DEFAULT_PULL_CREDIT_BATCH_SIZE);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPullQueueConsumerGrantsReceiverConfiguredCreditOnEmptyQueue() throws Exception {
       doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(0, false, 10, true, 10);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPullQueueConsumerGrantsFederationConfiguredCreditOnEmptyQueue() throws Exception {
       doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(20, true, 0, false, 20);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPullQueueConsumerGrantsReceiverConfiguredCreditOverFederationConfiguredOnEmptyQueue() throws Exception {
       doTestPullConsumerGrantsConfiguredCreditOnEmptyQueue(20, true, 10, true, 10);
    }
@@ -2704,7 +2704,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPullQueueConsumerGrantsCreditOnlyWhenPendingMessageIsConsumed() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -2781,25 +2781,25 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrain() throws Exception {
       doTestPullConsumerCreditTopUpAfterEachBacklogDrain(0, false, 0, false, DEFAULT_PULL_CREDIT_BATCH_SIZE);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainFederationConfigured() throws Exception {
       doTestPullConsumerCreditTopUpAfterEachBacklogDrain(10, true, 0, false, 10);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainPolicyConfigured() throws Exception {
       doTestPullConsumerCreditTopUpAfterEachBacklogDrain(0, false, 20, true, 20);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPullQueueConsumerBatchCreditTopUpAfterEachBacklogDrainBothConfigured() throws Exception {
       doTestPullConsumerCreditTopUpAfterEachBacklogDrain(100, true, 20, true, 20);
    }
@@ -2921,13 +2921,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCoreMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
       doTestCoreMessageHandlingBasedOnTunnelingState(false);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCoreMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
       doTestCoreMessageHandlingBasedOnTunnelingState(true);
    }
@@ -3002,13 +3002,13 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCoreLargeMessageConvertedToAMQPWhenTunnelingDisabled() throws Exception {
       doTestCoreLargeMessageHandlingBasedOnTunnelingState(false);
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testCoreLargeMessageNotConvertedToAMQPWhenTunnelingEnabled() throws Exception {
       doTestCoreLargeMessageHandlingBasedOnTunnelingState(true);
    }
@@ -3090,7 +3090,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkForQueueAfterBrokerConnectionStarted() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.start();
@@ -3182,7 +3182,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesEventSenderAndReceiverWhenLocalAndRemotePoliciesAdded() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_QUEUE_POLICY));
@@ -3263,7 +3263,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationSendsRemotePolicyIfEventsSenderLinkRejected() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_QUEUE_POLICY));
@@ -3329,7 +3329,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerSendsQueueAddedEventForInterestedPeer() throws Exception {
       final AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateQueues(false);
@@ -3396,7 +3396,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesAddressReceiverInResponseToAddressAddedEvent() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3488,7 +3488,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testAddressAddedEventIgnoredIfFederationConsumerAlreadyCreated() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3567,7 +3567,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteBrokerClosesFederationReceiverAfterQueueRemoved() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
@@ -3646,7 +3646,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationQueueDemandTrackedWhenRemoteRejectsInitialAttempts() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -3751,7 +3751,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationQueueDemandTrackedWhenPluginBlocksInitialAttempts() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();

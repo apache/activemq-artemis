@@ -29,7 +29,6 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -75,56 +74,56 @@ public class JMSCorrelationIDTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromAMQPToAMQP() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromAMQPToCore() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromAMQPToOpenWire() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromCoreToCore() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createCoreConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromCoreToAMQP() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromCoreToOpenWire() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createCoreConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsBytesSendReceiveFromOpenWireToOpenWire() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createOpenWireConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    @Disabled
    public void testCorrelationIDAsBytesSendReceiveFromOpenWireToAMQP() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createOpenWireConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    @Disabled
    public void testCorrelationIDAsBytesSendReceiveFromOpenWireToCore() throws Throwable {
       testCorrelationIDAsBytesSendReceive(createOpenWireConnection(), createCoreConnection());
@@ -153,55 +152,55 @@ public class JMSCorrelationIDTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromAMQPToAMQP() throws Throwable {
       testCorrelationIDAsStringSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromAMQPToCore() throws Throwable {
       testCorrelationIDAsStringSendReceive(createConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromAMQPToOpenWire() throws Throwable {
       testCorrelationIDAsStringSendReceive(createConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromCoreToCore() throws Throwable {
       testCorrelationIDAsStringSendReceive(createCoreConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromCoreToAMQP() throws Throwable {
       testCorrelationIDAsStringSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromCoreToOpenWire() throws Throwable {
       testCorrelationIDAsStringSendReceive(createCoreConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromOpenWireToOpenWire() throws Throwable {
       testCorrelationIDAsStringSendReceive(createOpenWireConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromOpenWireToAMQP() throws Throwable {
       testCorrelationIDAsStringSendReceive(createOpenWireConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationIDAsStringSendReceiveFromOpenWireToCore() throws Throwable {
       testCorrelationIDAsStringSendReceive(createOpenWireConnection(), createCoreConnection());
    }

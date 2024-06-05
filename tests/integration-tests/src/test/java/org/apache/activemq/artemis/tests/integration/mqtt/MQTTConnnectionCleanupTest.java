@@ -57,7 +57,7 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testBadClient() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
@@ -93,7 +93,7 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
 
 
    @Test
-   @Timeout(value = 30 * 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSlowSubscribeWontBlockKeepAlive() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");

@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
@@ -47,7 +46,7 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
     * Connection.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationFailureWithBadCredentials() throws Exception {
       testAuthentication(new MqttConnectionOptionsBuilder()
                             .username(RandomUtil.randomString())
@@ -61,7 +60,7 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
     * Connection.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationFailureWithNoCredentials() throws Exception {
       testAuthentication(new MqttConnectionOptionsBuilder().build());
    }
@@ -82,7 +81,7 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationSuccess() throws Exception {
       final String CLIENT_ID = RandomUtil.randomString();
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()

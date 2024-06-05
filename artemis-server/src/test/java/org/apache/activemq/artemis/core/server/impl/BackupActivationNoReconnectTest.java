@@ -81,7 +81,7 @@ import org.mockito.stubbing.Answer;
 public class BackupActivationNoReconnectTest {
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void verifyReplicationBackupActivation() throws Exception {
       ReplicationBackupPolicy policy = Mockito.mock(ReplicationBackupPolicy.class);
       ReplicationPrimaryPolicy replicationPrimaryPolicy = Mockito.mock(ReplicationPrimaryPolicy.class);
@@ -95,7 +95,7 @@ public class BackupActivationNoReconnectTest {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void verifySharedNothingBackupActivation() throws Exception {
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
       when(server.isStarted()).thenReturn(true);

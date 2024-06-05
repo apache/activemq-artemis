@@ -63,7 +63,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLotsOfClients() throws Exception {
 
       final int CLIENTS = Integer.getInteger("PahoMQTTTest.CLIENTS", 100);
@@ -140,7 +140,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -175,7 +175,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSessionPresentWithCleanSession() throws Exception {
       MqttClient client = createPahoClient(RandomUtil.randomString());
       MqttConnectOptions options = new MqttConnectOptions();
@@ -186,7 +186,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSessionPresent() throws Exception {
       MqttClient client = createPahoClient(RandomUtil.randomString());
       MqttConnectOptions options = new MqttConnectOptions();
@@ -206,7 +206,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
     * This test was adapted from a test from Eclipse Kapua submitted by a community member.
     */
    @TestTemplate
-   @Timeout(value = 300000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDollarAndHashSubscriptions() throws Exception {
       final String CLIENT_ID_ADMIN = "test-client-admin";
       final String CLIENT_ID_1 = "test-client-1";

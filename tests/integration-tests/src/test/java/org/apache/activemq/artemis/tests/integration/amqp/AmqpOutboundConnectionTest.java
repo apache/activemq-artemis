@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,19 +54,19 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
    private boolean securityEnabled;
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOutboundConnection() throws Throwable {
       runOutboundConnectionTest(false, true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOutboundConnectionServerClose() throws Throwable {
       runOutboundConnectionTest(false, false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOutboundConnectionWithSecurity() throws Throwable {
       runOutboundConnectionTest(true, true);
    }

@@ -28,7 +28,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -100,7 +99,7 @@ public class CheckTest extends SmokeTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testNodeCheckActions() throws Exception {
       primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
@@ -160,7 +159,7 @@ public class CheckTest extends SmokeTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCheckTopology() throws Exception {
       primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
@@ -230,7 +229,7 @@ public class CheckTest extends SmokeTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000L, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueCheckUp() throws Exception {
       primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);

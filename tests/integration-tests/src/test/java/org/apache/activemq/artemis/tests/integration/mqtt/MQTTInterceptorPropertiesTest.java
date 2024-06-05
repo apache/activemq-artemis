@@ -56,7 +56,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCheckInterceptedMQTTMessageProperties() throws Exception {
       final String addressQueue = name;
       final String msgText = "Test intercepted message";

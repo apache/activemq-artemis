@@ -57,7 +57,7 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
     * Names beginning with a $ character.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMatchingHash() throws Exception {
       testMatchingWildcard("#");
    }
@@ -67,7 +67,7 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
     * Names beginning with a $ character.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMatchingPlus() throws Exception {
       testMatchingWildcard("+");
    }

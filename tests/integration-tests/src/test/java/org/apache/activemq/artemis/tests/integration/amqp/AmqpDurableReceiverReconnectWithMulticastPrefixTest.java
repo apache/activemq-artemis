@@ -100,7 +100,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReattachToDurableNodeAndTryAndReceiveNewlySentMessage() throws Exception {
       final String addressName = "test-address";
       final String prefixedName = MULTICAST_PREFIX + addressName;
@@ -148,7 +148,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReattachToDurableNodeAndTryAndReceivePreviouslySentMessage() throws Exception {
       final String addressName = "test-address";
       final String prefixedName = MULTICAST_PREFIX + addressName;

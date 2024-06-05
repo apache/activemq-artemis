@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
 
@@ -75,7 +74,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
     * messages after restarting.
     */
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClusterRestartWithConfigChanged() throws Exception {
       Configuration config0 = servers[0].getConfiguration();
       Configuration config1 = servers[1].getConfiguration();

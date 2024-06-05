@@ -84,19 +84,19 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSenderSettlementModeSettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.SETTLED);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSenderSettlementModeUnsettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.UNSETTLED);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSenderSettlementModeMixedIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.MIXED);
    }
@@ -125,13 +125,13 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiverSettlementModeSetToFirst() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.FIRST);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiverSettlementModeSetToSecond() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.SECOND);
    }
@@ -160,7 +160,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUnsettledSender() throws Exception {
       final int MSG_COUNT = 1000;
 
@@ -201,7 +201,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMixDurableAndNonDurable() throws Exception {
       final int MSG_COUNT = 2000;
 
@@ -236,7 +236,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPresettledSender() throws Exception {
       final int MSG_COUNT = 1000;
 
@@ -261,7 +261,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDuplicateDetection() throws Exception {
       final int MSG_COUNT = 10;
 
@@ -290,7 +290,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDuplicateDetectionRollback() throws Exception {
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
@@ -333,7 +333,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSenderCreditReplenishment() throws Exception {
       AtomicInteger counter = new AtomicInteger();
       CountDownLatch initialCredit = new CountDownLatch(1);

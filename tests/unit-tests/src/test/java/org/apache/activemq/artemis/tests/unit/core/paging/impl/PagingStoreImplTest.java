@@ -1478,7 +1478,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testCheckExecutionIsNotRepeated() throws Exception {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 

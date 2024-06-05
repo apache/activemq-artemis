@@ -50,7 +50,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCreateAddressAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "publisher";
       final CountDownLatch latch = new CountDownLatch(1);
@@ -82,7 +82,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSendAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "publisher";
       final String TOPIC = "/foo";
@@ -117,7 +117,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthorizationSuccess() throws Exception {
       final String CLIENT_ID = "publisher";
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
@@ -139,13 +139,13 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillAuthorizationSuccess() throws Exception {
       internalTestWillAuthorization(fullUser, fullPass, true);
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillAuthorizationFailure() throws Exception {
       internalTestWillAuthorization(noprivUser, noprivPass, false);
    }

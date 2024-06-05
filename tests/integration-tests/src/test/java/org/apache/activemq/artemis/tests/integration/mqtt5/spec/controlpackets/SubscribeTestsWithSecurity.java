@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
@@ -41,7 +40,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "consumer";
       final int SUBSCRIPTION_COUNT = 10;
@@ -67,7 +66,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthorizationSuccess() throws Exception {
       final String CLIENT_ID = "consumer";
       final int SUBSCRIPTION_COUNT = 10;
@@ -97,7 +96,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionQueueRemoved() throws Exception {
       final String CONSUMER_ID = "consumer";
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()

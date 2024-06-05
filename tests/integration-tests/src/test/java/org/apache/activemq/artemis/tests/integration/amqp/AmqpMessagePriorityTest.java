@@ -43,7 +43,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageDefaultPriority() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -75,7 +75,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessagePriorityPreservedAfterServerRestart() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -116,7 +116,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageNonDefaultPriority() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -149,7 +149,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithVeryHighPriority() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -181,7 +181,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageNoPriority() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -213,7 +213,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessagePriorityOrdering() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

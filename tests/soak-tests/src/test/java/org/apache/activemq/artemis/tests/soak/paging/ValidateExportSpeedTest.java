@@ -35,7 +35,6 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
@@ -212,14 +211,14 @@ public class ValidateExportSpeedTest extends SoakTestBase {
    }
 
    @Test
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testExportAMQP() throws Exception {
       testExport("AMQP", false, 100, 1); // small sample of data to validate the test itself
       testExport("AMQP", true, 50_000, 100);
    }
 
    @Test
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testExportCORE() throws Exception {
       testExport("CORE", false, 100, 1); // small sample of data to validate the test itself
       testExport("CORE", true, 50_000, 100);

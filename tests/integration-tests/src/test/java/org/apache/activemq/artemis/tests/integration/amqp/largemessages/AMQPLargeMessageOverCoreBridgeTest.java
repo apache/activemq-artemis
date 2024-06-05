@@ -103,13 +103,13 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCoreBridgeDivert() throws Exception {
       internalTest(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCoreBridgeNoDivert() throws Exception {
       internalTest(false);
    }

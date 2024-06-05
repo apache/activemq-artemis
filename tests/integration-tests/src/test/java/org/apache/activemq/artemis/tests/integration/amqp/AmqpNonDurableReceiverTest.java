@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,7 +37,7 @@ import org.junit.jupiter.api.Timeout;
 public class AmqpNonDurableReceiverTest extends AmqpClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testLinkDetachReleasesResources() throws Exception {
 
       AmqpClient client = createAmqpClient();

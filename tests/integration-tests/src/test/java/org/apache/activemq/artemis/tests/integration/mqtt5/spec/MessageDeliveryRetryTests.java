@@ -40,7 +40,7 @@ public class MessageDeliveryRetryTests extends MQTT5TestSupport {
     * Clients and Servers MUST NOT resend messages at any other time.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithReconnect() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
@@ -86,7 +86,7 @@ public class MessageDeliveryRetryTests extends MQTT5TestSupport {
     * PUBLISH packet is treated as acknowledged, and MUST NOT be retransmitted.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicFilter() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();

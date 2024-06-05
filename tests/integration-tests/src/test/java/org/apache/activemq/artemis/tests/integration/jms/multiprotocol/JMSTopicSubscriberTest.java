@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 import javax.jms.Connection;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -41,21 +40,21 @@ public class JMSTopicSubscriberTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCoreSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
       Connection connection =  createCoreConnection();
       testSubscriptionQueueCreatedWhenAutoCreateDisabled(connection);
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testOpenWireSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
       Connection connection =  createOpenWireConnection();
       testSubscriptionQueueCreatedWhenAutoCreateDisabled(connection);
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testAMQPSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
       Connection connection =  createConnection();
       testSubscriptionQueueCreatedWhenAutoCreateDisabled(connection);

@@ -40,7 +40,7 @@ public class AmqpDeliveryAnnotationsTest extends AmqpClientTestSupport {
    private final String DELIVERY_ANNOTATION_NAME = "TEST-DELIVERY-ANNOTATION";
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDeliveryAnnotationsStrippedFromIncoming() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

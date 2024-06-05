@@ -96,13 +96,13 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumerSingleMessageLoopExclusive() throws Exception {
       doTestConsumerSingleMessageLoop(true);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumerSingleMessageLoopNonExclusive() throws Exception {
       doTestConsumerSingleMessageLoop(false);
    }
@@ -152,7 +152,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExclusiveConsumerOrderOnReconnectionLargePrefetch() throws Exception {
       Connection exConn = null;
 
@@ -222,7 +222,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testServerSideRollbackOnCloseOrder() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -384,7 +384,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExclusiveConsumerBatchOrderUnderLoad() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -639,7 +639,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testExclusiveConsumerTransactionalBatchOnReconnectionLargePrefetch() throws Exception {
       doTestExclusiveConsumerTransactionalBatchOnReconnectionLargePrefetch();
    }

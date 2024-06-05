@@ -50,7 +50,7 @@ public class PubRelTests extends MQTT5TestSupport {
     * [MQTT-3.6.2-1] The Client or Server sending the PUBREL packet MUST use one of the PUBREL Reason Codes.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubRelReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(2);

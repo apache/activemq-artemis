@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
@@ -111,7 +110,7 @@ public class AnonymousProducerPageTest extends ActiveMQTestBase {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testNotBlockOnGlobalMaxSizeWithAnonymousProduce() throws Exception {
       final int MSG_SIZE = 1000;
       final StringBuilder builder = new StringBuilder();

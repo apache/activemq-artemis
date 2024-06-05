@@ -41,7 +41,7 @@ public class AmqpDLQReceiverTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDurableReceiver() throws Exception {
 
       AmqpClient client = createAmqpClient();

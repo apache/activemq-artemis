@@ -51,7 +51,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSaslAuthWithInvalidCredentials() throws Exception {
       AmqpConnection connection = null;
       AmqpClient client = createAmqpClient(guestUser, fullUser);
@@ -69,7 +69,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSaslAuthWithAuthzid() throws Exception {
       AmqpConnection connection = null;
       AmqpClient client = createAmqpClient(guestPass, guestUser);
@@ -87,7 +87,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSaslAuthWithoutAuthzid() throws Exception {
       AmqpConnection connection = null;
       AmqpClient client = createAmqpClient(guestPass, guestUser);
@@ -104,7 +104,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndRejected() throws Exception {
       AmqpClient client = createAmqpClient(guestPass, guestUser);
       client.setValidator(new AmqpValidator() {
@@ -141,7 +141,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
@@ -203,7 +203,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testReceiverNotAuthorized() throws Exception {
       AmqpClient client = createAmqpClient(noprivPass, noprivUser);
       client.setValidator(new AmqpValidator() {
@@ -241,7 +241,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConsumerNotAuthorizedToCreateQueues() throws Exception {
       AmqpClient client = createAmqpClient(noprivPass, noprivUser);
       client.setValidator(new AmqpValidator() {

@@ -61,7 +61,7 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMaxReadPage() throws Exception {
       final int MSG_SIZE = 1000;
       final StringBuilder builder = new StringBuilder();

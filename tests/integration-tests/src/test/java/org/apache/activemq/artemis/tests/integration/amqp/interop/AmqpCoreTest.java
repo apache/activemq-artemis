@@ -26,7 +26,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,7 +65,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMultipleCoreReceiving() throws Exception {
 
       Connection coreJmsConn = this.createCoreConnection();
@@ -101,7 +100,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAmqpFailedConversionFromCore() throws Exception {
       final SimpleString message = RandomUtil.randomSimpleString();
       Connection coreJmsConn = this.createCoreConnection();

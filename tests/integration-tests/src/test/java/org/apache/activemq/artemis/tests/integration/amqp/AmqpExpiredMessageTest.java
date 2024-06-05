@@ -63,7 +63,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsAlreadyExpiredUsingAbsoluteTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -94,7 +94,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpiryThroughTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -153,7 +153,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRetryExpiry() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -202,7 +202,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
     *  It is also testing filter on that annotation. */
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpiryThroughTTLValidateAnnotation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -275,7 +275,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
     *  It is also testing filter on that annotation. */
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpiryQpidJMS() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", getBrokerAmqpConnectionURI().toString());
       Connection connection = factory.createConnection();
@@ -312,7 +312,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsNotExpiredUsingAbsoluteTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -344,7 +344,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsExiredUsingAbsoluteTimeWithLongTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -378,7 +378,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsExpiredUsingTTLWhenAbsoluteIsZero() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -412,7 +412,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsNotExpiredUsingAbsoluteTimeWithElspsedTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -446,7 +446,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThatIsNotExpiredUsingTimeToLive() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -478,7 +478,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendMessageThenAllowToExpiredUsingTimeToLive() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -512,13 +512,13 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpiredMessageLandsInDLQ() throws Throwable {
       internalSendExpiry(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpiredMessageLandsInDLQAndExistsAfterRestart() throws Throwable {
       internalSendExpiry(true);
    }
@@ -568,7 +568,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpirationAfterDivert() throws Throwable {
       final String FORWARDING_ADDRESS = RandomUtil.randomString();
       server.createQueue(new QueueConfiguration(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
@@ -634,7 +634,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDLQdMessageCanBeRedeliveredMultipleTimes() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = client.connect();
@@ -686,13 +686,13 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpireThorughAddressSettings() throws Exception {
       testExpireThorughAddressSettings(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testExpireThorughAddressSettingsRebootServer() throws Exception {
       testExpireThorughAddressSettings(true);
    }

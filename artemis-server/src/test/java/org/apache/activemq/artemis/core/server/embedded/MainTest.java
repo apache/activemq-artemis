@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -34,7 +33,7 @@ public class MainTest {
    /* Tests what happens when no workdir arg is given and the default can't
     * be accessed as not in container env, expect to throw IOE. */
    @Test
-   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(5)
    public void testNull() throws Exception {
       try {
          Main.main(new String[] {""});

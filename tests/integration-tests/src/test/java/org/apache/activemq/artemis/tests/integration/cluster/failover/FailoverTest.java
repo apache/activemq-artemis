@@ -142,7 +142,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailover() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
@@ -209,7 +209,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailoverConsume() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setRetryInterval(10).setAckBatchSize(0);
 
@@ -278,7 +278,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0).setRetryInterval(10);
 
@@ -372,7 +372,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
@@ -442,7 +442,7 @@ public class FailoverTest extends FailoverTestBase {
     * where the commit would leave the session dirty after a timeout.
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(50);
 
@@ -521,7 +521,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
       locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
@@ -577,7 +577,7 @@ public class FailoverTest extends FailoverTestBase {
     * @throws Exception
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testNonTransactedWithZeroConsumerWindowSize() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
@@ -625,7 +625,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testNonTransacted() throws Exception {
       createSessionFactory();
 
@@ -655,7 +655,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testFailBothRestartPrimary() throws Exception {
       ServerLocator locator = getServerLocator();
 
@@ -805,7 +805,7 @@ public class FailoverTest extends FailoverTestBase {
     * @throws Exception
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailBack() throws Exception {
       boolean doFailBack = true;
       HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
@@ -817,7 +817,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailBackPrimaryRestartsBackupIsGone() throws Exception {
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
@@ -867,7 +867,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSimpleFailover() throws Exception {
       HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
 
@@ -875,7 +875,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testWithoutUsingTheBackup() throws Exception {
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
@@ -1004,7 +1004,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testConsumeTransacted() throws Exception {
       createSessionFactory();
 
@@ -1077,7 +1077,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // https://jira.jboss.org/jira/browse/HORNETQ-285
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailoverOnInitialConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -1104,7 +1104,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesSentSoRollback() throws Exception {
       createSessionFactory();
 
@@ -1144,7 +1144,7 @@ public class FailoverTest extends FailoverTestBase {
     * it can be reused again
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesSentSoRollbackAndContinueWork() throws Exception {
       createSessionFactory();
 
@@ -1191,7 +1191,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesNotSentSoNoRollback() throws Exception {
       try {
          createSessionFactory();
@@ -1236,7 +1236,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesWithConsumerStartedBeforeFailover() throws Exception {
       createSessionFactory();
 
@@ -1276,7 +1276,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesConsumedSoRollback() throws Exception {
       createSessionFactory();
 
@@ -1312,7 +1312,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testTransactedMessagesNotConsumedSoNoRollback() throws Exception {
       createSessionFactory();
 
@@ -1359,7 +1359,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesSentSoRollbackOnEnd() throws Exception {
       createSessionFactory();
 
@@ -1395,7 +1395,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    //start a tx but sending messages after crash
    public void testXAMessagesSentSoRollbackOnEnd2() throws Exception {
       createSessionFactory();
@@ -1434,7 +1434,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesSentSoRollbackOnPrepare() throws Exception {
       createSessionFactory();
 
@@ -1477,7 +1477,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // This might happen if 1PC optimisation kicks in
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesSentSoRollbackOnCommit() throws Exception {
       createSessionFactory();
 
@@ -1515,7 +1515,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesNotSentSoNoRollbackOnCommit() throws Exception {
       createSessionFactory();
 
@@ -1557,7 +1557,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesConsumedSoRollbackOnEnd() throws Exception {
       createSessionFactory();
 
@@ -1593,7 +1593,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesConsumedSoRollbackOnEnd2() throws Exception {
       createSessionFactory();
 
@@ -1634,7 +1634,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesConsumedSoRollbackOnPrepare() throws Exception {
       createSessionFactory();
 
@@ -1673,7 +1673,7 @@ public class FailoverTest extends FailoverTestBase {
 
    // 1PC optimisation
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testXAMessagesConsumedSoRollbackOnCommit() throws Exception {
       createSessionFactory();
       ClientSession session1 = createSessionAndQueue();
@@ -1717,7 +1717,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testCreateNewFactoryAfterFailover() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
@@ -1744,7 +1744,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailoverMultipleSessionsWithConsumers() throws Exception {
       createSessionFactory();
 
@@ -1798,7 +1798,7 @@ public class FailoverTest extends FailoverTestBase {
     * Browser will get reset to beginning after failover
     */
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailWithBrowser() throws Exception {
       createSessionFactory();
       ClientSession session = createSession(sf, true, true);
@@ -1828,7 +1828,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailThenReceiveMoreMessagesAfterFailover() throws Exception {
       createSessionFactory();
 
@@ -1906,7 +1906,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testFailThenReceiveMoreMessagesAfterFailover2() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -1940,25 +1940,25 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSimpleSendAfterFailoverDurableTemporary() throws Exception {
       doSimpleSendAfterFailover(true, true);
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSimpleSendAfterFailoverNonDurableTemporary() throws Exception {
       doSimpleSendAfterFailover(false, true);
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSimpleSendAfterFailoverDurableNonTemporary() throws Exception {
       doSimpleSendAfterFailover(true, false);
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSimpleSendAfterFailoverNonDurableNonTemporary() throws Exception {
       doSimpleSendAfterFailover(false, false);
    }
@@ -1986,7 +1986,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testMultipleSessionFailover() throws Exception {
       final String address = "TEST";
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
@@ -2030,7 +2030,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testChannelStateDuringFailover() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -2065,7 +2065,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testForceBlockingReturn() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -2124,7 +2124,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100).setBlockOnAcknowledge(true);
 
@@ -2256,7 +2256,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testCommitDidNotOccurUnblockedAndResend() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -2342,7 +2342,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testBackupServerNotRemoved() throws Exception {
       // HORNETQ-720 Disabling test for replicating backups.
       if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreBackupPolicy)) {
@@ -2376,7 +2376,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testPrimaryAndBackupPrimaryComesBack() throws Exception {
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
@@ -2408,7 +2408,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testPrimaryAndBackupPrimaryComesBackNewFactory() throws Exception {
       createSessionFactory();
 
@@ -2457,7 +2457,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testPrimaryAndBackupBackupComesBackNewFactory() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -2514,7 +2514,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testBackupConnections() throws Exception {
       assumeTrue(backupServer.getServer().getHAPolicy().isBackup());
 

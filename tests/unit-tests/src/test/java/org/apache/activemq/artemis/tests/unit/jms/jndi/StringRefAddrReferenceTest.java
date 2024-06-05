@@ -23,7 +23,6 @@ import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
@@ -41,7 +40,7 @@ public class StringRefAddrReferenceTest {
    private static final String TYPE = "type";
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testActiveMQQueueFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQQueue.class.getName());
@@ -59,7 +58,7 @@ public class StringRefAddrReferenceTest {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testActiveMQTopicFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQTopic.class.getName());
@@ -77,7 +76,7 @@ public class StringRefAddrReferenceTest {
    }
 
    @Test
-   @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testActiveMQConnectionFactoryFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQConnectionFactory.class.getName());

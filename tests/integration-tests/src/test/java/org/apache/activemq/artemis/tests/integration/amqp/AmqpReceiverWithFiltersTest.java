@@ -56,7 +56,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUnsupportedFiltersAreNotListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -100,7 +100,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSupportedFiltersAreListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -133,7 +133,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceivedUnsignedFilter() throws Exception {
       final int NUM_MESSAGES = 100;
 

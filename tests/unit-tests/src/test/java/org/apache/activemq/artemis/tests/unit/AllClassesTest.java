@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class AllClassesTest {
@@ -85,7 +84,7 @@ public class AllClassesTest {
 
 
    @TestTemplate
-   @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(3)
    public void testToString() {
       Object targetInstance = null;
 

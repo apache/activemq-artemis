@@ -49,7 +49,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
    private static final Binary BINARY_CORRELATION_ID = new Binary("mystring".getBytes(StandardCharsets.UTF_8));
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testManagementQueryOverAMQP() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -89,7 +89,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
     * @throws Exception
     */
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUnsignedValues() throws Exception {
       int sequence = 42;
       LinkedHashMap<String, Object> map = new LinkedHashMap<>();
@@ -114,37 +114,37 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByMessageIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByMessageIDString() throws Throwable {
       doTestReplyCorrelation("mystring", false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByMessageIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByCorrelationIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByCorrelationIDString() throws Throwable {
       doTestReplyCorrelation("mystring", true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCorrelationByCorrelationIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, true);
    }

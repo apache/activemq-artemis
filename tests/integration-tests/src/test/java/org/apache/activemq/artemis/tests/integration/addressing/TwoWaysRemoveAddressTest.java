@@ -43,7 +43,7 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDeadLock() throws Throwable {
       ActiveMQServer server = addServer(createServer(false));
       server.start();

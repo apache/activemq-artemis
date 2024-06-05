@@ -54,7 +54,7 @@ import org.junit.jupiter.api.Timeout;
 public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveOnTopic() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -81,7 +81,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveOnAutoCreatedTopic() throws Exception {
       Connection connection = createConnection("myClientId");
       String topicName = UUID.randomUUID().toString();
@@ -122,7 +122,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndReceiveOnAutoCreatedTopicJMS2() throws Exception {
       ConnectionFactory cf = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JMSContext context = cf.createContext();
@@ -162,7 +162,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithMultipleReceiversOnTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -196,7 +196,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -223,7 +223,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSharedSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -243,7 +243,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableMultipleSharedSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -272,7 +272,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSharedGlobalSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection();
 
@@ -292,7 +292,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableMultipleSharedGlobalSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection();
       Connection connection2 = createConnection();
@@ -320,7 +320,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTemporarySubscriptionDeleted() throws Exception {
       Connection connection = createConnection();
 
@@ -352,7 +352,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMultipleDurableConsumersSendAndReceive() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -389,7 +389,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDurableSubscriptionReconnection() throws Exception {
       Connection connection = createConnection("myClientId");
 

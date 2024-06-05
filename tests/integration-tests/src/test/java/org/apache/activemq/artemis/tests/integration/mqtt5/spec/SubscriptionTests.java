@@ -54,7 +54,7 @@ public class SubscriptionTests extends MQTT5TestSupport {
     * [MQTT-4.8.2-3] The Server MUST respect the granted QoS for the Client's subscription.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSharedSubscriptionRespectQoS() throws Exception {
       final String TOPIC = "myTopic";
       final String SUB_NAME = "myShare";
@@ -120,7 +120,7 @@ public class SubscriptionTests extends MQTT5TestSupport {
     * other Subscriber.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSharedSubscriptionWithAck() throws Exception {
       final String TOPIC = "myTopic";
       final String SUB_NAME = "myShare";

@@ -43,7 +43,7 @@ public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
    SimpleString address = new SimpleString("testAddress");
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -65,7 +65,7 @@ public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumeFromSingleQueueOnAddressSameNameNegativeValidation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

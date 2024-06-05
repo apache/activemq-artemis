@@ -73,7 +73,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPaging() throws Exception {
       final int MSG_SIZE = 1000;
       final StringBuilder builder = new StringBuilder();
@@ -123,7 +123,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
 
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSizeCalculationsForApplicationProperties() throws Exception {
       final int MSG_SIZE = 1000;
       final StringBuilder builder = new StringBuilder();

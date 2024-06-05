@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -62,7 +61,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    final int NUM_MESSAGES = 10;
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAddressControlSendMessage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
@@ -93,7 +92,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAddressControlSendMessageWithText() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
@@ -171,19 +170,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testBytesMessageSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testBytesMessageSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromAMQPToCore() throws Throwable {
       testBytesMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -222,19 +221,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testMessageSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testMessageSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageSendReceiveFromAMQPToCore() throws Throwable {
       testMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -272,19 +271,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMapMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testMapMessageSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMapMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testMapMessageSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMapMessageSendReceiveFromAMQPToCore() throws Throwable {
       testMapMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -318,19 +317,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTextMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testTextMessageSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTextMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testTextMessageSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTextMessageSendReceiveFromAMQPToCore() throws Throwable {
       testTextMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -363,19 +362,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testStreamMessageSendReceive(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testStreamMessageSendReceive(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromAMQPToCore() throws Throwable {
       testStreamMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -406,19 +405,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromAMQPToAMQP() throws Throwable {
       testObjectMessageWithArrayListPayload(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromCoreToAMQP() throws Throwable {
       testObjectMessageWithArrayListPayload(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromAMQPToCore() throws Throwable {
       testObjectMessageWithArrayListPayload(createConnection(), createCoreConnection());
    }
@@ -453,19 +452,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromAMQPToAMQP() throws Throwable {
       testObjectMessageUsingCustomType(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromCoreToAMQP() throws Throwable {
       testObjectMessageUsingCustomType(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromAMQPToCore() throws Throwable {
       testObjectMessageUsingCustomType(createConnection(), createCoreConnection());
    }
@@ -524,19 +523,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPropertiesArePreservedFromAMQPToAMQP() throws Throwable {
       testPropertiesArePreserved(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPropertiesArePreservedFromCoreToAMQP() throws Throwable {
       testPropertiesArePreserved(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPropertiesArePreservedFromAMQPToCore() throws Throwable {
       testPropertiesArePreserved(createConnection(), createCoreConnection());
    }

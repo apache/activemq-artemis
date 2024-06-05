@@ -30,7 +30,6 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -102,7 +101,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueueKill() throws Exception {
       internalMultipleQueues(true, true, true, false, false);
    }
@@ -111,43 +110,43 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    /** On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection and retry it.
     *  The reconnection should succeed. */
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueueKillMaxAttempts() throws Exception {
       internalMultipleQueues(true, true, true, false, true);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueuePauseMaxAttempts() throws Exception {
       internalMultipleQueues(true, true, false, true, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueuePause() throws Exception {
       internalMultipleQueues(true, true, false, true, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueue() throws Exception {
       internalMultipleQueues(true, true, false, false, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWithMatching() throws Exception {
       internalMultipleQueues(true, false, false, false, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testwithQueueName() throws Exception {
       internalMultipleQueues(false, false, false, false, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testwithQueueNameDistinctName() throws Exception {
       internalMultipleQueues(false, true, false, false, false);
    }

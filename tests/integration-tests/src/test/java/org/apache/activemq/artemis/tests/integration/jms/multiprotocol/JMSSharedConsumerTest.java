@@ -32,7 +32,6 @@ import javax.jms.Topic;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -111,7 +110,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createConnection(); //AMQP
@@ -120,7 +119,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedConsumerWithArtemisClient() throws Exception {
 
       Connection connection = createCoreConnection(); //CORE
@@ -131,7 +130,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedConsumerWithAMQPClientAndArtemisClient() throws Exception {
       assumeTrue(amqpUseCoreSubscriptionNaming);
 
@@ -143,7 +142,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedConsumerWithArtemisClientAndAMQPClient() throws Exception {
       assumeTrue(amqpUseCoreSubscriptionNaming);
 

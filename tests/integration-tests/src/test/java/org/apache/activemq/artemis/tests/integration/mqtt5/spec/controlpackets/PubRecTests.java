@@ -45,7 +45,7 @@ public class PubRecTests extends MQTT5TestSupport {
     * [MQTT-3.5.2-1] The Client or Server sending the PUBREC packet MUST use one of the PUBREC Reason Codes.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubRecReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);

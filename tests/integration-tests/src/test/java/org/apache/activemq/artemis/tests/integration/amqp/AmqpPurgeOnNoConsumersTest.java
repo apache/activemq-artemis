@@ -51,7 +51,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverReadMessage() throws Exception {
       AmqpConnection connection = null;
       String queue = "purgeQueue";
@@ -109,7 +109,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
 
    // I'm adding the core test here to compare semantics between AMQP and core on this test.
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPurgeQueueCoreRollback() throws Exception {
       String queue = "purgeQueue";
       SimpleString ssQueue = new SimpleString(queue);

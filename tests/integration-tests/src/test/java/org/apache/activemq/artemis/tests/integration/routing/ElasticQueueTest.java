@@ -450,7 +450,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testScale0_1() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();
@@ -546,7 +546,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    // will get nothing to avoid out of order messages, b/c it is connected to the head broker, not the tail!
    // Some pure CONSUMER role needs to drain the tail in this case.
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testScale0_1_CombinedProducerConsumerConnectionWithProducerRole() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();
@@ -645,7 +645,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
    // blocking credit takes effect for new links, existing producers will see the FAIL exception.
    // Blocked producers make use of jms.sendTimeout to error out.
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testScale0_1_CombinedRoleConnection() throws Exception {
 
       prepareNodesAndStartCombinedHeadTail();

@@ -105,7 +105,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    }
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   protected static final long DEFAULT_TIMEOUT = 300000;
+   protected static final long DEFAULT_TIMEOUT_SEC = 60;
    protected ActiveMQServer server;
 
    protected int port = 1883;

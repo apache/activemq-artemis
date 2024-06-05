@@ -69,7 +69,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerAdvertisedDefaultMaxFrameSize() throws Exception {
       assertFalse(maxFrameSizeConfigSet, "maxFrameSize should not be explicitly configured");
 
@@ -97,7 +97,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerAdvertisedConfiguredMaxFrameSize() throws Exception {
       assertTrue(maxFrameSizeConfigSet, "maxFrameSize should be explicitly configured");
 
@@ -125,7 +125,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testManyMultiFrameTransfersWithClientMaxFrameSizeSmallerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 1024;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
@@ -137,7 +137,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testManyMultiFrameTransfersWithClientMaxFrameSizeLargerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
@@ -202,7 +202,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSingleAndMultiFrameTransferClientMaxFrameSizeSmallerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 1024;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
@@ -213,7 +213,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSingleAndMultiFrameTransferWithClientMaxFrameSizeLargerThanBrokers() throws Exception {
       final int clientMaxFrameSize = 2 * AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
       final int brokerMaxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;

@@ -66,7 +66,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testFastReconnectCreateConsumerNoErrors() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
@@ -129,7 +129,7 @@ public class FastReconnectOpenWireTest extends OpenWireTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testFastReconnectCreateConsumerNoErrorsNoClientId() throws Exception {
 
       final ArrayList<Throwable> errors = new ArrayList<>();

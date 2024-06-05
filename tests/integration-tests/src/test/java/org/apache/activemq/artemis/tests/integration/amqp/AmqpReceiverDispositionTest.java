@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Timeout;
 public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testReleasedDisposition() throws Exception {
       sendMessages(getQueueName(), 1);
 
@@ -81,7 +81,7 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testRejectedDisposition() throws Exception {
       sendMessages(getQueueName(), 1);
 
@@ -117,25 +117,25 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testModifiedDispositionWithDeliveryFailedWithoutUndeliverableHereFieldsSet() throws Exception {
       doModifiedDispositionTestImpl(Boolean.TRUE, null);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testModifiedDispositionWithoutDeliveryFailedWithoutUndeliverableHereFieldsSet() throws Exception {
       doModifiedDispositionTestImpl(null, null);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testModifiedDispositionWithoutDeliveryFailedWithUndeliverableHereFieldsSet() throws Exception {
       doModifiedDispositionTestImpl(null, Boolean.TRUE);
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testModifiedDispositionWithDeliveryFailedWithUndeliverableHereFieldsSet() throws Exception {
       doModifiedDispositionTestImpl(Boolean.TRUE, Boolean.TRUE);
    }

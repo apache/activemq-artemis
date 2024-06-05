@@ -28,7 +28,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -70,7 +69,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
 
 
    @TestTemplate
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testLotsOfCloseOpenConsumer() throws Exception {
 
       server.createQueue(new QueueConfiguration(anycastAddress).setRoutingType(RoutingType.ANYCAST));

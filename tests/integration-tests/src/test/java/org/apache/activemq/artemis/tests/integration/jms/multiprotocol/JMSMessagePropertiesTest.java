@@ -26,7 +26,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
@@ -39,55 +38,55 @@ public class JMSMessagePropertiesTest extends MultiprotocolJMSClientTestSupport 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesAMQPProducerCoreConsumer() throws Exception {
       testMessageProperties(createConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesAMQPProducerAMQPConsumer() throws Exception {
       testMessageProperties(createConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesAMQPProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesCoreProducerAMQPConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesCoreProducerCoreConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesCoreProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createCoreConnection(), createOpenWireConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesOpenWireProducerAMQPConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesOpenWireProducerCoreConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createCoreConnection());
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testMessagePropertiesOpenWireProducerOpenWireConsumer() throws Exception {
       testMessageProperties(createOpenWireConnection(), createOpenWireConnection());
    }

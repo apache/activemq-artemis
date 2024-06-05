@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -83,7 +81,7 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 5_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(5)
    public void internalOpenwireBinaryPropShouldBeConvertedAsByteArrays() throws Exception {
       openwireSender(factory);
       amqpResender(qpidFactory);

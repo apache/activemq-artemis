@@ -105,7 +105,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testBrokerConnectsWithAnonymous() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
@@ -128,7 +128,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederatedBrokerConnectsWithPlain() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
@@ -152,7 +152,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationConfiguredCreatesControlLink() throws Exception {
       final int AMQP_MIN_LARGE_MESSAGE_SIZE = 10_000;
       final int AMQP_CREDITS = 100;
@@ -217,7 +217,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesControlLinkAndClosesConnectionIfCapabilityIsAbsent() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
@@ -243,7 +243,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationCreatesControlLinkAndClosesConnectionDetachIndicatesNotAuthorized() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
@@ -288,7 +288,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationSendsReceiveFromQueuePolicyToRemoteWhenSendToIsConfigured() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_QUEUE_POLICY));
@@ -363,7 +363,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationSendsReceiveFromQueuePolicyToRemoteWhenSendToIsConfiguredAndEventSenderRejected() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_QUEUE_POLICY));
@@ -439,7 +439,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationSendsReceiveFromAddressPolicyToRemoteWhenSendToIsConfigured() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
@@ -512,7 +512,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationSendsReceiveFromAddressPolicyToRemoteWhenSendToIsConfiguredAndEventSenderRejected() throws Exception {
       final MessageAnnotationsMatcher maMatcher = new MessageAnnotationsMatcher(true);
       maMatcher.withEntry(OPERATION_TYPE.toString(), Matchers.is(ADD_ADDRESS_POLICY));
@@ -586,7 +586,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectToBrokerFromRemoteAsFederatedSourceAndCreateControlLink() throws Exception {
       server.start();
 
@@ -608,7 +608,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectToBrokerFromRemoteAsFederatedSourceAndCreateEventsSenderLink() throws Exception {
       server.start();
 
@@ -630,7 +630,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectToBrokerFromRemoteAsFederatedSourceAndCreateEventsReceiverLink() throws Exception {
       server.start();
 
@@ -652,7 +652,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectToBrokerFromRemoteAsFederatedSourceAndCreateEventsLinks() throws Exception {
       server.start();
 
@@ -674,7 +674,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testControlLinkPassesConnectAttemptWhenUserHasPrivledges() throws Exception {
       enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS);
       server.start();
@@ -697,7 +697,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testControlAndEventsLinksPassesConnectAttemptWhenUserHasPrivledges() throws Exception {
       enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS + ".#");
       server.start();
@@ -720,7 +720,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testControlLinkRefusesConnectAttemptWhenUseDoesNotHavePrivledgesForControlAddress() throws Exception {
       enableSecurity(server, FEDERATION_BASE_VALIDATION_ADDRESS);
       server.start();
@@ -739,7 +739,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteConnectionCannotAttachEventReceiverLinkWithoutControlLink() throws Exception {
       server.start();
 
@@ -785,7 +785,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testRemoteConnectionCannotAttachEventSenderLinkWithoutControlLink() throws Exception {
       server.start();
 
@@ -831,7 +831,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testControlLinkSenderQueueCreatedWithMaxConsumersOfOne() throws Exception {
       final String controlLinkAddress = "test-control-address";
       final String federationControlSenderAddress = FEDERATION_BASE_VALIDATION_ADDRESS +
@@ -891,7 +891,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testEventSenderLinkFromTargetUsesNamespacedDynamicQueue() throws Exception {
       final String federationControlLinkName = "federation-test";
 
@@ -961,7 +961,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testEventsLinkAtTargetIsCreatedWithMaxConsumersOfOne() throws Exception {
       final String federationControlLinkName = "federation-test";
 
@@ -1050,7 +1050,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testFederationDemandAddedAndImmediateBrokerShutdownOverlaps() throws Exception {
       // Testing for a race on broker shutdown if demand was added at the same time and the
       // broker is creating an outbound consumer to match that demand.

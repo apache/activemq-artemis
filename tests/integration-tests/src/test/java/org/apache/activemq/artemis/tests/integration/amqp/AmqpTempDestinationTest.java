@@ -52,13 +52,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicSenderToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicSenderToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -91,13 +91,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDynamicSenderLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDynamicSenderLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(false);
    }
@@ -125,13 +125,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicReceiverToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicReceiverToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -164,13 +164,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDynamicReceiverLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testDynamicReceiverLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(false);
    }
@@ -198,13 +198,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void TestCreateDynamicQueueSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void TestCreateDynamicTopicSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(true);
    }
@@ -249,13 +249,13 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicReceiverToTopicAndSend() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDynamicReceiverToQueueAndSend() throws Exception {
       doTestCreateDynamicSender(false);
    }

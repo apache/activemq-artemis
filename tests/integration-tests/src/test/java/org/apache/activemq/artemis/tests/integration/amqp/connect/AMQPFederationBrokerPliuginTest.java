@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -104,7 +103,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationBrokerPluginWithAddressPolicyConfigured() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -191,7 +190,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationBrokerPluginWithQueuePolicyConfigured() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -277,7 +276,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPluginCanBlockAddressFederationConsumerCreate() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -349,7 +348,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPluginCanBlockQueueFederationConsumerCreate() throws Exception {
       logger.info("Test started: {}", getTestName());
 
@@ -421,7 +420,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testPluginCanBlockAddressFederationWhenDemandOnDivertIsAdded() throws Exception {
       logger.info("Test started: {}", getTestName());
 

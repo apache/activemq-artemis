@@ -96,19 +96,19 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendNonPersistent() throws Exception {
       testSend(false, false);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendPersistent() throws Exception {
       testSend(true, false);
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendPersistentRestartServer() throws Exception {
       testSend(true, true);
    }

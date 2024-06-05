@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -39,7 +38,7 @@ public class LargeMessageControllerImplTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(10)
    public void testControllerTimeout() throws Exception {
 
       ClientConsumerInternal consumerMock = Mockito.mock(ClientConsumerInternal.class);

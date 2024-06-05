@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,7 +54,7 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testPipelinedOpenWhenAnonymousWillFail() throws Exception {
 
       // Frame data for: SaslInit

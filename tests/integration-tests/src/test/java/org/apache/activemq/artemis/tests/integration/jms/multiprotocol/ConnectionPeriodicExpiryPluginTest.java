@@ -47,21 +47,21 @@ public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTe
    }
 
    @Test
-   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(5)
    public void testAMQP() throws Exception {
       Connection connection = createConnection(); //AMQP
       testExpiry(connection);
    }
 
    @Test
-   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(5)
    public void testCore() throws Exception {
       Connection connection = createCoreConnection();
       testExpiry(connection);
    }
 
    @Test
-   @Timeout(value = 5000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(5)
    public void testOpenWire() throws Exception {
       Connection connection = createOpenWireConnection();
       testExpiry(connection);

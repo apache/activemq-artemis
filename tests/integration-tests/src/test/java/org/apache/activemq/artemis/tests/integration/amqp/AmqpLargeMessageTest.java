@@ -137,7 +137,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveCore() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -159,7 +159,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAndGetData() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -201,7 +201,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPMessageWithComplexAnnotationsReceiveCore() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -248,7 +248,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveOpenWire() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -301,7 +301,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveAMQP() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -340,7 +340,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPMessageWithComplexAnnotationsReceiveAMQP() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -397,7 +397,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testHugeString() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
       Connection connection = factory.createConnection();
@@ -430,7 +430,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSObjectMessage() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -448,7 +448,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSText() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -466,7 +466,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSBytes() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -494,14 +494,14 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendHugeHeader() throws Exception {
       assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(payload);
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendLargeMessageWithHugeHeader() throws Exception {
       assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(1024 * 1024);
@@ -618,7 +618,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendSmallerMessages() throws Exception {
       for (int i = 512; i <= (8 * 1024); i += 512) {
          doTestSendLargeMessage(i);
@@ -626,7 +626,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSendFixedSizedMessages() throws Exception {
       doTestSendLargeMessage(65536);
       doTestSendLargeMessage(65536 * 2);
@@ -634,21 +634,21 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSend1MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024);
    }
 
    @Disabled("Useful for performance testing")
    @TestTemplate
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSend10MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024 * 10);
    }
 
    @Disabled("Useful for performance testing")
    @TestTemplate
-   @Timeout(value = 120_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    public void testSend100MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024 * 100);
    }
@@ -696,7 +696,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveRedeliveredLargeMessagesWithSessionFlowControl() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -764,7 +764,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReceiveLargeMessagesMultiplexedOnSameSession() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -895,7 +895,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithAmqpValueAndEmptyBinaryPreservesBody() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -933,7 +933,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithDataAndEmptyBinaryPreservesBody() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -971,7 +971,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithDataAndContentTypeOfTextPreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1017,7 +1017,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
    @SuppressWarnings({ "unchecked", "rawtypes" })
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithAmqpValueListPreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1061,7 +1061,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
    @SuppressWarnings({ "unchecked", "rawtypes" })
    @TestTemplate
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageWithAmqpSequencePreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 

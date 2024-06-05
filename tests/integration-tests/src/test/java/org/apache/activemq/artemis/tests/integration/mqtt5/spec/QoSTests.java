@@ -73,7 +73,7 @@ public class QoSTests extends MQTT5TestSupport {
     * This test looks at the PUBLISH packet coming from *the broker* to the client
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1andDupFlag() throws Exception {
       final String TOPIC = RandomUtil.randomString();
 
@@ -106,7 +106,7 @@ public class QoSTests extends MQTT5TestSupport {
     * it has received the corresponding PUBACK packet from the receiver.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1PubAck() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -162,7 +162,7 @@ public class QoSTests extends MQTT5TestSupport {
     * Packet Identifier from the incoming PUBLISH packet, having accepted ownership of the Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1PubAckId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -249,7 +249,7 @@ public class QoSTests extends MQTT5TestSupport {
     * it has received the corresponding PUBREC packet from the receiver.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRec() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -306,7 +306,7 @@ public class QoSTests extends MQTT5TestSupport {
     * Identifier as the original PUBLISH packet.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRelId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -359,7 +359,7 @@ public class QoSTests extends MQTT5TestSupport {
     * it has received the corresponding PUBCOMP packet from the receiver.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRel() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final String CONSUMER_ID = "consumer";
@@ -424,7 +424,7 @@ public class QoSTests extends MQTT5TestSupport {
     * expiration. This test demonstrates that.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2WithExpiration() throws Exception {
       final String TOPIC = "myTopic";
       final String CONSUMER_ID = "consumer";
@@ -490,7 +490,7 @@ public class QoSTests extends MQTT5TestSupport {
     * Identifier from the incoming PUBLISH packet, having accepted ownership of the Application Message.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRecId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -541,7 +541,7 @@ public class QoSTests extends MQTT5TestSupport {
     * responds withe appropriate PUBREC and the client completes the QoS process.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2DuplicatePub() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -599,7 +599,7 @@ public class QoSTests extends MQTT5TestSupport {
     * packet containing the same Packet Identifier as the PUBREL.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubCompId() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
@@ -645,7 +645,7 @@ public class QoSTests extends MQTT5TestSupport {
     * if it has applied Application Message expiry.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2WithExpiration2() throws Exception {
       final String TOPIC = "myTopic";
       final String CONSUMER_ID = "consumer";

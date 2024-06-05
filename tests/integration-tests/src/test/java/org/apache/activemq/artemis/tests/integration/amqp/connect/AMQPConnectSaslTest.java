@@ -66,7 +66,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectsWithAnonymous() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect(PLAIN, ANONYMOUS);
@@ -90,7 +90,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectsWithPlain() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, ANONYMOUS);
@@ -116,13 +116,13 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testAnonymousSelectedWhenNoCredentialsSupplied() throws Exception {
       doMechanismSelectedTestImpl(null, null, ANONYMOUS, new String[]{SCRAM_SHA_512, PLAIN, ANONYMOUS});
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testSelectsSCRAMWhenCredentialsPresent() throws Exception {
       doMechanismSelectedTestImpl(USER, PASSWD, SCRAM_SHA_512, new String[]{SCRAM_SHA_512, PLAIN, ANONYMOUS});
    }
@@ -154,13 +154,13 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testConnectsWithExternal() throws Exception {
       doConnectWithExternalTestImpl(true);
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testExternalIgnoredWhenNoClientCertSupplied() throws Exception {
       doConnectWithExternalTestImpl(false);
    }
@@ -225,7 +225,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReconnectConnectsWithVerifyHostOffOnSecondURI() throws Exception {
       final String keyStorePath = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
 
@@ -287,7 +287,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReconnectionUsesConfigurationToReconnectToSecondHostAfterFirstFails() throws Exception {
       final String keyStore1Path = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
       final String keyStore2Path = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();
@@ -348,7 +348,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReconnectionUsesHostSpecificConfigurationToReconnectToSecondHostAfterFirstFails() throws Exception {
       final String keyStore1Path = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
       final String keyStore2Path = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();

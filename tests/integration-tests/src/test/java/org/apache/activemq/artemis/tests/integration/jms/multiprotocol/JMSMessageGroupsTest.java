@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -77,55 +76,55 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerAMQPConsumer() throws Exception {
       testMessageGroups(AMQPConnection, AMQPConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsCoreProducerCoreConsumer() throws Exception {
       testMessageGroups(CoreConnection, CoreConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsCoreProducerAMQPConsumer() throws Exception {
       testMessageGroups(CoreConnection, AMQPConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerCoreConsumer() throws Exception {
       testMessageGroups(AMQPConnection, CoreConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerOpenWireConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, OpenWireConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsCoreProducerOpenWireConsumer() throws Exception {
       testMessageGroups(CoreConnection, OpenWireConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerCoreConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, CoreConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerOpenWireConsumer() throws Exception {
       testMessageGroups(AMQPConnection, OpenWireConnection);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerAMQPConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, AMQPConnection);
    }

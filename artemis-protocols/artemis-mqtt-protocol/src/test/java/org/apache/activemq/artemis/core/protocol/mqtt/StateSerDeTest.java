@@ -20,8 +20,6 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.TimeUnit;
-
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttSubscriptionOption;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
@@ -34,7 +32,7 @@ import org.junit.jupiter.api.Timeout;
 public class StateSerDeTest {
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSerDe() throws Exception {
       for (int i = 0; i < 500; i++) {
          String clientId = RandomUtil.randomString();

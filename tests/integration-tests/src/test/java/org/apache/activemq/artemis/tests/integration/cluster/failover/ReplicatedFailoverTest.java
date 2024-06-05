@@ -61,7 +61,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
    }
 
    @Test
-   @Timeout(value = 120000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(120)
    /*
    * default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
    * it is stopped permanently

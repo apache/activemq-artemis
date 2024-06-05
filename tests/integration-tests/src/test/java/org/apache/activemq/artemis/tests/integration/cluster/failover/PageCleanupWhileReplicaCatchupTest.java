@@ -25,7 +25,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -89,7 +88,7 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
    }
 
    @Test
-   @Timeout(value = 160_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(160)
    public void testPageCleanup() throws Throwable {
 
       Worker[] workers = new Worker[NUMBER_OF_WORKERS];

@@ -87,7 +87,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     * and the max retry should still be counted, not just keep connecting forever.
     */
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testConnectItself() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
@@ -111,7 +111,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCloseLinkOnMirror() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
@@ -176,13 +176,13 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCloseLinkOnSender() throws Exception {
       doCloseLinkTestImpl(true);
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCloseLinkOnReceiver() throws Exception {
       doCloseLinkTestImpl(false);
    }
@@ -276,7 +276,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testTimeoutOnSenderOpen() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // Initial attempt
@@ -308,7 +308,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testReconnectAfterSenderOpenTimeout() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // Initial attempt, times out
@@ -359,7 +359,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testNoServerOfferedMirrorCapability() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          for (int i = 0; i < 3; ++i) {
@@ -397,7 +397,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
     * @throws Exception
     */
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testReconnectAfterMirrorLinkRefusal() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          // First attempt, refuse
@@ -447,7 +447,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testNoClientDesiredMirrorCapability() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();

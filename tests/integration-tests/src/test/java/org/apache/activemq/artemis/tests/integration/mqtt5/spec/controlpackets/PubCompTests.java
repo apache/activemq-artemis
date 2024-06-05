@@ -45,7 +45,7 @@ public class PubCompTests extends MQTT5TestSupport {
     * [MQTT-3.7.2-1] The Client or Server sending the PUBCOMP packets MUST use one of the PUBCOMP Reason Codes.
     */
    @Test
-   @Timeout(value = DEFAULT_TIMEOUT, unit = TimeUnit.MILLISECONDS)
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubCompReasonCode() throws Exception {
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);

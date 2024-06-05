@@ -88,7 +88,7 @@ public class AmqpPluginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverReadAndAckMessage() throws Exception {
       sendMessages(getQueueName(), 1);
 
@@ -119,7 +119,7 @@ public class AmqpPluginTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQueueReceiverAutoCreatedQueue() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

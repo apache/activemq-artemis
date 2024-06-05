@@ -84,7 +84,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSimpleSend() throws Exception {
       try {
 
@@ -169,7 +169,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCloseFilesOnTarget() throws Exception {
       try {
 

@@ -34,7 +34,6 @@ import javax.jms.Topic;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -107,7 +106,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedDurableConsumer() throws Exception {
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createConnection(); //AMQP
@@ -116,7 +115,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedDurableConsumerWithArtemisClient() throws Exception {
 
       Connection connection = createCoreConnection(); //CORE
@@ -127,7 +126,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedDurableConsumerWithAMQPClientAndArtemisClient() throws Exception {
       assumeTrue(amqpUseCoreSubscriptionNaming);
 
@@ -139,7 +138,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedDurableConsumerWithArtemisClientAndAMQPClient() throws Exception {
       assumeTrue(amqpUseCoreSubscriptionNaming);
 
@@ -151,7 +150,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSharedDurableConsumerWithSelectorChange() throws Exception {
       SimpleString qName = amqpUseCoreSubscriptionNaming ? new SimpleString("SharedConsumer") : new SimpleString("SharedConsumer:global");
       Connection connection = createConnection(true);

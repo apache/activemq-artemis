@@ -72,7 +72,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerAsync() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       final AtomicReference<Message> received = new AtomicReference<>();
@@ -110,7 +110,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerSync() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -145,7 +145,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerUnsubscribe() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -187,7 +187,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerUnsubscribeWhileNoSubscription() throws Exception {
       Connection connection = createConnection();
 
@@ -215,7 +215,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerUnsubscribeWhileActive() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -241,7 +241,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerLarge() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -285,7 +285,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDurableConsumerWithSelectorChange() throws Exception {
       SimpleString qName = new SimpleString("foo.SharedConsumer");
       Connection connection = createConnection("foo", true);

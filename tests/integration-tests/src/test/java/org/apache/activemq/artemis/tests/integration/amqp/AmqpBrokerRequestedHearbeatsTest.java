@@ -76,7 +76,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerSendsHalfConfiguredIdleTimeout() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -97,7 +97,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrokerSendsHalfConfiguredIdleTimeoutWhenClientSendsTimeout() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -120,7 +120,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientWithoutHeartbeatsGetsDropped() throws Exception {
 
       final CountDownLatch disconnected = new CountDownLatch(1);
@@ -151,7 +151,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
    }
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientWithHeartbeatsStaysAlive() throws Exception {
 
       final CountDownLatch disconnected = new CountDownLatch(1);

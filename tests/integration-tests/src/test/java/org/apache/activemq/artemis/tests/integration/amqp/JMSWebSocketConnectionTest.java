@@ -29,7 +29,6 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.Disabled;
@@ -47,7 +46,7 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testCreateConnectionAndStart() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -57,7 +56,7 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSendReceiveOverWS() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -82,7 +81,7 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSendLargeMessageToClientFromOpenWire() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();
@@ -106,7 +105,7 @@ public class JMSWebSocketConnectionTest extends JMSClientTestSupport {
 
    @Disabled("Broker can't accept messages over 65535 right now")
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSendLargeMessageToClientFromAMQP() throws Exception {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JmsConnection connection = (JmsConnection) factory.createConnection();

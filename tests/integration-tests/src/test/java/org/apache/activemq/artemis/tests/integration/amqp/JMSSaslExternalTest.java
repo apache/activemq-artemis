@@ -34,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -137,7 +136,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
    }
 
    @Test
-   @Timeout(value = 600000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConnection() throws Exception {
 
       final String keystore = this.getClass().getClassLoader().getResource("other-client-keystore.jks").getFile();

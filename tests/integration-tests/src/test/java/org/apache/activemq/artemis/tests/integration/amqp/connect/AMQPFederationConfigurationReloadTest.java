@@ -94,7 +94,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationConfigurationWithoutChangesIsIgnoredOnUpdate() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
@@ -193,7 +193,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationConnectsToSecondPeerWhenConfigurationUpdatedWithNewConnection() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -320,7 +320,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationDisconnectsFromExistingPeerIfConfigurationRemoved() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -410,7 +410,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testFederationUpdatesPolicyAndFederatesQueueInsteadOfAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
 
@@ -538,7 +538,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReloadAmqpConnectionAddressPolicyMatches() throws Exception {
       server.start();
 
@@ -614,7 +614,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReloadAmqpConnectionQueuePolicyMatches() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
@@ -704,7 +704,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReloadAmqpConnectionAddressPolicyReplacedWithQueuePolicy() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)
@@ -778,7 +778,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    }
 
    @Test
-   @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testReloadAmqpConnectionQueuePolicyMatchesFromBrokerProperties() throws Exception {
       server.start();
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST)

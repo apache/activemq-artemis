@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import javax.security.auth.Subject;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
@@ -93,7 +92,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSecurityManagerModifyClientID() throws Exception {
       BlockingConnection connection = null;
       try {
@@ -124,7 +123,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSecurityManagerModifyClientIDAndStealConnection() throws Exception {
       BlockingConnection connection1 = null;
       BlockingConnection connection2 = null;
@@ -168,7 +167,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testSecurityManagerRejectClientID() throws Exception {
       rejectClientId = true;
       BlockingConnection connection = null;

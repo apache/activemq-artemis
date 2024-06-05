@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -43,7 +42,7 @@ import org.junit.jupiter.api.Timeout;
 public class JMSMessageProducerTest extends JMSClientTestSupport {
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testAnonymousProducerWithQueueAutoCreation() throws Exception {
       Connection connection = createConnection();
 
@@ -73,7 +72,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testAnonymousProducer() throws Exception {
       Connection connection = createConnection();
 
@@ -108,7 +107,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testAnonymousProducerWithTopicAutoCreation() throws Exception {
       Connection connection = createConnection();
 
@@ -143,7 +142,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testDuplicateDetection() throws Exception {
       final int MSG_COUNT = 10;
       Connection connection = createConnection();
@@ -167,7 +166,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAnonymousProducerAcrossManyDestinations() throws Exception {
       Connection connection = createConnection();
 
@@ -201,7 +200,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendingBigMessage() throws Exception {
       Connection connection = createConnection();
 
@@ -226,7 +225,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithTimeToLiveExpiresToDLQ() throws Exception {
       Connection connection = createConnection();
 
@@ -258,7 +257,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReplyToUsingQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -286,7 +285,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testReplyToUsingTempQueue() throws Throwable {
       Connection connection = createConnection();
 

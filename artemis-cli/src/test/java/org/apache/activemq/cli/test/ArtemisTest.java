@@ -50,7 +50,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.json.JsonArray;
@@ -147,13 +146,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void invalidCliDoesntThrowException() {
       testCli("--silent", "create");
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void invalidPathDoesntThrowException() {
       if (isWindows()) {
          testCli("create", "zzzzz:/rawr", "--silent");
@@ -163,7 +162,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSupportsLibaio() throws Exception {
       Create x = new Create();
       x.setInstance(new File("/tmp/foo"));
@@ -171,7 +170,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSync() throws Exception {
       int writes = 2;
       int tries = 5;
@@ -184,7 +183,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSimpleCreate() throws Exception {
       //instance1: default using http
       File instance1 = new File(temporaryFolder, "instance1");
@@ -193,7 +192,7 @@ public class ArtemisTest extends CliTestBase {
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateDB() throws Exception {
       File instance1 = new File(temporaryFolder, "instance1");
       Artemis.internalExecute("create", instance1.getAbsolutePath(), "--silent", "--jdbc");
@@ -201,7 +200,7 @@ public class ArtemisTest extends CliTestBase {
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSimpleCreateMapped() throws Throwable {
       try {
          //instance1: default using http
@@ -214,7 +213,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOpenwireSupportAdvisoryDisabledByDefault() throws Exception {
       FileConfiguration configuration = createFileConfiguration("supportAdvisory",
                                                                 "--force", "--silent", "--no-web", "--no-autotune");
@@ -225,7 +224,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOpenwireEnabledSupportAdvisory() throws Exception {
       FileConfiguration configuration = createFileConfiguration("supportAdvisory",
                                                                 "--force", "--silent", "--no-web", "--no-autotune",
@@ -261,7 +260,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWebConfig() throws Exception {
       setupAuth();
       Run.setEmbedded(true);
@@ -339,7 +338,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSecurityManagerConfiguration() throws Exception {
       setupAuth();
       Run.setEmbedded(true);
@@ -417,7 +416,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testStopManagementContext() throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder, "instance_user");
@@ -433,13 +432,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandJAAS() throws Exception {
       testUserCommand(false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandBasic() throws Exception {
       testUserCommand(true);
    }
@@ -609,25 +608,25 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandViaManagementPlaintextJAAS() throws Exception {
       internalTestUserCommandViaManagement(true, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandViaManagementHashedJAAS() throws Exception {
       internalTestUserCommandViaManagement(false, false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandViaManagementPlaintextBasic() throws Exception {
       internalTestUserCommandViaManagement(true, true);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandViaManagementHashedBasic() throws Exception {
       internalTestUserCommandViaManagement(false, true);
    }
@@ -734,7 +733,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testListUserWithMultipleRolesWithSpaces() throws Exception {
       try {
          Run.setEmbedded(true);
@@ -775,13 +774,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProperReloadWhenAddingUserViaManagementJAAS() throws Exception {
       testProperReloadWhenAddingUserViaManagement(false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProperReloadWhenAddingUserViaManagementBasic() throws Exception {
       testProperReloadWhenAddingUserViaManagement(true);
    }
@@ -826,7 +825,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMissingUserFileViaManagement() throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder, "instance_user");
@@ -850,7 +849,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMissingRoleFileViaManagement() throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder, "instance_user");
@@ -874,13 +873,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandResetJAAS() throws Exception {
       testUserCommandReset(false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandResetBasic() throws Exception {
       testUserCommandReset(true);
    }
@@ -1007,13 +1006,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConcurrentUserAdministrationJAAS() throws Exception {
       testConcurrentUserAdministration(false);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConcurrentUserAdministrationBasic() throws Exception {
       testConcurrentUserAdministration(true);
    }
@@ -1121,7 +1120,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRoleWithSpaces() throws Exception {
       String roleWithSpaces = "amq with spaces";
       Run.setEmbedded(true);
@@ -1152,13 +1151,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandResetViaManagementPlaintext() throws Exception {
       internalTestUserCommandResetViaManagement(true);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testUserCommandResetViaManagementHashed() throws Exception {
       internalTestUserCommandResetViaManagement(false);
    }
@@ -1233,7 +1232,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMaskCommand() throws Exception {
 
       String password1 = "password";
@@ -1270,7 +1269,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testMaskCommandWithPasswordCodec() throws Exception {
       File instanceWithPasswordCodec = new File(temporaryFolder, "instance_with_password_codec");
       Files.createDirectories(Paths.get(instanceWithPasswordCodec.getAbsolutePath(), "etc"));
@@ -1300,13 +1299,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSimpleRun() throws Exception {
       testSimpleRun("server");
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testProducerRetry() throws Exception {
       File instanceFolder = newFolder(temporaryFolder, "server");
       setupAuth(instanceFolder);
@@ -1338,27 +1337,27 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testWeirdCharacter() throws Exception {
       testSimpleRun("test%26%26x86_6");
    }
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSpaces() throws Exception {
       testSimpleRun("with space");
    }
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCustomPort() throws Exception {
       testSimpleRun("server", 61696);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPerfJournal() throws Exception {
       File instanceFolder = newFolder(temporaryFolder, "server1");
       setupAuth(instanceFolder);
@@ -1487,13 +1486,13 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAutoDeleteTrue() throws Exception {
       testAutoDelete(true);
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAutoDeleteFalse() throws Exception {
       testAutoDelete(false);
    }
@@ -1546,7 +1545,7 @@ public class ArtemisTest extends CliTestBase {
 
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testPing() throws Exception {
       File instanceFolder = newFolder(temporaryFolder, "pingTest");
 
@@ -1569,7 +1568,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAutoTune() throws Exception {
       File instanceFolder = newFolder(temporaryFolder, "autoTuneTest");
 
@@ -1591,7 +1590,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQstat() throws Exception {
 
       File instanceQstat = new File(temporaryFolder, "instanceQStat");
@@ -1842,7 +1841,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testHugeQstat() throws Exception {
 
       File instanceQstat = new File(temporaryFolder, "instanceQStat");
@@ -1870,7 +1869,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQstatColumnWidth() throws Exception {
 
       File instanceQstat = new File(temporaryFolder, "instanceQStat");
@@ -1943,7 +1942,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQstatErrors() throws Exception {
 
       File instanceQstat = new File(temporaryFolder, "instanceQStatErrors");
@@ -2047,7 +2046,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testQstatWarnings() throws Exception {
 
       File instanceQstat = new File(temporaryFolder, "instanceQStat");
@@ -2130,7 +2129,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRunPropertiesArgumentSetsAcceptorPort() throws Exception {
       File instanceFile = new File(temporaryFolder, "testRunPropertiesArgumentSetsAcceptorPort");
       setupAuth(instanceFile);
@@ -2152,7 +2151,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRunPropertiesDudArgument() throws Exception {
       File instanceFile = new File(temporaryFolder, "testRunPropertiesDudArgument");
       setupAuth(instanceFile);
@@ -2166,7 +2165,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   @Timeout(value = 60_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testVersionCommand() throws Exception {
       TestActionContext context = new TestActionContext();
       PrintVersion printVersion = new PrintVersion();

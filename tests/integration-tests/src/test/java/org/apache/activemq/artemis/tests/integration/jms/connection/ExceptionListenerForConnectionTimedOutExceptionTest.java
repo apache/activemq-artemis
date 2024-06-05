@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.jms.Connection;
@@ -56,13 +55,13 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOnAcknowledge() throws Exception {
       testOnAcknowledge(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOnAcknowledgeBlockOnFailover() throws Exception {
       // this is validating a case where failover would block
       // and yet the exception should already happen asynchronously
@@ -126,13 +125,13 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOnSend() throws Exception {
       testOnSend(false);
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testOnSendBlockOnFailover() throws Exception {
       testOnSend(true);
    }

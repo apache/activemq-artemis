@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Timeout;
 public class JMSConnectionTest extends JMSClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConnection() throws Exception {
       Connection connection = createConnection();
 
@@ -63,7 +63,7 @@ public class JMSConnectionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testClientIDsAreExclusive() throws Exception {
       Connection testConn1 = createConnection(false);
       Connection testConn2 = createConnection(false);
@@ -100,7 +100,7 @@ public class JMSConnectionTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testParallelConnections() throws Exception {
       final int numThreads = 40;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);

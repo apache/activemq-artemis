@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Timeout;
 public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithDeliveryTimeIsScheduled() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -79,7 +79,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendRecvWithDeliveryTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -132,7 +132,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testScheduleWithDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -172,7 +172,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithDeliveryTimeHoldsMessage() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -201,7 +201,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendWithDeliveryTimeDeliversMessageAfterDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);

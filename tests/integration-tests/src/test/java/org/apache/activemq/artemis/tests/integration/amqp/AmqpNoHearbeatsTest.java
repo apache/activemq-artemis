@@ -77,7 +77,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
 
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testHeartless() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -101,7 +101,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
    // This is done by setting soLinger=0 on the socket, which will make the system to issue a connection.reset instead of sending a
    // disconnect.
    @TestTemplate
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCloseConsumerOnConnectionReset() throws Exception {
 
       AmqpClient client = createAmqpClient();

@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreateQueueReceiver() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
@@ -89,7 +89,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRejectMessageWithIncomingInterceptor() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
@@ -126,7 +126,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testRejectMessageWithOutgoingInterceptor() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -188,7 +188,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCheckInterceptedMessageProperties() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -256,7 +256,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCheckRemotingConnection() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       final boolean[] passed = {false};

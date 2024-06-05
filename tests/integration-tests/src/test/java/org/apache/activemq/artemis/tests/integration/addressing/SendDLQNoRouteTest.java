@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.addressing;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -46,7 +44,7 @@ public class SendDLQNoRouteTest extends ActiveMQTestBase {
 
 
    @Test
-   @Timeout(value = 20_000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(20)
    public void testDLQNoRoute() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setSendToDLAOnNoRoute(true);
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));

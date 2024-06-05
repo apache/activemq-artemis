@@ -50,7 +50,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrowseAllInQueueZeroPrefetch() throws Exception {
 
       final int MSG_COUNT = 5;
@@ -85,7 +85,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(40)
    public void testCreateQueueBrowser() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -103,7 +103,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(40)
    public void testNoMessagesBrowserHasNoElements() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -124,7 +124,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 30000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(30)
    public void testBroseOneInQueue() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -152,7 +152,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrowseAllInQueue() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -181,7 +181,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrowseAllInQueuePrefetchOne() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -209,7 +209,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(40)
    public void testBrowseAllInQueueTxSession() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -237,7 +237,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 40000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(40)
    public void testQueueBrowserInTxSessionLeavesOtherWorkUnaffected() throws Exception {
       Connection connection = createConnection();
       connection.start();
@@ -281,7 +281,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testBrowseAllInQueueSmallPrefetch() throws Exception {
       Connection connection = createConnection();
       connection.start();

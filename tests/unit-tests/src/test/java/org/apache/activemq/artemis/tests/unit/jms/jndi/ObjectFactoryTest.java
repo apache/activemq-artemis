@@ -24,7 +24,6 @@ import javax.naming.StringRefAddr;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -40,7 +39,7 @@ import org.junit.jupiter.api.Timeout;
 public class ObjectFactoryTest {
 
    @Test
-   @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(1)
    public void testConnectionFactory() throws Exception {
       // Create sample connection factory
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
@@ -129,7 +128,7 @@ public class ObjectFactoryTest {
    }
 
    @Test
-   @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(1)
    public void testDestination() throws Exception {
       // Create sample destination
       ActiveMQDestination dest = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());

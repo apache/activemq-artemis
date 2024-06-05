@@ -83,7 +83,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreditsAreAllocatedOnceOnLinkCreated() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -98,7 +98,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreditIsNotGivenOnLinkCreationWhileBlockedAndIsGivenOnceThenUnblocked() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -132,7 +132,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreditsAreNotAllocatedWhenAddressIsFull() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -156,7 +156,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testAddressIsBlockedForOtherProducersWhenFull() throws Exception {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -179,7 +179,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testSendBlocksWhenAddressBlockedAndCompletesAfterUnblocked() throws Exception {
       Connection connection = createConnection(new URI(singleCreditAcceptorURI.replace("tcp", "amqp")), null, null, null, true);
       final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -225,7 +225,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testCreditsAreRefreshedWhenAddressIsUnblocked() throws Exception {
       fillAddress(getQueueName());
 
@@ -260,7 +260,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testNewLinkAttachAreNotAllocatedCreditsWhenAddressIsBlocked() throws Exception {
       fillAddress(getQueueName());
 
@@ -280,7 +280,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testTxIsRolledBackOnRejectedPreSettledMessage() throws Throwable {
 
       // Create the link attach before filling the address to ensure the link is allocated credit.

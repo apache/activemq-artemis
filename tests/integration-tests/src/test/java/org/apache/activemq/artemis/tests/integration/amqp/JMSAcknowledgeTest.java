@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -42,7 +41,7 @@ public class JMSAcknowledgeTest extends JMSClientTestSupport {
    private static final int INDIVIDUAL_ACK = 101;
 
    @Test
-   @Timeout(value = 60000, unit = TimeUnit.MILLISECONDS)
+   @Timeout(60)
    public void testConsumeIndividualMessagesOutOfOrder() throws Throwable {
       Connection connection = createConnection();
 
