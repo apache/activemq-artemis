@@ -10,7 +10,7 @@ This controls the flow of data between the server and the client as the client c
 For performance reasons clients normally buffer messages before delivering to the consumer via the `receive()` method or asynchronously via a message listener.
 If the consumer cannot process messages as fast as they are being delivered and stored in the internal buffer, then you could end up with a situation where messages would keep building up possibly causing out of memory on the client if they cannot be processed in time.
 
-== Window-Based Flow Control
+=== Window-Based Flow Control
 
 By default, Apache ActiveMQ Artemis consumers buffer messages from the server in a client side buffer before the client consumes them.
 This improves performance: otherwise every time the client consumes a message, Apache ActiveMQ Artemis would have to go the server to request the next message.
@@ -32,7 +32,7 @@ The value can be:
 Setting the consumer window size can considerably improve performance depending on the messaging use case.
 As an example, let's consider the two extremes:
 
-=== Fast consumers
+==== Fast consumers
 
 Fast consumers can process messages as fast as they consume them (or even faster)
 
@@ -41,7 +41,7 @@ This will allow _unbounded_ message buffering on the client side.
 
 Use this setting with caution: it can overflow the client memory if the consumer is not able to process messages as fast as it receives them.
 
-=== Slow consumers
+==== Slow consumers
 
 Slow consumers takes significant time to process each message and it is desirable to prevent buffering messages on the client side so that they can be delivered to another consumer instead.
 
@@ -62,7 +62,7 @@ In that case, setting the value of `consumerWindowSize` to optimize performance 
 
 Please see xref:examples.adoc#examples[the examples chapter] for an example which shows how to configure ActiveMQ Artemis to prevent consumer buffering when dealing with slow consumers.
 
-== Rate limited flow control
+=== Rate limited flow control
 
 It is also possible to control the _rate_ at which a consumer can consume messages.
 This is a form of throttling and can be used to make sure that a consumer never consumes messages at a rate faster than the rate specified.
