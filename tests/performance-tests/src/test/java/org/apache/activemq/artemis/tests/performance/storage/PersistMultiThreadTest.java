@@ -371,6 +371,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public long getAddressElements() {
+         return 0;
+      }
+
+      @Override
       public long getMaxSize() {
          return 0;
       }
@@ -501,7 +506,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void addSize(int size, boolean sizeOnly) {
+      public void addSize(int size, boolean sizeOnly, boolean affectGlobal) {
       }
 
       @Override

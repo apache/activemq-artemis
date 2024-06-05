@@ -105,9 +105,6 @@ public class PagedSNFSoakTest extends SoakTestBase {
       brokerProperties.put("addressSettings.#.maxSizeMessages", "100");
       brokerProperties.put("addressSettings.#.addressFullMessagePolicy", "PAGING");
 
-      //brokerProperties.put("addressSettings.*MIRROR*.maxSizeMessages", "100");
-      //brokerProperties.put("addressSettings.*MIRROR*.addressFullMessagePolicy", "BLOCK");
-
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
    }

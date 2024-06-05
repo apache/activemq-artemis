@@ -1041,12 +1041,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void refUp(MessageReference messageReference) {
       int count = messageReference.getMessage().refUp();
+      PagingStore owner = (PagingStore) messageReference.getMessage().getOwner();
       if (count == 1) {
-         if (messageReference.getMessage().getOwner() != null) {
-            ((PagingStore)messageReference.getMessage().getOwner()).addSize(messageReference.getMessageMemoryEstimate(), false);
+         if (owner != null) {
+            owner.addSize(messageReference.getMessageMemoryEstimate(), false);
          }
       }
       if (pagingStore != null) {
+         if (owner != null && pagingStore != owner) {
+            // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
+            // However, in this case, we should always use the original estimate.
+            // Otherwise, we might get incorrect sizes after the update.
+            pagingStore.addSize(messageReference.getMessage().getOriginalEstimate(), false, false);
+         }
+
          pagingStore.refUp(messageReference.getMessage(), count);
       }
    }
@@ -1054,12 +1062,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void refDown(MessageReference messageReference) {
       int count = messageReference.getMessage().refDown();
-      if (count == 0) {
-         if (messageReference.getMessage().getOwner() != null) {
-            ((PagingStore)messageReference.getMessage().getOwner()).addSize(-messageReference.getMessageMemoryEstimate(), false);
-         }
+      PagingStore owner = (PagingStore) messageReference.getMessage().getOwner();
+      if (count == 0 && owner != null) {
+         owner.addSize(-messageReference.getMessageMemoryEstimate(), false);
       }
       if (pagingStore != null) {
+         if (owner != null && pagingStore != owner) {
+            // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
+            // However, in this case, we should always use the original estimate.
+            // Otherwise, we might get incorrect sizes after the update.
+            pagingStore.addSize(-messageReference.getMessage().getOriginalEstimate(), false, false);
+         }
          pagingStore.refDown(messageReference.getMessage(), count);
       }
    }
