@@ -1376,5 +1376,90 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    }
 
 
+   @Test
+   public void testCalculationSize() throws Exception {
+      testCalculationSize(false);
+   }
+
+   @Test
+   public void testCalculationSizeRestartSource() throws Exception {
+      testCalculationSize(true);
+   }
+
+   private void testCalculationSize(boolean restartSource) throws Exception {
+      String brokerConnectionName = "brokerConnectionName:" + UUIDGenerator.getInstance().generateStringUUID();
+      server.setIdentity("targetServer");
+      server.start();
+
+      server_2 = createServer(AMQP_PORT_2, false);
+      server_2.setIdentity("server_2");
+      server_2.getConfiguration().setName("server2");
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true).setDurable(true);
+      replica.setName("theReplica");
+      amqpConnection.addElement(replica);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      server_2.getConfiguration().setName("server_2");
+
+      int NUMBER_OF_MESSAGES = 1;
+
+      server_2.start();
+      Wait.assertTrue(server_2::isStarted);
+
+      // We create the address to avoid auto delete on the queue
+      server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+
+      Queue queueOnServer2 = locateQueue(server_2, getQueueName());
+
+      server.stop();
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         Message message = session.createTextMessage(getText(false, i));
+         message.setIntProperty("i", i);
+         producer.send(message);
+      }
+
+      if (restartSource) {
+         server_2.stop();
+         // Have to disable queueCreation, otherwise once the server restarts more data will be added to the SNF queue what will messup with the Assertions.
+         // The idea is to make sure the reference counting between two addresses will act correctly
+         replica.setQueueCreation(false).setQueueRemoval(false);
+         server_2.start();
+      }
+
+      Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
+      assertNotNull(snfreplica);
+
+      logger.info("Size on queueOnServer2:: {}", queueOnServer2.getPagingStore().getAddressSize());
+      logger.info("Size on SNF:: {}", snfreplica.getPagingStore().getAddressSize());
+
+      Wait.assertTrue(() -> queueOnServer2.getPagingStore().getAddressSize() == snfreplica.getPagingStore().getAddressSize(), 5000);
+      Wait.assertTrue(() -> queueOnServer2.getPagingStore().getAddressElements() == snfreplica.getPagingStore().getAddressElements(), 5000);
+
+      logger.info("Size on queueOnServer2:: {}, elements={}", queueOnServer2.getPagingStore().getAddressSize(), queueOnServer2.getPagingStore().getAddressElements());
+      logger.info("Size on SNF:: {}, elements={}", snfreplica.getPagingStore().getAddressSize(), snfreplica.getPagingStore().getAddressElements());
+
+      server.start();
+      Wait.assertTrue(server::isStarted);
+
+      Queue queueOnServer1 = locateQueue(server, getQueueName());
+      assertFalse(loggerHandler.findText("AMQ222214"));
+
+      Wait.assertEquals(0L, snfreplica.getPagingStore()::getAddressElements);
+      Wait.assertEquals(0L, snfreplica.getPagingStore()::getAddressSize);
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount, 2000);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
+
+      assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
+   }
 
 }

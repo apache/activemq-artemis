@@ -412,6 +412,11 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
+   public long getAddressElements() {
+      return size.getElements();
+   }
+
+   @Override
    public long getMaxSize() {
       if (maxSize <= 0) {
          // if maxSize <= 0, we will return 2 pages for de-page purposes
@@ -1119,8 +1124,8 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public void addSize(final int size, boolean sizeOnly) {
-      long newSize = this.size.addSize(size, sizeOnly);
+   public void addSize(final int size, boolean sizeOnly, boolean affectGlobal) {
+      long newSize = this.size.addSize(size, sizeOnly, affectGlobal);
       boolean globalFull = pagingManager.isGlobalFull();
 
       if (newSize < 0) {

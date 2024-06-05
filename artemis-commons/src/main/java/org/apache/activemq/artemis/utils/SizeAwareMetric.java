@@ -145,8 +145,11 @@ public class SizeAwareMetric {
       return addSize(delta, false);
    }
 
-   public final long addSize(final int delta, final boolean sizeOnly) {
+   public final long addSize(final int delta, boolean sizeOnly) {
+      return addSize(delta, sizeOnly, true);
+   }
 
+   public final long addSize(final int delta, final boolean sizeOnly, boolean affectCallbacks) {
       if (delta == 0) {
          if (logger.isDebugEnabled()) {
             logger.debug("SizeAwareMetric ignored with size 0", new Exception("trace"));
@@ -156,7 +159,7 @@ public class SizeAwareMetric {
 
       changeFlag(NOT_USED, FREE);
 
-      if (onSizeCallback != null) {
+      if (onSizeCallback != null && affectCallbacks) {
          try {
             onSizeCallback.add(delta, sizeOnly);
          } catch (Throwable e) {

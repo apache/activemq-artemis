@@ -93,6 +93,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    long getAddressSize();
 
+   long getAddressElements();
+
    long getMaxSize();
 
    int getMaxPageReadBytes();
@@ -179,10 +181,14 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * @param size
     * @param sizeOnly if false we won't increment the number of messages. (add references for example)
     */
-   void addSize(int size, boolean sizeOnly);
+   void addSize(int size, boolean sizeOnly, boolean affectGlobal);
+
+   default void addSize(int size, boolean sizeOnly) {
+      addSize(size, sizeOnly, true);
+   }
 
    default void addSize(int size) {
-      addSize(size, false);
+      addSize(size, false, true);
    }
 
    boolean checkMemory(Runnable runnable, Consumer<AtomicRunnable> blockedCallback);

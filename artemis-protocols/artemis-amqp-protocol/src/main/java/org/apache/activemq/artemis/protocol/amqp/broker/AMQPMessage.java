@@ -204,6 +204,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected long messageID;
    protected SimpleString address;
    protected volatile int memoryEstimate = -1;
+   protected volatile int originalEstimate = -1;
    protected long expiration;
    protected boolean expirationReload = false;
    protected long scheduledTime = -1;
@@ -674,6 +675,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       }
       encodedHeaderSize = 0;
       memoryEstimate = -1;
+      originalEstimate = -1;
       scheduledTime = -1;
       encodedDeliveryAnnotationsSize = 0;
       headerPosition = VALUE_NOT_PRESENT;
@@ -868,6 +870,16 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public abstract int getMemoryEstimate();
+
+   @Override
+   public int getOriginalEstimate() {
+      if (originalEstimate < 0) {
+         // getMemoryEstimate should initialize originalEstimate
+         return getMemoryEstimate();
+      } else {
+         return originalEstimate;
+      }
+   }
 
    @Override
    public Map<String, Object> toPropertyMap(int valueSizeLimit) {

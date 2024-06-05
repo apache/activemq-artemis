@@ -587,25 +587,23 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
 
       ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
-      Connection connection1 = cf1.createConnection();
-      Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      connection1.start();
-
-      Queue queue = session1.createQueue(lvqName);
-
-      MessageProducer producerServer1 = session1.createProducer(queue);
-
-      for (int i = 0; i < 1000; i++) {
-         TextMessage message = session1.createTextMessage("test");
-         message.setIntProperty("i", 0);
-         message.setStringProperty("KEY", "" + (i % 10));
-         producerServer1.send(message);
+      try (Connection connection1 = cf1.createConnection()) {
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session1.createQueue(lvqName);
+         MessageProducer producerServer1 = session1.createProducer(queue);
+         connection1.start();
+         for (int i = 0; i < 1000; i++) {
+            TextMessage message = session1.createTextMessage("test");
+            message.setIntProperty("i", 0);
+            message.setStringProperty("KEY", "" + (i % 10));
+            producerServer1.send(message);
+         }
       }
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
       Wait.assertEquals(10L, lvqQueue1::getMessageCount, 2000, 100);
       Wait.assertEquals(10L, lvqQueue2::getMessageCount, 2000, 100);
 
-      connection1.close();
 
       server_2.stop();
       server.stop();
