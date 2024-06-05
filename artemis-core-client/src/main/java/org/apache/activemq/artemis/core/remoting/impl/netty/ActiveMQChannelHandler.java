@@ -41,6 +41,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    private final BaseConnectionLifeCycleListener<?> listener;
 
    protected volatile boolean active;
+   protected volatile boolean exception;
 
    private final Executor listenerExecutor;
 
@@ -85,7 +86,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    @Override
    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
-         if (active) {
+         if (active || exception) {
             listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel()), true));
 
             active = false;
@@ -104,6 +105,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
       // and we don't want to spew out stack traces in that event
       // The user has access to this exeception anyway via the ActiveMQException initial cause
 
+      exception = true;
       ActiveMQException me = new ActiveMQException(cause.getMessage());
       me.initCause(cause);
 
