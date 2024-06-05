@@ -361,19 +361,4 @@ public class CheckTest extends SmokeTestBase {
 
       Wait.assertEquals(0, () -> getMessageCount(simpleManagement, queueName), 1_000);
    }
-
-
-   // using a method here to capture eventual exceptions allowing retries
-   int getMessageCount(SimpleManagement management, String queueName) throws Exception {
-      try {
-         return (int) management.getMessageCountOnQueue(queueName);
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         // if an exception happened during a retry
-         // we just return -1, so the retries will keep coming
-         return -1;
-      }
-   }
-
-
 }

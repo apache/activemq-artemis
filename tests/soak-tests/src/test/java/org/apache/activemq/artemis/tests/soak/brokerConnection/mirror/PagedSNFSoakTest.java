@@ -175,8 +175,8 @@ public class PagedSNFSoakTest extends SoakTestBase {
 
       Wait.assertEquals((long) numberOfMessages, () -> simpleManagementDC1A.getMessageCountOnQueue(QUEUE_NAME), 5000, 100);
 
-      Wait.assertEquals((long) 0, () -> getCount("DC1", simpleManagementDC1A, SNF_QUEUE), 5_000, 100);
-      Wait.assertEquals((long) numberOfMessages, () -> getCount("DC2", simpleManagementDC2A, QUEUE_NAME), 5_000, 100);
+      Wait.assertEquals((long) 0, () -> getMessageCount(simpleManagementDC1A, SNF_QUEUE), 5_000, 100);
+      Wait.assertEquals((long) numberOfMessages, () -> getMessageCount(simpleManagementDC2A, QUEUE_NAME), 5_000, 100);
 
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
          connection.start();
@@ -329,16 +329,5 @@ public class PagedSNFSoakTest extends SoakTestBase {
    private void startDC2() throws Exception {
       processDC2_node_A = startServer(DC2_NODE_A, -1, -1, new File(getServerLocation(DC2_NODE_A), "broker.properties"));
       ServerUtil.waitForServerToStart(2, 10_000);
-   }
-
-   public long getCount(String place, SimpleManagement simpleManagement, String queue) throws Exception {
-      try {
-         long value = simpleManagement.getMessageCountOnQueue(queue);
-         logger.info("count on {}, queue {} is {}", place, queue, value);
-         return value;
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         return -1;
-      }
    }
 }

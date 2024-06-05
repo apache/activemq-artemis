@@ -265,10 +265,10 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       runAfter(() -> managementDC1.close());
       runAfter(() -> managementDC2.close());
 
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDA + "." + subscriptionID));
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDA + "." + subscriptionID));
-      Wait.assertEquals(0, () -> getCount(managementDC1, clientIDB + "." + subscriptionID));
-      Wait.assertEquals(0, () -> getCount(managementDC2, clientIDB + "." + subscriptionID));
+      Wait.assertEquals(0, () -> getMessageCount(managementDC1, clientIDA + "." + subscriptionID));
+      Wait.assertEquals(0, () -> getMessageCount(managementDC2, clientIDA + "." + subscriptionID));
+      Wait.assertEquals(0, () -> getMessageCount(managementDC1, clientIDB + "." + subscriptionID));
+      Wait.assertEquals(0, () -> getMessageCount(managementDC2, clientIDB + "." + subscriptionID));
 
       ExecutorService executorService = Executors.newFixedThreadPool(3);
       runAfter(executorService::shutdownNow);
@@ -338,12 +338,12 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
 
       consumerDone.await(SNF_TIMEOUT, TimeUnit.MILLISECONDS);
 
-      Wait.assertEquals(0, () -> getCount(managementDC1, snfQueue), SNF_TIMEOUT);
-      Wait.assertEquals(0, () -> getCount(managementDC2, snfQueue), SNF_TIMEOUT);
-      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC1, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC1, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC2, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
-      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getCount(managementDC2, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(0, () -> getMessageCount(managementDC1, snfQueue), SNF_TIMEOUT);
+      Wait.assertEquals(0, () -> getMessageCount(managementDC2, snfQueue), SNF_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getMessageCount(managementDC1, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getMessageCount(managementDC1, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getMessageCount(managementDC2, clientIDA + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
+      Wait.assertEquals(NUMBER_MESSAGES - NUMBER_MESSAGES_RECEIVE, () -> getMessageCount(managementDC2, clientIDB + "." + subscriptionID), GENERAL_WAIT_TIMEOUT);
 
       destroyServers();
 
@@ -407,17 +407,6 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
          if (expectEmpty) {
             assertNull(consumer.receiveNoWait());
          }
-      }
-   }
-
-   public long getCount(SimpleManagement simpleManagement, String queue) {
-      try {
-         long value = simpleManagement.getMessageCountOnQueue(queue);
-         logger.info("Queue {} count = {}", queue, value);
-         return value;
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         return -1;
       }
    }
 }

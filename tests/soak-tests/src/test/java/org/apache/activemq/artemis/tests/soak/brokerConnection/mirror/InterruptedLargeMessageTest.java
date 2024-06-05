@@ -262,10 +262,10 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
          session.commit();
       }
 
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, SNF_QUEUE));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, SNF_QUEUE));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, QUEUE_NAME));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, QUEUE_NAME));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC1A, SNF_QUEUE));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC2A, SNF_QUEUE));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC2A, QUEUE_NAME));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC1A, QUEUE_NAME));
 
       Wait.assertEquals(0, () -> getNumberOfLargeMessages(DC1_NODE_A), 5000);
       Wait.assertEquals(0, () -> getNumberOfLargeMessages(DC2_NODE_A), 5000);
@@ -295,11 +295,5 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
    private void startDC2() throws Exception {
       processDC2_node_A = startServer(DC2_NODE_A, -1, -1, new File(getServerLocation(DC2_NODE_A), "broker.properties"));
       ServerUtil.waitForServerToStart(2, 10_000);
-   }
-
-   public long getCount(SimpleManagement simpleManagement, String queue) throws Exception {
-      long value = simpleManagement.getMessageCountOnQueue(queue);
-      logger.debug("count on queue {} is {}", queue, value);
-      return value;
    }
 }

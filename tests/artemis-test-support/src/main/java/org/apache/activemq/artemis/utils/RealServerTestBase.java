@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -283,5 +284,23 @@ public class RealServerTestBase extends ActiveMQTestBase {
       properties.store(outputStream, "# Broker properties");
       outputStream.close();
    }
+
+
+   protected long getMessageCount(String uri, String queueName) throws Exception {
+      SimpleManagement management = new SimpleManagement(uri, null, null);
+      return getMessageCount(management, queueName);
+   }
+
+   protected long getMessageCount(SimpleManagement simpleManagement, String queue) throws Exception {
+      try {
+         long value = simpleManagement.getMessageCountOnQueue(queue);
+         logger.info("count on queue {} is {}", queue, value);
+         return value;
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         return -1;
+      }
+   }
+
 
 }

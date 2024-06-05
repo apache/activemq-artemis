@@ -345,7 +345,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       processDC2_node_A.waitFor();
       processDC2_node_A = startServer(DC2_NODE_A, 2, 5000, new File(getServerLocation(DC2_NODE_A), "broker.properties"));
 
-      Wait.assertEquals(0L, () -> getCount(simpleManagementDC1A, snfQueue), 250_000, 1000);
+      Wait.assertEquals(0L, () -> getMessageCount(simpleManagementDC1A, snfQueue), 250_000, 1000);
 
       try (Connection connection = connectionFactoryDC2A.createConnection()) {
          connection.start();
@@ -560,7 +560,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       processDC2_node_B.waitFor();
       processDC2_node_B = startServer(DC2_NODE_B, 3, 5000, new File(getServerLocation(DC2_NODE_B), "broker.properties"));
 
-      Wait.assertEquals(0L, () -> getCount(simpleManagementDC1B, snfQueue), 250_000, 1000);
+      Wait.assertEquals(0L, () -> getMessageCount(simpleManagementDC1B, snfQueue), 250_000, 1000);
       Wait.assertEquals(numberOfMessages / 2, () -> simpleManagementDC2B.getMessageCountOnQueue("nodeB.my-order"), 10000);
 
       logger.debug("Consuming from DC2B with {}", simpleManagementDC2B.getMessageCountOnQueue("nodeB.my-order"));
@@ -572,12 +572,6 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       Wait.assertEquals(0, () -> simpleManagementDC1B.getMessageCountOnQueue("nodeB.my-order"), 10000);
       consume(connectionFactoryDC1B, clientIDB, subscriptionID, numberOfMessages, 0, true);
       logger.debug("DC1B nodeB.my-order=0");
-   }
-
-   public long getCount(SimpleManagement simpleManagement, String queue) throws Exception {
-      long value = simpleManagement.getMessageCountOnQueue(queue);
-      logger.debug("count on queue {} is {}", queue, value);
-      return value;
    }
 
    private static void consume(ConnectionFactory factory, String clientID, String subscriptionID, int start, int numberOfMessages, boolean expectEmpty) throws Exception {

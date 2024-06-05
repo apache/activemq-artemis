@@ -228,9 +228,9 @@ public class IdempotentACKTest extends SoakTestBase {
       SimpleManagement simpleManagementDC1A = new SimpleManagement(DC1_NODEA_URI, null, null);
       SimpleManagement simpleManagementDC2A = new SimpleManagement(DC2_NODEA_URI, null, null);
 
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, snfQueue));
-      Wait.assertEquals(numberOfMessages, () -> getCount(simpleManagementDC1A, QUEUE_NAME));
-      Wait.assertEquals(numberOfMessages, () -> getCount(simpleManagementDC2A, QUEUE_NAME));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC1A, snfQueue));
+      Wait.assertEquals(numberOfMessages, () -> getMessageCount(simpleManagementDC1A, QUEUE_NAME));
+      Wait.assertEquals(numberOfMessages, () -> getMessageCount(simpleManagementDC2A, QUEUE_NAME));
 
       CountDownLatch latchKill = new CountDownLatch(consumers);
 
@@ -296,10 +296,10 @@ public class IdempotentACKTest extends SoakTestBase {
 
       // after all flushed messages, we should have 0 messages on both nodes
 
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, snfQueue));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, snfQueue));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC1A, QUEUE_NAME));
-      Wait.assertEquals(0, () -> getCount(simpleManagementDC2A, QUEUE_NAME));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC1A, snfQueue));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC2A, snfQueue));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC1A, QUEUE_NAME));
+      Wait.assertEquals(0, () -> getMessageCount(simpleManagementDC2A, QUEUE_NAME));
    }
 
    private void restartDC1_ServerA() throws Exception {
@@ -307,11 +307,5 @@ public class IdempotentACKTest extends SoakTestBase {
       assertTrue(processDC1_node_A.waitFor(10, TimeUnit.SECONDS));
       processDC1_node_A = startServer(DC1_NODE_A, -1, -1, new File(getServerLocation(DC1_NODE_A), "broker.properties"));
       ServerUtil.waitForServerToStart(0, 10_000);
-   }
-
-   public long getCount(SimpleManagement simpleManagement, String queue) throws Exception {
-      long value = simpleManagement.getMessageCountOnQueue(queue);
-      logger.debug("count on queue {} is {}", queue, value);
-      return value;
    }
 }

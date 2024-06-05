@@ -200,18 +200,4 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
          Wait.assertEquals(NUMBER_OF_MESSAGES, () -> getMessageCount(secondURI, "client" + clientID + ".subscription" + clientID));
       }
    }
-
-   long getMessageCount(String uri, String queueName) throws Exception {
-      SimpleManagement management = new SimpleManagement(uri, null, null);
-      try {
-         return management.getMessageCountOnQueue(queueName);
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         // if an exception happened during a retry
-         // we just return -1, so the retries will keep coming
-         return -1;
-      }
-
-   }
-
 }
