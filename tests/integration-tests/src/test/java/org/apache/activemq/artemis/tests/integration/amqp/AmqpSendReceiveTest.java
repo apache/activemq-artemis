@@ -55,6 +55,8 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Header;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.Message;
 import org.jgroups.util.UUID;
@@ -1256,7 +1258,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-
    @Test
    @Timeout(60)
    public void testReceiveRejecting() throws Exception {
@@ -1277,8 +1278,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          sender.send(message);
       }
 
-
-
       Queue queueView = getProxyToQueue(address);
 
       for (int i = 0; i < MSG_COUNT; i++) {
@@ -1296,11 +1295,95 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       assertNull(receiver.receive(1, TimeUnit.MILLISECONDS));
 
-
       Wait.assertEquals(0, queueView::getDeliveringCount);
 
       connection.close();
    }
 
+   @Test
+   @Timeout(60)
+   public void testCreateTopicReceiverOnAddressThatDoesNotExistOnPreviousAttempt() throws Exception {
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection connection = addConnection(client.connect());
+      final AmqpSession session = connection.createSession();
+      final String address = "test";
 
+      final Source source = new Source();
+      source.setDurable(TerminusDurability.UNSETTLED_STATE);
+      source.setCapabilities(Symbol.getSymbol("topic"));
+      source.setAddress(address);
+
+      try {
+         session.createReceiver(source, "test-receiver-subscription");
+         fail("Should not be able to create the receiver");
+      } catch (Exception ex) {
+         // Expected
+      }
+
+      server.addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
+
+      AmqpReceiver receiver = null;
+
+      try {
+         receiver = session.createReceiver(source, "test-receiver-subscription");
+         receiver.flow(1);
+      } catch (Exception ex) {
+         fail("Should be able to create the receiver");
+      }
+
+      final AmqpSender sender = session.createSender(address);
+      final AmqpMessage message = new AmqpMessage();
+      message.setText("TestPayload");
+
+      sender.send(message);
+
+      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(60)
+   public void testCreateQueueReceiverOnAddressThenRedoAsTopicReceiverAfterAddressUpdated() throws Exception {
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection connection = addConnection(client.connect());
+      final AmqpSession session = connection.createSession();
+      final String address = "test";
+
+      server.addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.ANYCAST));
+
+      final Source source = new Source();
+      source.setDurable(TerminusDurability.UNSETTLED_STATE);
+      source.setCapabilities(Symbol.getSymbol("topic"));
+      source.setAddress(address);
+
+      try {
+         session.createReceiver(source, "test-receiver-subscription");
+         fail("Should not be able to create the receiver");
+      } catch (Exception ex) {
+         // Expected
+      }
+
+      server.removeAddressInfo(SimpleString.of(address), null);
+      server.addAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
+
+      AmqpReceiver receiver = null;
+
+      try {
+         receiver = session.createReceiver(source, "test-receiver-subscription");
+         receiver.flow(1);
+      } catch (Exception ex) {
+         fail("Should be able to create the receiver");
+      }
+
+      final AmqpSender sender = session.createSender(address);
+      final AmqpMessage message = new AmqpMessage();
+      message.setText("TestPayload");
+
+      sender.send(message);
+
+      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
+
+      connection.close();
+   }
 }
