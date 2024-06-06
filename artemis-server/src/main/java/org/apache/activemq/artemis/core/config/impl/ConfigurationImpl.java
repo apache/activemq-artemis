@@ -153,6 +153,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String name = "localhost";
 
+   private String nodeID = null;
+
    private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
    private int maxRedeliveryRecords = ActiveMQDefaultConfiguration.getDefaultMaxRedeliveryRecords();
@@ -2560,6 +2562,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public String getNodeID() {
+      return nodeID;
+   }
+
+   @Override
+   public ConfigurationImpl setNodeID(String nodeID) {
+      this.nodeID = nodeID;
+      return this;
+   }
+
+   @Override
    public ConfigurationImpl setResolveProtocols(boolean resolveProtocols) {
       this.resolveProtocols = resolveProtocols;
       return this;
@@ -2707,6 +2720,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (int) (messageExpiryScanPeriod ^ (messageExpiryScanPeriod >>> 32));
       result = prime * result + messageExpiryThreadPriority;
       result = prime * result + ((name == null) ? 0 : name.hashCode());
+      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
       result = prime * result + ((outgoingInterceptorClassNames == null) ? 0 : outgoingInterceptorClassNames.hashCode());
       result = prime * result + ((pagingDirectory == null) ? 0 : pagingDirectory.hashCode());
       result = prime * result + (persistDeliveryCountBeforeDelivery ? 1231 : 1237);
@@ -2909,6 +2923,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (other.name != null)
             return false;
       } else if (!name.equals(other.name))
+         return false;
+      if (nodeID == null) {
+         if (other.nodeID != null)
+            return false;
+      } else if (!nodeID.equals(other.nodeID))
          return false;
       if (outgoingInterceptorClassNames == null) {
          if (other.outgoingInterceptorClassNames != null)

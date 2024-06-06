@@ -21,6 +21,7 @@
         xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
       <name>SomeNameForUseOnTheApplicationServer</name>
+      <node-id>AUniqueIDForThisBroker</node-id>
       <resolve-protocols>false</resolve-protocols>
       <persistence-enabled>false</persistence-enabled>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>

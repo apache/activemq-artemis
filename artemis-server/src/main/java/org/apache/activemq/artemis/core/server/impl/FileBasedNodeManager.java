@@ -208,7 +208,9 @@ public abstract class FileBasedNodeManager extends NodeManager {
             channel.write(id, 3);
             channel.force(true);
          } else if (read != 16) {
-            setUUID(UUIDGenerator.getInstance().generateUUID());
+            if (getUUID() == null) {
+               setUUID(UUIDGenerator.getInstance().generateUUID());
+            }
             id.put(getUUID().asBytes(), 0, 16);
             id.position(0);
             channel.write(id, 3);

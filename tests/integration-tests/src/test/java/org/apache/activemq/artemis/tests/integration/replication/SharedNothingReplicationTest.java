@@ -273,6 +273,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       conf.addClusterConfiguration(ccconf);
 
       conf.setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
+      conf.setNodeID("localhost::primary");
 
       return conf;
    }
@@ -304,6 +305,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       conf.addClusterConfiguration(ccconf);
 
       conf.setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
+      conf.setNodeID("localhost::backup");
 
       return conf;
    }

@@ -80,7 +80,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          // patch expectedNodeID
          final String coordinationId = policy.getPrimaryPolicy().getCoordinationId();
          if (coordinationId != null) {
-            expectedNodeID = coordinationId;
+            expectedNodeID = activeMQServer.getNodeManager().getConvertedNodeId(coordinationId);
          } else {
             final SimpleString serverNodeID = activeMQServer.getNodeID();
             if (serverNodeID == null || serverNodeID.isEmpty()) {
