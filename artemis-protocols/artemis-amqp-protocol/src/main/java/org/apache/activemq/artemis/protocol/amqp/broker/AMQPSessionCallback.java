@@ -108,8 +108,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
-   private final AddressQueryCache<AddressQueryResult> addressQueryCache = new AddressQueryCache<>();
-
    private ProtonTransactionHandler transactionHandler;
 
    private final RunnableList blockedRunnables = new RunnableList();
@@ -409,12 +407,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                           RoutingType routingType,
                                           boolean autoCreate) throws Exception {
 
-      AddressQueryResult addressQueryResult = addressQueryCache.getResult(addressName);
-      if (addressQueryResult != null) {
-         return addressQueryResult;
-      }
-
-      addressQueryResult = serverSession.executeAddressQuery(addressName);
+      AddressQueryResult addressQueryResult = serverSession.executeAddressQuery(addressName);
 
       if (!addressQueryResult.isExists() && addressQueryResult.isAutoCreateAddresses() && autoCreate) {
          try {
@@ -422,10 +415,10 @@ public class AMQPSessionCallback implements SessionCallback {
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
+
          addressQueryResult = serverSession.executeAddressQuery(addressName);
       }
 
-      addressQueryCache.setResult(addressName, addressQueryResult);
       return addressQueryResult;
    }
 
