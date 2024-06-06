@@ -115,4 +115,6 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119028, value = "Malformed Federation event message: {}")
    ActiveMQException malformedFederationEventMessage(String message);
 
+   @Message(id = 119029, value =  "Receiver link refused for address {}")
+   ActiveMQAMQPIllegalStateException receiverLinkRefused(String address);
 }

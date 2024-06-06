@@ -75,6 +75,8 @@ import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederati
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerAggregation;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.ReferenceIDSupplier;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPLargeMessageWriter;
@@ -84,6 +86,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMes
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageWriter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.MessageWriter;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
@@ -284,13 +287,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          Symbol[] dispatchCapability = new Symbol[]{AMQPMirrorControllerSource.QPID_DISPATCH_WAYPOINT_CAPABILITY};
          connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability, null);
          connectReceiver(protonRemotingConnection, session, sessionContext, queue, dispatchCapability);
-      } else {
-         if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null);
-         }
-         if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
-            connectReceiver(protonRemotingConnection, session, sessionContext, queue);
-         }
+      } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null);
+      } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
+         connectReceiver(protonRemotingConnection, session, sessionContext, queue);
       }
    }
 
@@ -644,34 +644,105 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       protonRemotingConnection.getAmqpConnection().runLater(() -> {
-
-         if (receivers.contains(queue)) {
+         if (!receivers.add(queue)) {
             logger.debug("Receiver for queue {} already exists, just giving up", queue);
             return;
          }
-         receivers.add(queue);
-         Receiver receiver = session.receiver(queue.getAddress().toString() + ":" + UUIDGenerator.getInstance().generateStringUUID());
-         receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
-         receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-         Target target = new Target();
-         target.setAddress(queue.getAddress().toString());
-         receiver.setTarget(target);
 
-         Source source = new Source();
-         source.setAddress(queue.getAddress().toString());
-         receiver.setSource(source);
-
-         if (capabilities != null) {
-            source.setCapabilities(capabilities);
-         }
-
-         receiver.open();
-         protonRemotingConnection.getAmqpConnection().flush();
          try {
-            sessionContext.addReceiver(receiver);
+            final String linkName = queue.getAddress().toString() + ":" + UUIDGenerator.getInstance().generateStringUUID();
+            final Receiver receiver = session.receiver(linkName);
+            final String queueAddress = queue.getAddress().toString();
+
+            final Target target = new Target();
+            target.setAddress(queueAddress);
+            final Source source = new Source();
+            source.setAddress(queueAddress);
+            if (capabilities != null) {
+               source.setCapabilities(capabilities);
+            }
+
+            receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+            receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+            receiver.setTarget(target);
+            receiver.setSource(source);
+            receiver.open();
+
+            final ScheduledFuture<?> openTimeoutTask;
+            final AtomicBoolean openTimedOut = new AtomicBoolean(false);
+
+            if (getConnectionTimeout() > 0) {
+               openTimeoutTask = server.getScheduledPool().schedule(() -> {
+                  openTimedOut.set(true);
+                  error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout(), lastRetryCounter);
+               }, getConnectionTimeout(), TimeUnit.MILLISECONDS);
+            } else {
+               openTimeoutTask = null;
+            }
+
+            // Await the remote attach before creating the broker receiver in order to impose a timeout
+            // on the attach response and then try and create the local server receiver context and finish
+            // the wiring.
+            receiver.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
+               try {
+                  if (openTimeoutTask != null) {
+                     openTimeoutTask.cancel(false);
+                  }
+
+                  if (openTimedOut.get()) {
+                     return; // Timed out before remote attach arrived
+                  }
+
+                  if (receiver.getRemoteSource() != null) {
+                     logger.trace("AMQP Broker Connection Receiver {} completed open", linkName);
+                  } else {
+                     logger.debug("AMQP Broker Connection Receiver {} rejected by remote", linkName);
+                     error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.receiverLinkRefused(queueAddress), lastRetryCounter);
+                     return;
+                  }
+
+                  sessionContext.addReceiver(receiver, (r, s) -> {
+                     // Returns a customized server receiver context that will respect the locally initiated state
+                     // when the receiver is initialized vs the remotely sent target as we want to ensure we attach
+                     // the receiver to the address we set in our local state.
+                     return new ProtonServerReceiverContext(sessionContext.getSessionSPI(),
+                                                            sessionContext.getAMQPConnectionContext(),
+                                                            sessionContext, receiver) {
+
+                        @Override
+                        public void initialize() throws Exception {
+                           initialized = true;
+                           address = SimpleString.of(target.getAddress());
+                           defRoutingType = getRoutingType(target.getCapabilities(), address);
+
+                           try {
+                              // Check if the queue that triggered the attach still exists or has it been removed
+                              // before the attach response arrived from the remote peer.
+                              if (!sessionSPI.queueQuery(queue.getName(), queue.getRoutingType(), false).isExists()) {
+                                 throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(address.toString());
+                              }
+                           } catch (ActiveMQAMQPException e) {
+                              receivers.remove(queue);
+                              throw e;
+                           } catch (Exception e) {
+                              logger.debug(e.getMessage(), e);
+                              receivers.remove(queue);
+                              throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+                           }
+
+                           flow();
+                        }
+                     };
+                  });
+               } catch (Exception e) {
+                  error(e);
+               }
+            });
          } catch (Exception e) {
             error(e);
          }
+
+         protonRemotingConnection.getAmqpConnection().flush();
       });
    }
 
