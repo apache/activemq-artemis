@@ -29,7 +29,7 @@ public class SelectorTest {
 
    @Test
    public void testBooleanSelector() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "(trueProp OR falseProp) AND trueProp", true);
       assertSelector(message, "(trueProp OR falseProp) AND falseProp", false);
@@ -41,7 +41,7 @@ public class SelectorTest {
 
    @Test
    public void testXPathSelectors() throws Exception {
-      MockMessage message = new MockMessage();
+      final MockMessage message = new MockMessage();
 
       message.setJMSType("xml");
       message.setText("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
@@ -104,7 +104,7 @@ public class SelectorTest {
 
    @Test
    public void testDottedProperty() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       message.setJMSType("selector-test");
       message.setStringProperty("a.test", "value");
       message.setJMSMessageID("id:test:1:1:1:1");
@@ -114,7 +114,7 @@ public class SelectorTest {
 
    @Test
    public void testBasicSelectors() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James'", true);
       assertSelector(message, "rank > 100", true);
@@ -125,7 +125,7 @@ public class SelectorTest {
 
    @Test
    public void testPropertyTypes() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       assertSelector(message, "byteProp = 123", true);
       assertSelector(message, "byteProp = 10", false);
       assertSelector(message, "byteProp2 = 33", true);
@@ -152,7 +152,7 @@ public class SelectorTest {
 
    @Test
    public void testAndSelectors() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James' and rank < 200", true);
       assertSelector(message, "name = 'James' and rank > 200", false);
@@ -162,7 +162,7 @@ public class SelectorTest {
 
    @Test
    public void testOrSelectors() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James' or rank < 200", true);
       assertSelector(message, "name = 'James' or rank > 200", true);
@@ -173,7 +173,7 @@ public class SelectorTest {
 
    @Test
    public void testPlus() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "rank + 2 = 125", true);
       assertSelector(message, "(rank + 2) = 125", true);
@@ -185,7 +185,7 @@ public class SelectorTest {
 
    @Test
    public void testMinus() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "rank - 2 = 121", true);
       assertSelector(message, "rank - version = 121", true);
@@ -194,7 +194,7 @@ public class SelectorTest {
 
    @Test
    public void testMultiply() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "rank * 2 = 246", true);
       assertSelector(message, "rank * version = 246", true);
@@ -203,7 +203,7 @@ public class SelectorTest {
 
    @Test
    public void testDivide() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "rank / version = 61.5", true);
       assertSelector(message, "rank / 3 > 100.0", false);
@@ -214,7 +214,7 @@ public class SelectorTest {
 
    @Test
    public void testBetween() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "rank between 100 and 150", true);
       assertSelector(message, "rank between 10 and 120", false);
@@ -222,7 +222,7 @@ public class SelectorTest {
 
    @Test
    public void testIn() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "name in ('James', 'Bob', 'Gromit')", true);
       assertSelector(message, "name in ('Bob', 'James', 'Gromit')", true);
@@ -234,7 +234,7 @@ public class SelectorTest {
 
    @Test
    public void testIsNull() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "dummy is null", true);
       assertSelector(message, "dummy is not null", false);
@@ -269,7 +269,7 @@ public class SelectorTest {
     */
    @Test
    public void testMatsHenricsonUseCases() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       assertSelector(message, "SessionserverId=1870414179", false);
 
       message.setLongProperty("SessionserverId", 1870414179);
@@ -291,7 +291,7 @@ public class SelectorTest {
 
    @Test
    public void testFloatComparisons() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       // JMS 1.1 Section 3.8.1.1 : Approximate literals use the Java
       // floating-point literal syntax.
@@ -341,13 +341,13 @@ public class SelectorTest {
 
    @Test
    public void testStringQuoteParsing() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       assertSelector(message, "quote = '''In God We Trust'''", true);
    }
 
    @Test
    public void testLikeComparisons() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
 
       assertSelector(message, "quote LIKE '''In G_d We Trust'''", true);
       assertSelector(message, "quote LIKE '''In Gd_ We Trust'''", false);
@@ -369,7 +369,7 @@ public class SelectorTest {
 
    @Test
    public void testSpecialEscapeLiteral() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       assertSelector(message, "foo LIKE '%_%' ESCAPE '%'", true);
       assertSelector(message, "endingUnderScore LIKE '_D7xlJIQn$_' ESCAPE '$'", true);
       assertSelector(message, "endingUnderScore LIKE '_D7xlJIQn__' ESCAPE '_'", true);
@@ -385,12 +385,26 @@ public class SelectorTest {
 
    @Test
    public void testInvalidSelector() throws Exception {
-      MockMessage message = createMessage();
+      final MockMessage message = createMessage();
       assertInvalidSelector(message, "3+5");
       assertInvalidSelector(message, "True AND 3+5");
       assertInvalidSelector(message, "=TEST 'test'");
       assertInvalidSelector(message, "prop1 = prop2 foo AND string = 'Test'");
       assertInvalidSelector(message, "a = 1 AMD  b = 2");
+
+      assertInvalidSelector(message, "CALL 'com__external__pkg__InvalidClass__noneExisting'('test')");
+      assertInvalidSelector(message, "CALL 'com__external__pkg__ExternalClass__staticFunction'('name')");
+      assertInvalidSelector(message, "CALL 'com__external__pkg__ExternalClass__staticInvalidFunction'('name', 'James')");
+      assertInvalidSelector(message, "CALL 'com__external__pkg__ExternalClass__externalFunction'('name', 'James')");
+      assertInvalidSelector(message, "CALL 'com__external__pkg__ExternalClass__staticFunctionNoParams'('test')");
+   }
+
+   @Test
+   public void testFunctionSelector() throws Exception {
+      final MockMessage message = createMessage();
+      assertSelector(message, "CALL 'com__external__pkg__ExternalClass__staticFunction'('name', 'James')", true);
+      assertSelector(message, "CALL 'com__external__pkg__ExternalClass__staticFunction'('name', 1567)", false);
+      assertSelector(message, "CALL 'com__external__pkg__ExternalClass__staticFunctionNoParams'( )", true);
    }
 
    protected MockMessage createMessage() {

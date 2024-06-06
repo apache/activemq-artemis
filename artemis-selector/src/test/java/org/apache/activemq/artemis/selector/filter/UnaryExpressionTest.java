@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.junit.jupiter.api.Test;
 

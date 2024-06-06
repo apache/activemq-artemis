@@ -110,6 +110,7 @@ TOKEN [IGNORE_CASE] :
   | <  NULL    : "NULL" >
   | <  XPATH   : "XPATH" >
   | <  XQUERY  : "XQUERY" >
+  | <  CALL    : "CALL" >
 }
 
 /* Literals */
@@ -429,6 +430,8 @@ Expression unaryExpr() :
 		    left = UnaryExpression.createXQuery( s );
 	    }
 	    |
+	    <CALL> left=functionCall()
+	    |
 	    left = primaryExpr()
     )
     {
@@ -543,6 +546,96 @@ String stringLitteral() :
    			rc.append(c);
     	}
 	    return rc.toString();
+    }
+}
+
+Expression functionCall() :
+{
+    String functionName;
+    Object param;
+    List<Object> params = new LinkedList<Object>();
+}
+{
+    functionName=stringLitteral()
+    "("
+    [
+      param = functionParameter()
+      {
+        params.add(param);
+      }
+      (
+        "," param = functionParameter()
+        {
+          params.add(param);
+        }
+      )*
+    ]
+    ")"
+    {
+      return UnaryExpression.createFunctionCall(functionName, params);
+    }
+}
+
+Object functionParameter() :
+{
+    Token t;
+    Object param;
+}
+{
+    (
+        param = stringLitteral()
+        |
+        (
+            t = <DECIMAL_LITERAL>
+            {
+            	param = t.image;
+            }
+        )
+        |
+        (
+            t = <HEX_LITERAL>
+            {
+            	param = t.image;
+            }
+        )
+        |
+        (
+            t = <OCTAL_LITERAL>
+            {
+            	param = t.image;
+            }
+        )
+        |
+        (
+            t = <FLOATING_POINT_LITERAL>
+            {
+            	param = t.image;
+            }
+        )
+        |
+        (
+            <TRUE>
+            {
+                param = true;
+            }
+        )
+        |
+        (
+            <FALSE>
+            {
+                param = false;
+            }
+        )
+        |
+        (
+            <NULL>
+            {
+                param = null;
+            }
+        )
+    )
+    {
+        return param;
     }
 }
 

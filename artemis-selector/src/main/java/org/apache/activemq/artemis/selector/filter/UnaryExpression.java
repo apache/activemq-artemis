@@ -164,6 +164,10 @@ public abstract class UnaryExpression implements Expression {
       return new XQueryExpression(xpath);
    }
 
+   public static CallExpression createFunctionCall(final String functionName, final List<Object> parameters) {
+      return new CallExpression(functionName, parameters);
+   }
+
    public static BooleanExpression createBooleanCast(Expression left) {
       return new BooleanUnaryExpression(left) {
          @Override
