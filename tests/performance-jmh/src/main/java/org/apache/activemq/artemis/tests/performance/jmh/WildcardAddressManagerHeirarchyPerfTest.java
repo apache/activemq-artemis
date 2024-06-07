@@ -183,12 +183,12 @@ public class WildcardAddressManagerHeirarchyPerfTest {
 
          if (verifyWildcardBinding) {
             // ensure simple matches present
-            addresses[i] = SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", i % partitions, i));
-            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.toSimpleString("" + i), i));
+            addresses[i] = SimpleString.of(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", i % partitions, i));
+            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.of("" + i), i));
          } else {
             // ensure wildcard matches present
-            addresses[i] = SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.*.{1}", i % partitions, i));
-            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.toSimpleString("" + i), i));
+            addresses[i] = SimpleString.of(MessageFormat.format("Topic1.abc-{0}.*.{1}", i % partitions, i));
+            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.of("" + i), i));
 
          }
       }
@@ -213,9 +213,9 @@ public class WildcardAddressManagerHeirarchyPerfTest {
          final long id = benchmarkState.nextId();
          addresses = benchmarkState.addresses;
          if (benchmarkState.verifyWildcardBinding) {
-            binding = new BindingFake(SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{1}.>", id % benchmarkState.partitions, id)), SimpleString.toSimpleString("" + id), id);
+            binding = new BindingFake(SimpleString.of(MessageFormat.format("Topic1.abc-{0}.def-{1}.>", id % benchmarkState.partitions, id)), SimpleString.of("" + id), id);
          } else {
-            binding = new BindingFake(SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", id % benchmarkState.partitions, id)), SimpleString.toSimpleString("" + id), id);
+            binding = new BindingFake(SimpleString.of(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", id % benchmarkState.partitions, id)), SimpleString.of("" + id), id);
          }
       }
 

@@ -79,8 +79,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryOnStaticQueueWithFQQN() throws Exception {
-//      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-//      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+//      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+//      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString addressName = SimpleString.of("myAddress");
       SimpleString queueName = SimpleString.of("myQueue");
       SimpleString fqqn = addressName.concat("::").concat(queueName);

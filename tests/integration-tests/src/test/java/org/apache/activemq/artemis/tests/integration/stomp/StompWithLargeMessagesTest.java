@@ -391,7 +391,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //         this.sendJmsMessage(msg);
 //      }
 //
-//      IntegrationTestLogger.LOGGER.info("Message count for {}: {}", getQueueName(), server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(getQueueName())).getMessageCount());
+//      IntegrationTestLogger.LOGGER.info("Message count for {}: {}", getQueueName(), server.getActiveMQServer().locateQueue(SimpleString.of(getQueueName())).getMessageCount());
 //
 //      StompClientConnection connV12 = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
 //      connV12.connect(defUser, defPass);
