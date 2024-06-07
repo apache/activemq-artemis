@@ -367,7 +367,7 @@ broker.xml::
 core broker configuration, e.g. acceptors, addresses, queues, diverts, clustering; xref:configuration-index.adoc#configuration-reference[full reference]
 
 jolokia-access.xml::
-https://jolokia.org/reference/html/security.html[security for Jolokia], specifically Cross-Origin Resource Sharing (CORS)
+https://jolokia.org/reference/html/manual/security.html[security for Jolokia], specifically Cross-Origin Resource Sharing (CORS)
 
 log4j2.properties::
 xref:logging.adoc#logging[logging config] like levels, log file locations, etc.
