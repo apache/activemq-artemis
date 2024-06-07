@@ -61,7 +61,7 @@ public class AddressMapPerfTest {
       entries = 1 << entriesLog2;
       keys = new SimpleString[entries];
       for (int i = 0; i < entries; i++) {
-         keys[i] = SimpleString.toSimpleString("topic." + i % entriesLog2 + "." + i);
+         keys[i] = SimpleString.of("topic." + i % entriesLog2 + "." + i);
       }
    }
 
