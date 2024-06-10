@@ -1251,6 +1251,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
       assertEquals(addressSettings.getExpiryAddress(), info.getExpiryAddress());
       assertEquals(addressSettings.getRedeliveryDelay(), info.getRedeliveryDelay());
+
+      addressSettings.setIntermediateMessageBufferInitialSize(64);
+      returnedSettings = serverControl.addAddressSettings("foo", addressSettings.toJSON());
+      info = AddressSettings.fromJSON(returnedSettings);
+      assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
+      assertEquals(addressSettings.getExpiryAddress(), info.getExpiryAddress());
+      assertEquals(addressSettings.getRedeliveryDelay(), info.getRedeliveryDelay());
+      assertEquals(addressSettings.getIntermediateMessageBufferInitialSize(), info.getIntermediateMessageBufferInitialSize());
    }
    @TestTemplate
    public void emptyAddressSettings() throws Exception {
@@ -1312,6 +1320,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(addressSettings.getExpiryQueuePrefix(), info.getExpiryQueuePrefix());
       assertEquals(addressSettings.getExpiryQueueSuffix(), info.getExpiryQueueSuffix());
       assertEquals(addressSettings.isEnableMetrics(), info.isEnableMetrics());
+      assertEquals(addressSettings.getIntermediateMessageBufferInitialSize(), info.getIntermediateMessageBufferInitialSize());
    }
    @TestTemplate
    public void testAddressSettings() throws Exception {
@@ -1372,6 +1381,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
       boolean enableMetrics = RandomUtil.randomBoolean();
+      int intermediateMessageBufferInitialSize = RandomUtil.randomPowerOfTwo();
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(SimpleString.of(DLA))
@@ -1426,7 +1436,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
               .setExpiryQueueSuffix(SimpleString.of(expiryQueueSuffix))
               .setMinExpiryDelay(minExpiryDelay)
               .setMaxExpiryDelay(maxExpiryDelay)
-              .setEnableMetrics(enableMetrics);
+              .setEnableMetrics(enableMetrics)
+              .setIntermediateMessageBufferInitialSize(intermediateMessageBufferInitialSize);
 
 
       serverControl.addAddressSettings(addressMatch, addressSettings.toJSON());
@@ -1500,6 +1511,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
+      assertEquals(intermediateMessageBufferInitialSize, info.getIntermediateMessageBufferInitialSize());
 
 
       addressSettings.setMaxSizeBytes(-1).setPageSizeBytes(1000);
@@ -1561,6 +1573,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
       assertEquals(enableMetrics, info.isEnableMetrics());
+      assertEquals(intermediateMessageBufferInitialSize, info.getIntermediateMessageBufferInitialSize());
 
 
       addressSettings.setMaxSizeBytes(-2).setPageSizeBytes(1000);

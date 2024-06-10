@@ -551,4 +551,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229253, value = "Unable to acquire OperationContext when replicating packet: {}. ExecutorFactory: {}")
    IllegalStateException replicationFailureRepliTokenNull(String packet, String executorFactory);
+
+   @Message(id = 229254, value = "{} must be a power of 2 (actual value: {})")
+   IllegalArgumentException powerOfTwo(String name, Number val);
 }

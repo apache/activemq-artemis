@@ -213,7 +213,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
-   private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences = new MpscUnboundedArrayQueue<>(8192);
+   private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences;
 
    // This is where messages are stored
    protected final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getSequenceComparator());
@@ -364,6 +364,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private volatile long ringSize;
 
    private volatile long createdTimestamp = -1;
+
+   private final int intermediateMessageBufferInitialSize;
 
    @Override
    public boolean isSwept() {
@@ -753,6 +755,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       this.ringSize = queueConfiguration.getRingSize() == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : queueConfiguration.getRingSize();
+
+      this.intermediateMessageBufferInitialSize = this.addressSettings.getIntermediateMessageBufferInitialSize() == null
+              ? ActiveMQDefaultConfiguration.DEFAULT_INTERMEDIATE_MESSAGE_BUFFER_INITIAL_SIZE
+              : this.addressSettings.getIntermediateMessageBufferInitialSize();
+      this.intermediateMessageReferences = new MpscUnboundedArrayQueue<>(intermediateMessageBufferInitialSize);
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
@@ -1090,6 +1097,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public RoutingType getRoutingType() {
       return routingType;
+   }
+
+   @Override
+   public int getIntermediateMessageBufferInitialSize() {
+      return this.intermediateMessageBufferInitialSize;
    }
 
    @Override
