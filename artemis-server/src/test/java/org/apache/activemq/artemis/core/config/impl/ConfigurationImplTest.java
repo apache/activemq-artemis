@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlu
 import org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
+import org.apache.activemq.artemis.core.server.transformer.AddHeadersTransformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -680,7 +681,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       // flip b in place
       properties.put("bridgeConfigurations.b1.staticConnectors[1]", "c");
 
+      properties.put("bridgeConfigurations.b1.transformerConfiguration.className", AddHeadersTransformer.class.getName());
+      properties.put("bridgeConfigurations.b1.transformerConfiguration.properties", "header1=a,header2=b");
+      properties.put("bridgeConfigurations.b1.transformerConfiguration.properties.header3","c");
+
       configuration.parsePrefixedProperties(properties, null);
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       assertEquals(1, configuration.getBridgeConfigurations().size());
       assertEquals(queueName, configuration.getBridgeConfigurations().get(0).getQueueName());
@@ -692,6 +698,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
 
       assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
+
+      assertEquals(3, configuration.getBridgeConfigurations().get(0).getTransformerConfiguration().getProperties().size());
+      assertEquals(AddHeadersTransformer.class.getName(), configuration.getBridgeConfigurations().get(0).getTransformerConfiguration().getClassName());
 
       properties = new ConfigurationImpl.InsertionOrderedProperties();
       // validate out of bound is trapped as error
