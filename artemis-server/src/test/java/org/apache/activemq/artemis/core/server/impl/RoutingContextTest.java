@@ -379,6 +379,11 @@ public class RoutingContextTest {
       }
 
       @Override
+      public int getInitialQueueBufferSize() {
+         return 0;
+      }
+
+      @Override
       public ReferenceCounter getConsumersRefCount() {
          return null;
       }

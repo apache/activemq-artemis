@@ -80,6 +80,7 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <enable-metrics>true</enable-metrics>
       <enable-ingress-timestamp>false</enable-ingress-timestamp>
       <id-cache-size>20000</id-cache-size>
+      <initial-queue-buffer-size>8192</initial-queue-buffer-size>
    </address-setting>
 </address-settings>
 ----
@@ -393,6 +394,11 @@ defines the maximum size of the duplicate ID cache for an address, as each addre
 that helps to detect and prevent the processing of duplicate messages based on their unique identification.
 By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000` elements if not explicitly configured.
 Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
+
+initial-queue-buffer-size::
+defines the initial number of elements allocated initially on the JVM heap for the message reference buffer. This is allocated for each queue.
+If there are many queues that are created but unlikely to be used, this can be configured to a smaller value to prevent large initial allocation.
+By default, this value is `8192` if not explicitly configured. This must be a positive power of 2 (i.e. `0` is not an option).
 
 ## Literal Matches
 

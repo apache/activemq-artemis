@@ -639,6 +639,7 @@
             <management-browse-page-size>400</management-browse-page-size>
             <management-message-attribute-size-limit>265</management-message-attribute-size-limit>
             <id-cache-size>500</id-cache-size>
+            <initial-queue-buffer-size>128</initial-queue-buffer-size>
          </address-setting>
       </address-settings>
       <resource-limit-settings>

@@ -141,6 +141,7 @@ import static org.apache.activemq.artemis.core.config.impl.Validators.PAGE_FULL_
 import static org.apache.activemq.artemis.core.config.impl.Validators.PERCENTAGE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.PERCENTAGE_OR_MINUS_ONE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.POSITIVE_INT;
+import static org.apache.activemq.artemis.core.config.impl.Validators.POSITIVE_POWER_OF_TWO;
 import static org.apache.activemq.artemis.core.config.impl.Validators.ROUTING_TYPE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.SLOW_CONSUMER_POLICY_TYPE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
@@ -387,6 +388,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String MIRROR_ACK_MANAGER_RETRY_DELAY = "mirror-ack-manager-retry-delay";
 
    private static final String MIRROR_PAGE_TRANSACTION = "mirror-page-transaction";
+
+   private static final String INITIAL_QUEUE_BUFFER_SIZE = "initial-queue-buffer-size";
 
    private boolean validateAIO = false;
 
@@ -1472,6 +1475,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setEnableIngressTimestamp(XMLUtil.parseBoolean(child));
          } else if (ID_CACHE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setIDCacheSize(GE_ZERO.validate(ID_CACHE_SIZE, XMLUtil.parseInt(child)).intValue());
+         } else if (INITIAL_QUEUE_BUFFER_SIZE.equalsIgnoreCase(name)) {
+            addressSettings.setInitialQueueBufferSize(POSITIVE_POWER_OF_TWO.validate(INITIAL_QUEUE_BUFFER_SIZE, XMLUtil.parseInt(child)).intValue());
          }
       }
       return setting;
