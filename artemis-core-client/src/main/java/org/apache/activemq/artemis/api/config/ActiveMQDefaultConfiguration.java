@@ -512,6 +512,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_GLOBAL_MAX_MESSAGES = -1;
 
+   public static final int INITIAL_QUEUE_BUFFER_SIZE = 8192;
+
    public static final int DEFAULT_MAX_DISK_USAGE;
 
    static {
@@ -1967,4 +1969,10 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_MIRROR_PAGE_TRANSACTION;
    }
 
+   /**
+    * the initial size of the intermediate message buffer used for queues
+    */
+   public static int getInitialQueueBufferSize() {
+      return INITIAL_QUEUE_BUFFER_SIZE;
+   }
 }
