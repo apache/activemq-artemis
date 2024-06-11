@@ -37,6 +37,8 @@ public interface ReplicatedLargeMessage {
     */
    Message setMessageID(long id);
 
+   Message getMessage();
+
    /**
     * @see org.apache.activemq.artemis.core.server.LargeServerMessage#releaseResources(boolean,boolean)
     */

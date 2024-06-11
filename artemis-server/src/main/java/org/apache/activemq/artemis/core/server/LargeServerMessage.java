@@ -50,6 +50,8 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
    @Override
    void releaseResources(boolean sync, boolean sendEvent);
 
+   boolean isOpen();
+
    @Override
    void deleteFile() throws Exception;
 

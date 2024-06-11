@@ -42,6 +42,11 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
+   public boolean isOpen() {
+      return false;
+   }
+
+   @Override
    public LargeBody getLargeBody() {
       return null;
    }
@@ -64,6 +69,11 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
       // expand the buffer
       buffer.writeBytes(bytes);
+   }
+
+   @Override
+   public Message getMessage() {
+      return this;
    }
 
    @Override

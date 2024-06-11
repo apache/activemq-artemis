@@ -96,6 +96,11 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    }
 
    @Override
+   public Message getMessage() {
+      return mainLM.toMessage();
+   }
+
+   @Override
    public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (logger.isTraceEnabled()) {
          logger.trace("release resources called on {}", mainLM, new Exception("trace"));
