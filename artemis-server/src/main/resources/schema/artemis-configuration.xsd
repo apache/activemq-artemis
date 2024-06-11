@@ -4448,7 +4448,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="id-cache-size" type="xsd:int" maxOccurs="1" minOccurs="0">
+         <xsd:element name="id-cache-size" type="xsd:int" default="20000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   This will set the Duplicate ID cache size for the matching address. By default the global
