@@ -227,6 +227,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
       PageCursorInfo info = new PageCursorInfo(position.getPageNr(), position.getMessageNr());
       info.setCompleteInfo(position);
+      info.clear();
       synchronized (consumedPages) {
          consumedPages.put(position.getPageNr(), info);
       }
@@ -295,6 +296,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
                PageCursorInfo info = entry.getValue();
 
                if (info.isDone() && !info.isPendingDelete()) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Complete page {} on queue {} / {}", info, queue.getName(), queue.getID());
+                  }
                   Page currentPage = pageStore.getCurrentPage();
 
                   if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId()) {
@@ -329,16 +333,19 @@ public final class PageSubscriptionImpl implements PageSubscription {
                }
             }
 
-            // it will delete the page ack records
-            for (PagePosition pos : infoPG.acks.values()) {
-               if (pos.getRecordID() >= 0) {
-                  store.deleteCursorAcknowledgeTransactional(tx.getID(), pos.getRecordID());
-                  if (!persist) {
-                     // only need to set it once
-                     tx.setContainsPersistent();
-                     persist = true;
+            if (infoPG.acks != null) {
+               // it will delete the page ack records
+               for (PagePosition pos : infoPG.acks.values()) {
+                  if (pos.getRecordID() >= 0) {
+                     store.deleteCursorAcknowledgeTransactional(tx.getID(), pos.getRecordID());
+                     if (!persist) {
+                        // only need to set it once
+                        tx.setContainsPersistent();
+                        persist = true;
+                     }
                   }
                }
+               infoPG.clear();
             }
          }
 
@@ -636,10 +643,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
          synchronized (consumedPages) {
             for (PageCursorInfo cursor : consumedPages.values()) {
-               for (PagePosition info : cursor.acks.values()) {
-                  if (info.getRecordID() >= 0) {
-                     isPersistent = true;
-                     store.deleteCursorAcknowledgeTransactional(tx, info.getRecordID());
+               if (cursor.acks != null) {
+                  for (PagePosition info : cursor.acks.values()) {
+                     if (info.getRecordID() >= 0) {
+                        isPersistent = true;
+                        store.deleteCursorAcknowledgeTransactional(tx, info.getRecordID());
+                     }
                   }
                }
                PagePosition completeInfo = cursor.getCompleteInfo();
@@ -739,12 +748,14 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
             info.setCompleteInfo(null);
          }
-         for (PagePosition deleteInfo : info.acks.values()) {
-            if (deleteInfo.getRecordID() >= 0) {
-               try {
-                  store.deleteCursorAcknowledge(deleteInfo.getRecordID());
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorDeletingPageCompleteRecord(e);
+         if (info.acks != null) {
+            for (PagePosition deleteInfo : info.acks.values()) {
+               if (deleteInfo.getRecordID() >= 0) {
+                  try {
+                     store.deleteCursorAcknowledge(deleteInfo.getRecordID());
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.errorDeletingPageCompleteRecord(e);
+                  }
                }
             }
          }
@@ -907,13 +918,28 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       @Override
       public synchronized boolean isAck(int messageNumber) {
-         return completePage != null || acks.get(messageNumber) != null;
+         return completePage != null || acks != null && acks.get(messageNumber) != null;
       }
 
       @Override
       public void forEachAck(BiConsumer<Integer, PagePosition> ackConsumer) {
-         acks.forEach(ackConsumer);
+         if (acks != null) {
+            acks.forEach(ackConsumer);
+         }
       }
+
+      public IntObjectHashMap getAcks() {
+         return acks;
+      }
+
+      public IntObjectHashMap getRemovedReferences() {
+         return removedReferences;
+      }
+
+      public PagePosition getCompletePageInformation() {
+         return completePage;
+      }
+
 
       @Override
       public String toString() {
@@ -951,6 +977,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
          this.pageId = pageId;
          //given that is live, the exact value must be get directly from cache
          this.numberOfMessages = -1;
+      }
+
+      public void clear() {
+         this.removedReferences = null;
+         this.acks = null;
       }
 
       /**
@@ -1006,14 +1037,17 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       public synchronized boolean isRemoved(final int messageNr) {
-         return removedReferences.get(messageNr) != null;
+         // removed references = null means everything is acked and done, so we just return true here
+         return completePage != null || removedReferences == null || removedReferences.get(messageNr) != null;
       }
 
       public synchronized void remove(final int messageNr) {
          if (logger.isTraceEnabled()) {
             logger.trace("PageCursor Removing messageNr {} on page {}", messageNr, pageId);
          }
-         removedReferences.put(messageNr, DUMMY);
+         if (removedReferences != null) {
+            removedReferences.put(messageNr, DUMMY);
+         }
       }
 
       public void addACK(final PagePosition posACK) {
@@ -1044,8 +1078,17 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       synchronized boolean internalAddACK(final PagePosition position) {
-         removedReferences.put(position.getMessageNr(), DUMMY);
-         return acks.put(position.getMessageNr(), position) == null;
+         if (logger.isDebugEnabled()) {
+            logger.debug("internalAddACK on queue {} (id={}), position {}", queue.getName(), queue.getID(), position);
+         }
+         if (removedReferences != null) {
+            removedReferences.put(position.getMessageNr(), DUMMY);
+         }
+         if (acks == null) {
+            return false;
+         } else {
+            return acks.put(position.getMessageNr(), position) == null;
+         }
       }
 
       /**
