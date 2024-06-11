@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +144,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private final ArrayDeque<Packet> pendingPackets;
 
+   private boolean synchronizing = true;
 
 
    public ReplicationEndpoint(final ActiveMQServerImpl server,
@@ -420,6 +422,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("BACKUP-SYNC-START: finishSynchronization::{} activationSequence = {}", primaryID, activationSequence);
       }
+
+      synchronizing = false;
+
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
          Journal journal = journalsHolder.remove(jc);
          logger.trace("getting lock on {}, journal = {}", jc, journal);
@@ -452,6 +457,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       logger.trace("Sync on large messages...");
 
+      ArrayList<Long> lmToRemove = null;
+
       ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
       for (Entry<Long, ReplicatedLargeMessage> entry : largeMessages.entrySet()) {
          ReplicatedLargeMessage lm = entry.getValue();
@@ -460,7 +467,18 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("lmSync on {}", lmSync);
 
             lmSync.joinSyncedData(buffer);
+
+            if (!lmSync.getSyncFile().isOpen()) {
+               if (lmToRemove == null) {
+                  lmToRemove = new ArrayList<>();
+               }
+               lmToRemove.add(lm.getMessage().getMessageID());
+            }
          }
+      }
+
+      if (lmToRemove != null) {
+         lmToRemove.forEach(largeMessages::remove);
       }
 
       logger.trace("setRemoteBackupUpToDate and primaryIDSet for {}", primaryID);
@@ -555,6 +573,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
          return replicationResponseMessage;
       }
+
+      synchronizing = true;
 
       switch (packet.getDataType()) {
          case LargeMessages:
@@ -652,6 +672,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          message = largeMessages.remove(messageId);
          if (message == null) {
             return newLargeMessage(messageId, false);
+         } else {
+            if (synchronizing && message instanceof LargeServerMessageInSync) {
+               // putting it back as it is still synchronizing
+               largeMessages.put(messageId, message);
+            }
          }
       } else {
          message = largeMessages.get(messageId);

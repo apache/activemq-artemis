@@ -73,6 +73,11 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
+   @Override
+   public Message getMessage() {
+      return this;
+   }
+
    private boolean reencoded = false;
 
    /**
@@ -435,7 +440,15 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    @Override
    public void releaseResources(boolean sync, boolean sendEvent) {
       largeBody.releaseResources(sync, sendEvent);
+   }
 
+   @Override
+   public boolean isOpen() {
+      try {
+         return largeBody.getAppendFile().isOpen();
+      } catch (Throwable e) {
+         return false;
+      }
    }
 
    @Override
