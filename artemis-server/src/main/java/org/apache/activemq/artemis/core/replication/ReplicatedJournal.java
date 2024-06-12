@@ -81,6 +81,10 @@ public class ReplicatedJournal implements Journal {
 
    }
 
+   public Journal getLocalJournal() {
+      return localJournal;
+   }
+
    /**
     * @param id
     * @param recordType
