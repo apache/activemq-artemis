@@ -58,6 +58,11 @@ public class ReplicatedJournal implements Journal {
    private final byte journalID;
 
    @Override
+   public boolean isHistory() {
+      return localJournal.isHistory();
+   }
+
+   @Override
    public void setRemoveExtraFilesOnLoad(boolean removeExtraFilesOnLoad) {
       this.localJournal.setRemoveExtraFilesOnLoad(removeExtraFilesOnLoad);
    }
