@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -40,6 +41,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
+import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -84,7 +86,15 @@ public class ReplayManager {
 
       if (journal == null) {
          // notice this routing plays single threaded. no need for any sort of synchronization here
-         journal = (JournalImpl)server.getStorageManager().getMessageJournal();
+         Journal storageManageJournal =  server.getStorageManager().getMessageJournal();
+         if (storageManageJournal instanceof JournalImpl) {
+            journal = (JournalImpl) storageManageJournal;
+         } else if (storageManageJournal instanceof ReplicatedJournal) {
+            ReplicatedJournal replicatedJournal = (ReplicatedJournal)  storageManageJournal;
+            journal = (JournalImpl) replicatedJournal.getLocalJournal();
+         } else {
+            throw new IllegalStateException("could not local a valid journal to use with the ReplayManager");
+         }
       }
 
       Filter filter;
