@@ -12,6 +12,16 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.35.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354784[Full release notes]
+
+=== Highlights
+
+* https://issues.apache.org/jira/browse/ARTEMIS-4813[There was a regression in broker replication in regard to Large Messages that was addressed]
+* https://issues.apache.org/jira/browse/ARTEMIS-4815[json output as an option on ./artemis queue stat --json]
+* https://issues.apache.org/jira/browse/ARTEMIS-4790[The codebase has migrated to JUNIT 5]
+
 == 2.34.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354426[Full release notes]
