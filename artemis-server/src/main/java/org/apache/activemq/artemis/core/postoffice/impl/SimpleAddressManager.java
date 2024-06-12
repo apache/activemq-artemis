@@ -68,6 +68,8 @@ public class SimpleAddressManager implements AddressManager {
 
    private final ConcurrentMap<SimpleString, Pair<Binding, Address>> nameMap = new ConcurrentHashMap<>();
 
+   private final ConcurrentMap<SimpleString, Collection<Binding>> directBindingMap = new ConcurrentHashMap<>();
+
    private final BindingsFactory bindingsFactory;
 
    protected final MetricsManager metricsManager;
@@ -100,6 +102,11 @@ public class SimpleAddressManager implements AddressManager {
       if (nameMap.putIfAbsent(binding.getUniqueName(), bindingAddressPair) != null) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
+      directBindingMap.compute(binding.getAddress(), (key, value) -> {
+         Collection<Binding> bindingList = value == null ? new ArrayList<>() : value;
+         bindingList.add(binding);
+         return bindingList;
+      });
 
       if (logger.isTraceEnabled()) {
          logger.trace("Adding binding {} with address = {}", binding, binding.getUniqueName(), new Exception("trace"));
@@ -116,7 +123,18 @@ public class SimpleAddressManager implements AddressManager {
          return null;
       }
 
-      removeBindingInternal(binding.getA().getAddress(), uniqueName);
+      SimpleString address = binding.getA().getAddress();
+      removeBindingInternal(address, uniqueName);
+      directBindingMap.compute(address, (key, value) -> {
+         if (value == null) {
+            return null;
+         }
+         value.remove(binding.getA());
+         if (value.isEmpty()) {
+            return null;
+         }
+         return value;
+      });
 
       return binding.getA();
    }
@@ -160,15 +178,7 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Collection<Binding> bindings = new ArrayList<>();
-
-      nameMap.forEach((bindingUniqueName, bindingAddressPair) -> {
-         if (bindingAddressPair.getA().getAddress().equals(realAddress)) {
-            bindings.add(bindingAddressPair.getA());
-         }
-      });
-
-      return bindings;
+      return new ArrayList<>(directBindingMap.getOrDefault(realAddress, Collections.emptyList()));
    }
 
    @Override

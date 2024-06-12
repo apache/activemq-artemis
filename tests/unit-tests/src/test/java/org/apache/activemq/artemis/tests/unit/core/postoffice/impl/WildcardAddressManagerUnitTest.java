@@ -202,6 +202,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       assertEquals(0, ad.getAddresses().size());
       assertEquals(0, ad.getBindings().count());
+      assertEquals(0, ad.getDirectBindings(SimpleString.of("Topic1.>")).size());
    }
 
    @Test
@@ -373,6 +374,8 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
                // publish again, read only
                ad.getBindingsForRoutingAddress(pubAddr);
+
+               ad.getDirectBindings(pubAddr);
 
             } catch (Exception e) {
                e.printStackTrace();
