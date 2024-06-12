@@ -507,9 +507,9 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public void registerHawtioSecurity(GuardInvocationHandler guard) throws Exception {
+   public void registerHawtioSecurity(GuardInvocationHandler guard, Configuration configuration) throws Exception {
       ObjectName objectName = objectNameBuilder.getSecurityObjectName();
-      HawtioSecurityControl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControl control = new HawtioSecurityControlImpl(guard, storageManager, configuration);
       registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.MANAGEMENT_SECURITY, control);
    }

@@ -35,11 +35,11 @@ var Artemis;
    .run(configurePreferences)
    .name;
 
-   function configurePreferences(preferencesRegistry, $templateCache, workspace) {
+   function configurePreferences(preferencesRegistry, $templateCache, workspace, jolokia) {
 
         var path = 'plugin/preferences.html';
         preferencesRegistry.addTab("Artemis", path, function () {
-            return workspace.treeContainsDomainAndProperties("org.apache.activemq.artemis");
+            return workspace.treeContainsDomainAndProperties(Artemis.artemisJmxDomain(jolokia));
         });
         $templateCache.put(path,
             `<form class="form-horizontal artemis-preferences-form" ng-controller="Artemis.PreferencesController">
@@ -82,6 +82,6 @@ var Artemis;
             </form>`
         );
    }
-   configurePreferences.$inject = ['preferencesRegistry', '$templateCache', 'workspace'];
+   configurePreferences.$inject = ['preferencesRegistry', '$templateCache', 'workspace', 'jolokia'];
 
 })(Artemis || (Artemis = {}));

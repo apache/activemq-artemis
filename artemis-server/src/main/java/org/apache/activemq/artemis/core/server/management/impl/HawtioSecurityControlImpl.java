@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.management.impl;
 
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -72,9 +73,15 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
    static final String[] CAN_INVOKE_RESULT_COLUMNS = SecurityMBeanOpenTypeInitializer.COLUMNS;
    private final GuardInvocationHandler mBeanServerGuard;
 
-   public HawtioSecurityControlImpl(GuardInvocationHandler mBeanServerGuard, StorageManager storageManager) throws NotCompliantMBeanException {
+   private final String jmxDomain;
+
+   private final String brokerName;
+
+   public HawtioSecurityControlImpl(GuardInvocationHandler mBeanServerGuard, StorageManager storageManager, Configuration configuration) throws NotCompliantMBeanException {
       super(HawtioSecurityControl.class, storageManager);
       this.mBeanServerGuard = mBeanServerGuard;
+      jmxDomain = configuration.getJMXDomain();
+      brokerName = configuration.getName();
    }
 
    @Override
@@ -139,6 +146,17 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
       }
 
       return table;
+   }
+
+
+   @Override
+   public String getJMXDomain() {
+      return jmxDomain;
+   }
+
+   @Override
+   public String getBrokerName() {
+      return brokerName;
    }
 
    private String parseMethodName(String method, List<String> argTypes) {

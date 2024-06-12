@@ -426,7 +426,7 @@ var Artemis;
                 Artemis.log.debug("Got broker: " + mBean + " properties: " + angular.toJson(properties, true));
                 if (properties) {
                     var brokerAddress = properties["broker"] || "unknown";
-                    var brokerName = artemisJmxDomain + ":broker=" + brokerAddress;
+                    var brokerName = Artemis.artemisJmxDomain(jolokia) + ":broker=" + brokerAddress;;
                     var backupRes = jolokia.request({ type: "read", mbean: mBean, attribute: "Backup"}, {method: "get"});
 
                     var isBackup = backupRes.value;

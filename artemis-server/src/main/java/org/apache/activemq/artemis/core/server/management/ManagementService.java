@@ -138,7 +138,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    ICoreMessage handleMessage(SecurityAuth auth, Message message) throws Exception;
 
-   void registerHawtioSecurity(GuardInvocationHandler guardInvocationHandler) throws Exception;
+   void registerHawtioSecurity(GuardInvocationHandler guardInvocationHandler, Configuration configuration) throws Exception;
 
    void unregisterHawtioSecurity() throws Exception;
 

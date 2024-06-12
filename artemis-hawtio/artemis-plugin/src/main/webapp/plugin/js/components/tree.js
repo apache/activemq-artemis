@@ -115,7 +115,7 @@ var Artemis;
     }
     TreeHeaderController.$inject = ['$scope', '$element'];
 
-    function TreeController($scope, $location, workspace, $element) {
+    function TreeController($scope, $location, workspace, $element, jolokia) {
         'ngInject';
         this.$scope = $scope;
         this.$location = $location;
@@ -124,7 +124,7 @@ var Artemis;
         // it's not possible to declare classes to the component host tag in AngularJS
         $element.addClass('tree-nav-sidebar-content');
         Artemis.log.debug("TreeController ");
-        var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+        var artemisJmxDomain = Artemis.artemisJmxDomain(jolokia);
         TreeController.prototype.$onInit = function () {
         Artemis.log.debug("TreeController onInit");
             var _this = this;
@@ -186,6 +186,6 @@ var Artemis;
             }
         }
     }
-    TreeController.$inject = ['$scope', '$location', 'workspace', '$element'];
+    TreeController.$inject = ['$scope', '$location', 'workspace', '$element', 'jolokia'];
 
 })(Artemis || (Artemis = {}));

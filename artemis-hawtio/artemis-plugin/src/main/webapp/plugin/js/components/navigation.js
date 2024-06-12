@@ -105,7 +105,7 @@ var Artemis;
         'ngInject';
         var ctrl = this;
         this.$location = $location;
-        artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+        artemisJmxDomain = Artemis.artemisJmxDomain(jolokia);
 
         $scope.$on('jmxTreeClicked', function () {
             ctrl.tabs = getTabs();

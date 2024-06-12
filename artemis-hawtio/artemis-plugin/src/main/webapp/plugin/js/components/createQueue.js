@@ -157,7 +157,7 @@ var Artemis;
                 'converter': Core.parseBooleanValue
             }
         });
-        var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+        var artemisJmxDomain = Artemis.artemisJmxDomain(jolokia);
         ctrl.workspace = workspace;
         ctrl.maxConsumers = -1;
         if (workspace.selection.folderNames.length >= 6 && workspace.selection.folderNames[5] === "anycast") {

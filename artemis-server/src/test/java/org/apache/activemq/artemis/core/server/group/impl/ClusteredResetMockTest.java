@@ -353,7 +353,7 @@ public class ClusteredResetMockTest extends ServerTestBase {
       }
 
       @Override
-      public void registerHawtioSecurity(GuardInvocationHandler securityMBean) throws Exception {
+      public void registerHawtioSecurity(GuardInvocationHandler securityMBean, Configuration configuration) throws Exception {
 
       }
 
