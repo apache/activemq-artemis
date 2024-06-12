@@ -36,6 +36,9 @@ public class ConnectionConfigurationAbtract extends InputAbstract {
    @CommandLine.Option(names = "--password", description = "Password used to connect.")
    protected String password;
 
+   // Sub classes may choose to avoid System.out output
+   protected boolean silent = false;
+
    protected static ThreadLocal<ConnectionInformation> CONNECTION_INFORMATION = new ThreadLocal<>();
 
    static class ConnectionInformation {
@@ -105,7 +108,9 @@ public class ConnectionConfigurationAbtract extends InputAbstract {
          }
       }
 
-      context.out.println("Connection brokerURL = " + brokerURL);
+      if (!silent) {
+         context.out.println("Connection brokerURL = " + brokerURL);
+      }
 
       return null;
    }

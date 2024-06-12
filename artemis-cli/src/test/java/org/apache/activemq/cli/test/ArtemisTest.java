@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -94,6 +95,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
@@ -104,6 +106,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -1610,6 +1613,13 @@ public class ArtemisTest extends CliTestBase {
          sendMessages(session, "Test11", 1);
          sendMessages(session, "Test12", 1);
          sendMessages(session, "Test20", 20);
+
+         {
+            SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", "admin", "admin");
+            // send can be asynchronous, this is to make sure we got all messages in the queue. Later on I check the size of this queue.
+            Wait.assertEquals(20, () -> simpleManagement.getMessageCountOnQueue("Test20"));
+         }
+
          MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createDestination("queue://Test1", ActiveMQDestination.TYPE.QUEUE));
          MessageConsumer consumer2 = session.createConsumer(ActiveMQDestination.createDestination("queue://Test1", ActiveMQDestination.TYPE.QUEUE));
 
@@ -1627,6 +1637,19 @@ public class ArtemisTest extends CliTestBase {
          ArrayList<String> lines = getOutputLines(context, false);
          // Header line + 3 queues
          assertEquals(5, lines.size(), "rows returned using queueName=Test1");
+
+         //check the json output is correct, we will parse the messageCount on Queue Test20
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setJson(true);
+         statQueue.execute(context);
+         {
+            JsonObject json = JsonLoader.readObject(new InputStreamReader(new ByteArrayInputStream(context.getStdoutBytes())));
+            JsonArray arrayQueues = json.getJsonArray("data");
+            arrayQueues.stream().filter(jsonValue -> jsonValue.asJsonObject().getString("name").equals("Test20")).forEach(jsonValue -> Assertions.assertEquals(20, Integer.parseInt(jsonValue.asJsonObject().getString("messageCount"))));
+         }
 
          //check all queues are displayed when no Filter set
          context = new TestActionContext();

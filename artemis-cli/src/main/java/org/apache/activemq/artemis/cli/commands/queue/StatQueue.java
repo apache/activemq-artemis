@@ -115,6 +115,9 @@ public class StatQueue extends ConnectionAbstract {
    @Option(names = "--single-line-header", description = "Use a single line on the header titles")
    private boolean singleLineHeader = false;
 
+   @Option(names = "--json", description = "Prints the queue stat information in JSON format, useful for scripts")
+   private boolean json;
+
    public boolean isSingleLineHeader() {
       return singleLineHeader;
    }
@@ -171,8 +174,20 @@ public class StatQueue extends ConnectionAbstract {
       return this;
    }
 
+   public boolean isJson() {
+      return json;
+   }
+
+   public StatQueue setJson(boolean json) {
+      this.json = json;
+      return this;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception {
+      if (json) {
+         silent = true;
+      }
       super.execute(context);
       String filter = createFilter();
 
@@ -186,6 +201,11 @@ public class StatQueue extends ConnectionAbstract {
          getActionContext().out.println("maxRows='" + maxRows + "'");
       }
       createConnectionFactory();
+
+      if (json) {
+         jsonExecution(context, filter);
+         return 1;
+      }
 
       singleExeuction(context, filter);
 
@@ -215,6 +235,21 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       return statCount;
+   }
+
+   private void jsonExecution(ActionContext context, String filter) throws Exception {
+      performCoreManagement(brokerURL, user, password, message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "listQueues", filter, 1, maxRows);
+      }, reply -> {
+         // some formatting, to make it more palatable
+         String result = (String) ManagementHelper.getResult(reply, String.class);
+         result = result.replace("{\"id\"", "\n   {\"id\"");
+         result = result.replace("]", "\n]");
+         context.out.println(result);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         getActionContext().err.println("Failed to get Stats for Queues. Reason: " + errMsg);
+      });
    }
 
    private void singleExeuction(ActionContext context, String filter) throws Exception {
