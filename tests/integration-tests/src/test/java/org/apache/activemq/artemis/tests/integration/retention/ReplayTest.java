@@ -62,20 +62,25 @@ public class ReplayTest extends ActiveMQTestBase {
 
    @Test
    public void testReplayAMQP() throws Exception {
-      testReplay("AMQP", 10);
+      testReplay("AMQP", 10, false);
    }
 
    @Test
    public void testReplayCore() throws Exception {
-      testReplay("CORE", 10);
+      testReplay("CORE", 10, false);
    }
 
-   public void testReplay(String protocol, int size) throws Exception {
+   protected void testReplay(String protocol, int size, boolean paging) throws Exception {
 
       StringBuffer buffer = new StringBuffer();
       buffer.append(RandomUtil.randomString());
       for (int i = 0; i < size; i++) {
          buffer.append("*");
+      }
+
+      if (paging) {
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue("t1");
+         serverQueue.getPagingStore().startPaging();
       }
 
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
@@ -129,12 +134,21 @@ public class ReplayTest extends ActiveMQTestBase {
 
    @Test
    public void testReplayLargeAMQP() throws Exception {
-      testReplay("AMQP", 500 * 1024);
+      testReplay("AMQP", 500 * 1024, false);
    }
 
    @Test
    public void testReplayLargeCore() throws Exception {
-      testReplay("CORE", 500 * 1024);
+      testReplay("CORE", 500 * 1024, false);
+   }
+   @Test
+   public void testReplayCorePaging() throws Exception {
+      testReplay("CORE", 10, true);
+   }
+
+   @Test
+   public void testReplayLargeCorePaging() throws Exception {
+      testReplay("CORE", 500 * 1024, true);
    }
 
 }
