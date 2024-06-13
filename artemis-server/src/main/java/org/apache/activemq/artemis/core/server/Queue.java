@@ -178,6 +178,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    long getRingSize();
 
+   int getIntermediateMessageBufferInitialSize();
+
    default boolean isMirrorController() {
       return false;
    }

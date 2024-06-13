@@ -60,6 +60,10 @@ public class RandomUtil {
       return Math.abs(RandomUtil.randomInt());
    }
 
+   public static int randomPowerOfTwo() {
+      return (int) Math.pow(2, RandomUtil.randomInterval(1, 10));
+   }
+
    public static Integer randomPositiveIntOrNull() {
       Integer random = RandomUtil.randomInt();
       return random % 5 == 0 ? null : Math.abs(random);

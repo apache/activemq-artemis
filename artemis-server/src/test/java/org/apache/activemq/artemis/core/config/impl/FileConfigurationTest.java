@@ -527,6 +527,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(conf.getAddressSettings().get("a1").isEnableMetrics());
       assertTrue(conf.getAddressSettings().get("a1").isEnableIngressTimestamp());
       assertNull(conf.getAddressSettings().get("a1").getIDCacheSize());
+      assertNull(conf.getAddressSettings().get("a1").getIntermediateMessageBufferInitialSize());
 
       assertEquals("a2.1", conf.getAddressSettings().get("a2").getDeadLetterAddress().toString());
       assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
@@ -568,6 +569,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertFalse(conf.getAddressSettings().get("a2").isEnableMetrics());
       assertFalse(conf.getAddressSettings().get("a2").isEnableIngressTimestamp());
       assertEquals(Integer.valueOf(500), conf.getAddressSettings().get("a2").getIDCacheSize());
+      assertEquals(Integer.valueOf(128), conf.getAddressSettings().get("a2").getIntermediateMessageBufferInitialSize());
 
       assertEquals(111, conf.getMirrorAckManagerQueueAttempts());
       assertEquals(222, conf.getMirrorAckManagerPageAttempts());

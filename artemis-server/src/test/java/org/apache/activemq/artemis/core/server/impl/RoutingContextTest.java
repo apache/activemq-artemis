@@ -379,6 +379,11 @@ public class RoutingContextTest {
       }
 
       @Override
+      public int getIntermediateMessageBufferInitialSize() {
+         return 0;
+      }
+
+      @Override
       public ReferenceCounter getConsumersRefCount() {
          return null;
       }

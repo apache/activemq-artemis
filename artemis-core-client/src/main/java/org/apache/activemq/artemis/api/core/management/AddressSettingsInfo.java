@@ -309,6 +309,11 @@ public final class AddressSettingsInfo {
    }
    private boolean enableMetrics;
 
+   static {
+      META_BEAN.add(Integer.class, "intermediateMessageBufferInitialSize", (t, p) -> t.intermediateMessageBufferInitialSize = p, t -> t.intermediateMessageBufferInitialSize);
+   }
+   private int intermediateMessageBufferInitialSize;
+
 
    public static AddressSettingsInfo fromJSON(final String jsonString) {
       AddressSettingsInfo newInfo = new AddressSettingsInfo();
@@ -553,6 +558,10 @@ public final class AddressSettingsInfo {
 
    public boolean isEnableMetrics() {
       return enableMetrics;
+   }
+
+   public int getIntermediateMessageBufferInitialSize() {
+      return intermediateMessageBufferInitialSize;
    }
 }
 
