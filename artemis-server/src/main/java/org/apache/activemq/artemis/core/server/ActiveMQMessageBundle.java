@@ -551,4 +551,8 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229253, value = "Unable to acquire OperationContext when replicating packet: {}. ExecutorFactory: {}")
    IllegalStateException replicationFailureRepliTokenNull(String packet, String executorFactory);
+
+   @Message(id = 229254, value = "Already replicating, started={}")
+   ActiveMQIllegalStateException alreadyReplicating(boolean status);
+
 }

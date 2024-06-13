@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -236,7 +235,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    public boolean isReplicated() {
-      return replicator != null;
+      return replicator != null && replicator.isStarted();
    }
 
    private void cleanupIncompleteFiles() throws Exception {
@@ -592,7 +591,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
       assert replicationManager != null;
 
-      if (!(messageJournal instanceof JournalImpl) || !(bindingsJournal instanceof JournalImpl)) {
+      if (!(originalMessageJournal instanceof JournalImpl) || !(originalBindingsJournal instanceof JournalImpl)) {
          throw ActiveMQMessageBundle.BUNDLE.notJournalImpl();
       }
 
@@ -604,7 +603,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       JournalFile[] messageFiles = null;
       JournalFile[] bindingsFiles = null;
 
-      // We get a picture of the current sitaution on the large messages
+      // We get a picture of the current situation on the large messages
       // and we send the current messages while more state is coming
       Map<Long, Pair<String, Long>> pendingLargeMessages = null;
 
@@ -617,17 +616,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          pagingManager.lock();
          storageManagerLock.writeLock().lock();
          try {
-            if (isReplicated())
-               throw new ActiveMQIllegalStateException("already replicating");
+            if (isReplicated()) {
+               throw ActiveMQMessageBundle.BUNDLE.alreadyReplicating(replicator.isStarted());
+            }
             replicator = replicationManager;
 
-            if (!((JournalImpl) originalMessageJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
-               throw new Exception("Primary message journal is busy");
-            }
-
-            if (!((JournalImpl) originalBindingsJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
-               throw new Exception("Primary bindings journal is busy");
-            }
+            ((JournalImpl) originalMessageJournal).flushAppendExecutor(10, TimeUnit.SECONDS);
+            ((JournalImpl) originalBindingsJournal).flushAppendExecutor(10, TimeUnit.SECONDS);
 
             // Establishes lock
             originalMessageJournal.synchronizationLock();
