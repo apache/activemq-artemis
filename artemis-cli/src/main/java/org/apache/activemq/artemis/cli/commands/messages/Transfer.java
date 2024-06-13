@@ -93,7 +93,7 @@ public class Transfer extends InputAbstract {
    @Option(names = "--target-protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    String targetProtocol = "core";
 
-   @Option(names = {"--commit-interval"}, description = "Transaction batch size.")
+   @Option(names = {"--commit-interval"}, description = "Transaction batch size. Default: 1000.")
    int commitInterval = 1000;
 
    @Option(names = "--copy", description = "If this option is chosen we will perform a copy by rolling back the original transaction on the source.")
