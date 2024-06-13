@@ -26,6 +26,7 @@ WORKDIR /opt
 ENV ARTEMIS_USER artemis
 ENV ARTEMIS_PASSWORD artemis
 ENV ANONYMOUS_LOGIN false
+ENV SUPPRESS_CREDENTIALS false
 ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 
 USER root

@@ -33,7 +33,11 @@ fi
 
 if ! [ -f ./etc/broker.xml ]; then
     CREATE_ARGUMENTS="--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent ${LOGIN_OPTION} ${EXTRA_ARGS}"
-    echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
+    if [[ ${SUPPRESS_CREDENTIALS,,} == "true" ]]; then
+      echo CREATE_ARGUMENTS="--user XXXXX --password XXXXX --silent ${LOGIN_OPTION} ${EXTRA_ARGS}"
+    else
+      echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
+    fi
     /opt/activemq-artemis/bin/artemis create ${CREATE_ARGUMENTS} .
     if [ -d ./etc-override ]; then
         for file in `ls ./etc-override`; do echo copying file to etc folder: $file; cp ./etc-override/$file ./etc || :; done
