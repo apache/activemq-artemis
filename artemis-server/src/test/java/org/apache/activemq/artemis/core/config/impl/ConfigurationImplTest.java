@@ -2116,18 +2116,23 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
-      // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
 
-      // impossible to change any attribute unless the plugin has a name attribute, but plugins only registered on start
+      // change attribute of a plugin without the name attribute, but plugins only registered on start
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS=false");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertEquals(1, configuration.getBrokerPlugins().size());
+      assertFalse(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogAll());
+
+      // verify error
       insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
-      // verify error
       assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
-      assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    @Test
@@ -2151,6 +2156,26 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getPeriodSeconds());
       assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAccuracyWindowSeconds());
       assertEquals("netty-.*", ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(0))).getAcceptorMatchRegex());
+   }
+
+   @Test
+   public void testMultiplePlugins() throws Exception {
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS=true");
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".periodSeconds", "30");
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin.class\".accuracyWindowSeconds", "10");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+
+      assertEquals(2, configuration.getBrokerPlugins().size());
+      assertTrue(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogAll());
+      assertEquals(30, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(1))).getPeriodSeconds());
+      assertEquals(10, ((ConnectionPeriodicExpiryPlugin)(configuration.getBrokerPlugins().get(1))).getAccuracyWindowSeconds());
    }
 
    @Test
@@ -2215,17 +2240,23 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
-      // verify invalid map errors out
       insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
 
-      // impossible to change any attribute unless there is a name attribute, but plugins only registered on start
+      // change attribute of a plugin without the name attribute, but plugins only registered on start
+      insertionOrderedProperties.put("securitySettingPlugins.\"org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin.class\".init", "initialContextFactory=org.eclipse.jetty.jndi.InitialContextFactory");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertEquals(1, configuration.getSecuritySettingPlugins().size());
+      assertEquals("org.eclipse.jetty.jndi.InitialContextFactory", ((LegacyLDAPSecuritySettingPlugin)(configuration.getSecuritySettingPlugins().get(0))).getInitialContextFactory());
+
+      // verify error
       insertionOrderedProperties.put("securitySettingPlugins.\"org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin.class\".init", "initialContextFactory");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
       assertFalse(configuration.getStatus().contains("\"errors\":[]"));
       assertTrue(configuration.getStatus().contains("initialContextFactory"));
-      assertTrue(configuration.getStatus().contains("Unknown property 'name'"));
    }
 
    /**
