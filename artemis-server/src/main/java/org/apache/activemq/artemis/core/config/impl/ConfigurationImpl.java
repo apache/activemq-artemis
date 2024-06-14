@@ -141,7 +141,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
-   public static final String DOT_CLASS = ".class";
+   public static final String PROPERTY_CLASS_SUFFIX = ".class";
 
    private static final int DEFAULT_JMS_MESSAGE_SIZE = 1864;
 
@@ -798,8 +798,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                } else {                             // Value into scalar
                   if (value instanceof String) {
                      String possibleDotClassValue = (String)value;
-                     if (type != String.class && possibleDotClassValue.endsWith(DOT_CLASS)) {
-                        final String clazzName = possibleDotClassValue.substring(0, possibleDotClassValue.length() - DOT_CLASS.length());
+                     if (type != String.class && isClassProperty(possibleDotClassValue)) {
+                        final String clazzName = extractPropertyClassName(possibleDotClassValue);
                         try {
                            newValue = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
                         } catch (Exception e) {
@@ -956,6 +956,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
          }
       }
       updateApplyStatus(propsId, errors);
+   }
+
+   private static boolean isClassProperty(String property) {
+      return property.endsWith(PROPERTY_CLASS_SUFFIX);
+   }
+
+   private static String extractPropertyClassName(String property) {
+      int propertyClassSuffixIndex = property.indexOf(PROPERTY_CLASS_SUFFIX);
+      return property.substring(0, propertyClassSuffixIndex);
    }
 
    private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
@@ -3489,10 +3498,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       private Object findByNameProperty(String key, Collection collection) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
          // locate on name property, may be a SimpleString
-         for (Object candidate : collection) {
-            Object candidateName = getProperty(candidate, "name");
-            if (candidateName != null && key.equals(candidateName.toString())) {
-               return candidate;
+         if (isClassProperty(key)) {
+            Object propertyClassName = extractPropertyClassName(key);
+            for (Object candidate : collection) {
+               if (candidate.getClass().getName().equals(propertyClassName)) {
+                  return candidate;
+               }
+            }
+         } else {
+            for (Object candidate : collection) {
+               Object candidateName = getProperty(candidate, "name");
+               if (candidateName != null && key.equals(candidateName.toString())) {
+                  return candidate;
+               }
             }
          }
          return null;
@@ -3603,8 +3621,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
             }
             Class type = candidate.getParameterTypes()[candidate.getParameterCount() - 1];
 
-            if (name.indexOf(DOT_CLASS) > 0) {
-               final String clazzName = name.substring(0, name.length() - DOT_CLASS.length());
+            if (isClassProperty(name)) {
+               final String clazzName = extractPropertyClassName(name);
                instance = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
             } else {
                instance = type.getDeclaredConstructor().newInstance();
