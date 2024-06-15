@@ -45,7 +45,7 @@ public class ListUser extends UserAction {
     * @throws Exception if communication with the broker fails
     */
    private void list() throws Exception {
-      StringBuilder logMessage = new StringBuilder("--- \"user\"(roles) ---\n");
+      StringBuilder logMessage = new StringBuilder("--- user (roles) ---\n");
       int userCount = 0;
       final String[] result = new String[1];
 
@@ -62,7 +62,7 @@ public class ListUser extends UserAction {
       JsonArray array = JsonUtil.readJsonArray(result[0]);
       for (int arrayIndex = 0; arrayIndex < array.size(); arrayIndex++) {
          JsonObject object = array.getJsonObject(arrayIndex);
-         logMessage.append("\"").append(object.getString("username")).append("\"").append("(");
+         logMessage.append(object.getString("username")).append(" ").append("(");
          JsonArray roles = object.getJsonArray("roles");
          for (int i = 0; i < roles.size(); i++) {
             logMessage.append(roles.getString(i));

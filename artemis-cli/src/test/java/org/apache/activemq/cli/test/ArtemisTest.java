@@ -469,7 +469,7 @@ public class ArtemisTest extends CliTestBase {
          logger.debug("output1:\n{}", result);
 
          //default only one user admin with role amq
-         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("admin (amq)"));
          checkRole("admin", roleFile, basic, "amq");
 
          //add a simple user
@@ -487,8 +487,8 @@ public class ArtemisTest extends CliTestBase {
          result = context.getStdout();
          logger.debug("output2:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(amq)"));
-         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("admin (amq)"));
+         assertTrue(result.contains("guest (admin)"));
 
          checkRole("guest", roleFile, basic, "admin");
          assertTrue(checkPassword("guest", "guest123", userFile, basic));
@@ -508,9 +508,9 @@ public class ArtemisTest extends CliTestBase {
          result = context.getStdout();
          logger.debug("output3:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(amq)"));
-         assertTrue(result.contains("\"guest\"(admin)"));
-         assertTrue(result.contains("\"scott\"(admin,operator)"));
+         assertTrue(result.contains("admin (amq)"));
+         assertTrue(result.contains("guest (admin)"));
+         assertTrue(result.contains("scott (admin,operator)"));
 
          checkRole("scott", roleFile, basic, "admin", "operator");
          assertTrue(checkPassword("scott", "tiger", userFile, basic));
@@ -533,9 +533,9 @@ public class ArtemisTest extends CliTestBase {
          result = context.getStdout();
          logger.debug("output4:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(amq)"));
-         assertTrue(result.contains("\"guest\"(admin)"));
-         assertTrue(result.contains("\"scott\"(admin,operator)"));
+         assertTrue(result.contains("admin (amq)"));
+         assertTrue(result.contains("guest (admin)"));
+         assertTrue(result.contains("scott (admin,operator)"));
 
          //remove a user
          RemoveUser rmCmd = new RemoveUser();
@@ -550,9 +550,9 @@ public class ArtemisTest extends CliTestBase {
          result = context.getStdout();
          logger.debug("output5:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(amq)"));
-         assertFalse(result.contains("\"guest\"(admin)"));
-         assertTrue(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
+         assertTrue(result.contains("admin (amq)"));
+         assertFalse(result.contains("guest (admin)"));
+         assertTrue(result.contains("scott (admin,operator)") || result.contains("scott (operator,admin)"));
          assertTrue(result.contains("Total: 2"));
 
          //remove another
@@ -568,9 +568,9 @@ public class ArtemisTest extends CliTestBase {
          result = context.getStdout();
          logger.debug("output6:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(amq)"));
-         assertFalse(result.contains("\"guest\"(admin)"));
-         assertFalse(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
+         assertTrue(result.contains("admin (amq)"));
+         assertFalse(result.contains("guest (admin)"));
+         assertFalse(result.contains("scott (admin,operator)") || result.contains("scott (operator,admin)"));
          assertTrue(result.contains("Total: 1"));
 
          //remove non-exist
@@ -588,7 +588,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
          result = context.getStdout();
          logger.debug("output7:\n{}", result);
-         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("admin (amq)"));
          assertTrue(result.contains("Total: 1"));
 
          //now remove last
@@ -910,7 +910,7 @@ public class ArtemisTest extends CliTestBase {
          logger.debug("output1:\n{}", result);
 
          //default only one user admin with role amq
-         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("admin (amq)"));
 
          //remove a user
          RemoveUser rmCmd = new RemoveUser();
@@ -959,17 +959,17 @@ public class ArtemisTest extends CliTestBase {
          logger.debug("output2:\n{}", result);
 
          assertTrue(result.contains("Total: 4"));
-         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("guest (admin)"));
          assertTrue(Pattern
-                       .compile("\"user1\"\\((admin|manager),(admin|manager)\\)")
+                       .compile("user1\\s\\((admin|manager),(admin|manager)\\)")
                        .matcher(result)
                        .find());
          assertTrue(Pattern
-                       .compile("\"user2\"\\((admin|manager|primary),(admin|manager|primary),(admin|manager|primary)\\)")
+                       .compile("user2\\s\\((admin|manager|primary),(admin|manager|primary),(admin|manager|primary)\\)")
                        .matcher(result)
                        .find());
          assertTrue(Pattern
-                       .compile("\"user3\"\\((primary|system),(primary|system)\\)")
+                       .compile("user3\\s\\((primary|system),(primary|system)\\)")
                        .matcher(result)
                        .find());
 
@@ -1042,7 +1042,7 @@ public class ArtemisTest extends CliTestBase {
          logger.debug("output1:\n{}", result);
 
          assertTrue(result.contains("Total: 1"));
-         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("admin (amq)"));
 
          int nThreads = 4;
 
@@ -1072,7 +1072,7 @@ public class ArtemisTest extends CliTestBase {
          logger.debug("output2:\n{}", result);
 
          // make sure the admin user is still in tact (i.e. that the file wasn't corrupted via concurrent access)
-         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("admin (amq)"));
          checkRole("admin", roleFile, "amq");
          checkPassword("admin", "admin", userFile);
       } finally {
@@ -1145,7 +1145,7 @@ public class ArtemisTest extends CliTestBase {
          String result = context.getStdout();
          logger.debug("output1:\n{}", result);
 
-         assertTrue(result.contains("\"admin\"(" + roleWithSpaces + ")"));
+         assertTrue(result.contains("admin (" + roleWithSpaces + ")"));
 
          checkRole("admin", roleFile, roleWithSpaces);
       } finally {
@@ -1482,7 +1482,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
          String result = context.getStdout();
 
-         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("guest (admin)"));
       } finally {
          stopServer();
       }
