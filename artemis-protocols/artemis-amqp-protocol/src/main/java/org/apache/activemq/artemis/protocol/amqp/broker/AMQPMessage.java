@@ -705,7 +705,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
                encodedHeaderSize = data.position() - constructorPos;
                if (header.getTtl() != null) {
                   if (!expirationReload) {
-                     expiration = System.currentTimeMillis() + header.getTtl().intValue();
+                     expiration = System.currentTimeMillis() + header.getTtl().longValue();
                   }
                }
             } else if (DeliveryAnnotations.class.equals(constructor.getTypeClass())) {

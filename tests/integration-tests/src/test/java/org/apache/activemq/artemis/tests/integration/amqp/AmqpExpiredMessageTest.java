@@ -53,6 +53,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -479,6 +480,55 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMaxUInt() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.MAX_VALUE);
+   }
+
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMaxIntValue() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.valueOf(Integer.MAX_VALUE));
+   }
+
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMinusOne() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.valueOf(-1));
+   }
+
+   private void doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger ttl) throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName());
+
+      // Get the Queue View early to avoid racing the delivery.
+      final Queue queueView = getProxyToQueue(getQueueName());
+      assertNotNull(queueView);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setTimeToLive(ttl.longValue());
+      message.setText("Test-Message");
+      sender.send(message);
+      sender.close();
+
+      Wait.assertEquals(1, queueView::getMessageCount);
+
+      // Now try and get the message
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      receiver.flow(1);
+      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(received, "Should have read message but it seems to have timed out.");
+      assertEquals(ttl.longValue(), received.getTimeToLive());
+
+      Wait.assertEquals(0, queueView::getMessagesExpired);
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(60)
    public void testSendMessageThenAllowToExpiredUsingTimeToLive() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -829,13 +879,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          MessageReference ref = linkedListIterator.next();
          String idUsed = ref.getMessage().getStringProperty("id");
          long originalExpiration = dataSet.get(idUsed);
-         System.out.println("original Expiration = " + originalExpiration + " while this expiration = " + ref.getMessage().getExpiration());
+         logger.info("original Expiration = {} while this expiration = {}", originalExpiration, ref.getMessage().getExpiration());
          assertEquals(originalExpiration, ref.getMessage().getExpiration());
       }
       assertEquals(2, count);
       linkedListIterator.close();
-
-
    }
-
 }
