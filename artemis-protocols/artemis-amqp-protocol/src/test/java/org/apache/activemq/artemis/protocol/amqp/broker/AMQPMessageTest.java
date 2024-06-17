@@ -1028,6 +1028,18 @@ public class AMQPMessageTest {
    }
 
    @Test
+   public void testGetExpirationFromMessageWithMaxUIntTTL() {
+      final long ttl = UnsignedInteger.MAX_VALUE.longValue();
+
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      protonMessage.setHeader(new Header());
+      protonMessage.setTtl(ttl);
+      AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      assertTrue(decoded.getExpiration() > System.currentTimeMillis());
+   }
+
+   @Test
    public void testGetExpirationFromCoreMessageUsingTTL() {
       final long ttl = 100000;
 
@@ -1085,6 +1097,18 @@ public class AMQPMessageTest {
    @Test
    public void testSetExpiration() {
       final Date expirationTime = new Date(System.currentTimeMillis());
+
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      assertEquals(0, decoded.getExpiration());
+      decoded.setExpiration(expirationTime.getTime());
+      assertEquals(expirationTime.getTime(), decoded.getExpiration());
+   }
+
+   @Test
+   public void testSetExpirationMaxUInt() {
+      final Date expirationTime = new Date(UnsignedInteger.MAX_VALUE.longValue());
 
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
