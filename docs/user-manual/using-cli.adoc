@@ -1,6 +1,9 @@
 = Command Line Interface
 
 ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
+This interface is designed for simple use-cases with _humans_ in mind.
+It is not an exhaustive set of commands for complete broker management.
+There is a comprehensive xref:management.adoc[management API] available with many operations that return JSON formatted output which is better suited for use in scripts and other automated processes.
 
 There are two ways the CLI can be used:
 
@@ -9,12 +12,9 @@ There are two ways the CLI can be used:
 
 All commands available through the traditional CLI commands are also available through the shell interface.
 
-One benefit of the traditional CLI commands is that they can be used in your own bash scripts for automation, etc.
-
 One benefit of the shell is that it will *reuse* some information as you repeat commands.
 For example, once you supply the broker URI and username & password to one command those values will be transparently applied other commands in the same shell session.
 Of course, the shell also allows you to avoid retyping `./artemis` for every command.
-
 
 == Getting Help
 
