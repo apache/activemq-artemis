@@ -22,10 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -34,6 +38,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -46,6 +51,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -378,6 +384,85 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       executorService.shutdown();
       assertTrue(executorService.awaitTermination(10, TimeUnit.MINUTES), "finished on time");
       assertNull(oops.get(), "no exceptions");
+   }
+
+
+   @Test
+   public void testConcurrentCalls2() throws Exception {
+      WildcardAddressManager simpleAddressManager = new WildcardAddressManager(new BindingFactoryFake(), new NullStorageManager(), null);
+
+      final int threads = 20;
+      final int adds = 1_000;
+      final int keep = 100;
+
+      String address = "TheAddress";
+      SimpleString addressSimpleString = SimpleString.of(address);
+
+      simpleAddressManager.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.MULTICAST));
+
+      ExecutorService executor = Executors.newFixedThreadPool(threads + 1);
+      runAfter(executor::shutdownNow);
+
+
+      CountDownLatch latch = new CountDownLatch(threads);
+
+      AtomicInteger errors = new AtomicInteger(0);
+      AtomicBoolean running = new AtomicBoolean(true);
+      runAfter(() -> running.set(false));
+
+      executor.execute(() -> {
+         try {
+            while (running.get()) {
+               // just to make things worse
+               simpleAddressManager.getDirectBindings(addressSimpleString);
+            }
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            errors.incrementAndGet();
+         }
+      });
+
+      for (int thread = 0; thread < threads; thread++) {
+
+         final int threadID = thread;
+
+         executor.execute(() -> {
+            try {
+               for (int add = 0; add < adds; add++) {
+                  simpleAddressManager.addBinding(new BindingFake(address, "t" + threadID + "_" + add));
+               }
+
+               for (int remove = keep; remove < adds; remove++) {
+                  simpleAddressManager.removeBinding(SimpleString.of("t" + threadID + "_" + remove), null);
+               }
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+               errors.incrementAndGet();
+            } finally {
+               latch.countDown();
+            }
+         });
+      }
+
+      Assertions.assertTrue(latch.await(1, TimeUnit.MINUTES));
+
+      running.set(false);
+
+      Assertions.assertEquals(0, errors.get());
+
+      Collection<Binding> bindings = simpleAddressManager.getDirectBindings(SimpleString.of(address));
+
+      HashSet<String> result = new HashSet<>();
+
+      bindings.forEach(b -> result.add(b.getUniqueName().toString()));
+
+      Assertions.assertEquals(threads * keep, result.size());
+
+      for (int thread = 0; thread < threads; thread++) {
+         for (int add = 0; add < keep; add++) {
+            Assertions.assertTrue(result.contains("t" + thread + "_" + add));
+         }
+      }
    }
 
    static class BindingFactoryFake implements BindingsFactory {
