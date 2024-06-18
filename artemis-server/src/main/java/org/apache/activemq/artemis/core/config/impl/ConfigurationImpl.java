@@ -958,13 +958,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       updateApplyStatus(propsId, errors);
    }
 
-   private static boolean isClassProperty(String property) {
+   protected static boolean isClassProperty(String property) {
       return property.endsWith(PROPERTY_CLASS_SUFFIX);
    }
 
-   private static String extractPropertyClassName(String property) {
-      int propertyClassSuffixIndex = property.indexOf(PROPERTY_CLASS_SUFFIX);
-      return property.substring(0, propertyClassSuffixIndex);
+   protected static String extractPropertyClassName(String property) {
+      return property.substring(0, property.length() - PROPERTY_CLASS_SUFFIX.length());
    }
 
    private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
