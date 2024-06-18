@@ -2331,6 +2331,20 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(1, dummyConfig.getChildConfig().getChildConfig().getChildConfig().getIntProperty());
    }
 
+   @Test
+   public void testIsClass() throws Exception {
+      assertTrue(ConfigurationImpl.isClassProperty("test.class"));
+      assertTrue(ConfigurationImpl.isClassProperty("foo.class.bar.class"));
+      assertFalse(ConfigurationImpl.isClassProperty("test"));
+      assertFalse(ConfigurationImpl.isClassProperty("foo.class.bar"));
+   }
+
+   @Test
+   public void testExtractPropertyClassName() throws Exception {
+      assertEquals("test", ConfigurationImpl.extractPropertyClassName("test.class"));
+      assertEquals("foo.class.bar", ConfigurationImpl.extractPropertyClassName("foo.class.bar.class"));
+   }
+
    public static class DummyConfig {
       private int intProperty;
 
