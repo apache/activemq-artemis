@@ -49,7 +49,7 @@ public class AuthenticationFilter implements Filter {
             //the hawtio logout servlet cleans the session and redirects to the login servlet
             HttpSession session = ((Request) servletRequest).getSession(false);
             if (session != null) {
-               AuditLogger.userSuccesfullyAuthenticatedInAudit(session != null ? (Subject) session.getAttribute("subject") : null);
+               AuditLogger.userSuccesfullyAuthenticatedInAudit((Subject) session.getAttribute("subject"));
             }
          } else if (status >= 400 && status < 599) {
             //Client error responses (400 – 499)
