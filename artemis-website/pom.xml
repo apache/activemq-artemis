@@ -376,6 +376,7 @@
                         <stylesdir>css</stylesdir>
                         <webfonts>false</webfonts>
                         <prewrap>false</prewrap>
+                        <reproducible />
                         <!-- enable "experimental" for keyboard macros - https://docs.asciidoctor.org/asciidoc/latest/macros/keyboard-macro/ -->
                         <experimental>true</experimental>
 
