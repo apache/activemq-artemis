@@ -28,6 +28,10 @@
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Commons</name>
 
+   <properties>
+      <skipCommonsJavadocGeneration>true</skipCommonsJavadocGeneration>
+   </properties>
+
    <dependencies>
 
       <!-- Johnzon and JSON is meant to be referenced only here on this package (commons)
@@ -100,35 +104,32 @@
    <profiles>
       <profile>
          <id>release</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <configuration>
-                     <useStandardDocletOptions>true</useStandardDocletOptions>
-                     <minmemory>128m</minmemory>
-                     <maxmemory>512m</maxmemory>
-                     <noindex>true</noindex>
-                     <sourceFileIncludes>
-                        <sourceFileInclude>**/org/apache/activemq/artemis/api/**/*.java</sourceFileInclude>
-                     </sourceFileIncludes>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <id>javadocs</id>
-                        <goals>
-                           <goal>jar</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
+         <properties>
+            <skipCommonsJavadocGeneration>${maven.javadoc.skip}</skipCommonsJavadocGeneration>
+         </properties>
       </profile>
    </profiles>
 
    <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-javadoc-plugin</artifactId>
+               <configuration>
+                  <useStandardDocletOptions>true</useStandardDocletOptions>
+                  <minmemory>128m</minmemory>
+                  <maxmemory>512m</maxmemory>
+                  <noindex>true</noindex>
+                  <notimestamp>true</notimestamp>
+                  <sourceFileIncludes>
+                     <sourceFileInclude>**/org/apache/activemq/artemis/api/**/*.java</sourceFileInclude>
+                  </sourceFileIncludes>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -165,6 +166,21 @@
                            <include>jakarta.json:jakarta.json-api</include>
                         </includes>
                      </artifactSet>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>javadocs</id>
+                  <goals>
+                     <goal>jar</goal>
+                  </goals>
+                  <configuration>
+                     <skip>${skipCommonsJavadocGeneration}</skip>
                   </configuration>
                </execution>
             </executions>
