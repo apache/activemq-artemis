@@ -420,7 +420,7 @@ public class PagingStoreImpl implements PagingStore {
    public long getMaxSize() {
       if (maxSize <= 0) {
          // if maxSize <= 0, we will return 2 pages for de-page purposes
-         return pageSize * 2;
+         return pageSize * 2L;
       } else {
          return maxSize;
       }
