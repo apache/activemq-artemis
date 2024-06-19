@@ -2395,8 +2395,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), GT_ZERO);
 
-      String scaleDownConnector = e.getAttribute("scale-down-connector");
-
       String discoveryGroupName = null;
 
       List<String> staticConnectorNames = new ArrayList<>();

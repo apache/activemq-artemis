@@ -3515,7 +3515,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       pagingManager.reloadStores();
 
       Set<Long> storedLargeMessages = new HashSet<>();
-      JournalLoadInformation[] journalInfo = loadJournals(storedLargeMessages);
+      loadJournals(storedLargeMessages);
 
       if (rebuildCounters) {
          pagingManager.rebuildCounters(storedLargeMessages);
