@@ -16,13 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Arrays;
@@ -38,6 +33,9 @@ import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
@@ -79,22 +77,19 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
       Session session = connection.createSession(false, ackMode);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               if (counter.get() == 2) {
-                  sendDone.await();
-                  connection.close();
-                  got2Done.countDown();
-               }
-               tm.acknowledge();
-            } catch (Throwable e) {
-               e.printStackTrace();
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            if (counter.get() == 2) {
+               sendDone.await();
+               connection.close();
+               got2Done.countDown();
             }
+            tm.acknowledge();
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
       });
 
@@ -115,21 +110,18 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
       final CountDownLatch done2 = new CountDownLatch(1);
       session = connection.createSession(false, ackMode);
       consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               // order is not guaranteed as the connection is started before
-               // the listener is set.
-               // assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               if (counter.get() == 4) {
-                  done2.countDown();
-               }
-            } catch (Throwable e) {
-               System.err.println("Unexpected exception: " + e);
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            // order is not guaranteed as the connection is started before
+            // the listener is set.
+            // assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            if (counter.get() == 4) {
+               done2.countDown();
             }
+         } catch (Throwable e) {
+            System.err.println("Unexpected exception: " + e);
          }
       });
 

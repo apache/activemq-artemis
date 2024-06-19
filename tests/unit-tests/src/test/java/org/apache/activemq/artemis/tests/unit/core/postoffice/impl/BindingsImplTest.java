@@ -110,16 +110,13 @@ public class BindingsImplTest extends ActiveMQTestBase {
       bind.addBinding(new FakeBinding(SimpleString.of("a")));
       bind.addBinding(new FakeBinding(SimpleString.of("a")));
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               bind.removeBindingByUniqueName(fake.getUniqueName());
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            bind.removeBindingByUniqueName(fake.getUniqueName());
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       Queue queue = new FakeQueue(SimpleString.of("a"));
       t.start();

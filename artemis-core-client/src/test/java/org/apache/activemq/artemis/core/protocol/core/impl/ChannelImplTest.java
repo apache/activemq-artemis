@@ -75,12 +75,7 @@ public class ChannelImplTest {
    }
 
    private CommandConfirmationHandler wrapAsPerActiveMQSessionContext(ResponseHandler responseHandler) {
-      return new CommandConfirmationHandler() {
-         @Override
-         public void commandConfirmed(Packet packet) {
-            responseHandler.handleResponse(packet, null);
-         }
-      };
+      return packet -> responseHandler.handleResponse(packet, null);
    }
 
    @Test

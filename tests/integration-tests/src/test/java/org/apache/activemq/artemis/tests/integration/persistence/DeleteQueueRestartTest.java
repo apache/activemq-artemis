@@ -75,17 +75,14 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
       final CountDownLatch count = new CountDownLatch(1);
 
       // Using another thread, as the deleteQueue is a blocked call
-      new Thread() {
-         @Override
-         public void run() {
-            try {
-               session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
-               session.close();
-               count.countDown();
-            } catch (ActiveMQException e) {
-            }
+      new Thread(() -> {
+         try {
+            session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
+            session.close();
+            count.countDown();
+         } catch (ActiveMQException e) {
          }
-      }.start();
+      }).start();
 
       assertTrue(count.await(5, TimeUnit.SECONDS));
 

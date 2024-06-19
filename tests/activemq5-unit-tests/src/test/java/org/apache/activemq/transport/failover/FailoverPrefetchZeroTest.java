@@ -98,22 +98,19 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
 
       final CountDownLatch receiveDone = new CountDownLatch(1);
       final Vector<Message> received = new Vector<>();
-      new Thread() {
-         @Override
-         public void run() {
-            try {
-               LOG.info("receive one...");
-               Message msg = consumer.receive(30000);
-               if (msg != null) {
-                  received.add(msg);
-               }
-               receiveDone.countDown();
-               LOG.info("done receive");
-            } catch (Exception e) {
-               e.printStackTrace();
+      new Thread(() -> {
+         try {
+            LOG.info("receive one...");
+            Message msg = consumer.receive(30000);
+            if (msg != null) {
+               received.add(msg);
             }
+            receiveDone.countDown();
+            LOG.info("done receive");
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      }.start();
+      }).start();
 
       // will be stopped by the plugin
       assertTrue("pull completed on broker", pullDone.await(30, TimeUnit.SECONDS));
@@ -143,18 +140,15 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          context.getContext().setDontSendReponse(true);
          pullDone.countDown();
-         new Thread() {
-            @Override
-            public void run() {
-               try {
-                  broker.stop();
-               } catch (Exception e) {
-                  e.printStackTrace();
-               } finally {
-                  brokerStopLatch.countDown();
-               }
+         new Thread(() -> {
+            try {
+               broker.stop();
+            } catch (Exception e) {
+               e.printStackTrace();
+            } finally {
+               brokerStopLatch.countDown();
             }
-         }.start();
+         }).start();
       }
    }
 

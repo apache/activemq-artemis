@@ -289,12 +289,7 @@ public class RepositoryTest extends ServerTestBase {
       repository.addMatch("B", "2");
 
       final AtomicInteger called = new AtomicInteger(0);
-      repository.registerListener(new HierarchicalRepositoryChangeListener() {
-         @Override
-         public void onChange() {
-            called.incrementAndGet();
-         }
-      });
+      repository.registerListener(() -> called.incrementAndGet());
 
       assertEquals(1, called.get());
 

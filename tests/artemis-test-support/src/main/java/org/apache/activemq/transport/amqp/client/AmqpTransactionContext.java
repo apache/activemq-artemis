@@ -71,46 +71,42 @@ public class AmqpTransactionContext {
 
       logger.info("Attempting to Begin TX:[{}]", txId);
 
-      session.getScheduler().execute(new Runnable() {
+      session.getScheduler().execute(() -> {
+         if (coordinator == null || coordinator.isClosed()) {
+            logger.info("Creating new Coordinator for TX:[{}]", txId);
+            coordinator = new AmqpTransactionCoordinator(session);
+            coordinator.open(new AsyncResult() {
 
-         @Override
-         public void run() {
-            if (coordinator == null || coordinator.isClosed()) {
-               logger.info("Creating new Coordinator for TX:[{}]", txId);
-               coordinator = new AmqpTransactionCoordinator(session);
-               coordinator.open(new AsyncResult() {
-
-                  @Override
-                  public void onSuccess() {
-                     try {
-                        logger.info("Attempting to declare TX:[{}]", txId);
-                        coordinator.declare(txId, request);
-                     } catch (Exception e) {
-                        request.onFailure(e);
-                     }
+               @Override
+               public void onSuccess() {
+                  try {
+                     logger.info("Attempting to declare TX:[{}]", txId);
+                     coordinator.declare(txId, request);
+                  } catch (Exception e) {
+                     request.onFailure(e);
                   }
-
-                  @Override
-                  public void onFailure(Throwable result) {
-                     request.onFailure(result);
-                  }
-
-                  @Override
-                  public boolean isComplete() {
-                     return request.isComplete();
-                  }
-               });
-            } else {
-               try {
-                  logger.info("Attempting to declare TX:[{}]", txId);
-                  coordinator.declare(txId, request);
-               } catch (Exception e) {
-                  request.onFailure(e);
                }
-            }
 
-            session.pumpToProtonTransport(request);
+               @Override
+               public void onFailure(Throwable result) {
+                  request.onFailure(result);
+               }
+
+               @Override
+               public boolean isComplete() {
+                  return request.isComplete();
+               }
+            });
+         } else {
+            try {
+               logger.info("Attempting to declare TX:[{}]", txId);
+               coordinator.declare(txId, request);
+            } catch (Exception e) {
+               request.onFailure(e);
+            }
          }
+
+         session.pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -144,17 +140,13 @@ public class AmqpTransactionContext {
       });
 
       logger.debug("Commit on TX[{}] initiated", transactionId);
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            try {
-               logger.info("Attempting to commit TX:[{}]", transactionId);
-               coordinator.discharge(transactionId, request, true);
-               session.pumpToProtonTransport(request);
-            } catch (Exception e) {
-               request.onFailure(e);
-            }
+      session.getScheduler().execute(() -> {
+         try {
+            logger.info("Attempting to commit TX:[{}]", transactionId);
+            coordinator.discharge(transactionId, request, true);
+            session.pumpToProtonTransport(request);
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -189,17 +181,13 @@ public class AmqpTransactionContext {
       });
 
       logger.debug("Rollback on TX[{}] initiated", transactionId);
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            try {
-               logger.info("Attempting to roll back TX:[{}]", transactionId);
-               coordinator.discharge(transactionId, request, false);
-               session.pumpToProtonTransport(request);
-            } catch (Exception e) {
-               request.onFailure(e);
-            }
+      session.getScheduler().execute(() -> {
+         try {
+            logger.info("Attempting to roll back TX:[{}]", transactionId);
+            coordinator.discharge(transactionId, request, false);
+            session.pumpToProtonTransport(request);
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 

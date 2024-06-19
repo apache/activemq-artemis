@@ -84,13 +84,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          TemporaryQueue tempQueue = (TemporaryQueue) queue;
          tempQueue.delete();
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return getProxyToQueue(queue.getQueueName()) == null;
-            }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
+         assertTrue(Wait.waitFor(() -> getProxyToQueue(queue.getQueueName()) == null, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
       } finally {
          connection.close();
       }
@@ -136,13 +130,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          TemporaryTopic tempTopic = (TemporaryTopic) topic;
          tempTopic.delete();
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return getProxyToQueue(topic.getTopicName()) == null;
-            }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
+         assertTrue(Wait.waitFor(() -> getProxyToQueue(topic.getTopicName()) == null, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
       } finally {
          connection.close();
       }

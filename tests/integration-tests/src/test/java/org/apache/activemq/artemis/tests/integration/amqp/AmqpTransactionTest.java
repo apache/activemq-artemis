@@ -887,37 +887,34 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       Connection consumerConnection = factory.createConnection();
       try {
 
-         Thread receiverThread = new Thread() {
-            @Override
-            public void run() {
-               try {
-                  consumerConnection.start();
-                  Session consumerSession = consumerConnection.createSession(true, Session.SESSION_TRANSACTED);
-                  javax.jms.Queue q1 = consumerSession.createQueue("q1");
+         Thread receiverThread = new Thread(() -> {
+            try {
+               consumerConnection.start();
+               Session consumerSession = consumerConnection.createSession(true, Session.SESSION_TRANSACTED);
+               javax.jms.Queue q1 = consumerSession.createQueue("q1");
 
-                  MessageConsumer consumer = consumerSession.createConsumer(q1);
+               MessageConsumer consumer = consumerSession.createConsumer(q1);
 
-                  for (int i = 1; i <= MESSAGE_COUNT; i++) {
-                     Message message = consumer.receive(5000);
-                     if (message == null) {
-                        throw new IOException("No message read in time.");
-                     }
-
-                     if (i % 100 == 0) {
-                        if (i % 1000 == 0) logger.debug("Read message {}", i);
-                        consumerSession.commit();
-                     }
+               for (int i = 1; i <= MESSAGE_COUNT; i++) {
+                  Message message = consumer.receive(5000);
+                  if (message == null) {
+                     throw new IOException("No message read in time.");
                   }
 
-                  // Assure that all messages are consumed
-                  consumerSession.commit();
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
+                  if (i % 100 == 0) {
+                     if (i % 1000 == 0) logger.debug("Read message {}", i);
+                     consumerSession.commit();
+                  }
                }
 
+               // Assure that all messages are consumed
+               consumerSession.commit();
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
             }
-         };
+
+         });
 
          receiverThread.start();
 

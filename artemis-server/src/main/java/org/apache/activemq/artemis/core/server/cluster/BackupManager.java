@@ -250,62 +250,53 @@ public class BackupManager implements ActiveMQComponent {
       * */
       public void announceBackup() {
          //this has to be done in a separate thread
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               if (stopping) {
+         executor.execute(() -> {
+            if (stopping) {
+               return;
+            }
+
+            try {
+               //make a copy to avoid npe if we are nulled on close
+               ServerLocatorInternal localBackupLocator = backupServerLocator;
+               if (localBackupLocator == null) {
+                  if (!stopping)
+                     ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(this.toString());
                   return;
                }
-
-               try {
-                  //make a copy to avoid npe if we are nulled on close
-                  ServerLocatorInternal localBackupLocator = backupServerLocator;
-                  if (localBackupLocator == null) {
-                     if (!stopping)
-                        ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(this.toString());
-                     return;
-                  }
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("{}:: announcing {} to {}", BackupConnector.this, connector, backupServerLocator);
-                  }
-
-                  announcingBackup = true;
-                  //connect to the cluster
-                  ClientSessionFactoryInternal backupSessionFactory = localBackupLocator.connect();
-                  //send the announce message
-                  if (backupSessionFactory != null) {
-                     ClusterControl clusterControl = clusterManager.getClusterController().connectToNodeInCluster(backupSessionFactory);
-                     clusterControl.authorize();
-                     clusterControl.sendNodeAnnounce(System.currentTimeMillis(), nodeManager.getNodeId().toString(), server.getHAPolicy().getBackupGroupName(), server.getHAPolicy().getScaleDownClustername(), true, connector, null);
-                     ActiveMQServerLogger.LOGGER.backupAnnounced();
-                     backupAnnounced = true;
-                  }
-               } catch (RejectedExecutionException e) {
-                  // assumption is that the whole server is being stopped. So the exception is ignored.
-               } catch (Exception e) {
-                  if (scheduledExecutor.isShutdown())
-                     return;
-                  if (stopping)
-                     return;
-                  ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
-
-                  retryConnection();
-               } finally {
-                  announcingBackup = false;
+               if (logger.isDebugEnabled()) {
+                  logger.debug("{}:: announcing {} to {}", BackupConnector.this, connector, backupServerLocator);
                }
+
+               announcingBackup = true;
+               //connect to the cluster
+               ClientSessionFactoryInternal backupSessionFactory = localBackupLocator.connect();
+               //send the announce message
+               if (backupSessionFactory != null) {
+                  ClusterControl clusterControl = clusterManager.getClusterController().connectToNodeInCluster(backupSessionFactory);
+                  clusterControl.authorize();
+                  clusterControl.sendNodeAnnounce(System.currentTimeMillis(), nodeManager.getNodeId().toString(), server.getHAPolicy().getBackupGroupName(), server.getHAPolicy().getScaleDownClustername(), true, connector, null);
+                  ActiveMQServerLogger.LOGGER.backupAnnounced();
+                  backupAnnounced = true;
+               }
+            } catch (RejectedExecutionException e) {
+               // assumption is that the whole server is being stopped. So the exception is ignored.
+            } catch (Exception e) {
+               if (scheduledExecutor.isShutdown())
+                  return;
+               if (stopping)
+                  return;
+               ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
+
+               retryConnection();
+            } finally {
+               announcingBackup = false;
             }
          });
       }
 
       /** it will re-schedule the connection after a timeout, using a scheduled executor */
       protected void retryConnection() {
-         scheduledExecutor.schedule(new Runnable() {
-            @Override
-            public void run() {
-               announceBackup();
-            }
-
-         }, config.getRetryInterval(), TimeUnit.MILLISECONDS);
+         scheduledExecutor.schedule(this::announceBackup, config.getRetryInterval(), TimeUnit.MILLISECONDS);
       }
 
       /*
@@ -327,15 +318,12 @@ public class BackupManager implements ActiveMQComponent {
            */
             closeLocator(backupServerLocator);
          }
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               synchronized (BackupConnector.this) {
-                  closeLocator(backupServerLocator);
-                  backupServerLocator = null;
-               }
-
+         executor.execute(() -> {
+            synchronized (BackupConnector.this) {
+               closeLocator(backupServerLocator);
+               backupServerLocator = null;
             }
+
          });
       }
 

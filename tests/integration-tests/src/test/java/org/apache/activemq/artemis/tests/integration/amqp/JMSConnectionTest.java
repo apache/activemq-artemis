@@ -105,17 +105,13 @@ public class JMSConnectionTest extends JMSClientTestSupport {
       final int numThreads = 40;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
       for (int i = 0; i < numThreads; i++) {
-         executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-
-               try {
-                  Connection connection = createConnection(fullPass, fullUser);
-                  connection.start();
-                  connection.close();
-               } catch (JMSException e) {
-                  e.printStackTrace();
-               }
+         executorService.execute(() -> {
+            try {
+               Connection connection = createConnection(fullPass, fullUser);
+               connection.start();
+               connection.close();
+            } catch (JMSException e) {
+               e.printStackTrace();
             }
          });
       }

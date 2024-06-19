@@ -64,12 +64,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          }
 
          private ClassLoader getThisClassLoader() {
-            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-               @Override
-               public ClassLoader run() {
-                  return CriticalAnalyzerImpl.this.getClass().getClassLoader();
-               }
-            });
+            return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> CriticalAnalyzerImpl.this.getClass().getClassLoader());
 
          }
 

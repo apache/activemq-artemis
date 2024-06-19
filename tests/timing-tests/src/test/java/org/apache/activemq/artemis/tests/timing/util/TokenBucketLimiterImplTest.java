@@ -168,37 +168,34 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
 
       TokenBucketLimiterImpl tbl = new TokenBucketLimiterImpl(rate, false, TimeUnit.SECONDS, window);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            int lastRun = 0;
-            long lastTime = System.currentTimeMillis();
-            while (running.get()) {
-               int tmpValue = iterations.get();
-               if (lastRun != 0) {
-                  int consumed = tmpValue - lastRun;
+      Thread t = new Thread(() -> {
+         int lastRun = 0;
+         long lastTime = System.currentTimeMillis();
+         while (running.get()) {
+            int tmpValue = iterations.get();
+            if (lastRun != 0) {
+               int consumed = tmpValue - lastRun;
 
-                  double calculatedRate = consumed * window * 1000 / (System.currentTimeMillis() - lastTime);
+               double calculatedRate = consumed * window * 1000 / (System.currentTimeMillis() - lastTime);
 
-                  if (calculatedRate > rate * error) {
-                     System.out.println("got more than " + rate + " tokens / second");
-                     rateError.set(true);
-                  } else if (calculatedRate > rate) {
-                     System.out.println("got more than " + rate + " tokens / second but still on the error marging" +
-                                           "make sure it's ok though, if you see to many of this message it's an issue");
-                  }
-                  System.out.println("Rate = " + calculatedRate + " consumed = " + consumed);
+               if (calculatedRate > rate * error) {
+                  System.out.println("got more than " + rate + " tokens / second");
+                  rateError.set(true);
+               } else if (calculatedRate > rate) {
+                  System.out.println("got more than " + rate + " tokens / second but still on the error marging" +
+                                        "make sure it's ok though, if you see to many of this message it's an issue");
                }
-               lastTime = System.currentTimeMillis();
-               lastRun = tmpValue;
-               try {
-                  Thread.sleep(window * 1000);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
+               System.out.println("Rate = " + calculatedRate + " consumed = " + consumed);
+            }
+            lastTime = System.currentTimeMillis();
+            lastRun = tmpValue;
+            try {
+               Thread.sleep(window * 1000);
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          }
-      };
+      });
 
       t.start();
 

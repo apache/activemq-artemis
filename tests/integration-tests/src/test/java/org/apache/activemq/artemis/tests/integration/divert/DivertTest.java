@@ -1723,12 +1723,7 @@ public class DivertTest extends ActiveMQTestBase {
       final String DIVERT = "myDivert";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
-      Transformer transformer = new Transformer() {
-         @Override
-         public Message transform(Message message) {
-            return null;
-         }
-      };
+      Transformer transformer = message -> null;
       serviceRegistry.addDivertTransformer(DIVERT, transformer);
 
       ActiveMQServer server = addServer(new ActiveMQServerImpl(createBasicConfig(), null, null, null, serviceRegistry));

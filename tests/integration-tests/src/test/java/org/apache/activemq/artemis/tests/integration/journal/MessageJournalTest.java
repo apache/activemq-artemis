@@ -67,12 +67,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
-      TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      };
+      TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 
       try {
          journalStorageManager.getMessageJournal().start();
@@ -111,12 +106,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
-      TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      };
+      TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 
       try {
          journalStorageManager.getMessageJournal().start();

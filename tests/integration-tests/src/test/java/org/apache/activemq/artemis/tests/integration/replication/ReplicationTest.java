@@ -445,16 +445,12 @@ public final class ReplicationTest extends ActiveMQTestBase {
       final long ttlOverride = 123456789;
       final long checkPeriodOverride = 987654321;
 
-      ExtraConfigurer configurer = new ExtraConfigurer() {
-
-         @Override
-         public void config(Configuration primaryConfig, Configuration backupConfig) {
-            List<ClusterConnectionConfiguration> ccList = backupConfig.getClusterConfigurations();
-            assertTrue(ccList.size() > 0);
-            ClusterConnectionConfiguration cc = ccList.get(0);
-            cc.setConnectionTTL(ttlOverride);
-            cc.setClientFailureCheckPeriod(checkPeriodOverride);
-         }
+      ExtraConfigurer configurer = (primaryConfig, backupConfig) -> {
+         List<ClusterConnectionConfiguration> ccList = backupConfig.getClusterConfigurations();
+         assertTrue(ccList.size() > 0);
+         ClusterConnectionConfiguration cc = ccList.get(0);
+         cc.setConnectionTTL(ttlOverride);
+         cc.setClientFailureCheckPeriod(checkPeriodOverride);
       };
       this.setupServer(true, true, configurer);
       assertTrue(backupServer instanceof ActiveMQServerImpl);

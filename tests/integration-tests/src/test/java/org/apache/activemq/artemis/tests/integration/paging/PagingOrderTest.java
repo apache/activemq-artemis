@@ -206,32 +206,29 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ServerLocator sl = createInVMNonHALocator();
-               ClientSessionFactory sf = sl.createSessionFactory();
-               ClientSession sess = sf.createSession(true, true, 0);
-               sess.start();
-               ClientConsumer cons = sess.createConsumer(ADDRESS);
-               for (int i = 0; i < numberOfMessages; i++) {
-                  ClientMessage msg = cons.receive(5000);
-                  assertNotNull(msg);
-                  assertEquals(i, msg.getIntProperty("id").intValue());
-                  msg.acknowledge();
-               }
-
-               assertNull(cons.receiveImmediate());
-               sess.close();
-               sl.close();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            ServerLocator sl = createInVMNonHALocator();
+            ClientSessionFactory sf1 = sl.createSessionFactory();
+            ClientSession sess = sf1.createSession(true, true, 0);
+            sess.start();
+            ClientConsumer cons = sess.createConsumer(ADDRESS);
+            for (int i = 0; i < numberOfMessages; i++) {
+               ClientMessage msg = cons.receive(5000);
+               assertNotNull(msg);
+               assertEquals(i, msg.getIntProperty("id").intValue());
+               msg.acknowledge();
             }
 
+            assertNull(cons.receiveImmediate());
+            sess.close();
+            sl.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       t1.start();
 
@@ -340,30 +337,27 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ServerLocator sl = createInVMNonHALocator();
-               ClientSessionFactory sf = sl.createSessionFactory();
-               ClientSession sess = sf.createSession(true, true, 0);
-               sess.start();
-               ClientConsumer cons = sess.createConsumer(ADDRESS);
-               for (int i = 0; i < 100; i++) {
-                  ClientMessage msg = cons.receive(5000);
-                  assertNotNull(msg);
-                  assertEquals(i, msg.getIntProperty("id").intValue());
-                  msg.acknowledge();
-               }
-               sess.close();
-               sl.close();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            ServerLocator sl = createInVMNonHALocator();
+            ClientSessionFactory sf1 = sl.createSessionFactory();
+            ClientSession sess = sf1.createSession(true, true, 0);
+            sess.start();
+            ClientConsumer cons = sess.createConsumer(ADDRESS);
+            for (int i = 0; i < 100; i++) {
+               ClientMessage msg = cons.receive(5000);
+               assertNotNull(msg);
+               assertEquals(i, msg.getIntProperty("id").intValue());
+               msg.acknowledge();
             }
-
+            sess.close();
+            sl.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(persistentMessages);

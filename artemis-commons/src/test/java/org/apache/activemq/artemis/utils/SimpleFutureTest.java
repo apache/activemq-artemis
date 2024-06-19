@@ -28,12 +28,7 @@ public class SimpleFutureTest extends ArtemisTestCase {
    public void testFuture() throws Exception {
       final long randomStart = System.currentTimeMillis();
       final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            simpleFuture.set(randomStart);
-         }
-      };
+      Thread t = new Thread(() -> simpleFuture.set(randomStart));
       t.start();
 
       assertEquals(randomStart, simpleFuture.get().longValue());
@@ -43,12 +38,7 @@ public class SimpleFutureTest extends ArtemisTestCase {
    @Test
    public void testException() throws Exception {
       final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            simpleFuture.fail(new Exception("hello"));
-         }
-      };
+      Thread t = new Thread(() -> simpleFuture.fail(new Exception("hello")));
       t.start();
 
       boolean failed = false;

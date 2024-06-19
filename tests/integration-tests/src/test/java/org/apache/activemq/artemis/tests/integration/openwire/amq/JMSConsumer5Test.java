@@ -16,17 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.Arrays;
@@ -41,6 +33,12 @@ import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
@@ -99,13 +97,10 @@ public class JMSConsumer5Test extends BasicOpenWireTest {
       sendMessages(session, destination, 4);
 
       // See if the message get sent to the listener
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 

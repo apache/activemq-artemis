@@ -77,18 +77,15 @@ public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
       final AtomicReference<Connection> conn = new AtomicReference<>();
       final CountDownLatch connStarted = new CountDownLatch(1);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               conn.set(createConnectionFactory().createConnection());
-               conn.get().start();
-            } catch (Exception ex) {
-               LOG.error("could not create or start connection", ex);
-            }
-            connStarted.countDown();
+      Thread t = new Thread(() -> {
+         try {
+            conn.set(createConnectionFactory().createConnection());
+            conn.get().start();
+         } catch (Exception ex) {
+            LOG.error("could not create or start connection", ex);
          }
-      };
+         connStarted.countDown();
+      });
       t.start();
       createPrimary();
 

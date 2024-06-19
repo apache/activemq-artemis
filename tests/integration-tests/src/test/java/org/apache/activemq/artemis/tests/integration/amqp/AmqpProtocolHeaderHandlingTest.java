@@ -57,16 +57,12 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       assertEquals(3, response.getProtocolId());
 
       // pump some bytes down the wire until broker closes the connection
-      assertTrue(Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            try {
-               connection.send(header);
-               return false;
-            } catch (Exception e) {
-               return true;
-            }
+      assertTrue(Wait.waitFor(() -> {
+         try {
+            connection.send(header);
+            return false;
+         } catch (Exception e) {
+            return true;
          }
       }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)), "Broker should have closed client connection");
    }

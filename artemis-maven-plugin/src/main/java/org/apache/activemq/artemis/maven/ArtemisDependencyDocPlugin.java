@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,13 +174,10 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
          List<org.eclipse.aether.artifact.Artifact> artifacts = explodeDependencies(newArtifact(lib));
 
-         Collections.sort(artifacts, new Comparator<Artifact>() {
-            @Override
-            public int compare(Artifact o1, Artifact o2) {
-               String pref1 = getGroupOrder(o1.getGroupId());
-               String pref2 = getGroupOrder(o2.getGroupId());
-               return (pref1 + o1.getGroupId() + o1.getArtifactId()).compareTo(pref2 + o2.getGroupId() + o2.getArtifactId());
-            }
+         Collections.sort(artifacts, (o1, o2) -> {
+            String pref1 = getGroupOrder(o1.getGroupId());
+            String pref2 = getGroupOrder(o2.getGroupId());
+            return (pref1 + o1.getGroupId() + o1.getArtifactId()).compareTo(pref2 + o2.getGroupId() + o2.getArtifactId());
          });
 
          artifacts.forEach((art) -> {

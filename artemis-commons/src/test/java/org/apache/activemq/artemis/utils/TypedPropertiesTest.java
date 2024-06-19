@@ -398,20 +398,17 @@ public class TypedPropertiesTest {
       AtomicBoolean running = new AtomicBoolean(true);
       AtomicLong copies = new AtomicLong(0);
       AtomicBoolean error = new AtomicBoolean(false);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            while (running.get() && !error.get()) {
-               try {
-                  copies.incrementAndGet();
-                  TypedProperties copiedProperties = new TypedProperties(properties);
-               } catch (Throwable e) {
-                  e.printStackTrace();
-                  error.set(true);
-               }
+      Thread t = new Thread(() -> {
+         while (running.get() && !error.get()) {
+            try {
+               copies.incrementAndGet();
+               TypedProperties copiedProperties = new TypedProperties(properties);
+            } catch (Throwable e) {
+               e.printStackTrace();
+               error.set(true);
             }
          }
-      };
+      });
       t.start();
       for (int i = 0; !error.get() && (i < 100 || copies.get() < 50); i++) {
          properties.putIntProperty(SimpleString.of("key" + i), i);

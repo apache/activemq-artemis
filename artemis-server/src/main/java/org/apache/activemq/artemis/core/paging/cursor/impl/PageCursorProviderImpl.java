@@ -194,19 +194,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       scheduledCleanup.incrementAndGet();
 
-      pagingStore.execute(new Runnable() {
-         @Override
-         public void run() {
-            storageManager.setContext(storageManager.newSingleThreadContext());
-            try {
-               if (cleanupEnabled) {
-                  cleanup();
-               }
-            } finally {
-               storageManager.clearContext();
-               scheduledCleanup.decrementAndGet();
-               future.set(true);
+      pagingStore.execute(() -> {
+         storageManager.setContext(storageManager.newSingleThreadContext());
+         try {
+            if (cleanupEnabled) {
+               cleanup();
             }
+         } finally {
+            storageManager.clearContext();
+            scheduledCleanup.decrementAndGet();
+            future.set(true);
          }
       });
 

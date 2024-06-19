@@ -525,41 +525,35 @@ public class SelectorTest extends ActiveMQServerTestCase {
          final CountDownLatch latch = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  while (true) {
-                     Message m = c.receive(1000);
-                     if (m != null) {
-                        received.add(m);
-                     } else {
-                        latch.countDown();
-                        return;
-                     }
+         new Thread(() -> {
+            try {
+               while (true) {
+                  Message m = c.receive(1000);
+                  if (m != null) {
+                     received.add(m);
+                  } else {
+                     latch.countDown();
+                     return;
                   }
-               } catch (Exception e) {
-                  logger.error("receive failed", e);
                }
+            } catch (Exception e) {
+               logger.error("receive failed", e);
             }
          }, "consumer thread 1").start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  while (true) {
-                     Message m = c2.receive(1000);
-                     if (m != null) {
-                        received2.add(m);
-                     } else {
-                        latch2.countDown();
-                        return;
-                     }
+         new Thread(() -> {
+            try {
+               while (true) {
+                  Message m = c2.receive(1000);
+                  if (m != null) {
+                     received2.add(m);
+                  } else {
+                     latch2.countDown();
+                     return;
                   }
-               } catch (Exception e) {
-                  logger.error("receive failed", e);
                }
+            } catch (Exception e) {
+               logger.error("receive failed", e);
             }
          }, "consumer thread 2").start();
 

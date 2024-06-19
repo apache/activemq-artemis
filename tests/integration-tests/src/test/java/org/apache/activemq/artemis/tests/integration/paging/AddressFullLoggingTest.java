@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +23,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -45,6 +41,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddressFullLoggingTest extends ActiveMQTestBase {
 
@@ -112,12 +111,9 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
       ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      Callable<Object> sendMessageTask = new Callable<Object>() {
-         @Override
-         public Object call() throws ActiveMQException {
-            producer.send(message);
-            return null;
-         }
+      Callable<Object> sendMessageTask = () -> {
+         producer.send(message);
+         return null;
       };
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {

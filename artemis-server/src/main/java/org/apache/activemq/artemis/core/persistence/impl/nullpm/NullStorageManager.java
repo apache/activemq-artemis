@@ -101,12 +101,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    public NullStorageManager() {
-      this(new IOCriticalErrorListener() {
-         @Override
-         public void onIOException(Throwable code, String message, String file) {
-            code.printStackTrace();
-         }
-      });
+      this((code, message, file) -> code.printStackTrace());
    }
 
    public NullStorageManager(int nextId) {

@@ -24,7 +24,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -50,12 +49,7 @@ public final class VersionLoader {
       try {
 
          try {
-            PROP_FILE_NAME = AccessController.doPrivileged(new PrivilegedAction<String>() {
-               @Override
-               public String run() {
-                  return System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY);
-               }
-            });
+            PROP_FILE_NAME = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY));
          } catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.unableToInitVersionLoader(e);
             PROP_FILE_NAME = null;
@@ -121,13 +115,7 @@ public final class VersionLoader {
                definedVersions.add(new VersionImpl(versionName, majorVersion, minorVersion, microVersion, incrementingVersion, compatibleVersionArray));
             }
             //We want the higher version to be the first
-            Collections.sort(definedVersions, new Comparator<Version>() {
-               @Override
-               public int compare(Version version1, Version version2) {
-                  return version2.getIncrementingVersion() - version1.getIncrementingVersion();
-               }
-
-            });
+            Collections.sort(definedVersions, (version1, version2) -> version2.getIncrementingVersion() - version1.getIncrementingVersion());
             return definedVersions.toArray(new Version[incrementingVersions.length]);
          } catch (IOException e) {
             // if we get here then the messaging hasn't been built properly and the version.properties is skewed in some

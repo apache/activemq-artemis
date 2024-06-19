@@ -1257,24 +1257,14 @@ public class NettyConnector extends AbstractConnector {
       public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
             // Execute on different thread to avoid deadlocks
-            closeExecutor.execute(new Runnable() {
-               @Override
-               public void run() {
-                  listener.connectionDestroyed(connectionID, failed);
-               }
-            });
+            closeExecutor.execute(() -> listener.connectionDestroyed(connectionID, failed));
          }
       }
 
       @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
-         closeExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               listener.connectionException(connectionID, me);
-            }
-         });
+         closeExecutor.execute(() -> listener.connectionException(connectionID, me));
       }
 
       @Override

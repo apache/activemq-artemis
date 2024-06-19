@@ -139,12 +139,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       });
 
 
-      assertTrue(Wait.waitFor(new org.apache.activemq.artemis.utils.Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return received.getCount() <= numMessagesPerNode;
-         }
-      }));
+      assertTrue(Wait.waitFor(() -> received.getCount() <= numMessagesPerNode));
 
       // force a failover to the other broker
       servers[0].stop(false, true);

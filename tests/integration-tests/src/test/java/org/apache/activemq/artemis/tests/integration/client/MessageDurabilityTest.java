@@ -136,12 +136,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
 
       session.start();
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createConsumer(queue);
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, () -> session.createConsumer(queue));
    }
 
    /**
@@ -162,12 +157,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       restart();
 
       session.start();
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createConsumer(queue);
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, () -> session.createConsumer(queue));
    }
 
 

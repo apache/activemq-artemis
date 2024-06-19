@@ -112,31 +112,28 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ClientConsumer consumer = sessionReceive.createConsumer("Queue");
+      Thread tReceive = new Thread(() -> {
+         try {
+            ClientConsumer consumer = sessionReceive.createConsumer("Queue");
 
-               for (int i = 0; i < NMSGS; i++) {
-                  if (i % 500 == 0) {
-                     double percent = (double) i / (double) NMSGS;
-                     System.out.println("msgs " + i + " of " + NMSGS + ", " + (int) (percent * 100) + "%");
-                     Thread.sleep(100);
-                  }
-
-                  ClientMessage msg = consumer.receive(TIMEOUT);
-                  if (msg == null) {
-                     errors.add(new Exception("Didn't receive msgs"));
-                     break;
-                  }
-                  msg.acknowledge();
+            for (int i = 0; i < NMSGS; i++) {
+               if (i % 500 == 0) {
+                  double percent = (double) i / (double) NMSGS;
+                  System.out.println("msgs " + i + " of " + NMSGS + ", " + (int) (percent * 100) + "%");
+                  Thread.sleep(100);
                }
-            } catch (Exception e) {
-               errors.add(e);
+
+               ClientMessage msg = consumer.receive(TIMEOUT);
+               if (msg == null) {
+                  errors.add(new Exception("Didn't receive msgs"));
+                  break;
+               }
+               msg.acknowledge();
             }
+         } catch (Exception e) {
+            errors.add(e);
          }
-      };
+      });
 
       tReceive.start();
 

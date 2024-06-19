@@ -175,12 +175,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);
       } else {
-         Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               syncConsumeLoop(requestConsumer);
-            }
-         });
+         Thread thread = new Thread(() -> syncConsumeLoop(requestConsumer));
          thread.start();
       }
       serverConnection.start();

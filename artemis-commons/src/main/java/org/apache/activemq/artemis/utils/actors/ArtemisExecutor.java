@@ -30,12 +30,7 @@ public interface ArtemisExecutor extends Executor {
     * @return
     */
    static ArtemisExecutor delegate(Executor executor) {
-      return new ArtemisExecutor() {
-         @Override
-         public void execute(Runnable command) {
-            executor.execute(command);
-         }
-      };
+      return executor::execute;
    }
 
    /**
@@ -104,13 +99,7 @@ public interface ArtemisExecutor extends Executor {
     */
    default boolean isFlushed() {
       CountDownLatch latch = new CountDownLatch(1);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
-      execute(runnable);
+      execute(latch::countDown);
       try {
          return latch.await(100, TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {

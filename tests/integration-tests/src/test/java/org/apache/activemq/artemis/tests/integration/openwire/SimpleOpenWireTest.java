@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -32,7 +25,6 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -69,12 +61,12 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
@@ -93,6 +85,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
 
@@ -1852,30 +1851,27 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          Session session = receiveConnection.createSession(false, ackMode);
          Queue queue = session.createQueue(queueName);
          consumer = session.createConsumer(queue);
-         consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               messages.add(message);
+         consumer.setMessageListener(message -> {
+            messages.add(message);
 
-               if (messages.size() < expectedMsgs) {
-                  //delay
-                  try {
-                     TimeUnit.SECONDS.sleep(delay);
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                  }
+            if (messages.size() < expectedMsgs) {
+               //delay
+               try {
+                  TimeUnit.SECONDS.sleep(delay);
+               } catch (InterruptedException e) {
+                  e.printStackTrace();
                }
-               if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
-                  try {
-                     message.acknowledge();
-                  } catch (JMSException e) {
-                     System.err.println("Failed to acknowledge " + message);
-                     e.printStackTrace();
-                  }
+            }
+            if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
+               try {
+                  message.acknowledge();
+               } catch (JMSException e) {
+                  System.err.println("Failed to acknowledge " + message);
+                  e.printStackTrace();
                }
-               if (messages.size() == expectedMsgs) {
-                  latch.countDown();
-               }
+            }
+            if (messages.size() == expectedMsgs) {
+               latch.countDown();
             }
          });
          receiveConnection.start();

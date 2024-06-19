@@ -29,17 +29,11 @@ public class ProcessBuilder {
    static ConcurrentHashSet<Process> processes = new ConcurrentHashSet<>();
 
    static {
-      Runtime.getRuntime().addShutdownHook(new Thread() {
-         @Override
-         public void run() {
-            for (Process p : processes) {
-               //               if (p.isAlive())
-               {
-                  p.destroy();
-               }
-            }
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+         for (Process p : processes) {
+            p.destroy();
          }
-      });
+      }));
    }
 
    /**
@@ -47,10 +41,7 @@ public class ProcessBuilder {
     */
    public static void cleanupProcess() {
       for (Process p : processes) {
-         //         if (!p.isAlive())
-         {
-            processes.remove(p);
-         }
+         processes.remove(p);
       }
    }
 

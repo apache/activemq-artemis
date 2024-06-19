@@ -130,20 +130,17 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       final CountDownLatch latch = new CountDownLatch(1);
       final CountDownLatch latch2 = new CountDownLatch(1);
 
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               latch.countDown();
-               producer.send(message);
-               sendMessages(session, producer, 20);
-               session.commit();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-               caughtException.set(true);
-            } finally {
-               latch2.countDown();
-            }
+      Runnable r = () -> {
+         try {
+            latch.countDown();
+            producer.send(message);
+            sendMessages(session, producer, 20);
+            session.commit();
+         } catch (ActiveMQException e) {
+            e.printStackTrace();
+            caughtException.set(true);
+         } finally {
+            latch2.countDown();
          }
       };
       Executors.defaultThreadFactory().newThread(r).start();

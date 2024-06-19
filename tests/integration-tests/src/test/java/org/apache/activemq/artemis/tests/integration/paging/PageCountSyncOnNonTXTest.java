@@ -86,12 +86,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
       String QUEUE_NAME = "myQueue";
 
       final CountDownLatch latch = new CountDownLatch(1);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable runnable = latch::countDown;
 
       process = PageCountSyncServer.spawnVMWithLogMacher(WORD_START, runnable, getTestDir(), timeToRun);
       assertTrue(latch.await(30, TimeUnit.SECONDS), "Server didn't start in 30 seconds");

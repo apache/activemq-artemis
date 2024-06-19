@@ -16,13 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +32,9 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
@@ -70,13 +68,10 @@ public class JMSConsumer9Test extends BasicOpenWireTest {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 
@@ -102,13 +97,10 @@ public class JMSConsumer9Test extends BasicOpenWireTest {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 

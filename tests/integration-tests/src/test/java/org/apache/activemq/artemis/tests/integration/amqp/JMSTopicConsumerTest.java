@@ -16,20 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -42,14 +30,23 @@ import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
@@ -335,12 +332,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          session.close();
 
          final CountDownLatch latch = new CountDownLatch(1);
-         server.getRemotingService().getConnections().iterator().next().addCloseListener(new CloseListener() {
-            @Override
-            public void connectionClosed() {
-               latch.countDown();
-            }
-         });
+         server.getRemotingService().getConnections().iterator().next().addCloseListener(() -> latch.countDown());
 
          connection.close();
          latch.await(5, TimeUnit.SECONDS);
@@ -416,12 +408,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
          connection.close();
          connection = createConnection("myClientId");
-         connection.setExceptionListener(new ExceptionListener() {
-            @Override
-            public void onException(JMSException exception) {
-               exception.printStackTrace();
-            }
-         });
+         connection.setExceptionListener(exception -> exception.printStackTrace());
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          sub = session.createDurableSubscriber(topic, "myPubId");
 

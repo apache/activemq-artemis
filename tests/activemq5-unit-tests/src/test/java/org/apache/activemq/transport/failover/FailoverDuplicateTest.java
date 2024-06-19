@@ -108,12 +108,9 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
       final Queue destination = sendSession.createQueue(QUEUE_NAME);
 
       final AtomicInteger receivedCount = new AtomicInteger();
-      MessageListener listener = new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-            gotMessageLatch.countDown();
-            receivedCount.incrementAndGet();
-         }
+      MessageListener listener = message -> {
+         gotMessageLatch.countDown();
+         receivedCount.incrementAndGet();
       };
       Connection receiveConnection;
       Session receiveSession = null;
@@ -124,20 +121,17 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
 
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // broker will die on send reply so this will hang till restart
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("doing async send...");
-            try {
-               produceMessage(sendSession, destination, "will resend", 1);
-            } catch (JMSException e) {
-               LOG.error("got send exception: ", e);
-               Assert.fail("got unexpected send exception" + e);
-            }
-            sendDoneLatch.countDown();
-            LOG.info("done async send");
+      new Thread(() -> {
+         LOG.info("doing async send...");
+         try {
+            produceMessage(sendSession, destination, "will resend", 1);
+         } catch (JMSException e) {
+            LOG.error("got send exception: ", e);
+            Assert.fail("got unexpected send exception" + e);
          }
-      }.start();
+         sendDoneLatch.countDown();
+         LOG.info("done async send");
+      }).start();
 
       Assert.assertTrue("one message got through on time", gotMessageLatch.await(20, TimeUnit.SECONDS));
       // send more messages, blow producer audit
@@ -156,12 +150,9 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
 
       Assert.assertTrue("message sent complete through failover", sendDoneLatch.await(30, TimeUnit.SECONDS));
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.info("received count:" + receivedCount.get());
-            return totalSent <= receivedCount.get();
-         }
+      Wait.waitFor(() -> {
+         LOG.info("received count:" + receivedCount.get());
+         return totalSent <= receivedCount.get();
       });
       Assert.assertEquals("we got all produced messages", totalSent, receivedCount.get());
       sendConnection.close();
@@ -207,20 +198,17 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          if (first.compareAndSet(false, true)) {
             context.getContext().setDontSendReponse(true);
-            new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     LOG.info("Waiting for recepit");
-                     Assert.assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
-                     Assert.assertTrue("new producers done on time", producersDone.await(120, TimeUnit.SECONDS));
-                     LOG.info("Stopping connection post send and receive and multiple producers");
-                     context.getContext().getConnection().fail(null, "test Failoverduplicatetest");
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            new Thread(() -> {
+               try {
+                  LOG.info("Waiting for recepit");
+                  Assert.assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
+                  Assert.assertTrue("new producers done on time", producersDone.await(120, TimeUnit.SECONDS));
+                  LOG.info("Stopping connection post send and receive and multiple producers");
+                  context.getContext().getConnection().fail(null, "test Failoverduplicatetest");
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
-            }.start();
+            }).start();
          }
       }
    }

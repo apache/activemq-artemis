@@ -173,12 +173,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       journal.processBackupCleanup();
 
-      FilenameFilter fnf = new FilenameFilter() {
-         @Override
-         public boolean accept(final File file, final String name) {
-            return name.endsWith(".data");
-         }
-      };
+      FilenameFilter fnf = (file, name) -> name.endsWith(".data");
 
       File[] files = tempFolder.listFiles(fnf);
 
@@ -229,12 +224,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       journal.processBackupCleanup();
 
-      FilenameFilter fnf = new FilenameFilter() {
-         @Override
-         public boolean accept(final File file, final String name) {
-            return name.endsWith(".data");
-         }
-      };
+      FilenameFilter fnf = (file, name) -> name.endsWith(".data");
 
       File[] files = tempFolder.listFiles(fnf);
 
@@ -289,12 +279,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       journal.processBackupCleanup();
 
-      FilenameFilter fnf = new FilenameFilter() {
-         @Override
-         public boolean accept(final File file, final String name) {
-            return name.endsWith(".data");
-         }
-      };
+      FilenameFilter fnf = (file, name) -> name.endsWith(".data");
 
       File[] files = tempFolder.listFiles(fnf);
 

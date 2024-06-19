@@ -16,25 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -62,10 +47,23 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import io.netty.buffer.Unpooled;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProtonServerReceiverContextTest {
 
@@ -113,13 +111,7 @@ public class ProtonServerReceiverContextTest {
 
       AMQPSessionCallback mockSessionSpi = mock(AMQPSessionCallback.class);
       when(mockSessionSpi.getStorageManager()).thenReturn(new NullStorageManager());
-      when(mockSessionSpi.createStandardMessage(any(), any())).thenAnswer(new Answer<AMQPStandardMessage>() {
-
-         @Override
-         public AMQPStandardMessage answer(InvocationOnMock invocation) throws Throwable {
-            return new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null);
-         }
-      });
+      when(mockSessionSpi.createStandardMessage(any(), any())).thenAnswer((Answer<AMQPStandardMessage>) invocation -> new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null));
 
       AMQPSessionContext mockProtonContext = mock(AMQPSessionContext.class);
       when(mockProtonContext.getSessionSPI()).thenReturn(mockSessionSpi);
@@ -216,13 +208,7 @@ public class ProtonServerReceiverContextTest {
       when(mockConnContext.getProtocolManager()).thenReturn(mockProtocolManager);
 
       AMQPSessionCallback mockSession = mock(AMQPSessionCallback.class);
-      when(mockSession.createStandardMessage(any(), any())).thenAnswer(new Answer<AMQPStandardMessage>() {
-
-         @Override
-         public AMQPStandardMessage answer(InvocationOnMock invocation) throws Throwable {
-            return new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null);
-         }
-      });
+      when(mockSession.createStandardMessage(any(), any())).thenAnswer((Answer<AMQPStandardMessage>) invocation -> new AMQPStandardMessage(0, createAMQPMessageBuffer(), null, null));
 
       AMQPSessionContext mockSessionContext = mock(AMQPSessionContext.class);
       when(mockSessionContext.getSessionSPI()).thenReturn(mockSession);

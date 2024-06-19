@@ -136,10 +136,5 @@ public class JournalPageCountSizeTest extends ActiveMQTestBase {
 
    }
 
-   private TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-      @Override
-      public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-      }
-   };
+   private TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 }

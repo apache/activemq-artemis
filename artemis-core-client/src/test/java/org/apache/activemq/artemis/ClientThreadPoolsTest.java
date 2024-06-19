@@ -81,16 +81,13 @@ public class ClientThreadPoolsTest {
       final CountDownLatch inUse = new CountDownLatch(1);
       final CountDownLatch neverLeave = new CountDownLatch(1);
 
-      ActiveMQClient.getGlobalThreadPool().execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               inUse.countDown();
-               neverLeave.await();
-            } catch (Exception e) {
-               e.printStackTrace();
-               neverLeave.countDown();
-            }
+      ActiveMQClient.getGlobalThreadPool().execute(() -> {
+         try {
+            inUse.countDown();
+            neverLeave.await();
+         } catch (Exception e) {
+            e.printStackTrace();
+            neverLeave.countDown();
          }
       });
 
@@ -114,16 +111,13 @@ public class ClientThreadPoolsTest {
       final CountDownLatch inUse = new CountDownLatch(1);
       final CountDownLatch neverLeave = new CountDownLatch(1);
 
-      ActiveMQClient.getGlobalThreadPool().execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               inUse.countDown();
-               neverLeave.await();
-            } catch (Exception e) {
-               e.printStackTrace();
-               neverLeave.countDown();
-            }
+      ActiveMQClient.getGlobalThreadPool().execute(() -> {
+         try {
+            inUse.countDown();
+            neverLeave.await();
+         } catch (Exception e) {
+            e.printStackTrace();
+            neverLeave.countDown();
          }
       });
 
@@ -192,23 +186,20 @@ public class ClientThreadPoolsTest {
 
       for (int i = 0; i < expectedMax * 3; i++) {
          final int localI = i;
-         threadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
+         threadPool.execute(() -> {
+            try {
 
-                  if (debugExecutions) {
-                     System.out.println("runnable " + localI);
-                  }
-                  doneMax.countDown();
-                  latch.await();
-                  latchTotal.countDown();
-               } catch (Exception e) {
-                  errors.incrementAndGet();
-               } finally {
-                  if (debugExecutions) {
-                     System.out.println("done " + localI);
-                  }
+               if (debugExecutions) {
+                  System.out.println("runnable " + localI);
+               }
+               doneMax.countDown();
+               latch.await();
+               latchTotal.countDown();
+            } catch (Exception e) {
+               errors.incrementAndGet();
+            } finally {
+               if (debugExecutions) {
+                  System.out.println("done " + localI);
                }
             }
          });

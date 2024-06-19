@@ -16,12 +16,8 @@
  */
 package org.apache.activemq.artemis.core.reload;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +31,9 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReloadManagerTest extends ServerTestBase {
 
@@ -87,12 +86,7 @@ public class ReloadManagerTest extends ServerTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      ReloadCallback reloadCallback = new ReloadCallback() {
-         @Override
-         public void reload(URL uri) {
-            latch.countDown();
-         }
-      };
+      ReloadCallback reloadCallback = uri -> latch.countDown();
       manager.addCallback(parentDir.toURI().toURL(), reloadCallback);
 
       assertFalse(latch.await(1, TimeUnit.SECONDS));
@@ -107,12 +101,7 @@ public class ReloadManagerTest extends ServerTestBase {
    public void testUpdateOnNewNotExistingDirectory() throws Exception {
       final ReusableLatch latch = new ReusableLatch(1);
 
-      ReloadCallback reloadCallback = new ReloadCallback() {
-         @Override
-         public void reload(URL uri) {
-            latch.countDown();
-         }
-      };
+      ReloadCallback reloadCallback = uri -> latch.countDown();
 
       // verify not existing dir is not a problem
       File notExistFile = new File(getTemporaryDir(), "./sub2/not-there");
@@ -136,12 +125,7 @@ public class ReloadManagerTest extends ServerTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      manager.addCallback(file.toURL(), new ReloadCallback() {
-         @Override
-         public void reload(URL uri) {
-            latch.countDown();
-         }
-      });
+      manager.addCallback(file.toURL(), uri -> latch.countDown());
 
       assertFalse(latch.await(1, TimeUnit.SECONDS));
 

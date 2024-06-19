@@ -486,12 +486,7 @@ public class MessageConsumerTest extends JMSTestCase {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          try {
-            ps.createConsumer(new Topic() {
-               @Override
-               public String getTopicName() throws JMSException {
-                  return "NoSuchTopic";
-               }
-            });
+            ps.createConsumer((Topic) () -> "NoSuchTopic");
             ProxyAssertSupport.fail("should throw exception");
          } catch (InvalidDestinationException e) {
             // OK
@@ -513,12 +508,7 @@ public class MessageConsumerTest extends JMSTestCase {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          try {
-            ps.createConsumer(new Queue() {
-               @Override
-               public String getQueueName() throws JMSException {
-                  return "NoSuchQueue";
-               }
-            });
+            ps.createConsumer((Queue) () -> "NoSuchQueue");
             ProxyAssertSupport.fail("should throw exception");
          } catch (InvalidDestinationException e) {
             // OK
@@ -1598,16 +1588,13 @@ public class MessageConsumerTest extends JMSTestCase {
          MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          final Message m = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1644,16 +1631,13 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          final Message m1 = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1691,16 +1675,13 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          final Message m1 = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1787,17 +1768,14 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  for (int i = 0; i < count; i++) {
-                     Message m = producerSession.createMessage();
-                     queueProducer.send(m);
-                  }
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
+         new Thread(() -> {
+            try {
+               for (int i = 0; i < count; i++) {
+                  Message m = producerSession.createMessage();
+                  queueProducer.send(m);
                }
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "ProducerTestThread").start();
 
@@ -1843,20 +1821,17 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
 
-                  for (int i = 0; i < count; i++) {
-                     Message m = producerSession.createMessage();
-                     topicProducer.send(m);
-                  }
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
+               for (int i = 0; i < count; i++) {
+                  Message m = producerSession.createMessage();
+                  topicProducer.send(m);
                }
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "ProducerTestThread").start();
 
@@ -1889,18 +1864,15 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
          final CountDownLatch latch = new CountDownLatch(1);
-         Thread closerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicConsumer.close();
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               } finally {
-                  latch.countDown();
-               }
+         Thread closerThread = new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicConsumer.close();
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
+            } finally {
+               latch.countDown();
             }
          }, "closing thread");
          closerThread.start();
@@ -2271,14 +2243,11 @@ public class MessageConsumerTest extends JMSTestCase {
          final MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
-         Thread worker1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  topicConsumer.receive(3000);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
+         Thread worker1 = new Thread(() -> {
+            try {
+               topicConsumer.receive(3000);
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          }, "Receiver");
 
@@ -2400,14 +2369,11 @@ public class MessageConsumerTest extends JMSTestCase {
 
          MessageConsumer queueConsumer = consumerSession.createConsumer(queue1);
 
-         MessageListener myListener = new MessageListener() {
-            @Override
-            public void onMessage(final Message message) {
-               try {
-                  Thread.sleep(1);
-               } catch (InterruptedException e) {
-                  // Ignore
-               }
+         MessageListener myListener = message -> {
+            try {
+               Thread.sleep(1);
+            } catch (InterruptedException e) {
+               // Ignore
             }
          };
 

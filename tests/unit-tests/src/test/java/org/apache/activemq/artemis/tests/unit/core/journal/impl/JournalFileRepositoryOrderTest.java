@@ -53,23 +53,20 @@ public class JournalFileRepositoryOrderTest extends ActiveMQTestBase {
 
 
          // this is simulating how compating would return files into the journal
-         t = new Thread() {
-            @Override
-            public void run() {
-               while (running.get()) {
-                  try {
-                     Wait.waitFor(() -> !running.get() || dataFiles.size() > 10, 1000, 1);
-                     while (running.get()) {
-                        JournalFile file = dataFiles.poll();
-                        if (file == null) break;
-                        repository.addFreeFile(file, false);
-                     }
-                  } catch (Throwable e) {
-                     e.printStackTrace();
+         t = new Thread(() -> {
+            while (running.get()) {
+               try {
+                  Wait.waitFor(() -> !running.get() || dataFiles.size() > 10, 1000, 1);
+                  while (running.get()) {
+                     JournalFile file = dataFiles.poll();
+                     if (file == null) break;
+                     repository.addFreeFile(file, false);
                   }
+               } catch (Throwable e) {
+                  e.printStackTrace();
                }
             }
-         };
+         });
          t.start();
          JournalFile file = null;
          LinkedList<Integer> values = new LinkedList<>();

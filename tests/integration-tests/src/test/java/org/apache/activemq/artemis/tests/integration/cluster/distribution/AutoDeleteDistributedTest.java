@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
-import javax.jms.MessageListener;
 import javax.naming.NamingException;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +37,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AutoDeleteDistributedTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -108,12 +107,9 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
 
          final JMSConsumer client2JmsConsumer = client2JmsContext.createConsumer(client2JmsContext.createQueue("queues.myQueue"));
          final CountDownLatch onMessageReceived = new CountDownLatch(messageCount);
-         client2JmsConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(final javax.jms.Message m) {
-               logger.debug("Message received. {}", m);
-               onMessageReceived.countDown();
-            }
+         client2JmsConsumer.setMessageListener(m -> {
+            logger.debug("Message received. {}", m);
+            onMessageReceived.countDown();
          });
 
         /*

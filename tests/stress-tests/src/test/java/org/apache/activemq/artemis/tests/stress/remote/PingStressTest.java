@@ -16,27 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.stress.remote;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PingStressTest extends ActiveMQTestBase {
 
@@ -74,16 +71,13 @@ public class PingStressTest extends ActiveMQTestBase {
     * Test the client triggering failure due to no pong received in time
     */
    private void internalTest() throws Exception {
-      Interceptor noPongInterceptor = new Interceptor() {
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
-            PingStressTest.logger.info("In interceptor, packet is {}", packet.getType());
-            if (packet.getType() == PacketImpl.PING) {
-               PingStressTest.logger.info("Ignoring Ping packet.. it will be dropped");
-               return false;
-            } else {
-               return true;
-            }
+      Interceptor noPongInterceptor = (packet, conn) -> {
+         PingStressTest.logger.info("In interceptor, packet is {}", packet.getType());
+         if (packet.getType() == PacketImpl.PING) {
+            PingStressTest.logger.info("Ignoring Ping packet.. it will be dropped");
+            return false;
+         } else {
+            return true;
          }
       };
 

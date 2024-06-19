@@ -167,16 +167,13 @@ public class FileLockTest extends ActiveMQTestBase {
 
       lockManager1.startPrimaryNode();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               lockManager2.startPrimaryNode();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            lockManager2.startPrimaryNode();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       t.start();
 

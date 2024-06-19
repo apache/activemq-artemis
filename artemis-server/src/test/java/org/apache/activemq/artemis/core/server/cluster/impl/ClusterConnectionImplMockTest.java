@@ -123,12 +123,7 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
 
       @Override
       public ExecutorFactory getExecutorFactory() {
-         return new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return null;
-            }
-         };
+         return () -> null;
       }
 
       @Override

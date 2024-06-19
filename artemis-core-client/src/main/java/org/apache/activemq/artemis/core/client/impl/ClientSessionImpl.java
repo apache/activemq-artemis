@@ -1327,14 +1327,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       final ClientConsumerInternal consumer = getConsumer(context);
 
       if (consumer != null) {
-         closeExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  consumer.close();
-               } catch (ActiveMQException e) {
-                  ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
-               }
+         closeExecutor.execute(() -> {
+            try {
+               consumer.close();
+            } catch (ActiveMQException e) {
+               ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
             }
          });
       }

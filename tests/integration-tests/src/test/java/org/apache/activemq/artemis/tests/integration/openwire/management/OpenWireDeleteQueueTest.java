@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.management;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.IOException;
@@ -46,6 +42,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.TransportListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
@@ -97,13 +95,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          CountDownLatch three = new CountDownLatch(3);
 
          final MessageConsumer messageConsumer = session.createConsumer(destination);
-         messageConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               one.countDown();
-               two.countDown();
-               three.countDown();
-            }
+         messageConsumer.setMessageListener(message -> {
+            one.countDown();
+            two.countDown();
+            three.countDown();
          });
 
          producer.send(session.createTextMessage("one"));

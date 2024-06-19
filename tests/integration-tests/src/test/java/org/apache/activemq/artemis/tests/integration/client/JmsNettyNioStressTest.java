@@ -164,113 +164,104 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       session.close();
       // these threads produce messages on the the first queue
       for (int i = 0; i < numProducers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
+         new Thread(() -> {
 
-               Session session = null;
-               try {
-                  session = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue"));
-                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            Session session1 = null;
+            try {
+               session1 = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageProducer messageProducer = session1.createProducer(ActiveMQDestination.createQueue("queue"));
+               messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = session.createBytesMessage();
-                     message.writeBytes(new byte[3000]);
-                     message.setStringProperty("Service", "LoadShedService");
-                     message.setStringProperty("Action", "testAction");
+               for (int i1 = 0; i1 < numberOfMessages; i1++) {
+                  BytesMessage message = session1.createBytesMessage();
+                  message.writeBytes(new byte[3000]);
+                  message.setStringProperty("Service", "LoadShedService");
+                  message.setStringProperty("Action", "testAction");
 
-                     messageProducer.send(message);
-                     session.commit();
+                  messageProducer.send(message);
+                  session1.commit();
 
-                     totalCount.incrementAndGet();
-                  }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session1 != null) {
+                  try {
+                     session1.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       // these threads just consume from the one and produce on a second queue
       for (int i = 0; i < numConsumerProducers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
-               Session session = null;
-               try {
-                  session = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue"));
-                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue2"));
-                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null) {
-                        return;
-                     }
-                     message = session.createBytesMessage();
-                     message.writeBytes(new byte[3000]);
-                     message.setStringProperty("Service", "LoadShedService");
-                     message.setStringProperty("Action", "testAction");
-                     messageProducer.send(message);
-                     session.commit();
-
-                     totalCount.incrementAndGet();
+         new Thread(() -> {
+            Session session13 = null;
+            try {
+               session13 = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageConsumer consumer = session13.createConsumer(ActiveMQDestination.createQueue("queue"));
+               MessageProducer messageProducer = session13.createProducer(ActiveMQDestination.createQueue("queue2"));
+               messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+               for (int i13 = 0; i13 < numberOfMessages; i13++) {
+                  BytesMessage message = (BytesMessage) consumer.receive(5000);
+                  if (message == null) {
+                     return;
                   }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  message = session13.createBytesMessage();
+                  message.writeBytes(new byte[3000]);
+                  message.setStringProperty("Service", "LoadShedService");
+                  message.setStringProperty("Action", "testAction");
+                  messageProducer.send(message);
+                  session13.commit();
+
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session13 != null) {
+                  try {
+                     session13.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       // these threads consume from the second queue
       for (int i = 0; i < numConsumers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
-               Session session = null;
-               try {
-                  session = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue2"));
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null) {
-                        return;
-                     }
-                     session.commit();
-
-                     totalCount.incrementAndGet();
+         new Thread(() -> {
+            Session session12 = null;
+            try {
+               session12 = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageConsumer consumer = session12.createConsumer(ActiveMQDestination.createQueue("queue2"));
+               for (int i12 = 0; i12 < numberOfMessages; i12++) {
+                  BytesMessage message = (BytesMessage) consumer.receive(5000);
+                  if (message == null) {
+                     return;
                   }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  session12.commit();
+
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session12 != null) {
+                  try {
+                     session12.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       Wait.waitFor(() -> totalExpectedCount == totalCount.get(), 60000, 100);

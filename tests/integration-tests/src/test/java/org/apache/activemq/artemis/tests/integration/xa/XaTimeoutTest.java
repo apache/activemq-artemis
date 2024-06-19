@@ -409,69 +409,66 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       outProducerSession.setTransactionTimeout(2);
       clientSession.setTransactionTimeout(2);
 
-      MessageHandler handler = new MessageHandler() {
-         @Override
-         public void onMessage(ClientMessage message) {
+      MessageHandler handler = message -> {
+         try {
+            latchReceives.countDown();
+
+            Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
+            Xid xidOut = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
+
+            clientSession.start(xid, XAResource.TMNOFLAGS);
+            outProducerSession.start(xidOut, XAResource.TMNOFLAGS);
+
+            message.acknowledge();
+
+            int msgInt = message.getIntProperty("msg");
+
+            ClientMessage msgOut = createTextMessage(outProducerSession, "outMsg=" + msgInt);
+            msgOut.putIntProperty("msg", msgInt);
+            outProducer.send(msgOut);
+
+            boolean rollback = false;
+            if (msgCount.getAndIncrement() == 0) {
+               rollback = true;
+               logger.debug("Forcing first message to time out");
+               Thread.sleep(5000);
+            }
+
             try {
-               latchReceives.countDown();
-
-               Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
-               Xid xidOut = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
-
-               clientSession.start(xid, XAResource.TMNOFLAGS);
-               outProducerSession.start(xidOut, XAResource.TMNOFLAGS);
-
-               message.acknowledge();
-
-               int msgInt = message.getIntProperty("msg");
-
-               ClientMessage msgOut = createTextMessage(outProducerSession, "outMsg=" + msgInt);
-               msgOut.putIntProperty("msg", msgInt);
-               outProducer.send(msgOut);
-
-               boolean rollback = false;
-               if (msgCount.getAndIncrement() == 0) {
-                  rollback = true;
-                  logger.debug("Forcing first message to time out");
-                  Thread.sleep(5000);
-               }
-
-               try {
-                  clientSession.end(xid, XAResource.TMSUCCESS);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
-
-               try {
-                  outProducerSession.end(xidOut, XAResource.TMSUCCESS);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
-
-               if (rollback) {
-                  try {
-                     clientSession.rollback(xid);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                     clientSession.rollback();
-                  }
-
-                  try {
-                     outProducerSession.rollback(xidOut);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                     outProducerSession.rollback();
-                  }
-               } else {
-                  clientSession.prepare(xid);
-                  outProducerSession.prepare(xidOut);
-                  clientSession.commit(xid, false);
-                  outProducerSession.commit(xidOut, false);
-               }
+               clientSession.end(xid, XAResource.TMSUCCESS);
             } catch (Exception e) {
                e.printStackTrace();
-               errors.incrementAndGet();
             }
+
+            try {
+               outProducerSession.end(xidOut, XAResource.TMSUCCESS);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
+            if (rollback) {
+               try {
+                  clientSession.rollback(xid);
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  clientSession.rollback();
+               }
+
+               try {
+                  outProducerSession.rollback(xidOut);
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  outProducerSession.rollback();
+               }
+            } else {
+               clientSession.prepare(xid);
+               outProducerSession.prepare(xidOut);
+               clientSession.commit(xid, false);
+               outProducerSession.commit(xidOut, false);
+            }
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
       };
 

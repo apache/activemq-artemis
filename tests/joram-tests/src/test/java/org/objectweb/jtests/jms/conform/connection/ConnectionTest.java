@@ -18,7 +18,6 @@ package org.objectweb.jtests.jms.conform.connection;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -155,15 +154,12 @@ public class ConnectionTest extends PTPTestCase {
       try {
          receiverConnection.stop();
 
-         receiver.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(final Message m) {
-               try {
-                  Assert.fail("The message must not be received, the consumer connection is stopped");
-                  Assert.assertEquals("test", ((TextMessage) m).getText());
-               } catch (JMSException e) {
-                  fail(e);
-               }
+         receiver.setMessageListener(m -> {
+            try {
+               Assert.fail("The message must not be received, the consumer connection is stopped");
+               Assert.assertEquals("test", ((TextMessage) m).getText());
+            } catch (JMSException e) {
+               fail(e);
             }
          });
 

@@ -1682,12 +1682,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
-         TreeSet<SimpleString> sortAddress = new TreeSet<>(new Comparator<SimpleString>() {
-            @Override
-            public int compare(SimpleString o1, SimpleString o2) {
-               return o1.toString().compareToIgnoreCase(o2.toString());
-            }
-         });
+         TreeSet<SimpleString> sortAddress = new TreeSet<>((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
 
          sortAddress.addAll(addresses);
 
@@ -1956,13 +1951,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
-         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
-            @Override
-            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
-               // sort by creation time, oldest first
-               return entry1.getValue().compareTo(entry2.getValue());
-            }
-         });
+         Collections.sort(xidsSortedByCreationTime, Entry.comparingByValue());
          String[] s = new String[xidsSortedByCreationTime.size()];
          int i = 0;
          for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
@@ -1995,13 +1984,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
-         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
-            @Override
-            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
-               // sort by creation time, oldest first
-               return entry1.getValue().compareTo(entry2.getValue());
-            }
-         });
+         Collections.sort(xidsSortedByCreationTime, Entry.comparingByValue());
 
          JsonArrayBuilder txDetailListJson = JsonLoader.createArrayBuilder();
          for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
@@ -4129,16 +4112,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               server.stop(true, true);
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-            }
+      Thread t = new Thread(() -> {
+         try {
+            server.stop(true, true);
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
          }
-      };
+      });
       t.start();
    }
 

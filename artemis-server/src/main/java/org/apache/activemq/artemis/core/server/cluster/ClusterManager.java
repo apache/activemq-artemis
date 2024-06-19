@@ -514,16 +514,12 @@ public class ClusterManager implements ActiveMQComponent {
             final ActiveMQException exception = msg.getException();
             if (exception.getType() == ActiveMQExceptionType.CLUSTER_SECURITY_EXCEPTION) {
                ActiveMQServerLogger.LOGGER.clusterManagerAuthenticationError(exception.getMessage());
-               executor.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     try {
-                        manager.stop();
-                     } catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.failedToStopClusterManager(e);
-                     }
+               executor.execute(() -> {
+                  try {
+                     manager.stop();
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.failedToStopClusterManager(e);
                   }
-
                });
             }
          }

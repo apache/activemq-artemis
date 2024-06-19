@@ -199,21 +199,15 @@ public class ReconnectTest extends OpenwireArtemisBaseTest {
             workers[i].failConnection();
          }
 
-         Assert.assertTrue("Timed out waiting for all connections to be interrupted.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               LOG.debug("Test run waiting for connections to get interrupted.. at: " + interruptedCount.get());
-               return interruptedCount.get() == WORKER_COUNT;
-            }
+         Assert.assertTrue("Timed out waiting for all connections to be interrupted.", Wait.waitFor(() -> {
+            LOG.debug("Test run waiting for connections to get interrupted.. at: " + interruptedCount.get());
+            return interruptedCount.get() == WORKER_COUNT;
          }, TimeUnit.SECONDS.toMillis(60)));
 
          // Wait for the connections to re-establish...
-         Assert.assertTrue("Timed out waiting for all connections to be resumed.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               LOG.debug("Test run waiting for connections to get resumed.. at: " + resumedCount.get());
-               return resumedCount.get() >= WORKER_COUNT;
-            }
+         Assert.assertTrue("Timed out waiting for all connections to be resumed.", Wait.waitFor(() -> {
+            LOG.debug("Test run waiting for connections to get resumed.. at: " + resumedCount.get());
+            return resumedCount.get() >= WORKER_COUNT;
          }, TimeUnit.SECONDS.toMillis(60)));
 
          // Reset the counters..

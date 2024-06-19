@@ -175,20 +175,17 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
+      cc.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
             try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               try {
-                  session.close();
-               } catch (ActiveMQException e1) {
-                  e1.printStackTrace();
-               }
+               session.close();
+            } catch (ActiveMQException e1) {
+               e1.printStackTrace();
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();

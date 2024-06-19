@@ -2278,21 +2278,18 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
 
 
-      Thread thread = new Thread() {
-         @Override
-         public void run() {
-            latch.countDown();
-            int i = 1;
-            while (running.get()) {
-               properties.remove("key" + i);
-               properties.put("key" + i, "new value " + i);
-               i++;
-               if (i > 200) {
-                  i = 1;
-               }
+      Thread thread = new Thread(() -> {
+         latch.countDown();
+         int i = 1;
+         while (running.get()) {
+            properties.remove("key" + i);
+            properties.put("key" + i, "new value " + i);
+            i++;
+            if (i > 200) {
+               i = 1;
             }
          }
-      };
+      });
 
       thread.start();
       try {

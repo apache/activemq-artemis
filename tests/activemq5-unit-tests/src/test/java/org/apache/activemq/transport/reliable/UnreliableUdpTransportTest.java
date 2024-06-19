@@ -36,15 +36,11 @@ public class UnreliableUdpTransportTest extends UdpTransportTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(UnreliableUdpTransportTest.class);
 
-   protected DropCommandStrategy dropStrategy = new DropCommandStrategy() {
-
-      @Override
-      public boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery) {
-         if (redelivery) {
-            return false;
-         }
-         return commandId % 3 == 2;
+   protected DropCommandStrategy dropStrategy = (commandId, address, redelivery) -> {
+      if (redelivery) {
+         return false;
       }
+      return commandId % 3 == 2;
    };
 
    @Override

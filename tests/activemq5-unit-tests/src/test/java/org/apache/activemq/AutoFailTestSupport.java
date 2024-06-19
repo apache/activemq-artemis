@@ -71,26 +71,23 @@ public abstract class AutoFailTestSupport extends TestCase {
    public void startAutoFailThread() {
       setAutoFail(true);
       isTestSuccess = new AtomicBoolean(false);
-      autoFailThread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               // Wait for test to finish successfully
-               Thread.sleep(getMaxTestTime());
-            } catch (InterruptedException e) {
-               // This usually means the test was successful
-            } finally {
-               // Check if the test was able to tear down successfully,
-               // which usually means, it has finished its run.
-               if (!isTestSuccess.get()) {
-                  LOG.error("Test case has exceeded the maximum allotted time to run of: " + getMaxTestTime() + " ms.");
-                  dumpAllThreads(getName());
-                  if (System.getProperty("org.apache.activemq.AutoFailTestSupport.disableSystemExit") == null) {
-                     System.exit(EXIT_ERROR);
-                  } else {
-                     LOG.error("No system.exit as it kills surefire - forkedProcessTimeoutInSeconds (surefire.timeout) will kick in eventually see pom.xml surefire plugin config");
-                     fail("Timeout in AutoFailTestSupport class has been exceeded");
-                  }
+      autoFailThread = new Thread(() -> {
+         try {
+            // Wait for test to finish successfully
+            Thread.sleep(getMaxTestTime());
+         } catch (InterruptedException e) {
+            // This usually means the test was successful
+         } finally {
+            // Check if the test was able to tear down successfully,
+            // which usually means, it has finished its run.
+            if (!isTestSuccess.get()) {
+               LOG.error("Test case has exceeded the maximum allotted time to run of: " + getMaxTestTime() + " ms.");
+               dumpAllThreads(getName());
+               if (System.getProperty("org.apache.activemq.AutoFailTestSupport.disableSystemExit") == null) {
+                  System.exit(EXIT_ERROR);
+               } else {
+                  LOG.error("No system.exit as it kills surefire - forkedProcessTimeoutInSeconds (surefire.timeout) will kick in eventually see pom.xml surefire plugin config");
+                  fail("Timeout in AutoFailTestSupport class has been exceeded");
                }
             }
          }

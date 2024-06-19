@@ -74,12 +74,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       for (int s = 0; s < 3; s++) {
          final Queue queue = servers[s].locateQueue(SimpleString.of(queueName));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages / 3;
-            }
-         });
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages / 3);
       }
 
       // Each consumer should receive noMessages / noServers
@@ -135,12 +130,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       for (int s = 0; s < 3; s++) {
          final Queue queue = servers[s].locateQueue(SimpleString.of(queueNamePrefix + s));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages / 3;
-            }
-         });
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages / 3);
       }
 
       // Each consumer should receive noMessages / noServers
@@ -257,12 +247,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       for (int s = 0; s < 3; s++) {
          final Queue queue = servers[s].locateQueue(SimpleString.of(queueNamePrefix + s));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages;
-            }
-         });
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages);
       }
 
       // Each consumer should receive noMessages

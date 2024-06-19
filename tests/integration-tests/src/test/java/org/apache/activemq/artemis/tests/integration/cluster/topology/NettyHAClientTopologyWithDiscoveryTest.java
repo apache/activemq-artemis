@@ -116,21 +116,18 @@ public class NettyHAClientTopologyWithDiscoveryTest extends HAClientTopologyWith
 
          serverLocator.setInitialConnectAttempts(0);
 
-         Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  barrier.await();
+         Runnable runnable = () -> {
+            try {
+               barrier.await();
 
-                  ClientSessionFactory factory = serverLocator.createSessionFactory();
-                  ClientSession session = factory.createSession();
-                  session.close();
-                  factory.close();
+               ClientSessionFactory factory = serverLocator.createSessionFactory();
+               ClientSession session = factory.createSession();
+               session.close();
+               factory.close();
 
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
-               }
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
             }
          };
 

@@ -116,12 +116,7 @@ public class ServerUtil {
          builder.directory(new File(artemisInstance + "/bin"));
 
          final Process process = builder.start();
-         Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-               process.destroy();
-            }
-         });
+         Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
 
          ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), jobName, false);
          outputLogger.start();

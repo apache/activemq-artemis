@@ -111,16 +111,13 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
       // start the receiver thread
       final CountDownLatch latch = new CountDownLatch(1);
-      Thread receiverThread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               expectedMessage = queueConsumer.receive(100);
-            } catch (Exception e) {
-               logger.trace("receive() exits with an exception", e);
-            } finally {
-               latch.countDown();
-            }
+      Thread receiverThread = new Thread(() -> {
+         try {
+            expectedMessage = queueConsumer.receive(100);
+         } catch (Exception e) {
+            logger.trace("receive() exits with an exception", e);
+         } finally {
+            latch.countDown();
          }
       }, "receiver thread");
       receiverThread.start();
@@ -136,18 +133,15 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       final CountDownLatch receiverLatch = new CountDownLatch(1);
 
       // start the receiver thread
-      Thread receiverThread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               long t1 = System.currentTimeMillis();
-               expectedMessage = queueConsumer.receive(timeToWaitForReceive);
-               effectiveReceiveTime = System.currentTimeMillis() - t1;
-            } catch (Exception e) {
-               logger.trace("receive() exits with an exception", e);
-            } finally {
-               receiverLatch.countDown();
-            }
+      Thread receiverThread = new Thread(() -> {
+         try {
+            long t1 = System.currentTimeMillis();
+            expectedMessage = queueConsumer.receive(timeToWaitForReceive);
+            effectiveReceiveTime = System.currentTimeMillis() - t1;
+         } catch (Exception e) {
+            logger.trace("receive() exits with an exception", e);
+         } finally {
+            receiverLatch.countDown();
          }
       }, "receiver thread");
       receiverThread.start();
@@ -155,30 +149,27 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       final CountDownLatch senderLatch = new CountDownLatch(1);
 
       // start the sender thread
-      Thread senderThread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               // wait for 3 secs
-               Thread.sleep(3000);
+      Thread senderThread = new Thread(() -> {
+         try {
+            // wait for 3 secs
+            Thread.sleep(3000);
 
-               // send an expired message
-               Message m = queueProducerSession.createMessage();
-               queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, -1);
+            // send an expired message
+            Message m = queueProducerSession.createMessage();
+            queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, -1);
 
-               ActiveMQMessage msg = (ActiveMQMessage) m;
+            ActiveMQMessage msg = (ActiveMQMessage) m;
 
-               if (!msg.getCoreMessage().isExpired()) {
-                  logger.error("The message {} should have expired", m);
-                  testFailed = true;
-                  return;
-               }
-            } catch (Exception e) {
-               logger.error("This exception will fail the test", e);
+            if (!msg.getCoreMessage().isExpired()) {
+               logger.error("The message {} should have expired", m);
                testFailed = true;
-            } finally {
-               senderLatch.countDown();
+               return;
             }
+         } catch (Exception e) {
+            logger.error("This exception will fail the test", e);
+            testFailed = true;
+         } finally {
+            senderLatch.countDown();
          }
       }, "sender thread");
       senderThread.start();
@@ -224,28 +215,25 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
       final CountDownLatch latch = new CountDownLatch(1);
       // blocking read for a while to make sure I don't get anything, not even a null
-      Thread receiverThread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               logger.trace("Attempting to receive");
-               expectedMessage = queueConsumer.receive();
+      Thread receiverThread = new Thread(() -> {
+         try {
+            logger.trace("Attempting to receive");
+            expectedMessage = queueConsumer.receive();
 
-               // NOTE on close, the receive() call will return with null
-               logger.trace("Receive exited without exception:{}", expectedMessage);
+            // NOTE on close, the receive() call will return with null
+            logger.trace("Receive exited without exception:{}", expectedMessage);
 
-               if (expectedMessage == null) {
-                  received.set(false);
-               }
-            } catch (Exception e) {
-               logger.trace("receive() exits with an exception", e);
-               ProxyAssertSupport.fail();
-            } catch (Throwable t) {
-               logger.trace("receive() exits with a throwable", t);
-               ProxyAssertSupport.fail();
-            } finally {
-               latch.countDown();
+            if (expectedMessage == null) {
+               received.set(false);
             }
+         } catch (Exception e) {
+            logger.trace("receive() exits with an exception", e);
+            ProxyAssertSupport.fail();
+         } catch (Throwable t) {
+            logger.trace("receive() exits with a throwable", t);
+            ProxyAssertSupport.fail();
+         } finally {
+            latch.countDown();
          }
       }, "receiver thread");
       receiverThread.start();

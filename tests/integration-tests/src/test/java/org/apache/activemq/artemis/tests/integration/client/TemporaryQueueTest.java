@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -47,10 +40,8 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -65,6 +56,13 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
 
@@ -179,12 +177,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       RemotingConnectionImpl conn = (RemotingConnectionImpl) server.getRemotingService().getConnections().iterator().next();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      conn.addCloseListener(new CloseListener() {
-         @Override
-         public void connectionClosed() {
-            latch.countDown();
-         }
-      });
+      conn.addCloseListener(() -> latch.countDown());
       session.close();
       sf.close();
       // wait for the closing listeners to be fired
@@ -474,15 +467,11 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       // server must received at least one ping from the client to pass
       // so that the server connection TTL is configured with the client value
       final CountDownLatch pingOnServerLatch = new CountDownLatch(1);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.PING) {
-               pingOnServerLatch.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.PING) {
+            pingOnServerLatch.countDown();
          }
+         return true;
       });
 
       ServerLocator locator = createInVMNonHALocator();
@@ -496,12 +485,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
       final CountDownLatch serverCloseLatch = new CountDownLatch(1);
-      remotingConnection.addCloseListener(new CloseListener() {
-         @Override
-         public void connectionClosed() {
-            serverCloseLatch.countDown();
-         }
-      });
+      remotingConnection.addCloseListener(() -> serverCloseLatch.countDown());
 
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
@@ -524,12 +508,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session = sf.createSession(false, true, true);
       session.start();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createConsumer(queue);
-         }
-      };
+      ActiveMQAction activeMQAction = () -> session.createConsumer(queue);
 
       ActiveMQTestBase.expectActiveMQException("temp queue must not exist after the server detected the client crash", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
@@ -560,23 +539,20 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       final int TOTAL_MSG = 1000;
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               for (int i = 0; i < TOTAL_MSG; i++) {
-                  ClientMessage msg = session.createMessage(false);
-                  msg.getBodyBuffer().writeBytes(new byte[1024]);
-                  prod.send(msg);
-                  msgs.incrementAndGet();
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t = new Thread(() -> {
+         try {
+            for (int i = 0; i < TOTAL_MSG; i++) {
+               ClientMessage msg = session.createMessage(false);
+               msg.getBodyBuffer().writeBytes(new byte[1024]);
+               prod.send(msg);
+               msgs.incrementAndGet();
             }
-
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       t.start();
 

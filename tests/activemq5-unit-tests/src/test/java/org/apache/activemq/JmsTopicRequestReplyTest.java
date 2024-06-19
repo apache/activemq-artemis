@@ -175,11 +175,8 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);
       } else {
-         Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               syncConsumeLoop(requestConsumer);
-            }
+         Thread thread = new Thread(() -> {
+            syncConsumeLoop(requestConsumer);
          });
          thread.start();
       }

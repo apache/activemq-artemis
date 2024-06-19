@@ -117,18 +117,15 @@ public final class SharedStoreBackupActivation extends Activation {
             unregisterActiveLockListener(activeMQServer.getNodeManager());
 
             ActiveMQServerLogger.LOGGER.backupServerScaledDown();
-            Thread t = new Thread(new Runnable() {
-               @Override
-               public void run() {
-                  try {
-                     activeMQServer.stop();
-                     //we are shared store but if we were started by a parent server then we shouldn't restart
-                     if (sharedStoreBackupPolicy.isRestartBackup()) {
-                        activeMQServer.start();
-                     }
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
+            Thread t = new Thread(() -> {
+               try {
+                  activeMQServer.stop();
+                  //we are shared store but if we were started by a parent server then we shouldn't restart
+                  if (sharedStoreBackupPolicy.isRestartBackup()) {
+                     activeMQServer.start();
                   }
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
                }
             });
             t.start();

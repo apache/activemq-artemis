@@ -860,29 +860,26 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
 
       final AtomicInteger count = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ClientSessionFactory sf = createSessionFactory(locator);
-               ClientSession session = sf.createSession(false, false);
-               session.start();
-               ClientConsumer cons = session.createConsumer(atestq);
-               for (int i = 0; i < 100; i++) {
-                  ClientMessage msg = cons.receive(100000);
-                  assertNotNull(msg);
-                  count.incrementAndGet();
-                  msg.acknowledge();
-                  session.commit();
-               }
-               session.close();
-               sf.close();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               count.set(-1);
+      Thread t = new Thread(() -> {
+         try {
+            ClientSessionFactory sf = createSessionFactory(locator);
+            ClientSession session1 = sf.createSession(false, false);
+            session1.start();
+            ClientConsumer cons = session1.createConsumer(atestq);
+            for (int i = 0; i < 100; i++) {
+               ClientMessage msg = cons.receive(100000);
+               assertNotNull(msg);
+               count.incrementAndGet();
+               msg.acknowledge();
+               session1.commit();
             }
+            session1.close();
+            sf.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            count.set(-1);
          }
-      };
+      });
 
       t.start();
 

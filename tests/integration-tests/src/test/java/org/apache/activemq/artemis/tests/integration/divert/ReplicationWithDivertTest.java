@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
@@ -33,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
-import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -47,6 +40,11 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
@@ -170,31 +168,23 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
    public void testSendLargeMessage() throws Exception {
 
       final CountDownLatch failedOver = new CountDownLatch(1);
-      connection.setFailoverListener(new FailoverEventListener() {
-         @Override
-         public void failoverEvent(FailoverEventType eventType) {
-            failedOver.countDown();
-         }
-      });
+      connection.setFailoverListener(eventType -> failedOver.countDown());
       Thread t;
 
       final int numberOfMessage = 5;
       {
          final MapMessage message = createLargeMessage();
 
-         t = new Thread() {
-            @Override
-            public void run() {
-               try {
-                  for (int i = 0; i < numberOfMessage; i++) {
-                     producer.send(message);
-                     session.commit();
-                  }
-               } catch (JMSException expected) {
-                  expected.printStackTrace();
+         t = new Thread(() -> {
+            try {
+               for (int i = 0; i < numberOfMessage; i++) {
+                  producer.send(message);
+                  session.commit();
                }
+            } catch (JMSException expected) {
+               expected.printStackTrace();
             }
-         };
+         });
       }
 
       t.start();

@@ -984,12 +984,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQServerPlugin>() {
-         @Override
-         public ActiveMQServerPlugin run() {
-            return (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class);
-         }
-      });
+      ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged((PrivilegedAction<ActiveMQServerPlugin>) () -> (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class));
 
       serverPlugin.init(properties);
 
@@ -1065,12 +1060,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQMetricsPlugin>() {
-         @Override
-         public ActiveMQMetricsPlugin run() {
-            return (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQMetricsPlugin.class);
-         }
-      });
+      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged((PrivilegedAction<ActiveMQMetricsPlugin>) () -> (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQMetricsPlugin.class));
 
       ActiveMQServerLogger.LOGGER.initializingMetricsPlugin(clazz, properties.toString());
 
@@ -1272,12 +1262,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged(new PrivilegedAction<SecuritySettingPlugin>() {
-         @Override
-         public SecuritySettingPlugin run() {
-            return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, SecuritySettingPlugin.class);
-         }
-      });
+      SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged((PrivilegedAction<SecuritySettingPlugin>) () -> (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, SecuritySettingPlugin.class));
 
       return new Pair<>(securitySettingPlugin, settings);
    }

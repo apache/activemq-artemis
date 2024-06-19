@@ -126,12 +126,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
       logger.debug("All clients connected... waiting to receive sent messages...");
 
       // We should eventually get all the messages.
-      within(30, TimeUnit.SECONDS, new Task() {
-         @Override
-         public void run() throws Exception {
-            assertTrue(receiveCounter.get() == CLIENTS * 10);
-         }
-      });
+      within(30, TimeUnit.SECONDS, () -> assertTrue(receiveCounter.get() == CLIENTS * 10));
 
       logger.debug("All messages received.");
 

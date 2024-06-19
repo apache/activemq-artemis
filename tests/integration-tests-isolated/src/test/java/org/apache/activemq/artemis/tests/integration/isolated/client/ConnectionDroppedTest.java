@@ -17,15 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.isolated.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -63,6 +56,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionDroppedTest extends ActiveMQTestBase {
 
@@ -229,12 +227,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
                      synchronized (ConnectionDroppedTest.this) {
                         runAfter(connection::close);
                      }
-                     connection.setExceptionListener(new ExceptionListener() {
-                        @Override
-                        public void onException(JMSException exception) {
-                           ex.set(true);
-                        }
-                     });
+                     connection.setExceptionListener(exception -> ex.set(true));
                      flagStart.await(60, TimeUnit.SECONDS);
 
                      connection.start();

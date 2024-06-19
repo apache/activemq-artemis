@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,13 +46,19 @@ import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ClusteredGroupingTest extends ClusterTestBase {
 
@@ -103,24 +102,18 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       final CountDownLatch latch = new CountDownLatch(4);
 
-      getServer(1).getManagementService().addNotificationListener(new NotificationListener() {
-         @Override
-         public void onNotification(Notification notification) {
-            if (!(notification.getType() instanceof CoreNotificationType))
-               return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
-               latch.countDown();
-            }
+      getServer(1).getManagementService().addNotificationListener(notification -> {
+         if (!(notification.getType() instanceof CoreNotificationType))
+            return;
+         if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
+            latch.countDown();
          }
       });
-      getServer(2).getManagementService().addNotificationListener(new NotificationListener() {
-         @Override
-         public void onNotification(Notification notification) {
-            if (!(notification.getType() instanceof CoreNotificationType))
-               return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
-               latch.countDown();
-            }
+      getServer(2).getManagementService().addNotificationListener(notification -> {
+         if (!(notification.getType() instanceof CoreNotificationType))
+            return;
+         if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
+            latch.countDown();
          }
       });
       sendWithProperty(0, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, SimpleString.of("id1"));
@@ -204,24 +197,18 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       final CountDownLatch latch = new CountDownLatch(4);
 
-      getServer(1).getManagementService().addNotificationListener(new NotificationListener() {
-         @Override
-         public void onNotification(Notification notification) {
-            if (!(notification.getType() instanceof CoreNotificationType))
-               return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
-               latch.countDown();
-            }
+      getServer(1).getManagementService().addNotificationListener(notification -> {
+         if (!(notification.getType() instanceof CoreNotificationType))
+            return;
+         if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
+            latch.countDown();
          }
       });
-      getServer(2).getManagementService().addNotificationListener(new NotificationListener() {
-         @Override
-         public void onNotification(Notification notification) {
-            if (!(notification.getType() instanceof CoreNotificationType))
-               return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
-               latch.countDown();
-            }
+      getServer(2).getManagementService().addNotificationListener(notification -> {
+         if (!(notification.getType() instanceof CoreNotificationType))
+            return;
+         if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
+            latch.countDown();
          }
       });
       sendWithProperty(2, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, SimpleString.of("id1"));
@@ -621,83 +608,77 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       // spin up a bunch of threads to pump messages into some of the groups
       for (final String groupx : groups) {
-         final Runnable r = new Runnable() {
-            @Override
-            public void run() {
+         final Runnable r = () -> {
 
-               String group = groupx;
+            String group = groupx;
 
-               String basicID = UUID.randomUUID().toString();
-               logger.debug("Starting producer thread...");
-               ClientSessionFactory factory;
-               ClientSession session = null;
-               ClientProducer producer = null;
-               int targetServer = 0;
+            String basicID = UUID.randomUUID().toString();
+            logger.debug("Starting producer thread...");
+            ClientSessionFactory factory;
+            ClientSession session12 = null;
+            ClientProducer producer1 = null;
+            int targetServer = 0;
 
-               try {
+            try {
 
-                  int count = producerCounter.incrementAndGet();
-                  if (count % 3 == 0) {
-                     factory = sf2;
-                     targetServer = 2;
-                  } else if (count % 2 == 0) {
-                     factory = sf1;
-                     targetServer = 1;
-                  } else {
-                     factory = sf0;
-                  }
-                  logger.debug("Creating producer session factory to node {}", targetServer);
-                  session = addClientSession(factory.createSession(false, true, true));
-                  producer = addClientProducer(session.createProducer(ADDRESS));
-               } catch (Exception e) {
-                  errors.incrementAndGet();
-                  logger.warn("Producer thread couldn't establish connection", e);
-                  return;
+               int count = producerCounter.incrementAndGet();
+               if (count % 3 == 0) {
+                  factory = sf2;
+                  targetServer = 2;
+               } else if (count % 2 == 0) {
+                  factory = sf1;
+                  targetServer = 1;
+               } else {
+                  factory = sf0;
                }
-
-               int messageCount = 0;
-
-               while (timeToRun > System.currentTimeMillis()) {
-                  ClientMessage message = session.createMessage(true);
-                  message.putStringProperty(Message.HDR_GROUP_ID, SimpleString.of(group));
-                  SimpleString dupID = SimpleString.of(basicID + ":" + messageCount);
-                  message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID);
-                  try {
-                     producer.send(message);
-                     totalMessageProduced.incrementAndGet();
-                     messageCount++;
-                  } catch (ActiveMQException e) {
-                     logger.warn("Producer thread threw exception while sending messages to {}: {}", targetServer, e.getMessage());
-                     // in case of a failure we change the group to make possible errors more likely
-                     group = group + "afterFail";
-                  } catch (Exception e) {
-                     logger.warn("Producer thread threw unexpected exception while sending messages to {}: {}", targetServer, e.getMessage());
-                     group = group + "afterFail";
-                     break;
-                  }
-               }
-
-               okToConsume.countDown();
+               logger.debug("Creating producer session factory to node {}", targetServer);
+               session12 = addClientSession(factory.createSession(false, true, true));
+               producer1 = addClientProducer(session12.createProducer(ADDRESS));
+            } catch (Exception e) {
+               errors.incrementAndGet();
+               logger.warn("Producer thread couldn't establish connection", e);
+               return;
             }
+
+            int messageCount = 0;
+
+            while (timeToRun > System.currentTimeMillis()) {
+               ClientMessage message = session12.createMessage(true);
+               message.putStringProperty(Message.HDR_GROUP_ID, SimpleString.of(group));
+               SimpleString dupID = SimpleString.of(basicID + ":" + messageCount);
+               message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID);
+               try {
+                  producer1.send(message);
+                  totalMessageProduced.incrementAndGet();
+                  messageCount++;
+               } catch (ActiveMQException e) {
+                  logger.warn("Producer thread threw exception while sending messages to {}: {}", targetServer, e.getMessage());
+                  // in case of a failure we change the group to make possible errors more likely
+                  group = group + "afterFail";
+               } catch (Exception e) {
+                  logger.warn("Producer thread threw unexpected exception while sending messages to {}: {}", targetServer, e.getMessage());
+                  group = group + "afterFail";
+                  break;
+               }
+            }
+
+            okToConsume.countDown();
          };
 
          executorService.execute(r);
       }
 
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
+      Runnable r = () -> {
+         try {
             try {
-               try {
-                  Thread.sleep(2000);
-               } catch (InterruptedException e) {
-                  e.printStackTrace();
-                  // ignore
-               }
-               cycleServer(1);
-            } finally {
-               okToConsume.countDown();
+               Thread.sleep(2000);
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+               // ignore
             }
+            cycleServer(1);
+         } finally {
+            okToConsume.countDown();
          }
       };
 
@@ -709,62 +690,59 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       // spin up a bunch of threads to consume messages
       for (final String group : groups) {
-         r = new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  logger.debug("Waiting to start consumer thread...");
-                  okToConsume.await(20, TimeUnit.SECONDS);
-               } catch (InterruptedException e) {
-                  e.printStackTrace();
-                  return;
-               }
-               logger.debug("Starting consumer thread...");
-               ClientSessionFactory factory;
-               ClientSession session = null;
-               ClientConsumer consumer = null;
-               int targetServer = 0;
+         r = () -> {
+            try {
+               logger.debug("Waiting to start consumer thread...");
+               okToConsume.await(20, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+               return;
+            }
+            logger.debug("Starting consumer thread...");
+            ClientSessionFactory factory;
+            ClientSession session1 = null;
+            ClientConsumer consumer = null;
+            int targetServer = 0;
 
-               try {
-                  synchronized (consumerCounter) {
-                     if (consumerCounter.get() % 3 == 0) {
-                        factory = sf2;
-                        targetServer = 2;
-                     } else if (consumerCounter.get() % 2 == 0) {
-                        factory = sf1;
-                        targetServer = 1;
-                     } else {
-                        factory = sf0;
-                     }
-                     logger.debug("Creating consumer session factory to node {}", targetServer);
-                     session = addClientSession(factory.createSession(false, false, true));
-                     consumer = addClientConsumer(session.createConsumer(QUEUE));
-                     session.start();
-                     consumerCounter.incrementAndGet();
+            try {
+               synchronized (consumerCounter) {
+                  if (consumerCounter.get() % 3 == 0) {
+                     factory = sf2;
+                     targetServer = 2;
+                  } else if (consumerCounter.get() % 2 == 0) {
+                     factory = sf1;
+                     targetServer = 1;
+                  } else {
+                     factory = sf0;
                   }
-               } catch (Exception e) {
-                  logger.debug("Consumer thread couldn't establish connection", e);
-                  errors.incrementAndGet();
-                  return;
+                  logger.debug("Creating consumer session factory to node {}", targetServer);
+                  session1 = addClientSession(factory.createSession(false, false, true));
+                  consumer = addClientConsumer(session1.createConsumer(QUEUE));
+                  session1.start();
+                  consumerCounter.incrementAndGet();
                }
+            } catch (Exception e) {
+               logger.debug("Consumer thread couldn't establish connection", e);
+               errors.incrementAndGet();
+               return;
+            }
 
-               while (true) {
-                  try {
-                     ClientMessage m = consumer.receive(1000);
-                     if (m == null) {
-                        okToEndTest.countDown();
-                        return;
-                     }
-                     m.acknowledge();
-                     logger.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
-                  } catch (ActiveMQException e) {
-                     errors.incrementAndGet();
-                     logger.warn("Consumer thread threw exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
-                  } catch (Exception e) {
-                     errors.incrementAndGet();
-                     logger.warn("Consumer thread threw unexpected exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
+            while (true) {
+               try {
+                  ClientMessage m = consumer.receive(1000);
+                  if (m == null) {
+                     okToEndTest.countDown();
                      return;
                   }
+                  m.acknowledge();
+                  logger.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
+               } catch (ActiveMQException e) {
+                  errors.incrementAndGet();
+                  logger.warn("Consumer thread threw exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
+               } catch (Exception e) {
+                  errors.incrementAndGet();
+                  logger.warn("Consumer thread threw unexpected exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
+                  return;
                }
             }
          };

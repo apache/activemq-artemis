@@ -191,19 +191,16 @@ public class AbstractAdmin implements Admin {
          while ((line = br.readLine()) != null) {
             System.out.println("SERVER: " + line);
             if ("OK".equals(line.trim())) {
-               new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        String line1 = null;
-                        while ((line1 = br.readLine()) != null) {
-                           System.out.println("SERVER: " + line1);
-                        }
-                     } catch (Exception e) {
-                        e.printStackTrace();
+               new Thread(() -> {
+                  try {
+                     String line1 = null;
+                     while ((line1 = br.readLine()) != null) {
+                        System.out.println("SERVER: " + line1);
                      }
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
-               }.start();
+               }).start();
                return;
             } else if ("KO".equals(line.trim())) {
                // something went wrong with the server, destroy it:

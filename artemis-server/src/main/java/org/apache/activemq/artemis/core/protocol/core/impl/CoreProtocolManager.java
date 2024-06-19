@@ -60,7 +60,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Federation
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
@@ -314,31 +313,28 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
                      // Using an executor as most of the notifications on the Topology
                      // may come from a channel itself
                      // What could cause deadlocks
-                     entry.connectionExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V4(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(),
-                                 topologyMember.getScaleDownGroupName(), connectorPair,
-                                 last, server.getVersion().getIncrementingVersion()));
-                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V3(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(),
-                                 topologyMember.getScaleDownGroupName(), connectorPair,
-                                 last));
-                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V2(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(), connectorPair,
-                                 last));
-                           } else {
-                              channel0.send(
-                                 new ClusterTopologyChangeMessage(nodeID, connectorPair,
-                                                                  last));
-                           }
+                     entry.connectionExecutor.execute(() -> {
+                        if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V4(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(),
+                              topologyMember.getScaleDownGroupName(), connectorPair,
+                              last, server.getVersion().getIncrementingVersion()));
+                        } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V3(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(),
+                              topologyMember.getScaleDownGroupName(), connectorPair,
+                              last));
+                        } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V2(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(), connectorPair,
+                              last));
+                        } else {
+                           channel0.send(
+                              new ClusterTopologyChangeMessage(nodeID, connectorPair,
+                                                               last));
                         }
                      });
                   } catch (RejectedExecutionException ignored) {
@@ -355,16 +351,13 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
                   // may come from a channel itself
                   // What could cause deadlocks
                   try {
-                     entry.connectionExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(
-                                 new ClusterTopologyChangeMessage_V2(uniqueEventID,
-                                                                     nodeID));
-                           } else {
-                              channel0.send(new ClusterTopologyChangeMessage(nodeID));
-                           }
+                     entry.connectionExecutor.execute(() -> {
+                        if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                           channel0.send(
+                              new ClusterTopologyChangeMessage_V2(uniqueEventID,
+                                                                  nodeID));
+                        } else {
+                           channel0.send(new ClusterTopologyChangeMessage(nodeID));
                         }
                      });
                   } catch (RejectedExecutionException ignored) {
@@ -383,33 +376,24 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             if (acceptorUsed.getClusterConnection() != null) {
                acceptorUsed.getClusterConnection().addClusterTopologyListener(listener);
 
-               rc.addCloseListener(new CloseListener() {
-                  @Override
-                  public void connectionClosed() {
-                     acceptorUsed.getClusterConnection()
-                        .removeClusterTopologyListener(listener);
-                  }
-               });
+               rc.addCloseListener(() -> acceptorUsed.getClusterConnection().removeClusterTopologyListener(listener));
             } else {
                // if not clustered, we send a single notification to the client containing the node-id where the server is connected to
                // This is done this way so Recovery discovery could also use the node-id for non-clustered setups
-               entry.connectionExecutor.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     String nodeId = server.getNodeID().toString();
-                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
-                        null, null);
-                     if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
-                        channel0.send(new ClusterTopologyChangeMessage_V4(System.currentTimeMillis(), nodeId,
-                           null, null, emptyConfig, true, server.getVersion().getIncrementingVersion()));
-                     } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                        channel0.send(
-                           new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
-                                                               nodeId, null, emptyConfig, true));
-                     } else {
-                        channel0.send(
-                           new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
-                     }
+               entry.connectionExecutor.execute(() -> {
+                  String nodeId = server.getNodeID().toString();
+                  Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
+                     null, null);
+                  if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                     channel0.send(new ClusterTopologyChangeMessage_V4(System.currentTimeMillis(), nodeId,
+                        null, null, emptyConfig, true, server.getVersion().getIncrementingVersion()));
+                  } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                     channel0.send(
+                        new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
+                                                            nodeId, null, emptyConfig, true));
+                  } else {
+                     channel0.send(
+                        new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
                   }
                });
             }

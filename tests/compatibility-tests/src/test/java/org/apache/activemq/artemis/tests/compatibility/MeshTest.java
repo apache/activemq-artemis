@@ -85,17 +85,14 @@ public class MeshTest extends ServerBase {
 
       setVariable(receiverClassloader, "latch", latch);
       AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveNonDurableSubscription");
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveNonDurableSubscription");
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
 
       t.start();
       assertTrue(latch.await(10, TimeUnit.SECONDS));

@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
@@ -60,6 +56,8 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
 
@@ -130,15 +128,12 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
 
          connection.start();
 
-         consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               try {
-                  message.acknowledge();
-                  done.countDown();
-               } catch (Exception ignore) {
-                  // Ignore
-               }
+         consumer.setMessageListener(message -> {
+            try {
+               message.acknowledge();
+               done.countDown();
+            } catch (Exception ignore) {
+               // Ignore
             }
          });
 

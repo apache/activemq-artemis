@@ -110,44 +110,41 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          String space1k = new String(new char[5]).replace('\0', ' ');
          for (int i = 0; i < THREADS; i++) {
             final int id = i % 10;
-            executorService.submit(new Runnable() {
-               @Override
-               public void run() {
-                  try (Connection connection = factory.createConnection()) {
+            executorService.submit(() -> {
+               try (Connection connection = factory.createConnection()) {
 
-                     Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-                     Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+                  Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+                  Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-                     Queue queue = session.createQueue(queueName + id);
-                     MessageProducer producer = session.createProducer(queue);
-                     MessageConsumer consumer = consumerSession.createConsumer(queue);
-                     connection.start();
+                  Queue queue = session.createQueue(queueName + id);
+                  MessageProducer producer = session.createProducer(queue);
+                  MessageConsumer consumer = consumerSession.createConsumer(queue);
+                  connection.start();
 
-                     for (int j = 0; j < 1000 && running.get(); j++) {
-                        TextMessage textMessage = session.createTextMessage("test");
-                        textMessage.setStringProperty("1k", space1k);
-                        producer.send(textMessage);
-                        if (j % 2 == 0) {
-                           session.commit();
-                           TextMessage message = (TextMessage) consumer.receive(5000);
-                           assertNotNull(message);
+                  for (int j = 0; j < 1000 && running.get(); j++) {
+                     TextMessage textMessage = session.createTextMessage("test");
+                     textMessage.setStringProperty("1k", space1k);
+                     producer.send(textMessage);
+                     if (j % 2 == 0) {
+                        session.commit();
+                        TextMessage message = (TextMessage) consumer.receive(5000);
+                        assertNotNull(message);
 
-                           assertEquals("test", message.getText());
+                        assertEquals("test", message.getText());
 
-                           message.acknowledge();
-                        } else {
-                           session.rollback();
-                        }
-
+                        message.acknowledge();
+                     } else {
+                        session.rollback();
                      }
-                     logger.debug("Done! ");
 
-                  } catch (Throwable t) {
-                     errors.incrementAndGet();
-                     t.printStackTrace();
-                  } finally {
-                     latchDone.countDown();
                   }
+                  logger.debug("Done! ");
+
+               } catch (Throwable t) {
+                  errors.incrementAndGet();
+                  t.printStackTrace();
+               } finally {
+                  latchDone.countDown();
                }
             });
          }

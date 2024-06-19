@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
-import java.io.FilenameFilter;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
@@ -30,6 +27,8 @@ import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This class will control mix up compactor between each operation of a test
@@ -75,13 +74,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
       File testDir = new File(getTestDir());
 
-      File[] files = testDir.listFiles(new FilenameFilter() {
-
-         @Override
-         public boolean accept(final File dir, final String name) {
-            return name.startsWith(filePrefix) && name.endsWith(fileExtension);
-         }
-      });
+      File[] files = testDir.listFiles((dir, name) -> name.startsWith(filePrefix) && name.endsWith(fileExtension));
 
       for (File file : files) {
          assertEquals(fileSize, file.length(), "File " + file + " doesn't have the expected number of bytes");
@@ -184,16 +177,13 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
    }
 
    private void threadCompact() throws InterruptedException {
-      tCompact = new Thread() {
-         @Override
-         public void run() {
-            try {
-               journal.testCompact();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      tCompact = new Thread(() -> {
+         try {
+            journal.testCompact();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       tCompact.start();
 

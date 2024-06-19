@@ -76,33 +76,28 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
 
       AtomicInteger errors = new AtomicInteger(0);
       AtomicBoolean runnning = new AtomicBoolean(true);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
+      Runnable runnable = () -> {
+         try {
+            ConnectionFactory factory = createCF();
 
-            try {
-               ConnectionFactory factory = createCF();
+            Connection connection = factory.createConnection();
+            Session session = connection.createSession();
+            connection.start();
+            Queue queue = session.createQueue(anycastAddress.toString());
 
-               Connection connection = factory.createConnection();
-               Session session = connection.createSession();
-               connection.start();
-               Queue queue = session.createQueue(anycastAddress.toString());
-
-               while (runnning.get()) {
-                  MessageConsumer consumer = session.createConsumer(queue);
-                  TextMessage message = (TextMessage)consumer.receive(100);
-                  if (message != null) {
-                     consumer.close();
-                  }
+            while (runnning.get()) {
+               MessageConsumer consumer = session.createConsumer(queue);
+               TextMessage message = (TextMessage)consumer.receive(100);
+               if (message != null) {
+                  consumer.close();
                }
-
-
-               connection.close();
-
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
             }
+
+            connection.close();
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
       };
 

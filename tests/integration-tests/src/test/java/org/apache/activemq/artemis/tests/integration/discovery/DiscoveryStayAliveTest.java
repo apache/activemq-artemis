@@ -68,18 +68,15 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
 
       final AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               dg.internalRunning();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
-
+      Thread t = new Thread(() -> {
+         try {
+            dg.internalRunning();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
       t.start();
 
       BroadcastGroupImpl bg = null;

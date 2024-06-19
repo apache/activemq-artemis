@@ -16,18 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
@@ -89,6 +80,14 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompTest extends StompTestBase {
@@ -157,13 +156,7 @@ public class StompTest extends StompTestBase {
 
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
-      consumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message arg0) {
-            latch.countDown();
-         }
-      });
+      consumer.setMessageListener(arg0 -> latch.countDown());
 
       for (int i = 1; i <= count; i++) {
          send(conn, getQueuePrefix() + getQueueName(), null, "Hello World!");
@@ -218,13 +211,7 @@ public class StompTest extends StompTestBase {
          conn.connect(defUser, defPass);
          int count = 1000;
          final CountDownLatch latch = new CountDownLatch(count);
-         consumer.setMessageListener(new MessageListener() {
-
-            @Override
-            public void onMessage(Message arg0) {
-               latch.countDown();
-            }
-         });
+         consumer.setMessageListener(arg0 -> latch.countDown());
 
          ((ActiveMQServerImpl) server).getMonitor().setMaxUsage(0).tick();
 

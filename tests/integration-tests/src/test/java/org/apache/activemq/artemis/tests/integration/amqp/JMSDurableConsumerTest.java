@@ -16,30 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -52,6 +44,12 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class JMSDurableConsumerTest extends JMSClientTestSupport {
@@ -84,13 +82,9 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer consumer = session.createDurableSubscriber(topic, "DurbaleTopic");
-         consumer.setMessageListener(new MessageListener() {
-
-            @Override
-            public void onMessage(Message message) {
-               received.set(message);
-               latch.countDown();
-            }
+         consumer.setMessageListener(message -> {
+            received.set(message);
+            latch.countDown();
          });
 
          MessageProducer producer = session.createProducer(topic);
@@ -128,13 +122,9 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          producer.send(message);
 
          final AtomicReference<Message> msg = new AtomicReference<>();
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               msg.set(consumer.receiveNoWait());
-               return msg.get() != null;
-            }
+         assertTrue(Wait.waitFor(() -> {
+            msg.set(consumer.receiveNoWait());
+            return msg.get() != null;
          }, TimeUnit.SECONDS.toMillis(25), TimeUnit.MILLISECONDS.toMillis(200)));
 
          assertNotNull(msg.get(), "Should have received a message by now.");
@@ -155,32 +145,14 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer consumer = session.createDurableSubscriber(topic, "DurbaleTopic");
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 1;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 1, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          consumer.close();
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          session.unsubscribe("DurbaleTopic");
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
       } finally {
          connection.close();
       }
@@ -196,13 +168,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          try {
             session.unsubscribe("DurbaleTopic");

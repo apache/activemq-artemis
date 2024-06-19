@@ -846,18 +846,15 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
          final ThrowableHolder holder = new ThrowableHolder();
 
-         final Thread webappContextThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               FileConfiguration fileConfiguration = new FileConfiguration();
+         final Thread webappContextThread = new Thread(() -> {
+            FileConfiguration fileConfiguration = new FileConfiguration();
 
-               try {
-                  FileDeploymentManager deploymentManager = new FileDeploymentManager(customConfiguration.getName());
-                  deploymentManager.addDeployable(fileConfiguration);
-                  deploymentManager.readConfiguration();
-               } catch (Exception e) {
-                  holder.t = e;
-               }
+            try {
+               FileDeploymentManager deploymentManager = new FileDeploymentManager(customConfiguration.getName());
+               deploymentManager.addDeployable(fileConfiguration);
+               deploymentManager.readConfiguration();
+            } catch (Exception e) {
+               holder.t = e;
             }
          });
 

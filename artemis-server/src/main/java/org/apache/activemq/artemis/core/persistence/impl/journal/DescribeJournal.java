@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
@@ -390,22 +389,16 @@ public final class DescribeJournal {
       long preparedMessageCount = 0;
       long preparedLargeMessageCount = 0;
       Map<Long, Count> preparedMessageRefCount = new HashMap<>();
-      journal.load(records, preparedTransactions, new TransactionFailureCallback() {
-
-         @Override
-         public void failedTransaction(long transactionID,
-                                       List<RecordInfo> records1,
-                                       List<RecordInfo> recordsToDelete) {
-            bufferFailingTransactions.append("Transaction " + transactionID + " failed with these records:\n");
-            for (RecordInfo info : records1) {
-               bufferFailingTransactions.append("- " + describeRecord(info, safe) + "\n");
-            }
-
-            for (RecordInfo info : recordsToDelete) {
-               bufferFailingTransactions.append("- " + describeRecord(info, safe) + " <marked to delete>\n");
-            }
-
+      journal.load(records, preparedTransactions, (transactionID, records1, recordsToDelete) -> {
+         bufferFailingTransactions.append("Transaction " + transactionID + " failed with these records:\n");
+         for (RecordInfo info : records1) {
+            bufferFailingTransactions.append("- " + describeRecord(info, safe) + "\n");
          }
+
+         for (RecordInfo info : recordsToDelete) {
+            bufferFailingTransactions.append("- " + describeRecord(info, safe) + " <marked to delete>\n");
+         }
+
       }, false);
 
       for (RecordInfo info : records) {

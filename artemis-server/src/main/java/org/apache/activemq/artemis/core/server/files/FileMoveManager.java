@@ -41,32 +41,24 @@ public class FileMoveManager {
    private int maxFolders;
    public static final String PREFIX = "oldreplica.";
 
-   private static final FilenameFilter isPrefix = new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-         boolean prefixed = name.contains(PREFIX);
+   private static final FilenameFilter isPrefix = (dir, name) -> {
+      boolean prefixed = name.contains(PREFIX);
 
-         if (prefixed) {
-            try {
-               Integer.parseInt(name.substring(PREFIX.length()));
-            } catch (NumberFormatException e) {
-               // This function is not really used a lot
-               // so I don't really mind about performance here
-               // this is good enough for what we need
-               prefixed = false;
-            }
+      if (prefixed) {
+         try {
+            Integer.parseInt(name.substring(PREFIX.length()));
+         } catch (NumberFormatException e) {
+            // This function is not really used a lot
+            // so I don't really mind about performance here
+            // this is good enough for what we need
+            prefixed = false;
          }
-
-         return prefixed;
       }
+
+      return prefixed;
    };
 
-   private static final FilenameFilter notPrefix = new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-         return !isPrefix.accept(dir, name);
-      }
-   };
+   private static final FilenameFilter notPrefix = (dir, name) -> !isPrefix.accept(dir, name);
 
    public FileMoveManager(File folder) {
       this(folder, -1);

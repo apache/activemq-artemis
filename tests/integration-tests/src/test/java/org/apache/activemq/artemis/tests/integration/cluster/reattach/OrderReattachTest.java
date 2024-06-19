@@ -75,37 +75,34 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
       // this test will use a queue. Whenever the test wants a failure.. it can just send TRUE to failureQueue
       // This Thread will be reading the queue
-      Thread failer = new Thread() {
-         @Override
-         public void run() {
-            ready.countDown();
-            while (true) {
+      Thread failer = new Thread(() -> {
+         ready.countDown();
+         while (true) {
+            try {
+               Boolean poll = false;
                try {
-                  Boolean poll = false;
-                  try {
-                     poll = failureQueue.poll(60, TimeUnit.SECONDS);
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                     break;
-                  }
-
-                  Thread.sleep(1);
-
-                  final RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
-
-                  // True means... fail session
-                  if (poll) {
-                     conn.fail(new ActiveMQNotConnectedException("poop"));
-                  } else {
-                     // false means... finish thread
-                     break;
-                  }
-               } catch (Exception e) {
+                  poll = failureQueue.poll(60, TimeUnit.SECONDS);
+               } catch (InterruptedException e) {
                   e.printStackTrace();
+                  break;
                }
+
+               Thread.sleep(1);
+
+               final RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
+
+               // True means... fail session
+               if (poll) {
+                  conn.fail(new ActiveMQNotConnectedException("poop"));
+               } else {
+                  // false means... finish thread
+                  break;
+               }
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          }
-      };
+      });
 
       failer.start();
 

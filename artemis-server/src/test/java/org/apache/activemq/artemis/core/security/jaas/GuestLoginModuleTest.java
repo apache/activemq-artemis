@@ -16,17 +16,11 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +30,9 @@ import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GuestLoginModuleTest {
 
@@ -60,12 +56,7 @@ public class GuestLoginModuleTest {
 
    @Test
    public void testLogin() throws LoginException {
-      LoginContext context = new LoginContext("GuestLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            assertEquals(0, callbacks.length, "Should have no Callbacks");
-         }
-      });
+      LoginContext context = new LoginContext("GuestLogin", callbacks -> assertEquals(0, callbacks.length, "Should have no Callbacks"));
       context.login();
 
       Subject subject = context.getSubject();
@@ -84,12 +75,7 @@ public class GuestLoginModuleTest {
 
    @Test
    public void testLoginWithDefaults() throws LoginException {
-      LoginContext context = new LoginContext("GuestLoginWithDefaults", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            assertEquals(0, callbacks.length, "Should have no Callbacks");
-         }
-      });
+      LoginContext context = new LoginContext("GuestLoginWithDefaults", callbacks -> assertEquals(0, callbacks.length, "Should have no Callbacks"));
       context.login();
 
       Subject subject = context.getSubject();

@@ -63,14 +63,11 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
 
       // if something happens that causes the timeout to misbehave we don't want the test to hang
       ExecutorService service = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               server2.start();
-            } catch (final Exception e) {
-               throw new RuntimeException(e);
-            }
+      Runnable r = () -> {
+         try {
+            server2.start();
+         } catch (final Exception e) {
+            throw new RuntimeException(e);
          }
       };
 

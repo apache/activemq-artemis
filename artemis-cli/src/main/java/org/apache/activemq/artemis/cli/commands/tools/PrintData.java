@@ -229,12 +229,7 @@ public class PrintData extends DBOption {
       ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
       final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
       final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
-      ExecutorFactory execfactory = new ExecutorFactory() {
-         @Override
-         public ArtemisExecutor getExecutor() {
-            return ArtemisExecutor.delegate(executor);
-         }
-      };
+      ExecutorFactory execfactory = () -> ArtemisExecutor.delegate(executor);
       try {
 
          final StorageManager sm = new NullStorageManager();

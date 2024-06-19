@@ -20,10 +20,10 @@ import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,7 +33,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -251,26 +250,23 @@ public class JMSTest extends JMSTestCase {
       final AtomicReference<Message> message = new AtomicReference<>();
       final CountDownLatch latch = new CountDownLatch(1);
 
-      new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               // sleep a little bit to ensure that
-               // prod.send will be called before cons.reveive
-               Thread.sleep(500);
+      new Thread(() -> {
+         try {
+            // sleep a little bit to ensure that
+            // prod.send will be called before cons.reveive
+            Thread.sleep(500);
 
-               synchronized (session) {
-                  Message m = cons.receive(5000);
-                  if (m != null) {
-                     message.set(m);
-                     latch.countDown();
-                  }
+            synchronized (session) {
+               Message m = cons.receive(5000);
+               if (m != null) {
+                  message.set(m);
+                  latch.countDown();
                }
-            } catch (Exception e) {
-               logger.error("receive failed", e);
             }
-
+         } catch (Exception e) {
+            logger.error("receive failed", e);
          }
+
       }, "Receiving Thread").start();
 
       synchronized (session) {
@@ -300,12 +296,9 @@ public class JMSTest extends JMSTestCase {
       final AtomicReference<Message> message = new AtomicReference<>();
       final CountDownLatch latch = new CountDownLatch(1);
 
-      cons.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message m) {
-            message.set(m);
-            latch.countDown();
-         }
+      cons.setMessageListener(m -> {
+         message.set(m);
+         latch.countDown();
       });
 
       conn.start();

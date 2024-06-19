@@ -246,26 +246,23 @@ public final class SharedNothingBackupActivation extends Activation implements R
 
                final SharedNothingBackupQuorum.BACKUP_ACTIVATION signalToStop = signal;
 
-               Thread startThread = new Thread(new Runnable() {
-                  @Override
-                  public void run() {
-                     try {
-                        logger.trace("Calling activeMQServer.stop() as initialization failed");
+               Thread startThread = new Thread(() -> {
+                  try {
+                     logger.trace("Calling activeMQServer.stop() as initialization failed");
 
-                        if (activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPED &&
-                            activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
+                     if (activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPED &&
+                         activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
 
-                           if (signalToStop == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_RETRY) {
-                              activeMQServer.stop(false);
-                              logger.trace("The server was shutdown for a network isolation, we keep retrying");
-                              activeMQServer.start();
-                           } else {
-                              activeMQServer.stop();
-                           }
+                        if (signalToStop == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_RETRY) {
+                           activeMQServer.stop(false);
+                           logger.trace("The server was shutdown for a network isolation, we keep retrying");
+                           activeMQServer.start();
+                        } else {
+                           activeMQServer.stop();
                         }
-                     } catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
                      }
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
                   }
                });
                startThread.start();

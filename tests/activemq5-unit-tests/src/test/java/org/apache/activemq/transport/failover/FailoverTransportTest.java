@@ -82,12 +82,7 @@ public class FailoverTransportTest {
 
       this.failoverTransport = transport.narrow(FailoverTransport.class);
 
-      assertTrue("no implicit limit of 1000", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return failoverTransport.getConnectFailures() > 1002;
-         }
-      }));
+      assertTrue("no implicit limit of 1000", Wait.waitFor(() -> failoverTransport.getConnectFailures() > 1002));
    }
 
    @Test(timeout = 30000)

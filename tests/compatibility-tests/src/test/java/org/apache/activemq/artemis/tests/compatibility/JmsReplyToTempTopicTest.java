@@ -81,41 +81,35 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
       setVariable(receiverClassloader, "consumerCreated", consumerCreated);
 
       AtomicInteger errors = new AtomicInteger(0);
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               if (JAKARTAEE.equals(receiver)) {
-                  evaluate(receiverClassloader, "jakartaReplyToTempTopic/receiveMessages.groovy", receiver);
-               } else {
-                  evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            if (JAKARTAEE.equals(receiver)) {
+               evaluate(receiverClassloader, "jakartaReplyToTempTopic/receiveMessages.groovy", receiver);
+            } else {
+               evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t1.start();
 
       assertTrue(consumerCreated.await(10, TimeUnit.SECONDS));
 
       setVariable(senderClassloader, "senderLatch", senderLatch);
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               if (JAKARTAEE.equals(sender)) {
-                  evaluate(senderClassloader, "jakartaReplyToTempTopic/sendMessagesAddress.groovy", sender);
-               } else {
-                  evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t2 = new Thread(() -> {
+         try {
+            if (JAKARTAEE.equals(sender)) {
+               evaluate(senderClassloader, "jakartaReplyToTempTopic/sendMessagesAddress.groovy", sender);
+            } else {
+               evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t2.start();
 
       try {

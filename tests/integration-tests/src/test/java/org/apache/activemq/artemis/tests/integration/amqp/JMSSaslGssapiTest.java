@@ -247,45 +247,42 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    public void testOutboundWithSlowMech() throws Exception {
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT));
-      final ClientSASLFactory clientSASLFactory = new ClientSASLFactory() {
-         @Override
-         public ClientSASL chooseMechanism(String[] availableMechanims) {
-            GssapiMechanism gssapiMechanism = new GssapiMechanism();
-            return new ClientSASL() {
-               @Override
-               public String getName() {
-                  return gssapiMechanism.getName();
-               }
+      final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+         GssapiMechanism gssapiMechanism = new GssapiMechanism();
+         return new ClientSASL() {
+            @Override
+            public String getName() {
+               return gssapiMechanism.getName();
+            }
 
-               @Override
-               public byte[] getInitialResponse() {
-                  gssapiMechanism.setUsername("client");
-                  gssapiMechanism.setServerName("localhost");
-                  try {
-                     return gssapiMechanism.getInitialResponse();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  return new byte[0];
+            @Override
+            public byte[] getInitialResponse() {
+               gssapiMechanism.setUsername("client");
+               gssapiMechanism.setServerName("localhost");
+               try {
+                  return gssapiMechanism.getInitialResponse();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
+               return new byte[0];
+            }
 
-               @Override
-               public byte[] getResponse(byte[] challenge) {
-                  try {
-                     // simulate a slow client
-                     TimeUnit.SECONDS.sleep(4);
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                  }
-                  try {
-                     return gssapiMechanism.getChallengeResponse(challenge);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  return new byte[0];
+            @Override
+            public byte[] getResponse(byte[] challenge) {
+               try {
+                  // simulate a slow client
+                  TimeUnit.SECONDS.sleep(4);
+               } catch (InterruptedException e) {
+                  e.printStackTrace();
                }
-            };
-         }
+               try {
+                  return gssapiMechanism.getChallengeResponse(challenge);
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+               return new byte[0];
+            }
+         };
       };
 
       final AtomicBoolean connectionOpened = new AtomicBoolean();

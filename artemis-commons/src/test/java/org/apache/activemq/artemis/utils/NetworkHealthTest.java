@@ -33,8 +33,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
@@ -101,15 +99,12 @@ public class NetworkHealthTest {
       InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       httpServer = HttpServer.create(address, 100);
       httpServer.start();
-      httpServer.createContext("/", new HttpHandler() {
-         @Override
-         public void handle(HttpExchange t) throws IOException {
-            String response = "<html><body><b>This is a unit test</b></body></html>";
-            t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-         }
+      httpServer.createContext("/", t -> {
+         String response = "<html><body><b>This is a unit test</b></body></html>";
+         t.sendResponseHeaders(200, response.length());
+         OutputStream os = t.getResponseBody();
+         os.write(response.getBytes());
+         os.close();
       });
    }
 

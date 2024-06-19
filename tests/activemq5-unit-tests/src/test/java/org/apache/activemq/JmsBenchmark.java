@@ -96,53 +96,42 @@ public class JmsBenchmark extends JmsTestSupport {
       final AtomicInteger producedMessages = new AtomicInteger(0);
       final AtomicInteger receivedMessages = new AtomicInteger(0);
 
-      final Callable<Object> producer = new Callable<Object>() {
-         @Override
-         public Object call() throws JMSException, InterruptedException {
-            Connection connection = factory.createConnection();
-            connections.add(connection);
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-            BytesMessage message = session.createBytesMessage();
-            message.writeBytes(new byte[1024]);
-            connection.start();
-            connectionsEstablished.release();
+      final Callable<Object> producer = () -> {
+         Connection connection = factory.createConnection();
+         connections.add(connection);
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer1 = session.createProducer(destination);
+         producer1.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(new byte[1024]);
+         connection.start();
+         connectionsEstablished.release();
 
-            while (!sampleTimeDone.await(0, TimeUnit.MILLISECONDS)) {
-               producer.send(message);
-               producedMessages.incrementAndGet();
-            }
-
-            connection.close();
-            workerDone.release();
-            return null;
+         while (!sampleTimeDone.await(0, TimeUnit.MILLISECONDS)) {
+            producer1.send(message);
+            producedMessages.incrementAndGet();
          }
+
+         connection.close();
+         workerDone.release();
+         return null;
       };
 
-      final Callable<Object> consumer = new Callable<Object>() {
-         @Override
-         public Object call() throws JMSException, InterruptedException {
-            Connection connection = factory.createConnection();
-            connections.add(connection);
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer = session.createConsumer(destination);
+      final Callable<Object> consumer = () -> {
+         Connection connection = factory.createConnection();
+         connections.add(connection);
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer1 = session.createConsumer(destination);
 
-            consumer.setMessageListener(new MessageListener() {
-               @Override
-               public void onMessage(Message msg) {
-                  receivedMessages.incrementAndGet();
-               }
-            });
-            connection.start();
+         consumer1.setMessageListener(msg -> receivedMessages.incrementAndGet());
+         connection.start();
 
-            connectionsEstablished.release();
-            sampleTimeDone.await();
+         connectionsEstablished.release();
+         sampleTimeDone.await();
 
-            connection.close();
-            workerDone.release();
-            return null;
-         }
+         connection.close();
+         workerDone.release();
+         return null;
       };
 
       final Throwable workerError[] = new Throwable[1];

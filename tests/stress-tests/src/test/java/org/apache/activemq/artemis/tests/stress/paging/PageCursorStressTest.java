@@ -494,45 +494,42 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       final AtomicInteger exceptions = new AtomicInteger(0);
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               int count = 0;
+      Thread t1 = new Thread(() -> {
+         try {
+            int count = 0;
 
-               for (int txCount = 0; txCount < NUM_TX; txCount++) {
+            for (int txCount = 0; txCount < NUM_TX; txCount++) {
 
-                  Transaction tx = null;
+               Transaction tx = null;
 
-                  if (txCount % 2 == 0) {
-                     tx = new TransactionImpl(storage);
-                  }
-
-                  RoutingContext ctx = generateCTX(tx);
-
-                  for (int i = 0; i < MSGS_TX; i++) {
-                     //System.out.println("Sending " + count);
-                     ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, count);
-
-                     Message msg = new CoreMessage(i, buffer.writerIndex());
-                     msg.putIntProperty("key", count++);
-
-                     msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
-
-                     assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
-                  }
-
-                  if (tx != null) {
-                     tx.commit();
-                  }
-
+               if (txCount % 2 == 0) {
+                  tx = new TransactionImpl(storage);
                }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               exceptions.incrementAndGet();
+
+               RoutingContext ctx = generateCTX(tx);
+
+               for (int i = 0; i < MSGS_TX; i++) {
+                  //System.out.println("Sending " + count);
+                  ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, count);
+
+                  Message msg = new CoreMessage(i, buffer.writerIndex());
+                  msg.putIntProperty("key", count++);
+
+                  msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
+
+                  assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS)));
+               }
+
+               if (tx != null) {
+                  tx.commit();
+               }
+
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            exceptions.incrementAndGet();
          }
-      };
+      });
 
       t1.start();
 

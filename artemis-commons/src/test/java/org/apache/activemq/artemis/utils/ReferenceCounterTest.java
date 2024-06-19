@@ -94,12 +94,7 @@ public class ReferenceCounterTest {
       Thread[] t = new Thread[100];
 
       for (int i = 0; i < t.length; i++) {
-         t[i] = new Thread() {
-            @Override
-            public void run() {
-               ref.increment();
-            }
-         };
+         t[i] = new Thread(() -> ref.increment());
          t[i].start();
       }
 
@@ -108,12 +103,7 @@ public class ReferenceCounterTest {
       }
 
       for (int i = 0; i < t.length; i++) {
-         t[i] = new Thread() {
-            @Override
-            public void run() {
-               ref.decrement();
-            }
-         };
+         t[i] = new Thread(() -> ref.decrement());
          t[i].start();
       }
 

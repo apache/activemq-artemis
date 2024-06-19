@@ -347,12 +347,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          stopping = false;
       }
 
-      moduleTccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
+      moduleTccl = AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
       locateRecoveryRegistry();
 
@@ -1645,12 +1640,9 @@ public final class JMSBridgeImpl implements JMSBridge {
          public Thread newThread(Runnable r) {
             final Thread thr = new Thread(group, r);
             if (moduleTccl != null) {
-               AccessController.doPrivileged(new PrivilegedAction() {
-                  @Override
-                  public Object run() {
-                     thr.setContextClassLoader(moduleTccl);
-                     return null;
-                  }
+               AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                  thr.setContextClassLoader(moduleTccl);
+                  return null;
                });
             }
             return thr;

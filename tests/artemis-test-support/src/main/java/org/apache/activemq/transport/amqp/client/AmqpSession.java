@@ -67,14 +67,10 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
          final ClientFuture request = new ClientFuture();
-         getScheduler().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               checkClosed();
-               close(request);
-               pumpToProtonTransport(request);
-            }
+         getScheduler().execute(() -> {
+            checkClosed();
+            close(request);
+            pumpToProtonTransport(request);
          });
 
          request.sync();
@@ -159,15 +155,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       sender.setProperties(properties);
       final ClientFuture request = new ClientFuture();
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            sender.setStateInspector(getStateInspector());
-            sender.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         sender.setStateInspector(getStateInspector());
+         sender.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -219,15 +211,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final AmqpSender sender = new AmqpSender(AmqpSession.this, address, getNextSenderId(), senderMode, receiverMode, outcomes);
       final ClientFuture request = new ClientFuture();
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            sender.setStateInspector(getStateInspector());
-            sender.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         sender.setStateInspector(getStateInspector());
+         sender.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -278,15 +266,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       sender.setProperties(properties);
       final ClientFuture request = new ClientFuture();
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            sender.setStateInspector(getStateInspector());
-            sender.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         sender.setStateInspector(getStateInspector());
+         sender.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -366,15 +350,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
          receiver.setProperties(properties);
       }
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -402,15 +382,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final ClientFuture request = new ClientFuture();
       final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, address, getNextReceiverId(), senderMode, receiverMode);
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -443,15 +419,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final ClientFuture request = new ClientFuture();
       final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, source, receiverId);
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -474,15 +446,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, source, receiverId);
       receiver.setSubscriptionName(receiveName);
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -503,15 +471,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, address, receiverId);
       receiver.setSubscriptionName(receiveName);
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -574,15 +538,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
          receiver.setSelector(selector);
       }
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -608,15 +568,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, (String) null, getNextReceiverId());
       receiver.setSubscriptionName(subscriptionName);
 
-      connection.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            receiver.setStateInspector(getStateInspector());
-            receiver.open(request);
-            pumpToProtonTransport(request);
-         }
+      connection.getScheduler().execute(() -> {
+         checkClosed();
+         receiver.setStateInspector(getStateInspector());
+         receiver.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();

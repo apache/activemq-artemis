@@ -463,15 +463,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          Notification notification = new Notification(nodeId == null ? null : nodeId.toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
          managementService.sendNotification(notification);
       }
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            synchronized (ClusterConnectionImpl.this) {
-               closeLocator(serverLocator);
-               serverLocator = null;
-            }
-
+      executor.execute(() -> {
+         synchronized (ClusterConnectionImpl.this) {
+            closeLocator(serverLocator);
+            serverLocator = null;
          }
+
       });
 
       started = false;
@@ -1057,18 +1054,15 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          bridge.stop();
 
-         bridge.getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  if (disconnected) {
-                     targetLocator.cleanup();
-                  } else {
-                     targetLocator.close();
-                  }
-               } catch (Exception ignored) {
-                  logger.debug(ignored.getMessage(), ignored);
+         bridge.getExecutor().execute(() -> {
+            try {
+               if (disconnected) {
+                  targetLocator.cleanup();
+               } else {
+                  targetLocator.close();
                }
+            } catch (Exception ignored) {
+               logger.debug(ignored.getMessage(), ignored);
             }
          });
       }

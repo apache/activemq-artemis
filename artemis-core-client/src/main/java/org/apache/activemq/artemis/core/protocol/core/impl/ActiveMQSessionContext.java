@@ -1180,12 +1180,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    protected ClassLoader lookupTCCL() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
    }
 

@@ -290,17 +290,14 @@ public final class TcpProxy implements Runnable {
 
       @Override
       public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-         inboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) {
-               if (future.isSuccess()) {
-                  if (readable) {
-                     ctx.channel().read();
-                  }
-               } else {
-                  new Exception("Closing").printStackTrace();
-                  future.channel().close();
+         inboundChannel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+               if (readable) {
+                  ctx.channel().read();
                }
+            } else {
+               new Exception("Closing").printStackTrace();
+               future.channel().close();
             }
          });
       }

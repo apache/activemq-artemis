@@ -353,13 +353,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
             @Override
             public void afterCommit(final Transaction tx1) {
-               pageStore.execute(new Runnable() {
-
-                  @Override
-                  public void run() {
-                     if (!completeDelete) {
-                        cursorProvider.scheduleCleanup();
-                     }
+               pageStore.execute(() -> {
+                  if (!completeDelete) {
+                     cursorProvider.scheduleCleanup();
                   }
                });
             }

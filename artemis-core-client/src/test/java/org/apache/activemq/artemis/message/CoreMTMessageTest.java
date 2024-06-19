@@ -83,24 +83,21 @@ public class CoreMTMessageTest {
       final CountDownLatch startFlag = new CountDownLatch(1);
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(10 * 1024);
-               aligned.countDown();
-               assertTrue(startFlag.await(5, TimeUnit.SECONDS));
-               coreMessage.messageChanged();
-               coreMessage.sendBuffer(buffer.byteBuf(), 0);
-               CoreMessage recMessage = new CoreMessage();
-               recMessage.receiveBuffer(buffer.byteBuf());
-               assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
-               assertEquals(33, recMessage.getMessageID());
-               assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.of("str-prop")));
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Runnable runnable = () -> {
+         try {
+            ActiveMQBuffer buffer1 = ActiveMQBuffers.dynamicBuffer(10 * 1024);
+            aligned.countDown();
+            assertTrue(startFlag.await(5, TimeUnit.SECONDS));
+            coreMessage.messageChanged();
+            coreMessage.sendBuffer(buffer1.byteBuf(), 0);
+            CoreMessage recMessage = new CoreMessage();
+            recMessage.receiveBuffer(buffer1.byteBuf());
+            assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
+            assertEquals(33, recMessage.getMessageID());
+            assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.of("str-prop")));
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
       };
 

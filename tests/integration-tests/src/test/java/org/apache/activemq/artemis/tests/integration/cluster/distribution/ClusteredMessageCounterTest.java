@@ -164,14 +164,11 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
          waitForBindings(1, "queues", 1, 0, true);
          waitForBindings(0, "queues", 1, 0, false);
 
-         Thread sendThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  send(0, "queues", numMsg, true, null);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
+         Thread sendThread = new Thread(() -> {
+            try {
+               send(0, "queues", numMsg, true, null);
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          });
 

@@ -175,12 +175,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return ActiveMQScheduledComponent.this.getClass().getClassLoader();
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> ActiveMQScheduledComponent.this.getClass().getClassLoader());
 
    }
 

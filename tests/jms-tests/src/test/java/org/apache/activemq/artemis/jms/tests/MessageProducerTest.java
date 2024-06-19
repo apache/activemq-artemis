@@ -269,14 +269,11 @@ public class MessageProducerTest extends JMSTestCase {
 
          final MessageProducer anonProducer = ps.createProducer(null);
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  anonProducer.send(ActiveMQServerTestCase.topic2, m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               anonProducer.send(ActiveMQServerTestCase.topic2, m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer Thread").start();
 

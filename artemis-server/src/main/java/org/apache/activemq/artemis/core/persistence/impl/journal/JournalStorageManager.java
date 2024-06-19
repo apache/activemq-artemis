@@ -272,12 +272,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       final CountDownLatch latch = new CountDownLatch(1);
       try {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         });
+         executor.execute(latch::countDown);
 
          latch.await(30, TimeUnit.SECONDS);
       } catch (RejectedExecutionException ignored) {
@@ -465,21 +460,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             }
          }
       }
-      Runnable deleteAction = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               try (ArtemisCloseable lock = closeableReadLock()) {
-                  if (replicator != null) {
-                     replicator.largeMessageDelete(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
-                  }
-                  file.delete();
+      Runnable deleteAction = () -> {
+         try {
+            try (ArtemisCloseable lock = closeableReadLock()) {
+               if (replicator != null) {
+                  replicator.largeMessageDelete(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
                }
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(largeServerMessage.toMessage().getMessageID(), e);
+               file.delete();
             }
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(largeServerMessage.toMessage().getMessageID(), e);
          }
-
       };
 
       getContext(true).executeOnCompletion(new IOCallback() {

@@ -415,12 +415,7 @@ public class JmsRedeliveredTest extends TestCase {
       producer.send(createTextMessage(session));
       session.commit();
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return ((ActiveMQMessageConsumer) consumer).getMessageSize() == 1;
-         }
-      });
+      Wait.waitFor(() -> ((ActiveMQMessageConsumer) consumer).getMessageSize() == 1);
 
       connection.close();
 

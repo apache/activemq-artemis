@@ -56,23 +56,15 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
       if (executor == null) {
          listeners.add(listener);
       } else {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               listeners.add(listener);
-            }
-         });
+         executor.execute(() -> listeners.add(listener));
       }
    }
 
    protected void fireUnproposed(final SimpleString groupID) {
 
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            for (UnproposalListener listener : listeners) {
-               listener.unproposed(groupID);
-            }
+      Runnable runnable = () -> {
+         for (UnproposalListener listener : listeners) {
+            listener.unproposed(groupID);
          }
       };
       if (executor != null) {

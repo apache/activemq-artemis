@@ -22,14 +22,11 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -100,17 +97,14 @@ public class LDAPModuleRoleExpansionTest extends AbstractLdapTestUnit {
 
    @Test
    public void testRoleExpansion() throws LoginException {
-      LoginContext context = new LoginContext("ExpandedLDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("ExpandedLDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback) {
+               ((NameCallback) callbacks[i]).setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback) {
+               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });

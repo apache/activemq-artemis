@@ -1787,12 +1787,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      });
+      executor.execute(latch::countDown);
 
       latch.await(30, TimeUnit.SECONDS);
 

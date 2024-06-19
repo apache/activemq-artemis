@@ -85,29 +85,23 @@ public class AddressConfigTest extends VersionedBase {
 
       AtomicInteger errors = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               evaluate(receiverClassloader, "addressConfig/receiveMessages.groovy", "receive");
-            } catch (Throwable e) {
-               errors.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            evaluate(receiverClassloader, "addressConfig/receiveMessages.groovy", "receive");
+         } catch (Throwable e) {
+            errors.incrementAndGet();
          }
-      };
+      });
       t.start();
 
 
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               evaluate(senderClassloader, "addressConfig/sendMessagesAddress.groovy", "send");
-            } catch (Throwable e) {
-               errors.incrementAndGet();
-            }
+      Thread t2 = new Thread(() -> {
+         try {
+            evaluate(senderClassloader, "addressConfig/sendMessagesAddress.groovy", "send");
+         } catch (Throwable e) {
+            errors.incrementAndGet();
          }
-      };
+      });
       t2.start();
 
 

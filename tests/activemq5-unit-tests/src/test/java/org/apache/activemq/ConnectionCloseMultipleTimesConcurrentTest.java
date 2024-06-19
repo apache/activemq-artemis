@@ -68,19 +68,16 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       final CountDownLatch latch = new CountDownLatch(size);
 
       for (int i = 0; i < size; i++) {
-         executor.submit(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connection.close();
+         executor.submit(() -> {
+            try {
+               connection.close();
 
-                  assertFalse(connection.isStarted());
-                  assertTrue(connection.isClosed());
+               assertFalse(connection.isStarted());
+               assertTrue(connection.isClosed());
 
-                  latch.countDown();
-               } catch (JMSException e) {
-                  // ignore
-               }
+               latch.countDown();
+            } catch (JMSException e) {
+               // ignore
             }
          });
       }
