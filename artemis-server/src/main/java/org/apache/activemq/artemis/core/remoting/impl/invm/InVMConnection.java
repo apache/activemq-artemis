@@ -239,12 +239,7 @@ public class InVMConnection implements Connection {
 
          if (flush && flushEnabled) {
             final CountDownLatch latch = new CountDownLatch(1);
-            executor.execute(new Runnable() {
-               @Override
-               public void run() {
-                  latch.countDown();
-               }
-            });
+            executor.execute(latch::countDown);
 
             try {
                if (!latch.await(10, TimeUnit.SECONDS)) {

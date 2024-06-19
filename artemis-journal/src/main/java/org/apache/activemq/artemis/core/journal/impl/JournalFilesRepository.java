@@ -612,12 +612,7 @@ public class JournalFilesRepository {
          return createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet);
       } else {
          try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<JournalFile>() {
-               @Override
-               public JournalFile run() throws Exception {
-                  return createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet);
-               }
-            });
+            return AccessController.doPrivileged((PrivilegedExceptionAction<JournalFile>) () -> createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }

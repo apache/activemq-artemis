@@ -118,16 +118,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         int c = 0;
-
-         @Override
-         public void onMessage(final ClientMessage message) {
-            int msgNum = c++;
-            logger.debug("Got message {}", msgNum);
-            latch.countDown();
-         }
-      });
+      cc.setMessageHandler(message -> latch.countDown());
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       assertEquals(numMessages, q.getDeliveringCount());
@@ -152,20 +143,17 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
+      cc.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
             try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               try {
-                  session.close();
-               } catch (ActiveMQException e1) {
-                  e1.printStackTrace();
-               }
+               session.close();
+            } catch (ActiveMQException e1) {
+               e1.printStackTrace();
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
@@ -266,22 +254,19 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
-            if (latch.getCount() == 1) {
+      cc.setMessageHandler(message -> {
+         if (latch.getCount() == 1) {
+            try {
+               message.acknowledge();
+            } catch (ActiveMQException e) {
                try {
-                  message.acknowledge();
-               } catch (ActiveMQException e) {
-                  try {
-                     session.close();
-                  } catch (ActiveMQException e1) {
-                     e1.printStackTrace();
-                  }
+                  session.close();
+               } catch (ActiveMQException e1) {
+                  e1.printStackTrace();
                }
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();

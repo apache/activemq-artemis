@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.transport.amqp.client.util;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,57 +108,54 @@ public final class UnmodifiableProxy {
    }
 
    private static <T> T wrap(Class<T> type, final Object target) {
-      return type.cast(java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, new InvocationHandler() {
-         @Override
-         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            if ("toString".equals(method.getName()) && method.getParameterTypes().length == 0) {
-               return "Unmodifiable proxy -> (" + method.invoke(target, objects) + ")";
+      return type.cast(java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, (o, method, objects) -> {
+         if ("toString".equals(method.getName()) && method.getParameterTypes().length == 0) {
+            return "Unmodifiable proxy -> (" + method.invoke(target, objects) + ")";
+         }
+
+         // Don't let methods that mutate be invoked.
+         if (method.getParameterTypes().length > 0) {
+            throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
+         }
+
+         if (denylist.contains(method.getName())) {
+            throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
+         }
+
+         Class<?> returnType = method.getReturnType();
+
+         try {
+            Object result = method.invoke(target, objects);
+            if (result == null) {
+               return null;
             }
 
-            // Don't let methods that mutate be invoked.
-            if (method.getParameterTypes().length > 0) {
-               throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
-            }
+            if (returnType.isPrimitive() || returnType.isArray() || Object.class.equals(returnType)) {
+               // Skip any other checks
+            } else if (returnType.isAssignableFrom(ByteBuffer.class)) {
+               // Buffers are modifiable but we can just return null to indicate
+               // there's nothing there to access.
+               result = null;
+            } else if (returnType.isAssignableFrom(Map.class)) {
+               // Prevent return of modifiable maps
+               result = Collections.unmodifiableMap((Map<?, ?>) result);
+            } else if (isProtonType(returnType) && returnType.isInterface()) {
 
-            if (denylist.contains(method.getName())) {
-               throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
-            }
+               // Can't handle the crazy Source / Target types yet as there's two
+               // different types for Source and Target the result can't be cast to
+               // the one people actually want to use.
+               if (!returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Source")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Source")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Target")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Target")) {
 
-            Class<?> returnType = method.getReturnType();
-
-            try {
-               Object result = method.invoke(target, objects);
-               if (result == null) {
-                  return null;
+                  result = wrap(returnType, result);
                }
-
-               if (returnType.isPrimitive() || returnType.isArray() || Object.class.equals(returnType)) {
-                  // Skip any other checks
-               } else if (returnType.isAssignableFrom(ByteBuffer.class)) {
-                  // Buffers are modifiable but we can just return null to indicate
-                  // there's nothing there to access.
-                  result = null;
-               } else if (returnType.isAssignableFrom(Map.class)) {
-                  // Prevent return of modifiable maps
-                  result = Collections.unmodifiableMap((Map<?, ?>) result);
-               } else if (isProtonType(returnType) && returnType.isInterface()) {
-
-                  // Can't handle the crazy Source / Target types yet as there's two
-                  // different types for Source and Target the result can't be cast to
-                  // the one people actually want to use.
-                  if (!returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Source")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Source")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Target")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Target")) {
-
-                     result = wrap(returnType, result);
-                  }
-               }
-
-               return result;
-            } catch (InvocationTargetException e) {
-               throw e.getTargetException();
             }
+
+            return result;
+         } catch (InvocationTargetException e) {
+            throw e.getTargetException();
          }
       }));
    }

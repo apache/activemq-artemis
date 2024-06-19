@@ -377,17 +377,14 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       final AtomicInteger numberOfFailures = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               impl.waitCompletion(5000);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               numberOfFailures.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            impl.waitCompletion(5000);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            numberOfFailures.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
@@ -421,17 +418,14 @@ public class OperationContextUnitTest extends ServerTestBase {
 
       final AtomicInteger failures = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               context.waitCompletion(5000);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               failures.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            context.waitCompletion(5000);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            failures.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 

@@ -16,13 +16,11 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
@@ -97,23 +95,19 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
       @Override
       protected UserData aquireUserData(String userName) throws LoginException {
-         loginContext = new LoginContext(loginConfigScope, new CallbackHandler() {
-
-            @Override
-            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-               for (Callback callback : callbacks) {
-                  if (callback instanceof NameCallback) {
-                     ((NameCallback) callback).setName(userName);
-                  } else if (callback instanceof SCRAMMechanismCallback) {
-                     ((SCRAMMechanismCallback) callback).setMechanism(mechanism.getName());
-                  } else if (callback instanceof DigestCallback) {
-                     ((DigestCallback) callback).setDigest(scram.getDigest());
-                  } else if (callback instanceof HmacCallback) {
-                     ((HmacCallback) callback).setHmac(scram.getHmac());
-                  } else {
-                     throw new UnsupportedCallbackException(callback, "Unrecognized Callback " +
-                              callback.getClass().getSimpleName());
-                  }
+         loginContext = new LoginContext(loginConfigScope, callbacks -> {
+            for (Callback callback : callbacks) {
+               if (callback instanceof NameCallback) {
+                  ((NameCallback) callback).setName(userName);
+               } else if (callback instanceof SCRAMMechanismCallback) {
+                  ((SCRAMMechanismCallback) callback).setMechanism(mechanism.getName());
+               } else if (callback instanceof DigestCallback) {
+                  ((DigestCallback) callback).setDigest(scram.getDigest());
+               } else if (callback instanceof HmacCallback) {
+                  ((HmacCallback) callback).setHmac(scram.getHmac());
+               } else {
+                  throw new UnsupportedCallbackException(callback, "Unrecognized Callback " +
+                           callback.getClass().getSimpleName());
                }
             }
          });

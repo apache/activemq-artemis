@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -50,6 +43,12 @@ import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -108,10 +107,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testStartStop() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
 
@@ -125,10 +121,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testNullParams() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
 
@@ -155,10 +148,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
     */
    @Test
    public void testJavaSystemProperty() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
@@ -186,10 +176,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
     */
    @Test
    public void testEncryptedJavaSystemProperty() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
@@ -219,10 +206,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
     */
    @Test
    public void testEncryptedJavaSystemPropertyFail() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
@@ -247,10 +231,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testOverridesJavaSystemPropertyFail() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       //bad system properties will override the transport constants
@@ -280,10 +261,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testOverridesJavaSystemProperty() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       //system properties will override the bad transport constants
@@ -314,10 +292,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testOverridesJavaSystemPropertyForceSSLParameters() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       //bad system properties will override the transport constants
@@ -349,10 +324,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testOverridesJavaSystemPropertyForceSSLParameters2() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       //bad system properties will override the transport constants
@@ -385,10 +357,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testActiveMQSystemProperties() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -410,10 +379,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testEncryptedActiveMQSystemProperties() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -437,10 +403,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testEncryptedActiveMQSystemPropertiesFail() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -485,10 +448,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testEncryptedActiveMQSystemPropertiesWithWrappedPasswordsAndCodec() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -513,10 +473,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testEncryptedActiveMQSystemPropertiesWithBarePasswordsAndCodec() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -539,10 +496,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testEncryptedActiveMQSystemPropertiesWithCodecFail() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -566,10 +520,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testActiveMQOverridesSystemProperty() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -596,10 +547,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testBadCipherSuite() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -616,10 +564,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testBadProtocol() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);

@@ -32,12 +32,7 @@ public class TLSEncode {
       }
    }
 
-   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = new ThreadLocal<EncoderDecoderPair>() {
-      @Override
-      protected EncoderDecoderPair initialValue() {
-         return new EncoderDecoderPair();
-      }
-   };
+   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = ThreadLocal.withInitial(() -> new EncoderDecoderPair());
 
    public static EncoderImpl getEncoder() {
       return tlsCodec.get().encoder;

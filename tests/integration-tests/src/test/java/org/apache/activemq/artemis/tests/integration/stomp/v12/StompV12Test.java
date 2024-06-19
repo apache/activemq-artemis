@@ -16,21 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v12;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +54,13 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Testing Stomp version 1.2 functionalities
@@ -1424,29 +1423,26 @@ public class StompV12Test extends StompTestBase {
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      Thread thr = new Thread() {
-         @Override
-         public void run() {
-            while (latch.getCount() != 0) {
-               try {
-                  send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
-                  Thread.sleep(500);
-               } catch (InterruptedException e) {
-                  //retry
-               } catch (ClosedChannelException e) {
-                  //ok.
-                  latch.countDown();
-                  break;
-               } catch (IOException e) {
-                  //ok.
-                  latch.countDown();
-                  break;
-               } finally {
-                  conn.destroy();
-               }
+      Thread thr = new Thread(() -> {
+         while (latch.getCount() != 0) {
+            try {
+               send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
+               Thread.sleep(500);
+            } catch (InterruptedException e) {
+               //retry
+            } catch (ClosedChannelException e) {
+               //ok.
+               latch.countDown();
+               break;
+            } catch (IOException e) {
+               //ok.
+               latch.countDown();
+               break;
+            } finally {
+               conn.destroy();
             }
          }
-      };
+      });
 
       thr.start();
       latch.await(10, TimeUnit.SECONDS);
@@ -1706,17 +1702,14 @@ public class StompV12Test extends StompTestBase {
 
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message arg0) {
-            TextMessage m = (TextMessage) arg0;
-            latch.countDown();
-            try {
-               logger.debug("___> latch now: {} m: {}", latch.getCount(), m.getText());
-            } catch (JMSException e) {
-               fail("here failed");
-               e.printStackTrace();
-            }
+      consumer.setMessageListener(arg0 -> {
+         TextMessage m = (TextMessage) arg0;
+         latch.countDown();
+         try {
+            logger.debug("___> latch now: {} m: {}", latch.getCount(), m.getText());
+         } catch (JMSException e) {
+            fail("here failed");
+            e.printStackTrace();
          }
       });
 

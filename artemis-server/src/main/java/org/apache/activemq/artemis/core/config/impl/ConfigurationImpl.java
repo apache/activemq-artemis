@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -565,12 +564,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                // treat as a directory and parse every property file in alphabetical order
                File dir = new File(fileUrl);
                if (dir.exists()) {
-                  String[] files = dir.list(new FilenameFilter() {
-                     @Override
-                     public boolean accept(File file, String s) {
-                        return s.endsWith(".properties");
-                     }
-                  });
+                  String[] files = dir.list((file, s) -> s.endsWith(".properties"));
                   if (files != null && files.length > 0) {
                      Arrays.sort(files);
                      for (String fileName : files) {
@@ -2993,25 +2987,22 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration copy() throws Exception {
-      return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>() {
-         @Override
-         public Configuration run() throws Exception {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bos);
-            os.writeObject(ConfigurationImpl.this);
-            Configuration config;
-            try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()))) {
-               config = (Configuration) ois.readObject();
-            }
-
-            // this is transient because of possible jgroups integration, we need to copy it manually
-            config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());
-
-            // this is transient because of possible jgroups integration, we need to copy it manually
-            config.setDiscoveryGroupConfigurations(ConfigurationImpl.this.getDiscoveryGroupConfigurations());
-
-            return config;
+      return AccessController.doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream os = new ObjectOutputStream(bos);
+         os.writeObject(ConfigurationImpl.this);
+         Configuration config;
+         try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()))) {
+            config = (Configuration) ois.readObject();
          }
+
+         // this is transient because of possible jgroups integration, we need to copy it manually
+         config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());
+
+         // this is transient because of possible jgroups integration, we need to copy it manually
+         config.setDiscoveryGroupConfigurations(ConfigurationImpl.this.getDiscoveryGroupConfigurations());
+
+         return config;
       });
 
    }

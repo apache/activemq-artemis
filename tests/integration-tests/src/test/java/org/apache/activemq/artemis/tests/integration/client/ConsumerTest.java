@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -61,11 +55,9 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -74,7 +66,6 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -87,6 +78,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class ConsumerTest extends ActiveMQTestBase {
@@ -816,27 +813,21 @@ public class ConsumerTest extends ActiveMQTestBase {
       session.close();
       sf.close();
       final CountDownLatch latch = new CountDownLatch(numMessages);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE) {
-               latch.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE) {
+            latch.countDown();
          }
+         return true;
       });
       ServerLocator locator = createInVMNonHALocator().setConfirmationWindowSize(100).setAckBatchSize(-1);
       ClientSessionFactory sfReceive = createSessionFactory(locator);
       ClientSession sessionRec = sfReceive.createSession(false, true, true);
       ClientConsumer consumer = sessionRec.createConsumer(QUEUE);
-      consumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
-            try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-            }
+      consumer.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
+            e.printStackTrace();
          }
       });
       sessionRec.start();
@@ -891,10 +882,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
-      consumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage msg) {
-         }
+      consumer.setMessageHandler(msg -> {
       });
 
       consumer.setMessageHandler(null);
@@ -911,10 +899,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
-      consumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage msg) {
-         }
+      consumer.setMessageHandler(msg -> {
       });
 
       try {
@@ -960,40 +945,37 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          {
 
-            consumer.setMessageHandler(new MessageHandler() {
-               @Override
-               public void onMessage(final ClientMessage msg) {
-                  try {
-                     ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(15);
-                     ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
-                     ClientSession sessionSend = factoryx.createSession(true, true);
+            consumer.setMessageHandler(msg -> {
+               try {
+                  ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(15);
+                  ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
+                  ClientSession sessionSend = factoryx.createSession(true, true);
 
-                     sessions.add(sessionSend);
-                     sessions.add(locatorSendx);
-                     sessions.add(factoryx);
+                  sessions.add(sessionSend);
+                  sessions.add(locatorSendx);
+                  sessions.add(factoryx);
 
-                     final ClientProducer prod = sessionSend.createProducer(QUEUE_RESPONSE);
-                     sessionSend.start();
+                  final ClientProducer prod = sessionSend.createProducer(QUEUE_RESPONSE);
+                  sessionSend.start();
 
-                     sessions.add(prod);
+                  sessions.add(prod);
 
-                     msg.acknowledge();
-                     prod.send(sessionSend.createMessage(true));
-                     prod.close();
-                     sessionSend.commit();
-                     sessionSend.close();
-                     factoryx.close();
-                     if (Thread.currentThread().isInterrupted()) {
-                        System.err.println("Netty has interrupted a thread!!!");
-                        errors.incrementAndGet();
-                     }
-
-                  } catch (Throwable e) {
-                     e.printStackTrace();
+                  msg.acknowledge();
+                  prod.send(sessionSend.createMessage(true));
+                  prod.close();
+                  sessionSend.commit();
+                  sessionSend.close();
+                  factoryx.close();
+                  if (Thread.currentThread().isInterrupted()) {
+                     System.err.println("Netty has interrupted a thread!!!");
                      errors.incrementAndGet();
-                  } finally {
-                     latchReceive.countDown();
                   }
+
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  errors.incrementAndGet();
+               } finally {
+                  latchReceive.countDown();
                }
             });
          }
@@ -1001,39 +983,36 @@ public class ConsumerTest extends ActiveMQTestBase {
          session.start();
       }
 
-      Thread tCons = new Thread() {
-         @Override
-         public void run() {
-            try {
-               final ServerLocator locatorSend = createFactory(isNetty());
-               final ClientSessionFactory factory = locatorSend.createSessionFactory();
-               final ClientSession sessionSend = factory.createSession(true, true);
-               ClientConsumer cons = sessionSend.createConsumer(QUEUE_RESPONSE);
-               sessionSend.start();
+      Thread tCons = new Thread(() -> {
+         try {
+            final ServerLocator locatorSend = createFactory(isNetty());
+            final ClientSessionFactory factory = locatorSend.createSessionFactory();
+            final ClientSession sessionSend = factory.createSession(true, true);
+            ClientConsumer cons = sessionSend.createConsumer(QUEUE_RESPONSE);
+            sessionSend.start();
 
-               for (int i = 0; i < numberOfMessages * numberOfSessions; i++) {
-                  ClientMessage msg = cons.receive(5000);
-                  if (msg == null) {
-                     break;
-                  }
-                  msg.acknowledge();
+            for (int i = 0; i < numberOfMessages * numberOfSessions; i++) {
+               ClientMessage msg = cons.receive(5000);
+               if (msg == null) {
+                  break;
                }
-
-               if (cons.receiveImmediate() != null) {
-                  logger.debug("ERROR: Received an extra message");
-                  errors.incrementAndGet();
-               }
-               sessionSend.close();
-               factory.close();
-               locatorSend.close();
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-
+               msg.acknowledge();
             }
 
+            if (cons.receiveImmediate() != null) {
+               logger.debug("ERROR: Received an extra message");
+               errors.incrementAndGet();
+            }
+            sessionSend.close();
+            factory.close();
+            locatorSend.close();
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
+
          }
-      };
+
+      });
 
       tCons.start();
 

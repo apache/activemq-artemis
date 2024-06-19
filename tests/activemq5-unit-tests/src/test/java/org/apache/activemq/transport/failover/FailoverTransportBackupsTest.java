@@ -72,12 +72,9 @@ public class FailoverTransportBackupsTest extends OpenwireArtemisBaseTest {
       assertTrue(failoverTransport.isBackup());
       assertEquals(2, failoverTransport.getBackupPoolSize());
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 2;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 2;
       }));
    }
 
@@ -88,22 +85,16 @@ public class FailoverTransportBackupsTest extends OpenwireArtemisBaseTest {
       assertTrue(failoverTransport.isBackup());
       assertEquals(2, failoverTransport.getBackupPoolSize());
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 2;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 2;
       }));
 
       servers[0].stop();
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 1;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 1;
       }));
 
       assertTrue("Incorrect number of Transport interruptions", transportInterruptions >= 1);
@@ -111,12 +102,9 @@ public class FailoverTransportBackupsTest extends OpenwireArtemisBaseTest {
 
       servers[1].stop();
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 0;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 0;
       }));
 
       assertTrue("Incorrect number of Transport interruptions", transportInterruptions >= 2);
@@ -130,32 +118,23 @@ public class FailoverTransportBackupsTest extends OpenwireArtemisBaseTest {
       assertTrue(failoverTransport.isBackup());
       assertEquals(1, failoverTransport.getBackupPoolSize());
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 1;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 1;
       }));
 
       servers[0].stop();
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 1;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 1;
       }));
 
       servers[1].stop();
 
-      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
-            return failoverTransport.getCurrentBackups() == 0;
-         }
+      assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(() -> {
+         LOG.debug("Current Backup Count = " + failoverTransport.getCurrentBackups());
+         return failoverTransport.getCurrentBackups() == 0;
       }));
    }
 

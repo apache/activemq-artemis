@@ -221,12 +221,7 @@ public class JmsTempDestinationTest {
       final TemporaryQueue queue = tempSession.createTemporaryQueue();
 
       final ActiveMQConnection activeMQConnection = (ActiveMQConnection) connection;
-      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return activeMQConnection.activeTempDestinations.containsKey(queue);
-         }
-      }));
+      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(() -> activeMQConnection.activeTempDestinations.containsKey(queue)));
 
       // This message delivery should work since the temp connection is still
       // open.
@@ -274,12 +269,7 @@ public class JmsTempDestinationTest {
       final TemporaryQueue queue = tempSession.createTemporaryQueue();
 
       final ActiveMQConnection activeMQConnection = (ActiveMQConnection) connection;
-      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return activeMQConnection.activeTempDestinations.containsKey(queue);
-         }
-      }));
+      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(() -> activeMQConnection.activeTempDestinations.containsKey(queue)));
 
       // This message delivery should work since the temp connection is still
       // open.

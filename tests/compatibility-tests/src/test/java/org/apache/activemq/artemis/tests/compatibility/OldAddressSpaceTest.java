@@ -73,33 +73,27 @@ public class OldAddressSpaceTest extends VersionedBase {
       setVariable(receiverClassloader, "subscriptionCreated", subscriptionCreated);
 
       AtomicInteger errors = new AtomicInteger(0);
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               evaluate(receiverClassloader, "oldAddressSpace/receiveMessages.groovy", receiver);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Thread t1 = new Thread(() -> {
+         try {
+            evaluate(receiverClassloader, "oldAddressSpace/receiveMessages.groovy", receiver);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t1.start();
 
       assertTrue(subscriptionCreated.await(10, TimeUnit.SECONDS));
 
       setVariable(senderClassloader, "senderLatch", senderLatch);
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               evaluate(senderClassloader, "oldAddressSpace/sendMessagesAddress.groovy", sender);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Thread t2 = new Thread(() -> {
+         try {
+            evaluate(senderClassloader, "oldAddressSpace/sendMessagesAddress.groovy", sender);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t2.start();
 
 

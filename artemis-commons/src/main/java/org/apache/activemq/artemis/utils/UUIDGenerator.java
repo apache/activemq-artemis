@@ -269,33 +269,30 @@ public final class UUIDGenerator {
       Collection<Callable<byte[]>> tasks = new ArrayList<>(ifaces.size());
 
       for (final NetworkInterface networkInterface : ifaces) {
-         tasks.add(new Callable<byte[]>() {
-            @Override
-            public byte[] call() throws Exception {
-               boolean up = networkInterface.isUp();
-               boolean loopback = networkInterface.isLoopback();
-               boolean virtual = networkInterface.isVirtual();
+         tasks.add(() -> {
+            boolean up = networkInterface.isUp();
+            boolean loopback = networkInterface.isLoopback();
+            boolean virtual = networkInterface.isVirtual();
 
-               if (loopback || virtual || !up) {
-                  throw new Exception("not suitable interface");
-               }
-
-               byte[] address = networkInterface.getHardwareAddress();
-               if (address != null) {
-
-                  byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
-
-                  if (UUIDGenerator.isDenyList(address)) {
-                     throw new Exception("deny listed address");
-                  }
-
-                  if (paddedAddress != null) {
-                     return paddedAddress;
-                  }
-               }
-
-               throw new Exception("invalid network interface");
+            if (loopback || virtual || !up) {
+               throw new Exception("not suitable interface");
             }
+
+            byte[] address = networkInterface.getHardwareAddress();
+            if (address != null) {
+
+               byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
+
+               if (UUIDGenerator.isDenyList(address)) {
+                  throw new Exception("deny listed address");
+               }
+
+               if (paddedAddress != null) {
+                  return paddedAddress;
+               }
+            }
+
+            throw new Exception("invalid network interface");
          });
       }
       try {

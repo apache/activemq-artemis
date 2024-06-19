@@ -165,12 +165,9 @@ public class RequestorTest extends ActiveMQTestBase {
       session.createQueue(QueueConfiguration.of(requestQueue).setAddress(requestAddress).setDurable(false).setTemporary(true));
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
-      requestConsumer.setMessageHandler(new MessageHandler() {
-         // return a message with the negative request's value
-         @Override
-         public void onMessage(final ClientMessage request) {
-            // do nothing -> no reply
-         }
+      // return a message with the negative request's value
+      requestConsumer.setMessageHandler(request -> {
+         // do nothing -> no reply
       });
 
       ClientRequestor requestor = new ClientRequestor(session, requestAddress);
@@ -191,12 +188,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       session.close();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction() {
-         @Override
-         public void run() throws Exception {
-            new ClientRequestor(session, requestAddress);
-         }
-      };
+      ActiveMQAction activeMQAction = () -> new ClientRequestor(session, requestAddress);
 
       ActiveMQTestBase.expectActiveMQException("ClientRequestor's session must not be closed", ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
@@ -231,12 +223,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
       requestor.close();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction() {
-         @Override
-         public void run() throws Exception {
-            requestor.request(session.createMessage(false), 500);
-         }
-      };
+      ActiveMQAction activeMQAction = () -> requestor.request(session.createMessage(false), 500);
 
       ActiveMQTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor", ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }

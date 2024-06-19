@@ -136,21 +136,11 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    }
 
    private static DestinationFactory newDestinationFactory(final Destination dest) {
-      return new DestinationFactory() {
-         @Override
-         public Destination createDestination() throws Exception {
-            return dest;
-         }
-      };
+      return () -> dest;
    }
 
    private static ConnectionFactoryFactory newConnectionFactoryFactory(final ConnectionFactory cf) {
-      return new ConnectionFactoryFactory() {
-         @Override
-         public ConnectionFactory createConnectionFactory() throws Exception {
-            return cf;
-         }
-      };
+      return () -> cf;
    }
 
    private static ConnectionFactory createConnectionFactory() {
@@ -356,13 +346,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<>();
-      MessageListener listener = new MessageListener() {
-
-         @Override
-         public void onMessage(final Message message) {
-            messages.add(message);
-         }
-      };
+      MessageListener listener = message -> messages.add(message);
       consumer.setMessageListener(listener);
       targetConn.start();
 
@@ -416,12 +400,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<>();
       final CountDownLatch latch = new CountDownLatch(numMessages);
-      MessageListener listener = new MessageListener() {
-         @Override
-         public void onMessage(final Message message) {
-            messages.add(message);
-            latch.countDown();
-         }
+      MessageListener listener = message -> {
+         messages.add(message);
+         latch.countDown();
       };
       consumer.setMessageListener(listener);
       targetConn.start();

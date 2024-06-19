@@ -16,19 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.IllegalStateException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +43,12 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.util.IdGenerator;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
@@ -72,12 +70,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
       final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
-      Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-         @Override
-         public void uncaughtException(Thread t, Throwable e) {
-            exceptions.put(t, e);
-         }
-      });
+      Thread.setDefaultUncaughtExceptionHandler((t, e) -> exceptions.put(t, e));
 
       final class AckAndClose implements Runnable {
 
@@ -111,12 +104,9 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       }
 
       final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            // ack and close eventually in separate thread
-            executor.execute(new AckAndClose(m));
-         }
+      consumer.setMessageListener(m -> {
+         // ack and close eventually in separate thread
+         executor.execute(new AckAndClose(m));
       });
 
       assertTrue(closeDone.await(20, TimeUnit.SECONDS));
@@ -248,12 +238,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
 
       // want to ensure the ack has had a chance to get back to the broker
       final Queue queueInstance = server.locateQueue(SimpleString.of(queueName));
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queueInstance.getAcknowledgeAttempts() > 0;
-         }
-      });
+      Wait.waitFor(() -> queueInstance.getAcknowledgeAttempts() > 0);
 
       // whack the connection so there is no transaction outcome
       try {

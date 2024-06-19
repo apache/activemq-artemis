@@ -108,20 +108,10 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
          addressControl.block();
          AmqpSession session = connection.createSession();
          final AmqpSender sender = session.createSender(getQueueName());
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 0 == sender.getSender().getCredit();
-            }
-         }, 5000, 20), "Should get 0 credit");
+         assertTrue(Wait.waitFor(() -> 0 == sender.getSender().getCredit(), 5000, 20), "Should get 0 credit");
 
          addressControl.unblock();
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 1 == sender.getSender().getCredit();
-            }
-         }, 5000, 20), "Should now get issued one credit");
+         assertTrue(Wait.waitFor(() -> 1 == sender.getSender().getCredit(), 5000, 20), "Should now get issued one credit");
          sender.close();
 
          AmqpSender sender2 = session.createSender(getQueueName());
@@ -197,16 +187,13 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       p.send(session.createBytesMessage());
 
       // this send will block, no credit
-      new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               running.countDown();
-               p.send(session.createBytesMessage());
-            } catch (JMSException ignored) {
-            } finally {
-               done.countDown();
-            }
+      new Thread(() -> {
+         try {
+            running.countDown();
+            p.send(session.createBytesMessage());
+         } catch (JMSException ignored) {
+         } finally {
+            done.countDown();
          }
       }).start();
 
@@ -345,18 +332,15 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       final Exception[] errors = new Exception[1];
       final CountDownLatch timeout = new CountDownLatch(1);
 
-      Runnable sendMessages = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               for (int i = 0; i < maxMessages; i++) {
-                  sender.send(message);
-                  sentMessages.getAndIncrement();
-               }
-               timeout.countDown();
-            } catch (IOException e) {
-               errors[0] = e;
+      Runnable sendMessages = () -> {
+         try {
+            for (int i = 0; i < maxMessages; i++) {
+               sender.send(message);
+               sentMessages.getAndIncrement();
             }
+            timeout.countDown();
+         } catch (IOException e) {
+            errors[0] = e;
          }
       };
 

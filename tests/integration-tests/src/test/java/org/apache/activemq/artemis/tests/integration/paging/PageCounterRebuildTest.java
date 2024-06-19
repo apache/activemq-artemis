@@ -17,11 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.paging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -52,10 +47,14 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PageCounterRebuildTest extends ActiveMQTestBase {
 
@@ -138,20 +137,12 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
 
       AtomicLong generate = new AtomicLong(1);
 
-      Mockito.doAnswer(new Answer<Long>() {
-         @Override
-         public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
-            return generate.incrementAndGet();
-         }
-      }).when(mockStorage).generateID();
+      Mockito.doAnswer((Answer<Long>) invocationOnMock -> generate.incrementAndGet()).when(mockStorage).generateID();
 
-      Mockito.doAnswer(new Answer<Void>() {
-         @Override
-         public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-            called.incrementAndGet();
+      Mockito.doAnswer((Answer<Void>) invocationOnMock -> {
+         called.incrementAndGet();
 
-            return null;
-         }
+         return null;
       }).when(mockStorage).commit(Mockito.anyLong());
 
       PageSubscriptionCounterImplAccessor.reset(nonPersistentPagingCounter);

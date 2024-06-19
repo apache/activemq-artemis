@@ -283,12 +283,7 @@ public abstract class ContainerService {
 
       @Override
       public void startLogging(Object container, String prefix) {
-         ((GenericContainer)container).withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-               System.out.print(prefix + outputFrame.getUtf8String());
-            }
-         });
+         ((GenericContainer)container).withLogConsumer((Consumer<OutputFrame>) outputFrame -> System.out.print(prefix + outputFrame.getUtf8String()));
       }
 
       @Override

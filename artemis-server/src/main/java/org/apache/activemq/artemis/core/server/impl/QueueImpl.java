@@ -1119,15 +1119,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          // this is because a groupID is stored per queue, and only this queue is expiring at this point
          final SimpleString groupIDToRemove = (SimpleString) groupID.subSequence(0, groupID.length() - getName().length() - 1);
          // using an executor so we don't want to hold anyone just because of this
-         getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-               synchronized (QueueImpl.this) {
-                  if (groups.remove(groupIDToRemove) != null) {
-                     logger.debug("Removing group after unproposal {} from queue {}", groupID, QueueImpl.this);
-                  } else {
-                     logger.debug("Couldn't remove Removing group {} after unproposal on queue {}", groupIDToRemove, QueueImpl.this);
-                  }
+         getExecutor().execute(() -> {
+            synchronized (QueueImpl.this) {
+               if (groups.remove(groupIDToRemove) != null) {
+                  logger.debug("Removing group after unproposal {} from queue {}", groupID, QueueImpl.this);
+               } else {
+                  logger.debug("Couldn't remove Removing group {} after unproposal on queue {}", groupIDToRemove, QueueImpl.this);
                }
             }
          });
@@ -1394,12 +1391,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void close() throws Exception {
-      getExecutor().execute(new Runnable() {
-         @Override
-         public void run() {
-            cancelRedistributor();
-         }
-      });
+      getExecutor().execute(this::cancelRedistributor);
 
       addressSettingsRepositoryListener.close();
    }

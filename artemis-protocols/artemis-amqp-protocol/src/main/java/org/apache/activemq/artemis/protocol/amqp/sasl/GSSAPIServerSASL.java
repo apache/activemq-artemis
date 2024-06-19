@@ -22,15 +22,12 @@ import java.lang.invoke.MethodHandles;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
-import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 
@@ -62,15 +59,12 @@ public class GSSAPIServerSASL implements ServerSASL {
          }
 
          if (saslServer == null) {
-            saslServer = Subject.doAs(jaasId, (PrivilegedExceptionAction<SaslServer>) () -> Sasl.createSaslServer(NAME, null, null, new HashMap<String, String>(), new CallbackHandler() {
-               @Override
-               public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-                  for (Callback callback : callbacks) {
-                     if (callback instanceof AuthorizeCallback) {
-                        AuthorizeCallback authorizeCallback = (AuthorizeCallback) callback;
-                        // only ok to authenticate as self
-                        authorizeCallback.setAuthorized(authorizeCallback.getAuthenticationID().equals(authorizeCallback.getAuthorizationID()));
-                     }
+            saslServer = Subject.doAs(jaasId, (PrivilegedExceptionAction<SaslServer>) () -> Sasl.createSaslServer(NAME, null, null, new HashMap<String, String>(), callbacks -> {
+               for (Callback callback : callbacks) {
+                  if (callback instanceof AuthorizeCallback) {
+                     AuthorizeCallback authorizeCallback = (AuthorizeCallback) callback;
+                     // only ok to authenticate as self
+                     authorizeCallback.setAuthorized(authorizeCallback.getAuthenticationID().equals(authorizeCallback.getAuthorizationID()));
                   }
                }
             }));

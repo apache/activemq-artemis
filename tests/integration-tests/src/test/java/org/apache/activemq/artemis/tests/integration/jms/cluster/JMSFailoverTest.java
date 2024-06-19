@@ -364,24 +364,21 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       final ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
       // The thread that will fail the server
-      Thread spoilerThread = new Thread() {
-         @Override
-         public void run() {
-            flagAlign.countDown();
-            // a large timeout just to help in case of debugging
-            try {
-               waitToKill.await(120, TimeUnit.SECONDS);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-
-            try {
-               JMSUtil.crash(primaryServer, coreSession);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread spoilerThread = new Thread(() -> {
+         flagAlign.countDown();
+         // a large timeout just to help in case of debugging
+         try {
+            waitToKill.await(120, TimeUnit.SECONDS);
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+
+         try {
+            JMSUtil.crash(primaryServer, coreSession);
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+      });
 
       coreSession.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
 

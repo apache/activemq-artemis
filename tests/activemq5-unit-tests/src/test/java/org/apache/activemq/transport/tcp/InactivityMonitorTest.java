@@ -241,14 +241,11 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
 
       addCombinationValues("clientInactivityLimit", new Object[]{Long.valueOf(1000)});
       addCombinationValues("serverInactivityLimit", new Object[]{Long.valueOf(1000)});
-      addCombinationValues("serverRunOnCommand", new Object[]{new Runnable() {
-         @Override
-         public void run() {
-            try {
-               LOG.info("Sleeping");
-               Thread.sleep(4000);
-            } catch (InterruptedException e) {
-            }
+      addCombinationValues("serverRunOnCommand", new Object[]{(Runnable) () -> {
+         try {
+            LOG.info("Sleeping");
+            Thread.sleep(4000);
+         } catch (InterruptedException e) {
          }
       }});
    }

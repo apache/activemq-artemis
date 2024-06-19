@@ -16,15 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +37,11 @@ import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DiscoveryBaseTest extends ActiveMQTestBase {
 
@@ -103,20 +102,9 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       assertNotNull(actual);
 
       List<TransportConfiguration> sortedExpected = new ArrayList<>(expected);
-      Collections.sort(sortedExpected, new Comparator<TransportConfiguration>() {
-
-         @Override
-         public int compare(TransportConfiguration o1, TransportConfiguration o2) {
-            return o2.toString().compareTo(o1.toString());
-         }
-      });
+      Collections.sort(sortedExpected, (o1, o2) -> o2.toString().compareTo(o1.toString()));
       List<DiscoveryEntry> sortedActual = new ArrayList<>(actual);
-      Collections.sort(sortedActual, new Comparator<DiscoveryEntry>() {
-         @Override
-         public int compare(DiscoveryEntry o1, DiscoveryEntry o2) {
-            return o2.getConnector().toString().compareTo(o1.getConnector().toString());
-         }
-      });
+      Collections.sort(sortedActual, (o1, o2) -> o2.getConnector().toString().compareTo(o1.getConnector().toString()));
       if (sortedExpected.size() != sortedActual.size()) {
          dump(sortedExpected, sortedActual);
       }

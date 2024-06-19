@@ -16,14 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -35,10 +30,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -58,7 +49,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
@@ -99,6 +89,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class FailoverTest extends FailoverTestBase {
 
@@ -161,28 +159,25 @@ public class FailoverTest extends FailoverTestBase {
       final CountDownLatch latch = new CountDownLatch(10);
       final CountDownLatch latchFailed = new CountDownLatch(1);
 
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            for (int i = 0; i < 500; i++) {
-               ClientMessage message = session.createMessage(true);
-               message.putIntProperty("counter", i);
+      Runnable r = () -> {
+         for (int i = 0; i < 500; i++) {
+            ClientMessage message = session.createMessage(true);
+            message.putIntProperty("counter", i);
+            try {
+               producer.send(message);
+               if (i < 10) {
+                  latch.countDown();
+                  if (latch.getCount() == 0) {
+                     latchFailed.await(10, TimeUnit.SECONDS);
+                  }
+               }
+            } catch (Exception e) {
+               // this is our retry
                try {
-                  producer.send(message);
-                  if (i < 10) {
-                     latch.countDown();
-                     if (latch.getCount() == 0) {
-                        latchFailed.await(10, TimeUnit.SECONDS);
-                     }
-                  }
-               } catch (Exception e) {
-                  // this is our retry
-                  try {
-                     if (!producer.isClosed())
-                        producer.send(message);
-                  } catch (ActiveMQException e1) {
-                     e1.printStackTrace();
-                  }
+                  if (!producer.isClosed())
+                     producer.send(message);
+               } catch (ActiveMQException e1) {
+                  e1.printStackTrace();
                }
             }
          }
@@ -239,35 +234,30 @@ public class FailoverTest extends FailoverTestBase {
 
       final Map<Integer, ClientMessage> received = new HashMap<>();
 
-      consumer.setMessageHandler(new MessageHandler() {
+      consumer.setMessageHandler(message -> {
 
-         @Override
-         public void onMessage(ClientMessage message) {
-
-            Integer counter = message.getIntProperty("counter");
-            received.put(counter, message);
+         Integer counter = message.getIntProperty("counter");
+         received.put(counter, message);
+         try {
+            logger.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
+            message.acknowledge();
+            session.commit();
+         } catch (ActiveMQException e) {
             try {
-               logger.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
-               message.acknowledge();
-               session.commit();
-            } catch (ActiveMQException e) {
-               try {
-                  session.rollback();
-               } catch (Exception e2) {
-                  e.printStackTrace();
-               }
+               session.rollback();
+            } catch (Exception e2) {
                e.printStackTrace();
-               return;
             }
-            logger.debug("Acked counter = {}", counter);
-            if (counter.equals(10)) {
-               latch.countDown();
-            }
-            if (received.size() == 100) {
-               endLatch.countDown();
-            }
+            e.printStackTrace();
+            return;
          }
-
+         logger.debug("Acked counter = {}", counter);
+         if (counter.equals(10)) {
+            latch.countDown();
+         }
+         if (received.size() == 100) {
+            endLatch.countDown();
+         }
       });
       latch.await(10, TimeUnit.SECONDS);
       logger.debug("crashing session");
@@ -603,14 +593,7 @@ public class FailoverTest extends FailoverTestBase {
 
       final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES);
 
-      consumer.setMessageHandler(new MessageHandler() {
-
-         @Override
-         public void onMessage(ClientMessage message) {
-            latch.countDown();
-         }
-
-      });
+      consumer.setMessageHandler(message -> latch.countDown());
 
       session.start();
 

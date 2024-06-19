@@ -87,28 +87,25 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            boolean first = true;
-            try {
-               while (!Thread.interrupted()) {
-                  ClientMessage received = consumer.receive(500);
-                  logger.debug("Received {}", received);
-                  if (first) {
-                     first = false;
-                     nettyConnection.getNettyChannel().config().setAutoRead(false);
-                  }
-                  if (received != null) {
-                     received.acknowledge();
-                  }
+      Thread tReceive = new Thread(() -> {
+         boolean first = true;
+         try {
+            while (!Thread.interrupted()) {
+               ClientMessage received = consumer.receive(500);
+               logger.debug("Received {}", received);
+               if (first) {
+                  first = false;
+                  nettyConnection.getNettyChannel().config().setAutoRead(false);
                }
-            } catch (Throwable e) {
-               Thread.currentThread().interrupt();
-               e.printStackTrace();
+               if (received != null) {
+                  received.acknowledge();
+               }
             }
+         } catch (Throwable e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
          }
-      };
+      });
 
       tReceive.start();
 
@@ -171,49 +168,43 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            boolean first = true;
-            try {
-               while (!Thread.interrupted()) {
-                  ClientMessage received = consumer.receive(500);
-                  logger.debug("Received {}", received);
-                  if (first) {
-                     first = false;
-                     nettyConnection.getNettyChannel().config().setAutoRead(false);
-                  }
-                  if (received != null) {
-                     received.acknowledge();
-                  }
+      Thread tReceive = new Thread(() -> {
+         boolean first = true;
+         try {
+            while (!Thread.interrupted()) {
+               ClientMessage received = consumer.receive(500);
+               logger.debug("Received {}", received);
+               if (first) {
+                  first = false;
+                  nettyConnection.getNettyChannel().config().setAutoRead(false);
                }
-            } catch (Throwable e) {
-               Thread.currentThread().interrupt();
-               e.printStackTrace();
+               if (received != null) {
+                  received.acknowledge();
+               }
             }
+         } catch (Throwable e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
          }
-      };
+      });
 
       tReceive.start();
 
-      Thread sender = new Thread() {
-         @Override
-         public void run() {
-            try (
-               ServerLocator locator = createNettyNonHALocator();
-               ClientSessionFactory factory = locator.createSessionFactory();
-               ClientSession session = factory.createSession(false, true, true, true);
-               ClientProducer producer = session.createProducer(QUEUE);
-            ) {
-               for (int i = 0; i < numMessages; i++) {
-                  ClientMessage message = createTextMessage(session, "m" + i);
-                  producer.send(message);
-               }
-            } catch (Exception e) {
-               e.printStackTrace();
+      Thread sender = new Thread(() -> {
+         try (
+            ServerLocator locator1 = createNettyNonHALocator();
+            ClientSessionFactory factory = locator1.createSessionFactory();
+            ClientSession session1 = factory.createSession(false, true, true, true);
+            ClientProducer producer = session1.createProducer(QUEUE);
+         ) {
+            for (int i = 0; i < numMessages; i++) {
+               ClientMessage message = createTextMessage(session1, "m" + i);
+               producer.send(message);
             }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       sender.start();
 

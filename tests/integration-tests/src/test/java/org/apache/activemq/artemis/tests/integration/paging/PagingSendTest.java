@@ -156,33 +156,30 @@ public class PagingSendTest extends ActiveMQTestBase {
       // Consumer will be ready after we have commits
       final CountDownLatch ready = new CountDownLatch(1);
 
-      Thread tProducer = new Thread() {
-         @Override
-         public void run() {
-            try {
-               int commit = 0;
-               for (int i = 0; i < TOTAL_MESSAGES; i++) {
-                  ClientMessage msg = sessionProducer.createMessage(true);
-                  msg.getBodyBuffer().writeBytes(new byte[1024]);
-                  msg.putIntProperty("count", i);
-                  producer.send(msg);
+      Thread tProducer = new Thread(() -> {
+         try {
+            int commit = 0;
+            for (int i = 0; i < TOTAL_MESSAGES; i++) {
+               ClientMessage msg = sessionProducer.createMessage(true);
+               msg.getBodyBuffer().writeBytes(new byte[1024]);
+               msg.putIntProperty("count", i);
+               producer.send(msg);
 
-                  if (i % 100 == 0 && i > 0) {
-                     sessionProducer.commit();
-                     if (commit++ > 2) {
-                        ready.countDown();
-                     }
+               if (i % 100 == 0 && i > 0) {
+                  sessionProducer.commit();
+                  if (commit++ > 2) {
+                     ready.countDown();
                   }
                }
-
-               sessionProducer.commit();
-
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
             }
+
+            sessionProducer.commit();
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
 
       ClientConsumer consumer = sessionConsumer.createConsumer(PagingSendTest.ADDRESS);
 

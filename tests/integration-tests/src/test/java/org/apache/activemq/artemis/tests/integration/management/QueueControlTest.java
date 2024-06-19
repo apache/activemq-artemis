@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.BODY;
-import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.STRING_PROPERTIES;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -33,17 +23,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
-import org.apache.activemq.artemis.core.server.impl.QueueImplTestAccessor;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.json.JsonArray;
-import org.apache.activemq.artemis.json.JsonObject;
-
 import javax.jms.XAConnection;
 import javax.jms.XAConnectionFactory;
 import javax.jms.XASession;
@@ -75,12 +54,12 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -89,17 +68,25 @@ import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImplTestAccessor;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
@@ -113,6 +100,16 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.BODY;
+import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.STRING_PROPERTIES;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class QueueControlTest extends ManagementTestBase {
@@ -1438,23 +1435,19 @@ public class QueueControlTest extends ManagementTestBase {
          final CountDownLatch latch2 = new CountDownLatch(1);
          final CountDownLatch latch3 = new CountDownLatch(10);
 
-         consumer.setMessageHandler(new MessageHandler() {
-
-            @Override
-            public void onMessage(ClientMessage message) {
-               try {
-                  message.acknowledge();
-               } catch (ActiveMQException e1) {
-                  e1.printStackTrace();
-               }
-               latch1.countDown();
-               try {
-                  latch2.await(10, TimeUnit.SECONDS);
-               } catch (InterruptedException e) {
-                  e.printStackTrace();
-               }
-               latch3.countDown();
+         consumer.setMessageHandler(message -> {
+            try {
+               message.acknowledge();
+            } catch (ActiveMQException e1) {
+               e1.printStackTrace();
             }
+            latch1.countDown();
+            try {
+               latch2.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+            }
+            latch3.countDown();
          });
 
          latch1.await(10, TimeUnit.SECONDS);
@@ -4429,12 +4422,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       assertEquals(1, queueControl.getConsumerCount());
-      consumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(ClientMessage message) {
-            logger.debug("{}", message);
-         }
-      });
+      consumer.setMessageHandler(message -> logger.debug("{}", message));
       session.start();
 
       ClientProducer producer = session.createProducer(address);

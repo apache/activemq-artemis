@@ -38,18 +38,15 @@ public class InitialConnectionTest extends ActiveMQTestBase {
 
       ActiveMQServer server = createServer(false, true);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(500);
-               server.start();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(500);
+            server.start();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t.start();
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("(tcp://localhost:61618,tcp://localhost:61616,tcp://localhost:61610)?ha=true&retryInterval=100&retryIntervalMultiplier=1.0&reconnectAttempts=-1&initialConnectAttempts=-1&useTopologyForLoadBalancing=true");
       connectionFactory.createConnection().close();

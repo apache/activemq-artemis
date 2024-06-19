@@ -347,17 +347,14 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       final AtomicBoolean closed = new AtomicBoolean(false);
 
-      Thread t = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(500);
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(500);
 
-               closed.set(true);
+            closed.set(true);
 
-               session.close();
-            } catch (Exception e) {
-            }
+            session.close();
+         } catch (Exception e) {
          }
       });
 

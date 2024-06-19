@@ -781,12 +781,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       serverControl.destroyQueue(name.toString(), true);
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return consumer.isClosed();
-         }
-      }, 1000, 100);
+      Wait.waitFor(() -> consumer.isClosed(), 1000, 100);
       assertTrue(consumer.isClosed());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
@@ -2386,22 +2381,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testScaleDownWithConnector() throws Exception {
-      scaleDown(new ScaleDownHandler() {
-         @Override
-         public void scaleDown(ActiveMQServerControl control) throws Exception {
-            control.scaleDown("server2-connector");
-         }
-      });
+      scaleDown(control -> control.scaleDown("server2-connector"));
    }
 
    @TestTemplate
    public void testScaleDownWithOutConnector() throws Exception {
-      scaleDown(new ScaleDownHandler() {
-         @Override
-         public void scaleDown(ActiveMQServerControl control) throws Exception {
-            control.scaleDown(null);
-         }
-      });
+      scaleDown(control -> control.scaleDown(null));
    }
 
    @TestTemplate

@@ -68,21 +68,15 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String host = null;
       String port = null;
       try {
-         host = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.AMQ_HOST");
-               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
-               return result;
-            }
+         host = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.AMQ_HOST");
+            result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
+            return result;
          });
-         port = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.AMQ_PORT");
-               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
-               return result;
-            }
+         port = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.AMQ_PORT");
+            result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
+            return result;
          });
       } catch (Throwable e) {
          LOG.debug("Failed to look up System properties for host and port", e);
@@ -100,13 +94,10 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String bindURL = null;
 
       try {
-         bindURL = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
-               result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
-               return result;
-            }
+         bindURL = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
+            result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
+            return result;
          });
       } catch (Throwable e) {
          LOG.debug("Failed to look up System properties for host and port", e);

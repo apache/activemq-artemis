@@ -341,23 +341,20 @@ public class AMQPMessageTest {
          CountDownLatch latchAlign = new CountDownLatch(threads.length);
          CountDownLatch go = new CountDownLatch(1);
 
-         Runnable run = new Runnable() {
-            @Override
-            public void run() {
-               try {
+         Runnable run = () -> {
+            try {
 
-                  latchAlign.countDown();
-                  go.await();
+               latchAlign.countDown();
+               go.await();
 
-                  assertNotNull(decoded.getHeader());
-                  // this is a method used by Core Converter
-                  decoded.getProtonMessage();
-                  assertNotNull(decoded.getHeader());
+               assertNotNull(decoded.getHeader());
+               // this is a method used by Core Converter
+               decoded.getProtonMessage();
+               assertNotNull(decoded.getHeader());
 
-               } catch (Throwable e) {
-                  e.printStackTrace();
-                  failures.incrementAndGet();
-               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+               failures.incrementAndGet();
             }
          };
 

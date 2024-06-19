@@ -300,16 +300,13 @@ public class HangConsumerTest extends ActiveMQTestBase {
       producer.send(session.createMessage(true));
       session.commit();
 
-      Thread tDelete = new Thread() {
-         @Override
-         public void run() {
-            try {
-               server.destroyQueue(QUEUE);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread tDelete = new Thread(() -> {
+         try {
+            server.destroyQueue(QUEUE);
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       tDelete.start();
 

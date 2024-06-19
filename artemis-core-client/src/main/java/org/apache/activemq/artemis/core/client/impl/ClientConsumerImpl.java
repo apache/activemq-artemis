@@ -463,12 +463,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       resetLargeMessageController();
 
       //execute the future after the last onMessage call
-      sessionExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            future.run();
-         }
-      });
+      sessionExecutor.execute(future::run);
 
       return onMessageThread;
    }
@@ -867,12 +862,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          // If resetting a slow consumer, we need to wait the execution
          final CountDownLatch latch = new CountDownLatch(1);
-         flowControlExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         });
+         flowControlExecutor.execute(latch::countDown);
 
          try {
             latch.await(10, TimeUnit.SECONDS);
@@ -898,14 +888,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     */
    private void sendCredits(final int credits) {
       pendingFlowControl.countUp();
-      flowControlExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
-            } finally {
-               pendingFlowControl.countDown();
-            }
+      flowControlExecutor.execute(() -> {
+         try {
+            sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
+         } finally {
+            pendingFlowControl.countDown();
          }
       });
    }

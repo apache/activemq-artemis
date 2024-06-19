@@ -44,7 +44,6 @@ import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
@@ -133,20 +132,17 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
 
    @Override
    public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed) {
-      return new ChannelHandler() {
-         @Override
-         public void handlePacket(Packet packet) {
-            if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
-               BackupRegistrationMessage msg = (BackupRegistrationMessage) packet;
-               ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
-               try {
-                  startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true), msg.isFailBackRequest());
-               } catch (ActiveMQAlreadyReplicatingException are) {
-                  channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
-               } catch (ActiveMQException e) {
-                  logger.debug("Failed to process backup registration packet", e);
-                  channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
-               }
+      return packet -> {
+         if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
+            BackupRegistrationMessage msg = (BackupRegistrationMessage) packet;
+            ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
+            try {
+               startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true), msg.isFailBackRequest());
+            } catch (ActiveMQAlreadyReplicatingException are) {
+               channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
+            } catch (ActiveMQException e) {
+               logger.debug("Failed to process backup registration packet", e);
+               channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
             }
          }
       };
@@ -174,48 +170,45 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
          rc.addFailureListener(listener);
          replicationManager = new ReplicationManager(activeMQServer, rc, clusterConnection.getCallTimeout(), replicatedPolicy.getInitialReplicationSyncTimeout(), activeMQServer.getIOExecutorFactory());
          replicationManager.start();
-         Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
+         Thread t = new Thread(() -> {
+            try {
+               activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack(), replicatedPolicy.getInitialReplicationSyncTimeout());
+
+               clusterConnection.nodeAnnounced(System.currentTimeMillis(), activeMQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
+
+               //todo, check why this was set here
+               //backupUpToDate = false;
+
+               if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack()) {
+                  BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString(), clusterConnection.getConnector());
+                  clusterConnection.addClusterTopologyListener(listener1);
+                  if (listener1.waitForBackup()) {
+                     //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
+                     activeMQServer.fail(true);
+                     ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
+                     //                        activeMQServer.moveServerData(replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize());
+                     activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
+                     activeMQServer.start();
+                  } else {
+                     ActiveMQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
+                  }
+               }
+            } catch (Exception e) {
+               if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
+               /*
+                * The reasoning here is that the exception was either caused by (1) the (interaction with) the
+                * backup, or (2) by an IO Error at the storage. If (1), we can swallow the exception and ignore the
+                * replication request. If (2) the primary will crash shortly.
+                */
+                  ActiveMQServerLogger.LOGGER.errorStartingReplication(e);
+               }
                try {
-                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack(), replicatedPolicy.getInitialReplicationSyncTimeout());
-
-                  clusterConnection.nodeAnnounced(System.currentTimeMillis(), activeMQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
-
-                  //todo, check why this was set here
-                  //backupUpToDate = false;
-
-                  if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack()) {
-                     BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString(), clusterConnection.getConnector());
-                     clusterConnection.addClusterTopologyListener(listener1);
-                     if (listener1.waitForBackup()) {
-                        //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
-                        activeMQServer.fail(true);
-                        ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
-                        //                        activeMQServer.moveServerData(replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize());
-                        activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
-                        activeMQServer.start();
-                     } else {
-                        ActiveMQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
-                     }
-                  }
-               } catch (Exception e) {
-                  if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
-                  /*
-                   * The reasoning here is that the exception was either caused by (1) the (interaction with) the
-                   * backup, or (2) by an IO Error at the storage. If (1), we can swallow the exception and ignore the
-                   * replication request. If (2) the primary will crash shortly.
-                   */
-                     ActiveMQServerLogger.LOGGER.errorStartingReplication(e);
-                  }
-                  try {
-                     ActiveMQServerImpl.stopComponent(replicationManager);
-                  } catch (Exception amqe) {
-                     ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
-                  } finally {
-                     synchronized (replicationLock) {
-                        replicationManager = null;
-                     }
+                  ActiveMQServerImpl.stopComponent(replicationManager);
+               } catch (Exception amqe) {
+                  ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
+               } finally {
+                  synchronized (replicationLock) {
+                     replicationManager = null;
                   }
                }
             }
@@ -252,39 +245,33 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
       private void handleClose(boolean failed) {
          ExecutorService executorService = activeMQServer.getThreadPool();
          if (executorService != null) {
-            executorService.execute(new Runnable() {
-               @Override
-               public void run() {
-                  synchronized (replicationLock) {
-                     if (replicationManager != null) {
-                        activeMQServer.getStorageManager().stopReplication();
-                        replicationManager = null;
+            executorService.execute(() -> {
+               synchronized (replicationLock) {
+                  if (replicationManager != null) {
+                     activeMQServer.getStorageManager().stopReplication();
+                     replicationManager = null;
 
-                        if (failed && replicatedPolicy.isVoteOnReplicationFailure()) {
-                           QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
-                           final boolean isStillPrimary = quorumManager.isStillActive(activeMQServer.getNodeID().toString(),
-                                                                                   getPrimaryConnector(activeMQServer.getConfiguration()),
-                                                                                   replicatedPolicy.getQuorumSize(),
-                                                                                   5, TimeUnit.SECONDS);
-                           if (!isStillPrimary) {
-                              try {
-                                 Thread startThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                       try {
-                                          logger.trace("Calling activeMQServer.stop() to stop the server");
+                     if (failed && replicatedPolicy.isVoteOnReplicationFailure()) {
+                        QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
+                        final boolean isStillPrimary = quorumManager.isStillActive(activeMQServer.getNodeID().toString(),
+                                                                                getPrimaryConnector(activeMQServer.getConfiguration()),
+                                                                                replicatedPolicy.getQuorumSize(),
+                                                                                5, TimeUnit.SECONDS);
+                        if (!isStillPrimary) {
+                           try {
+                              Thread startThread = new Thread(() -> {
+                                 try {
+                                    logger.trace("Calling activeMQServer.stop() to stop the server");
 
-                                          activeMQServer.stop();
-                                       } catch (Exception e) {
-                                          ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
-                                       }
-                                    }
-                                 });
-                                 startThread.start();
-                                 startThread.join();
-                              } catch (Exception e) {
-                                 e.printStackTrace();
-                              }
+                                    activeMQServer.stop();
+                                 } catch (Exception e) {
+                                    ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
+                                 }
+                              });
+                              startThread.start();
+                              startThread.join();
+                           } catch (Exception e) {
+                              e.printStackTrace();
                            }
                         }
                      }
@@ -366,12 +353,7 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
          localReplicationManager.sendPrimaryIsStopping(ReplicationPrimaryIsStoppingMessage.PrimaryStopping.STOP_CALLED);
          // Schedule for 10 seconds
          // this pool gets a 'hard' shutdown, no need to manage the Future of this Runnable.
-         activeMQServer.getScheduledPool().schedule(new Runnable() {
-            @Override
-            public void run() {
-               localReplicationManager.clearReplicationTokens();
-            }
-         }, 30, TimeUnit.SECONDS);
+         activeMQServer.getScheduledPool().schedule(localReplicationManager::clearReplicationTokens, 30, TimeUnit.SECONDS);
       }
    }
 

@@ -93,46 +93,43 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       cf = new ActiveMQConnectionFactory();
 
-      Thread slowSending = new Thread() {
-         @Override
-         public void run() {
-            Connection conn = null;
-            try {
-               conn = cf.createConnection();
-               Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
-               MessageProducer producer = session.createProducer(ActiveMQJMSClient.createQueue("stationaryQueue"));
+      Thread slowSending = new Thread(() -> {
+         Connection conn = null;
+         try {
+            conn = cf.createConnection();
+            Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+            MessageProducer producer = session.createProducer(ActiveMQJMSClient.createQueue("stationaryQueue"));
 
-               conn.start();
-               MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue("stationaryQueue"));
+            conn.start();
+            MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue("stationaryQueue"));
 
-               while (true) {
-                  for (int i = 0; i < 10; i++) {
-                     System.out.println("stationed message");
-                     producer.send(session.createTextMessage("stationed"));
-                     session.commit();
+            while (true) {
+               for (int i = 0; i < 10; i++) {
+                  System.out.println("stationed message");
+                  producer.send(session.createTextMessage("stationed"));
+                  session.commit();
 
-                     Thread.sleep(1000);
-                  }
-
-                  for (int i = 0; i < 10; i++) {
-                     consumer.receive(5000);
-                     session.commit();
-                     System.out.println("Receiving stationed");
-                     Thread.sleep(1000);
-                  }
+                  Thread.sleep(1000);
                }
-            } catch (Exception e) {
-               e.printStackTrace();
-            } finally {
-               try {
-                  conn.close();
-               } catch (Exception ignored) {
 
+               for (int i = 0; i < 10; i++) {
+                  consumer.receive(5000);
+                  session.commit();
+                  System.out.println("Receiving stationed");
+                  Thread.sleep(1000);
                }
             }
+         } catch (Exception e) {
+            e.printStackTrace();
+         } finally {
+            try {
+               conn.close();
+            } catch (Exception ignored) {
 
+            }
          }
-      };
+
+      });
 
       slowSending.start();
 

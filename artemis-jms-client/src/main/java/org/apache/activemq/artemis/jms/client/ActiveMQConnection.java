@@ -366,12 +366,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
             }
          }
 
-         AccessController.doPrivileged(new PrivilegedAction() {
-            @Override
-            public Object run() {
-               failoverListenerExecutor.shutdown();
-               return null;
-            }
+         AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            failoverListenerExecutor.shutdown();
+            return null;
          });
 
          closed = true;
@@ -725,12 +722,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
                   je.initCause(me);
 
-                  new Thread(new Runnable() {
-                     @Override
-                     public void run() {
-                        exceptionListener.onException(je);
-                     }
-                  }).start();
+                  new Thread(() -> exceptionListener.onException(je)).start();
                }
             } catch (JMSException e) {
                if (!conn.closed) {
@@ -770,12 +762,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
                if (failoverListener != null) {
 
-                  conn.failoverListenerExecutor.execute(new Runnable() {
-                     @Override
-                     public void run() {
-                        failoverListener.failoverEvent(eventType);
-                     }
-                  });
+                  conn.failoverListenerExecutor.execute(() -> failoverListener.failoverEvent(eventType));
                }
             } catch (JMSException e) {
                if (!conn.closed) {

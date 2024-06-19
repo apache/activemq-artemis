@@ -161,20 +161,17 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
 
       final CountDownLatch commitDoneLatch = new CountDownLatch(1);
       // broker will die on commit reply so this will hang till restart
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("doing async commit...");
-            try {
-               session.commit();
-            } catch (JMSException e) {
-               Assert.assertTrue(e instanceof TransactionRolledBackException);
-               LOG.info("got commit exception: ", e);
-            }
-            commitDoneLatch.countDown();
-            LOG.info("done async commit");
+      new Thread(() -> {
+         LOG.info("doing async commit...");
+         try {
+            session.commit();
+         } catch (JMSException e) {
+            Assert.assertTrue(e instanceof TransactionRolledBackException);
+            LOG.info("got commit exception: ", e);
          }
-      }.start();
+         commitDoneLatch.countDown();
+         LOG.info("done async commit");
+      }).start();
 
       // will be stopped by the plugin
       brokerStopLatch.await(60, TimeUnit.SECONDS);
@@ -249,21 +246,18 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       MessageConsumer consumer = session.createConsumer(destination);
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // broker will die on send reply so this will hang till restart
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("doing async send...");
-            try {
-               produceMessage(session, destination);
-            } catch (JMSException e) {
-               //assertTrue(e instanceof TransactionRolledBackException);
-               LOG.error("got send exception: ", e);
-               Assert.fail("got unexpected send exception" + e);
-            }
-            sendDoneLatch.countDown();
-            LOG.info("done async send");
+      new Thread(() -> {
+         LOG.info("doing async send...");
+         try {
+            produceMessage(session, destination);
+         } catch (JMSException e) {
+            //assertTrue(e instanceof TransactionRolledBackException);
+            LOG.error("got send exception: ", e);
+            Assert.fail("got unexpected send exception" + e);
          }
-      }.start();
+         sendDoneLatch.countDown();
+         LOG.info("done async send");
+      }).start();
 
       // will be stopped by the plugin
       brokerStopLatch.await(60, TimeUnit.SECONDS);
@@ -334,20 +328,17 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       MessageConsumer consumer = session.createConsumer(destination);
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // proxy connection will die on send reply so this will hang on failover reconnect till open
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("doing async send...");
-            try {
-               produceMessage(session, destination);
-            } catch (JMSException e) {
-               //assertTrue(e instanceof TransactionRolledBackException);
-               LOG.info("got send exception: ", e);
-            }
-            sendDoneLatch.countDown();
-            LOG.info("done async send");
+      new Thread(() -> {
+         LOG.info("doing async send...");
+         try {
+            produceMessage(session, destination);
+         } catch (JMSException e) {
+            //assertTrue(e instanceof TransactionRolledBackException);
+            LOG.info("got send exception: ", e);
          }
-      }.start();
+         sendDoneLatch.countDown();
+         LOG.info("done async send");
+      }).start();
 
       // will be closed by the plugin
       Assert.assertTrue("proxy was closed", proxy.waitUntilClosed(30));
@@ -463,21 +454,16 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          Queue destination = session.createQueue(QUEUE_NAME);
 
          final Session poolSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         connection.createConnectionConsumer(destination, null, new ServerSessionPool() {
+         connection.createConnectionConsumer(destination, null, () -> new ServerSession() {
             @Override
-            public ServerSession getServerSession() throws JMSException {
-               return new ServerSession() {
-                  @Override
-                  public Session getSession() throws JMSException {
-                     return poolSession;
-                  }
+            public Session getSession() throws JMSException {
+               return poolSession;
+            }
 
-                  @Override
-                  public void start() throws JMSException {
-                     connectionConsumerGotOne.countDown();
-                     poolSession.run();
-                  }
-               };
+            @Override
+            public void start() throws JMSException {
+               connectionConsumerGotOne.countDown();
+               poolSession.run();
             }
          }, 1);
 
@@ -754,22 +740,19 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
                LOG.error("Transport interrupted: " + failoverTransport, new RuntimeException("HERE"));
                for (int i = 0; i < consumerCount && !consumers.isEmpty(); i++) {
 
-                  executorService.execute(new Runnable() {
-                     @Override
-                     public void run() {
-                        MessageConsumer localConsumer = null;
-                        try {
-                           synchronized (delegate) {
-                              localConsumer = consumers.pop();
-                           }
-                           localConsumer.receive(1);
-
-                           LOG.info("calling close() " + ((ActiveMQMessageConsumer) localConsumer).getConsumerId());
-                           localConsumer.close();
-                        } catch (NoSuchElementException nse) {
-                        } catch (Exception ignored) {
-                           LOG.error("Ex on: " + ((ActiveMQMessageConsumer) localConsumer).getConsumerId(), ignored);
+                  executorService.execute(() -> {
+                     MessageConsumer localConsumer = null;
+                     try {
+                        synchronized (delegate) {
+                           localConsumer = consumers.pop();
                         }
+                        localConsumer.receive(1);
+
+                        LOG.info("calling close() " + ((ActiveMQMessageConsumer) localConsumer).getConsumerId());
+                        localConsumer.close();
+                     } catch (NoSuchElementException nse) {
+                     } catch (Exception ignored) {
+                        LOG.error("Ex on: " + ((ActiveMQMessageConsumer) localConsumer).getConsumerId(), ignored);
                      }
                   });
                }
@@ -894,24 +877,21 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          final CountDownLatch commitDone = new CountDownLatch(1);
          final CountDownLatch gotException = new CountDownLatch(1);
          // will block pending re-deliveries
-         new Thread() {
-            @Override
-            public void run() {
-               LOG.info("doing async commit...");
-               try {
-                  consumerSession.commit();
-                  commitDone.countDown();
-               }
-               catch (JMSException ignored) {
-                  System.out.println("--->err: got exfeption:");
-                  ignored.printStackTrace();
-                  gotException.countDown();
-               }
-               finally {
-                  commitDone.countDown();
-               }
+         new Thread(() -> {
+            LOG.info("doing async commit...");
+            try {
+               consumerSession.commit();
+               commitDone.countDown();
             }
-         }.start();
+            catch (JMSException ignored) {
+               System.out.println("--->err: got exfeption:");
+               ignored.printStackTrace();
+               gotException.countDown();
+            }
+            finally {
+               commitDone.countDown();
+            }
+         }).start();
 
          broker.stop();
          broker = createBroker();
@@ -959,19 +939,16 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       final Vector<Exception> exceptions = new Vector<>();
 
       // commit may fail if other consumer gets the message on restart
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("doing async commit...");
-            try {
-               consumerSession.commit();
-            } catch (JMSException ex) {
-               exceptions.add(ex);
-            } finally {
-               commitDone.countDown();
-            }
+      new Thread(() -> {
+         LOG.info("doing async commit...");
+         try {
+            consumerSession.commit();
+         } catch (JMSException ex) {
+            exceptions.add(ex);
+         } finally {
+            commitDone.countDown();
          }
-      }.start();
+      }).start();
 
       Assert.assertTrue("commit completed ", commitDone.await(15, TimeUnit.SECONDS));
 
@@ -1004,20 +981,17 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
    public static void holdResponseAndStopBroker(final OpenWireConnection.CommandProcessor context) {
       if (doByteman.get()) {
          context.getContext().setDontSendReponse(true);
-         new Thread() {
-            @Override
-            public void run() {
-               LOG.info("Stopping broker post commit...");
-               try {
-                  broker.stop();
-                  broker = null;
-               } catch (Exception e) {
-                  e.printStackTrace();
-               } finally {
-                  brokerStopLatch.countDown();
-               }
+         new Thread(() -> {
+            LOG.info("Stopping broker post commit...");
+            try {
+               broker.stop();
+               broker = null;
+            } catch (Exception e) {
+               e.printStackTrace();
+            } finally {
+               brokerStopLatch.countDown();
             }
-         }.start();
+         }).start();
       }
    }
 
@@ -1026,17 +1000,14 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          if (firstSend) {
             firstSend = false;
             context.getContext().setDontSendReponse(true);
-            new Thread() {
-               @Override
-               public void run() {
-                  LOG.info("Stopping connection post send...");
-                  try {
-                     proxy.close();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            new Thread(() -> {
+               LOG.info("Stopping connection post send...");
+               try {
+                  proxy.close();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
-            }.start();
+            }).start();
          }
       }
    }
@@ -1046,22 +1017,19 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          if (count++ == 1) {
             LOG.info("ok stop broker...");
-            new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     if (broker != null) {
-                        broker.stop();
-                        broker = null;
-                     }
-                     LOG.info("broker stopped.");
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  } finally {
-                     brokerStopLatch.countDown();
+            new Thread(() -> {
+               try {
+                  if (broker != null) {
+                     broker.stop();
+                     broker = null;
                   }
+                  LOG.info("broker stopped.");
+               } catch (Exception e) {
+                  e.printStackTrace();
+               } finally {
+                  brokerStopLatch.countDown();
                }
-            }.start();
+            }).start();
          }
       }
    }

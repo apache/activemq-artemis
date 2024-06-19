@@ -271,20 +271,16 @@ public final class Topology {
       }
 
       if (copy.size() > 0) {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               for (ClusterTopologyListener listener : copy) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("{} informing {} about node up = {} connector = {}",
-                                  Topology.this, listener, nodeId, memberToSend.getConnector());
-                  }
+         executor.execute(() -> {
+            for (ClusterTopologyListener listener : copy) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("{} informing {} about node up = {} connector = {}", Topology.this, listener, nodeId, memberToSend.getConnector());
+               }
 
-                  try {
-                     listener.nodeUP(memberToSend, false);
-                  } catch (Throwable e) {
-                     ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
-                  }
+               try {
+                  listener.nodeUP(memberToSend, false);
+               } catch (Throwable e) {
+                  ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
                }
             }
          });
@@ -354,23 +350,20 @@ public final class Topology {
    public synchronized void sendTopology(final ClusterTopologyListener listener) {
       logger.debug("{} is sending topology to {}", this, listener);
 
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            int count = 0;
+      executor.execute(() -> {
+         int count = 0;
 
-            final Map<String, TopologyMemberImpl> copy;
+         final Map<String, TopologyMemberImpl> copy;
 
-            synchronized (Topology.this) {
-               copy = new HashMap<>(topology);
+         synchronized (Topology.this) {
+            copy = new HashMap<>(topology);
+         }
+
+         for (Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("{} sending {} / {} to {}", Topology.this, entry.getKey(), entry.getValue().getConnector(), listener);
             }
-
-            for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("{} sending {} / {} to {}", Topology.this, entry.getKey(), entry.getValue().getConnector(), listener);
-               }
-               listener.nodeUP(entry.getValue(), ++count == copy.size());
-            }
+            listener.nodeUP(entry.getValue(), ++count == copy.size());
          }
       });
    }

@@ -29,18 +29,8 @@ public class MemorySizeTest {
 
    @Test
    public void testObjectSizes() throws Exception {
-      logger.info("Server message size is {}", MemorySize.calculateSize(new MemorySize.ObjectFactory() {
-         @Override
-         public Object createObject() {
-            return new CoreMessage(1, 1000);
-         }
-      }));
+      logger.info("Server message size is {}", MemorySize.calculateSize(() -> new CoreMessage(1, 1000)));
 
-      logger.info("Message reference size is {}", MemorySize.calculateSize(new MemorySize.ObjectFactory() {
-         @Override
-         public Object createObject() {
-            return new MessageReferenceImpl();
-         }
-      }));
+      logger.info("Message reference size is {}", MemorySize.calculateSize(() -> new MessageReferenceImpl()));
    }
 }

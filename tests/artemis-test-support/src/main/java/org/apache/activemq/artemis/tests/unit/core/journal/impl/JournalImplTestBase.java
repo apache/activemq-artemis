@@ -215,16 +215,13 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    protected void startCompact() throws Exception {
       latchDone.setCount(1);
       latchWait.setCount(1);
-      this.compactThread = new Thread() {
-         @Override
-         public void run() {
-            try {
-               journal.testCompact();
-            } catch (Throwable e) {
-               e.printStackTrace();
-            }
+      this.compactThread = new Thread(() -> {
+         try {
+            journal.testCompact();
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       this.compactThread.start();
 
@@ -265,12 +262,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
       File dir = new File(getTestDir());
 
-      FilenameFilter fnf = new FilenameFilter() {
-         @Override
-         public boolean accept(final File file, final String name) {
-            return name.endsWith("." + fileExtension);
-         }
-      };
+      FilenameFilter fnf = (file, name) -> name.endsWith("." + fileExtension);
 
       logger.debug("file = {}", dir);
 

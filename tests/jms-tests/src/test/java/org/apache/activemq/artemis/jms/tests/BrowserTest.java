@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -35,6 +31,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BrowserTest extends JMSTestCase {
 
@@ -62,12 +60,7 @@ public class BrowserTest extends JMSTestCase {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          try {
-            ps.createBrowser(new Queue() {
-               @Override
-               public String getQueueName() throws JMSException {
-                  return "NoSuchQueue";
-               }
-            });
+            ps.createBrowser(() -> "NoSuchQueue");
             ProxyAssertSupport.fail("should throw exception");
          } catch (InvalidDestinationException e) {
             // OK

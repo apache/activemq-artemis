@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -38,7 +36,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * From https://jira.jboss.org/jira/browse/HORNETQ-144
@@ -69,12 +68,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       ClientSession session = clientSessionFactory.createSession();
 
-      session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
-         @Override
-         public void sendAcknowledged(final Message message) {
-            ackReceived = true;
-         }
-      });
+      session.setSendAcknowledgementHandler(message -> ackReceived = true);
 
       ClientProducer producer = session.createProducer("fooQueue");
 
@@ -107,16 +101,13 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
             try {
                logger.debug("Stopping server");
 
-               new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        server.stop();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+               new Thread(() -> {
+                  try {
+                     server.stop();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
-               }.start();
+               }).start();
             } catch (Exception e) {
                e.printStackTrace();
             }

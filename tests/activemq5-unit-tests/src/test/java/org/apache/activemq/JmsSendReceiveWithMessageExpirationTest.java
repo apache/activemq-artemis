@@ -166,12 +166,7 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
       final DestinationStatistics view = getDestinationStatistics(BrokerRegistry.getInstance().findFirst(), ActiveMQDestination.transform(consumerDestination));
 
       // wait for all to inflight to expire
-      assertTrue("all inflight messages expired ", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return view.getInflight().getCount() == 0;
-         }
-      }));
+      assertTrue("all inflight messages expired ", Wait.waitFor(() -> view.getInflight().getCount() == 0));
       assertEquals("Wrong inFlightCount: ", 0, view.getInflight().getCount());
 
       LOG.info("Stats: received: " + messages.size() + ", messages: " + view.getMessages().getCount() + ", enqueues: " + view.getEnqueues().getCount() + ", dequeues: " + view.getDequeues().getCount() + ", dispatched: " + view.getDispatched().getCount() + ", inflight: " + view.getInflight().getCount() + ", expired: " + view.getExpired().getCount());

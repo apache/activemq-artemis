@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
-import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -43,7 +34,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
@@ -61,6 +51,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SlowConsumerTest extends ActiveMQTestBase {
 
@@ -258,27 +257,24 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       final CountDownLatch notifLatch = new CountDownLatch(1);
 
-      notifConsumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(ClientMessage message) {
-            assertEquals(CoreNotificationType.CONSUMER_SLOW.toString(), message.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-            assertEquals(QUEUE.toString(), message.getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
-            assertEquals(Integer.valueOf(1), message.getIntProperty(ManagementHelper.HDR_CONSUMER_COUNT));
-            if (isNetty) {
-               assertTrue(message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
-            } else {
-               assertEquals(SimpleString.of("invm:0"), message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
-            }
-            assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
-            assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONSUMER_NAME));
-            assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME));
-            try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-            }
-            notifLatch.countDown();
+      notifConsumer.setMessageHandler(message -> {
+         assertEquals(CoreNotificationType.CONSUMER_SLOW.toString(), message.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+         assertEquals(QUEUE.toString(), message.getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+         assertEquals(Integer.valueOf(1), message.getIntProperty(ManagementHelper.HDR_CONSUMER_COUNT));
+         if (isNetty) {
+            assertTrue(message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
+         } else {
+            assertEquals(SimpleString.of("invm:0"), message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
          }
+         assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
+         assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONSUMER_NAME));
+         assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME));
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
+            e.printStackTrace();
+         }
+         notifLatch.countDown();
       });
 
       ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
@@ -325,35 +321,32 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       final AtomicLong messagesProduced = new AtomicLong(0);
 
-      Thread t = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            long start = System.currentTimeMillis();
-            ClientMessage m = createTextMessage(producerSession, "m", true);
+      Thread t = new Thread(() -> {
+         long start = System.currentTimeMillis();
+         ClientMessage m = createTextMessage(producerSession, "m", true);
 
-            // send messages as fast as possible for 3 seconds
-            while (System.currentTimeMillis() < (start + 3000)) {
-               try {
-                  producer.send(m);
-                  messagesProduced.incrementAndGet();
-               } catch (ActiveMQException e) {
-                  e.printStackTrace();
-                  return;
-               }
+         // send messages as fast as possible for 3 seconds
+         while (System.currentTimeMillis() < (start + 3000)) {
+            try {
+               producer.send(m);
+               messagesProduced.incrementAndGet();
+            } catch (ActiveMQException e) {
+               e.printStackTrace();
+               return;
             }
+         }
 
-            start = System.currentTimeMillis();
+         start = System.currentTimeMillis();
 
-            // send 1 msg/second for 10 seconds
-            while (System.currentTimeMillis() < (start + 10000)) {
-               try {
-                  producer.send(m);
-                  messagesProduced.incrementAndGet();
-                  Thread.sleep(1000);
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  return;
-               }
+         // send 1 msg/second for 10 seconds
+         while (System.currentTimeMillis() < (start + 10000)) {
+            try {
+               producer.send(m);
+               messagesProduced.incrementAndGet();
+               Thread.sleep(1000);
+            } catch (Exception e) {
+               e.printStackTrace();
+               return;
             }
          }
       });

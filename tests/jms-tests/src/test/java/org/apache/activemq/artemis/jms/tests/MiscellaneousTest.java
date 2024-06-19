@@ -20,7 +20,6 @@ import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
@@ -102,16 +101,13 @@ public class MiscellaneousTest extends JMSTestCase {
       Connection conn = createConnection();
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer cons = s.createConsumer(queue1);
-      cons.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message m) {
-            // close the connection on the same thread that processed the message
-            try {
-               cons.close();
-               result.setSuccess();
-            } catch (Exception e) {
-               result.setFailure(e);
-            }
+      cons.setMessageListener(m -> {
+         // close the connection on the same thread that processed the message
+         try {
+            cons.close();
+            result.setSuccess();
+         } catch (Exception e) {
+            result.setFailure(e);
          }
       });
 
@@ -154,16 +150,13 @@ public class MiscellaneousTest extends JMSTestCase {
       Connection conn = createConnection();
       Session s = conn.createSession(true, Session.SESSION_TRANSACTED);
       final MessageConsumer cons = s.createConsumer(queue1);
-      cons.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message m) {
-            // close the connection on the same thread that processed the message
-            try {
-               cons.close();
-               result.setSuccess();
-            } catch (Exception e) {
-               result.setFailure(e);
-            }
+      cons.setMessageListener(m -> {
+         // close the connection on the same thread that processed the message
+         try {
+            cons.close();
+            result.setSuccess();
+         } catch (Exception e) {
+            result.setFailure(e);
          }
       });
 

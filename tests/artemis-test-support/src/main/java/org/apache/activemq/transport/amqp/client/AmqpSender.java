@@ -187,17 +187,13 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       checkClosed();
       final ClientFuture sendRequest = new ClientFuture();
 
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            try {
-               doSend(message, sendRequest, txId);
-               session.pumpToProtonTransport(sendRequest);
-            } catch (Exception e) {
-               sendRequest.onFailure(e);
-               session.getConnection().fireClientException(e);
-            }
+      session.getScheduler().execute(() -> {
+         try {
+            doSend(message, sendRequest, txId);
+            session.pumpToProtonTransport(sendRequest);
+         } catch (Exception e) {
+            sendRequest.onFailure(e);
+            session.getConnection().fireClientException(e);
          }
       });
 
@@ -218,14 +214,10 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
          final ClientFuture request = new ClientFuture();
-         session.getScheduler().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               checkClosed();
-               close(request);
-               session.pumpToProtonTransport(request);
-            }
+         session.getScheduler().execute(() -> {
+            checkClosed();
+            close(request);
+            session.pumpToProtonTransport(request);
          });
 
          request.sync();

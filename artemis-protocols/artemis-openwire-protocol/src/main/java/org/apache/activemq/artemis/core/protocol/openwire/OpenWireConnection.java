@@ -1026,12 +1026,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.maxInactivityDuration = inactivityDuration;
 
       if (this.useKeepAlive) {
-         ttlCheck = protocolManager.getScheduledPool().schedule(new Runnable() {
-            @Override
-            public void run() {
-               if (inactivityDuration >= 0) {
-                  connectionEntry.ttl = inactivityDuration;
-               }
+         ttlCheck = protocolManager.getScheduledPool().schedule(() -> {
+            if (inactivityDuration >= 0) {
+               connectionEntry.ttl = inactivityDuration;
             }
          }, inactivityDurationInitialDelay, TimeUnit.MILLISECONDS);
          checkInactivity();

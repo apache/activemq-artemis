@@ -92,19 +92,16 @@ public class JmsMultipleClientsTestSupport {
          final AtomicInteger producerLock = new AtomicInteger(producerCount);
 
          for (int i = 0; i < producerCount; i++) {
-            Thread t = new Thread(new Runnable() {
-               @Override
-               public void run() {
-                  try {
-                     sendMessages(factory.createConnection(), dest, msgCount);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            Thread t = new Thread(() -> {
+               try {
+                  sendMessages(factory.createConnection(), dest, msgCount);
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
 
-                  synchronized (producerLock) {
-                     producerLock.decrementAndGet();
-                     producerLock.notifyAll();
-                  }
+               synchronized (producerLock) {
+                  producerLock.decrementAndGet();
+                  producerLock.notifyAll();
                }
             });
 

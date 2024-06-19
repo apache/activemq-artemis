@@ -69,12 +69,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       receiver2.close();
       //check its been deleted
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null, 1000);
       connection.close();
    }
 
@@ -132,12 +127,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       //check its been deleted
       connection.close();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null, 1000);
    }
 
    @Test
@@ -165,12 +155,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")));
       receiver2.close();
       //check its been deleted
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")) == null, 1000);
       connection.close();
    }
 

@@ -329,25 +329,22 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void disconnect() {
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            if (session != null) {
-               try {
-                  session.cleanUp(false);
-               } catch (Exception dontcare) {
-                  logger.debug(dontcare.getMessage(), dontcare);
-               }
-               session = null;
+      executor.execute(() -> {
+         if (session != null) {
+            try {
+               session.cleanUp(false);
+            } catch (Exception dontcare) {
+               logger.debug(dontcare.getMessage(), dontcare);
             }
-            if (sessionConsumer != null) {
-               try {
-                  sessionConsumer.cleanUp(false);
-               } catch (Exception dontcare) {
-                  logger.debug(dontcare.getMessage(), dontcare);
-               }
-               sessionConsumer = null;
+            session = null;
+         }
+         if (sessionConsumer != null) {
+            try {
+               sessionConsumer.cleanUp(false);
+            } catch (Exception dontcare) {
+               logger.debug(dontcare.getMessage(), dontcare);
             }
+            sessionConsumer = null;
          }
       });
    }
@@ -731,26 +728,23 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                                     final MessageReference ref,
                                     final LargeServerMessage message,
                                     final Message originalMessage) {
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               producer.send(dest, message.toMessage());
+      executor.execute(() -> {
+         try {
+            producer.send(dest, message.toMessage());
 
-               // as soon as we are done sending the large message
-               // we unset the delivery flag and we will call the deliveryAsync on the queue
-               // so the bridge will be able to resume work
-               unsetLargeMessageDelivery();
+            // as soon as we are done sending the large message
+            // we unset the delivery flag and we will call the deliveryAsync on the queue
+            // so the bridge will be able to resume work
+            unsetLargeMessageDelivery();
 
-               if (queue != null) {
-                  queue.deliverAsync();
-               }
-            } catch (final ActiveMQException e) {
-               unsetLargeMessageDelivery();
-               ActiveMQServerLogger.LOGGER.bridgeUnableToSendMessage(ref, e);
-
-               connectionFailed(e, false);
+            if (queue != null) {
+               queue.deliverAsync();
             }
+         } catch (final ActiveMQException e) {
+            unsetLargeMessageDelivery();
+            ActiveMQServerLogger.LOGGER.bridgeUnableToSendMessage(ref, e);
+
+            connectionFailed(e, false);
          }
       });
    }

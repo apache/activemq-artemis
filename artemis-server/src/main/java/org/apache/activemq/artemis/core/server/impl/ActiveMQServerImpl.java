@@ -850,16 +850,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
                   // you can't stop from the check thread,
                   // nor can use an executor
-                  Thread stopThread = new Thread() {
-                     @Override
-                     public void run() {
-                        try {
-                           ActiveMQServerImpl.this.stop();
-                        } catch (Throwable e) {
-                           logger.warn(e.getMessage(), e);
-                        }
+                  Thread stopThread = new Thread(() -> {
+                     try {
+                        ActiveMQServerImpl.this.stop();
+                     } catch (Throwable e) {
+                        logger.warn(e.getMessage(), e);
                      }
-                  };
+                  });
                   stopThread.start();
                }
             };
@@ -893,18 +890,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // in case graceful is -1, we will set it to 30 seconds
       long timeout = configuration.getGracefulShutdownTimeout() < 0 ? 30000 : configuration.getGracefulShutdownTimeout();
 
-      Thread notificationSender = new Thread() {
-         @Override
-         public void run() {
-            try {
-               if (hasBrokerCriticalPlugins()) {
-                  callBrokerCriticalPlugins(plugin -> plugin.criticalFailure(criticalComponent));
-               }
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
+      Thread notificationSender = new Thread(() -> {
+         try {
+            if (hasBrokerCriticalPlugins()) {
+               callBrokerCriticalPlugins(plugin -> plugin.criticalFailure(criticalComponent));
             }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
          }
-      };
+      });
 
       // I'm using a different thread here as we need to manage timeouts
       notificationSender.start();
@@ -1037,16 +1031,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * Stops the server in a different thread.
     */
    public final void stopTheServer(final boolean criticalIOError) {
-      Thread thread = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ActiveMQServerImpl.this.stop(false, criticalIOError, false);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
-            }
+      Thread thread = new Thread(() -> {
+         try {
+            ActiveMQServerImpl.this.stop(false, criticalIOError, false);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
          }
-      };
+      });
 
       thread.start();
    }
@@ -3164,12 +3155,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * Executor based on the provided Thread pool.  Otherwise we create a new ThreadPool.
        */
       if (serviceRegistry.getExecutorService() == null) {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) ()-> new ActiveMQThreadFactory("ActiveMQ-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
 
          if (configuration.getThreadPoolMaxSize() == -1) {
             threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
@@ -3185,12 +3171,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (serviceRegistry.getIOExecutorService() != null) {
          this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());
       } else {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
 
          // Perhaps getPageMaxConcurrentIO should be deprecated and a new value added
          int maxIO = configuration.getPageMaxConcurrentIO() <= 0 ? Integer.MAX_VALUE : configuration.getPageMaxConcurrentIO();
@@ -3201,12 +3182,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (serviceRegistry.getIOExecutorService() != null) {
          this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());
       } else {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
 
          this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
          this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
@@ -3231,12 +3207,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * Scheduled ExecutorService otherwise we create a new one.
        */
       if (serviceRegistry.getScheduledExecutorService() == null) {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, ClientSessionFactoryImpl.class.getClassLoader()));
 
          ScheduledThreadPoolExecutor scheduledPoolExecutor = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), tFactory);
          scheduledPoolExecutor.setRemoveOnCancelPolicy(true);
@@ -3545,12 +3516,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       long dumpInfoInterval = configuration.getServerDumpInterval();
 
       if (dumpInfoInterval > 0) {
-         scheduledPool.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-               ActiveMQServerLogger.LOGGER.dumpServerInfo(dumper.dump());
-            }
-         }, 0, dumpInfoInterval, TimeUnit.MILLISECONDS);
+         scheduledPool.scheduleWithFixedDelay(() -> ActiveMQServerLogger.LOGGER.dumpServerInfo(dumper.dump()), 0, dumpInfoInterval, TimeUnit.MILLISECONDS);
       }
 
       // Deploy the rest of the stuff

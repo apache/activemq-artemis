@@ -95,12 +95,7 @@ public class NIOSSLLoadTest extends TestCase {
          consumers[i] = consumer;
       }
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return getReceived() == PRODUCER_COUNT * MESSAGE_COUNT;
-         }
-      }, 60000);
+      Wait.waitFor(() -> getReceived() == PRODUCER_COUNT * MESSAGE_COUNT, 60000);
 
       assertEquals(PRODUCER_COUNT * MESSAGE_COUNT, getReceived());
 

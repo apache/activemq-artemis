@@ -182,25 +182,22 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session.start();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               logger.debug("Receiving message");
-               ClientMessage msg = cons.receive(5000);
-               if (msg == null) {
-                  System.err.println("Message not received");
-                  unexpectedErrors.incrementAndGet();
-                  return;
-               }
-
-               msg.checkCompletion();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-               expectedErrors.incrementAndGet();
+      Thread t = new Thread(() -> {
+         try {
+            logger.debug("Receiving message");
+            ClientMessage msg = cons.receive(5000);
+            if (msg == null) {
+               System.err.println("Message not received");
+               unexpectedErrors.incrementAndGet();
+               return;
             }
+
+            msg.checkCompletion();
+         } catch (ActiveMQException e) {
+            e.printStackTrace();
+            expectedErrors.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
@@ -236,26 +233,23 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       connection.start();
       final MessageConsumer consumer = session.createConsumer(session.createQueue(jmsAddress.toString()));
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               logger.debug("Receiving message");
-               javax.jms.Message msg = consumer.receive(5000);
-               if (msg == null) {
-                  System.err.println("Message not received");
-                  unexpectedErrors.incrementAndGet();
-                  return;
-               }
-            } catch (JMSException e) {
-               logger.debug("This exception was ok as it was expected", e);
-               expectedErrors.incrementAndGet();
-            } catch (Throwable e) {
-               logger.warn("Captured unexpected exception", e);
+      Thread t = new Thread(() -> {
+         try {
+            logger.debug("Receiving message");
+            javax.jms.Message msg = consumer.receive(5000);
+            if (msg == null) {
+               System.err.println("Message not received");
                unexpectedErrors.incrementAndGet();
+               return;
             }
+         } catch (JMSException e) {
+            logger.debug("This exception was ok as it was expected", e);
+            expectedErrors.incrementAndGet();
+         } catch (Throwable e) {
+            logger.warn("Captured unexpected exception", e);
+            unexpectedErrors.incrementAndGet();
          }
-      };
+      });
 
       t.start();
       t.interrupt();

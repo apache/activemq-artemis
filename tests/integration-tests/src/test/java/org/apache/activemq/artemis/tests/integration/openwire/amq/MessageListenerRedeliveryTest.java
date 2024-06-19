@@ -267,22 +267,19 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       final AtomicInteger count = new AtomicInteger(0);
       final int maxDeliveries = getRedeliveryPolicy().getMaximumRedeliveries();
       final ArrayList<String> received = new ArrayList<>();
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-            try {
-               received.add(((TextMessage) message).getText());
-            } catch (JMSException e) {
-               e.printStackTrace();
-               fail(e.toString());
-            }
-            if (count.incrementAndGet() < maxDeliveries) {
-               throw new RuntimeException(getName() + " force a redelivery");
-            }
-            // new blood
-            count.set(0);
-            gotMessage.countDown();
+      consumer.setMessageListener(message1 -> {
+         try {
+            received.add(((TextMessage) message1).getText());
+         } catch (JMSException e) {
+            e.printStackTrace();
+            fail(e.toString());
          }
+         if (count.incrementAndGet() < maxDeliveries) {
+            throw new RuntimeException(getName() + " force a redelivery");
+         }
+         // new blood
+         count.set(0);
+         gotMessage.countDown();
       });
 
       assertTrue(gotMessage.await(20, TimeUnit.SECONDS), "got message before retry expiry");
@@ -313,12 +310,9 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       this.makeSureCoreQueueExist("ActiveMQ.DLQ");
       MessageConsumer dlqConsumer = session.createConsumer(dlqDestination);
       final CountDownLatch gotDlqMessage = new CountDownLatch(1);
-      dlqConsumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-            dlqMessage[0] = message;
-            gotDlqMessage.countDown();
-         }
+      dlqConsumer.setMessageListener(message12 -> {
+         dlqMessage[0] = message12;
+         gotDlqMessage.countDown();
       });
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -326,12 +320,9 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       final int maxDeliveries = getRedeliveryPolicy().getMaximumRedeliveries();
       final CountDownLatch gotMessage = new CountDownLatch(maxDeliveries);
 
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-            gotMessage.countDown();
-            throw new RuntimeException(getName() + " force a redelivery");
-         }
+      consumer.setMessageListener(message1 -> {
+         gotMessage.countDown();
+         throw new RuntimeException(getName() + " force a redelivery");
       });
 
       assertTrue(gotMessage.await(20, TimeUnit.SECONDS), "got message before retry expiry");

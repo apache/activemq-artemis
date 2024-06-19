@@ -499,21 +499,18 @@ public class BrokerService implements Service {
       connector.setLocalUri(this.getConnectURI());
       // Set a connection filter so that the connector does not establish loop
       // back connections.
-      connector.setConnectionFilter(new ConnectionFilter() {
-         @Override
-         public boolean connectTo(URI location) {
-            List<TransportConnector> transportConnectors = getTransportConnectors();
-            for (Iterator<TransportConnector> iter = transportConnectors.iterator(); iter.hasNext(); ) {
-               try {
-                  TransportConnector tc = iter.next();
-                  if (location.equals(tc.getConnectUri())) {
-                     return false;
-                  }
-               } catch (Throwable e) {
+      connector.setConnectionFilter(location -> {
+         List<TransportConnector> transportConnectors = getTransportConnectors();
+         for (Iterator<TransportConnector> iter = transportConnectors.iterator(); iter.hasNext(); ) {
+            try {
+               TransportConnector tc = iter.next();
+               if (location.equals(tc.getConnectUri())) {
+                  return false;
                }
+            } catch (Throwable e) {
             }
-            return true;
          }
+         return true;
       });
 
       networkConnectors.add(connector);

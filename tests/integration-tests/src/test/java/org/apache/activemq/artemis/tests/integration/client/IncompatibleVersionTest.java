@@ -186,14 +186,8 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
       boolean result = false;
       try {
          final CountDownLatch latch = new CountDownLatch(1);
-         Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         };
 
-         serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, runnable, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
+         serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, latch::countDown, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
          assertTrue(latch.await(30, TimeUnit.SECONDS));
          client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 

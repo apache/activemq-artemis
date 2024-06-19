@@ -48,28 +48,22 @@ public class SlowConnectionTest {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + tcpUri + ")");
       final Connection connection = cf.createConnection();
 
-      new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               connection.start();
-            } catch (Throwable ignored) {
-            }
+      new Thread(() -> {
+         try {
+            connection.start();
+         } catch (Throwable ignored) {
          }
       }).start();
 
       int count = 0;
-      Assert.assertTrue("Transport count: " + count + ", expected <= 1", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int count = 0;
-            for (Thread thread : Thread.getAllStackTraces().keySet()) {
-               if (thread.getName().contains("ActiveMQ Transport")) {
-                  count++;
-               }
+      Assert.assertTrue("Transport count: " + count + ", expected <= 1", Wait.waitFor(() -> {
+         int count1 = 0;
+         for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().contains("ActiveMQ Transport")) {
+               count1++;
             }
-            return count == 1;
          }
+         return count1 == 1;
       }));
 
       broker.interrupt();

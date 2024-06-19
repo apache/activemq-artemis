@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,6 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
 import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
@@ -37,6 +34,8 @@ import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CrashOnCompactTest extends SpawnedTestBase {
 
@@ -64,13 +63,7 @@ public class CrashOnCompactTest extends SpawnedTestBase {
       JournalImpl journal = createJournal(getTestDirfile(), false);
       ArrayList<RecordInfo> info = new ArrayList<>();
       ArrayList<PreparedTransactionInfo> txInfo = new ArrayList<>();
-      journal.load(info, txInfo, new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      });
-
+      journal.load(info, txInfo, (transactionID, records, recordsToDelete) -> { });
       assertEquals(900, info.size());
    }
 

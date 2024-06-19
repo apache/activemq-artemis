@@ -1250,12 +1250,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       store.start();
       try {
          final  AtomicInteger calls = new AtomicInteger();
-         final Runnable trackMemoryChecks = new Runnable() {
-            @Override
-            public void run() {
-               calls.incrementAndGet();
-            }
-         };
+         final Runnable trackMemoryChecks = calls::incrementAndGet;
          store.applySetting(new AddressSettings().setMaxSizeBytes(1000).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK));
          store.addSize(100);
          store.flushExecutors();
@@ -1268,12 +1263,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          store.unblock();
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 2 == calls.get();
-            }
-         }, 1000, 50));
+         assertTrue(Wait.waitFor(() -> 2 == calls.get(), 1000, 50));
 
          store.addSize(900);
          assertEquals(100, store.getAddressLimitPercent());
@@ -1296,12 +1286,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          store.flushExecutors();
 
          // now released
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 3 == calls.get();
-            }
-         }, 1000, 50));
+         assertTrue(Wait.waitFor(() -> 3 == calls.get(), 1000, 50));
 
          // reverse - unblock while full does not release
          store.block();
@@ -1319,12 +1304,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          store.addSize(-900);
          assertEquals(10, store.getAddressLimitPercent());
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 4 == calls.get();
-            }
-         }, 1000, 50), "change");
+         assertTrue(Wait.waitFor(() -> 4 == calls.get(), 1000, 50), "change");
 
 
       } finally {
@@ -1344,13 +1324,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    }
 
    private ExecutorFactory getExecutorFactory() {
-      return new ExecutorFactory() {
-
-         @Override
-         public ArtemisExecutor getExecutor() {
-            return ArtemisExecutor.delegate(executor);
-         }
-      };
+      return () -> ArtemisExecutor.delegate(executor);
    }
 
    protected void writePageMessage(final PagingStore storeImpl,

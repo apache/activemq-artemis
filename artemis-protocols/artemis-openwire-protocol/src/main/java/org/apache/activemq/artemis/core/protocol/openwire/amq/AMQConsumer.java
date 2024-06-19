@@ -495,12 +495,9 @@ public class AMQConsumer {
                if (timeout <= 0) {
                   latch.countDown();
                } else {
-                  messagePullFuture = scheduledPool.schedule(new Runnable() {
-                     @Override
-                     public void run() {
-                        if (next >= 0) {
-                           handleDeliverNullDispatch();
-                        }
+                  messagePullFuture = scheduledPool.schedule(() -> {
+                     if (next >= 0) {
+                        handleDeliverNullDispatch();
                      }
                   }, timeout, TimeUnit.MILLISECONDS);
                }

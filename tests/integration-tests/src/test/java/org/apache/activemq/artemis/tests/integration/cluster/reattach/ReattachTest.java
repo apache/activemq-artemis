@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.Set;
@@ -37,6 +30,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -46,11 +40,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -60,6 +52,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ReattachTest extends ActiveMQTestBase {
 
@@ -212,20 +211,16 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final AtomicInteger count = new AtomicInteger(0);
 
-      Interceptor intercept = new Interceptor() {
+      Interceptor intercept = (packet, connection) -> {
+         if (packet instanceof SessionProducerCreditsMessage) {
+            SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
 
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            if (packet instanceof SessionProducerCreditsMessage) {
-               SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
-
-               if (count.incrementAndGet() == 2) {
-                  connection.fail(new ActiveMQException(ActiveMQExceptionType.UNSUPPORTED_PACKET, "bye"));
-                  return false;
-               }
+            if (count.incrementAndGet() == 2) {
+               connection.fail(new ActiveMQException(ActiveMQExceptionType.UNSUPPORTED_PACKET, "bye"));
+               return false;
             }
-            return true;
          }
+         return true;
       };
 
       locator.addIncomingInterceptor(intercept);
@@ -289,17 +284,14 @@ public class ReattachTest extends ActiveMQTestBase {
 
       RemotingConnection conn = ((ClientSessionInternal) session).getConnection();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(retryInterval * 3);
-            } catch (InterruptedException ignore) {
-            }
-
-            InVMConnector.failOnCreateConnection = false;
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(retryInterval * 3);
+         } catch (InterruptedException ignore) {
          }
-      };
+
+         InVMConnector.failOnCreateConnection = false;
+      });
 
       t.start();
 
@@ -394,17 +386,14 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final RemotingConnection conn2 = ((ClientSessionInternal) session2).getConnection();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(asyncFailDelay);
-            } catch (InterruptedException ignore) {
-            }
-
-            conn2.fail(new ActiveMQNotConnectedException("Did not receive pong from server"));
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(asyncFailDelay);
+         } catch (InterruptedException ignore) {
          }
-      };
+
+         conn2.fail(new ActiveMQNotConnectedException("Did not receive pong from server"));
+      });
 
       t.start();
 
@@ -474,17 +463,14 @@ public class ReattachTest extends ActiveMQTestBase {
 
       // Sleep for longer than max retries so should fail to reconnect
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(retryInterval * (reconnectAttempts + 1));
-            } catch (InterruptedException ignore) {
-            }
-
-            InVMConnector.failOnCreateConnection = false;
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(retryInterval * (reconnectAttempts + 1));
+         } catch (InterruptedException ignore) {
          }
-      };
+
+         InVMConnector.failOnCreateConnection = false;
+      });
 
       t.start();
 
@@ -652,17 +638,14 @@ public class ReattachTest extends ActiveMQTestBase {
 
       // Sleep 3 times retryInterval, so it should at least have 3 retries
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(retryInterval * 3);
-            } catch (InterruptedException ignore) {
-            }
-
-            InVMConnector.failOnCreateConnection = false;
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(retryInterval * 3);
+         } catch (InterruptedException ignore) {
          }
-      };
+
+         InVMConnector.failOnCreateConnection = false;
+      });
 
       waitForLatch(alignLatch);
 
@@ -711,17 +694,14 @@ public class ReattachTest extends ActiveMQTestBase {
 
       conn.fail(new ActiveMQNotConnectedException());
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(retryInterval * 3);
-            } catch (InterruptedException ignore) {
-            }
-
-            InVMConnector.failOnCreateConnection = false;
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(retryInterval * 3);
+         } catch (InterruptedException ignore) {
          }
-      };
+
+         InVMConnector.failOnCreateConnection = false;
+      });
 
       t.start();
 
@@ -847,16 +827,13 @@ public class ReattachTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(retryInterval / 2);
-            } catch (InterruptedException ignore) {
-            }
-            InVMConnector.failOnCreateConnection = false;
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(retryInterval / 2);
+         } catch (InterruptedException ignore) {
          }
-      };
+         InVMConnector.failOnCreateConnection = false;
+      });
 
       t.start();
 

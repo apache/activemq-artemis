@@ -68,12 +68,7 @@ public class ArtemisStopPlugin extends ArtemisAbstractPlugin {
 
       try {
          final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, new String[] {STOP});
-         Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-               process.destroy();
-            }
-         });
+         Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
 
          boolean complete = process.waitFor(spawnTimeout, TimeUnit.MILLISECONDS);
          if (!complete) {

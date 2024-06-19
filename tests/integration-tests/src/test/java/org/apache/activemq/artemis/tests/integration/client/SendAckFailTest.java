@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.transaction.xa.Xid;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
@@ -45,7 +42,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -60,10 +56,10 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
@@ -94,14 +90,17 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SendAckFailTest extends SpawnedTestBase {
 
@@ -157,26 +156,18 @@ public class SendAckFailTest extends SpawnedTestBase {
 
             ClientProducer producer = session.createProducer("T1");
 
-            session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
-               @Override
-               public void sendAcknowledged(Message message) {
-                  listSent.add(message.getIntProperty("myid"));
-               }
-            });
+            session.setSendAcknowledgementHandler(message -> listSent.add(message.getIntProperty("myid")));
 
-            t = new Thread() {
-               @Override
-               public void run() {
-                  for (int i = 0; i < 5000; i++) {
-                     try {
-                        producer.send(session.createMessage(true).putIntProperty("myid", i));
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                        break;
-                     }
+            t = new Thread(() -> {
+               for (int i = 0; i < 5000; i++) {
+                  try {
+                     producer.send(session.createMessage(true).putIntProperty("myid", i));
+                  } catch (Exception e) {
+                     e.printStackTrace();
+                     break;
                   }
                }
-            };
+            });
             t.start();
          }
 
@@ -240,21 +231,18 @@ public class SendAckFailTest extends SpawnedTestBase {
 
 
          if (fail) {
-            new Thread() {
-               @Override
-               public void run() {
-                  try {
+            new Thread(() -> {
+               try {
 
-                     // this is a protection, if the process is left forgoten for any amount of time,
-                     // this will kill it
-                     // This is to avoid rogue processes on the CI
-                     Thread.sleep(10000);
-                     System.err.println("Halting process, protecting the CI from rogue processes");
-                     Runtime.getRuntime().halt(-1);
-                  } catch (Throwable e) {
-                  }
+                  // this is a protection, if the process is left forgoten for any amount of time,
+                  // this will kill it
+                  // This is to avoid rogue processes on the CI
+                  Thread.sleep(10000);
+                  System.err.println("Halting process, protecting the CI from rogue processes");
+                  Runtime.getRuntime().halt(-1);
+               } catch (Throwable e) {
                }
-            }.start();
+            }).start();
          }
 
          ActiveMQServer server = new ActiveMQServerImpl(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager) {

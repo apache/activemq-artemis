@@ -2657,57 +2657,54 @@ public class PagingTest extends ParameterDBTestBase {
 
             final String addressToSubscribe = PagingTest.ADDRESS + "-" + start;
 
-            threads[start - 1] = new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     ClientSession session = sf2.createSession(null, null, false, true, true, false, 0);
+            threads[start - 1] = new Thread(() -> {
+               try {
+                  ClientSession session = sf2.createSession(null, null, false, true, true, false, 0);
 
-                     ClientConsumer consumer = session.createConsumer(addressToSubscribe);
+                  ClientConsumer consumer = session.createConsumer(addressToSubscribe);
 
-                     session.start();
+                  session.start();
 
-                     for (int i = 0; i < numberOfMessages; i++) {
-                        ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
+                  for (int i = 0; i < numberOfMessages; i++) {
+                     ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
 
-                        assertNotNull(message2);
+                     assertNotNull(message2);
 
-                        assertEquals(i, message2.getIntProperty("id").intValue());
+                     assertEquals(i, message2.getIntProperty("id").intValue());
 
-                        message2.acknowledge();
+                     message2.acknowledge();
 
-                        assertNotNull(message2);
+                     assertNotNull(message2);
 
-                        if (i % 100 == 0) {
-                           if (i % 5000 == 0) {
-                              logger.debug("{} consumed {} messages", addressToSubscribe, i);
-                           }
-                           session.commit();
+                     if (i % 100 == 0) {
+                        if (i % 5000 == 0) {
+                           logger.debug("{} consumed {} messages", addressToSubscribe, i);
                         }
-
-                        try {
-                           assertBodiesEqual(body, message2.getBodyBuffer());
-                        } catch (AssertionError e) {
-                           if (logger.isDebugEnabled()) {
-                              logger.debug("Expected buffer:{}", ActiveMQTestBase.dumpBytesHex(body, 40));
-                              logger.debug("Arriving buffer:{}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
-                           }
-                           throw e;
-                        }
+                        session.commit();
                      }
 
-                     session.commit();
-
-                     consumer.close();
-
-                     session.close();
-                  } catch (Throwable e) {
-                     e.printStackTrace();
-                     errors.incrementAndGet();
+                     try {
+                        assertBodiesEqual(body, message2.getBodyBuffer());
+                     } catch (AssertionError e) {
+                        if (logger.isDebugEnabled()) {
+                           logger.debug("Expected buffer:{}", ActiveMQTestBase.dumpBytesHex(body, 40));
+                           logger.debug("Arriving buffer:{}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                        }
+                        throw e;
+                     }
                   }
 
+                  session.commit();
+
+                  consumer.close();
+
+                  session.close();
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  errors.incrementAndGet();
                }
-            };
+
+            });
          }
 
          for (int i = 0; i < 2; i++) {
@@ -3380,49 +3377,46 @@ public class PagingTest extends ParameterDBTestBase {
 
       final byte[] body = new byte[MESSAGE_SIZE];
 
-      Thread producerThread = new Thread() {
-         @Override
-         public void run() {
-            ClientSession sessionProducer = null;
-            try {
-               sessionProducer = sf.createSession(true, true);
-               ClientProducer producer = sessionProducer.createProducer(ADDRESS);
+      Thread producerThread = new Thread(() -> {
+         ClientSession sessionProducer = null;
+         try {
+            sessionProducer = sf.createSession(true, true);
+            ClientProducer producer = sessionProducer.createProducer(ADDRESS);
 
-               for (int i = 0; i < numberOfMessages; i++) {
-                  ClientMessage msg = sessionProducer.createMessage(true);
-                  msg.getBodyBuffer().writeBytes(body);
-                  msg.putIntProperty("count", i);
-                  producer.send(msg);
+            for (int i = 0; i < numberOfMessages; i++) {
+               ClientMessage msg = sessionProducer.createMessage(true);
+               msg.getBodyBuffer().writeBytes(body);
+               msg.putIntProperty("count", i);
+               producer.send(msg);
 
-                  if (i == 100) {
-                     // The session is not TX, but we do this just to perform a round trip to the server
-                     // and make sure there are no pending messages
-                     sessionProducer.commit();
+               if (i == 100) {
+                  // The session is not TX, but we do this just to perform a round trip to the server
+                  // and make sure there are no pending messages
+                  sessionProducer.commit();
 
-                     Wait.assertTrue(() -> server.getPagingManager().getPageStore(ADDRESS).isPaging());
-                     ready.countDown();
-                  }
-               }
-
-               sessionProducer.commit();
-
-               logger.debug("Producer gone");
-
-            } catch (Throwable e) {
-               e.printStackTrace(); // >> junit report
-               errors.incrementAndGet();
-            } finally {
-               try {
-                  if (sessionProducer != null) {
-                     sessionProducer.close();
-                  }
-               } catch (Throwable e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
+                  Wait.assertTrue(() -> server.getPagingManager().getPageStore(ADDRESS).isPaging());
+                  ready.countDown();
                }
             }
+
+            sessionProducer.commit();
+
+            logger.debug("Producer gone");
+
+         } catch (Throwable e) {
+            e.printStackTrace(); // >> junit report
+            errors.incrementAndGet();
+         } finally {
+            try {
+               if (sessionProducer != null) {
+                  sessionProducer.close();
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            }
          }
-      };
+      });
 
       ClientSession session = sf.createSession(true, true, 0);
       session.start();
@@ -5433,13 +5427,7 @@ public class PagingTest extends ParameterDBTestBase {
             sessionConsumerQ3 = sf.createSession(true, true);
             ClientConsumer consumerQ3 = sessionConsumerQ3.createConsumer("Q3");
 
-            consumerQ3.setMessageHandler(new MessageHandler() {
-
-               @Override
-               public void onMessage(ClientMessage message) {
-                  consumerQ3Msgs.incrementAndGet();
-               }
-            });
+            consumerQ3.setMessageHandler(message -> consumerQ3Msgs.incrementAndGet());
 
             sessionConsumerQ3.start();
 

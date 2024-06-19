@@ -526,10 +526,7 @@ public class JmsConsumerTest extends JMSTestBase {
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message msg) {
-         }
+      consumer.setMessageListener(msg -> {
       });
 
       consumer.setMessageListener(null);
@@ -542,10 +539,7 @@ public class JmsConsumerTest extends JMSTestBase {
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message msg) {
-         }
+      consumer.setMessageListener(msg -> {
       });
 
       try {

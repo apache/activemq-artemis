@@ -66,42 +66,36 @@ public class GlobalDiskFullTest extends AmqpClientTestSupport {
          CountDownLatch sentWithName = new CountDownLatch(1);
          CountDownLatch sentAnon = new CountDownLatch(1);
 
-         Thread threadWithName = new Thread() {
-            @Override
-            public void run() {
+         Thread threadWithName = new Thread(() -> {
 
-               try {
-                  final AmqpMessage message = new AmqpMessage();
-                  message.setBytes(payload);
-                  sender.setSendTimeout(-1);
-                  sender.send(message);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               } finally {
-                  sentWithName.countDown();
-               }
+            try {
+               final AmqpMessage message = new AmqpMessage();
+               message.setBytes(payload);
+               sender.setSendTimeout(-1);
+               sender.send(message);
+            } catch (Exception e) {
+               e.printStackTrace();
+            } finally {
+               sentWithName.countDown();
             }
-         };
+         });
 
          threadWithName.start();
 
 
-         Thread threadWithAnon = new Thread() {
-            @Override
-            public void run() {
-               try {
-                  final AmqpMessage message = new AmqpMessage();
-                  message.setBytes(payload);
-                  anonSender.setSendTimeout(-1);
-                  message.setAddress(getQueueName());
-                  anonSender.send(message);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               } finally {
-                  sentAnon.countDown();
-               }
+         Thread threadWithAnon = new Thread(() -> {
+            try {
+               final AmqpMessage message = new AmqpMessage();
+               message.setBytes(payload);
+               anonSender.setSendTimeout(-1);
+               message.setAddress(getQueueName());
+               anonSender.send(message);
+            } catch (Exception e) {
+               e.printStackTrace();
+            } finally {
+               sentAnon.countDown();
             }
-         };
+         });
 
          threadWithAnon.start();
 

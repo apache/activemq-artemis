@@ -253,12 +253,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (config.connectionLoadBalancingPolicyClassName == null) {
          throw new IllegalStateException("Please specify a load balancing policy class name on the session factory");
       }
-      AccessController.doPrivileged(new PrivilegedAction<Object>() {
-         @Override
-         public Object run() {
-               loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
-               return null;
-         }
+      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+         loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
+         return null;
       });
    }
 
@@ -514,15 +511,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       this.startExecutor = executor;
 
       if (executor != null) {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connect();
-               } catch (Exception e) {
-                  if (!isClosed()) {
-                     ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
-                  }
+         executor.execute(() -> {
+            try {
+               connect();
+            } catch (Exception e) {
+               if (!isClosed()) {
+                  ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
                }
             }
          });
@@ -1641,14 +1635,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          // The node is alone in the cluster. We create a connection to the new node
          // to trigger the node notification to form the cluster.
 
-         Runnable connectRunnable = new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connect();
-               } catch (ActiveMQException e) {
-                  ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
-               }
+         Runnable connectRunnable = () -> {
+            try {
+               connect();
+            } catch (ActiveMQException e) {
+               ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
             }
          };
          if (startExecutor != null) {
@@ -1943,17 +1934,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (interceptorList == null || interceptorList.trim().equals("")) {
          return;
       }
-      AccessController.doPrivileged(new PrivilegedAction<Object>() {
-         @Override
-         public Object run() {
+      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 
-            String[] arrayInterceptor = interceptorList.split(",");
-            for (String strValue : arrayInterceptor) {
-               Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim(), Interceptor.class);
-               interceptors.add(interceptor);
-            }
-            return null;
+         String[] arrayInterceptor = interceptorList.split(",");
+         for (String strValue : arrayInterceptor) {
+            Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim(), Interceptor.class);
+            interceptors.add(interceptor);
          }
+         return null;
       });
 
    }

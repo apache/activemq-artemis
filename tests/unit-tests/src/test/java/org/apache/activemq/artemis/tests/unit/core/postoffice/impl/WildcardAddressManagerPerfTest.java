@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,13 +30,14 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
-import org.apache.activemq.artemis.core.postoffice.impl.AddressMapVisitor;
 import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardAddressManagerPerfTest {
 
@@ -109,12 +108,9 @@ public class WildcardAddressManagerPerfTest {
 
       final AtomicLong addresses = new AtomicLong();
       final AtomicLong bindings = new AtomicLong();
-      ad.getAddressMap().visitMatchingWildcards(SimpleString.of(">"), new AddressMapVisitor<Bindings>() {
-         @Override
-         public void visit(Bindings value) {
-            addresses.incrementAndGet();
-            bindings.addAndGet(value.getBindings().size());
-         }
+      ad.getAddressMap().visitMatchingWildcards(SimpleString.of(">"), value -> {
+         addresses.incrementAndGet();
+         bindings.addAndGet(value.getBindings().size());
       });
       System.err.println("Total: Addresses: " + addresses.get() + ", bindings: " + bindings.get());
 

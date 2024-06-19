@@ -143,43 +143,40 @@ public class CreateSubscriptionTest extends JMSTestBase {
          CyclicBarrier startBarrier = new CyclicBarrier(threads.length);
          CyclicBarrier closeBarrier = new CyclicBarrier(threads.length);
 
-         Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-               Connection connection = null;
-               try {
-                  connection = cf.createConnection();
-                  if (queueType.equals("createDurableSubscriber")) {
-                     connection.setClientID(UUID.randomUUID().toString());
-                  }
-                  Session session = connection.createSession();
-                  Topic topic = session.createTopic("myTopic");
-                  startBarrier.await(10, TimeUnit.SECONDS);
+         Runnable runnable = () -> {
+            Connection connection = null;
+            try {
+               connection = cf.createConnection();
+               if (queueType.equals("createDurableSubscriber")) {
+                  connection.setClientID(UUID.randomUUID().toString());
+               }
+               Session session = connection.createSession();
+               Topic topic = session.createTopic("myTopic");
+               startBarrier.await(10, TimeUnit.SECONDS);
 
-                  if (queueType.equals("createSharedDurableConsumer")) {
-                     MessageConsumer messageConsumer = session.createSharedDurableConsumer(topic, "consumer1");
-                  } else if (queueType.equals("createSharedConsumer")) {
-                     MessageConsumer messageConsumer = session.createSharedConsumer(topic, "consumer1");
-                  } else if (queueType.equals("createDurableSubscriber")) {
-                     session.createDurableSubscriber(topic, "name", null, false);
-                  } else if (queueType.equals("createDurableSubscriber")) {
-                     session.createConsumer(topic);
-                  }
-
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
-               } finally {
-                  try {
-                     closeBarrier.await(10, TimeUnit.SECONDS);
-                     if (connection != null) {
-                        connection.close();
-                     }
-                  } catch (Exception ignored) {
-                  }
+               if (queueType.equals("createSharedDurableConsumer")) {
+                  MessageConsumer messageConsumer = session.createSharedDurableConsumer(topic, "consumer1");
+               } else if (queueType.equals("createSharedConsumer")) {
+                  MessageConsumer messageConsumer = session.createSharedConsumer(topic, "consumer1");
+               } else if (queueType.equals("createDurableSubscriber")) {
+                  session.createDurableSubscriber(topic, "name", null, false);
+               } else if (queueType.equals("createDurableSubscriber")) {
+                  session.createConsumer(topic);
                }
 
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            } finally {
+               try {
+                  closeBarrier.await(10, TimeUnit.SECONDS);
+                  if (connection != null) {
+                     connection.close();
+                  }
+               } catch (Exception ignored) {
+               }
             }
+
          };
 
          for (int i = 0; i < threads.length; i++) {

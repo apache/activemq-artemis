@@ -135,7 +135,7 @@ public class NettyTcpTransport implements NettyTransport {
       bootstrap = new Bootstrap();
       bootstrap.group(group);
       bootstrap.channel(NioSocketChannel.class);
-      bootstrap.handler(new ChannelInitializer<Channel>() {
+      bootstrap.handler(new ChannelInitializer<>() {
          @Override
          public void initChannel(Channel connectedChannel) throws Exception {
             configureChannel(connectedChannel, sslHandler);
@@ -145,13 +145,9 @@ public class NettyTcpTransport implements NettyTransport {
       configureNetty(bootstrap, getTransportOptions());
 
       ChannelFuture future = bootstrap.connect(getRemoteHost(), getRemotePort());
-      future.addListener(new ChannelFutureListener() {
-
-         @Override
-         public void operationComplete(ChannelFuture future) throws Exception {
-            if (!future.isSuccess()) {
-               handleException(future.channel(), IOExceptionSupport.create(future.cause()));
-            }
+      future.addListener((ChannelFutureListener) future1 -> {
+         if (!future1.isSuccess()) {
+            handleException(future1.channel(), IOExceptionSupport.create(future1.cause()));
          }
       });
 
@@ -180,13 +176,9 @@ public class NettyTcpTransport implements NettyTransport {
          throw failureCause;
       } else {
          // Connected, allow any held async error to fire now and close the transport.
-         channel.eventLoop().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               if (failureCause != null) {
-                  channel.pipeline().fireExceptionCaught(failureCause);
-               }
+         channel.eventLoop().execute(() -> {
+            if (failureCause != null) {
+               channel.pipeline().fireExceptionCaught(failureCause);
             }
          });
       }
@@ -443,16 +435,13 @@ public class NettyTcpTransport implements NettyTransport {
             handleConnected(context.channel());
          } else {
             SslHandler sslHandler = context.pipeline().get(SslHandler.class);
-            sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<Channel>>() {
-               @Override
-               public void operationComplete(Future<Channel> future) throws Exception {
-                  if (future.isSuccess()) {
-                     logger.trace("SSL Handshake has completed: {}", channel);
-                     handleConnected(channel);
-                  } else {
-                     logger.trace("SSL Handshake has failed: {}", channel);
-                     handleException(channel, future.cause());
-                  }
+            sslHandler.handshakeFuture().addListener((GenericFutureListener<Future<Channel>>) future -> {
+               if (future.isSuccess()) {
+                  logger.trace("SSL Handshake has completed: {}", channel);
+                  handleConnected(channel);
+               } else {
+                  logger.trace("SSL Handshake has failed: {}", channel);
+                  handleException(channel, future.cause());
                }
             });
          }

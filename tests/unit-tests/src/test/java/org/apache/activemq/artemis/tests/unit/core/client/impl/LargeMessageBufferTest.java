@@ -266,22 +266,19 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       final AtomicInteger errorCount = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
+      Thread t = new Thread(() -> {
 
-            try {
-               latchGo.countDown();
-               buffer.readBytes(new byte[5]);
-            } catch (IndexOutOfBoundsException ignored) {
-            } catch (IllegalAccessError ignored) {
+         try {
+            latchGo.countDown();
+            buffer.readBytes(new byte[5]);
+         } catch (IndexOutOfBoundsException ignored) {
+         } catch (IllegalAccessError ignored) {
 
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errorCount.incrementAndGet();
-            }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errorCount.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
@@ -511,20 +508,17 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       outBuffer.setOutputStream(new FakeOutputStream());
 
-      Thread sender = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(100);
-               outBuffer.addPacket(new byte[]{0}, 1, true);
-               Thread.sleep(100);
-               outBuffer.addPacket(new byte[]{0}, 1, true);
-               Thread.sleep(200);
-               outBuffer.addPacket(new byte[]{0}, 1, false);
-            } catch (Exception e) {
-            }
+      Thread sender = new Thread(() -> {
+         try {
+            Thread.sleep(100);
+            outBuffer.addPacket(new byte[]{0}, 1, true);
+            Thread.sleep(100);
+            outBuffer.addPacket(new byte[]{0}, 1, true);
+            Thread.sleep(200);
+            outBuffer.addPacket(new byte[]{0}, 1, false);
+         } catch (Exception e) {
          }
-      };
+      });
 
       sender.start();
       assertTrue(outBuffer.waitCompletion(5000));

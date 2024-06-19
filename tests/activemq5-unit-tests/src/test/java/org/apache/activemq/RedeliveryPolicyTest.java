@@ -462,18 +462,15 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
          MessageConsumer consumer = session.createConsumer(destination);
          final CountDownLatch done = new CountDownLatch(1);
 
-         consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               try {
-                  ActiveMQTextMessage m = (ActiveMQTextMessage) message;
-                  assertEquals("1st", m.getText());
-                  assertEquals(receivedCount.get(), m.getRedeliveryCounter());
-                  receivedCount.incrementAndGet();
-                  done.countDown();
-               } catch (Exception ignored) {
-                  ignored.printStackTrace();
-               }
+         consumer.setMessageListener(message -> {
+            try {
+               ActiveMQTextMessage m = (ActiveMQTextMessage) message;
+               assertEquals("1st", m.getText());
+               assertEquals(receivedCount.get(), m.getRedeliveryCounter());
+               receivedCount.incrementAndGet();
+               done.countDown();
+            } catch (Exception ignored) {
+               ignored.printStackTrace();
             }
          });
 
@@ -527,43 +524,32 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
          final CountDownLatch done = new CountDownLatch(1);
 
          final ActiveMQSession session = (ActiveMQSession) connection.createSession(true, Session.SESSION_TRANSACTED);
-         session.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               try {
-                  ActiveMQTextMessage m = (ActiveMQTextMessage) message;
-                  assertEquals("1st", m.getText());
-                  assertEquals(receivedCount.get(), m.getRedeliveryCounter());
-                  receivedCount.incrementAndGet();
-                  done.countDown();
-               } catch (Exception ignored) {
-                  ignored.printStackTrace();
-               }
+         session.setMessageListener(message -> {
+            try {
+               ActiveMQTextMessage m = (ActiveMQTextMessage) message;
+               assertEquals("1st", m.getText());
+               assertEquals(receivedCount.get(), m.getRedeliveryCounter());
+               receivedCount.incrementAndGet();
+               done.countDown();
+            } catch (Exception ignored) {
+               ignored.printStackTrace();
             }
          });
 
-         connection.createConnectionConsumer(destination, null, new ServerSessionPool() {
+         connection.createConnectionConsumer(destination, null, () -> new ServerSession() {
             @Override
-            public ServerSession getServerSession() throws JMSException {
-               return new ServerSession() {
-                  @Override
-                  public Session getSession() throws JMSException {
-                     return session;
-                  }
+            public Session getSession() throws JMSException {
+               return session;
+            }
 
-                  @Override
-                  public void start() throws JMSException {
-                  }
-               };
+            @Override
+            public void start() throws JMSException {
             }
          }, 100, false);
 
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               session.run();
-               return done.await(10, TimeUnit.MILLISECONDS);
-            }
+         Wait.waitFor(() -> {
+            session.run();
+            return done.await(10, TimeUnit.MILLISECONDS);
          });
 
          if (i <= maxRedeliveries) {

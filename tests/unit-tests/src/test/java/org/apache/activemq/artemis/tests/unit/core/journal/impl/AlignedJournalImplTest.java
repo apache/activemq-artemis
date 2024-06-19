@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,6 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
@@ -46,7 +42,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AlignedJournalImplTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -1140,56 +1139,50 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       final int NUMBER_OF_ELEMENTS = 500;
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               latchReady.countDown();
-               ActiveMQTestBase.waitForLatch(latchStart);
-               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
+      Thread t1 = new Thread(() -> {
+         try {
+            latchReady.countDown();
+            ActiveMQTestBase.waitForLatch(latchStart);
+            for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
 
-                  if (transactional) {
-                     journalImpl.appendAddRecordTransactional(i, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
-                     journalImpl.appendCommitRecord(i, false);
-                  } else {
-                     journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(50, (byte) 1), false);
-                  }
-
-                  queueDelete.offer(i);
+               if (transactional) {
+                  journalImpl.appendAddRecordTransactional(i, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
+                  journalImpl.appendCommitRecord(i, false);
+               } else {
+                  journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(50, (byte) 1), false);
                }
-               finishedOK.incrementAndGet();
-            } catch (Exception e) {
-               e.printStackTrace();
+
+               queueDelete.offer(i);
             }
+            finishedOK.incrementAndGet();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               latchReady.countDown();
-               ActiveMQTestBase.waitForLatch(latchStart);
-               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
-                  Integer toDelete = queueDelete.poll(10, TimeUnit.SECONDS);
-                  if (toDelete == null) {
-                     break;
-                  }
-
-                  if (transactional) {
-                     journalImpl.appendDeleteRecordTransactional(toDelete, toDelete, new SimpleEncoding(50, (byte) 1));
-                     journalImpl.appendCommitRecord(i, false);
-                  } else {
-                     journalImpl.appendDeleteRecord(toDelete, false);
-                  }
-
+      Thread t2 = new Thread(() -> {
+         try {
+            latchReady.countDown();
+            ActiveMQTestBase.waitForLatch(latchStart);
+            for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
+               Integer toDelete = queueDelete.poll(10, TimeUnit.SECONDS);
+               if (toDelete == null) {
+                  break;
                }
-               finishedOK.incrementAndGet();
-            } catch (Exception e) {
-               e.printStackTrace();
+
+               if (transactional) {
+                  journalImpl.appendDeleteRecordTransactional(toDelete, toDelete, new SimpleEncoding(50, (byte) 1));
+                  journalImpl.appendCommitRecord(i, false);
+               } else {
+                  journalImpl.appendDeleteRecord(toDelete, false);
+               }
+
             }
+            finishedOK.incrementAndGet();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       t1.start();
       t2.start();
@@ -1325,15 +1318,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       transactions.clear();
       incompleteTransactions.clear();
 
-      journalImpl.load(records, transactions, new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(final long transactionID,
-                                       final List<RecordInfo> records,
-                                       final List<RecordInfo> recordsToDelete) {
-            logger.debug("records.length = {}", records.size());
-            incompleteTransactions.add(transactionID);
-         }
-
+      journalImpl.load(records, transactions, (transactionID, records, recordsToDelete) -> {
+         logger.debug("records.length = {}", records.size());
+         incompleteTransactions.add(transactionID);
       });
    }
 

@@ -64,11 +64,7 @@ public class JmsSendWithAsyncCallbackTest extends TestSupport {
 
       // setup a consumer to drain messages..
       MessageConsumer consumer = session.createConsumer(queue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-         }
-      });
+      consumer.setMessageListener(message -> {});
 
       // warmup...
       for (int i = 0; i < 10; i++) {

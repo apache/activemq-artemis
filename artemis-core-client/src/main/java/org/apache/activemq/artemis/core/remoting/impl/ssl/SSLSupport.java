@@ -415,12 +415,7 @@ public class SSLSupport {
     * For that reason any class trying to do a privileged block should do with the AccessController directly.
     */
    private static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-         @Override
-         public URL run() {
-            return ClassloadingUtil.findResource(resourceName);
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
    private Pair<PrivateKey, X509Certificate[]> getPrivateKeyAndCertChain(KeyStore keyStore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {

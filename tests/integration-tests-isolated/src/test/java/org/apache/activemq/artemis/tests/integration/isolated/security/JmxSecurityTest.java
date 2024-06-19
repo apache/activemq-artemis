@@ -308,43 +308,23 @@ public class JmxSecurityTest {
       subjectB.getPrincipals().add(new RolePrincipal("b"));
 
       // client A View queue A
-      assertEquals(Long.valueOf(0), Subject.doAs(subjectA, new PrivilegedExceptionAction<Long>() {
-            @Override
-            public Long run() throws Exception {
-               return queueControlA.countMessages();
-            }
-         }));
+      assertEquals(Long.valueOf(0), Subject.doAs(subjectA, (PrivilegedExceptionAction<Long>) () -> queueControlA.countMessages()));
 
       // client B view queue A
       try {
-         assertEquals(Long.valueOf(0), Subject.doAs(subjectB, new PrivilegedExceptionAction<Long>() {
-            @Override
-            public Long run() throws Exception {
-               return queueControlA.countMessages();
-            }
-         }));
+         assertEquals(Long.valueOf(0), Subject.doAs(subjectB, (PrivilegedExceptionAction<Long>) () -> queueControlA.countMessages()));
          fail("should throw exception here");
       } catch (Exception e) {
          assertTrue(e instanceof SecurityException);
       }
 
       // client B View queue B
-      assertEquals(Long.valueOf(0), Subject.doAs(subjectB, new PrivilegedExceptionAction<Long>() {
-         @Override
-         public Long run() throws Exception {
-            return queueControlB.countMessages();
-         }
-      }));
+      assertEquals(Long.valueOf(0), Subject.doAs(subjectB, (PrivilegedExceptionAction<Long>) () -> queueControlB.countMessages()));
 
 
       // client A View queue B
       try {
-         assertEquals(Long.valueOf(0), Subject.doAs(subjectA, new PrivilegedExceptionAction<Long>() {
-            @Override
-            public Long run() throws Exception {
-               return queueControlB.countMessages();
-            }
-         }));
+         assertEquals(Long.valueOf(0), Subject.doAs(subjectA, (PrivilegedExceptionAction<Long>) () -> queueControlB.countMessages()));
          fail("should throw exception here");
       } catch (Exception e) {
          assertTrue(e instanceof SecurityException);

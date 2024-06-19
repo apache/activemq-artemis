@@ -36,23 +36,20 @@ public class CreditsSemaphoreTest {
 
    final CountDownLatch waiting = new CountDownLatch(1);
 
-   Thread thread = new Thread() {
-      @Override
-      public void run() {
-         try {
-            for (int i = 0; i < 12; i++) {
-               if (!semaphore.tryAcquire()) {
-                  waiting.countDown();
-                  semaphore.acquire();
-               }
-               acquired.incrementAndGet();
+   Thread thread = new Thread(() -> {
+      try {
+         for (int i = 0; i < 12; i++) {
+            if (!semaphore.tryAcquire()) {
+               waiting.countDown();
+               semaphore.acquire();
             }
-         } catch (Throwable e) {
-            e.printStackTrace();
-            errors.incrementAndGet();
+            acquired.incrementAndGet();
          }
+      } catch (Throwable e) {
+         e.printStackTrace();
+         errors.incrementAndGet();
       }
-   };
+   });
 
    @Test
    public void testSetAndRelease() throws Exception {

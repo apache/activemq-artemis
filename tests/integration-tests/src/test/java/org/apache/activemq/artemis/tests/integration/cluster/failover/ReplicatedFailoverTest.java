@@ -16,17 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -44,6 +39,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicatedFailoverTest extends FailoverTest {
 
@@ -151,15 +148,12 @@ public class ReplicatedFailoverTest extends FailoverTest {
       httpServer.start();
 
       try {
-         httpServer.createContext("/", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange t) throws IOException {
-               String response = "<html><body><b>This is a unit test</b></body></html>";
-               t.sendResponseHeaders(200, response.length());
-               OutputStream os = t.getResponseBody();
-               os.write(response.getBytes());
-               os.close();
-            }
+         httpServer.createContext("/", t -> {
+            String response = "<html><body><b>This is a unit test</b></body></html>";
+            t.sendResponseHeaders(200, response.length());
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
          });
          AppDTO appDTO = new AppDTO();
          appDTO.war = "console.war";

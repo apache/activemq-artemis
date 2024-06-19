@@ -117,13 +117,7 @@ public class JmsMessageConsumerTest {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination destination = session.createQueue(name.getMethodName());
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message message) {
-            received.countDown();
-         }
-      });
+      consumer.setMessageListener(message -> received.countDown());
       MessageProducer producer = session.createProducer(destination);
       producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
 
@@ -148,13 +142,7 @@ public class JmsMessageConsumerTest {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination destination = session.createQueue(name.getMethodName());
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message message) {
-            received.countDown();
-         }
-      });
+      consumer.setMessageListener(message -> received.countDown());
       MessageProducer producer = session.createProducer(destination);
       producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
 

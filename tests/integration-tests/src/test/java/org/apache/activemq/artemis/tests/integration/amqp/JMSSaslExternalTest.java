@@ -199,27 +199,24 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
          }
       };
 
-      final ClientSASLFactory clientSASLFactory = new ClientSASLFactory() {
-         @Override
-         public ClientSASL chooseMechanism(String[] availableMechanims) {
-            ExternalMechanism externalMechanism = new ExternalMechanism();
-            return new ClientSASL() {
-               @Override
-               public String getName() {
-                  return externalMechanism.getName();
-               }
+      final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+         ExternalMechanism externalMechanism = new ExternalMechanism();
+         return new ClientSASL() {
+            @Override
+            public String getName() {
+               return externalMechanism.getName();
+            }
 
-               @Override
-               public byte[] getInitialResponse() {
-                  return externalMechanism.getInitialResponse();
-               }
+            @Override
+            public byte[] getInitialResponse() {
+               return externalMechanism.getInitialResponse();
+            }
 
-               @Override
-               public byte[] getResponse(byte[] challenge) {
-                  return new byte[0];
-               }
-            };
-         }
+            @Override
+            public byte[] getResponse(byte[] challenge) {
+               return new byte[0];
+            }
+         };
       };
 
 

@@ -94,12 +94,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
       try {
          if (spawn) {
             final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-               @Override
-               public void run() {
-                  process.destroy();
-               }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
 
             if (testURI != null) {
                long timeout = System.currentTimeMillis() + spawnTimeout;

@@ -122,31 +122,25 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
       final Vector<Throwable> exceptions = new Vector<>();
       final AtomicInteger counter = new AtomicInteger(0);
       final Random rand = new Random();
-      Runnable createSessionTask = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-               stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-               counter.incrementAndGet();
-            } catch (Exception e) {
-               exceptions.add(e);
-            } catch (Throwable t) {
-            }
+      Runnable createSessionTask = () -> {
+         try {
+            TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+            stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            counter.incrementAndGet();
+         } catch (Exception e) {
+            exceptions.add(e);
+         } catch (Throwable t) {
          }
       };
 
-      Runnable startStopTask = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-               stoppedConnection.start();
-               stoppedConnection.stop();
-            } catch (Exception e) {
-               exceptions.add(e);
-            } catch (Throwable t) {
-            }
+      Runnable startStopTask = () -> {
+         try {
+            TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+            stoppedConnection.start();
+            stoppedConnection.stop();
+         } catch (Exception e) {
+            exceptions.add(e);
+         } catch (Throwable t) {
          }
       };
 

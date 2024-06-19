@@ -419,12 +419,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       // It has to use the same executor as the disconnect message is being sent through
 
-      closeExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            handleConnectionFailure(connectionID, ex);
-         }
-      });
+      closeExecutor.execute(() -> handleConnectionFailure(connectionID, ex));
 
    }
 
@@ -1150,12 +1145,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
       // else... we will try to instantiate a new one
 
-      return AccessController.doPrivileged(new PrivilegedAction<ConnectorFactory>() {
-         @Override
-         public ConnectorFactory run() {
-            return (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class);
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<ConnectorFactory>) () -> (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class));
    }
 
    public class CloseRunnable implements Runnable {
@@ -1365,12 +1355,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                theConn.bufferReceived(connectionID, buffer);
             } catch (final RuntimeException e) {
                ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
-               threadPool.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     theConn.fail(new ActiveMQException(e.getMessage()));
-                  }
-               });
+               threadPool.execute(() -> theConn.fail(new ActiveMQException(e.getMessage())));
             }
          } else {
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
@@ -1386,12 +1371,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                theConn.endOfBatch(connectionID);
             } catch (final RuntimeException e) {
                ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
-               threadPool.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     theConn.fail(new ActiveMQException(e.getMessage()));
-                  }
-               });
+               threadPool.execute(() -> theConn.fail(new ActiveMQException(e.getMessage())));
             }
          } else {
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
@@ -1472,13 +1452,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                cancelled = true;
 
-               threadPool.execute(new Runnable() {
-                  // Must be executed on different thread
-                  @Override
-                  public void run() {
-                     connectionInUse.fail(me);
-                  }
-               });
+               // Must be executed on different thread
+               threadPool.execute(() -> connectionInUse.fail(me));
 
                return;
             } else {

@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -39,6 +35,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlSendFailTest
@@ -153,12 +152,9 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest
    }
 
    protected ConnectionFactory getConnectionFactory() throws Exception {
-      factory.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException arg0) {
-            if (arg0 instanceof ResourceAllocationException) {
-               gotResourceException.set(true);
-            }
+      factory.setExceptionListener(arg0 -> {
+         if (arg0 instanceof ResourceAllocationException) {
+            gotResourceException.set(true);
          }
       });
       return factory;

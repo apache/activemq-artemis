@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -31,6 +24,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ActiveMQServerImplTest extends ServerTestBase {
 
@@ -88,6 +88,7 @@ public class ActiveMQServerImplTest extends ServerTestBase {
 
       server.start();
 
+      // if this is converted to a lambda or method references the test will fail
       Runnable scheduledRunnable = new Runnable() {
          @Override
          public void run() {

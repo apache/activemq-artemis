@@ -40,39 +40,19 @@ public class BooleanStreamTest extends TestCase {
    }
 
    public void testBooleanMarshallingUsingAllTrue() throws Exception {
-      testBooleanStream(numberOfBytes, new BooleanValueSet() {
-         @Override
-         public boolean getBooleanValueFor(int index, int count) {
-            return true;
-         }
-      });
+      testBooleanStream(numberOfBytes, (index, count) -> true);
    }
 
    public void testBooleanMarshallingUsingAllFalse() throws Exception {
-      testBooleanStream(numberOfBytes, new BooleanValueSet() {
-         @Override
-         public boolean getBooleanValueFor(int index, int count) {
-            return false;
-         }
-      });
+      testBooleanStream(numberOfBytes, (index, count) -> false);
    }
 
    public void testBooleanMarshallingUsingOddAlternateTrueFalse() throws Exception {
-      testBooleanStream(numberOfBytes, new BooleanValueSet() {
-         @Override
-         public boolean getBooleanValueFor(int index, int count) {
-            return (index & 1) == 0;
-         }
-      });
+      testBooleanStream(numberOfBytes, (index, count) -> (index & 1) == 0);
    }
 
    public void testBooleanMarshallingUsingEvenAlternateTrueFalse() throws Exception {
-      testBooleanStream(numberOfBytes, new BooleanValueSet() {
-         @Override
-         public boolean getBooleanValueFor(int index, int count) {
-            return (index & 1) != 0;
-         }
-      });
+      testBooleanStream(numberOfBytes, (index, count) -> (index & 1) != 0);
    }
 
    protected void testBooleanStream(int numberOfBytes, BooleanValueSet valueSet) throws Exception {

@@ -16,17 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.IOException;
@@ -63,6 +55,13 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompV11Test extends StompTestBase {
@@ -1463,29 +1462,26 @@ public class StompV11Test extends StompTestBase {
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      Thread thr = new Thread() {
-         @Override
-         public void run() {
-            while (latch.getCount() != 0) {
-               try {
-                  send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
-                  Thread.sleep(500);
-               } catch (InterruptedException e) {
-                  //retry
-               } catch (ClosedChannelException e) {
-                  //ok.
-                  latch.countDown();
-                  break;
-               } catch (IOException e) {
-                  //ok.
-                  latch.countDown();
-                  break;
-               } finally {
-                  conn.destroy();
-               }
+      Thread thr = new Thread(() -> {
+         while (latch.getCount() != 0) {
+            try {
+               send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
+               Thread.sleep(500);
+            } catch (InterruptedException e) {
+               //retry
+            } catch (ClosedChannelException e) {
+               //ok.
+               latch.countDown();
+               break;
+            } catch (IOException e) {
+               //ok.
+               latch.countDown();
+               break;
+            } finally {
+               conn.destroy();
             }
          }
-      };
+      });
 
       thr.start();
       latch.await(10, TimeUnit.SECONDS);
@@ -1678,12 +1674,7 @@ public class StompV11Test extends StompTestBase {
 
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message arg0) {
-            latch.countDown();
-         }
-      });
+      consumer.setMessageListener(arg0 -> latch.countDown());
 
       for (int i = 1; i <= count; i++) {
          send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");

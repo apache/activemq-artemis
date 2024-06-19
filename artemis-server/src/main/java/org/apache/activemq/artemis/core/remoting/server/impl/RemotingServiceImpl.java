@@ -202,14 +202,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       // This needs to be a different thread pool to the main thread pool especially for OIO where we may need
       // to support many hundreds of connections, but the main thread pool must be kept small for better performance
 
-      ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-         @Override
-         public ThreadFactory run() {
-            return new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
-                                                "-" +
-                                                System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader());
-         }
-      });
+      ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() + "-" + System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader()));
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
@@ -791,19 +784,16 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                   }
 
                   if (flush) {
-                     flushExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           try {
-                              // this is using a different thread
-                              // as if anything wrong happens on flush
-                              // failure detection could be affected
-                              conn.scheduledFlush();
-                           } catch (Throwable e) {
-                              ActiveMQServerLogger.LOGGER.failedToFlushOutstandingDataFromTheConnection(e);
-                           }
-
+                     flushExecutor.execute(() -> {
+                        try {
+                           // this is using a different thread
+                           // as if anything wrong happens on flush
+                           // failure detection could be affected
+                           conn.scheduledFlush();
+                        } catch (Throwable e) {
+                           ActiveMQServerLogger.LOGGER.failedToFlushOutstandingDataFromTheConnection(e);
                         }
+
                      });
                   }
                }
@@ -814,12 +804,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                      // In certain cases (replicationManager for instance) calling fail could take some time
                      // We can't pause the FailureCheckAndFlushThread as that would lead other clients to fail for
                      // missing pings
-                     flushExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress(), pair.getB()));
-                        }
-                     });
+                     flushExecutor.execute(() -> conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress(), pair.getB())));
                      removeConnection(pair.getA());
                   }
                }

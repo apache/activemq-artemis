@@ -61,14 +61,11 @@ public class TransportConfigurationUtil {
    }
 
    private static Object instantiateObject(final String className, final Class expectedType) {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>() {
-         @Override
-         public Object run() {
-            try {
-               return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className, expectedType);
-            } catch (IllegalStateException e) {
-               return null;
-            }
+      return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+         try {
+            return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className, expectedType);
+         } catch (IllegalStateException e) {
+            return null;
          }
       });
    }

@@ -296,12 +296,9 @@ public final class InVMAcceptor extends AbstractAcceptor {
             listener.connectionDestroyed(connectionID, failed);
 
             // Execute on different thread after all the packets are sent, to avoid deadlocks
-            connection.getExecutor().execute(new Runnable() {
-               @Override
-               public void run() {
-                  // Remove on the other side too
-                  connector.disconnect((String) connectionID);
-               }
+            connection.getExecutor().execute(() -> {
+               // Remove on the other side too
+               connector.disconnect((String) connectionID);
             });
          }
       }

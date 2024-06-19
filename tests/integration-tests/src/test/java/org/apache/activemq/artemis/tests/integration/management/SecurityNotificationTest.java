@@ -154,19 +154,16 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
          ManagementFactory.getPlatformMBeanServer(),
          ObjectNameBuilder.DEFAULT.getAddressObjectName(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()), AddressControl.class, false);
 
-      Exception e = Subject.doAs(guestSubject, new PrivilegedExceptionAction<Exception>() {
-         @Override
-         public Exception run() throws Exception {
-            try {
-               addressControl.sendMessage(null, 1, "hi", false, null, null);
-               fail("need Send permission");
-            } catch (Exception expected) {
-               assertTrue(expected.getMessage().contains("guest"));
-               assertTrue(expected.getMessage().contains("SEND"));
-               return expected;
-            }
-            return null;
+      Exception e = Subject.doAs(guestSubject, (PrivilegedExceptionAction<Exception>) () -> {
+         try {
+            addressControl.sendMessage(null, 1, "hi", false, null, null);
+            fail("need Send permission");
+         } catch (Exception expected) {
+            assertTrue(expected.getMessage().contains("guest"));
+            assertTrue(expected.getMessage().contains("SEND"));
+            return expected;
          }
+         return null;
       });
       assertNotNull(e, "expect exception");
 

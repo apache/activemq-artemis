@@ -17,11 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.journal;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
-import java.io.FileFilter;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -29,6 +25,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RelativePathTest extends ActiveMQTestBase {
 
@@ -104,12 +103,7 @@ public class RelativePathTest extends ActiveMQTestBase {
    public void checkData(File dataHome, final String extension) {
       assertTrue(dataHome.exists(), "Folder " + dataHome + " doesn't exist");
 
-      File[] files = dataHome.listFiles(new FileFilter() {
-         @Override
-         public boolean accept(File pathname) {
-            return (extension == null || pathname.toString().endsWith(extension));
-         }
-      });
+      File[] files = dataHome.listFiles(pathname -> (extension == null || pathname.toString().endsWith(extension)));
 
       assertNotNull(files);
 

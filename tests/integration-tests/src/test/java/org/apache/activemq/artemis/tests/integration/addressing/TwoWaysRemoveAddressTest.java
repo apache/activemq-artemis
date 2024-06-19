@@ -53,43 +53,37 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
       AtomicInteger errors = new AtomicInteger(0);
 
-      Thread createAndDestroy1 = new Thread() {
-         @Override
-         public void run() {
+      Thread createAndDestroy1 = new Thread(() -> {
 
-            try {
-               barrier.await(10, TimeUnit.SECONDS);
+         try {
+            barrier.await(10, TimeUnit.SECONDS);
 
-               for (int i = 0; i < retries; i++) {
-                  logger.debug("Removed queue on thread 1 ::{}", i);
-                  server.createQueue(QueueConfiguration.of("queueName_1_" + i).setAddress("address_1_" + i).setRoutingType(RoutingType.ANYCAST));
-                  server.destroyQueue(SimpleString.of("queueName_1_" + i));
-               }
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-               errors.incrementAndGet();
+            for (int i = 0; i < retries; i++) {
+               logger.debug("Removed queue on thread 1 ::{}", i);
+               server.createQueue(QueueConfiguration.of("queueName_1_" + i).setAddress("address_1_" + i).setRoutingType(RoutingType.ANYCAST));
+               server.destroyQueue(SimpleString.of("queueName_1_" + i));
             }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            errors.incrementAndGet();
          }
-      };
+      });
 
-      Thread createAndDestroy2 = new Thread() {
-         @Override
-         public void run() {
+      Thread createAndDestroy2 = new Thread(() -> {
 
-            try {
-               barrier.await(10, TimeUnit.SECONDS);
+         try {
+            barrier.await(10, TimeUnit.SECONDS);
 
-               for (int i = 0; i < retries; i++) {
-                  logger.debug("Removed queue on thread 2 ::{}", i);
-                  server.createQueue(QueueConfiguration.of("queueName_2_" + i).setAddress("address_2_" + i).setRoutingType(RoutingType.ANYCAST));
-                  server.removeAddressInfo(SimpleString.of("address_2_" + i), null, true);
-               }
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-               errors.incrementAndGet();
+            for (int i = 0; i < retries; i++) {
+               logger.debug("Removed queue on thread 2 ::{}", i);
+               server.createQueue(QueueConfiguration.of("queueName_2_" + i).setAddress("address_2_" + i).setRoutingType(RoutingType.ANYCAST));
+               server.removeAddressInfo(SimpleString.of("address_2_" + i), null, true);
             }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            errors.incrementAndGet();
          }
-      };
+      });
 
       createAndDestroy1.start();
       createAndDestroy2.start();

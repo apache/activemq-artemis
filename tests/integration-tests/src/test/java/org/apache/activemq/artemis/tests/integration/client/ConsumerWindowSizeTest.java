@@ -326,35 +326,32 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       final AtomicInteger received = new AtomicInteger(0);
 
       for (int i = 0; i < threads.length; i++) {
-         threads[i] = new Thread() {
-            @Override
-            public void run() {
-               try {
-                  ClientSession session = sf.createSession(false, false);
-                  ClientConsumer consumer = session.createConsumer("testWindow");
-                  session.start();
-                  latchStart.await(10, TimeUnit.SECONDS);
+         threads[i] = new Thread(() -> {
+            try {
+               ClientSession session = sf.createSession(false, false);
+               ClientConsumer consumer = session.createConsumer("testWindow");
+               session.start();
+               latchStart.await(10, TimeUnit.SECONDS);
 
-                  while (true) {
+               while (true) {
 
-                     if (received.incrementAndGet() > NUMBER_OF_MESSAGES) {
-                        received.decrementAndGet();
-                        break;
-                     }
-                     ClientMessage msg = consumer.receive(1000);
-                     msg.acknowledge();
-
-                     session.commit();
-
-
+                  if (received.incrementAndGet() > NUMBER_OF_MESSAGES) {
+                     received.decrementAndGet();
+                     break;
                   }
+                  ClientMessage msg = consumer.receive(1000);
+                  msg.acknowledge();
 
-               } catch (Throwable e) {
-                  e.printStackTrace();
-                  errors.incrementAndGet();
+                  session.commit();
+
+
                }
+
+            } catch (Throwable e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
             }
-         };
+         });
 
          threads[i].start();
       }

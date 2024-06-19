@@ -930,29 +930,26 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       checkRecordSize(addRecordEncodeSize, record);
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            try {
-               JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
-               records.put(id, new JournalRecord(usedFile, addRecordEncodeSize));
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
+         try {
+            JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
+            records.put(id, new JournalRecord(usedFile, addRecordEncodeSize));
 
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendAddRecord::id={}, userRecordType={}, record = {}, usedFile = {}",
-                               id, recordType, record, usedFile);
-               }
-               result.set(true);
-            } catch (ActiveMQShutdownException e) {
-               result.fail(e);
-               logger.error("Exception during appendAddRecord:", e);
-            } catch (Throwable e) {
-               result.fail(e);
-               setErrorCondition(callback, null, e);
-               logger.error("Exception during appendAddRecord:", e);
-            } finally {
-               journalLock.readLock().unlock();
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendAddRecord::id={}, userRecordType={}, record = {}, usedFile = {}",
+                            id, recordType, record, usedFile);
             }
+            result.set(true);
+         } catch (ActiveMQShutdownException e) {
+            result.fail(e);
+            logger.error("Exception during appendAddRecord:", e);
+         } catch (Throwable e) {
+            result.fail(e);
+            setErrorCondition(callback, null, e);
+            logger.error("Exception during appendAddRecord:", e);
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
 
@@ -1078,64 +1075,61 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                            boolean replaceableUpdate,
                                            JournalUpdateCallback updateCallback,
                                            IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            try {
-               // compactor will never change while readLock is acquired.
-               // but we are doing this since compactor is volatile, to avoid some extra work from JIT
-               JournalCompactor compactor = JournalImpl.this.compactor;
-               JournalRecord jrnRecord = records.get(id);
-               if (jrnRecord == null) {
-                  if (compactor == null || (!compactor.containsRecord(id))) {
-                     if (updateCallback != null) {
-                        updateCallback.onUpdate(id, false);
-                     }
-                     if (logger.isDebugEnabled()) {
-                        logger.debug("Record {} had not been found", id);
-                     }
-
-                     if (callback != null) {
-                        callback.done();
-                     }
-                     return;
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
+         try {
+            // compactor will never change while readLock is acquired.
+            // but we are doing this since compactor is volatile, to avoid some extra work from JIT
+            JournalCompactor compactor = JournalImpl.this.compactor;
+            JournalRecord jrnRecord = records.get(id);
+            if (jrnRecord == null) {
+               if (compactor == null || (!compactor.containsRecord(id))) {
+                  if (updateCallback != null) {
+                     updateCallback.onUpdate(id, false);
                   }
-               }
-               JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
-               JournalFile usedFile = appendRecord(updateRecord, false, sync, null, callback);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendUpdateRecord::id={}, userRecordType={}, usedFile = {}", id, recordType, usedFile);
-               }
-
-               // record==null here could only mean there is a compactor
-               // computing the delete should be done after compacting is done
-               if (jrnRecord == null) {
-                  if (compactor != null) {
-                     compactor.addCommandUpdate(id, usedFile, updateRecord.getEncodeSize(), replaceableUpdate);
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Record {} had not been found", id);
                   }
-               } else {
-                  jrnRecord.addUpdateFile(usedFile, updateRecord.getEncodeSize(), replaceableUpdate);
-               }
 
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, true);
+                  if (callback != null) {
+                     callback.done();
+                  }
+                  return;
                }
-            } catch (ActiveMQShutdownException e) {
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, false);
-               }
-               logger.error("Exception during appendUpdateRecord:", e);
-            } catch (Throwable e) {
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, false);
-               }
-               setErrorCondition(callback, null, e);
-               logger.error("Exception during appendUpdateRecord:", e);
-            } finally {
-               journalLock.readLock().unlock();
             }
+            JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
+            JournalFile usedFile = appendRecord(updateRecord, false, sync, null, callback);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendUpdateRecord::id={}, userRecordType={}, usedFile = {}", id, recordType, usedFile);
+            }
+
+            // record==null here could only mean there is a compactor
+            // computing the delete should be done after compacting is done
+            if (jrnRecord == null) {
+               if (compactor != null) {
+                  compactor.addCommandUpdate(id, usedFile, updateRecord.getEncodeSize(), replaceableUpdate);
+               }
+            } else {
+               jrnRecord.addUpdateFile(usedFile, updateRecord.getEncodeSize(), replaceableUpdate);
+            }
+
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, true);
+            }
+         } catch (ActiveMQShutdownException e) {
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, false);
+            }
+            logger.error("Exception during appendUpdateRecord:", e);
+         } catch (Throwable e) {
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, false);
+            }
+            setErrorCondition(callback, null, e);
+            logger.error("Exception during appendUpdateRecord:", e);
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
    }
@@ -1187,71 +1181,68 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                            JournalUpdateCallback updateCallback,
                                            IOCompletion callback)  {
 
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            try {
-               // compactor will never change while readLock is acquired.
-               // but we are doing this since compactor is volatile, to avoid some extra work from JIT
-               JournalCompactor compactor = JournalImpl.this.compactor;
-               JournalRecord record = null;
-               if (compactor == null) {
-                  record = records.remove(id);
-                  if (record == null) {
-                     if (updateCallback != null) {
-                        updateCallback.onUpdate(id, false);
-                     }
-
-                     if (callback != null) {
-                        callback.done();
-                     }
-                     return;
-                  }
-               } else {
-                  if (!records.containsKey(id) && !compactor.containsRecord(id)) {
-                     if (updateCallback != null) {
-                        updateCallback.onUpdate(id, false);
-                     }
-                     if (callback != null) {
-                        callback.done();
-                     }
-                     return;
-                  }
-               }
-
-               JournalInternalRecord deleteRecord = new JournalDeleteRecord(id);
-               JournalFile usedFile = appendRecord(deleteRecord, false, sync, null, callback);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendDeleteRecord::id={}, usedFile = {}", id, usedFile);
-               }
-
-               // record==null here could only mean there is a compactor
-               // computing the delete should be done after compacting is done
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
+         try {
+            // compactor will never change while readLock is acquired.
+            // but we are doing this since compactor is volatile, to avoid some extra work from JIT
+            JournalCompactor compactor = JournalImpl.this.compactor;
+            JournalRecord record = null;
+            if (compactor == null) {
+               record = records.remove(id);
                if (record == null) {
-                  // JournalImplTestUni::testDoubleDelete was written to validate this condition:
-                  compactor.addCommandDelete(id, usedFile);
-               } else {
-                  record.delete(usedFile);
+                  if (updateCallback != null) {
+                     updateCallback.onUpdate(id, false);
+                  }
+
+                  if (callback != null) {
+                     callback.done();
+                  }
+                  return;
                }
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, true);
+            } else {
+               if (!records.containsKey(id) && !compactor.containsRecord(id)) {
+                  if (updateCallback != null) {
+                     updateCallback.onUpdate(id, false);
+                  }
+                  if (callback != null) {
+                     callback.done();
+                  }
+                  return;
                }
-            } catch (ActiveMQShutdownException e) {
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, false);
-               }
-               logger.error("Exception during appendDeleteRecord:", e);
-            } catch (Throwable e) {
-               if (updateCallback != null) {
-                  updateCallback.onUpdate(id, false);
-               }
-               logger.error("Exception during appendDeleteRecord:", e);
-               setErrorCondition(callback, null, e);
-            } finally {
-               journalLock.readLock().unlock();
             }
+
+            JournalInternalRecord deleteRecord = new JournalDeleteRecord(id);
+            JournalFile usedFile = appendRecord(deleteRecord, false, sync, null, callback);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendDeleteRecord::id={}, usedFile = {}", id, usedFile);
+            }
+
+            // record==null here could only mean there is a compactor
+            // computing the delete should be done after compacting is done
+            if (record == null) {
+               // JournalImplTestUni::testDoubleDelete was written to validate this condition:
+               compactor.addCommandDelete(id, usedFile);
+            } else {
+               record.delete(usedFile);
+            }
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, true);
+            }
+         } catch (ActiveMQShutdownException e) {
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, false);
+            }
+            logger.error("Exception during appendDeleteRecord:", e);
+         } catch (Throwable e) {
+            if (updateCallback != null) {
+               updateCallback.onUpdate(id, false);
+            }
+            logger.error("Exception during appendDeleteRecord:", e);
+            setErrorCondition(callback, null, e);
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
    }
@@ -1277,33 +1268,29 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       checkRecordSize(encodeSize, record);
 
-      appendExecutor.execute(new Runnable() {
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
 
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
+         final JournalTransaction tx = getTransactionInfo(txID);
 
-            final JournalTransaction tx = getTransactionInfo(txID);
-
-            try {
-               if (tx != null) {
-                  tx.checkErrorCondition();
-               }
-               // we need to calculate the encodeSize here, as it may use caches that are eliminated once the record is written
-               JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendAddRecordTransactional:txID={},id={}, userRecordType={}, record = {}, usedFile = {}",
-                               txID, id, recordType, record, usedFile);
-               }
-
-               tx.addPositive(usedFile, id, encodeSize, false);
-            } catch (Throwable e) {
-               logger.error("Exception during appendAddRecordTransactional:", e);
-               setErrorCondition(null, tx, e);
-            } finally {
-               journalLock.readLock().unlock();
+         try {
+            if (tx != null) {
+               tx.checkErrorCondition();
             }
+            // we need to calculate the encodeSize here, as it may use caches that are eliminated once the record is written
+            JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendAddRecordTransactional:txID={},id={}, userRecordType={}, record = {}, usedFile = {}",
+                            txID, id, recordType, record, usedFile);
+            }
+
+            tx.addPositive(usedFile, id, encodeSize, false);
+         } catch (Throwable e) {
+            logger.error("Exception during appendAddRecordTransactional:", e);
+            setErrorCondition(null, tx, e);
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
    }
@@ -1331,32 +1318,28 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       checkJournalIsLoaded();
 
 
-      appendExecutor.execute(new Runnable() {
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
 
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
+         final JournalTransaction tx = getTransactionInfo(txID);
 
-            final JournalTransaction tx = getTransactionInfo(txID);
+         try {
+            tx.checkErrorCondition();
 
-            try {
-               tx.checkErrorCondition();
+            JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, persister, record );
+            JournalFile usedFile = appendRecord( updateRecordTX, false, false, tx, null );
 
-               JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, persister, record );
-               JournalFile usedFile = appendRecord( updateRecordTX, false, false, tx, null );
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendUpdateRecordTransactional::txID={}, id={}, userRecordType={}, record = {}, usedFile = {}",
-                               txID, id, recordType, record, usedFile );
-               }
-
-               tx.addPositive( usedFile, id, updateRecordTX.getEncodeSize(), false);
-            } catch (Throwable e ) {
-               logger.error("Exception during appendUpdateRecordTransactional:", e );
-               setErrorCondition(null, tx, e );
-            } finally {
-               journalLock.readLock().unlock();
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendUpdateRecordTransactional::txID={}, id={}, userRecordType={}, record = {}, usedFile = {}",
+                            txID, id, recordType, record, usedFile );
             }
+
+            tx.addPositive( usedFile, id, updateRecordTX.getEncodeSize(), false);
+         } catch (Throwable e ) {
+            logger.error("Exception during appendUpdateRecordTransactional:", e );
+            setErrorCondition(null, tx, e );
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
    }
@@ -1371,32 +1354,29 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       checkJournalIsLoaded();
 
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
 
-            final JournalTransaction tx = getTransactionInfo(txID);
+         final JournalTransaction tx = getTransactionInfo(txID);
 
-            try {
-               if (tx != null) {
-                  tx.checkErrorCondition();
-               }
-
-               JournalInternalRecord deleteRecordTX = new JournalDeleteRecordTX(txID, id, record);
-               JournalFile usedFile = appendRecord(deleteRecordTX, false, false, tx, null);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendDeleteRecordTransactional::txID={}, id={}, usedFile = {}", txID, id, usedFile);
-               }
-
-               tx.addNegative(usedFile, id);
-            } catch (Throwable e) {
-               logger.error("Exception during appendDeleteRecordTransactional:", e);
-               setErrorCondition(null, tx, e);
-            } finally {
-               journalLock.readLock().unlock();
+         try {
+            if (tx != null) {
+               tx.checkErrorCondition();
             }
+
+            JournalInternalRecord deleteRecordTX = new JournalDeleteRecordTX(txID, id, record);
+            JournalFile usedFile = appendRecord(deleteRecordTX, false, false, tx, null);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendDeleteRecordTransactional::txID={}, id={}, usedFile = {}", txID, id, usedFile);
+            }
+
+            tx.addNegative(usedFile, id);
+         } catch (Throwable e) {
+            logger.error("Exception during appendDeleteRecordTransactional:", e);
+            setErrorCondition(null, tx, e);
+         } finally {
+            journalLock.readLock().unlock();
          }
       });
    }
@@ -1426,35 +1406,32 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
 
 
-            final JournalTransaction tx = getTransactionInfo(txID);
+         final JournalTransaction tx = getTransactionInfo(txID);
 
-            try {
-               tx.checkErrorCondition();
-               JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, txID, transactionData);
-               JournalFile usedFile = appendRecord(prepareRecord, true, sync, tx, callback);
+         try {
+            tx.checkErrorCondition();
+            JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, txID, transactionData);
+            JournalFile usedFile = appendRecord(prepareRecord, true, sync, tx, callback);
 
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendPrepareRecord::txID={}, usedFile = {}", txID, usedFile);
-               }
-
-               tx.prepare(usedFile);
-            } catch (ActiveMQShutdownException e) {
-               result.fail(e);
-               logger.error("Exception during appendPrepareRecord:", e);
-            } catch (Throwable e) {
-               result.fail(e);
-               logger.error("Exception during appendPrepareRecord:", e);
-               setErrorCondition(callback, tx, e);
-            } finally {
-               journalLock.readLock().unlock();
-               result.set(tx);
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendPrepareRecord::txID={}, usedFile = {}", txID, usedFile);
             }
+
+            tx.prepare(usedFile);
+         } catch (ActiveMQShutdownException e) {
+            result.fail(e);
+            logger.error("Exception during appendPrepareRecord:", e);
+         } catch (Throwable e) {
+            result.fail(e);
+            logger.error("Exception during appendPrepareRecord:", e);
+            setErrorCondition(callback, tx, e);
+         } finally {
+            journalLock.readLock().unlock();
+            result.set(tx);
          }
       });
 
@@ -1506,37 +1483,34 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            // cannot remove otherwise compact may get lost
-            final JournalTransaction tx = transactions.remove(txID);
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
+         // cannot remove otherwise compact may get lost
+         final JournalTransaction tx = transactions.remove(txID);
 
-            try {
-               if (tx == null) {
-                  throw new IllegalStateException("Cannot find tx with id " + txID);
-               }
-
-               JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, txID, null);
-               JournalFile usedFile = appendRecord(commitRecord, true, sync, tx, callback);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendCommitRecord::txID={}, usedFile = {}", txID, usedFile);
-               }
-
-               tx.commit(usedFile);
-            } catch (ActiveMQShutdownException e) {
-               result.fail(e);
-               logger.error("Exception during appendCommitRecord:", e);
-            } catch (Throwable e) {
-               result.fail(e);
-               logger.error("Exception during appendCommitRecord:", e);
-               setErrorCondition(callback, tx, e);
-            } finally {
-               journalLock.readLock().unlock();
-               result.set(tx);
+         try {
+            if (tx == null) {
+               throw new IllegalStateException("Cannot find tx with id " + txID);
             }
+
+            JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, txID, null);
+            JournalFile usedFile = appendRecord(commitRecord, true, sync, tx, callback);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendCommitRecord::txID={}, usedFile = {}", txID, usedFile);
+            }
+
+            tx.commit(usedFile);
+         } catch (ActiveMQShutdownException e) {
+            result.fail(e);
+            logger.error("Exception during appendCommitRecord:", e);
+         } catch (Throwable e) {
+            result.fail(e);
+            logger.error("Exception during appendCommitRecord:", e);
+            setErrorCondition(callback, tx, e);
+         } finally {
+            journalLock.readLock().unlock();
+            result.set(tx);
          }
       });
 
@@ -1556,37 +1530,34 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
 
-            final JournalTransaction tx = transactions.remove(txID);
-            try {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("appendRollbackRecord::txID={}", txID);
-               }
-
-               if (tx == null) {
-                  throw new IllegalStateException("Cannot find tx with id " + txID);
-               }
-
-
-               JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(txID);
-               JournalFile usedFile = appendRecord(rollbackRecord, false, sync, tx, callback);
-
-               tx.rollback(usedFile);
-            } catch (ActiveMQShutdownException e) {
-               result.fail(e);
-               logger.error("Exception during appendRollbackRecord:", e);
-            } catch (Throwable e) {
-               result.fail(e);
-               logger.error("Exception during appendRollbackRecord:", e);
-               setErrorCondition(callback, tx, e);
-            }  finally {
-               journalLock.readLock().unlock();
-               result.set(tx);
+         final JournalTransaction tx = transactions.remove(txID);
+         try {
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendRollbackRecord::txID={}", txID);
             }
+
+            if (tx == null) {
+               throw new IllegalStateException("Cannot find tx with id " + txID);
+            }
+
+
+            JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(txID);
+            JournalFile usedFile = appendRecord(rollbackRecord, false, sync, tx, callback);
+
+            tx.rollback(usedFile);
+         } catch (ActiveMQShutdownException e) {
+            result.fail(e);
+            logger.error("Exception during appendRollbackRecord:", e);
+         } catch (Throwable e) {
+            result.fail(e);
+            logger.error("Exception during appendRollbackRecord:", e);
+            setErrorCondition(callback, tx, e);
+         }  finally {
+            journalLock.readLock().unlock();
+            result.set(tx);
          }
       });
 
@@ -1743,18 +1714,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       // We can't use the executor for the compacting... or we would dead lock because of file open and creation
       // operations (that will use the executor)
-      compactorExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
+      compactorExecutor.execute(() -> {
 
-            try {
-               JournalImpl.this.compact();
-            } catch (Throwable e) {
-               errors.incrementAndGet();
-               ActiveMQJournalLogger.LOGGER.errorCompacting(e);
-            } finally {
-               latch.countDown();
-            }
+         try {
+            JournalImpl.this.compact();
+         } catch (Throwable e) {
+            errors.incrementAndGet();
+            ActiveMQJournalLogger.LOGGER.errorCompacting(e);
+         } finally {
+            latch.countDown();
          }
       });
 
@@ -2645,17 +2613,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       // We can't use the executor for the compacting... or we would dead lock because of file open and creation
       // operations (that will use the executor)
-      compactorExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               JournalImpl.this.compact();
-            } catch (Throwable e) {
-               ActiveMQJournalLogger.LOGGER.errorCompacting(e);
-            } finally {
-               compactorRunning.set(false);
-               logger.debug("JournalImpl::scheduleCompact() done");
-            }
+      compactorExecutor.execute(() -> {
+         try {
+            JournalImpl.this.compact();
+         } catch (Throwable e) {
+            ActiveMQJournalLogger.LOGGER.errorCompacting(e);
+         } finally {
+            compactorRunning.set(false);
+            logger.debug("JournalImpl::scheduleCompact() done");
          }
       });
    }
@@ -2762,14 +2727,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          final CountDownLatch latch = new CountDownLatch(1);
 
          try {
-            executor.execute(new Runnable() {
-
-               @Override
-               public void run() {
-                  latch.countDown();
-               }
-
-            });
+            executor.execute(latch::countDown);
             latch.await(10, TimeUnit.SECONDS);
          } catch (RejectedExecutionException ignored ) {
             // this is fine
@@ -2883,12 +2841,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       if (providedIOThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ArtemisIOThread", true, JournalImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ArtemisIOThread", true, JournalImpl.class.getClassLoader()));
 
          threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L,TimeUnit.SECONDS, new SynchronousQueue(), factory);
          ioExecutorFactory = new OrderedExecutorFactory(threadPool);
@@ -3005,20 +2958,17 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       final CountDownLatch done = newLatch(1);
 
-      filesExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               for (JournalFile file : oldFiles) {
-                  try {
-                     filesRepository.addFreeFile(file, false);
-                  } catch (Throwable e) {
-                     ActiveMQJournalLogger.LOGGER.errorReinitializingFile(file, e);
-                  }
+      filesExecutor.execute(() -> {
+         try {
+            for (JournalFile file : oldFiles) {
+               try {
+                  filesRepository.addFreeFile(file, false);
+               } catch (Throwable e) {
+                  ActiveMQJournalLogger.LOGGER.errorReinitializingFile(file, e);
                }
-            } finally {
-               done.countDown();
             }
+         } finally {
+            done.countDown();
          }
       });
 
@@ -3298,18 +3248,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       if (isAutoReclaim() && !compactorRunning.get()) {
          logger.trace("Scheduling reclaim and compactor checks");
-         compactorExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  processBackup();
-                  checkReclaimStatus();
-                  checkCompact();
-               } catch (Exception e) {
-                  ActiveMQJournalLogger.LOGGER.errorSchedulingCompacting(e);
-               } finally {
-                  logger.debug("JournalImpl::scheduleReclaim finished");
-               }
+         compactorExecutor.execute(() -> {
+            try {
+               processBackup();
+               checkReclaimStatus();
+               checkCompact();
+            } catch (Exception e) {
+               ActiveMQJournalLogger.LOGGER.errorSchedulingCompacting(e);
+            } finally {
+               logger.debug("JournalImpl::scheduleReclaim finished");
             }
          });
       } else {

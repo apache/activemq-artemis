@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence.metrics;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -26,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSession;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,13 +42,13 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.Wait.Condition;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -535,40 +534,16 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
          throws Exception {
       final List<Queue> queues = getQueues(address);
 
-      assertTrue(Wait.waitFor(new Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queues.stream().mapToLong(countFunc)
-                  .sum() == count;
-         }
-      }));
-
-      verifySize(count, new MessageSizeCalculator() {
-         @Override
-         public long getMessageSize() throws Exception {
-            return queues.stream().mapToLong(sizeFunc)
-                  .sum();
-         }
-      }, minimumSize);
-
+      assertTrue(Wait.waitFor(() -> queues.stream().mapToLong(countFunc).sum() == count));
+      verifySize(count, () -> queues.stream().mapToLong(sizeFunc).sum(), minimumSize);
    }
 
    protected void verifySize(final int count, final MessageSizeCalculator messageSizeCalculator, final long minimumSize)
          throws Exception {
       if (count > 0) {
-         assertTrue(Wait.waitFor(new Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return messageSizeCalculator.getMessageSize() > minimumSize;
-            }
-         }));
+         assertTrue(Wait.waitFor(() -> messageSizeCalculator.getMessageSize() > minimumSize));
       } else {
-         assertTrue(Wait.waitFor(new Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return messageSizeCalculator.getMessageSize() == 0;
-            }
-         }));
+         assertTrue(Wait.waitFor(() -> messageSizeCalculator.getMessageSize() == 0));
       }
    }
 

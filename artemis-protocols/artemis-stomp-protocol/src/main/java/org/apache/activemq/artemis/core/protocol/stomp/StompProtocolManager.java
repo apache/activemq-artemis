@@ -259,33 +259,30 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       connection.setValid(false);
 
       // Close the session outside of the lock on the StompConnection, otherwise it could dead lock
-      this.executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            StompSession session = sessions.remove(connection.getID());
-            if (session != null) {
-               try {
-                  session.getCoreSession().stop();
-                  session.getCoreSession().rollback(true);
-                  session.getCoreSession().close(false);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
-               }
+      this.executor.execute(() -> {
+         StompSession session = sessions.remove(connection.getID());
+         if (session != null) {
+            try {
+               session.getCoreSession().stop();
+               session.getCoreSession().rollback(true);
+               session.getCoreSession().close(false);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
             }
-
-            Map<Object, StompSession> sessionMap = getTXMap(connection.getID());
-            sessionMap.values().forEach(ss -> {
-               try {
-                  ss.getCoreSession().rollback(false);
-                  ss.getCoreSession().close(false);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
-               }
-            });
-            sessionMap.clear();
-
-            transactedSessions.remove(connection.getID());
          }
+
+         Map<Object, StompSession> sessionMap = getTXMap(connection.getID());
+         sessionMap.values().forEach(ss -> {
+            try {
+               ss.getCoreSession().rollback(false);
+               ss.getCoreSession().close(false);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
+            }
+         });
+         sessionMap.clear();
+
+         transactedSessions.remove(connection.getID());
       });
    }
 

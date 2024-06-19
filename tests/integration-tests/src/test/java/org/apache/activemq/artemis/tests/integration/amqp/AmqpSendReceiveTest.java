@@ -281,13 +281,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue(Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queueView.getMessagesAcknowledged() == 2;
-         }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
+      assertTrue(Wait.waitFor(() -> queueView.getMessagesAcknowledged() == 2, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
 
       AmqpReceiver receiver2 = session.createReceiver(getQueueName());
 
@@ -301,13 +295,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue(Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queueView.getMessagesAcknowledged() == 4;
-         }
-      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(10)), "Queue should be empty now");
+      assertTrue(Wait.waitFor(() -> queueView.getMessagesAcknowledged() == 4, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(10)), "Queue should be empty now");
 
       receiver1.close();
       receiver2.close();
@@ -334,13 +322,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver1.flow(20);
 
-      assertTrue(Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queueView.getDeliveringCount() >= 2;
-         }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have dispatch to prefetch");
+      assertTrue(Wait.waitFor(() -> queueView.getDeliveringCount() >= 2, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have dispatch to prefetch");
 
       receiver1.close();
 
@@ -356,13 +338,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertNotNull(message);
       message.accept();
 
-      assertTrue(Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queueView.getMessagesAcknowledged() == 2;
-         }
-      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
+      assertTrue(Wait.waitFor(() -> queueView.getMessagesAcknowledged() == 2, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)), "Should have ack'd two");
 
       receiver2.close();
 
@@ -739,55 +715,49 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       final String address = getQueueName();
 
-      executorService.submit(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               logger.debug("Starting consumer connection");
-               AmqpConnection connection = addConnection(client.connect());
-               AmqpSession session = connection.createSession();
-               AmqpReceiver receiver = session.createReceiver(address);
-               receiver.flow(1);
-               receiverReady.countDown();
-               AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-               assertNotNull(received);
+      executorService.submit(() -> {
+         try {
+            logger.debug("Starting consumer connection");
+            AmqpConnection connection = addConnection(client.connect());
+            AmqpSession session = connection.createSession();
+            AmqpReceiver receiver = session.createReceiver(address);
+            receiver.flow(1);
+            receiverReady.countDown();
+            AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+            assertNotNull(received);
 
-               receiver.flow(1);
-               received.accept();
+            receiver.flow(1);
+            received.accept();
 
-               received = receiver.receive(5, TimeUnit.SECONDS);
-               assertNotNull(received);
-               received.accept();
+            received = receiver.receive(5, TimeUnit.SECONDS);
+            assertNotNull(received);
+            received.accept();
 
-               receiver.close();
-               connection.close();
+            receiver.close();
+            connection.close();
 
-            } catch (Exception error) {
-               errors.add(error);
-            }
+         } catch (Exception error) {
+            errors.add(error);
          }
       });
 
       // producer
-      executorService.submit(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               receiverReady.await(20, TimeUnit.SECONDS);
-               AmqpConnection connection = addConnection(client.connect());
-               AmqpSession session = connection.createSession();
+      executorService.submit(() -> {
+         try {
+            receiverReady.await(20, TimeUnit.SECONDS);
+            AmqpConnection connection = addConnection(client.connect());
+            AmqpSession session = connection.createSession();
 
-               AmqpSender sender = session.createSender(address);
-               for (int i = 0; i < 2; i++) {
-                  AmqpMessage message = new AmqpMessage();
-                  message.setMessageId("msg" + i);
-                  sender.send(message);
-               }
-               sender.close();
-               connection.close();
-            } catch (Exception ignored) {
-               ignored.printStackTrace();
+            AmqpSender sender = session.createSender(address);
+            for (int i = 0; i < 2; i++) {
+               AmqpMessage message = new AmqpMessage();
+               message.setMessageId("msg" + i);
+               sender.send(message);
             }
+            sender.close();
+            connection.close();
+         } catch (Exception ignored) {
+            ignored.printStackTrace();
          }
       });
 
@@ -1226,19 +1196,15 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       Queue queueView = getProxyToQueue(address);
 
-      executor.execute(new Runnable() {
-
-         @Override
-         public void run() {
-            for (int i = 0; i < MSG_COUNT; i++) {
-               try {
-                  AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-                  received.accept();
-                  done.countDown();
-               } catch (Exception ex) {
-                  logger.debug("Caught error: {}", ex.getClass().getSimpleName());
-                  error.set(true);
-               }
+      executor.execute(() -> {
+         for (int i = 0; i < MSG_COUNT; i++) {
+            try {
+               AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+               received.accept();
+               done.countDown();
+            } catch (Exception ex) {
+               logger.debug("Caught error: {}", ex.getClass().getSimpleName());
+               error.set(true);
             }
          }
       });

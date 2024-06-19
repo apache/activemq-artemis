@@ -69,15 +69,12 @@ public class ServiceUtils {
     * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
-      return AccessController.doPrivileged(new PrivilegedAction<TransactionManager>() {
-         @Override
-         public TransactionManager run() {
-            Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
-            while (it.hasNext() && transactionManager == null) {
-               transactionManager = it.next().getTransactionManager();
-            }
-            return transactionManager;
+      return AccessController.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
+         Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
+         while (it.hasNext() && transactionManager == null) {
+            transactionManager = it.next().getTransactionManager();
          }
+         return transactionManager;
       });
    }
 
@@ -86,15 +83,12 @@ public class ServiceUtils {
     * use the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
-      return AccessController.doPrivileged(new PrivilegedAction<ActiveMQXAResourceWrapperFactory>() {
-         @Override
-         public ActiveMQXAResourceWrapperFactory run() {
-            Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
-            if (iterator.hasNext()) {
-               return iterator.next();
-            } else {
-               return new ActiveMQXAResourceWrapperFactoryImpl();
-            }
+      return AccessController.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
+         Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
+         if (iterator.hasNext()) {
+            return iterator.next();
+         } else {
+            return new ActiveMQXAResourceWrapperFactoryImpl();
          }
       });
    }

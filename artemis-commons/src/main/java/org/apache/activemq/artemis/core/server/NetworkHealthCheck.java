@@ -165,12 +165,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return NetworkHealthCheck.this.getClass().getClassLoader();
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> NetworkHealthCheck.this.getClass().getClassLoader());
 
    }
 

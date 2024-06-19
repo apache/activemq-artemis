@@ -140,17 +140,14 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
       serverImpl.getMonitor().tick();
 
       AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               sendFewMessages(numberOfMessages, session, producer, body);
-            } catch (Exception e) {
-               errors.incrementAndGet();
-               e.printStackTrace(System.out);
-            }
+      Thread t = new Thread(() -> {
+         try {
+            sendFewMessages(numberOfMessages, session, producer, body);
+         } catch (Exception e) {
+            errors.incrementAndGet();
+            e.printStackTrace(System.out);
          }
-      };
+      });
 
       t.start();
 

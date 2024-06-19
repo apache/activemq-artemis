@@ -264,12 +264,7 @@ public final class ActiveMQClient {
 
    public static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
       if (globalScheduledThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader()));
 
          globalScheduledThreadPool = new ScheduledThreadPoolExecutor(ActiveMQClient.globalScheduledThreadPoolSize, factory);
       }

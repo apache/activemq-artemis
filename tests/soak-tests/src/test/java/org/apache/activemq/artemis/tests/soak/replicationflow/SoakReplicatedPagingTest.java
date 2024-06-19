@@ -191,12 +191,9 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          CountDownLatch consumersLatch = new CountDownLatch(consumer_threads);
 
          for (int i = 0; i < producer_threads; i++) {
-            Thread t = new Thread(new Runnable() {
-               @Override
-               public void run() {
-                  SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
-                  app.produce(factory, producer_count.incrementAndGet(), producersLatch);
-               }
+            Thread t = new Thread(() -> {
+               SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
+               app.produce(factory, producer_count.incrementAndGet(), producersLatch);
             });
             t.start();
          }
@@ -204,12 +201,9 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          Thread.sleep(1000);
 
          for (int i = 0; i < consumer_threads; i++) {
-            Thread t = new Thread(new Runnable() {
-               @Override
-               public void run() {
-                  SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
-                  app.consume(factory, consumer_count.getAndIncrement(), consumersLatch);
-               }
+            Thread t = new Thread(() -> {
+               SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
+               app.consume(factory, consumer_count.getAndIncrement(), consumersLatch);
             });
             t.start();
          }

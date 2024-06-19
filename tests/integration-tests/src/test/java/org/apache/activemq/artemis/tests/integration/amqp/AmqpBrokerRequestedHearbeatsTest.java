@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -34,12 +29,16 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.apache.activemq.transport.amqp.client.AmqpConnectionListener;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Connection;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test handling of heartbeats requested by the broker.
@@ -132,13 +131,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       assertNotNull(connection);
 
       connection.setIdleProcessingDisabled(true);
-      connection.setListener(new AmqpConnectionListener() {
-
-         @Override
-         public void onException(Throwable ex) {
-            disconnected.countDown();
-         }
-      });
+      connection.setListener(ex -> disconnected.countDown());
 
       connection.connect();
 
@@ -162,13 +155,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.createConnection());
       assertNotNull(connection);
 
-      connection.setListener(new AmqpConnectionListener() {
-
-         @Override
-         public void onException(Throwable ex) {
-            disconnected.countDown();
-         }
-      });
+      connection.setListener(ex -> disconnected.countDown());
 
       connection.connect();
 

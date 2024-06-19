@@ -52,17 +52,14 @@ public class DefaultConnectionProperties {
    public static String DEFAULT_PASSWORD_CODEC;
 
    static String getProperty(final String defaultValue, final String... propertyNames) {
-      return AccessController.doPrivileged(new PrivilegedAction<String>() {
-         @Override
-         public String run() {
-            for (String name : propertyNames) {
-               String property = System.getProperty(name);
-               if (property != null && !property.isEmpty()) {
-                  return property;
-               }
+      return AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+         for (String name : propertyNames) {
+            String property = System.getProperty(name);
+            if (property != null && !property.isEmpty()) {
+               return property;
             }
-            return defaultValue;
          }
+         return defaultValue;
       });
    }
 

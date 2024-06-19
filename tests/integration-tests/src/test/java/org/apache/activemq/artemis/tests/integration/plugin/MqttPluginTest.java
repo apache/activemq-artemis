@@ -89,20 +89,17 @@ public class MqttPluginTest extends MQTTTestSupport {
 
       final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES);
 
-      Thread thread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            for (int i = 0; i < NUM_MESSAGES; i++) {
-               try {
-                  byte[] payload = subscriptionProvider.receive(10000);
-                  assertNotNull(payload, "Should get a message");
-                  latch.countDown();
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  break;
-               }
-
+      Thread thread = new Thread(() -> {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
+            try {
+               byte[] payload = subscriptionProvider.receive(10000);
+               assertNotNull(payload, "Should get a message");
+               latch.countDown();
+            } catch (Exception e) {
+               e.printStackTrace();
+               break;
             }
+
          }
       });
       thread.start();

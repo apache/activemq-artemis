@@ -62,17 +62,7 @@ public class JournalStorageManagerConstantTest {
       assertEquals(11, journal.getFilesRepository().getPoolSize());
    }
 
-   ExecutorFactory dumbExecutor = new ExecutorFactory() {
-      @Override
-      public ArtemisExecutor getExecutor() {
-         return new ArtemisExecutor() {
-            @Override
-            public void execute(Runnable command) {
-               command.run();
-            }
-         };
-      }
-   };
+   ExecutorFactory dumbExecutor = () -> (ArtemisExecutor) command -> command.run();
 
    ScheduledExecutorService dumbScheduler = new ScheduledExecutorService() {
       @Override

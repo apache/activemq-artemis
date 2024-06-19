@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -29,7 +23,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
@@ -55,6 +48,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
@@ -502,16 +501,12 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
 
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message message) {
-            try {
-               message.acknowledge();
-               done.countDown();
-            } catch (JMSException ex) {
-               logger.debug("Caught exception.", ex);
-            }
+      consumer.setMessageListener(message -> {
+         try {
+            message.acknowledge();
+            done.countDown();
+         } catch (JMSException ex) {
+            logger.debug("Caught exception.", ex);
          }
       });
 
@@ -576,42 +571,39 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
       final ArrayList<Throwable> exceptions = new ArrayList<>();
 
-      Thread t = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            Connection connectionConsumer = null;
-            try {
-               connectionConsumer = createConnection();
-               connectionConsumer.start();
-               Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
-               final javax.jms.Queue queue = sessionConsumer.createQueue(getQueueName());
-               final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
+      Thread t = new Thread(() -> {
+         Connection connectionConsumer = null;
+         try {
+            connectionConsumer = createConnection();
+            connectionConsumer.start();
+            Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final javax.jms.Queue queue = sessionConsumer.createQueue(getQueueName());
+            final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-               long n = 0;
-               int count = numMessages;
-               while (count > 0) {
-                  try {
-                     if (++n % 1000 == 0) {
-                        logger.debug("received {} messages", n);
-                     }
-
-                     Message m = consumer.receive(5000);
-                     assertNotNull(m, "Could not receive message count=" + count + " on consumer");
-                     count--;
-                  } catch (JMSException e) {
-                     e.printStackTrace();
-                     break;
-                  }
-               }
-            } catch (Throwable e) {
-               exceptions.add(e);
-               e.printStackTrace();
-            } finally {
+            long n = 0;
+            int count = numMessages;
+            while (count > 0) {
                try {
-                  connectionConsumer.close();
-               } catch (Throwable ignored) {
-                  // NO OP
+                  if (++n % 1000 == 0) {
+                     logger.debug("received {} messages", n);
+                  }
+
+                  Message m = consumer.receive(5000);
+                  assertNotNull(m, "Could not receive message count=" + count + " on consumer");
+                  count--;
+               } catch (JMSException e) {
+                  e.printStackTrace();
+                  break;
                }
+            }
+         } catch (Throwable e) {
+            exceptions.add(e);
+            e.printStackTrace();
+         } finally {
+            try {
+               connectionConsumer.close();
+            } catch (Throwable ignored) {
+               // NO OP
             }
          }
       });

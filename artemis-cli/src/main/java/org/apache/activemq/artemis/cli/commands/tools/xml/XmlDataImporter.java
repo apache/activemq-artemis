@@ -231,22 +231,12 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
    }
 
    private static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-         @Override
-         public URL run() {
-            return ClassloadingUtil.findResource(resourceName);
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
    private void processXml() throws Exception {
       if (sort) {
-         messages = new TreeSet<XMLMessageImporter.MessageInfo>(new Comparator<XMLMessageImporter.MessageInfo>() {
-            @Override
-            public int compare(XMLMessageImporter.MessageInfo o1, XMLMessageImporter.MessageInfo o2) {
-               return Long.compare(o1.id, o2.id);
-            }
-         });
+         messages = new TreeSet<XMLMessageImporter.MessageInfo>(Comparator.comparingLong(o -> o.id));
       }
       while (reader.hasNext()) {
          if (logger.isDebugEnabled()) {

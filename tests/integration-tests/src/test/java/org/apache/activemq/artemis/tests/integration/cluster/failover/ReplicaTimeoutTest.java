@@ -181,30 +181,27 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
          Wait.assertTrue(backupServer.getServer()::isActive);
 
-         ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(new Runnable() {
-            @Override
-            public void run() {
-               final Activation backupActivation = theBackup.getServer().getActivation();
-               if (backupActivation instanceof SharedNothingBackupActivation) {
-                  SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
-                  ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
-                  repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
+         ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(() -> {
+            final Activation backupActivation = theBackup.getServer().getActivation();
+            if (backupActivation instanceof SharedNothingBackupActivation) {
+               SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+               ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
+               repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
+                  if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
+                     return false;
+                  }
+                  return true;
+               });
+            } else if (backupActivation instanceof ReplicationBackupActivation) {
+               ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+               activation.spyReplicationEndpointCreation(replicationEndpoint -> {
+                  replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
                      if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
                         return false;
                      }
                      return true;
                   });
-               } else if (backupActivation instanceof ReplicationBackupActivation) {
-                  ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
-                  activation.spyReplicationEndpointCreation(replicationEndpoint -> {
-                     replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
-                        if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
-                           return false;
-                        }
-                        return true;
-                     });
-                  });
-               }
+               });
             }
          });
 

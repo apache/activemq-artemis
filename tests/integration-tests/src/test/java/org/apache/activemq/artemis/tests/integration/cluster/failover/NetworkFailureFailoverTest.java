@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -44,13 +41,11 @@ import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.network.NetUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,6 +53,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This test will simulate a failure where the network card is gone.
@@ -172,35 +169,29 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicInteger countSent = new AtomicInteger(0);
 
-      primaryServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof SessionSendMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof SessionSendMessage) {
 
-               if (countSent.incrementAndGet() == 500) {
+            if (countSent.incrementAndGet() == 500) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  // Thread.sleep(3000); // this is important to let stuff to block
+                  primaryServer.crash(true, false);
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+               new Thread(() -> {
                   try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     // Thread.sleep(3000); // this is important to let stuff to block
-                     primaryServer.crash(true, false);
+                     System.err.println("Stopping server");
                   } catch (Exception e) {
                      e.printStackTrace();
                   }
-                  new Thread() {
-                     @Override
-                     public void run() {
-                        try {
-                           System.err.println("Stopping server");
-                        } catch (Exception e) {
-                           e.printStackTrace();
-                        }
-                     }
-                  }.start();
-               }
+               }).start();
             }
-            return true;
          }
+         return true;
       });
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
@@ -248,34 +239,31 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicBoolean running = new AtomicBoolean(true);
 
-      final Thread t = new Thread() {
-         @Override
-         public void run() {
-            int received = 0;
-            int errors = 0;
-            while (running.get() && received < numMessages) {
-               try {
-                  ClientMessage msgReceived = consumer.receive(500);
-                  if (msgReceived != null) {
-                     latchReceived.countDown();
-                     msgReceived.acknowledge();
-                     if (received++ % 100 == 0) {
-                        logger.debug("Received {}", received);
-                        sessionConsumer.commit();
-                     }
-                  } else {
-                     logger.debug("Null");
+      final Thread t = new Thread(() -> {
+         int received = 0;
+         int errors = 0;
+         while (running.get() && received < numMessages) {
+            try {
+               ClientMessage msgReceived = consumer.receive(500);
+               if (msgReceived != null) {
+                  latchReceived.countDown();
+                  msgReceived.acknowledge();
+                  if (received++ % 100 == 0) {
+                     logger.debug("Received {}", received);
+                     sessionConsumer.commit();
                   }
-               } catch (Throwable e) {
-                  errors++;
-                  if (errors > 10) {
-                     break;
-                  }
-                  e.printStackTrace();
+               } else {
+                  logger.debug("Null");
                }
+            } catch (Throwable e) {
+               errors++;
+               if (errors > 10) {
+                  break;
+               }
+               e.printStackTrace();
             }
          }
-      };
+      });
 
       t.start();
 
@@ -380,40 +368,37 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicBoolean running = new AtomicBoolean(true);
 
-      final Thread t = new Thread() {
-         @Override
-         public void run() {
-            int received = 0;
-            int errors = 0;
-            while (running.get() && received < numMessages) {
-               try {
-                  ClientMessage msgReceived = consumer.receive(500);
-                  if (msgReceived != null) {
-                     latchReceived.countDown();
-                     msgReceived.acknowledge();
-                     if (++received % 100 == 0) {
+      final Thread t = new Thread(() -> {
+         int received = 0;
+         int errors = 0;
+         while (running.get() && received < numMessages) {
+            try {
+               ClientMessage msgReceived = consumer.receive(500);
+               if (msgReceived != null) {
+                  latchReceived.countDown();
+                  msgReceived.acknowledge();
+                  if (++received % 100 == 0) {
 
-                        if (received == 300) {
-                           logger.debug("Shutting down IP");
-                           NetUtil.netDown(LIVE_IP);
-                           primaryServer.crash(true, false);
-                        }
-                        logger.debug("Received {}", received);
-                        sessionConsumer.commit();
+                     if (received == 300) {
+                        logger.debug("Shutting down IP");
+                        NetUtil.netDown(LIVE_IP);
+                        primaryServer.crash(true, false);
                      }
-                  } else {
-                     logger.debug("Null");
+                     logger.debug("Received {}", received);
+                     sessionConsumer.commit();
                   }
-               } catch (Throwable e) {
-                  errors++;
-                  if (errors > 10) {
-                     break;
-                  }
-                  e.printStackTrace();
+               } else {
+                  logger.debug("Null");
                }
+            } catch (Throwable e) {
+               errors++;
+               if (errors > 10) {
+                  break;
+               }
+               e.printStackTrace();
             }
          }
-      };
+      });
 
 
       for (sentMessages.set(0); sentMessages.get() < numMessages; sentMessages.incrementAndGet()) {
@@ -463,25 +448,22 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchDown = new CountDownLatch(1);
 
-      primaryServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof CreateSessionMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof CreateSessionMessage) {
 
-               if (countSent.incrementAndGet() == 50) {
-                  try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     blockedAt.set(sentMessages.get());
-                     latchDown.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            if (countSent.incrementAndGet() == 50) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  blockedAt.set(sentMessages.get());
+                  latchDown.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
             }
-            return true;
          }
+         return true;
       });
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
@@ -574,42 +556,39 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchBlocked = new CountDownLatch(1);
 
-      primaryServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof SessionSendMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof SessionSendMessage) {
 
-               if (countSent.incrementAndGet() == 50) {
-                  try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     Thread.sleep(3000); // this is important to let stuff to block
-                     blockedAt.set(sentMessages.get());
-                     latchBlocked.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  //                  new Thread()
-                  //                  {
-                  //                     public void run()
-                  //                     {
-                  //                        try
-                  //                        {
-                  //                           System.err.println("Stopping server");
-                  //                           // liveServer.stop();
-                  //                           liveServer.crash(true, false);
-                  //                        }
-                  //                        catch (Exception e)
-                  //                        {
-                  //                           e.printStackTrace();
-                  //                        }
-                  //                     }
-                  //                  }.start();
+            if (countSent.incrementAndGet() == 50) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  Thread.sleep(3000); // this is important to let stuff to block
+                  blockedAt.set(sentMessages.get());
+                  latchBlocked.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
+               //                  new Thread()
+               //                  {
+               //                     public void run()
+               //                     {
+               //                        try
+               //                        {
+               //                           System.err.println("Stopping server");
+               //                           // liveServer.stop();
+               //                           liveServer.crash(true, false);
+               //                        }
+               //                        catch (Exception e)
+               //                        {
+               //                           e.printStackTrace();
+               //                        }
+               //                     }
+               //                  }.start();
             }
-            return true;
          }
+         return true;
       });
 
       final CountDownLatch failing = new CountDownLatch(1);

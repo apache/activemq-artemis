@@ -16,19 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.concurrent.CountDownLatch;
 
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
-import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
 
@@ -42,14 +39,11 @@ public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
       initializeConnection(subscribeProvider);
       subscribeProvider.subscribe(addressQueue, AT_MOST_ONCE);
 
-      MQTTInterceptor incomingInterceptor = new MQTTInterceptor() {
-         @Override
-         public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-            if (packet.getClass() == MqttPublishMessage.class) {
-               return false;
-            } else {
-               return true;
-            }
+      MQTTInterceptor incomingInterceptor = (packet, connection) -> {
+         if (packet.getClass() == MqttPublishMessage.class) {
+            return false;
+         } else {
+            return true;
          }
       };
 

@@ -68,21 +68,18 @@ public class LinkedListTest extends ActiveMQTestBase {
       };
    }
 
-   Comparator<Integer> integerComparator = new Comparator<Integer>() {
-      @Override
-      public int compare(Integer o1, Integer o2) {
-         logger.trace("Compare {} and {}", o1, o2);
-         if (o1.intValue() == o2.intValue()) {
-            logger.trace("Return 0");
-            return 0;
-         }
-         if (o2.intValue() > o1.intValue()) {
-            logger.trace("o2 is greater than, returning 1");
-            return 1;
-         } else {
-            logger.trace("o2 is lower than, returning -1");
-            return -1;
-         }
+   Comparator<Integer> integerComparator = (o1, o2) -> {
+      logger.trace("Compare {} and {}", o1, o2);
+      if (o1.intValue() == o2.intValue()) {
+         logger.trace("Return 0");
+         return 0;
+      }
+      if (o2.intValue() > o1.intValue()) {
+         logger.trace("o2 is greater than, returning 1");
+         return 1;
+      } else {
+         logger.trace("o2 is lower than, returning -1");
+         return -1;
       }
    };
 

@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +31,6 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
@@ -46,6 +39,12 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PingTest extends ActiveMQTestBase {
 
@@ -198,16 +197,13 @@ public class PingTest extends ActiveMQTestBase {
       // the server connection TTL is configured with the client value
       final CountDownLatch requiredPings = new CountDownLatch(1);
       final CountDownLatch unwantedPings = new CountDownLatch(2);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.PING) {
-               assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
-               unwantedPings.countDown();
-               requiredPings.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.PING) {
+            assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
+            unwantedPings.countDown();
+            requiredPings.countDown();
          }
+         return true;
       });
 
       TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
@@ -306,15 +302,11 @@ public class PingTest extends ActiveMQTestBase {
       // server must received at least one ping from the client to pass
       // so that the server connection TTL is configured with the client value
       final CountDownLatch pingOnServerLatch = new CountDownLatch(2);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.PING) {
-               pingOnServerLatch.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.PING) {
+            pingOnServerLatch.countDown();
          }
+         return true;
       });
 
       TransportConfiguration transportConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
@@ -345,12 +337,7 @@ public class PingTest extends ActiveMQTestBase {
       };
 
       final CountDownLatch serverLatch = new CountDownLatch(1);
-      CloseListener serverListener = new CloseListener() {
-         @Override
-         public void connectionClosed() {
-            serverLatch.countDown();
-         }
-      };
+      CloseListener serverListener = () -> serverLatch.countDown();
 
       session.addFailureListener(clientListener);
 

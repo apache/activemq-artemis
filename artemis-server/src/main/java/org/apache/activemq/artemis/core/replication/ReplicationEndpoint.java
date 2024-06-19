@@ -634,17 +634,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             }
             message.releaseResources(true, false);
          } else {
-            executor.execute(new Runnable() {
-               @Override
-               public void run() {
-                  try {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace("Deleting LargeMessage {} on the executor @ handleLargeMessageEnd", packet.getMessageId());
-                     }
-                     message.deleteFile();
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(packet.getMessageId(), e);
+            executor.execute(() -> {
+               try {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Deleting LargeMessage {} on the executor @ handleLargeMessageEnd", packet.getMessageId());
                   }
+                  message.deleteFile();
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(packet.getMessageId(), e);
                }
             });
          }

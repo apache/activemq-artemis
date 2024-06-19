@@ -164,14 +164,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
          final ClientFuture request = new ClientFuture();
-         session.getScheduler().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               checkClosed();
-               close(request);
-               session.pumpToProtonTransport(request);
-            }
+         session.getScheduler().execute(() -> {
+            checkClosed();
+            close(request);
+            session.pumpToProtonTransport(request);
          });
 
          request.sync();
@@ -196,14 +192,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public void detach() throws IOException {
       if (closed.compareAndSet(false, true)) {
          final ClientFuture request = new ClientFuture();
-         session.getScheduler().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               checkClosed();
-               detach(request);
-               session.pumpToProtonTransport(request);
-            }
+         session.getScheduler().execute(() -> {
+            checkClosed();
+            detach(request);
+            session.pumpToProtonTransport(request);
          });
 
          request.sync();
@@ -309,56 +301,52 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public AmqpMessage pull(final long timeout, final TimeUnit unit) throws IOException {
       checkClosed();
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
+      session.getScheduler().execute(() -> {
+         checkClosed();
 
-         @Override
-         public void run() {
-            checkClosed();
+         long timeoutMills = unit.toMillis(timeout);
 
-            long timeoutMills = unit.toMillis(timeout);
-
-            try {
-               logger.trace("Pull on Receiver {} with timeout = {}", getSubscriptionName(), timeoutMills);
-               if (timeoutMills < 0) {
-                  // Wait until message arrives. Just give credit if needed.
-                  if (getEndpoint().getCredit() == 0) {
-                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
-                     getEndpoint().flow(1);
-                  }
-
-                  // Await the message arrival
-                  pullRequest = request;
-               } else if (timeoutMills == 0) {
-                  // If we have no credit then we need to issue some so that we can
-                  // try to fulfill the request, then drain down what is there to
-                  // ensure we consume what is available and remove all credit.
-                  if (getEndpoint().getCredit() == 0) {
-                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
-                     getEndpoint().flow(1);
-                  }
-
-                  // Drain immediately and wait for the message(s) to arrive,
-                  // or a flow indicating removal of the remaining credit.
-                  stop(request);
-               } else if (timeoutMills > 0) {
-                  // If we have no credit then we need to issue some so that we can
-                  // try to fulfill the request, then drain down what is there to
-                  // ensure we consume what is available and remove all credit.
-                  if (getEndpoint().getCredit() == 0) {
-                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
-                     getEndpoint().flow(1);
-                  }
-
-                  // Wait for the timeout for the message(s) to arrive, then drain if required
-                  // and wait for remaining message(s) to arrive or a flow indicating
-                  // removal of the remaining credit.
-                  stopOnSchedule(timeoutMills, request);
+         try {
+            logger.trace("Pull on Receiver {} with timeout = {}", getSubscriptionName(), timeoutMills);
+            if (timeoutMills < 0) {
+               // Wait until message arrives. Just give credit if needed.
+               if (getEndpoint().getCredit() == 0) {
+                  logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                  getEndpoint().flow(1);
                }
 
-               session.pumpToProtonTransport(request);
-            } catch (Exception e) {
-               request.onFailure(e);
+               // Await the message arrival
+               pullRequest = request;
+            } else if (timeoutMills == 0) {
+               // If we have no credit then we need to issue some so that we can
+               // try to fulfill the request, then drain down what is there to
+               // ensure we consume what is available and remove all credit.
+               if (getEndpoint().getCredit() == 0) {
+                  logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                  getEndpoint().flow(1);
+               }
+
+               // Drain immediately and wait for the message(s) to arrive,
+               // or a flow indicating removal of the remaining credit.
+               stop(request);
+            } else if (timeoutMills > 0) {
+               // If we have no credit then we need to issue some so that we can
+               // try to fulfill the request, then drain down what is there to
+               // ensure we consume what is available and remove all credit.
+               if (getEndpoint().getCredit() == 0) {
+                  logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                  getEndpoint().flow(1);
+               }
+
+               // Wait for the timeout for the message(s) to arrive, then drain if required
+               // and wait for remaining message(s) to arrive or a flow indicating
+               // removal of the remaining credit.
+               stopOnSchedule(timeoutMills, request);
             }
+
+            session.pumpToProtonTransport(request);
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -392,20 +380,16 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public void flow(final int credit, final boolean deferWrite) throws IOException {
       checkClosed();
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               getEndpoint().flow(credit);
-               if (!deferWrite) {
-                  session.pumpToProtonTransport(request);
-               }
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            getEndpoint().flow(credit);
+            if (!deferWrite) {
+               session.pumpToProtonTransport(request);
             }
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -423,18 +407,14 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public void drain(final int credit) throws IOException {
       checkClosed();
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               getEndpoint().drain(credit);
-               session.pumpToProtonTransport(request);
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
-            }
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            getEndpoint().drain(credit);
+            session.pumpToProtonTransport(request);
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -450,17 +430,13 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    public void stop() throws IOException {
       checkClosed();
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               stop(request);
-               session.pumpToProtonTransport(request);
-            } catch (Exception e) {
-               request.onFailure(e);
-            }
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            stop(request);
+            session.pumpToProtonTransport(request);
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -549,35 +525,31 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       }
 
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               if (!delivery.isSettled()) {
-                  if (session.isInTransaction()) {
-                     Binary txnId = session.getTransactionId().getRemoteTxId();
-                     if (txnId != null) {
-                        TransactionalState txState = new TransactionalState();
-                        txState.setOutcome(Accepted.getInstance());
-                        txState.setTxnId(txnId);
-                        delivery.disposition(txState);
-                        session.getTransactionContext().registerTxConsumer(AmqpReceiver.this);
-                     }
-                  } else {
-                     delivery.disposition(Accepted.getInstance());
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            if (!delivery.isSettled()) {
+               if (session.isInTransaction()) {
+                  Binary txnId = session.getTransactionId().getRemoteTxId();
+                  if (txnId != null) {
+                     TransactionalState txState = new TransactionalState();
+                     txState.setOutcome(Accepted.getInstance());
+                     txState.setTxnId(txnId);
+                     delivery.disposition(txState);
+                     session.getTransactionContext().registerTxConsumer(AmqpReceiver.this);
                   }
-
-                  if (settle) {
-                     delivery.settle();
-                  }
+               } else {
+                  delivery.disposition(Accepted.getInstance());
                }
-               session.pumpToProtonTransport(request);
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
+
+               if (settle) {
+                  delivery.settle();
+               }
             }
+            session.pumpToProtonTransport(request);
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -604,24 +576,20 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       }
 
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               if (!delivery.isSettled()) {
-                  Modified disposition = new Modified();
-                  disposition.setUndeliverableHere(undeliverableHere);
-                  disposition.setDeliveryFailed(deliveryFailed);
-                  delivery.disposition(disposition);
-                  delivery.settle();
-                  session.pumpToProtonTransport(request);
-               }
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            if (!delivery.isSettled()) {
+               Modified disposition = new Modified();
+               disposition.setUndeliverableHere(undeliverableHere);
+               disposition.setDeliveryFailed(deliveryFailed);
+               delivery.disposition(disposition);
+               delivery.settle();
+               session.pumpToProtonTransport(request);
             }
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -644,21 +612,17 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       }
 
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               if (!delivery.isSettled()) {
-                  delivery.disposition(Released.getInstance());
-                  delivery.settle();
-                  session.pumpToProtonTransport(request);
-               }
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            if (!delivery.isSettled()) {
+               delivery.disposition(Released.getInstance());
+               delivery.settle();
+               session.pumpToProtonTransport(request);
             }
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -681,21 +645,17 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       }
 
       final ClientFuture request = new ClientFuture();
-      session.getScheduler().execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            try {
-               if (!delivery.isSettled()) {
-                  delivery.disposition(new Rejected());
-                  delivery.settle();
-                  session.pumpToProtonTransport(request);
-               }
-               request.onSuccess();
-            } catch (Exception e) {
-               request.onFailure(e);
+      session.getScheduler().execute(() -> {
+         checkClosed();
+         try {
+            if (!delivery.isSettled()) {
+               delivery.disposition(new Rejected());
+               delivery.settle();
+               session.pumpToProtonTransport(request);
             }
+            request.onSuccess();
+         } catch (Exception e) {
+            request.onFailure(e);
          }
       });
 
@@ -1043,15 +1003,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          if (getDrainTimeout() > 0) {
             // If the remote doesn't respond we will close the consumer and break any
             // blocked receive or stop calls that are waiting.
-            final ScheduledFuture<?> future = getSession().getScheduler().schedule(new Runnable() {
-               @Override
-               public void run() {
-                  logger.trace("Consumer {} drain request timed out", this);
-                  Exception cause = new AmqpOperationTimedOutException("Remote did not respond to a drain request in time");
-                  locallyClosed(session.getConnection(), cause);
-                  stopRequest.onFailure(cause);
-                  session.pumpToProtonTransport(stopRequest);
-               }
+            final ScheduledFuture<?> future = getSession().getScheduler().schedule(() -> {
+               Exception cause = new AmqpOperationTimedOutException("Remote did not respond to a drain request in time");
+               locallyClosed(session.getConnection(), cause);
+               stopRequest.onFailure(cause);
+               session.pumpToProtonTransport(stopRequest);
             }, getDrainTimeout(), TimeUnit.MILLISECONDS);
 
             stopRequest = new ScheduledRequest(future, stopRequest);
@@ -1062,14 +1018,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    private void stopOnSchedule(long timeout, final AsyncResult request) {
       logger.trace("Receiver {} scheduling stop", this);
       // We need to drain the credit if no message(s) arrive to use it.
-      final ScheduledFuture<?> future = getSession().getScheduler().schedule(new Runnable() {
-         @Override
-         public void run() {
-            logger.trace("Receiver {} running scheduled stop", this);
-            if (getEndpoint().getRemoteCredit() != 0) {
-               stop(request);
-               session.pumpToProtonTransport(request);
-            }
+      final ScheduledFuture<?> future = getSession().getScheduler().schedule(() -> {
+         if (getEndpoint().getRemoteCredit() != 0) {
+            stop(request);
+            session.pumpToProtonTransport(request);
          }
       }, timeout, TimeUnit.MILLISECONDS);
 

@@ -241,12 +241,7 @@ public class ScaleDownTest extends ClusterTestBase {
 
    private void waitForClusterConnected(ServerLocatorImpl locator) throws Exception {
 
-      boolean result = Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return !locator.getTopology().isEmpty();
-         }
-      }, 5000);
+      boolean result = Wait.waitFor(() -> !locator.getTopology().isEmpty(), 5000);
 
       assertTrue(result, "topology should not be empty");
    }

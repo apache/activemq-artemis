@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.transport.failover;
 
+import javax.jms.IllegalStateException;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -111,40 +112,33 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
       final MessageConsumer testConsumer = consumerSession.createConsumer(destination);
       doByteman.set(true);
-      testConsumer.setMessageListener(new MessageListener() {
+      testConsumer.setMessageListener(message -> {
+         LOG.info("consume one and commit");
 
-         @Override
-         public void onMessage(Message message) {
-            LOG.info("consume one and commit");
+         assertNotNull("got message", message);
 
-            assertNotNull("got message", message);
-
-            try {
-               consumerSession.commit();
-            } catch (JMSException e) {
-               e.printStackTrace();
-            }
-            commitDoneLatch.countDown();
-            messagesReceived.countDown();
-            LOG.info("done commit");
+         try {
+            consumerSession.commit();
+         } catch (JMSException e) {
+            e.printStackTrace();
          }
+         commitDoneLatch.countDown();
+         messagesReceived.countDown();
+         LOG.info("done commit");
       });
 
       // may block if broker shutodwn happens quickly
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("producer started");
-            try {
-               produceMessage(producerSession, destination, prefetch * 2);
-            } catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
-            } catch (JMSException e) {
-               e.printStackTrace();
-               fail("unexpceted ex on producer: " + e);
-            }
-            LOG.info("producer done");
+      new Thread(() -> {
+         LOG.info("producer started");
+         try {
+            produceMessage(producerSession, destination, prefetch * 2);
+         } catch (IllegalStateException SessionClosedExpectedOnShutdown) {
+         } catch (JMSException e) {
+            e.printStackTrace();
+            fail("unexpceted ex on producer: " + e);
          }
-      }.start();
+         LOG.info("producer done");
+      }).start();
 
       // will be stopped by the plugin
       brokerStopLatch.await();
@@ -231,19 +225,16 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
    public static void stopServerInTransaction() {
       if (doByteman.get()) {
-         new Thread() {
-            @Override
-            public void run() {
-               LOG.info("Stopping broker in transaction...");
-               try {
-                  server.stop();
-               } catch (Exception e) {
-                  e.printStackTrace();
-               } finally {
-                  brokerStopLatch.countDown();
-               }
+         new Thread(() -> {
+            LOG.info("Stopping broker in transaction...");
+            try {
+               server.stop();
+            } catch (Exception e) {
+               e.printStackTrace();
+            } finally {
+               brokerStopLatch.countDown();
             }
-         }.start();
+         }).start();
       }
    }
 }

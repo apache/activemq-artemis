@@ -249,12 +249,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    @SuppressWarnings("TypeParameterUnusedInFormals")
    public <T> T loadClass(final String className, Class expectedType) {
-      return AccessController.doPrivileged(new PrivilegedAction<T>() {
-         @Override
-         public T run() {
-            return (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType);
-         }
-      });
+      return AccessController.doPrivileged((PrivilegedAction<T>) () -> (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType));
    }
 
    private Transformer instantiateTransformer(final TransformerConfiguration transformerConfiguration) {
