@@ -219,6 +219,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+      <maven.test.failure.ignore>false</maven.test.failure.ignore>
       <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
 
       <!--
@@ -256,9 +257,6 @@
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
 
-      <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
-           This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
-      <testFailureIgnore>true</testFailureIgnore>
       <fast-tests>false</fast-tests>
 
       <project.build.outputTimestamp>2024-06-12T15:58:52Z</project.build.outputTimestamp>
@@ -554,7 +552,6 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipLeakTests>true</skipLeakTests>
-            <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-<foo>-integration-tests and
                  integration-tests module tests, see fast-tests profile
                  in the latter for specific tests it then runs -->
@@ -861,9 +858,7 @@
                <configuration>
                   <forkCount>1</forkCount>
                   <reuseForks>true</reuseForks>
-                  <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
-                  <redirectTestOutputToFile>${maven.test.redirectTestOutputToFile}</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
                   <environmentVariables>
                      <PN_TRACE_FRM>${proton.trace.frames}</PN_TRACE_FRM>
