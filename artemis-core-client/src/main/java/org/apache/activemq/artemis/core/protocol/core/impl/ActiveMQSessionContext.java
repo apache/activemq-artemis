@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateProd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
@@ -130,11 +131,13 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAR
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
+import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -144,7 +147,7 @@ public class ActiveMQSessionContext extends SessionContext {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Channel sessionChannel;
-   private final int serverVersion;
+   private int serverVersion;
    private int confirmationWindow;
    private String name;
    private boolean killed;
@@ -426,6 +429,10 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public int getServerVersion() {
       return serverVersion;
+   }
+
+   private void setServerVersion(int version) {
+      serverVersion = version;
    }
 
    @Override
@@ -920,6 +927,33 @@ public class ActiveMQSessionContext extends SessionContext {
                   Thread.currentThread().interrupt();
                   throw e;
                }
+            } else if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
+               CreateSessionResponseMessage response;
+
+               for (Version version : VersionLoader.getClientVersions()) {
+                  if (version.getIncrementingVersion() == getServerVersion()) {
+                     //We already know this version is incompatible
+                     continue;
+                  }
+                  try {
+                     createRequest = new CreateSessionMessage(name, sessionChannel.getID(), version.getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
+                     response = (CreateSessionResponseMessage) getCreateChannel().sendBlocking(createRequest, PacketImpl.CREATESESSION_RESP);
+
+                     setServerVersion(response.getServerVersion());
+
+                     if (getCoreConnection().getChannelVersion() != serverVersion) {
+                        getCoreConnection().setChannelVersion(serverVersion);
+                     }
+
+                     return;
+                  } catch (ActiveMQException ex) {
+                     if (ex.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
+                        throw ex;
+                     }
+                  }
+               }
+               throw e;
+
             } else {
                throw e;
             }
@@ -979,6 +1013,13 @@ public class ActiveMQSessionContext extends SessionContext {
       if (isSessionStarted && consumerInternal.getForceDeliveryCount() > 0) {
          SessionForceConsumerDelivery forceDel = new SessionForceConsumerDelivery(consumerId, consumerInternal.getForceDeliveryCount() - 1);
          sendPacketWithoutLock(sessionChannel, forceDel);
+      }
+   }
+
+   @Override
+   public void recreateProducerOnServer(ClientProducerInternal producer) {
+      if (!sessionChannel.getConnection().isBeforeProducerMetricsChanged()) {
+         sendPacketWithoutLock(sessionChannel, new CreateProducerMessage(producer.getID(), producer.getAddress()));
       }
    }
 
@@ -1219,6 +1260,11 @@ public class ActiveMQSessionContext extends SessionContext {
       ActiveMQBuffer buffer = packet.encode(this.getCoreConnection());
 
       conn.write(buffer, false, false);
+
+      if (packet.isRequiresConfirmations()) {
+         ((ChannelImpl) parameterChannel).addResendPacket(packet);
+      }
+
    }
 
 }
