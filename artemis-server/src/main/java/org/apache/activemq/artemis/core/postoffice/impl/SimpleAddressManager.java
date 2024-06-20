@@ -178,7 +178,17 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      return new ArrayList<>(directBindingMap.getOrDefault(realAddress, Collections.emptyList()));
+
+      ArrayList<Binding> outputList = new ArrayList<>();
+
+      directBindingMap.compute(realAddress, (key, bindings) -> {
+         if (bindings != null) {
+            outputList.addAll(bindings);
+         }
+         return bindings;
+      });
+
+      return Collections.unmodifiableCollection(outputList);
    }
 
    @Override
