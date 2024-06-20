@@ -408,6 +408,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
 
       CountDownLatch latch = new CountDownLatch(threads);
+      CountDownLatch latch2 = new CountDownLatch(1);
 
       AtomicInteger errors = new AtomicInteger(0);
       AtomicBoolean running = new AtomicBoolean(true);
@@ -418,10 +419,13 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
             while (running.get()) {
                // just to make things worse
                simpleAddressManager.getDirectBindings(addressSimpleString);
+               Thread.sleep(1);
             }
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             errors.incrementAndGet();
+         } finally {
+            latch2.countDown();
          }
       });
 
@@ -450,6 +454,8 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       Assertions.assertTrue(latch.await(1, TimeUnit.MINUTES));
 
       running.set(false);
+
+      Assertions.assertTrue(latch2.await(1, TimeUnit.MINUTES));
 
       Assertions.assertEquals(0, errors.get());
 
