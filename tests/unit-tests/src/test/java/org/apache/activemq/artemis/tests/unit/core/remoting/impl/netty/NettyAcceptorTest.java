@@ -29,7 +29,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -78,7 +80,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
          }
       };
 
-      Map<String, Object> params = new HashMap<>();
+      TransportConfiguration params = new TransportConfiguration();
       ServerConnectionLifeCycleListener listener = new ServerConnectionLifeCycleListener() {
 
          @Override
@@ -152,9 +154,9 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
    public void testInvalidSSLConfig() {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
-
+      TransportConfiguration configuration = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params, "test");
       try {
-         new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+         new NettyAcceptor("netty", null, configuration, null, null, null, null, Map.of());
          fail("This should have failed with an IllegalArgumentException");
       } catch (IllegalArgumentException e) {
          // expected
@@ -166,7 +168,8 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomString());
-      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+      TransportConfiguration configuration = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params, "test");
+      new NettyAcceptor("netty", null, configuration, null, null, null, null, Map.of());
    }
 
    @Test
@@ -174,6 +177,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
       params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomString());
-      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+      TransportConfiguration configuration = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params, "test");
+      new NettyAcceptor("netty", null, configuration, null, null, null, null, Map.of());
    }
 }

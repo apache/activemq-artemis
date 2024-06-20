@@ -208,8 +208,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<>();
 
-   private final Map<String, Object> configuration;
-
    private final ScheduledExecutorService scheduledThreadPool;
 
    private NotificationService notificationService;
@@ -248,21 +246,19 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
-                        final Map<String, Object> configuration,
+                        final TransportConfiguration transportConfiguration,
                         final BufferHandler handler,
                         final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
                         final Executor failureExecutor,
                         final Map<String, ProtocolManager> protocolMap) {
-      super(protocolMap);
+      super(transportConfiguration, protocolMap);
 
       this.failureExecutor = failureExecutor;
 
       this.name = name;
 
       this.clusterConnection = clusterConnection;
-
-      this.configuration = configuration;
 
       this.handler = handler;
 
@@ -927,7 +923,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             super.channelActive(ctx);
             Listener connectionListener = new Listener();
 
-            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver, router);
+            NettyServerConnection nc = new NettyServerConnection(transportConfiguration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver, router);
 
             connectionListener.connectionCreated(NettyAcceptor.this, nc, protocolHandler.getProtocol(protocol));
 

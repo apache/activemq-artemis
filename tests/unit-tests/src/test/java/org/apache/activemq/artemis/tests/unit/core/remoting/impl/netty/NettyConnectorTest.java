@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQChannelHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -113,7 +114,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<>();
+      TransportConfiguration params = new TransportConfiguration();
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
@@ -130,7 +131,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<>();
+      TransportConfiguration params = new TransportConfiguration();
 
       try {
          new NettyConnector(params, null, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
@@ -168,8 +169,8 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -201,8 +202,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -234,8 +236,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -265,8 +268,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -298,8 +302,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -333,8 +338,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -366,8 +372,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       // forcing SSL parameters will "undo" the values set by the system properties; all properties will be set to default values
       params.put(TransportConstants.FORCE_SSL_PARAMETERS, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -392,8 +399,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
@@ -417,8 +425,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
 
@@ -444,8 +453,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
 
@@ -492,8 +502,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       NettyConnectorTestPasswordCodec codec = new NettyConnectorTestPasswordCodec();
 
@@ -520,8 +531,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       System.setProperty(NettyConnector.ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME, NettyConnectorTestPasswordCodec.class.getName());
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
@@ -546,8 +558,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
 
@@ -573,8 +586,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnector.class.getName(), params);
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
@@ -604,8 +618,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -624,8 +639,9 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params, "test");
 
-      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+      NettyConnector connector = new NettyConnector(configuration, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       connector.start();
       assertTrue(connector.isStarted());
@@ -638,7 +654,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
    public void testChannelHandlerRemovedWhileCreatingConnection() throws Exception {
       BufferHandler handler = (connectionID, buffer) -> {
       };
-      Map<String, Object> params = new HashMap<>();
+      TransportConfiguration params = new TransportConfiguration();
       final ExecutorService closeExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       final ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));

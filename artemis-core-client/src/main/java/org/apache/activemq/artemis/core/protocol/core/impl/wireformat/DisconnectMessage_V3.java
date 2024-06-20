@@ -79,7 +79,7 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
       boolean hasTargetConnector = buffer.readBoolean();
       if (hasTargetConnector) {
          targetConnector = new TransportConfiguration();
-         targetConnector.decode(buffer);
+         targetConnector.decode(targetNodeID.toString(), buffer);
       } else {
          targetConnector = null;
       }

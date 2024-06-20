@@ -107,6 +107,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
@@ -313,7 +314,7 @@ public class NettyConnector extends AbstractConnector {
 
    private final Map<String, String> httpHeaders;
 
-   public NettyConnector(final Map<String, Object> configuration,
+   public NettyConnector(final TransportConfiguration configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
                          final Executor closeExecutor,
@@ -322,7 +323,7 @@ public class NettyConnector extends AbstractConnector {
       this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, new ActiveMQClientProtocolManager());
    }
 
-   public NettyConnector(final Map<String, Object> configuration,
+   public NettyConnector(final TransportConfiguration configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
                          final Executor closeExecutor,
@@ -332,7 +333,7 @@ public class NettyConnector extends AbstractConnector {
       this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, protocolManager, false);
    }
 
-   public NettyConnector(final Map<String, Object> configuration,
+   public NettyConnector(final TransportConfiguration transportConfiguration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
                          final Executor closeExecutor,
@@ -340,7 +341,7 @@ public class NettyConnector extends AbstractConnector {
                          final ScheduledExecutorService scheduledThreadPool,
                          final ClientProtocolManager protocolManager,
                          final boolean serverConnection) {
-      super(configuration);
+      super(transportConfiguration);
 
       this.serverConnection = serverConnection;
 
@@ -995,7 +996,7 @@ public class NettyConnector extends AbstractConnector {
 
          // No acceptor on a client connection
          Listener connectionListener = new Listener();
-         NettyConnection conn = new NettyConnection(configuration, ch, connectionListener, !httpEnabled && batchDelay > 0, false);
+         NettyConnection conn = new NettyConnection(transportConfiguration, ch, connectionListener, !httpEnabled && batchDelay > 0, false);
          connectionListener.connectionCreated(null, conn, protocolManager);
          return conn;
       } else {

@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
@@ -166,6 +167,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private String groupID;
 
    private String nodeID;
+
+   private UUID nodeUUID;
 
    private TransportConfiguration clusterTransportConfiguration;
 
@@ -1353,6 +1356,17 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    @Override
    public String getNodeID() {
       return nodeID;
+   }
+
+   @Override
+   public ServerLocatorInternal setNodeUUID(UUID nodeUUID) {
+      this.nodeUUID = nodeUUID;
+      return this;
+   }
+
+   @Override
+   public UUID getNodeUUID() {
+      return nodeUUID;
    }
 
    @Override

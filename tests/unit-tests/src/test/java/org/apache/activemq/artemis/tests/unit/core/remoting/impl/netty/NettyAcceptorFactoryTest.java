@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -43,7 +43,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
    public void testCreateAcceptor() throws Exception {
       NettyAcceptorFactory factory = new NettyAcceptorFactory();
 
-      Map<String, Object> params = new HashMap<>();
+      TransportConfiguration params = new TransportConfiguration();
       BufferHandler handler = new BufferHandler() {
 
          @Override

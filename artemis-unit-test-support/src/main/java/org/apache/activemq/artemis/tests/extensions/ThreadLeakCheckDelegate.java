@@ -269,6 +269,8 @@ public class ThreadLeakCheckDelegate {
          return true;
       } else if (threadName.contains("ForkJoinPool.commonPool")) {
          return true;
+      } else if (threadName.contains("CompletableFutureDelayScheduler")) {
+         return true;
       } else if (threadName.contains("GC Daemon")) {
          return true;
       } else if (threadName.contains("junit-jupiter-timeout-watcher")) {

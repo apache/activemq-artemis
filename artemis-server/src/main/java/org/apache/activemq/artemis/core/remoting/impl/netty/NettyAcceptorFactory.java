@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -33,7 +34,7 @@ public class NettyAcceptorFactory implements AcceptorFactory {
    @Override
    public Acceptor createAcceptor(final String name,
                                   final ClusterConnection connection,
-                                  final Map<String, Object> configuration,
+                                  final TransportConfiguration configuration,
                                   final BufferHandler handler,
                                   final ServerConnectionLifeCycleListener listener,
                                   final Executor threadPool,

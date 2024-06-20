@@ -4182,6 +4182,25 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
+   public int countTopologyPeers(String clusterConnectionName) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.listNetworkTopology(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         ClusterConnection clusterConnection =
+                 server.getClusterManager().getClusterConnection(clusterConnectionName);
+         if (clusterConnection == null) {
+            throw new IllegalArgumentException(clusterConnectionName);
+         }
+         return clusterConnection.getTopology().getMembers().size();
+      } finally {
+         blockOnIO();
+      }
+   }
 
    @Override
    public String listNetworkTopology() throws Exception {

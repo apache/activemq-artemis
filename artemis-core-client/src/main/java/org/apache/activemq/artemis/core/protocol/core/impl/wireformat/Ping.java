@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.UUID;
 
 /**
  * Ping is sent on the client side by {@link org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl}. At the server's
@@ -27,13 +30,27 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public final class Ping extends PacketImpl {
 
    private long connectionTTL;
+   /**
+    * the UUID of the node which sent the ping
+    */
+   private UUID nodeUUID;
 
-   public Ping(final long connectionTTL) {
+   /**
+    * Used for sending pings.
+    *
+    * @param nodeUUID the UUID of the node which sent the ping
+    */
+   public Ping(UUID nodeUUID, final long connectionTTL) {
       super(PING);
 
       this.connectionTTL = connectionTTL;
+      this.nodeUUID = nodeUUID;
+
    }
 
+   /**
+    * Used for decoding of incoming pings.
+    */
    public Ping() {
       super(PING);
    }
@@ -42,14 +59,26 @@ public final class Ping extends PacketImpl {
       return connectionTTL;
    }
 
+   public UUID getNodeUUID() {
+      return nodeUUID;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(connectionTTL);
+      if (nodeUUID != null) {
+         buffer.writeBytes(nodeUUID.asBytes());
+      }
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       connectionTTL = buffer.readLong();
+      if (buffer.readable()) {
+         byte[] bytes = new byte[16];
+         buffer.readBytes(bytes);
+         nodeUUID =  new UUID(UUID.TYPE_TIME_BASED, bytes);
+      }
    }
 
    @Override
@@ -59,22 +88,20 @@ public final class Ping extends PacketImpl {
 
    @Override
    public int expectedEncodeSize() {
-      return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG;
+      int numLongs = nodeUUID == null ? 1 : 3;
+      return PACKET_HEADERS_SIZE + numLongs * DataConstants.SIZE_LONG;
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", connectionTTL=" + connectionTTL);
-      return buf.toString();
+      return super.getPacketString()
+             + ", connectionTTL=" + connectionTTL
+             + ", nodeUUID=" + nodeUUID;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      return result;
+      return Objects.hash(connectionTTL, nodeUUID);
    }
 
    @Override
@@ -92,6 +119,6 @@ public final class Ping extends PacketImpl {
       if (connectionTTL != other.connectionTTL) {
          return false;
       }
-      return true;
+      return Objects.equals(nodeUUID, other.nodeUUID);
    }
 }

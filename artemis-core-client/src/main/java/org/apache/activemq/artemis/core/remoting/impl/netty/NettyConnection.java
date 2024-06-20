@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -59,6 +60,7 @@ public class NettyConnection implements Connection {
    protected final Channel channel;
    private final BaseConnectionLifeCycleListener<?> listener;
    private final boolean directDeliver;
+   private final TransportConfiguration transportConfiguration;
    private final Map<String, Object> configuration;
    /**
     * if {@link #isWritable(ReadyListener)} returns false, we add a callback
@@ -74,14 +76,15 @@ public class NettyConnection implements Connection {
 
    private boolean ready = true;
 
-   public NettyConnection(final Map<String, Object> configuration,
+   public NettyConnection(final TransportConfiguration transportConfiguration,
                           final Channel channel,
                           final BaseConnectionLifeCycleListener<?> listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
       checkNotNull(channel);
 
-      this.configuration = configuration;
+      this.transportConfiguration = transportConfiguration;
+      this.configuration = transportConfiguration.getCombinedParams();
 
       this.channel = channel;
 
@@ -422,11 +425,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final TransportConfiguration getConnectorConfig() {
-      if (configuration != null) {
-         return new TransportConfiguration(NettyConnectorFactory.class.getName(), this.configuration);
-      } else {
-         return null;
-      }
+      return transportConfiguration;
    }
 
    @Override
@@ -441,7 +440,7 @@ public class NettyConnection implements Connection {
          if (cfg == null) {
             continue;
          }
-         if (NettyConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
+         if (Objects.equals(transportConfiguration.getFactoryClassName(), cfg.getFactoryClassName())) {
             int port1 = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
             int port2 = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, cfg.getParams());
             if (port1 == port2) {

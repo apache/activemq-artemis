@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -690,6 +691,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          serverLocator.setNodeID(nodeManager.getNodeId().toString());
+         serverLocator.setNodeUUID(nodeManager.getUUID());
          serverLocator.setIdentity("(main-ClusterConnection::" + server.toString() + ")");
          serverLocator.setReconnectAttempts(0);
          serverLocator.setClusterConnection(true);
@@ -861,6 +863,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final Queue queue,
                                 final boolean start) throws Exception {
       String nodeId;
+      UUID nodeUUID;
 
       synchronized (this) {
          if (!started) {
@@ -872,6 +875,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          nodeId = serverLocator.getNodeID();
+         nodeUUID = serverLocator.getNodeUUID();
       }
 
       final ServerLocatorInternal targetLocator = new ServerLocatorImpl(topology, true, connector);
@@ -901,6 +905,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, server.getStorageManager()));
 
       targetLocator.setNodeID(nodeId);
+      targetLocator.setNodeUUID(nodeUUID);
 
       targetLocator.setClusterTransportConfiguration(serverLocator.getClusterTransportConfiguration());
 
