@@ -55,7 +55,7 @@ public class InVMContext implements Context, Serializable {
 
 
    public InVMContext() {
-      map = Collections.synchronizedMap(new HashMap<String, Object>());
+      map = Collections.synchronizedMap(new HashMap<>());
    }
 
    public InVMContext(final String nameInNamespace) {

@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,11 +30,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
@@ -211,7 +210,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
       ActiveMQServer server;
 
       if (isPaging) {
-         server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+         server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
       } else {
          server = createServer(true, isNetty);
       }

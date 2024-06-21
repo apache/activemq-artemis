@@ -649,7 +649,7 @@ public class NettyConnector extends AbstractConnector {
          realTrustStorePassword = null;
       }
 
-      bootstrap.handler(new ChannelInitializer<Channel>() {
+      bootstrap.handler(new ChannelInitializer<>() {
          @Override
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();

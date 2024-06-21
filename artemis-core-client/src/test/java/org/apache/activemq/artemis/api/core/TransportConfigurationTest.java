@@ -34,8 +34,8 @@ public class TransportConfigurationTest {
 
    @Test
    public void testEquals() {
-      TransportConfiguration configuration = new TransportConfiguration("SomeClass", new HashMap<String, Object>(), null);
-      TransportConfiguration configuration2 = new TransportConfiguration("SomeClass", new HashMap<String, Object>(), null);
+      TransportConfiguration configuration = new TransportConfiguration("SomeClass", new HashMap<>(), null);
+      TransportConfiguration configuration2 = new TransportConfiguration("SomeClass", new HashMap<>(), null);
 
       assertEquals(configuration, configuration2);
       assertEquals(configuration.hashCode(), configuration2.hashCode());

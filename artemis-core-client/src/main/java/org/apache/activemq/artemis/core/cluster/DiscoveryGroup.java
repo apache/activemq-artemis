@@ -114,7 +114,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       started = true;
 
-      ThreadFactory tfactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+      ThreadFactory tfactory = AccessController.doPrivileged(new PrivilegedAction<>() {
          @Override
          public ThreadFactory run() {
             return new ActiveMQThreadFactory("DiscoveryGroup-" + System.identityHashCode(this), "activemq-discovery-group-thread-" + name, true, DiscoveryGroup.class.getClassLoader());

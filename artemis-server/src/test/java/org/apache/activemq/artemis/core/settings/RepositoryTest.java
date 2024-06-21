@@ -49,7 +49,7 @@ public class RepositoryTest extends ServerTestBase {
 
    @Test
    public void testDefault() {
-      securityRepository.setDefault(new HashSet<Role>());
+      securityRepository.setDefault(new HashSet<>());
       HashSet<Role> roles = securityRepository.getMatch("queues.something");
 
       assertEquals(roles.size(), 0);
@@ -175,14 +175,14 @@ public class RepositoryTest extends ServerTestBase {
 
    @Test
    public void testSingleMatch() {
-      securityRepository.addMatch("queues.*", new HashSet<Role>());
+      securityRepository.addMatch("queues.*", new HashSet<>());
       HashSet<Role> hashSet = securityRepository.getMatch("queues.something");
       assertEquals(hashSet.size(), 0);
    }
 
    @Test
    public void testSingletwo() {
-      securityRepository.addMatch("queues.another.aq.*", new HashSet<Role>());
+      securityRepository.addMatch("queues.another.aq.*", new HashSet<>());
       HashSet<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
       roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
@@ -199,7 +199,7 @@ public class RepositoryTest extends ServerTestBase {
 
    @Test
    public void testWithoutWildcard() {
-      securityRepository.addMatch("queues.1.*", new HashSet<Role>());
+      securityRepository.addMatch("queues.1.*", new HashSet<>());
       HashSet<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
       roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));

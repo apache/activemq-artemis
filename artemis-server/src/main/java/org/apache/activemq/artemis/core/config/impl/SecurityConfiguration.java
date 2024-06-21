@@ -72,7 +72,7 @@ public class SecurityConfiguration extends Configuration {
 
    public void addRole(final String user, final String role) {
       if (roles.get(user) == null) {
-         roles.put(user, new ArrayList<String>());
+         roles.put(user, new ArrayList<>());
       }
       roles.get(user).add(role);
    }

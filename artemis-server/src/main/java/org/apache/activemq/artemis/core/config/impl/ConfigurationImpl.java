@@ -852,7 +852,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            List convertedValue = new ArrayList<String>();
+            List<String> convertedValue = new ArrayList<>();
             for (String entry : value.toString().split(",")) {
                convertedValue.add(entry);
             }

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -33,13 +30,15 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * A PagingFailoverTest
@@ -207,7 +206,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    @Override
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
-      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>(), nodeManager, 2));
+      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<>(), nodeManager, 2));
    }
 
    @Override

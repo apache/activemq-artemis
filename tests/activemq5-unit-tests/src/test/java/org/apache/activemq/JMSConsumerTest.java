@@ -132,7 +132,7 @@ public class JMSConsumerTest extends JmsTestSupport {
 
       final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
+      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<>());
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
          LOG.error("Uncaught exception:", e);
          exceptions.put(t, e);

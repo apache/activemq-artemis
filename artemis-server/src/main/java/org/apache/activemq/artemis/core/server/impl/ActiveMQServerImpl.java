@@ -507,7 +507,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       securityRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
 
-      securityRepository.setDefault(new HashSet<Role>());
+      securityRepository.setDefault(new HashSet<>());
 
       this.parentServer = parentServer;
 
@@ -3158,7 +3158,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) ()-> new ActiveMQThreadFactory("ActiveMQ-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
 
          if (configuration.getThreadPoolMaxSize() == -1) {
-            threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
+            threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), tFactory);
          } else {
             threadPool = new ActiveMQThreadPoolExecutor(0, configuration.getThreadPoolMaxSize(), 60L, TimeUnit.SECONDS, tFactory);
          }
@@ -3184,14 +3184,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       } else {
          ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
 
-         this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
+         this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), tFactory);
          this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
       }
 
       if (serviceRegistry.getPageExecutorService() != null) {
          this.pageExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getPageExecutorService()).setFair(true);
       } else {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<>() {
             @Override
             public ThreadFactory run() {
                return new ActiveMQThreadFactory("ActiveMQ-PageExecutor-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());

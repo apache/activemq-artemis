@@ -359,7 +359,7 @@ public class ScaleDownHandler {
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
                   if (queueIds == null) {
-                     queueIds = new Pair<List<Long>, List<Long>>(new ArrayList<Long>(), new ArrayList<Long>());
+                     queueIds = new Pair<>(new ArrayList<>(), new ArrayList<>());
                      queuesToSendTo.put(message, queueIds);
                   }
                   queueIds.getA().add(queueID);
@@ -381,7 +381,7 @@ public class ScaleDownHandler {
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
                   if (queueIds == null) {
-                     queueIds = new Pair<List<Long>, List<Long>>(new ArrayList<Long>(), new ArrayList<Long>());
+                     queueIds = new Pair<>(new ArrayList<>(), new ArrayList<>());
                      queuesToSendTo.put(message, queueIds);
                   }
                   queueIds.getA().add(queueID);

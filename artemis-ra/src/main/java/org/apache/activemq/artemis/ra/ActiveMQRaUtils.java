@@ -209,7 +209,7 @@ public final class ActiveMQRaUtils {
     * For that reason any class trying to do a privileged block should do with the AccessController directly.
     */
    private static Object safeInitNewInstance(final String className) {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+      return AccessController.doPrivileged(new PrivilegedAction<>() {
          @Override
          public Object run() {
             ClassLoader loader = getClass().getClassLoader();

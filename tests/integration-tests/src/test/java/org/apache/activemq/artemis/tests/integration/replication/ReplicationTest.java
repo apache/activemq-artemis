@@ -166,7 +166,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       Configuration primaryConfig = createDefaultInVMConfig();
 
-      Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
+      Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<>());
 
       if (!pluggableQuorum) {
          ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor);

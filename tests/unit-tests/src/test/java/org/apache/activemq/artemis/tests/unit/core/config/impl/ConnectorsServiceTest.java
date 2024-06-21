@@ -58,7 +58,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
     */
    @Test
    public void testConnectorsServiceUsesInjectedConnectorServiceFactory() throws Exception {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(null).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(null).setParams(new HashMap<>()).setName("myfact");
 
       // Creates a fake connector service factory that returns the fake connector service object
       ConnectorService connectorService = new FakeConnectorService();
@@ -79,7 +79,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
     */
    @Test
    public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact");
 
       List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
       connectorServiceConfigurations.add(connectorServiceConfiguration);
@@ -99,7 +99,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
    @Test
    public void testConnectorServiceUsedDirectly() throws Exception {
       // Initial setup with existing connector service
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact");
       configuration.setConnectorServiceConfigurations(Arrays.asList(connectorServiceConfiguration));
 
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
@@ -117,7 +117,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
 
       // Add unique with same factory
-      ConnectorServiceConfiguration additionalServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact2");
+      ConnectorServiceConfiguration additionalServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact2");
       connectorsService.createService(additionalServiceConfiguration, connectorServiceFactory);
       assertEquals(2, connectorsService.getConnectors().size());
 

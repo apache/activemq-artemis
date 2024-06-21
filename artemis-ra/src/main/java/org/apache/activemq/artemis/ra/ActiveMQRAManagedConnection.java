@@ -149,8 +149,8 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       this.ra = ra;
       this.userName = userName;
       this.password = password;
-      eventListeners = Collections.synchronizedList(new ArrayList<ConnectionEventListener>());
-      handles = Collections.synchronizedSet(new HashSet<ActiveMQRASession>());
+      eventListeners = Collections.synchronizedList(new ArrayList<>());
+      handles = Collections.synchronizedSet(new HashSet<>());
 
       connection = null;
       nonXAsession = null;

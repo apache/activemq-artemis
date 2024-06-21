@@ -57,7 +57,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
          final Bindings[] lazyCreateResult = new Bindings[1];
 
-         addressMap.visitMatchingWildcards(address, new AddressMapVisitor<Bindings>() {
+         addressMap.visitMatchingWildcards(address, new AddressMapVisitor<>() {
 
             Bindings newBindings = null;
             @Override

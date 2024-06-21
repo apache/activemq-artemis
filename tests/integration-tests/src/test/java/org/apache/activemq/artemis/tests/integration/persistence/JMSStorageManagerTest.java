@@ -109,7 +109,7 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
          str[i] = "str" + i;
       }
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(new ArrayList<String>()).setBindings("");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(new ArrayList<>()).setBindings("");
 
       int size = config.getEncodeSize();
 

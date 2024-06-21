@@ -227,7 +227,7 @@ public class JmsSendReceiveTestSupport extends TestSupport implements MessageLis
     * @return List
     */
    protected List<Message> createConcurrentList() {
-      return Collections.synchronizedList(new ArrayList<Message>());
+      return Collections.synchronizedList(new ArrayList<>());
    }
 
    /**

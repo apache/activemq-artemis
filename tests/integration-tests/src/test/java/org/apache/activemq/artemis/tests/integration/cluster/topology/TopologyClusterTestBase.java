@@ -213,7 +213,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       locator.getTopology().setOwner("testReceive");
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -259,7 +259,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -309,7 +309,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
 
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, new CountDownLatch(0)));
@@ -389,7 +389,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 

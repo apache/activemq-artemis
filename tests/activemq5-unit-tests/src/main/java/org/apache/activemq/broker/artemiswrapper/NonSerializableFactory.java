@@ -104,5 +104,5 @@ public class NonSerializableFactory implements ObjectFactory {
       return NonSerializableFactory.wrapperMap;
    }
 
-   private static Map<String, Object> wrapperMap = Collections.synchronizedMap(new HashMap<String, Object>());
+   private static Map<String, Object> wrapperMap = Collections.synchronizedMap(new HashMap<>());
 }

@@ -35,7 +35,7 @@ public class TcpTransportServerTest extends TestCase {
 
    public void testDefaultPropertiesSetOnTransport() throws Exception {
       TcpTransportServer server = (TcpTransportServer) TransportFactory.bind(new URI("tcp://localhost:61616?trace=true"));
-      server.setTransportOption(new HashMap<String, Object>());
+      server.setTransportOption(new HashMap<>());
 
       try {
          server.setAcceptListener(new TransportAcceptListener() {

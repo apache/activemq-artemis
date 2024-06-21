@@ -109,7 +109,7 @@ public class XARecoveryConfig {
       this.password = password;
       this.ha = ha;
       this.clientProtocolManager = clientProtocolManager;
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<>()) : Collections.unmodifiableMap(properties);
    }
 
    public XARecoveryConfig(final boolean ha,
@@ -145,7 +145,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = serverLocator.isHA();
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<>()) : Collections.unmodifiableMap(properties);
       this.clientProtocolManager = clientProtocolManager;
       this.locatorConfig = serverLocator.getLocatorConfig();
    }

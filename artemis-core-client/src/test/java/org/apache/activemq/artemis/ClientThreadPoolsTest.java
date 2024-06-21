@@ -100,9 +100,9 @@ public class ClientThreadPoolsTest {
    public void testInjectPools() throws Exception {
       ActiveMQClient.clearThreadPools();
 
-      ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+      ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
-      ThreadPoolExecutor flowControlPoolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+      ThreadPoolExecutor flowControlPoolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
       ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
@@ -222,9 +222,9 @@ public class ClientThreadPoolsTest {
 
       ServerLocator serverLocator = new ServerLocatorImpl(false);
 
-      ThreadPoolExecutor threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      ThreadPoolExecutor threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
       ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(1);
-      ThreadPoolExecutor flowControlThreadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      ThreadPoolExecutor flowControlThreadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
       serverLocator.setThreadPools(threadPool, scheduledThreadPool, flowControlThreadPool);
 
       Field threadPoolField = ServerLocatorImpl.class.getDeclaredField("threadPool");

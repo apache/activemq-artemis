@@ -31,7 +31,7 @@ public class InVMConnectorFactoryTest {
    @Test
    public void testCreateConnectorSetsDefaults() {
       // Test defaults are added when TransportConfig params are empty
-      TransportConfiguration tc = new TransportConfiguration(InVMConnectorFactory.class.getName(), new HashMap<String, Object>());
+      TransportConfiguration tc = new TransportConfiguration(InVMConnectorFactory.class.getName(), new HashMap<>());
       assertTrue(tc.getParams().equals(InVMConnector.DEFAULT_CONFIG));
 
       // Test defaults are added when TransportConfig params are null

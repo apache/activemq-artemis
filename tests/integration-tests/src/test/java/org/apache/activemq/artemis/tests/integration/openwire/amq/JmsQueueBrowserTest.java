@@ -379,7 +379,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       @SuppressWarnings("unchecked")
       Enumeration<Message> browserView = browser.getEnumeration();
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
       for (int i = 0; i < numMessages; i++)
       {
          Message m1 = consumer.receive(5000);

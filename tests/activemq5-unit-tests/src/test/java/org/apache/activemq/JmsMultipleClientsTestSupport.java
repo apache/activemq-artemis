@@ -77,7 +77,7 @@ public class JmsMultipleClientsTestSupport {
 
    protected BrokerService broker;
    protected Destination destination;
-   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<>());
    protected MessageIdList allMessagesList = new MessageIdList();
 
    protected void startProducers(Destination dest, int msgCount) throws Exception {

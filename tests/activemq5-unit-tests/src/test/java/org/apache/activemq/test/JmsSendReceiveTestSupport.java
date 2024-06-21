@@ -256,6 +256,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
     * @return a synchronized view of the specified list.
     */
    protected List<Message> createConcurrentList() {
-      return Collections.synchronizedList(new ArrayList<Message>());
+      return Collections.synchronizedList(new ArrayList<>());
    }
 }

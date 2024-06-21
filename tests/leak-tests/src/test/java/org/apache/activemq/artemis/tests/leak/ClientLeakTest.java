@@ -58,7 +58,7 @@ public class ClientLeakTest extends AbstractLeakTest {
 
       try {
          ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory("./data/journal").setBindingsDirectory("./data/binding").setPagingDirectory("./data/page").setLargeMessagesDirectory("./data/lm").setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
-         configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
+         configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<>()));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(configuration, false);
          server.start();
          System.out.println(LEAK_SERVER);

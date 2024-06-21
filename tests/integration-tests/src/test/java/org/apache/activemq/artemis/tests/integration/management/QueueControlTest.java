@@ -2347,8 +2347,8 @@ public class QueueControlTest extends ManagementTestBase {
 
       // send two messages on queueA
 
-      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
-      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody2".getBytes()), true, "myUser", "myPassword");
+      queueControlA.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControlA.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody2".getBytes()), true, "myUser", "myPassword");
 
       Wait.assertEquals(2, () -> getMessageCount(queueControlA));
       Wait.assertEquals(0, () -> getMessageCount(queueControlB));
@@ -2361,7 +2361,7 @@ public class QueueControlTest extends ManagementTestBase {
       Wait.assertEquals(2, () -> getMessageCount(queueControlB));
 
       // move 1 message to queueC
-      queueControlA.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody3".getBytes()), true, "myUser", "myPassword");
+      queueControlA.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody3".getBytes()), true, "myUser", "myPassword");
       Wait.assertEquals(1, () -> getMessageCount(queueControlA));
       queueControlA.moveMessages(null, queueC.toString());
       Wait.assertEquals(1, () -> getMessageCount(queueControlC));
@@ -4101,7 +4101,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
       Wait.assertEquals(2, () -> getMessageCount(queueControl));
@@ -4262,7 +4262,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
       queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword", true);
 
       Wait.assertEquals(2, () -> getMessageCount(queueControl));

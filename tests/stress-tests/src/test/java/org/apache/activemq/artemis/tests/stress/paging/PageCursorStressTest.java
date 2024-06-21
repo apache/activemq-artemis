@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.stress.paging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,7 +43,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.selector.filter.Filterable;
@@ -59,6 +52,12 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PageCursorStressTest extends ActiveMQTestBase {
 
@@ -770,7 +769,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(true);
 
-      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 

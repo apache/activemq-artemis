@@ -325,7 +325,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
-      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<>());
 
       // server.getConfiguration()
       // .getIncomingInterceptorClassNames()
@@ -402,7 +402,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
-      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<>());
 
       server.getConfiguration().getIncomingInterceptorClassNames().add(LargeMessageTestInterceptorIgnoreLastPacket.class.getName());
 

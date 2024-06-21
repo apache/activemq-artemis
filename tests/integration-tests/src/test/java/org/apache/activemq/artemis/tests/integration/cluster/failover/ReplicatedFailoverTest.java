@@ -160,7 +160,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
          appDTO.url = "console";
          BindingDTO bindingDTO = new BindingDTO();
          bindingDTO.uri = "http://localhost:0";
-         bindingDTO.apps = new ArrayList<AppDTO>();
+         bindingDTO.apps = new ArrayList<>();
          bindingDTO.apps.add(appDTO);
          WebServerDTO wdto = new WebServerDTO();
          wdto.setBindings(Collections.singletonList(bindingDTO));

@@ -418,7 +418,7 @@ public class BridgeTest extends ActiveMQTestBase {
       final String forwardAddress = "forwardAddress";
       final String queueName1 = "queue1";
 
-      // Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+      // Map<String, TransportConfiguration> connectors = new HashMap<>();
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
