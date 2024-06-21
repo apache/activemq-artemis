@@ -220,7 +220,7 @@
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
       <maven.test.failure.ignore>false</maven.test.failure.ignore>
-      <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+      <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
       <!--
 

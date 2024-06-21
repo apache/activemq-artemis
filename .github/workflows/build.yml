@@ -64,6 +64,14 @@ jobs:
           rm -rf ~/.m2/repository/org/apache/activemq/examples
           if [ -d ~/.m2/repository/org/apache/activemq ]; then find ~/.m2/repository/org/apache/activemq -name "*-SNAPSHOT" -type d -prune -exec rm -r '{}' \; ; fi
 
+      - name: Archive Test Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-jdk-${{ matrix.java }}
+          path: activemq-artemis/**/target/surefire-reports/*
+          retention-days: 10
+
   checks:
     name: Checks (${{ matrix.java }})
     runs-on: ubuntu-22.04
