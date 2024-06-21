@@ -67,8 +67,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
 
    public ServiceRegistryImpl() {
-      this.incomingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
-      this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
+      this.incomingInterceptors = Collections.synchronizedList(new ArrayList<>());
+      this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<>());
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();

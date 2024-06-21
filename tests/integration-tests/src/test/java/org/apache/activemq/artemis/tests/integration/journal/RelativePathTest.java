@@ -34,7 +34,7 @@ public class RelativePathTest extends ActiveMQTestBase {
    @Test
    public void testRelativePathOnDefaultConfig() throws Exception {
       Configuration configuration = createDefaultConfig(false);
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();
@@ -62,7 +62,7 @@ public class RelativePathTest extends ActiveMQTestBase {
 
       //      configuration.setJournal
 
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();
@@ -91,7 +91,7 @@ public class RelativePathTest extends ActiveMQTestBase {
       // one folder up from instance home
       configuration.setLargeMessagesDirectory("./large");
 
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();

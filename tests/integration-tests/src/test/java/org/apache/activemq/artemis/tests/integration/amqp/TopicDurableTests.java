@@ -131,7 +131,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
          Connection connection1 = connectionFactory1.createConnection();
 
 
-         Hashtable env2 = new Hashtable<Object, Object>();
+         Hashtable env2 = new Hashtable<>();
          env2.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
          env2.put("connectionfactory.qpidConnectionFactory", "amqp://localhost:5672");
          env2.put("topic." + "jmsTopic", "jmsTopic");

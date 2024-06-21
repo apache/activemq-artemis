@@ -51,7 +51,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    protected MessageProducer producer;
    protected Destination consumerDestination;
    protected Destination producerDestination;
-   protected List<Message> messages = Collections.synchronizedList(new ArrayList<Message>());
+   protected List<Message> messages = Collections.synchronizedList(new ArrayList<>());
    protected boolean topic = true;
    protected boolean durable;
    protected int deliveryMode = DeliveryMode.PERSISTENT;

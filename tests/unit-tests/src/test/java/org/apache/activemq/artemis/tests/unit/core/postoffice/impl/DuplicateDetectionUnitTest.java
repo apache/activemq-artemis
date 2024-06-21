@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +27,6 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
-import org.apache.activemq.artemis.core.persistence.GroupingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -49,6 +44,8 @@ import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
@@ -92,7 +89,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
          journal = new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), factory, factory);
 
          journal.start();
-         journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
+         journal.loadBindingJournal(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
          HashMap<SimpleString, List<Pair<byte[], Long>>> mapDups = new HashMap<>();
 
@@ -111,7 +108,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          journal = new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), factory, factory);
          journal.start();
-         journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
+         journal.loadBindingJournal(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
          journal.loadMessageJournal(postOffice, pagingManager, new ResourceManagerImpl(null, 0, 0, scheduledThreadPool), null, mapDups, null, null, new PostOfficeJournalLoader(postOffice, pagingManager, null, null, null, null, null, null));
 
@@ -134,7 +131,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          journal = new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), factory, factory);
          journal.start();
-         journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
+         journal.loadBindingJournal(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
          journal.loadMessageJournal(postOffice, pagingManager, new ResourceManagerImpl(null, 0, 0, scheduledThreadPool), null, mapDups, null, null, new PostOfficeJournalLoader(postOffice, pagingManager, null, null, null, null, null, null));
 

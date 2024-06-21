@@ -88,7 +88,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
       int bodySize = (int) server.getStorageManager().getMaxRecordSize() + 100;
       byte[] bigData = createBytesData(bodySize);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes(bigData), true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<>(), Message.BYTES_TYPE, Base64.encodeBytes(bigData), true, "myUser", "myPassword");
 
 
       ClientConsumer consumer = session.createConsumer(queue);

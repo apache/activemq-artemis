@@ -60,7 +60,7 @@ public class CertificateLoginModuleTest {
       loginModule = new StubCertificateLoginModule(userName, new HashSet<>(rolesNames));
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
-      loginModule.initialize(subject, callbackHandler, null, new HashMap<String, Object>());
+      loginModule.initialize(subject, callbackHandler, null, new HashMap<>());
 
       loginModule.login();
       loginModule.commit();
@@ -120,7 +120,7 @@ public class CertificateLoginModuleTest {
       boolean loginFailed = false;
 
       try {
-         loginWithCredentials(null, new HashSet<String>());
+         loginWithCredentials(null, new HashSet<>());
       } catch (LoginException e) {
          loginFailed = true;
       }

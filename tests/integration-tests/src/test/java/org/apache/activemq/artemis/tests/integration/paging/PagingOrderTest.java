@@ -85,7 +85,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -175,7 +175,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 
@@ -306,7 +306,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 
@@ -397,7 +397,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -482,7 +482,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -605,7 +605,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<>());
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
@@ -642,7 +642,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.stop();
 
-      server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PAGE_SIZE, -1, new HashMap<>());
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
@@ -668,7 +668,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<>());
       server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
@@ -711,7 +711,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.stop();
 
-      server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, -1, -1, new HashMap<>());
       server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       jmsServer = new JMSServerManagerImpl(server);

@@ -75,7 +75,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<>(), "netty", new HashMap<>()));
    }
 
    @Test

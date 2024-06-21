@@ -29,7 +29,7 @@ public class DestroyConsumerTest extends ActiveMQTestBase {
 
    // public void testDestroyConsumer() throws Exception
    // {
-   // ActiveMQServer server = createService(false, false, createDefaultInVMConfig(), new HashMap<String, AddressSettings>());
+   // ActiveMQServer server = createService(false, false, createDefaultInVMConfig(), new HashMap<>());
    // server.start();
    //
    // SimpleString queue = SimpleString.of("add1");

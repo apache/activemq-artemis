@@ -238,7 +238,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
             }
             p.addLast("decoder", new HttpRequestDecoder());
             p.addLast("encoder", new HttpResponseEncoder());
-            p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>() {
+            p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<>() {
                // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ Artemis remoting.
                @Override
                protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {

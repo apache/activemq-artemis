@@ -3918,7 +3918,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
    private class MessageListenerImpl implements MessageListener {
 
-      private final List<Message> messages = Collections.synchronizedList(new ArrayList<Message>());
+      private final List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
       private CountDownLatch latch = new CountDownLatch(1);
 

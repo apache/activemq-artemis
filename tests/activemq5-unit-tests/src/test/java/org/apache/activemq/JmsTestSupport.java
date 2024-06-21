@@ -50,7 +50,7 @@ public class JmsTestSupport extends CombinationTestSupport {
    protected ActiveMQConnection connection;
    protected BrokerService broker;
 
-   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<>());
 
    // /////////////////////////////////////////////////////////////////
    //

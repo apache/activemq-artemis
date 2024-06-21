@@ -308,7 +308,7 @@ public class CompareUpgradeTest {
 
 
    public static boolean compareDirectories(boolean allowExpectedWord, Path expected, Path upgrade) throws IOException {
-      Files.walkFileTree(expected, new SimpleFileVisitor<Path>() {
+      Files.walkFileTree(expected, new SimpleFileVisitor<>() {
          @Override
          public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
             FileVisitResult result = super.visitFile(expectedFile, attrs);

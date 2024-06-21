@@ -118,7 +118,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
 
    @Test
    public void testConcurrentSessionCreateWithStart() throws Exception {
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
       final Vector<Throwable> exceptions = new Vector<>();
       final AtomicInteger counter = new AtomicInteger(0);
       final Random rand = new Random();

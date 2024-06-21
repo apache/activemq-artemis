@@ -89,7 +89,7 @@ public class PropertiesLoginModuleRaceConditionTest extends ArtemisTestCase {
 
             Subject subject = new Subject();
             PropertiesLoginModule module = new PropertiesLoginModule();
-            module.initialize(subject, callback, new HashMap<String, Object>(), options);
+            module.initialize(subject, callback, new HashMap<>(), options);
             module.login();
             module.commit();
          } catch (Exception e) {

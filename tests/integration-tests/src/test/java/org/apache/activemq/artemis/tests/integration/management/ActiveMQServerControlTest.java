@@ -5690,11 +5690,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testConnectorServiceManagement() throws Exception {
       ActiveMQServerControl managementControl = createManagementControl();
-      managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
+      managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<>());
 
       assertEquals(1, server.getConnectorsService().getConnectors().size());
 
-      managementControl.createConnectorService("myconn2", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
+      managementControl.createConnectorService("myconn2", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<>());
       assertEquals(2, server.getConnectorsService().getConnectors().size());
 
       managementControl.destroyConnectorService("myconn");

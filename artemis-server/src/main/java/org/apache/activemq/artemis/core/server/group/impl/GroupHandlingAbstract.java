@@ -41,7 +41,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
    protected final SimpleString address;
 
    // no need to synchronize listeners as we use a single threaded executor on all its accesses
-   final Set<UnproposalListener> listeners = Collections.newSetFromMap(new WeakHashMap<UnproposalListener, Boolean>());
+   final Set<UnproposalListener> listeners = Collections.newSetFromMap(new WeakHashMap<>());
 
    public GroupHandlingAbstract(final Executor executor,
                                 final ManagementService managementService,

@@ -454,7 +454,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       bootstrap.group(eventLoopGroup);
       bootstrap.channel(channelClazz);
 
-      ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>() {
+      ChannelInitializer<Channel> factory = new ChannelInitializer<>() {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();

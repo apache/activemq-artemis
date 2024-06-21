@@ -69,7 +69,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
 
       final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
+      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<>());
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> exceptions.put(t, e));
 
       final class AckAndClose implements Runnable {

@@ -121,7 +121,7 @@ public class JsonArrayImpl extends JsonValueImpl implements JsonArray {
 
    @Override
    public Iterator<JsonValue> iterator() {
-      return new Iterator<JsonValue>() {
+      return new Iterator<>() {
          private Iterator<javax.json.JsonValue> rawIterator = rawArray.iterator();
 
          @Override

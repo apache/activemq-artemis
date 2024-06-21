@@ -307,7 +307,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          journalsHolder.put(JournalContent.MESSAGES, storageManager.getMessageJournal());
 
          for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
-            filesReservedForSync.put(jc, new HashMap<Long, JournalSyncFile>());
+            filesReservedForSync.put(jc, new HashMap<>());
             // We only need to load internal structures on the backup...
             journalLoadInformation[jc.typeByte] = journalsHolder.get(jc).loadSyncOnly(JournalState.SYNCING);
          }

@@ -156,7 +156,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    public final Exception createTrace;
 
-   public static final Set<CloseRunnable> CLOSE_RUNNABLES = Collections.synchronizedSet(new HashSet<CloseRunnable>());
+   public static final Set<CloseRunnable> CLOSE_RUNNABLES = Collections.synchronizedSet(new HashSet<>());
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
 

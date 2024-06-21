@@ -1935,7 +1935,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       final AtomicReference<String> errorAt = new AtomicReference<>();
       ConfigurationImpl configuration = new ConfigurationImpl();
-      configuration.setResourceLimitSettings(new HashMap<String, ResourceLimitSettings>() {
+      configuration.setResourceLimitSettings(new HashMap<>() {
          @Override
          public ResourceLimitSettings put(String key, ResourceLimitSettings value) {
             if (!(key.equals(insertionOrderedKeys.remove()))) {

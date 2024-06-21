@@ -212,7 +212,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       LoginModule loginModule = new LDAPLoginModule();
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
-      loginModule.initialize(new Subject(), callbackHandler, null, new HashMap<String, Object>());
+      loginModule.initialize(new Subject(), callbackHandler, null, new HashMap<>());
 
       // login should return false due to null username
       assertFalse(loginModule.login());

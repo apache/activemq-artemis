@@ -142,7 +142,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       raProperties = new ActiveMQRAProperties();
       configured = new AtomicBoolean(false);
-      activations = Collections.synchronizedMap(new IdentityHashMap<ActivationSpec, ActiveMQActivation>());
+      activations = Collections.synchronizedMap(new IdentityHashMap<>());
       recoveryManager = new RecoveryManager();
    }
 

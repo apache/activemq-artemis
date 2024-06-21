@@ -160,10 +160,10 @@ public class JsonObjectImpl extends JsonValueImpl implements JsonObject {
 
    @Override
    public Collection<JsonValue> values() {
-      return new AbstractCollection<JsonValue>() {
+      return new AbstractCollection<>() {
          @Override
          public Iterator<JsonValue> iterator() {
-            return new Iterator<JsonValue>() {
+            return new Iterator<>() {
                private Iterator<javax.json.JsonValue> rawIterator = rawObject.values().iterator();
 
                @Override
@@ -187,10 +187,10 @@ public class JsonObjectImpl extends JsonValueImpl implements JsonObject {
 
    @Override
    public Set<Map.Entry<String, JsonValue>> entrySet() {
-      return new AbstractSet<Map.Entry<String, JsonValue>>() {
+      return new AbstractSet<>() {
          @Override
          public Iterator<Map.Entry<String, JsonValue>> iterator() {
-            return new Iterator<Map.Entry<String, JsonValue>>() {
+            return new Iterator<>() {
                private Iterator<Map.Entry<String, javax.json.JsonValue>> rawIterator = rawObject.entrySet().iterator();
 
                @Override

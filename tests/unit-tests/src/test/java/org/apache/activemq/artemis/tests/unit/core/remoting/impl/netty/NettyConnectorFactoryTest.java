@@ -31,7 +31,7 @@ public class NettyConnectorFactoryTest {
    @Test
    public void testCreateConnectorSetsDefaults() {
       // Test defaults are added when TransportConfig params are empty
-      TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<String, Object>());
+      TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<>());
       assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
 
       // Test defaults are added when TransportConfig params are null

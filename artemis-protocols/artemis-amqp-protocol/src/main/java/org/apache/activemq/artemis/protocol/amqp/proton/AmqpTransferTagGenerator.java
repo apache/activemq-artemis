@@ -38,7 +38,7 @@ public final class AmqpTransferTagGenerator {
 
    public AmqpTransferTagGenerator(boolean pool) {
       if (pool) {
-         this.tagPool = new ArrayDeque<byte[]>();
+         this.tagPool = new ArrayDeque<>();
       } else {
          this.tagPool = null;
       }

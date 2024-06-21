@@ -16,19 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 
-import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
@@ -159,7 +157,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       stopJournal();
       createJournal();
       startJournal();
-      journal.load(new ArrayList<RecordInfo>(), new ArrayList<PreparedTransactionInfo>(), null);
+      journal.load(new ArrayList<>(), new ArrayList<>(), null);
 
       assertEquals(NUMBER_OF_RECORDS / 2, journal.getIDMapSize());
 

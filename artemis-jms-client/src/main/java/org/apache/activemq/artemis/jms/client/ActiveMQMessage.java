@@ -106,7 +106,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    public static CompositeData coreCompositeTypeToJMSCompositeType(CompositeDataSupport data) throws Exception {
-      CompositeData jmsdata = new CompositeDataSupport(data.getCompositeType(), new HashMap<String, Object>());
+      CompositeData jmsdata = new CompositeDataSupport(data.getCompositeType(), new HashMap<>());
       return jmsdata;
    }
 

@@ -45,7 +45,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       journal.start();
 
-      journal.load(new ArrayList<RecordInfo>(), new ArrayList<PreparedTransactionInfo>(), null);
+      journal.load(new ArrayList<>(), new ArrayList<>(), null);
 
       BatchingIDGenerator batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
       long id1 = batch.generateID();
