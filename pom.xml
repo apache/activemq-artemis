@@ -180,7 +180,7 @@
       <jakarta.resource-api.version.alt>2.1.0</jakarta.resource-api.version.alt>
 
       <!-- used on tests -->
-      <groovy.version>4.0.13</groovy.version>
+      <groovy.version>4.0.21</groovy.version>
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
       <mockserver.version>5.15.0</mockserver.version>
 
