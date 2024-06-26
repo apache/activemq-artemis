@@ -428,7 +428,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
             assertEquals("org.foo.BridgeTransformer3", bc.getTransformerConfiguration().getClassName());
             assertEquals("bridgeTransformerValue1", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey1"));
             assertEquals("bridgeTransformerValue2", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey2"));
-
+            assertEquals(123456, bc.getPendingAckTimeout());
          }
       }
 

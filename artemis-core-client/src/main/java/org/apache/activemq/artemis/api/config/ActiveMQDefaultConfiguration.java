@@ -664,6 +664,9 @@ public final class ActiveMQDefaultConfiguration {
    // Number of concurrent workers for a core bridge
    public static int DEFAULT_BRIDGE_CONCURRENCY = 1;
 
+   // How long to wait for acknowledgements to arrive from the bridge's target while stopping or pausing the bridge
+   public static long DEFAULT_BRIDGE_PENDING_ACK_TIMEOUT = 60000;
+
    // Whether or not to report Netty pool metrics
    private static final boolean DEFAULT_NETTY_POOL_METRICS = false;
 
@@ -1858,6 +1861,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultBridgeConcurrency() {
       return DEFAULT_BRIDGE_CONCURRENCY;
+   }
+
+   public static long getDefaultBridgePendingAckTimeout() {
+      return DEFAULT_BRIDGE_PENDING_ACK_TIMEOUT;
    }
 
    /**
