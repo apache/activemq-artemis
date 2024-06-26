@@ -460,7 +460,7 @@ public class ManagementServiceImpl implements ManagementService {
    @Override
    public synchronized void registerBridge(final Bridge bridge) throws Exception {
       bridge.setNotificationService(this);
-      ObjectName objectName = objectNameBuilder.getBridgeObjectName(bridge.getName().toString());
+      ObjectName objectName = objectNameBuilder.getBridgeObjectName(bridge.getConfiguration().getName());
       BridgeControl control = new BridgeControlImpl(bridge, storageManager);
       registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.BRIDGE + bridge.getName(), control);

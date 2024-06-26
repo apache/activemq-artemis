@@ -2475,6 +2475,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       int concurrency = getInteger(brNode, "concurrency", ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency(), GT_ZERO);
 
+      long pendingAckTimeout = getLong(brNode, "pending-ack-timeout", ActiveMQDefaultConfiguration.getDefaultBridgePendingAckTimeout(), GT_ZERO);
+
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
       String password = null;
 
@@ -2541,7 +2543,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          .setUser(user)
          .setPassword(password)
          .setRoutingType(routingType)
-         .setConcurrency(concurrency);
+         .setConcurrency(concurrency)
+         .setPendingAckTimeout(pendingAckTimeout);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);

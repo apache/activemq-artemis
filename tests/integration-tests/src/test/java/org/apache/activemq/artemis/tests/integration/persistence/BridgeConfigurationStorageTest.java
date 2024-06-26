@@ -56,6 +56,7 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       configuration.setParentName("name");
       configuration.setQueueName("QueueName");
       configuration.setConcurrency(2);
+      configuration.setPendingAckTimeout(9876);
       configuration.setForwardingAddress("forward");
       configuration.setProducerWindowSize(123123);
       configuration.setConfirmationWindowSize(123123);
@@ -79,6 +80,7 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals(configuration.getName(), persistedBridgeConfiguration.getBridgeConfiguration().getName());
       assertEquals(configuration.getQueueName(), persistedBridgeConfiguration.getBridgeConfiguration().getQueueName());
       assertEquals(configuration.getConcurrency(), persistedBridgeConfiguration.getBridgeConfiguration().getConcurrency());
+      assertEquals(configuration.getPendingAckTimeout(), persistedBridgeConfiguration.getBridgeConfiguration().getPendingAckTimeout());
       assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
       assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
       assertNotNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
