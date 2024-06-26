@@ -174,7 +174,7 @@
       <apache.httpclient.version>4.5.14</apache.httpclient.version>
 
       <!-- for JakartaEE -->
-      <version.batavia>1.0.10.Final</version.batavia>
+      <version.batavia>1.0.15.Final</version.batavia>
       <jakarta.jms-api.version.alt>3.1.0</jakarta.jms-api.version.alt>
       <jakarta.transaction-api.version.alt>2.0.1</jakarta.transaction-api.version.alt>
       <jakarta.resource-api.version.alt>2.1.0</jakarta.resource-api.version.alt>
