@@ -30,9 +30,13 @@
    </parent>
 
    <modules>
+      <!-- Modules that use artemis-project as their parent -->
       <module>artemis-bom</module>
-      <module>artemis-pom</module>
       <module>artemis-log-annotation-processor</module>
+      <module>artemis-pom</module>
+
+      <!-- Other modules, use artemis-pom as their parent -->
+      <module>artemis-log-annotation-processor/tests</module>
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
       <module>artemis-cdi-client</module>
@@ -307,14 +311,6 @@
                <name>errorprone</name>
             </property>
          </activation>
-         <dependencies>
-            <dependency>
-               <groupId>com.google.errorprone</groupId>
-               <artifactId>error_prone_core</artifactId>
-               <version>${errorprone.version}</version>
-               <scope>provided</scope>
-            </dependency>
-         </dependencies>
          <build>
             <plugins>
                <plugin>
@@ -326,6 +322,13 @@
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                      </compilerArgs>
+                     <annotationProcessorPaths combine.children="append">
+                        <path>
+                           <groupId>com.google.errorprone</groupId>
+                           <artifactId>error_prone_core</artifactId>
+                           <version>${errorprone.version}</version>
+                        </path>
+                     </annotationProcessorPaths>
                   </configuration>
                </plugin>
             </plugins>
@@ -340,14 +343,6 @@
                <name>errorprone</name>
             </property>
          </activation>
-         <dependencies>
-            <dependency>
-               <groupId>com.google.errorprone</groupId>
-               <artifactId>error_prone_core</artifactId>
-               <version>${errorprone.version}</version>
-               <scope>provided</scope>
-            </dependency>
-         </dependencies>
          <build>
             <plugins>
                <plugin>
@@ -370,6 +365,13 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                      </compilerArgs>
+                     <annotationProcessorPaths combine.children="append">
+                        <path>
+                           <groupId>com.google.errorprone</groupId>
+                           <artifactId>error_prone_core</artifactId>
+                           <version>${errorprone.version}</version>
+                        </path>
+                     </annotationProcessorPaths>
                   </configuration>
                </plugin>
             </plugins>
@@ -946,6 +948,7 @@
                      <exclude>**/*.pemcfg</exclude>
                      <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                      <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
+                     <exclude>**/enable-log-bundle-annotation-processor</exclude>
                      <exclude>**/.settings/**</exclude>
                      <exclude>**/.project</exclude>
                      <exclude>**/.classpath</exclude>
@@ -1006,6 +1009,25 @@
                   <autoVersionSubmodules>true</autoVersionSubmodules>
                   <tagNameFormat>@{project.version}</tagNameFormat>
                   <arguments>-DskipTests</arguments>
+               </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-compiler-plugin</artifactId>
+               <configuration>
+                  <annotationProcessorPaths>
+                     <!-- This is a dummy path, it has no processor, used here to stop
+                          implicit processor search of main dependencies.
+                          Append desired paths to annotationProcessorPaths in child
+                          module poms to enable the desired processors.
+                          Avoids use of 'proc:full', which needs newest JDK < 21 builds -->
+                     <path>
+                        <groupId>org.apache.apache.resources</groupId>
+                        <artifactId>apache-jar-resource-bundle</artifactId>
+                        <version>${version.apache-resource-bundles}</version>
+                     </path>
+                  </annotationProcessorPaths>
+                  <annotationProcessorPathsUseDepMgmt>true</annotationProcessorPathsUseDepMgmt>
                </configuration>
             </plugin>
          </plugins>
