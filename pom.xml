@@ -126,7 +126,7 @@
 
       <!-- docs -->
       <asciidoctor.maven.plugin.version>3.0.0</asciidoctor.maven.plugin.version>
-      <asciidoctorj.pdf.version>2.3.9</asciidoctorj.pdf.version>
+      <asciidoctorj.pdf.version>2.3.17</asciidoctorj.pdf.version>
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.65.Final</netty-tcnative-version>
