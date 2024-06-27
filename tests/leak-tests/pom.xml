@@ -29,7 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <check-leak-version>0.8</check-leak-version>
+      <check-leak-version>0.11</check-leak-version>
       <!-- whatever name you choose it has to match between the check-leak-maven-plugin install call and the JVM argument -->
       <check-leak-deploy-name>checkleak.lib</check-leak-deploy-name>
    </properties>
