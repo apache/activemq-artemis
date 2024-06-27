@@ -59,6 +59,8 @@ updates:
         versions: '>= 6'
       - dependency-name: 'org.eclipse.jetty:*'
         versions: '>= 11'
+      - dependency-name: 'com.sun.xml.bind:*'
+        versions: '>= 3'
     open-pull-requests-limit: 10
     commit-message:
       # This prefix is added to remind committers to create a Jira for this dependency upgrade and update the branch with the actual Jira ID
