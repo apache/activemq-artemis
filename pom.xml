@@ -299,18 +299,6 @@
 
    <profiles>
       <profile>
-         <id>M2E</id>
-         <activation>
-            <property>
-               <name>m2e.version</name>
-            </property>
-         </activation>
-         <properties>
-            <javac-compiler-id>javac</javac-compiler-id>
-         </properties>
-      </profile>
-
-      <profile>
          <id>jdk11to15-errorprone</id>
          <activation>
             <jdk>[11,16)</jdk>
