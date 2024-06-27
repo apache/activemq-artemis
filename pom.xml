@@ -108,7 +108,7 @@
       <jgroups.version>5.3.7.Final</jgroups.version>
       <errorprone.version>2.27.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
-      <jib.maven.plugin.version>3.3.2</jib.maven.plugin.version>
+      <jib.maven.plugin.version>3.4.3</jib.maven.plugin.version>
       <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
       <checkstyle.version>10.16.0</checkstyle.version>
