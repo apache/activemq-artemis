@@ -29,7 +29,7 @@
    <name>ActiveMQ Artemis CLI</name>
 
    <properties>
-      <winsw.version>2.7.0</winsw.version>
+      <winsw.version>2.9.0</winsw.version>
    </properties>
 
    <dependencies>
