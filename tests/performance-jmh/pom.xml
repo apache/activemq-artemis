@@ -30,7 +30,7 @@
 
     <properties>
         <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-        <jmh.version>1.26</jmh.version>
+        <jmh.version>1.37</jmh.version>
     </properties>
 
     <dependencies>
