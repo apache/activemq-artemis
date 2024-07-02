@@ -163,7 +163,7 @@
       <owb.version>2.0.27</owb.version>
       <arquillian.version>1.8.0.Final</arquillian.version>
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
-      <version.org.jacoco>0.8.11</version.org.jacoco>
+      <version.org.jacoco>0.8.12</version.org.jacoco>
       <version.org.jacoco.plugin>0.8.12</version.org.jacoco.plugin>
       <version.micrometer>1.13.1</version.micrometer>
       <hamcrest.version>2.2</hamcrest.version>
