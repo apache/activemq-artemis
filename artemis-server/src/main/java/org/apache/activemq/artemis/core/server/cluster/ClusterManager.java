@@ -324,7 +324,7 @@ public class ClusterManager implements ActiveMQComponent {
 
          for (Bridge bridge : bridges.values()) {
             bridge.stop();
-            managementService.unregisterBridge(bridge.getName().toString());
+            managementService.unregisterBridge(bridge.getConfiguration().getName());
          }
 
          bridges.clear();
@@ -532,17 +532,17 @@ public class ClusterManager implements ActiveMQComponent {
 
       synchronized (this) {
          for (Bridge bridge : bridges.values()) {
-            if (bridge.getName().toString().matches(name + "|" + name + "-\\d+")) {
-               bridge = bridges.get(bridge.getName().toString());
+            if (bridge.getConfiguration().getName().matches(name + "|" + name + "-\\d+")) {
+               bridge = bridges.get(bridge.getConfiguration().getName());
                if (bridge != null) {
                   bridgesToRemove.add(bridge);
                }
             }
          }
          for (Bridge bridgeToRemove : bridgesToRemove) {
-            bridges.remove(bridgeToRemove.getName().toString());
+            bridges.remove(bridgeToRemove.getConfiguration().getName());
             bridgeToRemove.stop();
-            managementService.unregisterBridge(bridgeToRemove.getName().toString());
+            managementService.unregisterBridge(bridgeToRemove.getConfiguration().getName());
          }
       }
       for (Bridge bridge : bridgesToRemove) {

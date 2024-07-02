@@ -30,6 +30,7 @@ import io.netty.channel.Channel;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -152,13 +153,13 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221027, value = "Bridge {} is connected", level = LogMessage.Level.INFO)
    void bridgeConnected(BridgeImpl name);
 
-   @LogMessage(id = 221028, value = "Bridge is stopping, will not retry", level = LogMessage.Level.INFO)
-   void bridgeStopping();
+   @LogMessage(id = 221028, value = "Bridge is {}, will not retry", level = LogMessage.Level.INFO)
+   void bridgeWillNotRetry(String operation);
 
-   @LogMessage(id = 221029, value = "stopped bridge {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221029, value = "Stopped bridge {}", level = LogMessage.Level.INFO)
    void bridgeStopped(String name);
 
-   @LogMessage(id = 221030, value = "paused bridge {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221030, value = "Paused bridge {}", level = LogMessage.Level.INFO)
    void bridgePaused(String name);
 
    @LogMessage(id = 221031, value = "backup announced", level = LogMessage.Level.INFO)
@@ -197,8 +198,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221041, value = "Cannot find queue {} while reloading PAGE_CURSOR_COMPLETE, deleting record now", level = LogMessage.Level.INFO)
    void cantFindQueueOnPageComplete(long queueID);
 
-   @LogMessage(id = 221042, value = "Bridge {} timed out waiting for the completion of {} messages, we will just shutdown the bridge after 10 seconds wait", level = LogMessage.Level.INFO)
-   void timedOutWaitingCompletions(String bridgeName, long numberOfMessages);
+   @LogMessage(id = 221042, value = "{} bridge {} timed out waiting for the send acknowledgement of {} messages. Messages may be duplicated between the bridge's source and the target.", level = LogMessage.Level.INFO)
+   void timedOutWaitingForSendAcks(String operation, String bridgeName, long numberOfMessages);
 
    @LogMessage(id = 221043, value = "Protocol module found: [{}]. Adding protocol support for: {}", level = LogMessage.Level.INFO)
    void addingProtocolSupport(String moduleName, String protocolKey);
@@ -789,8 +790,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222159, value = "unable to send notification when broadcast group is stopped", level = LogMessage.Level.WARN)
    void broadcastBridgeStoppedError(Exception e);
 
-   @LogMessage(id = 222160, value = "unable to send notification when broadcast group is stopped", level = LogMessage.Level.WARN)
-   void notificationBridgeStoppedError(Exception e);
+   @LogMessage(id = 222160, value = "unable to send notification for bridge {}: {}", level = LogMessage.Level.WARN)
+   void notificationBridgeError(String bridge, CoreNotificationType type, Exception e);
 
    @LogMessage(id = 222161, value = "Group Handler timed-out waiting for sendCondition", level = LogMessage.Level.WARN)
    void groupHandlerSendTimeout();
@@ -1302,8 +1303,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224030, value = "Could not cancel reference {}", level = LogMessage.Level.ERROR)
    void errorCancellingRefOnBridge(MessageReference ref2, Exception e);
 
-   @LogMessage(id = 224032, value = "Failed to pause bridge", level = LogMessage.Level.ERROR)
-   void errorPausingBridge(Exception e);
+   @LogMessage(id = 224032, value = "Failed to pause bridge: {}", level = LogMessage.Level.ERROR)
+   void errorPausingBridge(String bridgeName, Exception e);
 
    @LogMessage(id = 224033, value = "Failed to broadcast connector configs", level = LogMessage.Level.ERROR)
    void errorBroadcastingConnectorConfigs(Exception e);
@@ -1617,4 +1618,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224138, value = "Error Registering DuplicateCacheSize on namespace {}", level = LogMessage.Level.WARN)
    void errorRegisteringDuplicateCacheSize(String address, Exception reason);
+
+   @LogMessage(id = 224139, value = "Failed to stop bridge: {}", level = LogMessage.Level.ERROR)
+   void errorStoppingBridge(String bridgeName, Exception e);
 }

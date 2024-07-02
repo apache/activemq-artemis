@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
 import org.apache.activemq.artemis.logs.BundleFactory;
@@ -554,5 +555,8 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229254, value = "Already replicating, started={}")
    ActiveMQIllegalStateException alreadyReplicating(boolean status);
+
+   @Message(id = 229255, value = "Bridge {} cannot be {}. Current state: {}")
+   ActiveMQIllegalStateException bridgeOperationCannotBeExecuted(String bridgeName, String failedOp, BridgeImpl.State currentState);
 
 }
