@@ -297,15 +297,15 @@ Sample Downstream Address Federation setup:
           <static-connectors>
              <connector-ref>eu-east-1-connector</connector-ref>
           </static-connectors>
-          <upstream-connector-ref>netty-connector</upstream-connector-ref>
           <policy ref="news-address-federation"/>
+          <upstream-connector-ref>netty-connector</upstream-connector-ref>
       </downstream>
       <downstream name="eu-west-1" >
          <static-connectors>
             <connector-ref>eu-west-1-connector</connector-ref>
          </static-connectors>
-         <upstream-connector-ref>netty-connector</upstream-connector-ref>
          <policy ref="news-address-federation"/>
+         <upstream-connector-ref>netty-connector</upstream-connector-ref>
       </downstream>
 
       <address-policy name="news-address-federation" max-hops="1" auto-delete="true" auto-delete-delay="300000" auto-delete-message-count="-1" transformer-ref="news-transformer">

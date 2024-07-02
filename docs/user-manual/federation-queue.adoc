@@ -263,15 +263,15 @@ Sample Downstream Address Federation setup:
           <static-connectors>
              <connector-ref>eu-east-1-connector</connector-ref>
           </static-connectors>
-          <upstream-connector-ref>netty-connector</upstream-connector-ref>
           <policy ref="news-address-federation"/>
+          <upstream-connector-ref>netty-connector</upstream-connector-ref>
       </downstream>
       <downstream name="eu-west-1" >
          <static-connectors>
             <connector-ref>eu-west-1-connector</connector-ref>
          </static-connectors>
-         <upstream-connector-ref>netty-connector</upstream-connector-ref>
          <policy ref="news-address-federation"/>
+         <upstream-connector-ref>netty-connector</upstream-connector-ref>
       </downstream>
 
       <queue-policy name="news-queue-federation" priority-adjustment="-5" include-federated="true" transformer-ref="news-transformer">
