@@ -227,7 +227,6 @@
          <plugin>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
-            <version>5.1.9</version>
             <inherited>true</inherited>
             <extensions>true</extensions>
             <configuration>
