@@ -256,7 +256,7 @@
       <proton.trace.frames>false</proton.trace.frames>
 
       <directory-version>2.0.0.AM25</directory-version>
-      <directory-jdbm2-version>2.0.0-M1</directory-jdbm2-version>
+      <directory-jdbm2-version>2.0.0-M3</directory-jdbm2-version>
       <bc-java-version>1.78.1</bc-java-version>
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
