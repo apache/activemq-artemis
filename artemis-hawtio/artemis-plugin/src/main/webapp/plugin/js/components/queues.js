@@ -308,7 +308,7 @@ var Artemis;
             var details = Core.parseMBean(mBean);
             var properties = details['attributes'];
             var brokerAddress = properties["broker"] || "unknown";
-            var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+            var artemisJmxDomain = Artemis.artemisJmxDomain(jolokia);
             //we have to remove the surrounding quotes
             return "root-" + artemisJmxDomain + "-" + brokerAddress.replace(/^"|"$/g, '') + "-";
 

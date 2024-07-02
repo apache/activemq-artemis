@@ -55,8 +55,8 @@ var Artemis = (function (Artemis) {
           })
     .run(configurePlugin);
 
-  function configurePlugin(mainNavService, workspace, helpRegistry, preferencesRegistry, localStorage, preLogoutTasks, documentBase, $templateCache) {
-        var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+  function configurePlugin(mainNavService, workspace, helpRegistry, preferencesRegistry, localStorage, preLogoutTasks, documentBase, $templateCache, jolokia) {
+        var artemisJmxDomain = Artemis.artemisJmxDomain(jolokia);
         mainNavService.addItem({
             title: 'Artemis',
             basePath: '/artemis',
@@ -64,7 +64,7 @@ var Artemis = (function (Artemis) {
             isValid: function () { return workspace.treeContainsDomainAndProperties(artemisJmxDomain); }
         });
     }
-    configurePlugin.$inject = ['mainNavService', 'workspace', 'helpRegistry', 'preferencesRegistry', 'localStorage', 'preLogoutTasks', 'documentBase', '$templateCache'];
+    configurePlugin.$inject = ['mainNavService', 'workspace', 'helpRegistry', 'preferencesRegistry', 'localStorage', 'preLogoutTasks', 'documentBase', '$templateCache', 'jolokia'];
 
   return Artemis;
 

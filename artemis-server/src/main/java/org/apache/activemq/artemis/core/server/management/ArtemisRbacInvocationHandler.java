@@ -155,7 +155,7 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
                }
             });
             try {
-               activeMQServer.getManagementService().registerHawtioSecurity(this);
+               activeMQServer.getManagementService().registerHawtioSecurity(this, activeMQServer.getConfiguration());
             } catch (Exception bestEffort) {
                bestEffort.printStackTrace();
             }

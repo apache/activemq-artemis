@@ -100,7 +100,7 @@ public class Run extends LockAbstract {
                   return;
                }
                try {
-                  server.getServer().getManagementService().registerHawtioSecurity(managementContext.getArtemisMBeanServerGuard());
+                  server.getServer().getManagementService().registerHawtioSecurity(managementContext.getArtemisMBeanServerGuard(), server.getServer().getConfiguration());
                } catch (Throwable e) {
                   ActiveMQServerLogger.LOGGER.unableToDeployHawtioMBean(e);
                }

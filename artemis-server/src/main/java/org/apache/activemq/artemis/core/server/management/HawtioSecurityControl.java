@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 
 import javax.management.MBeanOperationInfo;
@@ -36,4 +37,16 @@ public interface HawtioSecurityControl {
 
    @Operation(desc = "Can invoke a number of Objects", impact = MBeanOperationInfo.ACTION)
    TabularData canInvoke(Map<String, List<String>> bulkQuery) throws Exception;
+
+   /**
+    * Returns the broker's jmx domain
+    */
+   @Attribute(desc = "The JMX Domain needed by the console")
+   String getJMXDomain();
+
+   /**
+    * Returns the broker's name
+    */
+   @Attribute(desc = "The Brokers name needed by the console")
+   String getBrokerName();
 }

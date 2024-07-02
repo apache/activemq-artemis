@@ -16,10 +16,16 @@
  */
 var Artemis;
 (function (Artemis) {
-    function artemisJmxDomain() {
-        return localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+    function artemisJmxDomain(jolokia) {
+        var response = jolokia.request({ type: "read", mbean: 'hawtio:type=security,area=jmx,name=ArtemisJMXSecurity', attribute: 'JMXDomain'}, {method: "post"});
+        Artemis.log.info("domain=" + response);
+        if (response && response.value) {
+            Artemis.log.info("domain=" + response.value);
+            return response.value
+        }
+        return  "org.apache.activemq.artemis";
     }
-    Artemis.artemisJmxDomain = artemisJmxDomain;;
+    Artemis.artemisJmxDomain = artemisJmxDomain;
 
     function ownUnescape(name) {
         //simple return unescape(name); does not work for this :(
@@ -28,6 +34,12 @@ var Artemis;
     Artemis.ownUnescape = ownUnescape;
 
     function getBrokerMBean(workspace, jolokia) {
+        var response = jolokia.request({ type: "read", mbean: 'hawtio:type=security,area=jmx,name=ArtemisJMXSecurity', attribute: 'BrokerName'}, {method: "post"});
+        Artemis.log.info("name=" + response);
+        if (response && response.value) {
+            Artemis.log.info("name=" + response.value);
+            return artemisJmxDomain(jolokia) + ":broker=\"" + response.value + "\"";
+        }
         var mbean = null;
         var selection = workspace.selection;
         var folderNames = selection.folderNames;

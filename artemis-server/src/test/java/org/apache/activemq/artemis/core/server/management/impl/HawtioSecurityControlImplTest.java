@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
@@ -52,7 +54,7 @@ public class HawtioSecurityControlImplTest {
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, null)).thenReturn(true);
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
       assertTrue(control.canInvoke(objectName));
    }
 
@@ -62,7 +64,7 @@ public class HawtioSecurityControlImplTest {
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       Mockito.when(guard.canInvoke(objectName, null)).thenReturn(false);
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
       assertFalse(control.canInvoke(objectName));
    }
 
@@ -73,7 +75,7 @@ public class HawtioSecurityControlImplTest {
          StorageManager storageManager = Mockito.mock(StorageManager.class);
          Mockito.when(guard.canInvoke(objectName, null)).thenThrow(new Exception());
 
-         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
          control.canInvoke(objectName);
          fail("Should have thrown an exception");
       });
@@ -81,7 +83,7 @@ public class HawtioSecurityControlImplTest {
 
    @Test
    public void testCanInvokeMBeanNoGuard() throws Exception {
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(null, null);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(null, null, new ConfigurationImpl());
       assertTrue(control.canInvoke("foo.bar.testing:type=SomeMBean"));
    }
 
@@ -92,7 +94,7 @@ public class HawtioSecurityControlImplTest {
       Mockito.when(guard.canInvoke(objectName, "testMethod")).thenReturn(true);
       Mockito.when(guard.canInvoke(objectName, "otherMethod")).thenReturn(false);
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
       assertTrue(control.canInvoke(objectName, "testMethod", new String[]{"long"}));
       assertTrue(control.canInvoke(objectName, "testMethod", new String[]{"java.lang.String"}));
       assertFalse(control.canInvoke(objectName, "otherMethod", new String[]{"java.lang.String", "java.lang.String"}));
@@ -105,7 +107,7 @@ public class HawtioSecurityControlImplTest {
          StorageManager storageManager = Mockito.mock(StorageManager.class);
          Mockito.when(guard.canInvoke(objectName, "testMethod")).thenThrow(new Exception());
 
-         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+         HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
          control.canInvoke(objectName, "testMethod", new String[]{});
          fail("Should have thrown an exception");
       });
@@ -113,7 +115,7 @@ public class HawtioSecurityControlImplTest {
 
    @Test
    public void testCanInvokeMethodNoGuard() throws Exception {
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(null, null);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(null, null, new ConfigurationImpl());
       assertTrue(control.canInvoke("foo.bar.testing:type=SomeMBean", "someMethod", new String[]{}));
    }
 
@@ -129,7 +131,7 @@ public class HawtioSecurityControlImplTest {
       String objectName3 = "foo.bar.foo.testing:type=SomeOtherMBean";
       Mockito.when(guard.canInvoke(objectName3, null)).thenReturn(false);
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
       Map<String, List<String>> query = new HashMap<>();
       query.put(objectName, Arrays.asList("otherMethod", "testMethod(long)", "testMethod2(java.lang.String)"));
       query.put(objectName2, Collections.emptyList());
@@ -166,7 +168,7 @@ public class HawtioSecurityControlImplTest {
       Mockito.when(guard.canInvoke(objectName, "duplicateMethod1")).thenReturn(true);
       Mockito.when(guard.canInvoke(objectName, "duplicateMethod2")).thenReturn(false);
 
-      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, new ConfigurationImpl());
       Map<String, List<String>> query = new HashMap<>();
       query.put(objectName, Arrays.asList("duplicateMethod1(long)", "duplicateMethod1(java.lang.String)", "duplicateMethod1(long)", "duplicateMethod2", "duplicateMethod2"));
       TabularData result = control.canInvoke(query);
@@ -184,5 +186,18 @@ public class HawtioSecurityControlImplTest {
       assertEquals(objectName, cd3.get("ObjectName"));
       assertEquals("duplicateMethod2", cd3.get("Method"));
       assertEquals(false, cd3.get("CanInvoke"));
+   }
+
+   @Test
+   public void testJmxAndName() throws Exception {
+      StorageManager storageManager = Mockito.mock(StorageManager.class);
+      Configuration configuration = new ConfigurationImpl();
+      String domain = "fake.jmx.domain";
+      configuration.setJMXDomain(domain);
+      String fakeName = "fakeName";
+      configuration.setName(fakeName);
+      HawtioSecurityControlImpl control = new HawtioSecurityControlImpl(guard, storageManager, configuration);
+      assertEquals(domain, control.getJMXDomain());
+      assertEquals(fakeName, control.getBrokerName());
    }
 }
