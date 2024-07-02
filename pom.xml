@@ -125,10 +125,6 @@
       <woodstox.version>4.4.1</woodstox.version>
       <pem-keystore.version>2.4.0</pem-keystore.version>
 
-      <!-- This overrides the Apache parent POM. Once a new Apache parent is released with the latest version then we
-           can get rid of this. -->
-      <version.maven-plugin-tools>3.11.0</version.maven-plugin-tools>
-
       <!-- docs -->
       <asciidoctor.maven.plugin.version>3.0.0</asciidoctor.maven.plugin.version>
       <asciidoctorj.pdf.version>2.3.17</asciidoctorj.pdf.version>
