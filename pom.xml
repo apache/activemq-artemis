@@ -149,7 +149,7 @@
       <jakarta.jms-api.version>2.0.3</jakarta.jms-api.version>
       <jakarta.json-api.version>1.1.6</jakarta.json-api.version>
       <jakarta.management.j2ee-api.version>1.1.4</jakarta.management.j2ee-api.version>
-      <jakarta.resource-api.version>1.7.4</jakarta.resource-api.version>
+      <jakarta.resource-api.version>2.1.0</jakarta.resource-api.version>
       <jakarta.security.auth.message-api.version>1.1.3</jakarta.security.auth.message-api.version>
       <jakarta.transaction-api.version>1.3.3</jakarta.transaction-api.version>
       <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
