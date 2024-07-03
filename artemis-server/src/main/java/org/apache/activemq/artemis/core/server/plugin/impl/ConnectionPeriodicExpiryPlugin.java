@@ -62,6 +62,7 @@ public class ConnectionPeriodicExpiryPlugin implements ActiveMQServerBasePlugin 
       executor = server.getScheduledPool();
       remotingService = server.getRemotingService();
       matchPattern = Pattern.compile(acceptorMatchRegex);
+      final long periodMillis = TimeUnit.SECONDS.toMillis(periodSeconds);
 
       task = executor.scheduleWithFixedDelay(() -> {
          try {
@@ -73,7 +74,7 @@ public class ConnectionPeriodicExpiryPlugin implements ActiveMQServerBasePlugin 
 
                      for (NettyServerConnection nettyServerConnection : nettyAcceptor.getConnections().values()) {
                         RemotingConnection remotingConnection = remotingService.getConnection(nettyServerConnection.getID());
-                        if (remotingConnection != null && currentTime > remotingConnection.getCreationTime() + periodSeconds) {
+                        if (remotingConnection != null && currentTime > remotingConnection.getCreationTime() + periodMillis) {
                            executor.schedule(() -> {
                               remotingService.removeConnection(remotingConnection.getID());
                               remotingConnection.fail(new ActiveMQDisconnectedException("terminated by session expiry plugin"));

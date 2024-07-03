@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -40,7 +42,7 @@ public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTe
    protected void addConfiguration(ActiveMQServer server) throws Exception {
 
       ConnectionPeriodicExpiryPlugin plugin = new ConnectionPeriodicExpiryPlugin();
-      plugin.setPeriodSeconds(1);
+      plugin.setPeriodSeconds(2);
       plugin.setAccuracyWindowSeconds(1);
       plugin.setAcceptorMatchRegex("netty-acceptor");
       server.getConfiguration().getBrokerPlugins().add(plugin);
@@ -67,7 +69,7 @@ public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTe
       testExpiry(connection);
    }
 
-   private void testExpiry(Connection connection) throws JMSException {
+   private void testExpiry(Connection connection) throws JMSException, InterruptedException {
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(getQueueName());
@@ -80,7 +82,8 @@ public class ConnectionPeriodicExpiryPluginTest extends MultiprotocolJMSClientTe
          connection.setExceptionListener(exception -> {
             gotExpired.countDown(); });
 
-         Wait.assertTrue(() -> gotExpired.await(100, TimeUnit.MILLISECONDS), 2000, 100);
+         assertFalse(gotExpired.await(1500, TimeUnit.MILLISECONDS));
+         Wait.assertTrue(() -> gotExpired.await(100, TimeUnit.MILLISECONDS), 4000, 100);
 
       } finally {
          try {
