@@ -873,11 +873,6 @@
                <artifactId>build-helper-maven-plugin</artifactId>
                <version>3.6.0</version>
             </plugin>
-            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>xml-maven-plugin</artifactId>
-               <version>1.0</version>
-            </plugin>
             <!-- Many examples use it -->
             <plugin>
                <groupId>org.apache.activemq</groupId>
