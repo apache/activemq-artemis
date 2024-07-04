@@ -42,12 +42,6 @@
             <!-- License: Apache: 2.0 -->
          </dependency>
          <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
-            <!-- License: Apache: 2.0 -->
-         </dependency>
-         <dependency>
             <groupId>jakarta.management.j2ee</groupId>
             <artifactId>jakarta.management.j2ee-api</artifactId>
             <version>${jakarta.management.j2ee-api.version}</version>
