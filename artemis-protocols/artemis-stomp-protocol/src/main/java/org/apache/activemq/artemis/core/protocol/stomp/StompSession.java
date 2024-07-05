@@ -26,6 +26,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -85,6 +86,8 @@ public class StompSession implements SessionCallback {
 
    private boolean txPending = false;
 
+   private final EventLoop eventLoop;
+
    public synchronized void begin() {
       txPending = true;
    }
@@ -101,6 +104,7 @@ public class StompSession implements SessionCallback {
       this.connection = connection;
       this.manager = manager;
       this.sessionContext = sessionContext;
+      eventLoop = connection.getTransportConnection().getEventLoop();
    }
 
    @Override
@@ -177,9 +181,15 @@ public class StompSession implements SessionCallback {
                afterDeliveryTasks.offer(new PendingTask() {
                   @Override
                   public void run() throws Exception {
-                     //we ack and commit only if the send is successful
-                     session.acknowledge(consumerID, messageID);
-                     session.commit();
+                     eventLoop.execute(() -> {
+                        try {
+                           //we ack and commit only if the send is successful
+                           session.acknowledge(consumerID, messageID);
+                           session.commit();
+                        } catch (Throwable e) {
+                           logger.warn(e.getMessage(), e);
+                        }
+                     });
                   }
                });
             }

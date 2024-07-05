@@ -52,6 +52,11 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-stomp-protocol</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <scope>test</scope>
       </dependency>

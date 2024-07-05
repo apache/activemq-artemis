@@ -341,7 +341,9 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    @Override
    public void closeTransport() throws IOException {
-      transport.close();
+      if (transport != null) {
+         transport.close();
+      }
    }
 
    @Override
