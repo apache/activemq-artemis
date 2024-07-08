@@ -4689,7 +4689,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployReloadableConfigFromConfiguration() throws Exception {
       if (configurationReloadDeployed.compareAndSet(false, true)) {
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("security");
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("security settings");
          securityRepository.swap(configuration.getSecurityRoles().entrySet());
          recoverStoredSecuritySettings();
 
