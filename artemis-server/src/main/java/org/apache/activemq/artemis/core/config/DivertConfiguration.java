@@ -217,21 +217,22 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    @Override
    public int getEncodeSize() {
-      int transformerSize = 0;
+      int transformerSize;
       if (transformerConfiguration != null) {
-         transformerSize += BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
-         transformerSize += DataConstants.INT;
-         Map<String, String> properties = transformerConfiguration.getProperties();
-         for (Map.Entry<String, String> entry : properties.entrySet()) {
+         transformerSize = BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
+         transformerSize += DataConstants.SIZE_INT;
+         for (Map.Entry<String, String> entry : transformerConfiguration.getProperties().entrySet()) {
             transformerSize += BufferHelper.sizeOfNullableString(entry.getKey());
             transformerSize += BufferHelper.sizeOfNullableString(entry.getValue());
          }
+      } else {
+         transformerSize = DataConstants.SIZE_NULL;
       }
       int size =  BufferHelper.sizeOfNullableString(name) +
             BufferHelper.sizeOfNullableString(address) +
             BufferHelper.sizeOfNullableString(forwardingAddress) +
             BufferHelper.sizeOfNullableString(routingName) +
-            BufferHelper.sizeOfNullableBoolean(exclusive) +
+            DataConstants.SIZE_BOOLEAN +
             BufferHelper.sizeOfNullableString(filterString) +
             DataConstants.SIZE_BYTE + transformerSize;
       return size;
@@ -247,7 +248,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
       buffer.writeNullableString(filterString);
       buffer.writeByte(routingType != null ? routingType.getType() : ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType()).getType());
       if (transformerConfiguration != null) {
-         buffer.writeString(transformerConfiguration.getClassName());
+         buffer.writeNullableString(transformerConfiguration.getClassName());
          Map<String, String> properties = transformerConfiguration.getProperties();
          buffer.writeInt(properties.size());
          for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -280,7 +281,6 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
          for (int i = 0; i < propsSize; i++) {
             transformerConfiguration.getProperties().put(buffer.readNullableString(), buffer.readNullableString());
          }
-
       }
    }
 }

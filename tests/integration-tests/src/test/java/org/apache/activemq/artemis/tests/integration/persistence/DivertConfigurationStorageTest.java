@@ -16,21 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -38,12 +37,6 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
 
    public DivertConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
-   }
-
-   @Override
-   @BeforeEach
-   public void setUp() throws Exception {
-      super.setUp();
    }
 
    @TestTemplate
@@ -64,9 +57,7 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
-      journal.stop();
-
-      journal.start();
+      rebootStorage();
 
       List<PersistedDivertConfiguration> divertConfigurations = journal.recoverDivertConfigurations();
 
@@ -85,10 +76,6 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals("prop1", properties.get("key1"));
       assertEquals("prop2", properties.get("key2"));
       assertEquals("prop3", properties.get("key3"));
-      journal.stop();
-
-      journal = null;
-
    }
 
    @TestTemplate
@@ -104,9 +91,7 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
-      journal.stop();
-
-      journal.start();
+      rebootStorage();
 
       List<PersistedDivertConfiguration> divertConfigurations = journal.recoverDivertConfigurations();
 
@@ -119,9 +104,5 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
       assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
       assertNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
-      journal.stop();
-
-      journal = null;
-
    }
 }
