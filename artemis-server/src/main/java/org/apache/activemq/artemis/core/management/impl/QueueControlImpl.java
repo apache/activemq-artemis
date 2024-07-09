@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
@@ -1456,7 +1457,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             AuditLogger.sendMessageThroughManagement(queue, headers, type, body, durable, user, "****");
          }
          try {
-            String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, createMessageId, queue.getID());
+            String s = sendMessage(CompositeAddress.toFullyQualified(queue.getAddress(), queue.getName()), server, headers, type, body, durable, user, password, createMessageId);
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.sendMessageSuccess(queue.getName().toString(), user);
             }
