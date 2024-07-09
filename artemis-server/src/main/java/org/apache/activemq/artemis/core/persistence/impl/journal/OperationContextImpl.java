@@ -323,7 +323,7 @@ public class OperationContextImpl implements OperationContext {
       } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.errorExecutingAIOCallback(e);
          EXECUTORS_PENDING_UPDATER.decrementAndGet(this);
-         task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(), "It wasn't possible to complete IO operation - " + e.getMessage());
+         task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(), "It wasn't possible to complete IO operation due to " + e.getClass() + ": " + e.getMessage());
       }
    }
 

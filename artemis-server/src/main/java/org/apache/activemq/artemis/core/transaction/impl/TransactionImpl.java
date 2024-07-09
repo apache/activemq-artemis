@@ -228,7 +228,7 @@ public class TransactionImpl implements Transaction {
 
                @Override
                public void onError(final int errorCode, final String errorMessage) {
-                  ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX("prepare", errorCode, errorMessage);
                }
 
                @Override
@@ -306,7 +306,7 @@ public class TransactionImpl implements Transaction {
 
             @Override
             public void onError(final int errorCode, final String errorMessage) {
-               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterComplete", errorCode, errorMessage);
             }
 
             @Override
@@ -323,7 +323,7 @@ public class TransactionImpl implements Transaction {
 
                @Override
                public void onError(final int errorCode, final String errorMessage) {
-                  ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterStore", errorCode, errorMessage);
                }
 
                @Override
@@ -428,7 +428,7 @@ public class TransactionImpl implements Transaction {
 
          @Override
          public void onError(final int errorCode, final String errorMessage) {
-            ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+            ActiveMQServerLogger.LOGGER.ioErrorOnTX("rollback - afterComplete", errorCode, errorMessage);
          }
 
          @Override
@@ -442,7 +442,7 @@ public class TransactionImpl implements Transaction {
 
             @Override
             public void onError(final int errorCode, final String errorMessage) {
-               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX("rollback - afterStore", errorCode, errorMessage);
             }
 
             @Override

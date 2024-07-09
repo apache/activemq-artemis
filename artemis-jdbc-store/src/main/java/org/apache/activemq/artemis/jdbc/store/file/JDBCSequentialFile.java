@@ -197,7 +197,7 @@ public class JDBCSequentialFile implements SequentialFile {
          }
       } catch (Exception e) {
          if (callback != null)
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC write:" + e.getMessage());
          fileFactory.onIOError(e, "Error writing to JDBC file.", this);
       }
       return 0;
@@ -330,7 +330,7 @@ public class JDBCSequentialFile implements SequentialFile {
                waitIOCallback.waitCompletion();
             }
          } catch (Exception e) {
-            waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error writing to JDBC file.");
+            waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC write direct:" + e.getMessage());
             fileFactory.onIOError(e, "Failed to write to file.", this);
          }
       } else {
@@ -361,7 +361,7 @@ public class JDBCSequentialFile implements SequentialFile {
             return read;
          } catch (SQLException e) {
             if (callback != null)
-               callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+               callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC read:" + e.getMessage());
             fileFactory.onIOError(e, "Error reading from JDBC file.", this);
          }
          return 0;

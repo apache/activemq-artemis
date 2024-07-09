@@ -86,7 +86,7 @@ final class PageSyncTimer extends ActiveMQScheduledComponent {
          }
       } catch (Exception e) {
          for (OperationContext ctx : pendingSyncsArray) {
-            ctx.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            ctx.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during ioSync for paging on " + store.getStoreName() + ": " + e.getMessage());
          }
       } finally {
          // In case of failure, The context should propagate an exception to the client

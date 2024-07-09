@@ -512,7 +512,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222062, value = "Cleared up resources for session {}", level = LogMessage.Level.WARN)
    void clearingUpSession(String name);
 
-   @LogMessage(id = 222063, value = "Error processing IOCallback code = {} message = {}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 222063, value = "Error processing IOCallback; code = {}, message = {}", level = LogMessage.Level.WARN)
    void errorProcessingIOCallback(Integer errorCode, String errorMessage);
 
    @LogMessage(id = 222065, value = "Client is not being consistent on the request versioning. It just sent a version id={} while it informed {} previously", level = LogMessage.Level.DEBUG)
@@ -626,8 +626,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222103, value = "transaction with xid {} timed out", level = LogMessage.Level.WARN)
    void timedOutXID(Xid xid);
 
-   @LogMessage(id = 222104, value = "IO Error completing the transaction, code = {}, message = {}", level = LogMessage.Level.WARN)
-   void ioErrorOnTX(Integer errorCode, String errorMessage);
+   @LogMessage(id = 222104, value = "IO Error completing transaction {}; code = {}, message = {}", level = LogMessage.Level.WARN)
+   void ioErrorOnTX(String op, Integer errorCode, String errorMessage);
 
    @LogMessage(id = 222106, value = "Replacing incomplete LargeMessage with ID={}", level = LogMessage.Level.WARN)
    void replacingIncompleteLargeMessage(Long messageID);

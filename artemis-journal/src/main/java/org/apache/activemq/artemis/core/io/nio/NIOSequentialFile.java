@@ -306,7 +306,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
          throw e;
       } catch (IOException e) {
          if (callback != null) {
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getLocalizedMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during read: " + e.getLocalizedMessage());
          }
 
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
@@ -373,7 +373,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       try {
          internalWrite(bytes, sync, callback, true);
       } catch (Exception e) {
-         callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getClass() + " during write direct: " + e.getMessage());
       }
    }
 
@@ -393,7 +393,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                               boolean releaseBuffer) throws IOException, ActiveMQIOErrorException, InterruptedException {
       if (!isOpen()) {
          if (callback != null) {
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened - " + getFileName());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened. Cannot write to " + getFileName());
          } else {
             throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }
@@ -480,7 +480,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                   internalWrite(buffer, requestedSync, callback, false);
                } catch (Exception e) {
                   if (callbacks != null) {
-                     callbacks.forEach(c -> c.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage()));
+                     callbacks.forEach(c -> c.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getClass() + " while flushing buffer: " + e.getMessage()));
                   }
                }
             } else {

@@ -305,7 +305,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
             } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
                if (callbacks != null) {
-                  callbacks.forEach(c -> c.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage()));
+                  callbacks.forEach(c -> c.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during checkSync on " + file.getPath() + ": " + e.getMessage()));
                }
             }
          }
