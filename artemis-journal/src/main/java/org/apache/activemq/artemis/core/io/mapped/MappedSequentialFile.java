@@ -170,7 +170,7 @@ final class MappedSequentialFile implements SequentialFile {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
-         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during write: " + e.getMessage());
          throw e;
       }
    }
@@ -206,7 +206,7 @@ final class MappedSequentialFile implements SequentialFile {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
-         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during write: " + e.getMessage());
          throw e;
       }
    }
@@ -243,7 +243,7 @@ final class MappedSequentialFile implements SequentialFile {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
-         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during write direct: " + e.getMessage());
          throw new RuntimeException(e);
       } finally {
          this.factory.releaseBuffer(bytes);
@@ -317,7 +317,7 @@ final class MappedSequentialFile implements SequentialFile {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
-         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during read: " + e.getMessage());
          throw e;
       }
    }

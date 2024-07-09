@@ -223,7 +223,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          checkOpened();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         completion.onError(-1, e.getMessage());
+         completion.onError(-1, e.getClass() + " during blocking write direct: " + e.getMessage());
          return;
       }
 
@@ -247,7 +247,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          checkOpened();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         callback.onError(-1, e.getMessage());
+         callback.onError(-1, e.getClass() + " during write direct: " + e.getMessage());
          return;
       }
 
