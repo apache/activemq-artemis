@@ -113,6 +113,16 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
    }
 
    /**
+    * This forces a reload of the journal from disk
+    *
+    * @throws Exception
+    */
+   protected void rebootStorage() throws Exception {
+      journal.stop();
+      createStorage();
+   }
+
+   /**
     * @param configuration
     */
    protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
@@ -129,5 +139,4 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       addActiveMQComponent(jsm);
       return jsm;
    }
-
 }
