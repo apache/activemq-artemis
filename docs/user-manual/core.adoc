@@ -74,21 +74,20 @@ Blocking on each messages sent is costly since it requires a network round trip 
 By not blocking and receiving send acknowledgements asynchronously you can create true end to end asynchronous systems which is not possible using the standard JMS API.
 For more information on this advanced feature please see the section xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits].
 
-==== Identifying your session for management and debugging
+==== Identifying your client application for management and debugging
 
-Assigning IDs to your core sessions can help you with monitoring and debugging the cluster using the xref:management-console.adoc#management-console[management console].
+Assigning IDs to your core session can help you with monitoring and debugging using the xref:management-console.adoc#management-console[management console], e.g.:
 
 [,java]
 ----
- ClientSession session;
- // ...
- session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "jms-client-id");
- session.addMetaData("jms-client-id", "my-session");
+ServerLocator locator = ...
+ClientSessionFactory csf = createSessionFactory(locator);
+ClientSession session = csf.createSession(null, null, false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize(), "my-client-id");
 ----
 
-Such ID will then appear in the *Client ID* column under the *Connections*, *Consumers* and *Producers* tabs.
+The value `my-client-id` will then appear in the *Client ID* column under the *Connections*, *Consumers*, and *Producers* tabs.
 
-If you are using the JMS API, the `setClientID` would give you the same effect.
+If you are using the JMS API then `setClientID` would give you the same effect.
 
 === ClientConsumer
 
