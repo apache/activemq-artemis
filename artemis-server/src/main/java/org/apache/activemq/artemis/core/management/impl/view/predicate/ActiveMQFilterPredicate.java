@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 
 public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
-   enum Operation {
+   public enum Operation {
       CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
    }
 

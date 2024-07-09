@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -36,6 +26,7 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -95,6 +86,7 @@ import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.management.impl.view.SessionField;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.ActiveMQFilterPredicate;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
@@ -144,7 +136,16 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
@@ -4542,6 +4543,84 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @TestTemplate
+   public void testListConnectionsCoreClientID() throws Exception {
+      final String clientId = RandomUtil.randomString();
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      if (legacyCreateQueue) {
+         server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      } else {
+         server.createQueue(QueueConfiguration.of(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      }
+
+      ClientSessionFactoryImpl csf = null;
+
+      try (ServerLocator locator = createInVMNonHALocator()) {
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         csf.createSession(null, null, false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize(), clientId);
+
+         String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), ActiveMQFilterPredicate.Operation.EQUALS.toString(), clientId);
+
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         assertEquals(1, array.size(), "number of connections returned from query");
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         assertEquals(clientId, jsonConnection.getString(ConnectionField.CLIENT_ID.getName()));
+      } finally {
+         if (csf != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @TestTemplate
+   public void testListConnectionsCoreClientIDLegacy() throws Exception {
+      final String clientId = RandomUtil.randomString();
+      SimpleString queueName1 = SimpleString.of("my_queue_one");
+      SimpleString addressName1 = SimpleString.of("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      if (legacyCreateQueue) {
+         server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      } else {
+         server.createQueue(QueueConfiguration.of(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      }
+
+      ClientSessionFactoryImpl csf = null;
+
+      try (ServerLocator locator = createInVMNonHALocator()) {
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         ClientSession session = csf.createSession();
+         session.addUniqueMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
+         session.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientId);
+
+         String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), ActiveMQFilterPredicate.Operation.EQUALS.toString(), clientId);
+
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         assertEquals(1, array.size(), "number of connections returned from query");
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         assertEquals(clientId, jsonConnection.getString(ConnectionField.CLIENT_ID.getName()));
+      } finally {
+         if (csf != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @TestTemplate
    public void testListConnectionsJmsClientID() throws Exception {
       final String clientId = RandomUtil.randomString();
 
@@ -4550,7 +4629,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       try (Connection c = cf.createConnection()) {
          c.setClientID(clientId);
-         String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), "EQUALS", clientId);
+         String filterString = createJsonFilter(ConnectionField.CLIENT_ID.getName(), ActiveMQFilterPredicate.Operation.EQUALS.toString(), clientId);
 
          String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
          JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
