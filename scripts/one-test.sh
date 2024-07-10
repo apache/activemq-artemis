@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 
-mvn -Ptests -DfailIfNoTests=false -Ptests-retry -DskipStyleCheck=true -DskipPerformanceTests=false -DskipSoakTests=false -Dtest=$1 test
+mvn -Ptests -DfailIfNoTests=false -Ptests-retry -DskipStyleCheck=true -Dmaven.test.redirectTestOutputToFile=false -DskipPerformanceTests=false -DskipSoakTests=false -Dtest=$1 test
