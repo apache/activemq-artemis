@@ -485,6 +485,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       checkInactivity();
    }
 
+   @Override
+   public void close() {
+      destroy();
+   }
+
    private void checkInactivity() {
       if (!this.useKeepAlive) {
          return;
