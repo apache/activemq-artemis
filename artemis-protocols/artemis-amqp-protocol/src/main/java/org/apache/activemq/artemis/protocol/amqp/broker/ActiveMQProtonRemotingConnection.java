@@ -89,7 +89,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       try {
          if (amqpConnection.getHandler().getConnection().getRemoteState() != EndpointState.CLOSED) {
             // A remote close was received on the client, on that case it's just a normal operation and we don't need to log this.
-            ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
+            ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getProtocolConnection().getProtocolName(), amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
          }
       } catch (Throwable e) { // avoiding NPEs from te logging statement. I don't think this would happen, but just in case
          logger.warn(e.getMessage(), e);
