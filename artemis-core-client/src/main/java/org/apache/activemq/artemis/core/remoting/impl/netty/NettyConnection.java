@@ -397,7 +397,12 @@ public class NettyConnection implements Connection {
       if (address == null) {
          return null;
       }
-      return address.toString();
+      String result = address.toString();
+      if (result.startsWith("/")) {
+         return result.substring(1);
+      } else {
+         return result;
+      }
    }
 
    @Override
