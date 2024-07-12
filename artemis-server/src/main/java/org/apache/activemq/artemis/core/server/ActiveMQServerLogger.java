@@ -1070,8 +1070,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222255, value = "Unable to calculate file store usage", level = LogMessage.Level.WARN)
    void unableToCalculateFileStoreUsage(Exception e);
 
-   @LogMessage(id = 222256, value = "Failed to unregister acceptors", level = LogMessage.Level.WARN)
-   void failedToUnregisterAcceptors(Exception e);
+   @LogMessage(id = 222256, value = "Failed to unregister acceptor: {}", level = LogMessage.Level.WARN)
+   void failedToUnregisterAcceptor(String acceptor, Exception e);
 
    @LogMessage(id = 222257, value = "Failed to decrement message reference count", level = LogMessage.Level.WARN)
    void failedToDecrementMessageReferenceCount(Exception e);

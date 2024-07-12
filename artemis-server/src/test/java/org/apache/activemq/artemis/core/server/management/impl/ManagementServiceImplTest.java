@@ -111,7 +111,7 @@ public class ManagementServiceImplTest {
       Mockito.when(queue.getRoutingType()).thenReturn(RoutingType.ANYCAST);
 
       StorageManager storageManager = Mockito.mock(StorageManager.class);
-      managementService.registerQueue(queue, new AddressInfo(queueName), storageManager);
+      managementService.registerQueue(queue, queueName, storageManager);
       managementService.getAttribute(ResourceNames.QUEUE + queueName, "ringSize", auth);
 
       expected = SimpleString.of("mm.queue." + queueName + ".getRingSize");
@@ -174,7 +174,7 @@ public class ManagementServiceImplTest {
       Mockito.when(queue.getRoutingType()).thenReturn(RoutingType.ANYCAST);
 
       StorageManager storageManager = Mockito.mock(StorageManager.class);
-      managementService.registerQueue(queue, new AddressInfo(queueName), storageManager);
+      managementService.registerQueue(queue, queueName, storageManager);
       managementService.invokeOperation(ResourceNames.QUEUE + queueName, "getRingSize", new Object[]{}, auth);
 
       expected = SimpleString.of("$mm.queue." + queueName + ".getRingSize");
