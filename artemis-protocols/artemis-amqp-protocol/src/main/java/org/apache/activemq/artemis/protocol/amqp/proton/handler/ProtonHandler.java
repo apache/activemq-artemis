@@ -373,13 +373,22 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    public void flush() {
       if (workerExecutor.inEventLoop()) {
-         transport.process();
-         dispatch();
+         handleFlush();
       } else {
-         runLater(() -> {
-            transport.process();
-            dispatch();
-         });
+         runLater(this::handleFlush);
+      }
+   }
+
+   private void handleFlush() {
+      try {
+         transport.process();
+      } catch (Exception ex) {
+         logger.debug("AMQP Transport threw error while processing input: {}", ex.getMessage());
+         if (transport.getCondition() == null) {
+            transport.setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, ex.getMessage()));
+         }
+      } finally {
+         dispatch();
       }
    }
 

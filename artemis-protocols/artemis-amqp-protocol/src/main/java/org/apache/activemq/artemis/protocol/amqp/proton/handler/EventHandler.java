@@ -110,6 +110,9 @@ public interface EventHandler {
    default void onDelivery(Delivery delivery) throws Exception {
    }
 
+   default void onTransportError(Transport transport) throws Exception {
+   }
+
    default void onTransport(Transport transport) throws Exception {
    }
 
