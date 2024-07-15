@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederati
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationQueueSenderController;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
@@ -748,6 +749,15 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          // this will also be used to flush the data directly into netty connection's executor
          handler.runLater(tickerRunnable);
       }
+   }
+
+   @Override
+   public void onTransportError(Transport transport) throws Exception {
+      final String errorMessage = transport.getCondition() != null && transport.getCondition().getDescription() != null ?
+         transport.getCondition().getDescription() : "Unknown Internal Error";
+
+      // Cleanup later after the any pending work gets sent to the remote via an IO flush.
+      runLater(() -> connectionCallback.getProtonConnectionDelegate().fail(new ActiveMQAMQPInternalErrorException(errorMessage)));
    }
 
    @Override

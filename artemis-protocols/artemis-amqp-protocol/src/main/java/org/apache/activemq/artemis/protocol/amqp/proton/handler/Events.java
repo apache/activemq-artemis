@@ -85,6 +85,9 @@ public final class Events {
          case LINK_REMOTE_DETACH:
             handler.onRemoteDetach(event.getLink());
             break;
+         case TRANSPORT_ERROR:
+            handler.onTransportError(event.getTransport());
+            break;
          case TRANSPORT:
             handler.onTransport(event.getTransport());
             break;
