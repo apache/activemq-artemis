@@ -201,7 +201,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          case REPLICATION_PAGE_WRITE: {
-            packet = new ReplicationPageWriteMessage(connection.isVersionUsingLongOnPageReplication());
+            packet = new ReplicationPageWriteMessage(connection.isVersionUsingLongOnPageReplication(), coreMessageObjectPools);
             break;
          }
          case REPLICATION_PAGE_EVENT: {

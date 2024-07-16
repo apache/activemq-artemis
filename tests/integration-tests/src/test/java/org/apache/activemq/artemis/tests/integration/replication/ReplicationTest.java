@@ -275,10 +275,10 @@ public final class ReplicationTest extends ActiveMQTestBase {
       replicatedJournal.appendAddRecordTransactional(23, 24, (byte) 1, new FakeData());
 
       PagedMessage pgmsg = new PagedMessageImpl(msg, new long[0]);
-      manager.pageWrite(pgmsg, 1);
-      manager.pageWrite(pgmsg, 2);
-      manager.pageWrite(pgmsg, 3);
-      manager.pageWrite(pgmsg, 4);
+      manager.pageWrite(dummy, pgmsg, 1);
+      manager.pageWrite(dummy, pgmsg, 2);
+      manager.pageWrite(dummy, pgmsg, 3);
+      manager.pageWrite(dummy, pgmsg, 4);
 
       blockOnReplication(storage, manager);
 
