@@ -35,7 +35,6 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
@@ -831,8 +830,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handlePageWrite(final ReplicationPageWriteMessage packet) throws Exception {
       PagedMessage pgdMessage = packet.getPagedMessage();
       pgdMessage.initMessage(storageManager);
-      Message msg = pgdMessage.getMessage();
-      Page page = getPage(msg.getAddressSimpleString(), packet.getPageNumber());
+      Page page = getPage(packet.getAddress(), packet.getPageNumber());
       page.writeDirect(pgdMessage);
    }
 

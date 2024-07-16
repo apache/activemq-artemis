@@ -1535,7 +1535,7 @@ public class PagingStoreImpl implements PagingStore {
          final long newPageId = currentPageId + 1;
 
          if (logger.isTraceEnabled()) {
-            logger.trace("new pageNr={}", newPageId);
+            logger.trace("destination {} new pageNr={}", storeName, newPageId);
          }
 
          final Page oldPage = currentPage;

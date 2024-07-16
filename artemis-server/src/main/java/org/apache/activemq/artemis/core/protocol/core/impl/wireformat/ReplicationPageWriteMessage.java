@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -29,28 +31,35 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    protected PagedMessage pagedMessage;
 
+   protected SimpleString address;
+
    final boolean useLong;
 
-   public ReplicationPageWriteMessage(final boolean useLong) {
+   final CoreMessageObjectPools coreMessageObjectPools;
+
+   public ReplicationPageWriteMessage(final boolean useLong, CoreMessageObjectPools coreMessageObjectPools) {
       super(PacketImpl.REPLICATION_PAGE_WRITE);
       this.useLong = useLong;
+      this.coreMessageObjectPools = coreMessageObjectPools;
    }
 
-   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final long pageNumber, final boolean useLong) {
-      this(useLong);
+   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final long pageNumber, final boolean useLong, final SimpleString address) {
+      this(useLong, null);
       this.pageNumber = pageNumber;
       this.pagedMessage = pagedMessage;
+      this.address = address;
    }
 
 
    @Override
    public int expectedEncodeSize() {
       if (useLong) {
-         return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + // buffer.writeLong(pageNumber);
-            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + // buffer.writeLong(pageNumber)
+            pagedMessage.getEncodeSize() + //  pagedMessage.encode(buffer)
+            SimpleString.sizeofString(address);  // SizeUtil.writeNullableString(address)
       } else {
-         return PACKET_HEADERS_SIZE + DataConstants.SIZE_INT + // buffer.writeInt(pageNumber);
-            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_INT + // buffer.writeInt(pageNumber)
+            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer)
       }
    }
 
@@ -65,6 +74,9 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
          buffer.writeInt((int) pageNumber);
       }
       pagedMessage.encode(buffer);
+      if (useLong) {
+         buffer.writeNullableSimpleString(address);
+      }
    }
 
    @Override
@@ -76,6 +88,17 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
       }
       pagedMessage = new PagedMessageImpl(0, null);
       pagedMessage.decode(buffer);
+      if (buffer.readableBytes() > 0) {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), coreMessageObjectPools.getAddressDecoderPool());
+      }
+   }
+
+   public SimpleString getAddress() {
+      if (address != null) {
+         return address;
+      } else {
+         return pagedMessage.getMessage().getAddressSimpleString();
+      }
    }
 
    /**

@@ -180,7 +180,7 @@ public final class Page  {
 
    public synchronized void write(final PagedMessage message) throws Exception {
       writeDirect(message);
-      storageManager.pageWrite(message, pageId);
+      storageManager.pageWrite(storeName, message, pageId);
    }
 
    /** This write will not interact back with the storage manager.
