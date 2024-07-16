@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
@@ -185,7 +186,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
+   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) throws ActiveMQException {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
@@ -200,11 +201,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       Set<SimpleString> propNames = new HashSet<>(messageCopy.getPropertyNames());
 
       byte[] queueIds = message.getExtraBytesProperty(idsHeaderName);
-
       if (queueIds == null) {
-         // Sanity check only
-         ActiveMQServerLogger.LOGGER.noQueueIdDefined(message, messageCopy, idsHeaderName);
-         throw new IllegalStateException("no queueIDs defined");
+         throw ActiveMQMessageBundle.BUNDLE.noQueueIdsDefined(idsHeaderName);
       }
 
       for (SimpleString propName : propNames) {
