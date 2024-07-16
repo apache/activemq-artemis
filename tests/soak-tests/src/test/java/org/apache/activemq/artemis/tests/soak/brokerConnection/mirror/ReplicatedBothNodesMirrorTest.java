@@ -335,8 +335,8 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       startDC1(managementDC1);
       startDC2(managementDC2);
 
-      runAfter(() -> managementDC1.close());
-      runAfter(() -> managementDC2.close());
+      runAfter(managementDC1::close);
+      runAfter(managementDC2::close);
 
       int destinations = 5;
       ExecutorService executorService = Executors.newFixedThreadPool(destinations);
