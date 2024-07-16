@@ -341,7 +341,7 @@ Once pushed, the changes should be published automatically by the `jekyll_websit
 
 The [examples repo](https://github.com/apache/activemq-artemis-examples) should be updated to reflect the new release and development versions.
 
-Take a fresh clone of the repo, check out the development branch, and run the provided script, then check the results and push.
+Take a fresh clone of the repo, check out the `development` branch, and run the provided script to update the branches and create a tag, then check the results and push.
 
 ```
 git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
@@ -360,9 +360,13 @@ git checkout development
 ./scripts/release/update-branch-versions.sh 2.32.0 2.33.0-SNAPSHOT"
 ```
 
-Check things over and then push the `development` and `main` branches (optionally use your fork, to test things out before pushing to the main examples repo or even to raise PRs).
+Check things over and then push the `development` and `main` branches and the `<release-version>` tag (optionally use your fork, to test things out before pushing to the main examples repo or even to raise PRs).
 
 NOTE: The `main` branch CI build does not build Artemis, so the release must be available on Maven Central before pushing main or the build will fail. The `development` branch will check out the Artemis main branch and build against that, or it can be manually triggered and pointed to e.g a release tag.
+
+```
+git push origin main development <release-version>
+```
 
 ## Upload Docker Images
 
