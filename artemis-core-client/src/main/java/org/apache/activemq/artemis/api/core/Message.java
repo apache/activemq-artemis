@@ -174,6 +174,11 @@ public interface Message {
    SimpleString HDR_INGRESS_TIMESTAMP = SimpleString.of("_AMQ_INGRESS_TIMESTAMP");
 
    /**
+    * This gives extra information as to why the messages is sent to DLQ
+    */
+   SimpleString HDR_ROUTE_DLQ_DETAIL = SimpleString.of("_AMQ_DLQ_DETAIL");
+
+   /**
     * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
     * the prefix when the message is consumed.
     */

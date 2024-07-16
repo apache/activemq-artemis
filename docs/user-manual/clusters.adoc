@@ -715,6 +715,11 @@ The default value is `-1`.
 
 It often makes sense to introduce a delay before redistributing as it's a common case that a consumer closes but another one quickly is created on the same queue, in such a case you probably don't want to redistribute immediately since the new consumer will arrive shortly.
 
+[WARNING]
+====
+The broker uses internal store and forward queues to handle message redistribution. Be aware that any clients should not directly send messages to the sore and forward queues. If a client sends messages to a store and forward queue, the messages will be sent to dead letter address. If security is enabled, make sure the clients do not have `send` permission on any store and forward queues. (The name pattern for a store and forward queue is <internal-naming-prefix>.sf.<cluster-name>.<nodeID> where the default internal-naming-prefix is `$.activemq.internal`, the cluster-name is the name of the cluster-connection, and the nodeID is the target node's ID)
+====
+
 == Cluster topologies
 
 Apache ActiveMQ Artemis clusters can be connected together in many different topologies, let's consider the two most common ones here
