@@ -68,6 +68,8 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
    private static final boolean TRACE_LOGS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "TRACE_LOGS", "false"));
    private static final int NUMBER_MESSAGES = TestParameters.testProperty(TEST_NAME, "NUMBER_MESSAGES", 200);
 
+   private static final boolean REUSE_SERVERS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "REUSE_SERVERS", "false"));
+
    private static final int SEND_COMMIT = TestParameters.testProperty(TEST_NAME, "SEND_COMMIT", 50);
 
    /*
@@ -153,11 +155,15 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
                                     boolean replicated,
                                     String clusterStatic) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
+      if (REUSE_SERVERS && serverLocation.exists()) {
+         deleteDirectory(new File(serverLocation, "data"));
+         return;
+      }
       deleteDirectory(serverLocation);
 
       HelperCreate cliCreateServer = new HelperCreate();
       cliCreateServer.setAllowAnonymous(true).setArtemisInstance(serverLocation);
-      cliCreateServer.setNoWeb(false);
+      cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--queues", QUEUE_NAME);
       cliCreateServer.setPortOffset(porOffset);
@@ -207,12 +213,16 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
    private static void createMirroredBackupServer(String serverName, int porOffset, String clusterStatic, String mirrorURI) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
+      if (REUSE_SERVERS && serverLocation.exists()) {
+         deleteDirectory(new File(serverLocation, "data"));
+         return;
+      }
       deleteDirectory(serverLocation);
 
       HelperCreate cliCreateServer = new HelperCreate();
       cliCreateServer.setAllowAnonymous(true).setArtemisInstance(serverLocation);
       cliCreateServer.setMessageLoadBalancing("ON_DEMAND");
-      cliCreateServer.setNoWeb(false);
+      cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.setPortOffset(porOffset);
       cliCreateServer.setClustered(true);
