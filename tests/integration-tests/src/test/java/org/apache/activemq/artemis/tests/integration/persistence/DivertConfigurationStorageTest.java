@@ -41,19 +41,17 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
 
    @TestTemplate
    public void testStoreDivertConfiguration() throws Exception {
-      createStorage();
-
-      DivertConfiguration configuration = new DivertConfiguration();
-      configuration.setName("name");
-      configuration.setAddress("address");
-      configuration.setExclusive(true);
-      configuration.setForwardingAddress("forward");
-      configuration.setRoutingName("routiingName");
       TransformerConfiguration mytransformer = new TransformerConfiguration("mytransformer");
       mytransformer.getProperties().put("key1", "prop1");
       mytransformer.getProperties().put("key2", "prop2");
       mytransformer.getProperties().put("key3", "prop3");
-      configuration.setTransformerConfiguration(mytransformer);
+      DivertConfiguration configuration = new DivertConfiguration()
+         .setName("name")
+         .setAddress("address")
+         .setExclusive(true)
+         .setForwardingAddress("forward")
+         .setRoutingName("routiingName")
+         .setTransformerConfiguration(mytransformer);
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
@@ -80,14 +78,12 @@ public class DivertConfigurationStorageTest extends StorageManagerTestBase {
 
    @TestTemplate
    public void testStoreDivertConfigurationNoTransformer() throws Exception {
-      createStorage();
-
-      DivertConfiguration configuration = new DivertConfiguration();
-      configuration.setName("name");
-      configuration.setAddress("address");
-      configuration.setExclusive(true);
-      configuration.setForwardingAddress("forward");
-      configuration.setRoutingName("routiingName");
+      DivertConfiguration configuration = new DivertConfiguration()
+         .setName("name")
+         .setAddress("address")
+         .setExclusive(true)
+         .setForwardingAddress("forward")
+         .setRoutingName("routiingName");
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 

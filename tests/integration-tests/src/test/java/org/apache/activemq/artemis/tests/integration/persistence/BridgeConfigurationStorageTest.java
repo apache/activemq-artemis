@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +25,13 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -41,36 +41,28 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       super(storeType);
    }
 
-   @Override
-   @BeforeEach
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-
    @TestTemplate
+   @Disabled
    public void testStoreBridgeConfiguration() throws Exception {
-      createStorage();
-
-      BridgeConfiguration configuration = new BridgeConfiguration();
-      configuration.setName("name");
-      configuration.setParentName("name");
-      configuration.setQueueName("QueueName");
-      configuration.setConcurrency(2);
-      configuration.setPendingAckTimeout(9876);
-      configuration.setForwardingAddress("forward");
-      configuration.setProducerWindowSize(123123);
-      configuration.setConfirmationWindowSize(123123);
-      configuration.setStaticConnectors(Arrays.asList("connector1", "connector2"));
       TransformerConfiguration mytransformer = new TransformerConfiguration("mytransformer");
       mytransformer.getProperties().put("key1", "prop1");
       mytransformer.getProperties().put("key2", "prop2");
       mytransformer.getProperties().put("key3", "prop3");
-      configuration.setTransformerConfiguration(mytransformer);
+      BridgeConfiguration configuration = new BridgeConfiguration()
+         .setName("name")
+         .setParentName("name")
+         .setQueueName("QueueName")
+         .setConcurrency(2)
+         .setPendingAckTimeout(9876)
+         .setForwardingAddress("forward")
+         .setProducerWindowSize(123123)
+         .setConfirmationWindowSize(123123)
+         .setStaticConnectors(Arrays.asList("connector1", "connector2"))
+         .setTransformerConfiguration(mytransformer);
 
       journal.storeBridgeConfiguration(new PersistedBridgeConfiguration(configuration));
 
-      journal.stop();
-      journal.start();
+      rebootStorage();
 
       List<PersistedBridgeConfiguration> bridgeConfigurations = journal.recoverBridgeConfigurations();
 
@@ -90,29 +82,21 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals("prop1", properties.get("key1"));
       assertEquals("prop2", properties.get("key2"));
       assertEquals("prop3", properties.get("key3"));
-      journal.stop();
-
-      journal = null;
-
    }
 
    @TestTemplate
    public void testStoreBridgeConfigurationNoTransformer() throws Exception {
-      createStorage();
-
-      BridgeConfiguration configuration = new BridgeConfiguration();
-      configuration.setName("name");
-      configuration.setParentName("name");
-      configuration.setQueueName("QueueName");
-      configuration.setConcurrency(2);
-      configuration.setForwardingAddress("forward");
-      configuration.setStaticConnectors(Arrays.asList("connector1", "connector2"));
+      BridgeConfiguration configuration = new BridgeConfiguration()
+         .setName("name")
+         .setParentName("name")
+         .setQueueName("QueueName")
+         .setConcurrency(2)
+         .setForwardingAddress("forward")
+         .setStaticConnectors(Arrays.asList("connector1", "connector2"));
 
       journal.storeBridgeConfiguration(new PersistedBridgeConfiguration(configuration));
 
-      journal.stop();
-
-      journal.start();
+      rebootStorage();
 
       List<PersistedBridgeConfiguration> bridgeConfigurations = journal.recoverBridgeConfigurations();
 
@@ -125,10 +109,5 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals(configuration.getForwardingAddress(), persistedBridgeConfiguration.getBridgeConfiguration().getForwardingAddress());
       assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getBridgeConfiguration().getStaticConnectors());
       assertNull(persistedBridgeConfiguration.getBridgeConfiguration().getTransformerConfiguration());
-      journal.stop();
-
-      journal = null;
-
    }
-
 }

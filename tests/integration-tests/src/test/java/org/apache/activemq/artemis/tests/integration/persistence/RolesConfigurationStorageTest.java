@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +27,8 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -54,17 +54,13 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
    @TestTemplate
    public void testStoreSecuritySettings() throws Exception {
-      createStorage();
-
       addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
       addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
-      journal.stop();
-
       checkSettings();
 
-      createStorage();
+      rebootStorage();
 
       checkSettings();
 
@@ -74,41 +70,26 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
       checkSettings();
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkSettings();
-
-      journal.stop();
-
-      journal = null;
-
    }
 
    @TestTemplate
    public void testStoreSecuritySettings2() throws Exception {
-      createStorage();
-
       checkSettings();
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkSettings();
 
       addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", null, null));
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkSettings();
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkSettings();
    }
@@ -128,5 +109,4 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
          assertEquals(el, el2);
       }
    }
-
 }

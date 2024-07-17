@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.List;
 
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -36,24 +35,16 @@ public class ConnectorStorageTest extends StorageManagerTestBase {
       super(storeType);
    }
 
-   @Override
-   @BeforeEach
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-
    @TestTemplate
    public void testStoreConnector() throws Exception {
       final String NAME = RandomUtil.randomString();
       final String URL = RandomUtil.randomString();
-      createStorage();
 
       PersistedConnector connector = new PersistedConnector(NAME, URL);
 
       journal.storeConnector(connector);
 
-      journal.stop();
-      journal.start();
+      rebootStorage();
 
       List<PersistedConnector> connectors = journal.recoverConnectors();
 
@@ -62,9 +53,5 @@ public class ConnectorStorageTest extends StorageManagerTestBase {
       PersistedConnector persistedConnector = connectors.get(0);
       assertEquals(NAME, persistedConnector.getName());
       assertEquals(URL, persistedConnector.getUrl());
-      journal.stop();
-
-      journal = null;
-
    }
 }

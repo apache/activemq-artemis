@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +32,8 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -62,17 +62,13 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
    @TestTemplate
    public void testStoreSecuritySettings() throws Exception {
-      createStorage();
-
-      AddressSettings setting = new AddressSettings();
-
-      setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setDeadLetterAddress(SimpleString.of("some-test"));
+      AddressSettings setting = new AddressSettings()
+         .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+         .setDeadLetterAddress(SimpleString.of("some-test"));
 
       addAddress(journal, "a2", setting);
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkAddresses(journal);
 
@@ -81,22 +77,13 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       // Replacing the first setting
       addAddress(journal, "a1", setting);
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkAddresses(journal);
-
-      journal.stop();
-
-      journal = null;
-
    }
 
    @TestTemplate
    public void testStoreConfigDeleteSettings() throws Exception {
-      createStorage();
-
       AddressSettings setting = new AddressSettings()
          .setConfigDeleteDiverts(DeletionPolicy.FORCE)
          .setConfigDeleteAddresses(DeletionPolicy.FORCE)
@@ -104,16 +91,9 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
       addAddress(journal, "a1", setting);
 
-      journal.stop();
-
-      createStorage();
+      rebootStorage();
 
       checkAddresses(journal);
-
-      journal.stop();
-
-      journal = null;
-
    }
 
    /**

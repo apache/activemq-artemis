@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,9 +28,11 @@ import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -43,16 +42,8 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
       super(storeType);
    }
 
-   @AfterEach
-   @Override
-   public void tearDown() throws Exception {
-      super.tearDown();
-   }
-
    @TestTemplate
    public void testDuplicate() throws Exception {
-      createStorage();
-
       DuplicateIDCache cache = DuplicateIDCaches.persistent(SimpleString.of("test"), 2000, journal);
 
       TransactionImpl tx = new TransactionImpl(journal);
@@ -107,8 +98,6 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
 
    @TestTemplate
    public void testDuplicateNonPersistent() throws Exception {
-      createStorage();
-
       DuplicateIDCache cache = DuplicateIDCaches.inMemory(SimpleString.of("test"), 2000);
 
       TransactionImpl tx = new TransactionImpl(journal);
