@@ -378,6 +378,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       // lsof is showing a file descriptor associated with multiple threads. So it is expected to have quite a few repetitions
       // when the issue is happening we would have around 40k, 50k entries or a lot more if you add more messages.
       Assertions.assertTrue(openFiles < 2500, () -> "There was " + openFiles + " open files");
+      Assertions.assertEquals(0, errors.get(), "There are errors on the senders");
 
    }
 
