@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -42,7 +41,6 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
    }
 
    @TestTemplate
-   @Disabled
    public void testStoreBridgeConfiguration() throws Exception {
       TransformerConfiguration mytransformer = new TransformerConfiguration("mytransformer");
       mytransformer.getProperties().put("key1", "prop1");
