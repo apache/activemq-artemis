@@ -842,19 +842,19 @@ public final class BridgeConfiguration implements Serializable {
    }
 
    public int getEncodeSize() {
-      int transformerSize = 0;
+      int transformerSize;
       if (transformerConfiguration != null) {
-         transformerSize += BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
-         transformerSize += DataConstants.INT;
-         Map<String, String> properties = transformerConfiguration.getProperties();
-         for (Map.Entry<String, String> entry : properties.entrySet()) {
+         transformerSize = BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
+         transformerSize += DataConstants.SIZE_INT;
+         for (Map.Entry<String, String> entry : transformerConfiguration.getProperties().entrySet()) {
             transformerSize += BufferHelper.sizeOfNullableString(entry.getKey());
             transformerSize += BufferHelper.sizeOfNullableString(entry.getValue());
          }
+      } else {
+         transformerSize = DataConstants.SIZE_NULL;
       }
-      int staticConnectorSize = 0;
+      int staticConnectorSize = DataConstants.SIZE_INT;
       if (staticConnectors != null) {
-         staticConnectorSize += BufferHelper.sizeOfNullableInteger(staticConnectors.size());
          for (String connector : staticConnectors) {
             staticConnectorSize += BufferHelper.sizeOfNullableString(connector);
          }
@@ -882,11 +882,11 @@ public final class BridgeConfiguration implements Serializable {
          BufferHelper.sizeOfNullableInteger(minLargeMessageSize) +
          BufferHelper.sizeOfNullableLong(callTimeout) +
          BufferHelper.sizeOfNullableInteger(concurrency) +
-         BufferHelper.sizeOfNullableLong(pendingAckTimeout) +
          BufferHelper.sizeOfNullableBoolean(configurationManaged) +
-         DataConstants.SIZE_BYTE +
+         DataConstants.SIZE_BYTE + // routingType
          transformerSize +
-         staticConnectorSize;
+         staticConnectorSize +
+         BufferHelper.sizeOfNullableLong(pendingAckTimeout);
       return size;
    }
 
@@ -917,7 +917,7 @@ public final class BridgeConfiguration implements Serializable {
       buffer.writeNullableBoolean(configurationManaged);
       buffer.writeByte(routingType != null ? routingType.getType() : ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType()).getType());
       if (transformerConfiguration != null) {
-         buffer.writeString(transformerConfiguration.getClassName());
+         buffer.writeNullableString(transformerConfiguration.getClassName());
          Map<String, String> properties = transformerConfiguration.getProperties();
          buffer.writeInt(properties.size());
          for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -983,5 +983,4 @@ public final class BridgeConfiguration implements Serializable {
          pendingAckTimeout = buffer.readNullableLong();
       }
    }
-
 }
