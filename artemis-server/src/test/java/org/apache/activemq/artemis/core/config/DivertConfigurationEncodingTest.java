@@ -32,7 +32,25 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class DivertConfigurationEncodingTest {
 
    @Test
-   public void testEncodedBytes() {
+   public void testEncodedBytesWithTransformer() {
+      doEncodedBytesTestImpl(true, true);
+   }
+
+   @Test
+   public void testEncodedBytesWithTransformerWithNoProperties() {
+      doEncodedBytesTestImpl(true, false);
+   }
+
+   @Test
+   public void testEncodedBytesWithoutTransformer() {
+      doEncodedBytesTestImpl(false, false);
+   }
+
+   private void doEncodedBytesTestImpl(final boolean transformer, boolean properties) {
+      if (properties && !transformer) {
+         throw new IllegalArgumentException("Must have transformer to have properties for it");
+      }
+
       final String name = "aa";
       final String address = "bb";
       final String forwardingAddress = "cc";
@@ -40,12 +58,6 @@ public class DivertConfigurationEncodingTest {
       final boolean exclusive = true;
       final String filterString = "ee";
       final ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.ANYCAST;
-      final String transformerClass = "ff";
-      final String transformerKey = "gg";
-      final String transformerValue = "hh";
-      final TransformerConfiguration myDivertTransformer = new TransformerConfiguration(transformerClass);
-
-      myDivertTransformer.getProperties().put(transformerKey, transformerValue);
 
       DivertConfiguration configuration = new DivertConfiguration()
          .setName(name)
@@ -54,8 +66,20 @@ public class DivertConfigurationEncodingTest {
          .setFilterString(filterString)
          .setRoutingName(routingName)
          .setExclusive(exclusive)
-         .setRoutingType(routingType)
-         .setTransformerConfiguration(myDivertTransformer);
+         .setRoutingType(routingType);
+
+      if (transformer) {
+         final String transformerClass = "ff";
+         final TransformerConfiguration myDivertTransformer = new TransformerConfiguration(transformerClass);
+
+         if (properties) {
+            final String transformerKey = "gg";
+            final String transformerValue = "hh";
+            myDivertTransformer.getProperties().put(transformerKey, transformerValue);
+         }
+
+         configuration.setTransformerConfiguration(myDivertTransformer);
+      }
 
       int encodeSize = configuration.getEncodeSize();
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(encodeSize);
@@ -93,25 +117,37 @@ public class DivertConfigurationEncodingTest {
       // routingType
       assertEquals(ComponentConfigurationRoutingType.ANYCAST.getType(), data.readByte());
 
-      // transformerClassName
-      read = new byte[9];
-      data.readBytes(read, 0, 9);
-      assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 102, 0, 102}, read);
+      if (transformer) {
+         // transformerClassName
+         read = new byte[9];
+         data.readBytes(read, 0, 9);
+         assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 102, 0, 102}, read);
 
-      // number of transformer properties
-      read = new byte[4];
-      data.readBytes(read, 0, 4);
-      assertArrayEquals(new byte[] {0, 0, 0, 1}, read);
+         if (properties) {
+            // number of transformer properties
+            read = new byte[4];
+            data.readBytes(read, 0, 4);
+            assertArrayEquals(new byte[] {0, 0, 0, 1}, read);
 
-      // transformer key name
-      read = new byte[9];
-      data.readBytes(read, 0, 9);
-      assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 103, 0, 103}, read);
+            // transformer key name
+            read = new byte[9];
+            data.readBytes(read, 0, 9);
+            assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 103, 0, 103}, read);
 
-      // transformer key value
-      read = new byte[9];
-      data.readBytes(read, 0, 9);
-      assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 104, 0, 104}, read);
+            // transformer key value
+            read = new byte[9];
+            data.readBytes(read, 0, 9);
+            assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 104, 0, 104}, read);
+         } else {
+            // transformer properties not present (indicated via 0 count)
+            read = new byte[4];
+            data.readBytes(read, 0, 4);
+            assertArrayEquals(new byte[] {0, 0, 0, 0}, read);
+         }
+      } else {
+         // transformer not present
+         assertEquals(DataConstants.NULL, data.readByte());
+      }
 
       assertEquals(0, data.readableBytes());
    }
