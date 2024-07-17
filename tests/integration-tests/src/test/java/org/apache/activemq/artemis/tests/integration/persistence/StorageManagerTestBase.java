@@ -70,6 +70,8 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       execFactory = getOrderedExecutor();
 
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
+
+      createStorage();
    }
 
    @Override
