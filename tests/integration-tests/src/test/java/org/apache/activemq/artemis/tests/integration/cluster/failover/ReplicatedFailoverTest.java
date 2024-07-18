@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpServer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -114,10 +113,6 @@ public class ReplicatedFailoverTest extends FailoverTest {
          replicatedPolicyConfiguration.setCheckForActiveServer(true);
 
          primaryServer.start();
-
-         waitForSync(primaryServer.getServer());
-
-         backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
          waitForSync(primaryServer.getServer());
 
