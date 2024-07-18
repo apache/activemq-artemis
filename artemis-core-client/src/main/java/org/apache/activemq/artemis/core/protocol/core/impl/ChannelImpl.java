@@ -546,7 +546,7 @@ public final class ChannelImpl implements Channel {
                throw ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause);
             }
 
-            if (response == null) {
+            if (response == null || (response.getType() != PacketImpl.EXCEPTION && response.getCorrelationID() != packet.getCorrelationID())) {
                ActiveMQException e = ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
                connection.asyncFail(e);
                throw e;
