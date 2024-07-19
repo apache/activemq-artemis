@@ -55,6 +55,8 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -146,6 +148,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final BridgeConfiguration configuration;
 
+   private final OperationContextImpl bridgeContext;
+
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final BridgeConfiguration configuration,
                      final UUID nodeUUID,
@@ -175,6 +179,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       this.filter = FilterImpl.createFilter(configuration.getFilterString());
 
       this.server = server;
+
+      this.bridgeContext = new OperationContextImpl(executor);
    }
 
    public static final byte[] getDuplicateBytes(final UUID nodeUUID, final long messageID) {
@@ -447,37 +453,44 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void sendAcknowledged(final Message message) {
-      logger.debug("Bridge {} received confirmation for message {}", configuration.getName(), message);
+      OperationContext oldContext = OperationContextImpl.getContext();
 
-      State localState = state;
-      if (localState == State.STARTED || localState == State.STOPPING || localState == State.PAUSING) {
-         try {
+      try {
+         OperationContextImpl.setContext(bridgeContext);
+         logger.debug("Bridge {} received confirmation for message {}", configuration.getName(), message);
 
-            final MessageReference ref;
+         State localState = state;
+         if (localState == State.STARTED || localState == State.STOPPING || localState == State.PAUSING) {
+            try {
 
-            synchronized (refs) {
-               ref = refs.remove(message.getMessageID());
-            }
+               final MessageReference ref;
 
-            if (ref != null) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("BridgeImpl::sendAcknowledged bridge {} Acking {} on queue {}", this, ref, ref.getQueue());
+               synchronized (refs) {
+                  ref = refs.remove(message.getMessageID());
                }
-               ref.getQueue().acknowledge(ref);
-               pendingAcks.countDown();
-               metrics.incrementMessagesAcknowledged();
 
-               if (server.hasBrokerBridgePlugins()) {
-                  server.callBrokerBridgePlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
+               if (ref != null) {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("BridgeImpl::sendAcknowledged bridge {} Acking {} on queue {}", this, ref, ref.getQueue());
+                  }
+                  ref.getQueue().acknowledge(ref);
+                  pendingAcks.countDown();
+                  metrics.incrementMessagesAcknowledged();
+
+                  if (server.hasBrokerBridgePlugins()) {
+                     server.callBrokerBridgePlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
+                  }
+               } else {
+                  logger.trace("BridgeImpl::sendAcknowledged bridge {} could not find reference for message {}", this, message);
                }
-            } else {
-               logger.trace("BridgeImpl::sendAcknowledged bridge {} could not find reference for message {}", this, message);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.bridgeFailedToAck(e);
             }
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.bridgeFailedToAck(e);
+         } else {
+            logger.debug("Bridge {} state is {}. Ignoring call to sendAcknowledged.", configuration.getName(), localState);
          }
-      } else {
-         logger.debug("Bridge {} state is {}. Ignoring call to sendAcknowledged.", configuration.getName(), localState);
+      } finally {
+         OperationContextImpl.setContext(oldContext);
       }
    }
 
