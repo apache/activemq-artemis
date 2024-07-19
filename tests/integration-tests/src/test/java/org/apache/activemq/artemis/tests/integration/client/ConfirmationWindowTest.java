@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -130,7 +131,7 @@ public class ConfirmationWindowTest extends ActiveMQTestBase {
             session.commit();
             fail("Commit should have timed out & failed.");
          }
-      } catch (ActiveMQTransactionOutcomeUnknownException | ActiveMQUnBlockedException e) {
+      } catch (ActiveMQTransactionOutcomeUnknownException | ActiveMQUnBlockedException | ActiveMQNotConnectedException e) {
          // expected
       }
    }
