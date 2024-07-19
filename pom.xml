@@ -91,7 +91,7 @@
       <karaf.version>4.4.6</karaf.version>
       <pax.exam.version>4.13.5</pax.exam.version>
       <commons.config.version>2.11.0</commons.config.version>
-      <commons.lang.version>3.14.0</commons.lang.version>
+      <commons.lang.version>3.15.0</commons.lang.version>
       <activemq5-version>5.18.4</activemq5-version>
       <apache.derby.version>10.15.2.0</apache.derby.version>
       <commons.beanutils.version>1.9.4</commons.beanutils.version>
