@@ -56,6 +56,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.RequestLogDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,6 +143,75 @@ public class WebServerComponentTest {
          }
       }
       assertTrue(logEntryFound);
+   }
+
+   @Test
+   public void testLargeRequestHeader() throws Exception {
+      testLargeRequestHeader(false);
+   }
+
+   @Test
+   public void testLargeRequestHeaderNegative() throws Exception {
+      testLargeRequestHeader(true);
+   }
+
+   private void testLargeRequestHeader(boolean fail) throws Exception {
+      final int defaultRequestHeaderSize = new HttpConfiguration().getRequestHeaderSize();
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
+      if (!fail) {
+         webServerDTO.maxRequestHeaderSize = defaultRequestHeaderSize * 2;
+      }
+      WebServerComponent webServerComponent = new WebServerComponent();
+      assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+
+      final int port = webServerComponent.getPort();
+      // Make the connection attempt.
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      Channel ch = getChannel(port, clientHandler);
+
+      URI uri = new URI(URL);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
+      StringBuilder foo = new StringBuilder();
+      for (int i = 0; i < defaultRequestHeaderSize + 1; i++) {
+         foo.append("a");
+      }
+      request.headers().set("foo", foo.toString());
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertEquals(fail, clientHandler.body.toString().contains("431"));
+   }
+
+   /* It's not clear how to create a functional test for the response header size so this test simply ensures the
+    * configuration is passed through as expected.
+    */
+   @Test
+   public void testLargeResponseHeaderConfiguration() throws Exception {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
+      webServerDTO.maxResponseHeaderSize = 123;
+      WebServerComponent webServerComponent = new WebServerComponent();
+      assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+      assertEquals(123, ((HttpConnectionFactory)webServerComponent.getWebServer().getConnectors()[0].getConnectionFactories().iterator().next()).getHttpConfiguration().getResponseHeaderSize());
    }
 
    private Channel getChannel(int port, ClientHandler clientHandler) throws InterruptedException {

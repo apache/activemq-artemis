@@ -136,6 +136,14 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       HttpConfiguration httpConfiguration = new HttpConfiguration();
 
+      if (webServerConfig.maxRequestHeaderSize != null) {
+         httpConfiguration.setRequestHeaderSize(webServerConfig.maxRequestHeaderSize);
+      }
+
+      if (webServerConfig.maxResponseHeaderSize != null) {
+         httpConfiguration.setResponseHeaderSize(webServerConfig.maxResponseHeaderSize);
+      }
+
       if (this.webServerConfig.customizer != null) {
          try {
             httpConfiguration.addCustomizer((HttpConfiguration.Customizer) ClassloadingUtil.getInstanceWithTypeCheck(this.webServerConfig.customizer, HttpConfiguration.Customizer.class, this.getClass().getClassLoader()));

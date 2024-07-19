@@ -107,6 +107,12 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    public Integer scanPeriod;
 
+   @XmlAttribute
+   public Integer maxRequestHeaderSize;
+
+   @XmlAttribute
+   public Integer maxResponseHeaderSize;
+
    public String getPath() {
       return path;
    }

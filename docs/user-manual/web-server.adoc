@@ -45,6 +45,14 @@ idleThreadTimeout::
 The time to wait before terminating an idle thread from the embedded web server. Measured in milliseconds. Default is `60000`.
 scanPeriod::
 How often to scan for changes of the key and trust store files related to a binding when the `sslAutoReload` attribute value of the `binding` element is `true`, for further details see <<Binding>>. Measured in seconds. Default is `5`.
+maxRequestHeaderSize::
+The maximum allowed size for the HTTP request line and HTTP request headers.
+Measured in bytes.
+Default is `8192`.
+maxResponseHeaderSize::
+The maximum allowed size for the HTTP response headers.
+Measured in bytes.
+Default is `8192`.
 
 === Binding
 
