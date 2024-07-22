@@ -44,8 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class PageCounterOnBridgeFailoverTest extends FailoverTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -97,16 +95,10 @@ public class PageCounterOnBridgeFailoverTest extends FailoverTestBase {
          logger.info("Waiting for dc1Backup1 to be alive");
          Wait.waitFor(dc1Backup1::isActive, 15000);
          logger.info("dc1Backup1 isAlive");
-         long messageCountNodeDC1 = getMessageCount(dc1Backup1, queueName0);
          long messageCountNodeDC2 = getMessageCount(dc2Primary1, queueName0);
-         logger.info("Count in post office: " + (messageCountNodeDC1 + messageCountNodeDC2) + "messageCountNodeDC1:" + messageCountNodeDC1 + ", messageCountNodeDC2:" + messageCountNodeDC2 + " should be equal to: " + messageSent);
          dc1Backup1.getClusterManager().deployBridge(bridgeConfiguration);
-         Wait.waitFor(() -> getMessageCount(dc2Primary1, queueName0) == messageSent);
-         messageCountNodeDC1 = getMessageCount(dc1Backup1, queueName0);
-         messageCountNodeDC2 = getMessageCount(dc2Primary1, queueName0);
-         logger.info("Count in post office: " + (messageCountNodeDC1 + messageCountNodeDC2) + "messageCountNodeDC1:" + messageCountNodeDC1 + ", messageCountNodeDC2:" + messageCountNodeDC2 + " should be equal to: " + messageSent);
-         assertEquals(messageSent, messageCountNodeDC2);
-         assertEquals(0, messageCountNodeDC1);
+         Wait.assertEquals(messageSent, () -> getMessageCount(dc2Primary1, queueName0));
+         Wait.assertEquals(0, () -> getMessageCount(dc1Backup1, queueName0));
       } finally {
          dc2Primary1.stop();
       }
