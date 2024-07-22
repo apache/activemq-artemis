@@ -585,7 +585,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
          memoryEstimate = memoryOffset * 2 + (extraProperties != null ? extraProperties.getEncodeSize() : 0);
-         originalEstimate = memoryEstimate;
       }
       return memoryEstimate;
    }
