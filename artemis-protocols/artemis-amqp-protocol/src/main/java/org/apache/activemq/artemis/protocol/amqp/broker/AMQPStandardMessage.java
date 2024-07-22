@@ -189,7 +189,6 @@ public class AMQPStandardMessage extends AMQPMessage {
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
          memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
-         originalEstimate = memoryEstimate;
       }
 
       return memoryEstimate;

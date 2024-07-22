@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants;
 import org.apache.activemq.artemis.core.message.openmbean.MessageOpenTypeFactory;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -204,7 +203,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected long messageID;
    protected SimpleString address;
    protected volatile int memoryEstimate = -1;
-   protected volatile int originalEstimate = -1;
    protected long expiration;
    protected boolean expirationReload = false;
    protected long scheduledTime = -1;
@@ -545,13 +543,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected ApplicationProperties lazyDecodeApplicationProperties(ReadableBuffer data) {
       if (applicationProperties == null && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
          applicationProperties = scanForMessageSection(data, applicationPropertiesPosition, ApplicationProperties.class);
-         if (owner != null && memoryEstimate != -1) {
-            // the memory has already been tracked and needs to be updated to reflect the new decoding
-            int addition = unmarshalledApplicationPropertiesMemoryEstimateFromData(data);
-            ((PagingStore)owner).addSize(addition, false);
-            final int updatedEstimate = memoryEstimate + addition;
-            memoryEstimate = updatedEstimate;
-         }
       }
 
       return applicationProperties;
@@ -675,7 +666,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       }
       encodedHeaderSize = 0;
       memoryEstimate = -1;
-      originalEstimate = -1;
       scheduledTime = -1;
       encodedDeliveryAnnotationsSize = 0;
       headerPosition = VALUE_NOT_PRESENT;
@@ -870,16 +860,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public abstract int getMemoryEstimate();
-
-   @Override
-   public int getOriginalEstimate() {
-      if (originalEstimate < 0) {
-         // getMemoryEstimate should initialize originalEstimate
-         return getMemoryEstimate();
-      } else {
-         return originalEstimate;
-      }
-   }
 
    @Override
    public Map<String, Object> toPropertyMap(int valueSizeLimit) {
