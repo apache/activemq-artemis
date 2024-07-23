@@ -1,6 +1,7 @@
 = High Availability and Failover
 :idprefix:
 :idseparator: -
+:experimental:
 
 We define high availability (HA) as the _ability for the system to continue functioning after failure of one or more of the servers_.
 
@@ -112,8 +113,7 @@ The primary broker needs this basic configuration in `broker.xml`:
 ====== Additional parameters
 
 failover-on-shutdown::
-Whether the graceful shutdown of this primary broker will cause the backup to activate.
-Default is `false` which means that only a broker crash or forceful shutdown (e.g. using ctrl-c) will trigger the backup to activate.
+include::_failover-on-shutdown.adoc[]
 
 wait-for-activation::
 This setting is only for *embedded* use cases where the primary broker has failed, the backup has activated, and the primary has been restarted.
@@ -143,9 +143,9 @@ The use case is when a primary server stops and its backup takes over its duties
 Default is `true`.
 
 failover-on-shutdown::
-Whether the graceful shutdown of this primary broker will cause the backup to activate.
-Default is `false` which means that only a broker crash or forceful shutdown (e.g. using ctrl-c) will trigger the backup to activate.
-This only applies when this backup has activated due to its primary failing.
+include::_failover-on-shutdown.adoc[]
++
+NOTE: This only applies when this backup has activated due to its primary failing.
 
 scale-down::
 If provided then this backup will scale down rather than becoming active after fail over.
@@ -691,9 +691,7 @@ Here's an example configuration:
 The following lists all the `ha-policy` configuration elements for HA strategy shared store for `primary`:
 
 failover-on-shutdown::
-If set to `true` then when this server is stopped normally the backup will become active assuming failover.
-If false then the backup server will remain passive.
-Note that if `false` and you want failover to occur then you can use the management API as explained at xref:management.adoc#management[Management].
+include::_failover-on-shutdown.adoc[]
 
 wait-for-activation::
 If set to true then server startup will wait until it is activated.
@@ -705,9 +703,7 @@ Default is `true`.
 The following lists all the `ha-policy` configuration elements for HA strategy Shared Store for `backup`:
 
 failover-on-shutdown::
-In the case of a backup that has become active then when set to `true` and this server is stopped normally the passive primary will become active assuming failover.
-If `false` then the primary server will remain passive.
-Note that if `false` and you want failover to occur then you can use the management API as explained at xref:management.adoc#management[Management].
+include::_failover-on-shutdown.adoc[]
 
 allow-failback::
 Whether a server will automatically stop when another places a request to take over its place.
