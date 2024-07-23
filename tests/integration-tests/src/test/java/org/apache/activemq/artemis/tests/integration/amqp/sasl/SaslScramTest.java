@@ -51,7 +51,6 @@ public class SaslScramTest extends ActiveMQTestBase {
    @BeforeEach
    public void startBroker() throws Exception {
       String loginConfPath = new File(SaslScramTest.class.getResource("/login.config").toURI()).getAbsolutePath();
-      System.out.println(loginConfPath);
       System.setProperty("java.security.auth.login.config", loginConfPath);
       BROKER = new EmbeddedActiveMQ();
       URL urlScram = SaslScramTest.class.getResource("/broker-saslscram.xml");
