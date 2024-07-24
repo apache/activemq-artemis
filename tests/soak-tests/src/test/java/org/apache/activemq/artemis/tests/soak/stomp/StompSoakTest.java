@@ -52,6 +52,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class StompSoakTest extends SoakTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -179,5 +181,8 @@ public class StompSoakTest extends SoakTestBase {
       }
 
       Assertions.assertEquals(0, errors.get());
+
+      File artemisLog = new File("target/" + SERVER_NAME_0 + "/log/artemis.log");
+      assertFalse(findLogRecord(artemisLog, true, "AMQ222151", "ConcurrentModificationException"));
    }
 }

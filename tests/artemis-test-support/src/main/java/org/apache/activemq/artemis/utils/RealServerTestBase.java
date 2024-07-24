@@ -190,7 +190,7 @@ public class RealServerTestBase extends ActiveMQTestBase {
       recreateDirectory(homeInstance + "/log");
    }
 
-   protected boolean findLogRecord(File logFile, String... values) throws Exception {
+   protected boolean findLogRecord(File logFile, boolean matchAnyValue, String... values) throws Exception {
       assertTrue(logFile.exists());
       boolean hasRecord = false;
       try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
@@ -200,13 +200,17 @@ public class RealServerTestBase extends ActiveMQTestBase {
                boolean hasAll = true;
                for (int i = 1; i < values.length; i++) {
                   if (!line.contains(values[i])) {
+                     if (matchAnyValue) {
+                        logger.warn("value {} ", values[i], new Exception("trace"));
+                        return true;
+                     }
                      hasAll = false;
                      break;
                   }
                }
                if (hasAll) {
                   hasRecord = true;
-                  logger.debug("audit found: {}", line);
+                  logger.debug("log found: {}", line);
                   break;
                }
             }
