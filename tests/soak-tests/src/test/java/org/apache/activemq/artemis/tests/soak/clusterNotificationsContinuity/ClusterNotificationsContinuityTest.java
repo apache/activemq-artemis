@@ -187,7 +187,7 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
          String serverName = SERVER_NAME_BASE + i;
 
          File artemisLog = new File("target/" + serverName + "/log/artemis.log");
-         assertFalse(findLogRecord(artemisLog, false, "AMQ224037"));
+         assertFalse(findLogRecord(artemisLog, "AMQ224037"));
       }
 
    }
