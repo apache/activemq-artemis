@@ -18,9 +18,11 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* Numerous dependency upgrades
-* https://issues.apache.org/jira/browse/ARTEMIS-3509|[STOMP Websocket client disconnected after ConcurrentModificationException in Broker]
-* https://issues.apache.org/jira/browse/ARTEMIS-4949|[ava.nio.channels.ClosedChannelException with slower devices and NIO journal]
+* Numerous dependency upgrades triggered by integration with https://docs.github.com/en/code-security/getting-started/dependabot-quickstart-guide[GitHub's Dependabot].
+* Stability improvement for use-cases involving slower IO devices (e.g. NFS) and the NIO journal via https://issues.apache.org/jira/browse/ARTEMIS-4949[ARTEMIS-4949].
+* Code optimization in the address manager to decrease CPU utilization and increase broker scalability for use-cases involving a large number of addresses and queues courtesy of https://issues.apache.org/jira/browse/ARTEMIS-4814[ARTEMIS-4814].
+* Stability improvement for use-cases involving STOMP clients connecting over WebSockets via https://issues.apache.org/jira/browse/[ARTEMIS-3509].
+* Lots of internal "code gardening" improvements for developers to make the code-base simpler and more consistent.
 
 == 2.35.0
 
