@@ -18,7 +18,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* Many dependency libraries upgraded
+* Numerous dependency upgrades
 * https://issues.apache.org/jira/browse/ARTEMIS-3509|[STOMP Websocket client disconnected after ConcurrentModificationException in Broker]
 * https://issues.apache.org/jira/browse/ARTEMIS-4949|[ava.nio.channels.ClosedChannelException with slower devices and NIO journal]
 
