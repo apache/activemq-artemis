@@ -179,5 +179,9 @@ public class StompSoakTest extends SoakTestBase {
       }
 
       Assertions.assertEquals(0, errors.get());
+
+      File artemisLog = new File("target/" + SERVER_NAME_0 + "/log/artemis.log");
+      Assertions.assertFalse(findLogRecord(artemisLog, "AMQ222151"));
+      Assertions.assertFalse(findLogRecord(artemisLog, "ConcurrentModificationException"));
    }
 }
