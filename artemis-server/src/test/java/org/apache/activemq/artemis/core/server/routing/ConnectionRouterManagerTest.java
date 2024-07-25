@@ -100,4 +100,22 @@ public class ConnectionRouterManagerTest {
 
       underTest.deployConnectionRouter(connectionRouterConfiguration);
    }
+
+   @Test
+   public void deploy2LocalOnlyWithSamePolicy() throws Exception {
+
+      ManagementService mockManagementService = Mockito.mock(ManagementService.class);
+      Mockito.when(mockServer.getManagementService()).thenReturn(mockManagementService);
+
+      ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
+      connectionRouterConfiguration.setName("partition-local-consistent-hash").setKeyType(KeyType.CLIENT_ID).setLocalTargetFilter(String.valueOf(2));
+      NamedPropertyConfiguration policyConfig = new NamedPropertyConfiguration()
+         .setName(ConsistentHashModuloPolicy.NAME)
+         .setProperties(Collections.singletonMap(ConsistentHashModuloPolicy.MODULO, String.valueOf(2)));
+      connectionRouterConfiguration.setPolicyConfiguration(policyConfig);
+      underTest.deployConnectionRouter(connectionRouterConfiguration);
+
+      connectionRouterConfiguration.setName("partition-local-consistent-hash-bis");
+      underTest.deployConnectionRouter(connectionRouterConfiguration);
+   }
 }

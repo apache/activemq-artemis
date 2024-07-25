@@ -347,7 +347,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(5, conf.getConnectionRouters().size());
+      assertEquals(6, conf.getConnectionRouters().size());
       for (ConnectionRouterConfiguration bc : conf.getConnectionRouters()) {
          if (bc.getName().equals("simple-local")) {
             assertEquals(bc.getKeyType(), KeyType.CLIENT_ID);
@@ -366,6 +366,13 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
             assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
             assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
             assertEquals("connector1", bc.getPoolConfiguration().getStaticConnectors().get(0));
+            assertNull(bc.getPoolConfiguration().getDiscoveryGroupName());
+         } else if (bc.getName().equals("simple-router-connector2")) {
+            assertEquals(bc.getKeyType(), KeyType.USER_NAME);
+            assertNull(bc.getLocalTargetFilter());
+            assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
+            assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
+            assertEquals("connector2", bc.getPoolConfiguration().getStaticConnectors().get(0));
             assertNull(bc.getPoolConfiguration().getDiscoveryGroupName());
          } else if (bc.getName().equals("consistent-hash-router")) {
             assertEquals(bc.getKeyType(), KeyType.SNI_HOST);
