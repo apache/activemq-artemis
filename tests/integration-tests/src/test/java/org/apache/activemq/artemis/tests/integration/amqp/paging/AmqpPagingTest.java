@@ -121,4 +121,87 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       connection.close();
    }
 
+
+   @TestTemplate
+   @Timeout(60)
+   public void testSizeCalculationsForApplicationProperties() throws Exception {
+      final int MSG_SIZE = 1000;
+      final StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < MSG_SIZE; i++) {
+         builder.append('0');
+      }
+      final String data = builder.toString();
+      final int MSG_COUNT = 1;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName(), true);
+
+      // use selector expression that references a property to force decode of application properties
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), "myData IS NOT NULL");
+      receiver.setPresettle(true);
+      receiver.flow(10);
+      assertNull(receiver.receiveNoWait(), "somehow the queue had messages from a previous test");
+      receiver.flow(0);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setText(data);
+
+      // large message property also
+      message.setApplicationProperty("myData", data);
+
+      if (durable != null) {
+         message.setDurable(durable);
+      }
+      sender.send(message);
+
+      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.of(getQueueName()));
+
+      // verify page usage reflects data + 2*application properties (encoded and decoded)
+      assertTrue(Wait.waitFor(() -> {
+         return pagingStore.getAddressSize() > 3000;
+      }));
+
+      receiver.flow(MSG_COUNT);
+      AmqpMessage receive = receiver.receive(10, TimeUnit.MINUTES);
+      assertNotNull(receive, "Not received anything after receive");
+      receive.accept();
+
+      assertTrue(Wait.waitFor(() -> {
+         return pagingStore.getAddressSize() == 0;
+      }));
+
+      // send another with duplicate id property, to force early decode
+      message = new AmqpMessage();
+      message.setText(data);
+
+      // ensures application properties are referenced
+      message.setApplicationProperty("_AMQ_DUPL_ID", "1");
+
+      // large message property also
+      message.setApplicationProperty("myData", data);
+
+      if (durable != null) {
+         message.setDurable(durable);
+      }
+      sender.send(message);
+
+      sender.close();
+
+      // verify page usage reflects data + 2*application properties (encoded and decoded)
+      assertTrue(Wait.waitFor(() -> {
+         return pagingStore.getAddressSize() > 3000;
+      }));
+
+      receiver.flow(MSG_COUNT);
+      receive = receiver.receive(10, TimeUnit.MINUTES);
+      assertNotNull(receive, "Not received anything after receive");
+      receive.accept();
+
+      receiver.close();
+      connection.close();
+   }
+
 }

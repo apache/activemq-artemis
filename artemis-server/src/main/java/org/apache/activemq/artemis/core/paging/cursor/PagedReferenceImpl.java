@@ -47,6 +47,8 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
 
    private int persistedCount;
 
+   private int messageEstimate = -1;
+
    // this is a cached position returned on getPosition.
    // just to avoid creating on object on each call
    PagePosition cachedPositionObject;
@@ -162,12 +164,14 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
 
    @Override
    public int getMessageMemoryEstimate() {
-      try {
-         return getMessage().getMemoryEstimate();
-      } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.errorCalculateMessageMemoryEstimate(e);
-         return 0;
+      if (messageEstimate <= 0) {
+         try {
+            messageEstimate = getMessage().getMemoryEstimate();
+         } catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.errorCalculateMessageMemoryEstimate(e);
+         }
       }
+      return messageEstimate;
    }
 
    @Override
