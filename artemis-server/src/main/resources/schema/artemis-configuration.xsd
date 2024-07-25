@@ -2049,7 +2049,7 @@
             </xsd:annotation>
          </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="name" type="xsd:ID" use="required">
+      <xsd:attribute name="name" type="xsd:string" use="required">
          <xsd:annotation>
             <xsd:documentation>
                the name of the policy
