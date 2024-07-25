@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
@@ -88,8 +89,12 @@ import org.mockito.Mockito;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPMessageTest {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String TEST_TO_ADDRESS = "someAddress";
 
@@ -307,14 +312,32 @@ public class AMQPMessageTest {
 
    @Test
    public void testGetMemoryEstimateWithDecodedApplicationProperties() {
+      testGetMemoryEstimateWithDecodedApplicationProperties(true);
+      testGetMemoryEstimateWithDecodedApplicationProperties(false);
+   }
+
+
+   private void testGetMemoryEstimateWithDecodedApplicationProperties(boolean paged) {
       AMQPStandardMessage decoded = new AMQPStandardMessage(0, encodedProtonMessage, new TypedProperties(), null);
+      if (paged) {
+         decoded.setPaged();
+      }
+
+      logger.info("Estimated size:: {}", decoded.getMemoryEstimate());
 
       AMQPStandardMessage decodedWithApplicationPropertiesUnmarshalled =
          new AMQPStandardMessage(0, encodeMessage(createProtonMessage()), new TypedProperties(), null);
+      if (paged) {
+         decodedWithApplicationPropertiesUnmarshalled.setPaged();
+      }
 
       assertEquals(decodedWithApplicationPropertiesUnmarshalled.getStringProperty(TEST_APPLICATION_PROPERTY_KEY), TEST_APPLICATION_PROPERTY_VALUE);
 
-      assertNotEquals(decodedWithApplicationPropertiesUnmarshalled.getMemoryEstimate(), decoded.getMemoryEstimate());
+      if (paged) {
+         assertEquals(decodedWithApplicationPropertiesUnmarshalled.getMemoryEstimate(), decoded.getMemoryEstimate());
+      } else {
+         assertNotEquals(decodedWithApplicationPropertiesUnmarshalled.getMemoryEstimate(), decoded.getMemoryEstimate());
+      }
    }
 
    //----- Test Connection ID access -----------------------------------------//

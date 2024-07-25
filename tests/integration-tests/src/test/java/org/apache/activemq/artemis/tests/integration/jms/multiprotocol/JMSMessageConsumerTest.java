@@ -35,9 +35,14 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -398,4 +403,38 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          consumerConnection.close();
       }
    }
+
+
+   @Test
+   public void testConvertedAndPaging() throws Exception {
+      final int MESSAGE_COUNT = 1;
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.of(getQueueName()));
+      store.startPaging();
+      try (Connection senderConnection = createConnection(); Connection consumerConnection = createCoreConnection()) {
+         Session consumerSession = consumerConnection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageConsumer consumer = consumerSession.createConsumer(consumerSession.createQueue(getQueueName()));
+
+         Session senderSession = senderConnection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = senderSession.createProducer(senderSession.createQueue(getQueueName()));
+         for (int i = 0; i < MESSAGE_COUNT; i++) {
+            Message message = senderSession.createMessage();
+            message.setIntProperty("count", i); // test will also pass if this is removed
+            producer.send(message);
+         }
+         senderSession.commit();
+
+         for (int i = 0; i < MESSAGE_COUNT; i++) {
+            Message received = consumer.receive(1000);
+            assertNotNull(received);
+         }
+         consumerSession.commit();
+         consumer.close();
+
+         assertEquals(0, server.locateQueue(getQueueName()).getMessageCount());
+         Wait.assertEquals(0, store::getAddressSize, 5000);
+         assertEquals(0, ((AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + getQueueName())).getAddressSize());
+      }
+   }
+
 }
