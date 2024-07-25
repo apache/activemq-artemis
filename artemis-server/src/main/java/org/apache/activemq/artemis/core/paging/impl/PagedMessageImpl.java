@@ -107,6 +107,7 @@ public class PagedMessageImpl implements PagedMessage {
       this.storageManager = null;
       this.queueIDs = queueIDs;
       this.message = message;
+      this.message.setPaged();
       this.storedSize = 0;
       checkLargeMessage();
    }
@@ -171,6 +172,7 @@ public class PagedMessageImpl implements PagedMessage {
          lgMessage.toMessage().usageUp();
          lgMessage.setPaged();
          this.message = lgMessage.toMessage();
+         this.message.setPaged();
          largeMessageLazyData = null;
          checkLargeMessage();
       } else {
@@ -214,6 +216,7 @@ public class PagedMessageImpl implements PagedMessage {
             buffer.readBytes(largeMessageLazyData);
          } else {
             this.message = storageManager.createCoreLargeMessage().toMessage();
+            this.message.setPaged();
             LargeMessagePersister.getInstance().decode(buffer, (LargeServerMessage) message, null);
             ((LargeServerMessage) message).setStorageManager(storageManager);
             ((LargeServerMessage) message).toMessage().usageUp();

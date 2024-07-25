@@ -188,8 +188,16 @@ public class AMQPStandardMessage extends AMQPMessage {
    @Override
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
-         memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
-         originalEstimate = memoryEstimate;
+         if (isPaged) {
+            // When the message is paged, we don't take the unmarshalled application properties
+            // because it could be updated at different places.
+            // we just keep the estimate simple when paging
+            memoryEstimate = memoryOffset + (data != null ? data.capacity() : 0);
+            originalEstimate = memoryEstimate;
+         } else {
+            memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
+            originalEstimate = memoryEstimate;
+         }
       }
 
       return memoryEstimate;
