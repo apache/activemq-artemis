@@ -1052,7 +1052,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
             // However, in this case, we should always use the original estimate.
             // Otherwise, we might get incorrect sizes after the update.
-            pagingStore.addSize(messageReference.getMessage().getMemoryEstimate(), false, false);
+            pagingStore.addSize(messageReference.getMessage().getOriginalEstimate(), false, false);
          }
 
          pagingStore.refUp(messageReference.getMessage(), count);
@@ -1071,7 +1071,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
             // However, in this case, we should always use the original estimate.
             // Otherwise, we might get incorrect sizes after the update.
-            pagingStore.addSize(-messageReference.getMessage().getMemoryEstimate(), false, false);
+            pagingStore.addSize(-messageReference.getMessage().getOriginalEstimate(), false, false);
          }
          pagingStore.refDown(messageReference.getMessage(), count);
       }
