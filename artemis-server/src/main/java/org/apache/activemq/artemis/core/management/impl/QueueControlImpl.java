@@ -1161,7 +1161,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          if (groupByProperty == null) {
             result.compute(null, (k, v) -> v == null ? 1 : ++v);
          } else {
-            Object value = message.getObjectProperty(groupByProperty);
+            Object value = message.getObjectPropertyForFilter(groupByProperty);
             String valueStr = value == null ? null : value.toString();
             result.compute(valueStr, (k, v) -> v == null ? 1 : ++v);
          }
