@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -135,6 +136,63 @@ public class QueueControlTest extends ManagementTestBase {
    public QueueControlTest(boolean durable) {
       super();
       this.durable = durable;
+   }
+
+   @TestTemplate
+   public void testMoveMessagesInPagingMode() throws Exception {
+      final int TOTAL_MESSAGES = 10000;
+      final String DLA = "DLA";
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, false);
+
+      SimpleString queueAddr = SimpleString.of("testQueue");
+      session.createQueue(QueueConfiguration.of(queueAddr).setDurable(durable));
+      SimpleString dlq = SimpleString.of(DLA);
+      session.createQueue(QueueConfiguration.of(dlq));
+
+      // Set up paging on the queue address
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(16 * 1024).setDeadLetterAddress(dlq);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+
+      sendMessageBatch(TOTAL_MESSAGES, session, queueAddr);
+
+      Queue queue = server.locateQueue(queueAddr);
+
+      // Give time Queue.deliverAsync to deliver messages
+      assertTrue(waitForMessages(queue, TOTAL_MESSAGES, 5000));
+
+      PagingStore queuePagingStore = queue.getPagingStore();
+      assertTrue(queuePagingStore != null && queuePagingStore.isPaging());
+
+      //invoke moveMessages op
+      String queueControlResourceName = ResourceNames.QUEUE + "testQueue";
+      Object resource = server.getManagementService().getResource(queueControlResourceName);
+      QueueControl queueControl = (QueueControl) resource;
+      assertEquals(queueControl.getMessageCount(), 10000);
+
+      // move messages to DLQ
+      int count = queueControl.moveMessages(500, "", DLA, false, 500);
+      assertEquals(500, count);
+
+      //messages shouldn't move on to the same queue
+      try {
+         queueControl.moveMessages(1000, "", "testQueue", false, 9000);
+         fail("messages cannot be moved on to the queue itself");
+      } catch (IllegalArgumentException ok) {
+         //ok
+      }
+
+      // 9500 left
+      count = queueControl.moveMessages(1000, "", DLA, false, 9000);
+      assertEquals(9000, count);
+
+      // 500 left, try move 1000
+      count = queueControl.moveMessages(100, "", DLA, false, 1000);
+      assertEquals(500, count);
+
+      // zero left, try move again
+      count = queueControl.moveMessages(100, "", DLA, false, 1000);
+      assertEquals(0, count);
    }
 
    @TestTemplate

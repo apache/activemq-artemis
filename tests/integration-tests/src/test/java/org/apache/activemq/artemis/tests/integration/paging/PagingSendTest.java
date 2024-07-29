@@ -20,16 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -292,25 +288,6 @@ public class PagingSendTest extends ActiveMQTestBase {
       }
    }
 
-   public List<String> sendMessageBatch(int batchSize,
-                                        ClientSession session,
-                                        SimpleString queueAddr) throws ActiveMQException {
-      List<String> messageIds = new ArrayList<>();
-      ClientProducer producer = session.createProducer(queueAddr);
-      for (int i = 0; i < batchSize; i++) {
-         ClientMessage message = session.createMessage(true);
-         message.getBodyBuffer().writeBytes(new byte[1024]);
-         String id = UUID.randomUUID().toString();
-         message.putStringProperty("id", id);
-         message.putIntProperty("seq", i); // this is to make the print-data easier to debug
-         messageIds.add(id);
-         producer.send(message);
-      }
-      session.commit();
-
-      return messageIds;
-   }
-
    /**
     * checks that there are no message duplicates in the page.  Any IDs found in the ignoreIds field will not be tested
     * this allows us to test only those messages that have been sent after the address has started paging (ignoring any
@@ -335,18 +312,6 @@ public class PagingSendTest extends ActiveMQTestBase {
          }
       }
       assertEquals(0, duplicates);
-   }
-
-   public boolean waitForMessages(Queue queue, int count, long timeout) throws Exception {
-      long timeToWait = System.currentTimeMillis() + timeout;
-
-      while (System.currentTimeMillis() < timeToWait) {
-         if (queue.getMessageCount() >= count) {
-            return true;
-         }
-         Thread.sleep(100);
-      }
-      return false;
    }
 
    /**
