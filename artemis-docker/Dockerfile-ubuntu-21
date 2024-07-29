@@ -31,7 +31,7 @@ ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 # add user and group for artemis
 RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
  && apt-get -qq -o=Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1 && \
+    apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1t64 && \
     rm -rf /var/lib/apt/lists/*
 
 USER artemis
