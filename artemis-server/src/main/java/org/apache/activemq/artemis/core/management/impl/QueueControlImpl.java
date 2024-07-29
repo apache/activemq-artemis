@@ -1382,6 +1382,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final int messageCount) throws Exception {
       // this is a critical task, we need to prevent parallel tasks running
       try (AutoCloseable lock = server.managementLock()) {
+         if (this.queue.getName().toString().equals(otherQueueName)) {
+            //doesn't make sense to move messages to itself
+            throw new IllegalArgumentException("Cannot move messages onto itself");
+         }
          if (AuditLogger.isBaseLoggingEnabled()) {
             AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates, messageCount);
          }
