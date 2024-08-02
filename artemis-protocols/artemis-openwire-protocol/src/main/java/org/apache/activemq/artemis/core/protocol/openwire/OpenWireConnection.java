@@ -1256,18 +1256,21 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          // Avoid replaying dup commands
          if (!ss.getProducerIds().contains(info.getProducerId())) {
-            ActiveMQDestination destination = info.getDestination();
+            final ActiveMQDestination destination = info.getDestination();
+            final AMQSession session = getSession(info.getProducerId().getParentId());
 
-            if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
-               OpenWireConnection.this.addDestination(new DestinationInfo(getContext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination));
+            if (destination != null) {
+               session.checkDestinationForSendPermission(destination);
+
+               if (!AdvisorySupport.isAdvisoryTopic(destination)) {
+                  OpenWireConnection.this.addDestination(new DestinationInfo(getContext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination));
+               }
             }
 
             ss.addProducer(info);
-            getSession(info.getProducerId().getParentId()).getCoreSession().addProducer(
-                  info.getProducerId().toString(),
-                  OpenWireProtocolManagerFactory.OPENWIRE_PROTOCOL_NAME,
-                  info.getDestination() != null ? info.getDestination().getPhysicalName() : null);
-
+            session.getCoreSession().addProducer(info.getProducerId().toString(),
+                                                 OpenWireProtocolManagerFactory.OPENWIRE_PROTOCOL_NAME,
+                                                 info.getDestination() != null ? info.getDestination().getPhysicalName() : null);
          }
          return null;
       }
