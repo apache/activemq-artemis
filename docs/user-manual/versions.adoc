@@ -12,6 +12,19 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.37.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354977[Full release notes]
+
+=== Highlights
+
+* The logging configuration of the CLI commands other than run is configurable via the `log4j2-default.properties` file.
+
+=== Upgrading from 2.36.0
+
+The CLI commands other than run will now need to define the logging configuration via the `log4j2-default.properties` file.
+See xref:logging.adoc#logging[logging] for more information.
+
 == 2.36.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354818[Full release notes]

@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.cli;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -80,7 +82,8 @@ public class Shell implements Runnable {
       try {
          setInShell();
 
-         boolean isInstance = System.getProperty("artemis.instance") != null;
+         String artemisInstance = System.getProperty("artemis.instance");
+         boolean isInstance = artemisInstance != null;
 
          Supplier<Path> workDir = () -> Paths.get(System.getProperty("user.dir"));
 
@@ -122,7 +125,22 @@ public class Shell implements Runnable {
                   systemRegistry.setCommandRegistries(new PicocliCommands(Artemis.buildCommand(isInstance, !isInstance, false)));
                   systemRegistry.cleanUp();
                   line = reader.readLine(prompt, rightPrompt, (MaskingCallback) null, null);
-                  systemRegistry.execute(line);
+
+                  if (isInstance && line.startsWith("run")) {
+                     List<String> command = new ArrayList<>();
+                     boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
+                     if (IS_WINDOWS) {
+                        command.add("cmd");
+                        command.add("/c");
+                        command.add(Paths.get(artemisInstance, "artemis.cmd").toAbsolutePath().toString());
+                     } else {
+                        command.add(Paths.get(artemisInstance, "bin", "artemis").toAbsolutePath().toString());
+                     }
+                     command.addAll(parser.parse(line, 0).words());
+                     new ProcessBuilder(command).inheritIO().start().waitFor();
+                  } else {
+                     systemRegistry.execute(line);
+                  }
                } catch (InterruptedException e) {
                   e.printStackTrace();
                   // Ignore

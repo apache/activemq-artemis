@@ -348,6 +348,15 @@ public class Upgrade extends InstallAbstract {
             }
          }
       }
+
+      File newDefaultLogging = new File(etcFolder, Create.ETC_LOG4J2_DEFAULT_PROPERTIES);
+      if (!newDefaultLogging.exists()) {
+         context.out.println("Creating " + newDefaultLogging);
+         try (InputStream inputStream = openStream("etc/" + Create.ETC_LOG4J2_DEFAULT_PROPERTIES);
+              OutputStream outputStream = new FileOutputStream(newDefaultLogging)) {
+            copy(inputStream, outputStream);
+         }
+      }
    }
 
    protected File findBackup(ActionContext context) throws IOException {

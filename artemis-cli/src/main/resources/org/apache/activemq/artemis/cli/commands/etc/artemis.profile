@@ -60,4 +60,6 @@ if [ "$1" = "run" ]; then :
 
     # Uncomment for async profiler
     # DEBUG_ARGS="-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
+else
+    JAVA_ARGS="$JAVA_ARGS -Dlog4j2.configurationFile=${ARTEMIS_INSTANCE_ETC_URI}log4j2-default.properties "
 fi
