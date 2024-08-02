@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -364,6 +365,14 @@ public class AMQSession implements SessionCallback {
 
       final ActiveMQDestination destination = messageSend.getDestination();
 
+      if (producerInfo.getDestination() == null) {
+         // a named producer will have its target destination checked on create but an
+         // anonymous producer can send to different addresses on each send so we need to
+         // check here before going into message conversion and pre-dispatch stages before
+         // the target gets a security check.
+         checkDestinationForSendPermission(destination);
+      }
+
       final ActiveMQDestination[] actualDestinations;
       final int actualDestinationsCount;
       if (destination.isComposite()) {
@@ -567,5 +576,26 @@ public class AMQSession implements SessionCallback {
 
    public boolean isInternal() {
       return sessInfo.getSessionId().getValue() == -1;
+   }
+
+   public void checkDestinationForSendPermission(ActiveMQDestination destination) throws Exception {
+      if (server.getSecurityStore().isSecurityEnabled()) {
+         if (destination.isComposite()) {
+            for (ActiveMQDestination composite : destination.getCompositeDestinations()) {
+               doCheckDestinationForSendPermission(composite);
+            }
+         } else {
+            doCheckDestinationForSendPermission(destination);
+         }
+      }
+   }
+
+   private void doCheckDestinationForSendPermission(ActiveMQDestination destination) throws Exception {
+      final SimpleString destinationName = SimpleString.of(destination.getPhysicalName());
+      final SimpleString address = CompositeAddress.extractAddressName(destinationName);
+      final SimpleString queue = CompositeAddress.isFullyQualified(destinationName) ?
+         CompositeAddress.extractQueueName(destinationName) : null;
+
+      server.getSecurityStore().check(address, queue, CheckType.SEND, getCoreSession());
    }
 }
