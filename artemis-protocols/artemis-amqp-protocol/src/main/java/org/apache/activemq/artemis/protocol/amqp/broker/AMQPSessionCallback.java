@@ -827,6 +827,10 @@ public class AMQPSessionCallback implements SessionCallback {
       manager.getServer().getSecurityStore().check(address, checkType, session);
    }
 
+   public void check(SimpleString address, SimpleString queue, CheckType checkType, SecurityAuth session) throws Exception {
+      manager.getServer().getSecurityStore().check(address, queue, checkType, session);
+   }
+
    public String invokeIncoming(Message message, ActiveMQProtonRemotingConnection connection) {
       return protonSPI.invokeIncomingInterceptors(message, connection);
    }
