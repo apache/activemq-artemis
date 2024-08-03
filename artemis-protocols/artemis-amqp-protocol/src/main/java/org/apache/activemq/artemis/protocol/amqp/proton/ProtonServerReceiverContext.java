@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Modified;
@@ -128,8 +129,12 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
+               final SimpleString addressPart = CompositeAddress.extractAddressName(address);
+               final SimpleString queuePart = CompositeAddress.isFullyQualified(address) ?
+                  CompositeAddress.extractQueueName(address) : null;
+
                try {
-                  sessionSPI.check(address, CheckType.SEND, connection.getSecurityAuth());
+                  sessionSPI.check(addressPart, queuePart, CheckType.SEND, connection.getSecurityAuth());
                } catch (ActiveMQSecurityException e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
                }
@@ -144,6 +149,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             }
          }
       }
+
       flow();
    }
 
