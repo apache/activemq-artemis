@@ -168,15 +168,6 @@ public class Run extends LockAbstract {
          return serverActivationFailed.get();
       }
 
-      if (Shell.inShell()) {
-         while (server.getServer().isStarted()) {
-            try {
-               Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
-         }
-      }
-
       return new Pair<>(managementContext, server.getServer());
    }
 
