@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.Shell;
+import org.apache.activemq.artemis.cli.Terminal;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
@@ -75,6 +76,17 @@ public class Run extends LockAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
+
+      if (Shell.inShell()) {
+
+         String scriptStart = "./artemis";
+         if (System.getProperty("os.name", "linux").toLowerCase().trim().startsWith("win")) {
+            scriptStart = "artemis.cmd";
+         }
+         System.out.println(Terminal.RED_UNICODE + "ERROR: The run command is not supported in the artemis shell. Please use '" + scriptStart + " run' directly." + Terminal.CLEAR_UNICODE);
+         return null;
+      }
+
       super.execute(context);
 
       verifyOlderLogging(new File(getBrokerEtc()));
