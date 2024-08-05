@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
@@ -1461,11 +1462,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       PagingManager mockManager = Mockito.mock(PagingManager.class);
 
       ArtemisExecutor sameThreadExecutor = Runnable::run;
-      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
-                                                  mockManager, createStorageManagerMock(), factory, storeFactory,
-                                                  PagingStoreImplTest.destinationTestName,
-                                                  new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
-                                                  sameThreadExecutor, sameThreadExecutor, true);
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, mockManager, createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK), sameThreadExecutor, sameThreadExecutor, true);
 
       store.start();
       try {
@@ -1494,5 +1491,28 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       } finally {
          store.stop();
       }
+   }
+   @Test
+   public void testPageLimitBytesValidationOnStoreCreation() throws Exception {
+
+      final int size = 1048576;
+
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setPageFullMessagePolicy(PageFullMessagePolicy.FAIL);
+      addressSettings.setPageSizeBytes(size + 1);
+      addressSettings.setPageLimitBytes(Long.valueOf(size));
+      addressSettings.setMaxSizeBytes(size);
+
+      final PagingStore store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, SimpleString.of("test"), addressSettings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), false);
+
+      //assert address settings not applied
+      assertNull(store.getPageFullMessagePolicy());
+      assertEquals(0, store.getPageSizeBytes());
+      assertNull(store.getPageLimitBytes());
+      assertEquals(0, store.getMaxSize());
    }
 }

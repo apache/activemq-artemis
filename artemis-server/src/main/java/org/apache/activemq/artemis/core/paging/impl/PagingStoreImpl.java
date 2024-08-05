@@ -192,8 +192,6 @@ public class PagingStoreImpl implements PagingStore {
          setUnderCallback(this::underSized).setOverCallback(this::overSized).
          setOnSizeCallback(pagingManager::addSize);
 
-      applySetting(addressSettings);
-
       this.executor = executor;
 
       this.pagingManager = pagingManager;
@@ -203,6 +201,8 @@ public class PagingStoreImpl implements PagingStore {
       this.storeFactory = storeFactory;
 
       this.syncNonTransactional = syncNonTransactional;
+
+      applySetting(addressSettings);
 
       if (scheduledExecutor != null && syncTimeout > 0) {
          this.syncTimer = new PageSyncTimer(this, scheduledExecutor, ioExecutor, syncTimeout);
@@ -228,11 +228,58 @@ public class PagingStoreImpl implements PagingStore {
       size.setMax(maxSize, maxSize, maxMessages, maxMessages);
    }
 
+   private boolean validateNewSettings(final AddressSettings addressSettings) {
+
+      Long newPageLimitBytes = addressSettings.getPageLimitBytes();
+
+      if (newPageLimitBytes != null && newPageLimitBytes < 0) {
+         newPageLimitBytes = null;
+      }
+
+      int newPageSize = storageManager.getAllowedPageSize(addressSettings.getPageSizeBytes());
+
+      if (newPageLimitBytes != null && newPageSize > 0) {
+
+         if (newPageSize > newPageLimitBytes) {
+            ActiveMQServerLogger.LOGGER.pageSettingsFailedApply(storeName, addressSettings, "pageLimitBytes is smaller than pageSize. It should allow at least one page file");
+            return false;
+         }
+
+         long newEstimatedMaxPages = newPageLimitBytes / newPageSize;
+
+         long existingNumberOfPages;
+         if (!running) {
+            try {
+               checkFileFactory();
+               List<String> files = this.fileFactory.listFiles("page");
+               existingNumberOfPages = files.size();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.pageSettingsFailedApply(storeName, addressSettings, "failed to get existing page files with exception: " + e);
+               return false;
+            }
+         } else {
+            existingNumberOfPages = this.numberOfPages;
+         }
+
+         if (existingNumberOfPages > newEstimatedMaxPages) {
+            ActiveMQServerLogger.LOGGER.pageSettingsFailedApply(storeName, addressSettings, "estimated max pages " + newEstimatedMaxPages + " (pageLimitBytes / pageSize) is less than current number of pages " + existingNumberOfPages);
+            return false;
+         }
+      }
+
+      return true;
+   }
+
    /**
     * @param addressSettings
     */
    @Override
    public void applySetting(final AddressSettings addressSettings) {
+
+      if (!validateNewSettings(addressSettings)) {
+         return;
+      }
+
       maxSize = addressSettings.getMaxSizeBytes();
 
       maxPageReadMessages = addressSettings.getMaxReadPageMessages();

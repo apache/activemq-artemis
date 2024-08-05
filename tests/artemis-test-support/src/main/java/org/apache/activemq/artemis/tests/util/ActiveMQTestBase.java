@@ -1695,11 +1695,17 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    public List<String> sendMessageBatch(int batchSize,
                                         ClientSession session,
                                         SimpleString queueAddr) throws ActiveMQException {
+      return sendMessageBatch(batchSize, 1024, session, queueAddr);
+   }
+   public List<String> sendMessageBatch(int batchSize,
+                                        int messageSize,
+                                        ClientSession session,
+                                        SimpleString queueAddr) throws ActiveMQException {
       List<String> messageIds = new ArrayList<>();
       ClientProducer producer = session.createProducer(queueAddr);
       for (int i = 0; i < batchSize; i++) {
          ClientMessage message = session.createMessage(true);
-         message.getBodyBuffer().writeBytes(new byte[1024]);
+         message.getBodyBuffer().writeBytes(new byte[messageSize]);
          String id = UUID.randomUUID().toString();
          message.putStringProperty("id", id);
          message.putIntProperty("seq", i); // this is to make the print-data easier to debug

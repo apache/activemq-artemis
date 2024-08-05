@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.BundleFactory;
@@ -1621,4 +1622,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224139, value = "Failed to stop bridge: {}", level = LogMessage.Level.ERROR)
    void errorStoppingBridge(String bridgeName, Exception e);
+
+   @LogMessage(id = 224140, value = "Page store {} cannot apply settings: {}. Detail: {}", level = LogMessage.Level.WARN)
+   void pageSettingsFailedApply(SimpleString storeName, AddressSettings addressSettings, String detail);
 }
