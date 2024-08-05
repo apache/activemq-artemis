@@ -63,6 +63,8 @@ public interface PageCursorProvider {
     */
    void close(PageSubscription pageCursorImpl);
 
+   void checkClearPageLimit();
+
    void counterRebuildStarted();
 
    void counterRebuildDone();

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -192,7 +193,7 @@ public class PagingStoreImpl implements PagingStore {
          setUnderCallback(this::underSized).setOverCallback(this::overSized).
          setOnSizeCallback(pagingManager::addSize);
 
-      applySetting(addressSettings);
+      applySetting(addressSettings, true);
 
       this.executor = executor;
 
@@ -233,6 +234,10 @@ public class PagingStoreImpl implements PagingStore {
     */
    @Override
    public void applySetting(final AddressSettings addressSettings) {
+      applySetting(addressSettings, false);
+   }
+
+   private void applySetting(final AddressSettings addressSettings, final boolean firstTime) {
       maxSize = addressSettings.getMaxSizeBytes();
 
       maxPageReadMessages = addressSettings.getMaxReadPageMessages();
@@ -263,14 +268,15 @@ public class PagingStoreImpl implements PagingStore {
 
       pageLimitBytes = addressSettings.getPageLimitBytes();
 
-      if (pageLimitBytes != null && pageLimitBytes.longValue() < 0) {
+      if (pageLimitBytes != null && pageLimitBytes < 0) {
          logger.debug("address {} had pageLimitBytes<0, setting it as null", address);
          pageLimitBytes = null;
       }
 
-      pageLimitMessages = addressSettings.getPageLimitMessages();
+      Long originalLimitMessages = this.pageLimitMessages;
+      this.pageLimitMessages = addressSettings.getPageLimitMessages();
 
-      if (pageLimitMessages != null && pageLimitMessages.longValue() < 0) {
+      if (pageLimitMessages != null && pageLimitMessages < 0) {
          logger.debug("address {} had pageLimitMessages<0, setting it as null", address);
          pageLimitMessages = null;
       }
@@ -289,9 +295,21 @@ public class PagingStoreImpl implements PagingStore {
          this.pageLimitBytes = null;
       }
 
+      boolean pageLimitMessagesChanged = !Objects.equals(this.pageLimitMessages, originalLimitMessages);
+      boolean estimatedMaxPagesChanged = false;
+
       if (pageLimitBytes != null && pageSize > 0) {
+         Long originalEstimatedMaxPages = this.estimatedMaxPages;
          estimatedMaxPages = pageLimitBytes / pageSize;
          logger.debug("Address {} should not allow more than {} pages", storeName, estimatedMaxPages);
+         estimatedMaxPagesChanged = !Objects.equals(estimatedMaxPages, originalEstimatedMaxPages);
+      }
+
+      if (!firstTime && (estimatedMaxPagesChanged || pageLimitMessagesChanged)) {
+         if (estimatedMaxPagesChanged) {
+            checkNumberOfPages();
+         }
+         cursorProvider.checkClearPageLimit();
       }
    }
 

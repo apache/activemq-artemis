@@ -24,4 +24,8 @@ public class PageCursorProviderTestAccessor {
    public static void cleanup(PageCursorProvider provider) {
       ((PageCursorProviderImpl)provider).cleanup();
    }
+
+   public static Long getNumberOfMessagesOnSubscriptions(PageCursorProvider provider) {
+      return ((PageCursorProviderImpl)provider).getNumberOfMessagesOnSubscriptions();
+   }
 }
