@@ -284,7 +284,10 @@ public class Artemis implements Runnable {
          commandLine.addSubcommand(new DataGroup(commandLine));
          commandLine.addSubcommand(new UserGroup(commandLine));
 
-         commandLine.addSubcommand(new Run());
+         if (!Shell.inShell()) {
+            commandLine.addSubcommand(new Run());
+         }
+
          commandLine.addSubcommand(new Stop());
          commandLine.addSubcommand(new Kill());
          commandLine.addSubcommand(new PerfJournal());
