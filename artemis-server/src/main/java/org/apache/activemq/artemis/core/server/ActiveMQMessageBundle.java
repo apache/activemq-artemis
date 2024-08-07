@@ -559,4 +559,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229255, value = "Bridge {} cannot be {}. Current state: {}")
    ActiveMQIllegalStateException bridgeOperationCannotBeExecuted(String bridgeName, String failedOp, BridgeImpl.State currentState);
 
+   @Message(id = 229256, value = "Missing header {}")
+   String messageMissingHeader(SimpleString idsHeaderName);
 }
