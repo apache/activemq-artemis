@@ -84,5 +84,6 @@
       <retroactive-message-count>10</retroactive-message-count>
       <enable-metrics>false</enable-metrics>
       <id-cache-size>500</id-cache-size>
+      <initial-queue-buffer-size>128</initial-queue-buffer-size>
    </address-setting>
 </address-settings>

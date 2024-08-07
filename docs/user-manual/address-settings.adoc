@@ -394,6 +394,11 @@ that helps to detect and prevent the processing of duplicate messages based on t
 By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000` elements if not explicitly configured.
 Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
 
+initial-queue-buffer-size::
+defines the initial number of elements allocated initially on the JVM heap for the message reference buffer. This is allocated for each queue.
+If there are many queues that are created but unlikely to be used, this can be configured to a smaller value to prevent large initial allocation.
+By default, this value is `8192` if not explicitly configured. This must be a positive power of 2 (i.e. `0` is not an option).
+
 ## Literal Matches
 
 A _literal_ match is a match that contains wildcards but should be applied _without regard_ to those wildcards. In other words, the wildcards should be ignored and the address settings should only be applied to the literal (i.e. exact) match.

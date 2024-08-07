@@ -92,6 +92,7 @@ public class AddressSettingsTest extends ServerTestBase {
       addressSettingsToMerge.setMinExpiryDelay(888L);
       addressSettingsToMerge.setMaxExpiryDelay(777L);
       addressSettingsToMerge.setIDCacheSize(5);
+      addressSettingsToMerge.setInitialQueueBufferSize(256);
 
       if (copy) {
          addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
@@ -113,6 +114,7 @@ public class AddressSettingsTest extends ServerTestBase {
       assertEquals(Long.valueOf(888), addressSettings.getMinExpiryDelay());
       assertEquals(Long.valueOf(777), addressSettings.getMaxExpiryDelay());
       assertEquals(Integer.valueOf(5), addressSettings.getIDCacheSize());
+      assertEquals(Integer.valueOf(256), addressSettings.getInitialQueueBufferSize());
    }
 
    @Test

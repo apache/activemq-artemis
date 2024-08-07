@@ -107,6 +107,14 @@ public final class Validators {
       }
    };
 
+   public static final Validator<Number> POSITIVE_POWER_OF_TWO = (name, value) -> {
+      if ((value.longValue() & (value.longValue() - 1)) == 0 && value.longValue() > 0) {
+         return value;
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.positivePowerOfTwo(name, value);
+      }
+   };
+
    public static final Validator<Number> MINUS_ONE_OR_POSITIVE_INT = (name, value) -> {
       if (value.longValue() == -1 || (value.longValue() > 0 && value.longValue() <= Integer.MAX_VALUE)) {
          return value;

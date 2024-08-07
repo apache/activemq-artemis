@@ -309,6 +309,11 @@ public final class AddressSettingsInfo {
    }
    private boolean enableMetrics;
 
+   static {
+      META_BEAN.add(Integer.class, "initialQueueBufferSize", (t, p) -> t.initialQueueBufferSize = p, t -> t.initialQueueBufferSize);
+   }
+   private int initialQueueBufferSize;
+
 
    public static AddressSettingsInfo fromJSON(final String jsonString) {
       AddressSettingsInfo newInfo = new AddressSettingsInfo();
@@ -553,6 +558,10 @@ public final class AddressSettingsInfo {
 
    public boolean isEnableMetrics() {
       return enableMetrics;
+   }
+
+   public int getInitialQueueBufferSize() {
+      return initialQueueBufferSize;
    }
 }
 

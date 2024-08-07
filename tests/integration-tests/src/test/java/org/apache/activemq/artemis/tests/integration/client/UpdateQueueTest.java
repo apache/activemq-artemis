@@ -174,6 +174,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       assertEquals(10L, queue.getDelayBeforeDispatch());
       assertEquals("newUser", queue.getUser().toString());
       assertEquals(180L, queue.getRingSize());
+      assertEquals(8192, queue.getInitialQueueBufferSize());
 
       factory = new ActiveMQConnectionFactory("vm://0");
 

@@ -4465,6 +4465,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="initial-queue-buffer-size" default="8192" type="xsd:int" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  This will set the initial intermediate message reference buffer size for all queues on the matching address. Will use the
+                  default initial size if not configured.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
       </xsd:all>
 
       <xsd:attribute name="match" type="xsd:string" use="required">

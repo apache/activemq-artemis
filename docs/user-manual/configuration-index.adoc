@@ -798,6 +798,11 @@ see `auto-create-queues` & `auto-create-addresses`
 | Number of messages a management resource can browse
 | 200
 
+
+| xref:address-settings.adoc#address-settings[initial-queue-buffer-size]
+| The number of elements in the intermediate message buffer allocated for each queue
+| 8192
+
 | xref:address-model.adoc#non-durable-subscription-queue[default-purge-on-no-consumers]
 | `purge-on-no-consumers` value if none is set on the queue
 | `false`

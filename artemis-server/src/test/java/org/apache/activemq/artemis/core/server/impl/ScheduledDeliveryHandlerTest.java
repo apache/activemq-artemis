@@ -1717,5 +1717,10 @@ public class ScheduledDeliveryHandlerTest {
       public void setExclusive(boolean exclusive) {
 
       }
+
+      @Override
+      public int getInitialQueueBufferSize() {
+         return 0;
+      }
    }
 }

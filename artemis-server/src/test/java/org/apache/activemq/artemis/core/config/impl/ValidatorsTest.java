@@ -152,4 +152,16 @@ public class ValidatorsTest {
       ValidatorsTest.success(Validators.NULL_OR_TWO_CHARACTERS, null);
    }
 
+   @Test
+   public void testPOSITIVE_POWER_OF_TWO() {
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, 0);
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, -10);
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, 127);
+
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 2);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 64);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 1024);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 16777216);
+   }
+
 }
