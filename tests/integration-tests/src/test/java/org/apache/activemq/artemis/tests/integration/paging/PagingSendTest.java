@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.paging;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -34,10 +35,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.jupiter.api.BeforeEach;
@@ -285,6 +288,103 @@ public class PagingSendTest extends ActiveMQTestBase {
          // execute the same count a couple times. This is to make sure the iterators have no impact regardless
          // the number of times they are called
          assertEquals(numberOfMessages, processCountThroughIterator(queue));
+      }
+   }
+
+   @Test
+   public void testPageLimitBytesValidation() throws Exception {
+
+      try (ClientSessionFactory sf = createSessionFactory(locator)) {
+         ClientSession session = sf.createSession(false, false);
+
+         SimpleString queueAddr = SimpleString.of("FOO");
+         session.createQueue(QueueConfiguration.of(queueAddr));
+
+         int size = 1048576;
+         AddressSettings addressSettings = new AddressSettings();
+         addressSettings.setPageFullMessagePolicy(PageFullMessagePolicy.FAIL);
+         addressSettings.setPageSizeBytes(size);
+         addressSettings.setPageLimitBytes(Long.valueOf(size));
+         addressSettings.setMaxSizeBytes(size);
+
+         server.getAddressSettingsRepository().addMatch("FOO", addressSettings);
+
+         int totalMessages = 15;
+         int messageSize = 90000;
+         sendMessageBatch(totalMessages, messageSize, session, queueAddr);
+
+         Queue queue = server.locateQueue(queueAddr);
+
+         // Give time Queue.deliverAsync to deliver messages
+         assertTrue(waitForMessages(queue, totalMessages, 10000));
+
+         PagingStore queuePagingStore = queue.getPagingStore();
+         assertTrue(queuePagingStore != null && queuePagingStore.isPaging());
+
+         // set page size bytes to be larger than pageLimitBytes
+         addressSettings.setPageSizeBytes(size * 2);
+         server.getAddressSettingsRepository().addMatch("FOO", addressSettings);
+
+         // check the original pageSizeBytes is not changed
+         assertEquals(size, queuePagingStore.getPageSizeBytes());
+
+         // send a messages should be allowed because the page file still have space
+         sendMessageBatch(1, messageSize, session, queueAddr);
+         assertTrue(waitForMessages(queue, totalMessages + 1, 10000));
+      }
+   }
+
+   @Test
+   public void testPageLimitBytesValidationOnRestart() throws Exception {
+
+      try (ClientSessionFactory sf = createSessionFactory(locator)) {
+         ClientSession session = sf.createSession(false, false);
+
+         SimpleString queueAddr = SimpleString.of("FOO");
+         session.createQueue(QueueConfiguration.of(queueAddr));
+
+         int size = 1024 * 50;
+         AddressSettings addressSettings = new AddressSettings();
+         addressSettings.setPageFullMessagePolicy(PageFullMessagePolicy.FAIL);
+         addressSettings.setPageSizeBytes(size);
+         addressSettings.setPageLimitBytes(Long.valueOf(size * 10));
+         addressSettings.setMaxSizeBytes(size);
+
+         server.getAddressSettingsRepository().addMatch("FOO", addressSettings);
+
+         int totalMessages = 30;
+         int messageSize = 1024 * 10;
+         sendMessageBatch(totalMessages, messageSize, session, queueAddr);
+
+         Queue queue = server.locateQueue(queueAddr);
+
+         // Give time Queue.deliverAsync to deliver messages
+         assertTrue(waitForMessages(queue, totalMessages, 10000));
+
+         PagingStore queuePagingStore = queue.getPagingStore();
+         assertTrue(queuePagingStore != null && queuePagingStore.isPaging());
+
+         long existingPages = queuePagingStore.getNumberOfPages();
+         assertTrue(existingPages > 4);
+
+         // restart the server and the invalid settings are not applied too.
+         server.stop(true);
+         waitForServerToStop(server);
+
+         addressSettings.setPageLimitBytes(Long.valueOf(size * 4));
+         server.getAddressSettingsRepository().addMatch("FOO", addressSettings);
+
+         server.start();
+         waitForServerToStart(server);
+
+         queue = server.locateQueue(queueAddr);
+         queuePagingStore = queue.getPagingStore();
+
+         // check settings not applied
+         assertEquals(0, queuePagingStore.getPageSizeBytes());
+         assertNull(queuePagingStore.getPageFullMessagePolicy());
+         assertNull(queuePagingStore.getPageLimitBytes());
+         assertEquals(0, queuePagingStore.getMaxSize());
       }
    }
 
