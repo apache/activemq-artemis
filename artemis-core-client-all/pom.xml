@@ -38,44 +38,30 @@
    <build>
       <pluginManagement>
          <plugins>
-            <!-- Override root pom definition, so as to ensure the shading has a fresh base sources jar
-                 for the module before shading, with nothing much in it, and doesnt instead grab a large
-                 already-shaded remote snapshot, possibly each day (local) or on every build (CI) -->
+            <!-- Ensure the shading has a fresh base sources jar for the module before shading,
+                 with nothing much in it, and doesnt instead grab a large already-shaded remote
+                 snapshot, possibly each day (local) or on every build (CI) -->
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-source-plugin</artifactId>
-               <executions>
-                  <execution>
-                     <id>attach-sources</id>
-                     <phase>package</phase>
-                     <goals>
-                        <goal>jar-no-fork</goal>
-                     </goals>
-                     <configuration>
-                        <forceCreation>true</forceCreation>
-                     </configuration>
-                  </execution>
-               </executions>
+               <configuration>
+                  <forceCreation>true</forceCreation>
+               </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-jar-plugin</artifactId>
+               <configuration>
+                  <!-- Ensures the shading is always working upon a fresh base jar, which has
+                       nothing much in it, rather than potentially working on already-shaded
+                       output still present from prior runs and renamed to have the base name -->
+                  <forceCreation>true</forceCreation>
+               </configuration>
             </plugin>
          </plugins>
       </pluginManagement>
 
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>default-jar</id>
-                  <configuration>
-                     <!-- Ensures the shading is always working upon a fresh base jar, which has
-                          nothing much in it, rather than potentially working on already-shaded
-                          output still present from prior runs and renamed to have the base name -->
-                     <forceCreation>true</forceCreation>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
@@ -86,7 +72,7 @@
                      <goal>shade</goal>
                   </goals>
                   <configuration>
-                     <createSourcesJar>true</createSourcesJar>
+                     <createSourcesJar>${shade-plugin-create-sources}</createSourcesJar>
                      <shadeSourcesContent>true</shadeSourcesContent>
                      <filters>
                         <filter>

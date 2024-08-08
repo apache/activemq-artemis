@@ -220,6 +220,8 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+      <shade-plugin-create-sources>false</shade-plugin-create-sources>
+
       <maven.test.failure.ignore>false</maven.test.failure.ignore>
       <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
@@ -432,6 +434,9 @@
          <modules>
             <module>artemis-website</module>
          </modules>
+         <properties>
+            <shade-plugin-create-sources>true</shade-plugin-create-sources>
+         </properties>
          <build>
             <plugins>
                <plugin>
@@ -478,16 +483,32 @@
                      </execution>
                   </executions>
                </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                           <goal>jar-no-fork</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
             </plugins>
          </build>
       </profile>
-      <!-- Override the apache-release profile from the parent to skip creating
-           a source-release archive here, it is done in artemis-distribution. -->
       <profile>
          <id>apache-release</id>
+         <properties>
+            <shade-plugin-create-sources>true</shade-plugin-create-sources>
+         </properties>
          <build>
             <plugins>
                <plugin>
+                  <!-- Override the apache-release profile from the parent to skip creating
+                       a source-release archive here, it is done in artemis-distribution. -->
+                  <inherited>false</inherited>
                   <artifactId>maven-assembly-plugin</artifactId>
                   <executions>
                      <execution>
@@ -825,20 +846,6 @@
                <version>${version.batavia}</version>
             </plugin>
             <plugin>
-               <inherited>true</inherited>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-source-plugin</artifactId>
-               <executions>
-                  <execution>
-                     <id>attach-sources</id>
-                     <phase>verify</phase>
-                     <goals>
-                        <goal>jar-no-fork</goal>
-                     </goals>
-                  </execution>
-               </executions>
-            </plugin>
-            <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-surefire-plugin</artifactId>
                <configuration>
@@ -1064,9 +1071,6 @@
             <configuration>
                <noindex>true</noindex>
             </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-source-plugin</artifactId>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
