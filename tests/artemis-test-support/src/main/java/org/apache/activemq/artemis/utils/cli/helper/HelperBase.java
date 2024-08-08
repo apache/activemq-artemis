@@ -33,20 +33,20 @@ public class HelperBase {
    File artemisInstance;
 
    HelperBase(String homeProperty) {
-      String propertyHome = System.getProperty(homeProperty);
-      if (propertyHome == null) {
-         throw new IllegalArgumentException("System property " + propertyHome + " not defined");
-      }
-      if (propertyHome != null) {
-         artemisHome = new File(propertyHome);
-      }
+      setArtemisHome(getHome(homeProperty));
       logger.debug("using artemisHome as {}", artemisHome);
-      if (!artemisHome.exists()) {
-         throw new IllegalArgumentException(artemisHome + " folder does not exist in the file system");
+   }
+
+   public static File getHome() {
+      return getHome(ARTEMIS_HOME_PROPERTY);
+   }
+
+   public static File getHome(String homeProperty) {
+      String valueHome = System.getProperty(homeProperty);
+      if (valueHome == null) {
+         throw new IllegalArgumentException("System property " + valueHome + " not defined");
       }
-      if (!new File(artemisHome, "/bin").exists() || !new File(artemisHome, "/bin/artemis").exists()) {
-         throw new IllegalArgumentException("invalid bin folder");
-      }
+      return new File(valueHome);
    }
 
    public File getArtemisHome() {
@@ -55,6 +55,13 @@ public class HelperBase {
 
    public HelperBase setArtemisHome(File artemisHome) {
       this.artemisHome = artemisHome;
+      if (!artemisHome.exists()) {
+         throw new IllegalArgumentException(artemisHome + " folder does not exist in the file system");
+      }
+      if (!new File(artemisHome, "/bin").exists() || !new File(artemisHome, "/bin/artemis").exists()) {
+         throw new IllegalArgumentException("invalid bin folder");
+      }
+
       return this;
    }
 

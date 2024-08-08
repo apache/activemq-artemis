@@ -24,10 +24,13 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
  */
 public abstract class QuorumVote<V extends Vote, T> {
 
-   private SimpleString name;
+   private final SimpleString name;
 
-   public QuorumVote(SimpleString name) {
+   private final SimpleString oldName;
+
+   public QuorumVote(SimpleString name, SimpleString oldName) {
       this.name = name;
+      this.oldName = oldName;
    }
 
    /**
@@ -76,5 +79,9 @@ public abstract class QuorumVote<V extends Vote, T> {
     */
    public SimpleString getName() {
       return name;
+   }
+
+   public SimpleString getOldName() {
+      return oldName;
    }
 }

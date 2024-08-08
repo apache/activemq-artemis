@@ -221,17 +221,26 @@ public class SpawnedVMSupport {
 
       Process process = builder.start();
 
+      spawnLoggers(wordMatch, wordRunning, className, logOutput, logErrorOutput, process);
+
+      if (startedProcesses != null) {
+         startedProcesses.put(process, className);
+      }
+      return process;
+   }
+
+   public static void spawnLoggers(String wordMatch,
+                                 Runnable wordRunning,
+                                 String className,
+                                 boolean logOutput,
+                                 boolean logErrorOutput,
+                                 Process process) throws ClassNotFoundException {
       SpawnedVMSupport.startLogger(logOutput, wordMatch, wordRunning, className, process);
 
       // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
       // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
       ProcessLogger errorLogger = new ProcessLogger(logErrorOutput, process.getErrorStream(), className, wordMatch, wordRunning);
       errorLogger.start();
-
-      if (startedProcesses != null) {
-         startedProcesses.put(process, className);
-      }
-      return process;
    }
 
    /**

@@ -106,6 +106,12 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-features</artifactId>
          <classifier>features</classifier>
@@ -265,6 +271,59 @@
       </plugins>
    </build>
    <profiles>
+      <profile>
+         <id>compatibility-tests-distribution</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>unpack-2.30.0</id>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                           <artifactItems>
+                              <artifactItem>
+                                 <groupId>org.apache.activemq</groupId>
+                                 <artifactId>apache-artemis</artifactId>
+                                 <version>2.30.0</version>
+                                 <classifier>bin</classifier>
+                                 <type>zip</type>
+                                 <outputDirectory>${basedir}/target/old-releases</outputDirectory>
+                              </artifactItem>
+                           </artifactItems>
+                        </configuration>
+                     </execution>
+                     <!-- TODO: Switch this to 2.37.0 as soon as we release it.
+                          It will be important to test the switch at the current and previous version. -->
+                     <execution>
+                        <id>unpack-2.36.0</id>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                           <artifactItems>
+                              <artifactItem>
+                                 <groupId>org.apache.activemq</groupId>
+                                 <artifactId>apache-artemis</artifactId>
+                                 <version>2.36.0</version>
+                                 <classifier>bin</classifier>
+                                 <type>zip</type>
+                                 <outputDirectory>${basedir}/target/old-releases</outputDirectory>
+                              </artifactItem>
+                           </artifactItems>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
       <profile>
          <id>compatibility-tests</id>
          <properties>

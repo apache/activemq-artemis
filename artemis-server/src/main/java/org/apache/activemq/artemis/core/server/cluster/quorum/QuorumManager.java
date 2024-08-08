@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.quorum;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
@@ -50,6 +53,21 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
  * remaining nodes in a cluster for a specific outcome
  */
 public final class QuorumManager implements ClusterTopologyListener, ActiveMQComponent {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final int VOTE_RESPONSE_TIMEOUT;
+
+   static {
+      int parsedTimeout = 2000; // default value
+      try {
+         parsedTimeout = Integer.parseInt(System.getProperty(Quorum.class.getName() + ".VOTE_RESPONSE_TIMEOUT", "2000"));
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
+      VOTE_RESPONSE_TIMEOUT = parsedTimeout;
+   }
+
 
    private final ExecutorService executor;
 
@@ -276,6 +294,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
     * @return the updated vote
     */
    private Vote vote(SimpleString handler, Vote vote) {
+      logger.trace("Vote for {}", handler);
       QuorumVoteHandler quorumVoteHandler = handlers.get(handler);
       return quorumVoteHandler.vote(vote);
    }
@@ -310,21 +329,31 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    }
 
    private QuorumVoteHandler getVoteHandler(SimpleString handler) {
+      if (handler.equals(QuorumVoteServerConnect.OLD_PRIMARY_FAILOVER_VOTE)) {
+         handler = QuorumVoteServerConnect.PRIMARY_FAILOVER_VOTE;
+      }
       return handlers.get(handler);
    }
 
    public void handleQuorumVote(Channel clusterChannel, Packet packet) {
       QuorumVoteMessage quorumVoteMessage = (QuorumVoteMessage) packet;
+      SimpleString handlerUsed = quorumVoteMessage.getHandler();
+      if (quorumVoteMessage.getHandler().equals(QuorumVoteServerConnect.OLD_PRIMARY_FAILOVER_VOTE)) {
+         quorumVoteMessage.setHandler(QuorumVoteServerConnect.PRIMARY_FAILOVER_VOTE);
+      }
+
       QuorumVoteHandler voteHandler = getVoteHandler(quorumVoteMessage.getHandler());
       if (voteHandler == null) {
-         ActiveMQServerLogger.LOGGER.noVoteHandlerConfigured();
+         logger.trace("Could not find {}", quorumVoteMessage.getHandler());
+         ActiveMQServerLogger.LOGGER.noVoteHandlerConfigured(handlerUsed);
          return;
       }
       quorumVoteMessage.decode(voteHandler);
       ActiveMQServerLogger.LOGGER.receivedQuorumVoteRequest(quorumVoteMessage.getVote().toString());
+      logger.trace("Receiving handler = {}", quorumVoteMessage.getHandler());
       Vote vote = vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
       ActiveMQServerLogger.LOGGER.sendingQuorumVoteResponse(vote.toString());
-      clusterChannel.send(new QuorumVoteReplyMessage(quorumVoteMessage.getHandler(), vote));
+      clusterChannel.send(new QuorumVoteReplyMessage(handlerUsed, vote));
    }
 
    private final class VoteRunnableHolder {
@@ -348,21 +377,57 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       }
    }
 
-   private Vote sendQuorumVote(ClusterControl clusterControl, SimpleString handler, Vote vote) {
+   private Vote sendQuorumVote(ClusterControl clusterControl, SimpleString handler, SimpleString oldHandlerName, Vote vote) {
       try {
          final ClientSessionFactoryInternal sessionFactory = clusterControl.getSessionFactory();
          final String remoteAddress = sessionFactory.getConnection().getRemoteAddress();
          ActiveMQServerLogger.LOGGER.sendingQuorumVoteRequest(remoteAddress, vote.toString());
-         QuorumVoteReplyMessage replyMessage = (QuorumVoteReplyMessage) clusterControl.getClusterChannel().get()
-            .sendBlocking(new QuorumVoteMessage(handler, vote), PacketImpl.QUORUM_VOTE_REPLY);
+
+         QuorumVoteReplyMessage replyMessage = null;
+
+         Channel clusterChannel = clusterControl.getClusterChannel().get();
+
+         if (clusterChannel.requireSpecialVotingHandling()) {
+            logger.trace("Using special handling mechanism for Voting to cope with previous version");
+            // if the wire versioning is from before 2.36.0, we try the vote for former versions
+            replyMessage = voteFormerVersions(handler, oldHandlerName, vote, clusterChannel);
+         } else {
+            logger.trace("Using REGULAR voting");
+         }
+
+         if (replyMessage == null) {
+            // if still no response, or if we are using a current version, we will try the regular voting as usual
+            replyMessage = (QuorumVoteReplyMessage) clusterChannel.sendBlocking(new QuorumVoteMessage(handler, vote), PacketImpl.QUORUM_VOTE_REPLY);
+         }
+
+         logger.trace("Got reply message {}", replyMessage);
+
          QuorumVoteHandler voteHandler = getVoteHandler(replyMessage.getHandler());
          replyMessage.decodeRest(voteHandler);
          Vote voteResponse = replyMessage.getVote();
          ActiveMQServerLogger.LOGGER.receivedQuorumVoteResponse(remoteAddress, voteResponse.toString());
          return voteResponse;
       } catch (ActiveMQException e) {
+         logger.debug("{}", e.getMessage(), e);
          return null;
       }
+   }
+
+   private static QuorumVoteReplyMessage voteFormerVersions(SimpleString handler,
+                                                                   SimpleString oldHandlerName,
+                                                                   Vote vote,
+                                                                   Channel clusterChannel) throws ActiveMQException {
+      QuorumVoteReplyMessage replyMessage;
+      // We first try the current packet with a medium timeout
+      replyMessage = (QuorumVoteReplyMessage) clusterChannel.sendBlocking(new QuorumVoteMessage(handler, vote), -1, PacketImpl.QUORUM_VOTE_REPLY, VOTE_RESPONSE_TIMEOUT, false);
+      logger.trace("This is the reply message from the current version = {}", replyMessage);
+
+      // if no response, we try the previous versions, with still a medium timeout
+      if (replyMessage == null && oldHandlerName != null) {
+         replyMessage = (QuorumVoteReplyMessage) clusterChannel.sendBlocking(new QuorumVoteMessage(oldHandlerName, vote), -1, PacketImpl.QUORUM_VOTE_REPLY, VOTE_RESPONSE_TIMEOUT, false);
+         logger.trace("This is the reply message from the older version = {}", replyMessage);
+      }
+      return replyMessage;
    }
 
    /**
@@ -394,7 +459,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
             vote = quorumVote.connected();
             if (vote.isRequestServerVote()) {
-               vote = sendQuorumVote(clusterControl, quorumVote.getName(), vote);
+               vote = sendQuorumVote(clusterControl, quorumVote.getName(), quorumVote.getOldName(), vote);
                quorumVote.vote(vote);
             } else {
                quorumVote.vote(vote);

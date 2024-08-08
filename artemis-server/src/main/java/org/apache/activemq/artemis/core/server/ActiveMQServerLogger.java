@@ -1473,8 +1473,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224089, value = "Failed to calculate persistent size", level = LogMessage.Level.WARN)
    void errorCalculatePersistentSize(Throwable e);
 
-   @LogMessage(id = 224090, value = "This node is not configured for Quorum Voting, all nodes must be configured for HA", level = LogMessage.Level.WARN)
-   void noVoteHandlerConfigured();
+   @LogMessage(id = 224090, value = "This node is not configured for the proper Quorum Voting, all nodes must be configured for the same policy. Handler received = {}", level = LogMessage.Level.WARN)
+   void noVoteHandlerConfigured(SimpleString handlerReceived);
 
    @LogMessage(id = 224091, value = "Bridge {} is unable to connect to destination. Retrying", level = LogMessage.Level.WARN)
    void errorConnectingBridgeRetry(Bridge bridge);

@@ -250,6 +250,15 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public Packet sendBlocking(Packet packet,
+                                 int reconnectID,
+                                 byte expectedPacket,
+                                 long timeout,
+                                 boolean failOnTimeout) throws ActiveMQException {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
       public void setHandler(ChannelHandler handler) {
          throw new UnsupportedOperationException();
       }
@@ -272,7 +281,6 @@ public class BackupSyncDelay implements Interceptor {
       @Override
       public void transferConnection(CoreRemotingConnection newConnection) {
          throw new UnsupportedOperationException();
-
       }
 
       @Override
