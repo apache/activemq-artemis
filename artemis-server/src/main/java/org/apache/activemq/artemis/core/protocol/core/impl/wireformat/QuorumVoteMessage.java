@@ -60,6 +60,10 @@ public class QuorumVoteMessage extends PacketImpl {
       return handler;
    }
 
+   public void setHandler(SimpleString handler) {
+      this.handler = handler;
+   }
+
    public Vote getVote() {
       return vote;
    }

@@ -57,6 +57,14 @@ public interface Channel {
     */
    boolean supports(byte packetID, int version);
 
+   /*
+    * Due to ARTEMIS-4986, older versions (2.30.0 in particular) will require a special voting handling,
+    * where we would perform specific retries at older values.
+    */
+   default boolean requireSpecialVotingHandling() {
+      return false;
+   }
+
    /**
     * Sends a packet on this channel.
     *
@@ -133,6 +141,8 @@ public interface Channel {
     * @throws ActiveMQException if an error occurs during the send
     */
    Packet sendBlocking(Packet packet, int reconnectID, byte expectedPacket) throws ActiveMQException;
+
+   Packet sendBlocking(Packet packet, int reconnectID, byte expectedPacket, long timeout, boolean failOnTimeout) throws ActiveMQException;
 
    /**
     * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
