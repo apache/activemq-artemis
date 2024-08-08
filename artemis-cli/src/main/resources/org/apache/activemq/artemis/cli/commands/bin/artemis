@@ -48,7 +48,16 @@ HAWTIO_ROLE="NO_HAWTIO_ROLE"
 
 # Load Profile Data
 ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
-. "$ARTEMIS_INSTANCE_ETC/artemis.profile"
+
+if [ -z "$ARTEMIS_PROFILE" ] ; then
+  if [ "$1" = "run" ]; then
+    ARTEMIS_PROFILE='artemis.profile'
+  else
+    ARTEMIS_PROFILE="artemis-utility.profile"
+  fi
+fi
+
+. "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}"
 
 
 CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
@@ -101,6 +110,7 @@ if [ -f "$ARTEMIS_OOME_DUMP" ] ; then
 fi
 
 exec "$JAVACMD" \
+    $LOGGING_ARGS \
     $JAVA_ARGS \
     -Dhawtio.role="$HAWTIO_ROLE" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \

@@ -12,6 +12,21 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.37.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354977[Full release notes]
+
+=== Highlights
+
+* The environment variables of the CLI commands other than run is configurable via the `artemis-utility.profile` file.
+* The logging configuration of the CLI commands other than run is configurable via the `log4j2-utility.properties` file.
+* The run command has been removed from the artemis shell, use the `artemis` script (`artemis.cmd` on Windows) to execute it.
+
+=== Upgrading from 2.36.0
+
+The CLI commands other than run will now need to define the environment variables via the `artemis-utility.profile` file and the logging configuration via the `log4j2-utility.properties` file.
+See xref:logging.adoc#logging[logging] for more information.
+
 == 2.36.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354818[Full release notes]
@@ -309,7 +324,7 @@ Most existing customisations to the old configuration files and scripts will be 
 As such you should compare the old configuration files with the refreshed ones and then port any missing customisations you may have made as necessary.
 The upgrade command itself will copy the older files it changes to an `old-config-bkp.` folder within the instance directory.
 
-Similarly, if you had customised the old `logging.properties` file you may need to prepare analogous changes for the new `log4j2.properties` file.
+Similarly, if you had customised the old `logging.properties` file you may need to prepare analogous changes for the new `log4j2.properties` and `log4j2-utility.properties` files.
 ====
 
 Note also that the `configuration-file-refresh-period` setting in `broker.xml` no longer covers logging configuration refresh.

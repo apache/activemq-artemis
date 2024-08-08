@@ -24,11 +24,13 @@ The main configuration file is `etc/broker.xml`.
 Similarly to ActiveMQ's `conf/activemq.xml`, this is where you configure most of the aspects of the broker, like connector ports, destination names, security policies, etc.
 We will go through this file in details in the following articles.
 
-The `etc/artemis.profile` file is similar to the `bin/env` file in ActiveMQ.
-Here you can configure environment variables for the broker, mostly regular JVM args related to SSL context, debugging, etc.
+The `etc/artemis.profile` and `etc/artemis-utility.profile` files are similar to the `bin/env` file in ActiveMQ.
+In the `etc/artemis.profile` you can configure environment variables for the broker started by executing the `run` command, mostly regular JVM args related to SSL context, debugging, etc.
+In the `etc/artemis-utility.profile` file you can configure environment variables for all CLI commands other than run, mostly regular JVM args related to SSL context, debugging, etc.
 
 There's not much difference in logging configuration between two brokers, so anyone familiar with Java logging systems in general will find herself at home here.
-The `etc/log4j-config.properties` file is where it's all configured.
+The `etc/log4j2.properties` file is where it's all configured for the broker.
+The `etc/log4j2-utility.properties` file is where it's all configured for all CLI commands other than run.
 
 Finally, we have JAAS configuration files (`login.config`, `artemis-users.properties` and `artemis-roles.properties`), which cover same roles as in ActiveMQ and we will go into more details on these in the article that covers security.
 

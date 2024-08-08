@@ -83,6 +83,9 @@ public class Upgrade extends InstallAbstract {
 
       final File bin = new File(directory, "bin");
       File etcFolder = new File(directory, etc);
+      File dataFolder = new File(directory, data);
+      File logFolder = new File(directory, LOG_DIRNAME);
+      File oomeDumpFile = new File(logFolder, OOM_DUMP_FILENAME);
 
       final File artemisCmdScript = new File(bin, Create.ARTEMIS_CMD);
       final File artemisScript = new File(bin, Create.ARTEMIS);
@@ -106,7 +109,7 @@ public class Upgrade extends InstallAbstract {
       }
 
       HashMap<String, String> filters = new HashMap<>();
-      Create.addScriptFilters(filters, getHome(), getInstance(), etcFolder, new File(getInstance(), "notUsed"), new File(getInstance(), "om-not-used.dmp"), javaMemory, getJavaOptions(), "NA");
+      Create.addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, getJavaOptions(), getJavaUtilityOptions(), "NA");
 
       if (IS_WINDOWS) {
          // recreating the service.exe and config in case we ever upgrade it
@@ -154,6 +157,17 @@ public class Upgrade extends InstallAbstract {
          write("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD, artemisProfileCmdTmp, filters, false, false);
          upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, artemisProfileCmdTmp, artemisProfileCmd, artemisProfileCmdBkp,
                     "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+
+         File artemisUtilityProfileCmd = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
+         File artemisUtilityProfileCmdTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
+         File artemisUtilityProfileCmdBkp = new File(etcBkp, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
+         if (artemisUtilityProfileCmd.exists()) {
+            write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD, artemisUtilityProfileCmdTmp, filters, false, false);
+            upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, artemisUtilityProfileCmdTmp, artemisUtilityProfileCmd, artemisUtilityProfileCmdBkp,
+                       "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+         } else {
+            write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD, artemisUtilityProfileCmd, filters, false, false);
+         }
       }
 
       if (IS_NIX) {
@@ -174,6 +188,17 @@ public class Upgrade extends InstallAbstract {
          upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS,
                     new File(tmp, Create.ETC_ARTEMIS_PROFILE), new File(etcFolder, Create.ETC_ARTEMIS_PROFILE), new File(etcBkp, Create.ETC_ARTEMIS_PROFILE), "ARTEMIS_INSTANCE=",
                     "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLE=");
+
+         File artemisUtilityProfile = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE);
+         File artemisUtilityProfileTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
+         File artemisUtilityProfileBkp = new File(etcBkp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
+         if (artemisUtilityProfile.exists()) {
+            write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE, artemisUtilityProfileTmp, filters, false, false);
+            upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS, artemisUtilityProfileTmp, artemisUtilityProfile, artemisUtilityProfileBkp,
+               "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=");
+         } else {
+            write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE, artemisUtilityProfile, filters, false, false);
+         }
       }
 
       final File bootstrapXml = new File(etcFolder, Create.ETC_BOOTSTRAP_XML);
@@ -346,6 +371,15 @@ public class Upgrade extends InstallAbstract {
                  OutputStream outputStream = new FileOutputStream(newLogging)) {
                copy(inputStream, outputStream);
             }
+         }
+      }
+
+      File newUtilityLogging = new File(etcFolder, Create.ETC_LOG4J2_UTILITY_PROPERTIES);
+      if (!newUtilityLogging.exists()) {
+         context.out.println("Creating " + newUtilityLogging);
+         try (InputStream inputStream = openStream("etc/" + Create.ETC_LOG4J2_UTILITY_PROPERTIES);
+              OutputStream outputStream = new FileOutputStream(newUtilityLogging)) {
+            copy(inputStream, outputStream);
          }
       }
    }
