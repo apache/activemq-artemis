@@ -278,6 +278,8 @@
                      </resources>
                   </configuration>
                </execution>
+               <!-- This creates a copy of various config files (filtered, as above in resources config) to
+                    be used in CompareUpgradeTest to verify CLI upgrade behaviour for backups made -->
                <execution>
                   <id>copy-reference-for-upgrade-backup-checks</id>
                   <phase>process-test-resources</phase>
@@ -360,8 +362,11 @@
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- A test, CompareUpgradeTest#testCompareWindowsFreshInstance, removes the "Expected"
+                          suffixes included here, during comparison to the instance upgraded above -->
                      <allowAnonymous>true</allowAnonymous>
                      <instance>${basedir}/target/classes/servers/windowsUpgradeExpected</instance>
+                     <dataFolder>data-customExpected</dataFolder>
                      <noWeb>false</noWeb>
                      <role>amq</role>
                      <user>y</user>
@@ -382,8 +387,11 @@
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- A test, CompareUpgradeTest#testCompareLinuxFreshInstance, removes the "Expected"
+                          suffixes included here, during comparison to the instance upgraded above -->
                      <allowAnonymous>true</allowAnonymous>
                      <instance>${basedir}/target/classes/servers/linuxUpgradeExpected</instance>
+                     <dataFolder>data-customExpected</dataFolder>
                      <noWeb>false</noWeb>
                      <role>amq</role>
                      <user>y</user>

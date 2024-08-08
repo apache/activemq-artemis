@@ -71,12 +71,15 @@ public class Create extends InstallAbstract {
    public static final String ARTEMIS_SERVICE_XML = "artemis-service.xml";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/" + ARTEMIS_SERVICE_XML;
    public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
+   public static final String ETC_ARTEMIS_UTILITY_PROFILE_CMD = "artemis-utility.profile.cmd";
    public static final String ARTEMIS = "artemis";
    public static final String BIN_ARTEMIS = "bin/" + ARTEMIS;
    public static final String ARTEMIS_SERVICE = "artemis-service";
    public static final String BIN_ARTEMIS_SERVICE = "bin/" + ARTEMIS_SERVICE;
    public static final String ETC_ARTEMIS_PROFILE = "artemis.profile";
+   public static final String ETC_ARTEMIS_UTILITY_PROFILE = "artemis-utility.profile";
    public static final String ETC_LOG4J2_PROPERTIES = "log4j2.properties";
+   public static final String ETC_LOG4J2_UTILITY_PROPERTIES = "log4j2-utility.properties";
    public static final String ETC_BOOTSTRAP_XML = "bootstrap.xml";
    public static final String ETC_MANAGEMENT_XML = "management.xml";
    public static final String ETC_BROKER_XML = "broker.xml";
@@ -152,8 +155,6 @@ public class Create extends InstallAbstract {
    @Option(names = "--force", description = "Overwrite configuration at destination directory.")
    private boolean force;
 
-   @Option(names = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
-   private String data = "data";
 
    @Option(names = "--clustered", description = "Enable clustering.")
    private boolean clustered = false;
@@ -713,12 +714,13 @@ public class Create extends InstallAbstract {
       new File(directory, "tmp").mkdirs();
       new File(directory, "lib").mkdirs();
       File dataFolder = createDirectory(data, directory);
-      File logFolder = createDirectory("log", directory);
-      File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
+      File logFolder = createDirectory(LOG_DIRNAME, directory);
+      File oomeDumpFile = new File(logFolder, OOM_DUMP_FILENAME);
 
       String processedJavaOptions = getJavaOptions();
+      String processedJavaUtilityOptions = getJavaUtilityOptions();
 
-      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, processedJavaOptions, role);
+      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, processedJavaOptions, processedJavaUtilityOptions, role);
 
       boolean allowAnonymous = isAllowAnonymous();
 
@@ -758,6 +760,7 @@ public class Create extends InstallAbstract {
          write(BIN_ARTEMIS_SERVICE_EXE_CONFIG, force);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
          writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
+         writeEtc(ETC_ARTEMIS_UTILITY_PROFILE_CMD, etcFolder, filters, false);
       }
 
       if (IS_NIX) {
@@ -766,9 +769,11 @@ public class Create extends InstallAbstract {
          write(BIN_ARTEMIS_SERVICE, filters, true);
          makeExec(BIN_ARTEMIS_SERVICE);
          writeEtc(ETC_ARTEMIS_PROFILE, etcFolder, filters, true);
+         writeEtc(ETC_ARTEMIS_UTILITY_PROFILE, etcFolder, filters, true);
       }
 
       writeEtc(ETC_LOG4J2_PROPERTIES, etcFolder, null, false);
+      writeEtc(ETC_LOG4J2_UTILITY_PROPERTIES, etcFolder, null, false);
 
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
@@ -883,6 +888,7 @@ public class Create extends InstallAbstract {
                           File oomeDumpFile,
                           String javaMemory,
                           String javaOptions,
+                          String javaUtilityOptions,
                           String role) throws IOException {
       filters.put("${artemis.home}", path(home));
       // I am using a different replacing pattern here, for cases where want an actual ${artemis.instance} in the output
@@ -900,6 +906,7 @@ public class Create extends InstallAbstract {
       filters.put("${artemis.instance.data}", path(dataFolder));
       filters.put("${java-memory}", javaMemory);
       filters.put("${java-opts}", javaOptions);
+      filters.put("${java-utility-opts}", javaUtilityOptions);
       filters.put("${role}", role);
    }
 

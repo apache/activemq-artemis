@@ -186,9 +186,10 @@ public class CompareUpgradeTest {
 
    @Test
    public void testWindows() throws Exception {
-      String windows = basedir + "/target/classes/servers/windowsUpgrade";
-      String windowsBin = windows + "/bin";
-      String windowsETC = basedir + "/target/classes/servers/windowsUpgradeETC";
+      final String windows = basedir + "/target/classes/servers/windowsUpgrade";
+      final String windowsBin = windows + "/bin";
+      final String windowsETC = basedir + "/target/classes/servers/windowsUpgradeETC";
+      final String windowsData = windows + "/data-custom";
 
       checkExpectedValues(windowsBin + "/artemis.cmd", "set ARTEMIS_INSTANCE_ETC=", "\"" + windowsETC + "\"");
       Map<String, String> result = checkExpectedValues(windowsBin + "/artemis-service.xml",
@@ -196,23 +197,23 @@ public class CompareUpgradeTest {
                                                        "<env name=\"ARTEMIS_INSTANCE\" value=", "\"" + windows  + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_ETC\" value=", "\"" + windowsETC + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_URI\" value=", "\"file:" + windows + "/\"/>",
-                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windows + "/data\"/>"
+                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windowsData + "\"/>"
       );
 
       String home = result.get("<env name=\"ARTEMIS_HOME\" value=");
       assertNotNull(home);
       assertFalse(home.contains("must-change"), "home value must be changed during upgrade");
 
-      result = checkExpectedValues(windowsETC + "/artemis.profile.cmd",
+      Map<String, String> brokerProfileResult = checkExpectedValues(windowsETC + "/artemis.profile.cmd",
                                    "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
                                    "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
-                                   "set ARTEMIS_DATA_DIR=","\"" + windows + "/data\"",
+                                   "set ARTEMIS_DATA_DIR=","\"" + windowsData + "\"",
                                    "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
                                    "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
                                    "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
                                    "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
 
-      home = result.get("set ARTEMIS_HOME=");
+      home = brokerProfileResult.get("set ARTEMIS_HOME=");
       assertNotNull(home);
       assertFalse(home.contains("must-change"), "home value must be changed during upgrade");
 
@@ -224,28 +225,47 @@ public class CompareUpgradeTest {
 
       assertFalse(oldLogging.exists(), "Old logging must be removed by upgrade");
       assertTrue(newLogging.exists(), "New Logging must be installed by upgrade");
+
+      final String utilityProfilePath = windowsETC + "/artemis-utility.profile.cmd";
+      final File utilityProfile = new File(utilityProfilePath);
+      assertTrue(utilityProfile.exists(), "New utility profile must exist after upgrade");
+
+      Map<String, String> utilityProfileResult = checkExpectedValues(utilityProfilePath,
+            "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
+            "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
+            "set ARTEMIS_DATA_DIR=","\"" + windowsData + "\"",
+            "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
+            "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
+            "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
+            "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
+
+      assertEquals(7, utilityProfileResult.size(), "Unexpected number of results");
+
+      utilityProfileResult.forEach((key, value) -> {
+         assertEquals(value, brokerProfileResult.get(key), "Unexpected difference between profile values for key: " + key);
+      });
    }
 
 
    @Test
    public void testLinux() throws Exception {
-
-      String instanceDir = basedir + "/target/classes/servers/linuxUpgrade";
-      String bin = instanceDir + "/bin";
-      String etc = basedir + "/target/classes/servers/linuxUpgradeETC";
+      final String instanceDir = basedir + "/target/classes/servers/linuxUpgrade";
+      final String bin = instanceDir + "/bin";
+      final String etc = basedir + "/target/classes/servers/linuxUpgradeETC";
+      final String data = instanceDir + "/data-custom";
 
       checkExpectedValues(bin + "/artemis", "ARTEMIS_INSTANCE_ETC=", "'" + etc + "'");
 
-      Map<String, String> result = checkExpectedValues(etc + "/artemis.profile",
+      Map<String, String> brokerProfileResult = checkExpectedValues(etc + "/artemis.profile",
                                                        "ARTEMIS_HOME=", null, // no expected value, will check on result
                                                        "ARTEMIS_INSTANCE=", "'" + instanceDir + "'",
-                                                       "ARTEMIS_DATA_DIR=", "'" + instanceDir + "/data'",
+                                                       "ARTEMIS_DATA_DIR=", "'" + data + "'",
                                                        "ARTEMIS_ETC_DIR=", "'" + etc + "'",
                                                        "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'",
                                                        "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "/'",
                                                        "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
 
-      String home = result.get("ARTEMIS_HOME=");
+      String home = brokerProfileResult.get("ARTEMIS_HOME=");
       assertNotNull(home);
       assertNotEquals("'must-change'", home);
 
@@ -254,6 +274,25 @@ public class CompareUpgradeTest {
 
       assertFalse(oldLogging.exists(), "Old logging must be removed by upgrade");
       assertTrue(newLogging.exists(), "New Logging must be installed by upgrade");
+
+      final String utilityProfilePath = etc + "/artemis-utility.profile";
+      final File utilityProfile = new File(utilityProfilePath);
+      assertTrue(utilityProfile.exists(), "New utility profile must exist after upgrade");
+
+      Map<String, String> utilityProfileResult = checkExpectedValues(utilityProfilePath,
+            "ARTEMIS_HOME=", null, // no expected value, will check on result
+            "ARTEMIS_INSTANCE=", "'" + instanceDir + "'",
+            "ARTEMIS_DATA_DIR=", "'" + data + "'",
+            "ARTEMIS_ETC_DIR=", "'" + etc + "'",
+            "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'",
+            "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "/'",
+            "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
+
+      assertEquals(7, utilityProfileResult.size(), "Unexpected number of results");
+
+      utilityProfileResult.forEach((key, value) -> {
+         assertEquals(value, brokerProfileResult.get(key), "Unexpected difference between profile values for key: " + key);
+      });
    }
 
    @Test
@@ -265,7 +304,7 @@ public class CompareUpgradeTest {
       // for previous runs
       removeBackups(upgradeConfig);
 
-      // I'm keeping the current configuration as originalConfig, to make a comparisson after upgrade is called
+      // I'm keeping the current configuration as originalConfig, to make a comparison after upgrade is called
       FileUtil.copyDirectory(upgradeConfig, originalConfig);
 
       // looking up for the ARTEMIS_HOME from the profile file
@@ -357,6 +396,10 @@ public class CompareUpgradeTest {
          });
       }
 
+      Object[] expectedKeys = expectedValues.keySet().stream().sorted().toArray();
+      Object[] matchedKeys = matchingValues.keySet().stream().sorted().toArray();
+
+      assertArrayEquals(expectedKeys, matchedKeys, "Some elements were not found in the output of " + fileName);
       assertEquals(matchingValues.size(), expectedValues.size(), "Some elements were not found in the output of " + fileName);
 
       return matchingValues;

@@ -46,7 +46,13 @@ echo.
 
 rem "Load Profile Config"
 set ARTEMIS_INSTANCE_ETC="${artemis.instance.etc}"
-call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
+
+if not "%ARTEMIS_PROFILE%"=="" goto LOAD_ARTEMIS_PROFILE
+set ARTEMIS_PROFILE=artemis-utility.profile.cmd
+if "%1"=="run" set ARTEMIS_PROFILE=artemis.profile.cmd
+
+:LOAD_ARTEMIS_PROFILE
+call %ARTEMIS_INSTANCE_ETC%\%ARTEMIS_PROFILE% %*
 
 if not exist %ARTEMIS_OOME_DUMP% goto NO_ARTEMIS_OOME_DUMP
 rem "Backup the last OOME heap dump"
@@ -55,7 +61,8 @@ move /Y %ARTEMIS_OOME_DUMP% %ARTEMIS_OOME_DUMP%.bkp
 :NO_ARTEMIS_OOME_DUMP
 
 rem "Create full JVM Args"
-set JVM_ARGS=%JAVA_ARGS%
+set JVM_ARGS=%LOGGING_ARGS%
+set JVM_ARGS=%JVM_ARGS% %JAVA_ARGS%
 if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PROPS%
 set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\artemis-boot.jar
 set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%

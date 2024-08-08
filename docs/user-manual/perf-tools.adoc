@@ -25,7 +25,7 @@ As they progress, some internal architectural details of the tool and the config
 [NOTE]
 ====
 The tools can run both from within the broker's instance folder or from the home folder.
-In the former case it will use the same JVM parameter configured on the instance (on `artemis.profile`), while in the latter case the user should set `JAVA_ARGS` environment variable to override default heap and GC parameters (e.g. `-XX:+UseParallelGC -Xms512M -Xmx1024M`)
+In both cases, the user should set `JAVA_ARGS` environment variable to override default heap and GC parameters (e.g. `-XX:+UseParallelGC -Xms512M -Xmx1024M`)
 ====
 
 == Case 1: Single producer Single consumer over a queue

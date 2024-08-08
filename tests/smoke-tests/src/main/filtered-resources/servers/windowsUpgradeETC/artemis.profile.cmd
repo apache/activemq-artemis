@@ -18,7 +18,7 @@ rem under the License.
 
 set ARTEMIS_HOME="must-change"
 set ARTEMIS_INSTANCE="${project.basedir}/target/classes/servers/windowsUpgrade"
-set ARTEMIS_DATA_DIR="${project.basedir}/target/classes/servers/windowsUpgrade/data"
+set ARTEMIS_DATA_DIR="${project.basedir}/target/classes/servers/windowsUpgrade/data-custom"
 set ARTEMIS_ETC_DIR="${project.basedir}/target/classes/servers/windowsUpgradeETC"
 set ARTEMIS_OOME_DUMP="${project.basedir}/target/classes/servers/windowsUpgrade/log/oom_dump.hprof"
 
