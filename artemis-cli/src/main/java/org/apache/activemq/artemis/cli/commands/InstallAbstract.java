@@ -37,11 +37,17 @@ import picocli.CommandLine.Parameters;
 
 public class InstallAbstract extends InputAbstract {
 
+   protected static final String LOG_DIRNAME = "log";
+   protected static final String OOM_DUMP_FILENAME = "oom_dump.hprof";
+
    @Parameters(description = "The instance directory to hold the broker's configuration and data. Path must be writable.")
    protected File directory;
 
    @Option(names = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
    protected String etc = "etc";
+
+   @Option(names = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
+   protected String data = "data";
 
    @Option(names = "--home", description = "Directory where ActiveMQ Artemis is installed.")
    protected File home;
@@ -58,6 +64,9 @@ public class InstallAbstract extends InputAbstract {
    @Option(names = "--java-options", description = "Extra Java options to be passed to the profile.")
    protected List<String> javaOptions;
 
+   @Option(names = "--java-utility-options", description = "Extra Java options to be passed to the utility profile.")
+   protected List<String> javaUtilityOptions;
+
    @Option(names = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
    protected String javaMemory = "2G";
 
@@ -70,6 +79,14 @@ public class InstallAbstract extends InputAbstract {
       StringBuilder builder = new StringBuilder();
       if (javaOptions != null) {
          javaOptions.forEach(s -> builder.append(s).append(" "));
+      }
+      return builder.toString();
+   }
+
+   protected String getJavaUtilityOptions() {
+      StringBuilder builder = new StringBuilder();
+      if (javaUtilityOptions != null) {
+         javaUtilityOptions.forEach(s -> builder.append(s).append(" "));
       }
       return builder.toString();
    }

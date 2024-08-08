@@ -3,7 +3,7 @@
 :idseparator: -
 
 Apache ActiveMQ Artemis uses the https://www.slf4j.org/[SLF4J] logging facade for logging, with the broker assembly providing https://logging.apache.org/log4j/2.x/manual/[Log4J 2] as the logging implementation.
-This is configurable via the `log4j2.properties` file found in the broker instance `etc` directory, which is configured by default to log to both the console and to a file.
+When the broker is started by executing the `run` command, this is configurable via the `log4j2.properties` file found in the broker instance `etc` directory, which is configured by default to log to both the console and to a file. For the other CLI commands, this is configurable via the `log4j2-utility.properties` file found in the broker instance `etc` directory, which is configured by default to log only errors to the console (in addition to the usual command output).
 
 There are a handful of general loggers available:
 
@@ -65,7 +65,7 @@ monitorInterval = 5
 
 == Logging in a client application
 
-Firstly, if you want to enable logging on the client side you need to include a logging implementation in your application which supports the the SLF4J facade.
+Firstly, if you want to enable logging on the client side you need to include a logging implementation in your application which supports the SLF4J facade.
 Taking Log4J2 as an example logging implementation, since it used by the broker, when using Maven your client and logging dependencies might be e.g.:
 
 [,xml,subs="normal"]

@@ -27,7 +27,7 @@
    <env name="ARTEMIS_INSTANCE_ETC" value="${project.basedir}/target/classes/servers/windowsUpgradeETC"/>
    <env name="ARTEMIS_INSTANCE_URI" value="file:${project.basedir}/target/classes/servers/windowsUpgrade/"/>
    <env name="ARTEMIS_INSTANCE_ETC_URI" value="file:${project.basedir}/target/classes/servers/windowsUpgradeETC/"/>
-   <env name="ARTEMIS_DATA_DIR" value="${project.basedir}/target/classes/servers/windowsUpgrade/data"/>
+   <env name="ARTEMIS_DATA_DIR" value="${project.basedir}/target/classes/servers/windowsUpgrade/data-custom"/>
 
    <logpath>${project.basedir}/target/classes/servers/windowsUpgrade\log</logpath>
    <logmode>roll</logmode>

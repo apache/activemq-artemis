@@ -17,7 +17,7 @@
 
 ARTEMIS_HOME='must-change'
 ARTEMIS_INSTANCE='${project.basedir}/target/classes/servers/linuxUpgrade'
-ARTEMIS_DATA_DIR='${project.basedir}/target/classes/servers/linuxUpgrade/data'
+ARTEMIS_DATA_DIR='${project.basedir}/target/classes/servers/linuxUpgrade/data-custom'
 ARTEMIS_ETC_DIR='${project.basedir}/target/classes/servers/linuxUpgradeETC'
 ARTEMIS_OOME_DUMP='${project.basedir}/target/classes/servers/linuxUpgrade/log/oom_dump.hprof'
 
