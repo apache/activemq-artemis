@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -42,6 +44,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -49,7 +52,10 @@ import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
+
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PING;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
 
@@ -80,6 +86,8 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    private final Object failLock = new Object();
 
    private final SimpleString nodeID;
+
+   private volatile boolean isHealthy = true;
 
    /*
     * Create a client side connection
@@ -408,10 +416,15 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    }
 
    private void doBufferReceived(final Packet packet) {
+      if (isHealthy && !isCorrectPing(packet)) {
+         isHealthy = false;
+      }
       if (ChannelImpl.invokeInterceptors(packet, incomingInterceptors, this) != null) {
          return;
       }
-
+      if (!isHealthy) {
+         return;
+      }
       synchronized (transferLock) {
          final Channel channel = channels.get(packet.getChannelID());
 
@@ -419,6 +432,34 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
             channel.handlePacket(packet);
          }
       }
+   }
+
+   private boolean isCorrectPing(Packet packet) {
+      if (packet.getType() != PING) {
+         return true;
+      }
+      Ping ping = (Ping) packet;
+      if (ping.getNodeUUID() == null) {
+         return true;
+      }
+      return Optional
+              .ofNullable(getTransportConnection().getConnectorConfig())
+              .flatMap(TransportConfiguration::getNodeUUID)
+              .map(targetNodeUUID -> Objects.equals(targetNodeUUID, ping.getNodeUUID()))
+              .orElse(true);
+   }
+
+   /**
+    * A remoting connection becomes unhealthy if it receives a {@link Ping} having different
+    * source nodeUUID than the target of its {@link TransportConfiguration}. Once it becomes
+    * unhealthy, it can not go back and should be destroyed. If either side does not include a
+    * nodeUUID, this process is disabled, ie it will always return 'true'.
+    *
+    * @return true if it ever became unhealthy
+    */
+   @Override
+   public boolean isHealthy() {
+      return isHealthy;
    }
 
    protected void removeAllChannels() {

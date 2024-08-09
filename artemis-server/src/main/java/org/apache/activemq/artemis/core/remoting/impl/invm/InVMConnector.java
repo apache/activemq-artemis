@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -133,13 +134,13 @@ public class InVMConnector extends AbstractConnector {
       return threadPoolExecutor;
    }
 
-   public InVMConnector(final Map<String, Object> configuration,
+   public InVMConnector(final TransportConfiguration transportConfiguration,
                         final BufferHandler handler,
                         final ClientConnectionLifeCycleListener listener,
                         final Executor closeExecutor,
                         final Executor threadPool,
                         ClientProtocolManager protocolManager) {
-      super(configuration);
+      super(transportConfiguration);
       this.listener = listener;
 
       id = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME, 0, configuration);

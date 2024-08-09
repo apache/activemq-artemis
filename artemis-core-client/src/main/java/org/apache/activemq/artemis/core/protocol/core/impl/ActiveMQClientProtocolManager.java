@@ -228,7 +228,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    public void ping(long connectionTTL) {
       Channel channel = connection.getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
-      Ping ping = new Ping(connectionTTL);
+      Ping ping = new Ping(factoryInternal.getNodeUUID(), connectionTTL);
 
       channel.send(ping);
 

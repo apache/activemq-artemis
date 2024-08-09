@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import java.util.Map;
-
 import io.netty.channel.Channel;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 
 public class NettyServerConnection extends NettyConnection {
@@ -27,7 +27,7 @@ public class NettyServerConnection extends NettyConnection {
 
    private final String router;
 
-   public NettyServerConnection(Map<String, Object> configuration,
+   public NettyServerConnection(TransportConfiguration configuration,
                                 Channel channel,
                                 ServerConnectionLifeCycleListener listener,
                                 boolean batchingEnabled,

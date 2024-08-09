@@ -24,8 +24,10 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
+import org.apache.activemq.artemis.utils.UUID;
 
 public interface ClientSessionFactoryInternal extends ClientSessionFactory {
+   UUID getNodeUUID();
 
    void causeExit();
 

@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -121,7 +122,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final Executor flowControlExecutor;
 
-   private RemotingConnection connection;
+   private volatile RemotingConnection connection;
 
    private final long retryInterval;
 
@@ -276,6 +277,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
+   public UUID getNodeUUID() {
+      return serverLocator.getNodeUUID();
+   }
+
+   @Override
    public Lock lockFailover() {
       newFailoverLock.lock();
       return newFailoverLock;
@@ -316,7 +322,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // to create a connector just to validate if the parameters are ok.
       // so this will create the instance to be used on the isEquivalent check
       if (localConnector == null) {
-         localConnector = connectorFactory.createConnector(currentConnectorConfig.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
+         localConnector = connectorFactory.createConnector(currentConnectorConfig, new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
       }
 
       if (localConnector.isEquivalent(primary.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
@@ -1224,7 +1230,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    protected Connector createConnector(ConnectorFactory connectorFactory, TransportConfiguration configuration) {
-      Connector connector = connectorFactory.createConnector(configuration.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
+      Connector connector = connectorFactory.createConnector(configuration, new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
       if (connector instanceof NettyConnector) {
          NettyConnector nettyConnector = (NettyConnector) connector;
          if (nettyConnector.getConnectTimeoutMillis() < 0) {
@@ -1444,7 +1450,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          final RemotingConnection connectionInUse = connection;
 
          if (connectionInUse != null && clientFailureCheckPeriod != -1 && connectionTTL != -1 && now >= lastCheck + connectionTTL) {
-            if (!connectionInUse.checkDataReceived()) {
+            if (!connectionInUse.checkDataReceived() || !connectionInUse.isHealthy()) {
 
                // We use a different thread to send the fail
                // but the exception has to be created here to preserve the stack trace

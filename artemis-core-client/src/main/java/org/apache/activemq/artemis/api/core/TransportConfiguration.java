@@ -21,10 +21,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
@@ -52,6 +54,8 @@ public class TransportConfiguration implements Serializable {
    public static final String EXTRA_PROPERTY_PREFIX = "$.EP.";
 
    private String name;
+
+   private UUID nodeUUID;
 
    private String factoryClassName = "null";
 
@@ -171,6 +175,10 @@ public class TransportConfiguration implements Serializable {
       this.name = name;
    }
 
+   public Optional<UUID> getNodeUUID() {
+      return Optional.ofNullable(nodeUUID);
+   }
+
    /**
     * Returns the class name of ConnectorFactory being used by this TransportConfiguration
     *
@@ -206,10 +214,7 @@ public class TransportConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + factoryClassName.hashCode();
-      result = 31 * result + (params != null ? params.hashCode() : 0);
-      return result;
+      return Objects.hash(name, nodeUUID, factoryClassName, params);
    }
 
    @Override
@@ -225,16 +230,13 @@ public class TransportConfiguration implements Serializable {
          return false;
       }
 
-      if (!Objects.equals(name, that.name)) {
-         return false;
-      }
-
       // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
       if ((extraProps != that.extraProps) && (extraProps != null || !that.extraProps.isEmpty()) && (that.extraProps != null || !extraProps.isEmpty()) && (extraProps == null || that.extraProps == null || !extraProps.equals(that.extraProps))) {
          return false;
       }
 
-      return true;
+      return Objects.equals(name, that.name)
+             && Objects.equals(nodeUUID, that.nodeUUID);
    }
 
    public boolean isSameParams(TransportConfiguration that) {
@@ -375,6 +377,13 @@ public class TransportConfiguration implements Serializable {
     * @param buffer the buffer to decode from
     */
    public void decode(final ActiveMQBuffer buffer) {
+      decode(null, buffer);
+   }
+
+   public void decode(final String nodeUUID, final ActiveMQBuffer buffer) {
+      if (nodeUUID != null && !nodeUUID.isBlank()) {
+         this.nodeUUID = new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeUUID));
+      }
       name = buffer.readString();
       factoryClassName = buffer.readString();
 
