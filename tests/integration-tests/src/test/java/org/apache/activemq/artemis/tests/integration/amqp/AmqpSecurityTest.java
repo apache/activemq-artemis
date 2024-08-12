@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -45,9 +47,16 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   private static final int MIN_LARGE_MESSAGE_SIZE = 16384;
+
    @Override
    protected boolean isSecurityEnabled() {
       return true;
+   }
+
+   @Override
+   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
+      params.put("amqpMinLargeMessageSize", MIN_LARGE_MESSAGE_SIZE);
    }
 
    @Test
@@ -276,5 +285,80 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       } finally {
          connection.close();
       }
+   }
+
+   @Test
+   @Timeout(30)
+   public void testAnonymousRelayLargeMessageSendFailsWithNotAuthorizedCleansUpLargeMessageFile() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
+      AmqpClient client = createAmqpClient(guestPass, guestUser);
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
+            DeliveryState state = delivery.getRemoteState();
+
+            if (!delivery.remotelySettled()) {
+               markAsInvalid("delivery is not remotely settled");
+            }
+
+            if (state instanceof Rejected) {
+               Rejected rejected = (Rejected) state;
+               if (rejected.getError() == null || rejected.getError().getCondition() == null) {
+                  markAsInvalid("Delivery should have been Rejected with an error condition");
+               } else {
+                  ErrorCondition error = rejected.getError();
+                  if (!error.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                     markAsInvalid("Should have been tagged with unauthorized access error");
+                  }
+               }
+            } else {
+               markAsInvalid("Delivery should have been Rejected");
+            }
+
+            latch.countDown();
+         }
+      });
+
+      final AmqpConnection connection = client.connect();
+
+      try {
+         final AmqpSession session = connection.createSession();
+         final AmqpSender sender = session.createAnonymousSender();
+         final AmqpMessage message = createAmqpLargeMessageWithNoBody();
+
+         message.setAddress(getQueueName());
+         message.setMessageId("msg" + 1);
+
+         try {
+            sender.send(message);
+            fail("Should not be able to send, message should be rejected");
+         } catch (Exception ex) {
+            ex.printStackTrace();
+         } finally {
+            sender.close();
+         }
+
+         assertTrue(latch.await(5, TimeUnit.SECONDS));
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
+
+      validateNoFilesOnLargeDir();
+   }
+
+   private AmqpMessage createAmqpLargeMessageWithNoBody() {
+      AmqpMessage message = new AmqpMessage();
+
+      byte[] payload = new byte[MIN_LARGE_MESSAGE_SIZE * 2];
+      for (int i = 0; i < payload.length; i++) {
+         payload[i] = (byte) 65;
+      }
+
+      message.setMessageAnnotation("x-opt-big-blob", new String(payload, StandardCharsets.UTF_8));
+
+      return message;
    }
 }

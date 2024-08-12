@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -563,6 +564,16 @@ public class AMQPSessionCallback implements SessionCallback {
             // We need to transfer IO execution to a different thread otherwise we may deadlock netty loop
             sessionExecutor.execute(() -> inSessionSend(context, transaction, message, delivery, receiver, routingContext));
          }
+      } catch (Exception e) {
+         if (message.isLargeMessage()) {
+            try {
+               ((LargeServerMessage) message).deleteFile();
+            } catch (Exception e1) {
+               logger.warn("Error while deleting undelivered large AMQP message: {}", e.getMessage());
+            }
+         }
+
+         throw e;
       } finally {
          resetContext(oldcontext);
       }
@@ -632,6 +643,15 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
+
+         if (message.isLargeMessage()) {
+            try {
+               ((LargeServerMessage) message).deleteFile();
+            } catch (Exception e1) {
+               logger.warn("Error while deleting undelivered large AMQP message: {}", e.getMessage());
+            }
+         }
+
          context.deliveryFailed(delivery, receiver, e);
       } finally {
          resetContext(oldContext);

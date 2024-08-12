@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -38,12 +37,15 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
+
+   private static final int MIN_LARGE_MESSAGE_SIZE = 16 * 1024;
 
    @Parameter(index = 0)
    public boolean useModified;
@@ -75,6 +77,7 @@ public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
    @Override
    protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
       params.put("amqpUseModifiedForTransientDeliveryErrors", useModified);
+      params.put("amqpMinLargeMessageSize", MIN_LARGE_MESSAGE_SIZE);
    }
 
    @TestTemplate
@@ -104,5 +107,53 @@ public class AmqpFlowControlFailDispositionTests extends JMSClientTestSupport {
       } finally {
          connection.close();
       }
+   }
+
+   @TestTemplate
+   @Timeout(60)
+   public void testFailedLargeMessageSendWhenNoSpaceCleansUpLargeFile() throws Exception {
+      AmqpClient client = createAmqpClient(getBrokerAmqpConnectionURI());
+      AmqpConnection connection = client.connect();
+
+      int expectedRemainingLargeMessageFiles = 0;
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName(), null, null, outcomes);
+         AmqpMessage message = createAmqpLargeMessage();
+         boolean rejected = false;
+
+         for (int i = 0; i < 1000; i++) {
+            try {
+               sender.send(message);
+               expectedRemainingLargeMessageFiles++;
+            } catch (IOException e) {
+               rejected = true;
+               assertTrue(e.getMessage().contains(expectedMessage),
+                          String.format("Unexpected message expected %s to contain %s", e.getMessage(), expectedMessage));
+               break;
+            }
+         }
+
+         assertTrue(rejected, "Expected messages to be refused by broker");
+      } finally {
+         connection.close();
+      }
+
+      validateNoFilesOnLargeDir(getLargeMessagesDir(), expectedRemainingLargeMessageFiles);
+   }
+
+   private AmqpMessage createAmqpLargeMessage() {
+      AmqpMessage message = new AmqpMessage();
+
+      byte[] payload = new byte[MIN_LARGE_MESSAGE_SIZE * 2];
+      for (int i = 0; i < payload.length; i++) {
+         payload[i] = (byte) 65;
+      }
+
+      message.setMessageAnnotation("x-opt-big-blob", new String(payload, StandardCharsets.UTF_8));
+      message.setText("test");
+
+      return message;
    }
 }
