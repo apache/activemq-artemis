@@ -295,14 +295,8 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
          lastIter.remove();
 
-         // This next statement would be the equivalent of:
-         // if (index == highestPriority && levels[index].size() == 0)
-         // However we have to keep checking all the previous levels
-         // otherwise we would cache a max that will not exist
-         // what would make us eventually having hasNext() returning false
-         // as a bug
-         // Part of the fix for HORNETQ-705
-         for (int i = index; i >= 0 && levels[index].size() == 0; i--) {
+         // If the last message in the current priority is removed then find the next highest
+         for (int i = index; i >= 0 && levels[i].size() == 0; i--) {
             highestPriority = i;
          }
 
