@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RealServerTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperBase;
 import org.junit.jupiter.api.Test;
@@ -186,6 +187,15 @@ public class RollingUpgradeTest extends RealServerTestBase {
    @Test
    public void testRollUpgrade_2_36() throws Exception {
       testRollUpgrade(new File(TWO_THIRTY_SIX));
+   }
+
+   // Define a System Property TEST_ROLLED_DISTRIBUTION towards the Artemis Home of your choice and this will
+   // perform the tests towards that distribution
+   @Test
+   public void testRollUpgrade_Provided_Distribution() throws Exception {
+      String distribution = TestParameters.testProperty("ROLLED", "DISTRIBUTION", null);
+      assumeTrue(distribution != null);
+      testRollUpgrade(new File(distribution));
    }
 
    private void testRollUpgrade(File artemisHome) throws Exception {
