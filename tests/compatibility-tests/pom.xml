@@ -281,7 +281,7 @@
                   <executions>
                      <execution>
                         <id>unpack-2.30.0</id>
-                        <phase>package</phase>
+                        <phase>compile</phase>
                         <goals>
                            <goal>unpack</goal>
                         </goals>
@@ -302,7 +302,7 @@
                           It will be important to test the switch at the current and previous version. -->
                      <execution>
                         <id>unpack-2.36.0</id>
-                        <phase>package</phase>
+                        <phase>compile</phase>
                         <goals>
                            <goal>unpack</goal>
                         </goals>
