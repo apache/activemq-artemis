@@ -1029,4 +1029,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
       return 0;
    }
 
+   @Override
+   public int getInitialQueueBufferSize() {
+      return 0;
+   }
 }
