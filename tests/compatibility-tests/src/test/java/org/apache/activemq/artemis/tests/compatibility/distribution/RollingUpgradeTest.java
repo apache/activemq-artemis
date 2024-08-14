@@ -181,24 +181,27 @@ public class RollingUpgradeTest extends RealServerTestBase {
 
    @Test
    public void testRollUpgrade_2_30() throws Exception {
-      testRollUpgrade(new File(TWO_THIRTY));
+      testRollUpgrade(new File(TWO_THIRTY), HelperBase.getHome());
    }
 
    @Test
    public void testRollUpgrade_2_36() throws Exception {
-      testRollUpgrade(new File(TWO_THIRTY_SIX));
+      testRollUpgrade(new File(TWO_THIRTY_SIX), HelperBase.getHome());
    }
 
    // Define a System Property TEST_ROLLED_DISTRIBUTION towards the Artemis Home of your choice and this will
    // perform the tests towards that distribution
+   // Define a System Property TEST_ROLLED_DISTRIBUTION_UPGRADE towards the new Artemis home (by default the test will use BaseHelper.getHome()
    @Test
    public void testRollUpgrade_Provided_Distribution() throws Exception {
       String distribution = TestParameters.testProperty("ROLLED", "DISTRIBUTION", null);
       assumeTrue(distribution != null);
-      testRollUpgrade(new File(distribution));
+
+      String distributionUpgrading = TestParameters.testProperty("ROLLED", "DISTRIBUTION_UPGRADE", HelperBase.getHome().getAbsolutePath());
+      testRollUpgrade(new File(distribution),  new File(distributionUpgrading));
    }
 
-   private void testRollUpgrade(File artemisHome) throws Exception {
+   private void testRollUpgrade(File artemisHome, File upgradingArtemisHome) throws Exception {
       assumeTrue(artemisHome.exists());
       createServers(artemisHome);
 
@@ -246,15 +249,15 @@ public class RollingUpgradeTest extends RealServerTestBase {
 
       Pair<Process, Process> updatedProcess;
 
-      updatedProcess = rollUpgrade(0, LIVE_0, managementLive0, live0Process, 3, BKP_0, managementBKP0, bkp0Process);
+      updatedProcess = rollUpgrade(0, LIVE_0, managementLive0, live0Process, 3, BKP_0, managementBKP0, bkp0Process, upgradingArtemisHome);
       this.live0Process = updatedProcess.getA();
       this.bkp0Process = updatedProcess.getB();
 
-      updatedProcess = rollUpgrade(1, LIVE_1, managementLive1, live1Process, 4, BKP_1, managementBKP1, bkp1Process);
+      updatedProcess = rollUpgrade(1, LIVE_1, managementLive1, live1Process, 4, BKP_1, managementBKP1, bkp1Process, upgradingArtemisHome);
       this.live1Process = updatedProcess.getA();
       this.bkp1Process = updatedProcess.getB();
 
-      updatedProcess = rollUpgrade(2, LIVE_2, managementLive2, live2Process, 5, BKP_2, managementBKP2, bkp2Process);
+      updatedProcess = rollUpgrade(2, LIVE_2, managementLive2, live2Process, 5, BKP_2, managementBKP2, bkp2Process, upgradingArtemisHome);
       this.live2Process = updatedProcess.getA();
       this.bkp2Process = updatedProcess.getB();
 
@@ -306,7 +309,8 @@ public class RollingUpgradeTest extends RealServerTestBase {
                                               int backupID,
                                               String backupToStop,
                                               SimpleManagement backupManagement,
-                                              Process backupProcess) throws Exception {
+                                              Process backupProcess,
+                                              File targetRelease) throws Exception {
 
       logger.info("Stopping server {}", liveServerToStop);
       stopServerWithFile(getServerLocation(liveServerToStop), liveProcess, 10, TimeUnit.SECONDS);
@@ -316,7 +320,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
       ServerUtil.waitForServerToStart(backupID, 30_000);
 
       logger.info("Upgrading {}", liveServerToStop);
-      upgrade(HelperBase.getHome(), getFileServerLocation(liveServerToStop));
+      upgrade(targetRelease, getFileServerLocation(liveServerToStop));
 
       logger.info("Starting server {}", liveServerToStop);
       Process newLiveProcess = startServer(liveServerToStop, 0, 0);
@@ -332,7 +336,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
       ServerUtil.waitForServerToStart(liveID, 30_000);
 
       logger.info("upgrading {}", backupToStop);
-      upgrade(HelperBase.getHome(), getFileServerLocation(backupToStop));
+      upgrade(targetRelease, getFileServerLocation(backupToStop));
 
       Process newBackupProcess = startServer(backupToStop, 0, 0);
 
