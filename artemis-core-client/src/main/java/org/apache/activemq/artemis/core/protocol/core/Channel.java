@@ -58,8 +58,8 @@ public interface Channel {
    boolean supports(byte packetID, int version);
 
    /*
-    * Due to ARTEMIS-4986, older versions (2.30.0 in particular) will require a special voting handling,
-    * where we would perform specific retries at older values.
+    * Due to ARTEMIS-4986, older versions (<= 2.31.2 in particular) before 2.37.0 will require
+    * special voting handling, where we would perform specific retries with older values.
     */
    default boolean requireSpecialVotingHandling() {
       return false;
