@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -147,6 +148,8 @@ public class RollingUpgradeTest extends RealServerTestBase {
       assertTrue(process.waitFor(10, TimeUnit.SECONDS));
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
+
+      assertTrue(FileUtil.findReplace(brokerXml, "ON_DEMAND", "OFF"));
 
       if (live) {
          boolean replacedMaster = FileUtil.findReplace(brokerXml, "</primary>", "   <group-name>" + replicaGroupName + "</group-name>\n" + "               <check-for-live-server>true</check-for-live-server>\n" + "               <quorum-size>2</quorum-size>\n" + "            </primary>");
@@ -264,14 +267,17 @@ public class RollingUpgradeTest extends RealServerTestBase {
       consumeMessage(LIVE0_URI, "AMQP");
       consumeMessage(LIVE0_URI, "CORE");
       consumeMessage(LIVE0_URI, "OPENWIRE");
+      checkNoMessages(LIVE0_URI);
 
       consumeMessage(LIVE1_URI, "AMQP");
       consumeMessage(LIVE1_URI, "CORE");
       consumeMessage(LIVE1_URI, "OPENWIRE");
+      checkNoMessages(LIVE1_URI);
 
       consumeMessage(LIVE2_URI, "AMQP");
       consumeMessage(LIVE2_URI, "CORE");
       consumeMessage(LIVE2_URI, "OPENWIRE");
+      checkNoMessages(LIVE2_URI);
 
    }
 
@@ -298,6 +304,17 @@ public class RollingUpgradeTest extends RealServerTestBase {
          assertNotNull(message);
          logger.info("receiving message {}", message.getText());
          assertEquals(protocol, message.getStringProperty("protocolUsed"));
+         consumer.close();
+      }
+   }
+
+   private void checkNoMessages(String uri) throws Exception {
+      ConnectionFactory cf = CFUtil.createConnectionFactory("CORE", uri);
+      try (Connection connection = cf.createConnection();
+           Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE)) {
+         MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
+         connection.start();
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
    }
