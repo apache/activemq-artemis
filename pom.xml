@@ -186,7 +186,7 @@
       <mockserver.version>5.15.0</mockserver.version>
 
       <owasp.version>10.0.3</owasp.version>
-      <spring.version>5.3.37</spring.version>
+      <spring.version>5.3.39</spring.version>
 
       <jackson.version>2.17.2</jackson.version>
       <jackson-databind.version>${jackson.version}</jackson-databind.version>
