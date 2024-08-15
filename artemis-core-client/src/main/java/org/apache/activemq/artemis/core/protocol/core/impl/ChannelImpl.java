@@ -202,7 +202,7 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean requireSpecialVotingHandling() {
-      return connection.getChannelVersion() < PacketImpl.ARTEMIS_2_36_0_VERSION;
+      return connection.getChannelVersion() < PacketImpl.ARTEMIS_2_37_0_VERSION;
    }
 
    @Override
