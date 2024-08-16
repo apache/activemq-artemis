@@ -57,6 +57,16 @@ if [ -z "$ARTEMIS_PROFILE" ] ; then
   fi
 fi
 
+if ! test -f "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}"; then
+   echo "********************************************************************************"
+   echo Error: "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}" does not exist.
+   echo
+   echo "This file should have been created as part of you upgrading from a previous version"
+   echo "Please use 'artemis upgrade' or make sure you create the file."
+   echo "********************************************************************************"
+   exit 1
+fi
+
 . "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}"
 
 

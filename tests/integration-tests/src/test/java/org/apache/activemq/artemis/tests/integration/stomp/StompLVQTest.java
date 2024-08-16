@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +24,17 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class StompLVQTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -46,6 +43,10 @@ public class StompLVQTest extends StompTestBase {
    protected StompClientConnection consumerConn;
 
    private final String queue = "lvq";
+
+   public StompLVQTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    @BeforeEach
@@ -88,7 +89,7 @@ public class StompLVQTest extends StompTestBase {
       super.tearDown();
    }
 
-   @TestTemplate
+   @Test
    public void testLVQ() throws Exception {
 
       producerConn.connect(defUser, defPass);

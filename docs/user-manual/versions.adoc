@@ -21,6 +21,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * The environment variables of the CLI commands other than run is configurable via the `artemis-utility.profile` file.
 * The logging configuration of the CLI commands other than run is configurable via the `log4j2-utility.properties` file.
 * The run command has been removed from the artemis shell, use the `artemis` script (`artemis.cmd` on Windows) to execute it.
+* A version compatibility on voting (shared nothing replication quorum protocol) was fixed as part of https://issues.apache.org/jira/browse/ARTEMIS-4986[ARTEMIS-4986]
 
 === Upgrading from 2.36.0
 

@@ -107,9 +107,9 @@
       <guava.version>33.2.1-jre</guava.version>
       <hawtio.version>2.17.7</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
-      <jetty.version>10.0.22</jetty.version>
+      <jetty.version>10.0.23</jetty.version>
       <jetty-servlet-api.version>4.0.6</jetty-servlet-api.version>
-      <jgroups.version>5.3.10.Final</jgroups.version>
+      <jgroups.version>5.3.11.Final</jgroups.version>
       <errorprone.version>2.30.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <jib.maven.plugin.version>3.4.3</jib.maven.plugin.version>
@@ -164,7 +164,7 @@
       <version.micrometer>1.13.3</version.micrometer>
       <hamcrest.version>3.0</hamcrest.version>
       <junit.version>4.13.2</junit.version>
-      <junit5.version>5.10.3</junit5.version>
+      <junit5.version>5.11.0</junit5.version>
       <version.jaxb.runtime>2.3.9</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.7.3</postgresql.version>
@@ -262,7 +262,7 @@
 
       <fast-tests>false</fast-tests>
 
-      <project.build.outputTimestamp>2024-08-14T18:39:34Z</project.build.outputTimestamp>
+      <project.build.outputTimestamp>2024-08-16T14:23:17Z</project.build.outputTimestamp>
    </properties>
 
    <scm>

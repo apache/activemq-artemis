@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
+
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -34,6 +38,8 @@ import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContex
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.proton.engine.Sender;
 
 /**
  * A base class abstract {@link SenderController} implementation for use by federation address and
@@ -43,6 +49,8 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
 
    protected final AMQPSessionContext session;
    protected final AMQPSessionCallback sessionSPI;
+   protected final AMQPFederation federation;
+   protected final String controllerId = UUID.randomUUID().toString();
 
    protected AMQPMessageWriter standardMessageWriter;
    protected AMQPLargeMessageWriter largeMessageWriter;
@@ -54,6 +62,10 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
    protected Consumer<ErrorCondition> resourceDeletedAction;
 
    public AMQPFederationBaseSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
+      final Connection protonConnection = session.getSession().getConnection();
+      final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+
+      this.federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
       this.session = session;
       this.sessionSPI = session.getSessionSPI();
    }
@@ -67,17 +79,35 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
    }
 
    @Override
-   public void close() throws Exception {
-      // Currently there isn't anything needed on close of this controller.
+   public final void close() throws Exception {
+      if (federation != null) {
+         federation.removeLinkClosedInterceptor(controllerId);
+      }
+
+      handleLinkRemotelyClosed();
+   }
+
+   protected void handleLinkRemotelyClosed() {
+      // Default does nothing.
    }
 
    @Override
-   public void close(ErrorCondition error) {
+   public final void close(ErrorCondition error) {
       if (error != null && AmqpError.RESOURCE_DELETED.equals(error.getCondition())) {
          if (resourceDeletedAction != null) {
             resourceDeletedAction.accept(error);
          }
       }
+
+      if (federation != null) {
+         federation.removeLinkClosedInterceptor(controllerId);
+      }
+
+      handleLinkLocallyClosed(error);
+   }
+
+   protected void handleLinkLocallyClosed(ErrorCondition error) {
+      // Default does nothing.
    }
 
    @Override
@@ -107,5 +137,19 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
       }
 
       return selected;
+   }
+
+   protected final void registerRemoteLinkClosedInterceptor(Sender protonSender) {
+      Objects.requireNonNull(federation, "Subclass should have validated federation state before adding an interceptor");
+
+      federation.addLinkClosedInterceptor(controllerId, (link) -> {
+         // Normal close from remote due to demand being removed is handled here but remote close with an error is left
+         // to the parent federation instance to decide on how it should be handled.
+         if (link == protonSender && (link.getRemoteCondition() == null || link.getRemoteCondition().getCondition() == null)) {
+            return true;
+         }
+
+         return false;
+      });
    }
 }

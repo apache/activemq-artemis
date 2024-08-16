@@ -66,7 +66,6 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.mqtt.FuseMQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -76,8 +75,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,12 +87,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(ParameterizedTestExtension.class)
 public class StompTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected StompClientConnection conn;
+
+   public StompTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
@@ -129,7 +130,7 @@ public class StompTest extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testConnectionTTL() throws Exception {
       int port = 61614;
 
@@ -148,7 +149,7 @@ public class StompTest extends StompTestBase {
       assertFalse(conn.isConnected());
    }
 
-   @TestTemplate
+   @Test
    public void testSendManyMessages() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -165,7 +166,7 @@ public class StompTest extends StompTestBase {
       assertTrue(latch.await(60, TimeUnit.SECONDS));
    }
 
-   @TestTemplate
+   @Test
    public void testProducerMetrics() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -203,7 +204,7 @@ public class StompTest extends StompTestBase {
       assertEquals(0, array.size(), "number of producers returned from query");
    }
 
-   @TestTemplate
+   @Test
    public void testSendOverDiskFull() throws Exception {
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          MessageConsumer consumer = session.createConsumer(queue);
@@ -230,7 +231,7 @@ public class StompTest extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testConnect() throws Exception {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1");
       ClientStompFrame response = conn.sendFrame(frame);
@@ -239,7 +240,7 @@ public class StompTest extends StompTestBase {
       assertTrue(response.getHeader(Stomp.Headers.Connected.RESPONSE_ID).equals("1"));
    }
 
-   @TestTemplate
+   @Test
    public void testDisconnectAndError() throws Exception {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1");
       ClientStompFrame response = conn.sendFrame(frame);
@@ -258,7 +259,7 @@ public class StompTest extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessage() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -280,7 +281,7 @@ public class StompTest extends StompTestBase {
       assertTrue(Math.abs(tnow - tmsg) < 1000);
    }
 
-   @TestTemplate
+   @Test
    public void testNullCorrelationIDandTypeProperties() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -295,7 +296,7 @@ public class StompTest extends StompTestBase {
       assertFalse(((ActiveMQMessage)message).getCoreMessage().getPropertyNames().contains(MessageUtil.TYPE_HEADER_NAME));
    }
 
-   @TestTemplate
+   @Test
    public void sendSTOMPReceiveMQTT() throws Exception {
       // Set up MQTT Subscription
       MQTTClientProvider clientProvider = new FuseMQTTClientProvider();
@@ -316,7 +317,7 @@ public class StompTest extends StompTestBase {
       clientProvider.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void sendMQTTReceiveSTOMP() throws Exception {
       String payload = "This is a test message";
 
@@ -336,7 +337,7 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @TestTemplate
+   @Test
    public void sendEmptyCoreMessage() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -377,12 +378,12 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.getPostOffice().getBinding(SimpleString.of(queue)) == null);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageToNonExistentQueue() throws Exception {
       sendMessageToNonExistentQueue(getQueuePrefix(), RandomUtil.randomString(), RoutingType.ANYCAST);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageToNonExistentQueueUsingExplicitDefaultRouting() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
       server.getAddressSettingsRepository().addMatch(nonExistentQueue, new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST).setDefaultQueueRoutingType(RoutingType.ANYCAST));
@@ -419,19 +420,19 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(topic)) == null);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageToNonExistentTopic() throws Exception {
       sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), RoutingType.MULTICAST);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageToNonExistentTopicUsingExplicitDefaultRouting() throws Exception {
       String nonExistentTopic = RandomUtil.randomString();
       server.getAddressSettingsRepository().addMatch(nonExistentTopic, new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
       sendMessageToNonExistentTopic(getTopicPrefix(), nonExistentTopic, null);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageToNonExistentTopicUsingImplicitDefaultRouting() throws Exception {
       sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), null);
    }
@@ -441,7 +442,7 @@ public class StompTest extends StompTestBase {
     * This means next frame read might have a \n a the beginning.
     * This is contrary to STOMP spec but we deal with it so we can work nicely with crappy STOMP clients
     */
-   @TestTemplate
+   @Test
    public void testSendMessageWithLeadingNewLine() throws Exception {
       conn.connect(defUser, defPass);
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND).addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName()).setBody("Hello World");
@@ -464,7 +465,7 @@ public class StompTest extends StompTestBase {
       assertTrue(Math.abs(tnow - tmsg) < 1000);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithReceipt() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -483,7 +484,7 @@ public class StompTest extends StompTestBase {
       assertTrue(Math.abs(tnow - tmsg) < 1000);
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithContentLength() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
       conn.connect(defUser, defPass);
@@ -505,7 +506,7 @@ public class StompTest extends StompTestBase {
       assertEquals(data[3], message.readByte());
    }
 
-   @TestTemplate
+   @Test
    public void testJMSXGroupIdCanBeSet() throws Exception {
       final String jmsxGroupID = "JMSXGroupID";
       MessageConsumer consumer = session.createConsumer(queue);
@@ -522,7 +523,7 @@ public class StompTest extends StompTestBase {
       assertEquals(jmsxGroupID, message.getStringProperty("JMSXGroupID"));
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithCustomHeadersAndSelector() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue, "foo = 'abc'");
@@ -539,7 +540,7 @@ public class StompTest extends StompTestBase {
       assertEquals("123", message.getStringProperty("bar"), "bar");
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithCustomHeadersAndHyphenatedSelector() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue, "hyphenated_props:b-ar = '123'");
@@ -556,7 +557,7 @@ public class StompTest extends StompTestBase {
       assertEquals("123", message.getStringProperty("b-ar"), "b-ar");
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithStandardHeaders() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -581,7 +582,7 @@ public class StompTest extends StompTestBase {
       // Assert.assertEquals("GroupID", "abc", amqMessage.getGroupID());
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithLongHeaders() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -608,7 +609,7 @@ public class StompTest extends StompTestBase {
       assertEquals("abc", message.getStringProperty("JMSXGroupID"), "JMSXGroupID");
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithDelay() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -630,7 +631,7 @@ public class StompTest extends StompTestBase {
       assertEquals("abc", message.getStringProperty("JMSXGroupID"), "JMSXGroupID");
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithDeliveryTime() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -652,7 +653,7 @@ public class StompTest extends StompTestBase {
       assertEquals("abc", message.getStringProperty("JMSXGroupID"), "JMSXGroupID");
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithDelayWithBadValue() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -669,7 +670,7 @@ public class StompTest extends StompTestBase {
       assertTrue(error.getCommand().equals("ERROR"));
    }
 
-   @TestTemplate
+   @Test
    public void testSendMessageWithDeliveryTimeWithBadValue() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -686,7 +687,7 @@ public class StompTest extends StompTestBase {
       assertTrue(error.getCommand().equals("ERROR"));
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithAutoAck() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -712,7 +713,7 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @TestTemplate
+   @Test
    public void testNullPropertyValue() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -729,7 +730,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testTransactedSessionLeak() throws Exception {
       for (int i = 0; i < 10; i++) {
          conn = StompClientConnectionFactory.createClientConnection(uri);
@@ -760,7 +761,7 @@ public class StompTest extends StompTestBase {
       assertEquals(0, stompProtocolManager.getTransactedSessions().size());
    }
 
-   @TestTemplate
+   @Test
    public void testIngressTimestamp() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setEnableIngressTimestamp(true));
       conn.connect(defUser, defPass);
@@ -781,7 +782,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testAnycastDestinationTypeMessageProperty() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -799,7 +800,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testMulticastDestinationTypeMessageProperty() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -817,7 +818,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscriptionQueueCreatedWhenAutoCreateDisabled() throws Exception {
       SimpleString topic = SimpleString.of(getTopicPrefix() + getTopicName());
       server.getAddressSettingsRepository().getMatch(topic.toString()).setAutoCreateQueues(false);
@@ -830,7 +831,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -854,7 +855,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithMessageSentWithProperties() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -888,7 +889,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithID() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, "mysubid", Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -905,7 +906,7 @@ public class StompTest extends StompTestBase {
    }
 
    //
-   @TestTemplate
+   @Test
    public void testBodyWithUTF8() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -923,7 +924,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testMessagesAreInOrder() throws Exception {
       int ctr = 10;
       String[] data = new String[ctr];
@@ -957,7 +958,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithAutoAckAndSelector() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "foo = 'zzz'");
@@ -972,7 +973,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithAutoAckAndHyphenatedSelector() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "hyphenated_props:foo-bar = 'zzz'");
@@ -1000,7 +1001,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithAutoAckAndXpathSelector() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "XPATH 'root/a'");
@@ -1015,7 +1016,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithClientAck() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT);
@@ -1034,7 +1035,7 @@ public class StompTest extends StompTestBase {
       assertNull(message);
    }
 
-   @TestTemplate
+   @Test
    public void testRedeliveryWithClientAck() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT);
@@ -1052,12 +1053,12 @@ public class StompTest extends StompTestBase {
       assertTrue(message.getJMSRedelivered());
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithNoDisconnectFrame() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(false);
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithExplicitDisconnect() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(true);
    }
@@ -1107,7 +1108,7 @@ public class StompTest extends StompTestBase {
       assertEquals("shouldBeNextMessage", frame.getBody());
    }
 
-   @TestTemplate
+   @Test
    public void testUnsubscribe() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -1130,7 +1131,7 @@ public class StompTest extends StompTestBase {
       assertNull(frame, "No message should have been received since subscription was removed");
    }
 
-   @TestTemplate
+   @Test
    public void testUnsubscribeWithID() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, "mysubid", Stomp.Headers.Subscribe.AckModeValues.AUTO);
@@ -1154,7 +1155,7 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @TestTemplate
+   @Test
    public void testTransactionCommit() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
       conn.connect(defUser, defPass);
@@ -1171,7 +1172,7 @@ public class StompTest extends StompTestBase {
       assertNotNull(message, "Should have received a message");
    }
 
-   @TestTemplate
+   @Test
    public void testSuccessiveTransactionsWithSameID() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
       conn.connect(defUser, defPass);
@@ -1193,7 +1194,7 @@ public class StompTest extends StompTestBase {
       assertNotNull(message, "Should have received a message");
    }
 
-   @TestTemplate
+   @Test
    public void testBeginSameTransactionTwice() throws Exception {
       conn.connect(defUser, defPass);
       beginTransaction(conn, "tx1");
@@ -1203,7 +1204,7 @@ public class StompTest extends StompTestBase {
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 
-   @TestTemplate
+   @Test
    public void testTransactionRollback() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
       String txId = "tx1";
@@ -1223,7 +1224,7 @@ public class StompTest extends StompTestBase {
       assertEquals("second message", message.getText());
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeToTopic() throws Exception {
       final int baselineQueueCount = server.getActiveMQServerControl().getQueueNames().length;
 
@@ -1261,7 +1262,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeToQueue() throws Exception {
       final int baselineQueueCount = server.getActiveMQServerControl().getQueueNames().length;
 
@@ -1296,7 +1297,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeToNonExistentQueue() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
 
@@ -1329,7 +1330,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDurableSubscriberWithReconnection() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopic(conn, null, null, getName());
@@ -1358,7 +1359,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDurableSubscriberWithReconnectionLegacy() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
@@ -1387,7 +1388,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDurableSubscriber() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopic(conn, null, null, getName(), true);
@@ -1399,7 +1400,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDurableSubscriberLegacySubscriptionHeader() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
@@ -1411,7 +1412,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDurableUnSubscribe() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopic(conn, null, null, getName(), true);
@@ -1431,7 +1432,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of("myclientid." + getName())) == null);
    }
 
-   @TestTemplate
+   @Test
    public void testDurableUnSubscribeWithoutDurableSubName() throws Exception {
       server.getConfiguration().getWildcardConfiguration().setDelimiter('/');
       server.getAddressSettingsRepository().addMatch("/topic/#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
@@ -1458,7 +1459,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of("myclientid." + durableSubName)) != null);
    }
 
-   @TestTemplate
+   @Test
    public void testDurableUnSubscribeLegacySubscriptionHeader() throws Exception {
       conn.connect(defUser, defPass, "myclientid");
       subscribeTopicLegacyActiveMQ(conn, null, null, getName(), true, false);
@@ -1478,7 +1479,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of("myclientid." + getName())) == null);
    }
 
-   @TestTemplate
+   @Test
    public void testSubscribeToTopicWithNoLocal() throws Exception {
       conn.connect(defUser, defPass);
       subscribeTopic(conn, null, null, null, true, true);
@@ -1500,7 +1501,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testTopicExistsAfterNoUnsubscribeDisconnect() throws Exception {
       conn.connect(defUser, defPass);
       subscribeTopic(conn, null, null, null, true);
@@ -1528,7 +1529,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testClientAckNotPartOfTransaction() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT);
@@ -1555,7 +1556,7 @@ public class StompTest extends StompTestBase {
    }
 
    // HORNETQ-1007
-   @TestTemplate
+   @Test
    public void testMultiProtocolConsumers() throws Exception {
       final int TIME_OUT = 2000;
       // a timeout for when we expect negative results (like receive==null)
@@ -1597,7 +1598,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    //stomp should return an ERROR when acking a non-existent message
    public void testUnexpectedAck() throws Exception {
       String messageID = "888888";
@@ -1612,42 +1613,42 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDotAnycastPrefixOnSend() throws Exception {
       testPrefix("jms.queue.", RoutingType.ANYCAST, true);
    }
 
-   @TestTemplate
+   @Test
    public void testDotMulticastPrefixOnSend() throws Exception {
       testPrefix("jms.topic.", RoutingType.MULTICAST, true);
    }
 
-   @TestTemplate
+   @Test
    public void testDotAnycastPrefixOnSubscribe() throws Exception {
       testPrefix("jms.queue.", RoutingType.ANYCAST, false);
    }
 
-   @TestTemplate
+   @Test
    public void testDotMulticastPrefixOnSubscribe() throws Exception {
       testPrefix("jms.topic.", RoutingType.MULTICAST, false);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashAnycastPrefixOnSend() throws Exception {
       testPrefix("/queue/", RoutingType.ANYCAST, true);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashMulticastPrefixOnSend() throws Exception {
       testPrefix("/topic/", RoutingType.MULTICAST, true);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashAnycastPrefixOnSubscribe() throws Exception {
       testPrefix("/queue/", RoutingType.ANYCAST, false);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashMulticastPrefixOnSubscribe() throws Exception {
       testPrefix("/topic/", RoutingType.MULTICAST, false);
    }
@@ -1694,7 +1695,7 @@ public class StompTest extends StompTestBase {
     *
     * @throws Exception
     */
-   @TestTemplate
+   @Test
    public void testPrefixedAutoCreatedAnycastAndMulticastWithSameName() throws Exception {
       int port = 61614;
 
@@ -1773,7 +1774,7 @@ public class StompTest extends StompTestBase {
     *
     * @throws Exception
     */
-   @TestTemplate
+   @Test
    public void testPrefixedAutoCreatedMulticastAndAnycastWithSameName() throws Exception {
       int port = 61614;
 
@@ -1841,22 +1842,22 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testDotPrefixedSendAndRecieveAnycast() throws Exception {
       testPrefixedSendAndRecieve("jms.queue.", RoutingType.ANYCAST);
    }
 
-   @TestTemplate
+   @Test
    public void testDotPrefixedSendAndRecieveMulticast() throws Exception {
       testPrefixedSendAndRecieve("jms.topic.", RoutingType.MULTICAST);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashPrefixedSendAndRecieveAnycast() throws Exception {
       testPrefixedSendAndRecieve("/queue/", RoutingType.ANYCAST);
    }
 
-   @TestTemplate
+   @Test
    public void testSlashPrefixedSendAndRecieveMulticast() throws Exception {
       testPrefixedSendAndRecieve("/topic/", RoutingType.MULTICAST);
    }
@@ -1890,13 +1891,13 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testMulticastOperationsOnAnycastAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
       testRoutingSemantics(getQueuePrefix() + getQueueName(), RoutingType.MULTICAST.toString());
    }
 
-   @TestTemplate
+   @Test
    public void testAnycastOperationsOnMulticastAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
       testRoutingSemantics(getTopicPrefix() + getTopicName(), RoutingType.ANYCAST.toString());
@@ -1920,7 +1921,7 @@ public class StompTest extends StompTestBase {
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 
-   @TestTemplate
+   @Test
    public void testGetManagementAttributeFromStomp() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
       conn.connect(defUser, defPass);
@@ -1944,7 +1945,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testInvokeOperationFromStomp() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -1967,7 +1968,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   @TestTemplate
+   @Test
    public void testAnycastMessageRoutingExclusivity() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -1988,7 +1989,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of(queueC)).getMessageCount() == 0);
    }
 
-   @TestTemplate
+   @Test
    public void testMulticastMessageRoutingExclusivity() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -2009,7 +2010,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount() == 2);
    }
 
-   @TestTemplate
+   @Test
    public void testAmbiguousMessageRouting() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -2032,7 +2033,7 @@ public class StompTest extends StompTestBase {
       Wait.assertTrue(() -> server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueD)).getMessageCount() == 2);
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreatedAnycastAddress() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -2051,7 +2052,7 @@ public class StompTest extends StompTestBase {
       assertEquals(RoutingType.ANYCAST, server.locateQueue(simpleQueueName).getRoutingType());
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreatedMulticastAddress() throws Exception {
       conn.connect(defUser, defPass);
 
@@ -2068,7 +2069,7 @@ public class StompTest extends StompTestBase {
       assertNull(server.locateQueue(simpleQueueName));
    }
 
-   @TestTemplate
+   @Test
    public void directDeliverDisabledOnStomp() throws Exception {
       String payload = "This is a test message";
 
@@ -2092,7 +2093,7 @@ public class StompTest extends StompTestBase {
 
    }
 
-   @TestTemplate
+   @Test
    public void testSameMessageHasDifferentMessageIdPerConsumer() throws Exception {
       conn.connect(defUser, defPass);
 

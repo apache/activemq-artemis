@@ -16,29 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import javax.jms.MessageConsumer;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.jms.MessageConsumer;
-import javax.jms.TextMessage;
-
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
-import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
-import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-@ExtendWith(ParameterizedTestExtension.class)
 public class StompWithSecurityTest extends StompTestBase {
+
+   public StompWithSecurityTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public boolean isSecurityEnabled() {
       return true;
    }
 
-   @TestTemplate
+   @Test
    public void testJMSXUserID() throws Exception {
       server.getConfiguration().setPopulateValidatedUser(true);
 

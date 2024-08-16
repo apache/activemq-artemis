@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,16 +25,20 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrameInterceptor;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class StompWithRejectingInterceptorTest extends StompTestBase {
+
+   public StompWithRejectingInterceptorTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public List<String> getIncomingInterceptors() {
@@ -47,7 +48,7 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
       return stompIncomingInterceptor;
    }
 
-   @TestTemplate
+   @Test
    public void stompFrameInterceptor() throws Exception {
       IncomingStompFrameRejectInterceptor.interceptedFrames.clear();
 

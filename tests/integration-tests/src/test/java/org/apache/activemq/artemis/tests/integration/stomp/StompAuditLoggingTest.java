@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -35,10 +34,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
 public class StompAuditLoggingTest extends StompTestBase {
 
    private static final String BASE_AUDIT_LOGGER_NAME = AuditLogger.BASE_LOGGER.getLogger().getName();
@@ -48,6 +45,10 @@ public class StompAuditLoggingTest extends StompTestBase {
    private final String user = "nopriv";
    private final String pass = user;
    private final String role = "nopriv";
+
+   public StompAuditLoggingTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public boolean isSecurityEnabled() {
@@ -89,7 +90,7 @@ public class StompAuditLoggingTest extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testAuthzFailureAuditLogging() throws Exception {
       conn.connect(user, pass);
 

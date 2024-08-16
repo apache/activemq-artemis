@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URL;
@@ -27,16 +25,19 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class StompWithSecurityPerAcceptorTest extends StompTestBase {
+
+   public StompWithSecurityPerAcceptorTest() {
+      super("tcp+v10.stomp");
+   }
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -76,14 +77,14 @@ public class StompWithSecurityPerAcceptorTest extends StompTestBase {
       return server;
    }
 
-   @TestTemplate
+   @Test
    public void testSecurityPerAcceptorPositive() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("first", "secret");
       assertTrue(frame.getCommand().equals(Stomp.Responses.CONNECTED));
    }
 
-   @TestTemplate
+   @Test
    public void testSecurityPerAcceptorNegative() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("fail", "secret");

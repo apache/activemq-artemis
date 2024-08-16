@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
@@ -27,6 +26,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -55,9 +55,12 @@ import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Sender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link SenderController} used when an AMQP federation Address receiver is created
@@ -67,6 +70,10 @@ import org.apache.qpid.proton.engine.Sender;
  * control the lifetime of the address once the link is closed.
  */
 public final class AMQPFederationAddressSenderController extends AMQPFederationBaseSenderController {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private ProtonServerSenderContext senderContext;
 
    public AMQPFederationAddressSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
       super(session);
@@ -79,10 +86,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       final Source source = (Source) sender.getRemoteSource();
       final String selector;
       final SimpleString queueName = SimpleString.of(sender.getName());
-      final Connection protonConnection = sender.getSession().getConnection();
-      final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
-
-      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+      final Connection protonConnection = session.getSession().getConnection();
 
       if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
@@ -91,6 +95,9 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       if (source == null) {
          throw new ActiveMQAMQPNotImplementedException("Null source lookup not supported on federation links.");
       }
+
+      // Store for use during link close
+      this.senderContext = senderContext;
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
@@ -196,7 +203,41 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       // to the remote to prompt it to create a new receiver.
       resourceDeletedAction = (e) -> federation.registerMissingAddress(address.toString());
 
+      registerRemoteLinkClosedInterceptor(sender);
+
       return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
+   }
+
+   @Override
+   protected void handleLinkRemotelyClosed() {
+      // Remote closed indicating there was no demand, so we can cleanup the federation binding
+      deleteAddressFederationBindingIfPresent();
+   }
+
+   @Override
+   protected void handleLinkLocallyClosed(ErrorCondition error) {
+      // Local side forcibly removed the federation consumer so we should ensure the binding is removed.
+      deleteAddressFederationBindingIfPresent();
+   }
+
+   private void deleteAddressFederationBindingIfPresent() {
+      if (senderContext == null) {
+         return;
+      }
+
+      try {
+         final Sender sender = senderContext.getSender();
+         final Source source = (Source) sender.getRemoteSource();
+         final SimpleString queueName = SimpleString.of(sender.getName());
+         final RoutingType routingType = getRoutingType(source);
+
+         final QueueQueryResult queueQuery = sessionSPI.queueQuery(queueName, routingType, false);
+         if (queueQuery.isExists()) {
+            sessionSPI.deleteQueue(queueName);
+         }
+      } catch (Exception e) {
+         logger.debug("Federation address sender link closed cleanup caught error: ", e);
+      }
    }
 
    @SuppressWarnings("unchecked")

@@ -92,6 +92,10 @@ public class StompPluginTest extends StompTestBase {
       return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompPluginTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
    @BeforeEach
    public void setUp() throws Exception {
