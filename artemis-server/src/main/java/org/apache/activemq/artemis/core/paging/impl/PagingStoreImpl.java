@@ -1096,6 +1096,7 @@ public class PagingStoreImpl implements PagingStore {
          if (isFull()) {
             if (runOnFailure && runWhenAvailable != null) {
                addToBlockList(runWhenAvailable, blockedCallback);
+               pagingManager.addBlockedStore(this);
             }
             return false;
          }
@@ -1178,7 +1179,7 @@ public class PagingStoreImpl implements PagingStore {
          }
       }
 
-      return false;
+      return !blocking;
    }
 
    @Override
