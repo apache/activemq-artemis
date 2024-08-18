@@ -75,6 +75,13 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       }
    }
 
+   public FileStoreMonitor removeCallback(Callback callback) {
+      synchronized (monitorLock) {
+         callbackList.remove(callback);
+      }
+      return this;
+   }
+
    public FileStoreMonitor addStore(File file) throws IOException {
       synchronized (monitorLock) {
          // JDBC storage may return this as null, and we may need to ignore it
