@@ -94,10 +94,19 @@ public class AnycastTest extends ActiveMQTestBase {
       }
       assertNull(consumer1.receive(200));
       assertNull(consumer2.receive(200));
+
+      // before commit close the consumers because it can trigger delivering count
+      // that makes getMessageCount temporarily inaccurate.
+      consumer1.close();
+      consumer2.close();
+
       session.commit();
 
       assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num / 2 == q1.getMessageCount()));
       assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num / 2 == q2.getMessageCount()));
+
+      consumer1 = session.createConsumer(q1.getName());
+      consumer2 = session.createConsumer(q2.getName());
 
       ClientConsumer[] consumers = new ClientConsumer[]{consumer1, consumer2};
       for (int i = 0; i < consumers.length; i++) {
