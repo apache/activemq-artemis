@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -67,6 +69,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.mqtt.FuseMQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -95,6 +98,15 @@ public class StompTest extends StompTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected StompClientConnection conn;
+
+   @Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
+   }
+
+   public StompTest(String scheme) {
+      super(scheme);
+   }
 
    @Override
    protected ActiveMQServer createServer() throws Exception {

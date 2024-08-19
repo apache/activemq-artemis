@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +31,23 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<SimpleString, PersistedAddressSettingJSON> mapExpectedAddresses;
+
+   @Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    public AddressSettingsConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);

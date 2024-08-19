@@ -83,6 +83,10 @@ public class StompV12Test extends StompTestBase {
       return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompV12Test(String scheme) {
+      super(scheme);
+   }
+
    @Override
    @BeforeEach
    public void setUp() throws Exception {

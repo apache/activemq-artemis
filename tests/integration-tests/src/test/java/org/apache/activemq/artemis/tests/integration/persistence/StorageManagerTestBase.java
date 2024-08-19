@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,8 +26,6 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -37,9 +33,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(ParameterizedTestExtension.class)
 public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    protected ExecutorService executor;
@@ -54,12 +48,6 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    public StorageManagerTestBase(StoreConfiguration.StoreType storeType) {
       this.storeType = storeType;
-   }
-
-   @Parameters(name = "storeType={0}")
-   public static Collection<Object[]> data() {
-      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
-      return Arrays.asList(params);
    }
 
    @Override

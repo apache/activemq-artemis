@@ -46,6 +46,10 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
       return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompPropertiesInterceptorTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
    public List<String> getIncomingInterceptors() {
       List<String> stompIncomingInterceptor = new ArrayList<>();

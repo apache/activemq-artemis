@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +29,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -46,6 +49,15 @@ public class StompLVQTest extends StompTestBase {
    protected StompClientConnection consumerConn;
 
    private final String queue = "lvq";
+
+   @Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
+   }
+
+   public StompLVQTest(String scheme) {
+      super(scheme);
+   }
 
    @Override
    @BeforeEach

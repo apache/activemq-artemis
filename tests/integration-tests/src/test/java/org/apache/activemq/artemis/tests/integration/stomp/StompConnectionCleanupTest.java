@@ -29,10 +29,15 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+// Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompConnectionCleanupTest extends StompTest {
 
    private static final long CONNECTION_TTL = 2000;
+
+   public StompConnectionCleanupTest(String scheme) {
+      super(scheme);
+   }
 
    // ARTEMIS-231
    @TestTemplate

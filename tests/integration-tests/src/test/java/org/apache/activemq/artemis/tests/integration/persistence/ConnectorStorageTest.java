@@ -16,20 +16,28 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
 public class ConnectorStorageTest extends StorageManagerTestBase {
+
+   @Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    public ConnectorStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);

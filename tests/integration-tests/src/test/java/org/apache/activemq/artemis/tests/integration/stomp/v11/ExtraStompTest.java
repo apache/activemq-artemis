@@ -55,6 +55,10 @@ public class ExtraStompTest extends StompTestBase {
       return Arrays.asList(new Object[][]{{"ws+v11.stomp"}, {"tcp+v11.stomp"}});
    }
 
+   public ExtraStompTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
    public boolean isPersistenceEnabled() {
       return true;

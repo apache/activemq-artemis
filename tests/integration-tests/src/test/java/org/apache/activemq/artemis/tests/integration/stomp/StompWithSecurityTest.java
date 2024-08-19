@@ -20,10 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -32,6 +36,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompWithSecurityTest extends StompTestBase {
+
+   @Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
+   }
+
+   public StompWithSecurityTest(String scheme) {
+      super(scheme);
+   }
 
    @Override
    public boolean isSecurityEnabled() {

@@ -55,6 +55,10 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
       return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"ws+v11.stomp"}, {"ws+v12.stomp"}});
    }
 
+   public StompWebSocketMaxFrameTest(String scheme) {
+      super(scheme);
+   }
+
    @BeforeEach
    @Override
    public void setUp() throws Exception {

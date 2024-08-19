@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +29,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -48,6 +51,15 @@ public class StompAuditLoggingTest extends StompTestBase {
    private final String user = "nopriv";
    private final String pass = user;
    private final String role = "nopriv";
+
+   @Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
+   }
+
+   public StompAuditLoggingTest(String scheme) {
+      super(scheme);
+   }
 
    @Override
    public boolean isSecurityEnabled() {

@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,33 +54,22 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtendWith(ParameterizedTestExtension.class)
 public abstract class StompTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameter(index = 0)
    public String scheme;
 
    protected URI uri;
-
-   @Parameters(name = "{0}")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
-   }
 
    protected String hostname = "127.0.0.1";
 
@@ -103,6 +90,10 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    protected String defUser = "brianm";
 
    protected String defPass = "wombats";
+
+   public StompTestBase(String scheme) {
+      this.scheme = scheme;
+   }
 
    // Implementation methods
    // -------------------------------------------------------------------------

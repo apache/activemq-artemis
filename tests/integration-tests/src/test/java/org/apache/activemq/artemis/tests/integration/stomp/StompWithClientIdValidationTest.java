@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -33,6 +35,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.jupiter.api.TestTemplate;
@@ -40,6 +43,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class StompWithClientIdValidationTest extends StompTestBase {
+
+   @Parameters(name = "{0}")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
+   }
+
+   public StompWithClientIdValidationTest(String scheme) {
+      super(scheme);
+   }
 
    @Override
    public boolean isSecurityEnabled() {

@@ -53,6 +53,10 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       return Arrays.asList(new Object[][]{{"tcp+v10.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompWithLargeMessagesTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
    @BeforeEach
    public void setUp() throws Exception {
