@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
@@ -79,10 +78,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       final Source source = (Source) sender.getRemoteSource();
       final String selector;
       final SimpleString queueName = SimpleString.of(sender.getName());
-      final Connection protonConnection = sender.getSession().getConnection();
-      final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
-
-      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+      final Connection protonConnection = session.getSession().getConnection();
 
       if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
@@ -195,6 +191,8 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationB
       // removed during the lifetime of the federation receiver, if restored an event will be sent
       // to the remote to prompt it to create a new receiver.
       resourceDeletedAction = (e) -> federation.registerMissingAddress(address.toString());
+
+      registerRemoteLinkClosedInterceptor(sender);
 
       return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
    }
