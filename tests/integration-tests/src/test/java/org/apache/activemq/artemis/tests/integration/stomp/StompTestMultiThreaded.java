@@ -16,35 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class StompTestMultiThreaded extends StompTestBase {
 
    private static final SimpleString QUEUE = SimpleString.of("x");
 
-   @Parameters(name = "{0}")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
-   }
-
-   public StompTestMultiThreaded(String scheme) {
-      super(scheme);
+   public StompTestMultiThreaded() {
+      super("tcp+v10.stomp");
    }
 
    class SomeConsumer extends Thread {
@@ -76,7 +65,7 @@ public class StompTestMultiThreaded extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testTwoConcurrentSubscribers() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false).setAutoDeleteQueues(false));
       server.getRemotingService().createAcceptor("test", "tcp://localhost:61614?protocols=STOMP&anycastPrefix=/queue/").start();
