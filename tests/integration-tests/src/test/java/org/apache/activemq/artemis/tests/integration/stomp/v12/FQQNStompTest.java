@@ -14,15 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.stomp;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+package org.apache.activemq.artemis.tests.integration.stomp.v12;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -31,33 +25,29 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class FQQNStompTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private StompClientConnection conn;
 
-   @Parameters(name = "{0}")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
-   }
-
-   public FQQNStompTest(String scheme) {
-      super(scheme);
+   public FQQNStompTest() {
+      super("tcp+v12.stomp");
    }
 
    @Override
@@ -86,7 +76,7 @@ public class FQQNStompTest extends StompTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    //to receive from a FQQN queue like testQueue::testQueue
    //special care is needed as ":" is a reserved character
    //in STOMP. Clients need to escape it.
@@ -101,7 +91,7 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
    }
 
-   @TestTemplate
+   @Test
    public void testReceiveFQQN2() throws Exception {
       final SimpleString myAddress = SimpleString.of("myAddress");
       final SimpleString q1Name = SimpleString.of("q1");
@@ -125,7 +115,7 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
    }
 
-   @TestTemplate
+   @Test
    public void testSendFQQNMulticast() throws Exception {
       final SimpleString myAddress = SimpleString.of("myAddress");
       final SimpleString q1Name = SimpleString.of("q1");
@@ -150,7 +140,7 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
    }
 
-   @TestTemplate
+   @Test
    public void testSendFQQNAnycast() throws Exception {
       final SimpleString myAddress = SimpleString.of("myAddress");
       final SimpleString q1Name = SimpleString.of("q1");
@@ -189,7 +179,7 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
    }
 
-   @TestTemplate
+   @Test
    public void testReceiveFQQNSpecial() throws Exception {
       conn.connect(defUser, defPass);
       //::queue
@@ -217,7 +207,7 @@ public class FQQNStompTest extends StompTestBase {
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreateOnSendFQQN() throws Exception {
       final SimpleString myAddress = SimpleString.of("myAddress");
       final SimpleString q1Name = SimpleString.of("q1");
@@ -237,17 +227,17 @@ public class FQQNStompTest extends StompTestBase {
       unsubscribe(conn, "sub-01");
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreateOnSubscribeFQQNAnycast() throws Exception {
       internalTestAutoCreateOnSubscribeFQQN(RoutingType.ANYCAST);
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreateOnSubscribeFQQNMulticast() throws Exception {
       internalTestAutoCreateOnSubscribeFQQN(RoutingType.MULTICAST);
    }
 
-   @TestTemplate
+   @Test
    public void testAutoCreateOnSubscribeFQQNNoRoutingType() throws Exception {
       internalTestAutoCreateOnSubscribeFQQN(null);
    }

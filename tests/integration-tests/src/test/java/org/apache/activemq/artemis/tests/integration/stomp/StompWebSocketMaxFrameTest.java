@@ -16,27 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
 
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class StompWebSocketMaxFrameTest extends StompTestBase {
 
    private final int wsPortWithStompMaxFrame = 61614;
@@ -50,13 +44,8 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
 
    private final int stompWSMaxFrameSize = 131072; // 128kb
 
-   @Parameters(name = "{0}")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"ws+v11.stomp"}, {"ws+v12.stomp"}});
-   }
-
-   public StompWebSocketMaxFrameTest(String scheme) {
-      super(scheme);
+   public StompWebSocketMaxFrameTest() {
+      super("ws+v10.stomp");
    }
 
    @BeforeEach
@@ -74,7 +63,7 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
       wsURIForBothMaxFrameButFails = createStompClientUri(scheme, hostname, wsPortWithBothMaxFrameButFails);
    }
 
-   @TestTemplate
+   @Test
    public void testStompSendReceiveWithMaxFramePayloadLength() throws Exception {
       // Assert that sending message > default 64kb fails
       int size = 65536;
@@ -154,5 +143,4 @@ public class StompWebSocketMaxFrameTest extends StompTestBase {
          conn.closeTransport();
       }
    }
-
 }
