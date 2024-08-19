@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 
 import java.util.Map;
@@ -47,7 +46,6 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
-import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Sender;
 
 /**
@@ -69,10 +67,6 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       final Sender sender = senderContext.getSender();
       final Source source = (Source) sender.getRemoteSource();
       final String selector;
-      final Connection protonConnection = sender.getSession().getConnection();
-      final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
-
-      AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
 
       if (federation == null) {
          throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
@@ -146,6 +140,8 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
       // removed during the lifetime of the federation receiver, if restored an event will be sent
       // to the remote to prompt it to create a new receiver.
       resourceDeletedAction = (e) -> federation.registerMissingQueue(targetQueue.toString());
+
+      registerRemoteLinkClosedInterceptor(sender);
 
       return (Consumer) sessionSPI.createSender(senderContext, targetQueue, selector, false);
    }

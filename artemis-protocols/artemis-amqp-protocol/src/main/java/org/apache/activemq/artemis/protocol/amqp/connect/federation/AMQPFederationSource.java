@@ -55,7 +55,6 @@ import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Connection;
-import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
@@ -277,10 +276,6 @@ public class AMQPFederationSource extends AMQPFederation {
    @Override
    protected void signalError(Exception cause) {
       brokerConnection.runtimeError(cause);
-   }
-
-   protected boolean interceptLinkClosedEvent(Link link) {
-      return false;
    }
 
    private void asyncCreateTargetEventsSender(AMQPFederationCommandDispatcher commandLink) {

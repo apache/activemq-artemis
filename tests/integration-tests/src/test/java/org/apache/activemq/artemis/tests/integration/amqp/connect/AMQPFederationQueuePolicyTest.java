@@ -3841,6 +3841,157 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   @Timeout(20)
+   public void testRemoteFederationReceiverCloseWhenDemandRemovedDoesNotTerminateRemoteConnection() throws Exception {
+      server.start();
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                      .setAddress("test")
+                                                      .setAutoCreated(false));
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test");
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-queue-receiver")
+                                       .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withSource().withAddress("test::test")
+                                                    .withCapabilities("queue");
+
+         // Connect to remote as if some demand had matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName("federation-queue-receiver")
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test::test")
+                                         .withCapabilities("queue")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(10).now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectTransfer().accept();
+
+         // Federate a message to check link is attached properly
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createQueue("test"));
+
+            producer.send(session.createMessage());
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDetach();
+         peer.remoteDetach().now();  // simulate demand removed so consumer is closed.
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-queue-receiver")
+                                       .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withSource().withAddress("test::test")
+                                                    .withCapabilities("queue");
+
+         // Connect to remote as if new demand had matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName("federation-queue-receiver")
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test::test")
+                                         .withCapabilities("queue")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(10).now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteFederationReceiverCloseWithErrorTerminateRemoteConnection() throws Exception {
+      server.start();
+      server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                      .setAddress("test")
+                                                      .setAutoCreated(false));
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test");
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-queue-receiver")
+                                       .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withSource().withAddress("test::test")
+                                                    .withCapabilities("queue");
+
+         // Connect to remote as if some demand had matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName("federation-queue-receiver")
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress("test::test")
+                                         .withCapabilities("queue")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(10).now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectTransfer().accept();
+
+         // Federate a message to check link is attached properly
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createQueue("test"));
+
+            producer.send(session.createMessage());
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // Under normal circumstances the federation source will never close one of its
+         // receivers with an error, so if that happens the remote will shutdown the connection
+         // and let the local rebuild.
+
+         peer.expectDetach();
+         peer.expectClose().withError(AmqpError.INTERNAL_ERROR.toString()).respond();
+
+         peer.remoteDetach().withErrorCondition(AmqpError.RESOURCE_DELETED.toString(), "error").now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
+      }
+   }
+
    private static void sendQueueAddedEvent(ProtonTestPeer peer, String address, String queue, int handle, int deliveryId) {
       final Map<String, Object> eventMap = new LinkedHashMap<>();
       eventMap.put(REQUESTED_ADDRESS_NAME, address);
