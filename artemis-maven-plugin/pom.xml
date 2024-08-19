@@ -29,7 +29,7 @@
    <name>ActiveMQ Artemis Maven Plugin</name>
 
    <properties>
-      <plugin.components.maven.version>3.9.8</plugin.components.maven.version>
+      <plugin.components.maven.version>3.9.9</plugin.components.maven.version>
    </properties>
 
    <dependencies>
