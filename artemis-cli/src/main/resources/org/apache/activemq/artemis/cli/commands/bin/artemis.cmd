@@ -52,6 +52,17 @@ set ARTEMIS_PROFILE=artemis-utility.profile.cmd
 if "%1"=="run" set ARTEMIS_PROFILE=artemis.profile.cmd
 
 :LOAD_ARTEMIS_PROFILE
+
+IF NOT EXIST  %ARTEMIS_INSTANCE_ETC%\%ARTEMIS_PROFILE% (
+       echo ********************************************************************************
+       echo Error: %ARTEMIS_INSTANCE_ETC%\%ARTEMIS_PROFILE% does not exist.
+       echo.
+       echo This file should have been created as part of you upgrading from a previous version
+       echo Please use 'artemis upgrade' or make sure you create the file.
+       echo ********************************************************************************
+    exit /b 1
+)
+
 call %ARTEMIS_INSTANCE_ETC%\%ARTEMIS_PROFILE% %*
 
 if not exist %ARTEMIS_OOME_DUMP% goto NO_ARTEMIS_OOME_DUMP
