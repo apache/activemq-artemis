@@ -64,7 +64,7 @@ public class SenderSoakTest extends SoakTestBase {
    private static String DC1_NODEA_URI = "tcp://localhost:61616";
    private static String DC2_NODEA_URI = "tcp://localhost:61618";
 
-   private static void createServer(String serverName, int porOffset) throws Exception {
+   private static void createServer(String serverName, int portOffset) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
       deleteDirectory(serverLocation);
 
@@ -76,7 +76,7 @@ public class SenderSoakTest extends SoakTestBase {
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE_A);
       cliCreateServer.addArgs("--addresses", "order");
       cliCreateServer.addArgs("--queues", "myQueue");
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.createServer();
    }
 

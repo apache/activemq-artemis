@@ -75,7 +75,7 @@ public class DivertQueueMirrorTest extends SmokeTestBase {
    private static void createServer(String serverName,
                                     String connectionName,
                                     String mirrorURI,
-                                    int porOffset) throws Exception {
+                                    int portOffset) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
       deleteDirectory(serverLocation);
 
@@ -87,7 +87,7 @@ public class DivertQueueMirrorTest extends SmokeTestBase {
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE_A);
       cliCreateServer.addArgs("--queues", CREATE_QUEUE);
       cliCreateServer.addArgs("--java-memory", "512M");
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.createServer();
 
       Properties brokerProperties = new Properties();

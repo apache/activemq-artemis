@@ -133,7 +133,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
    private static void createServer(String serverName,
                                     String connectionName,
                                     String mirrorURI,
-                                    int porOffset,
+                                    int portOffset,
                                     boolean paging,
                                     boolean replicated,
                                     String clusterStatic) throws Exception {
@@ -145,7 +145,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       cliCreateServer.setNoWeb(false);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--addresses", TOPIC_NAME);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       if (replicated) {
          cliCreateServer.setReplicated(true);
          cliCreateServer.setStaticCluster(clusterStatic);
@@ -195,7 +195,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
    }
 
    private static void createBackupServer(String serverName,
-                                    int porOffset,
+                                    int portOffset,
                                     String clusterStatic) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
       deleteDirectory(serverLocation);
@@ -206,7 +206,7 @@ public class ReplicatedMirrorTargetTest extends SoakTestBase {
       cliCreateServer.setNoWeb(false);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--addresses", TOPIC_NAME);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.setClustered(true);
       cliCreateServer.setReplicated(true);
       cliCreateServer.setBackup(true);
