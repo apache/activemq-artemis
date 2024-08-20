@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
@@ -63,6 +64,8 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ADD_ADDRESS;
@@ -93,6 +96,22 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    public static MirrorController getControllerInUse() {
       return CONTROLLER_THREAD_LOCAL.get();
+   }
+
+   /** The rate in milliseconds that we will print OperationContext debug information on the mirror target */
+   private static final int DEBUG_CONTEXT_PERIOD;
+   private ScheduledFuture<?> scheduledRateDebugFuture = null;
+
+   static {
+      int period;
+      try {
+         period = Integer.parseInt(System.getProperty(AMQPMirrorControllerTarget.class.getName() + ".DEBUG_CONTEXT_PERIOD", "5000"));
+      } catch (Throwable e) {
+         logger.debug(e.getMessage(), e);
+         period  = 0;
+      }
+
+      DEBUG_CONTEXT_PERIOD = period;
    }
 
    /**
@@ -201,12 +220,23 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       creditRunnable.run();
    }
 
+
+   @Override
+   protected OperationContext recoverContext() {
+      OperationContext oldContext = super.recoverContext();
+      OperationContextImpl.getContext().setSyncReplication(configuration.isMirrorReplicaSync());
+      return oldContext;
+   }
+
    @Override
    protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
-      recoverContext();
+      OperationContext oldContext = recoverContext();
+
+      scheduleRateDebug();
+
       incrementSettle();
 
-      logger.trace("{}::actualdelivery call for {}", server, message);
+      logger.trace("{}::actualDelivery call for {}", server, message);
       setControllerInUse(this);
 
       delivery.setContext(message);
@@ -281,6 +311,21 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          if (messageAckOperation != null) {
             server.getStorageManager().afterCompleteOperations(messageAckOperation);
          }
+
+         OperationContextImpl.setContext(oldContext);
+      }
+   }
+
+   private void scheduleRateDebug() {
+      if (logger.isDebugEnabled()) { // no need to schedule rate debug if no debug allowed
+         if (DEBUG_CONTEXT_PERIOD > 0 && scheduledRateDebugFuture == null) {
+            OperationContextImpl context = (OperationContextImpl) OperationContextImpl.getContext();
+            scheduledRateDebugFuture = server.getScheduledPool().scheduleAtFixedRate(() -> {
+               logger.debug(">>> OperationContext rate information: synReplica={}, replicationLineup = {}. replicationDone = {}, pending replica (back pressure) = {}, storeLineUp = {}, storeDone = {}, pageLineUp = {}, paged = {}", configuration.isMirrorReplicaSync(), context.getReplicationLineUpField(), context.getReplicated(), (context.getReplicationLineUpField() - context.getReplicated()), context.getStoreLineUpField(), context.getStored(), context.getPagedLinedUpField(), context.getPaged());
+            }, DEBUG_CONTEXT_PERIOD, DEBUG_CONTEXT_PERIOD, TimeUnit.MILLISECONDS);
+         }
+      } else {
+         cancelRateDebug();
       }
    }
 
@@ -495,6 +540,23 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       // return true here will instruct the caller to ignore any references to messageCompletionAck
       return true;
+   }
+
+   @Override
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      super.close(remoteLinkClose);
+      cancelRateDebug();
+   }
+
+   private void cancelRateDebug() {
+      if (scheduledRateDebugFuture != null) {
+         try {
+            scheduledRateDebugFuture.cancel(true);
+         } catch (Throwable e) {
+            logger.debug("error on cancelRateDebug", e);
+         }
+         scheduledRateDebugFuture = null;
+      }
    }
 
    /** When the source mirror receives messages from a cluster member of his own, it should then fill targetQueues so we could play the same semantic the source applied on its routing */
