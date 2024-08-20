@@ -97,7 +97,7 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
    private static void createMirroredServer(String serverName,
                                             String connectionName,
                                             String mirrorURI,
-                                            int porOffset,
+                                            int portOffset,
                                             boolean replicated,
                                             String clusterStatic) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
@@ -108,7 +108,7 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
       cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--queues", QUEUE_NAME);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       if (replicated) {
          cliCreateServer.setReplicated(true);
          cliCreateServer.setStaticCluster(clusterStatic);
@@ -162,7 +162,7 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
    }
 
    private static void createMirroredBackupServer(String serverName,
-                                                  int porOffset,
+                                                  int portOffset,
                                                   String clusterStatic,
                                                   String mirrorURI) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
@@ -173,7 +173,7 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
       cliCreateServer.setMessageLoadBalancing("ON_DEMAND");
       cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.setClustered(true);
       cliCreateServer.setReplicated(true);
       cliCreateServer.setBackup(true);

@@ -74,7 +74,7 @@ public class MultiMirrorSoakTest extends SoakTestBase {
    private static String DC3_NODEA_URI = "tcp://localhost:61618";
 
    private static void createServer(String serverName,
-                                    int porOffset,
+                                    int portOffset,
                                     boolean paging,
                                     String... mirrorTo) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
@@ -88,7 +88,7 @@ public class MultiMirrorSoakTest extends SoakTestBase {
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE_A);
       cliCreateServer.addArgs("--addresses", "order");
       cliCreateServer.addArgs("--queues", "myQueue");
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.createServer();
 
       Properties brokerProperties = new Properties();

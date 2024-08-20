@@ -151,7 +151,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
    private static void createMirroredServer(String serverName,
                                     String connectionName,
                                     String mirrorURI,
-                                    int porOffset,
+                                    int portOffset,
                                     boolean replicated,
                                     String clusterStatic) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
@@ -166,7 +166,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--queues", QUEUE_NAME);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       if (replicated) {
          cliCreateServer.setReplicated(true);
          cliCreateServer.setStaticCluster(clusterStatic);
@@ -221,7 +221,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
    }
 
-   private static void createMirroredBackupServer(String serverName, int porOffset, String clusterStatic, String mirrorURI) throws Exception {
+   private static void createMirroredBackupServer(String serverName, int portOffset, String clusterStatic, String mirrorURI) throws Exception {
       File serverLocation = getFileServerLocation(serverName);
       if (REUSE_SERVERS && serverLocation.exists()) {
          deleteDirectory(new File(serverLocation, "data"));
@@ -234,7 +234,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       cliCreateServer.setMessageLoadBalancing("ON_DEMAND");
       cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
-      cliCreateServer.setPortOffset(porOffset);
+      cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.setClustered(true);
       cliCreateServer.setReplicated(true);
       cliCreateServer.setBackup(true);
