@@ -322,9 +322,15 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
       if (started)
          return;
 
-      if (expectedBindings == null) {
-         // just in case the component is restarted
-         expectedBindings = new LinkedList<>();
+      lock.lock();
+
+      try {
+         if (expectedBindings == null) {
+            // just in case the component is restarted
+            expectedBindings = new LinkedList<>();
+         }
+      } finally {
+         lock.unlock();
       }
 
       if (reaperPeriod > 0 && groupTimeout > 0) {
