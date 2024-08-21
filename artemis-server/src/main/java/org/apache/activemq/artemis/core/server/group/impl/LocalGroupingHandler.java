@@ -69,7 +69,8 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    /**
     * This contains a list of expected bindings to be loaded
     * when the group is waiting for them.
-    * During a small window between the server is started and the wait wasn't called yet, this will contain bindings that were already added
+    * During a small window between the server is started and the wait wasn't
+    * called yet, this will contain bindings that were already added
     */
    private List<SimpleString> expectedBindings = new LinkedList<>();
 
@@ -86,14 +87,14 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    private final long reaperPeriod;
 
    public LocalGroupingHandler(final ExecutorFactory executorFactory,
-                               final ScheduledExecutorService scheduledExecutor,
-                               final ManagementService managementService,
-                               final SimpleString name,
-                               final SimpleString address,
-                               final StorageManager storageManager,
-                               final long timeout,
-                               final long groupTimeout,
-                               long reaperPeriod) {
+         final ScheduledExecutorService scheduledExecutor,
+         final ManagementService managementService,
+         final SimpleString name,
+         final SimpleString address,
+         final StorageManager storageManager,
+         final long timeout,
+         final long groupTimeout,
+         long reaperPeriod) {
       super(executorFactory.getExecutor(), managementService, address);
       this.reaperPeriod = reaperPeriod;
       this.scheduledExecutor = scheduledExecutor;
@@ -113,7 +114,8 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
       OperationContext originalCtx = storageManager.getContext();
 
       try {
-         // the waitCompletion cannot be done inside an ordered executor or we would starve when the thread pool is full
+         // the waitCompletion cannot be done inside an ordered executor or we would
+         // starve when the thread pool is full
          storageManager.setContext(storageManager.newSingleThreadContext());
 
          if (proposal.getClusterName() == null) {
@@ -244,26 +246,32 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
          if (groupMap.size() > 0) {
             waitingForBindings = true;
 
-            //make a copy of the bindings added so far from the cluster via onNotification()
+            // make a copy of the bindings added so far from the cluster via
+            // onNotification()
             List<SimpleString> bindingsAlreadyAdded;
             if (expectedBindings == null) {
                bindingsAlreadyAdded = Collections.emptyList();
                expectedBindings = new LinkedList<>();
             } else {
                bindingsAlreadyAdded = new ArrayList<>(expectedBindings);
-               //clear the bindings
+               // clear the bindings
                expectedBindings.clear();
             }
-            //now add all the group bindings that were loaded by the journal
+            // now add all the group bindings that were loaded by the journal
             expectedBindings.addAll(groupMap.keySet());
-            //and if we remove persisted bindings from whats been added so far we have left any bindings we havent yet
-            //received via onNotification
+            // and if we remove persisted bindings from whats been added so far we have left
+            // any bindings we havent yet
+            // received via onNotification
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
             if (expectedBindings.size() > 0) {
-               logger.debug("Waiting remote group bindings to arrive before starting the server. timeout={} milliseconds", timeout);
-               //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
-               //if we aren't signaled then bindingsAdded still has some groupids we need to remove.
+               logger.debug(
+                     "Waiting remote group bindings to arrive before starting the server. timeout={} milliseconds",
+                     timeout);
+               // now we wait here for the rest to be received in onNotification, it will
+               // signal once all have been received.
+               // if we aren't signaled then bindingsAdded still has some groupids we need to
+               // remove.
                if (!ConcurrentUtil.await(awaitCondition, timeout)) {
                   ActiveMQServerLogger.LOGGER.remoteGroupCoordinatorsNotStarted();
                }
@@ -282,23 +290,29 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
          return;
 
       if (notification.getType() == CoreNotificationType.BINDING_REMOVED) {
-         SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+         SimpleString clusterName = notification.getProperties()
+               .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
          removeGrouping(clusterName);
       } else if (notification.getType() == CoreNotificationType.BINDING_ADDED) {
-         SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+         SimpleString clusterName = notification.getProperties()
+               .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
          try {
             lock.lock();
 
             if (expectedBindings != null) {
                if (waitingForBindings) {
                   if (expectedBindings.remove(clusterName)) {
-                     logger.debug("OnNotification for waitForbindings::Removed clusterName={} from list succesffully", clusterName);
+                     logger.debug("OnNotification for waitForbindings::Removed clusterName={} from list succesffully",
+                           clusterName);
                   } else {
-                     logger.debug("OnNotification for waitForbindings::Couldn't remove clusterName={} as it wasn't on the original list", clusterName);
+                     logger.debug(
+                           "OnNotification for waitForbindings::Couldn't remove clusterName={} as it wasn't on the original list",
+                           clusterName);
                   }
                } else {
                   expectedBindings.add(clusterName);
-                  logger.debug("Notification for waitForbindings::Adding previously known item clusterName={}", clusterName);
+                  logger.debug("Notification for waitForbindings::Adding previously known item clusterName={}",
+                        clusterName);
                }
 
                if (logger.isDebugEnabled()) {
@@ -321,27 +335,24 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    public synchronized void start() throws Exception {
       if (started)
          return;
-
-      try
-      {
-         lock.lock();
+      lock.lock();
+      try {
          if (expectedBindings == null) {
             // just in case the component is restarted
             expectedBindings = new LinkedList<>();
          }
-      } 
-      finally 
-      {
+      } finally {
          lock.unlock();
       }
-      
+
       if (reaperPeriod > 0 && groupTimeout > 0) {
          if (reaperFuture != null) {
             reaperFuture.cancel(true);
             reaperFuture = null;
          }
 
-         reaperFuture = scheduledExecutor.scheduleAtFixedRate(new GroupReaperScheduler(), reaperPeriod, reaperPeriod, TimeUnit.MILLISECONDS);
+         reaperFuture = scheduledExecutor.scheduleAtFixedRate(new GroupReaperScheduler(), reaperPeriod, reaperPeriod,
+               TimeUnit.MILLISECONDS);
       }
       started = true;
    }
