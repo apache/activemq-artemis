@@ -79,14 +79,20 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
    }
 
    @Override
-   public void close() throws Exception {
+   public final void close() throws Exception {
       if (federation != null) {
          federation.removeLinkClosedInterceptor(controllerId);
       }
+
+      handleLinkRemotelyClosed();
+   }
+
+   protected void handleLinkRemotelyClosed() {
+      // Default does nothing.
    }
 
    @Override
-   public void close(ErrorCondition error) {
+   public final void close(ErrorCondition error) {
       if (error != null && AmqpError.RESOURCE_DELETED.equals(error.getCondition())) {
          if (resourceDeletedAction != null) {
             resourceDeletedAction.accept(error);
@@ -96,6 +102,12 @@ public abstract class AMQPFederationBaseSenderController implements SenderContro
       if (federation != null) {
          federation.removeLinkClosedInterceptor(controllerId);
       }
+
+      handleLinkLocallyClosed(error);
+   }
+
+   protected void handleLinkLocallyClosed(ErrorCondition error) {
+      // Default does nothing.
    }
 
    @Override
