@@ -448,8 +448,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getMirrorPageTransaction();
 
-   private boolean mirrorReplicaSync = ActiveMQDefaultConfiguration.getMirrorReplicaSync();
-
 
    /**
     * Parent folder for all data folders.
@@ -3415,18 +3413,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public ConfigurationImpl setMirrorAckManagerRetryDelay(int delay) {
       logger.debug("Setting mirrorAckManagerRetryDelay = {}", delay);
       this.mirrorAckManagerRetryDelay = delay;
-      return this;
-   }
-
-   @Override
-   public boolean isMirrorReplicaSync() {
-      return mirrorReplicaSync;
-   }
-
-   @Override
-   public ConfigurationImpl setMirrorReplicaSync(boolean replicaSync) {
-      logger.debug("setMirrorReplicaSync {}", replicaSync);
-      this.mirrorReplicaSync = replicaSync;
       return this;
    }
 

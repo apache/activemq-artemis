@@ -957,16 +957,6 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="mirror-replica-sync" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="true">
-            <xsd:annotation>
-               <xsd:documentation>
-                  If journal replication is used on a target mirror, it is possible to ignore replica waits for any mirror operation.
-
-                  This is exposed as mirrorReplicaSync on broker properties.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
          <xsd:element name="suppress-session-notifications" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

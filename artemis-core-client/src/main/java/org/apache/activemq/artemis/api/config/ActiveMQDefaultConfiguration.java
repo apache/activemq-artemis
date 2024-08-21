@@ -717,8 +717,6 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
 
-   private static final boolean DEFAULT_MIRROR_REPLICA_SYNC = true;
-
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1965,10 +1963,6 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getMirrorAckManagerRetryDelay() {
       return DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY;
-   }
-
-   public static boolean getMirrorReplicaSync() {
-      return DEFAULT_MIRROR_REPLICA_SYNC;
    }
 
    public static boolean getMirrorPageTransaction() {

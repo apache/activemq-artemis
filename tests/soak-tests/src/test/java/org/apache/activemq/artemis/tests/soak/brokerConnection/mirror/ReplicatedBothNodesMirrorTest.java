@@ -191,7 +191,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       brokerProperties.put("addressSettings.#.prefetchPageMessages", "500");
       // if we don't use pageTransactions we may eventually get a few duplicates
       brokerProperties.put("mirrorPageTransaction", "true");
-      brokerProperties.put("mirrorReplicaSync", "false");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
 
@@ -255,7 +254,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       brokerProperties.put("addressSettings.#.prefetchPageMessages", "500");
       // if we don't use pageTransactions we may eventually get a few duplicates
       brokerProperties.put("mirrorPageTransaction", "true");
-      brokerProperties.put("mirrorReplicaSync", "false");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
 
