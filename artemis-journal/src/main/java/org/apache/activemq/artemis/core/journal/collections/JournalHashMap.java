@@ -32,7 +32,6 @@ import java.util.function.Supplier;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
-import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +108,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       }
    }
 
-   public JournalHashMap(long collectionId, Journal journal, LongSupplier idGenerator, Persister<MapRecord<K, V>> persister, byte recordType, Supplier<IOCompletion> completionSupplier, LongFunction<C> contextProvider, IOCriticalErrorListener ioExceptionListener) {
+   public JournalHashMap(long collectionId, MapStorageManager journal, LongSupplier idGenerator, Persister<MapRecord<K, V>> persister, byte recordType, Supplier<IOCompletion> completionSupplier, LongFunction<C> contextProvider, IOCriticalErrorListener ioExceptionListener) {
       this.collectionId = collectionId;
       this.journal = journal;
       this.idGenerator = idGenerator;
@@ -126,7 +125,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
 
    private final Persister<MapRecord<K, V>> persister;
 
-   private final Journal journal;
+   private final MapStorageManager journal;
 
    private final long collectionId;
 
@@ -221,9 +220,9 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
          }
 
          if (callback == null) {
-            journal.appendAddRecord(record.id, recordType, persister, record, false);
+            journal.storeMapRecord(record.id, recordType, persister, record, false);
          } else {
-            journal.appendAddRecord(record.id, recordType, persister, record, true, callback);
+            journal.storeMapRecord(record.id, recordType, persister, record, true, callback);
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
@@ -234,7 +233,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
    // callers must be synchronized
    private void removed(MapRecord<K, V> record) {
       try {
-         journal.appendDeleteRecord(record.id, false);
+         journal.deleteMapRecord(record.id, false);
       } catch (Exception e) {
          exceptionListener.onIOException(e, e.getMessage(), null);
       }
@@ -243,7 +242,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
    // callers must be synchronized
    private void removed(MapRecord<K, V> record, long txid) {
       try {
-         journal.appendDeleteRecordTransactional(txid, record.id);
+         journal.deleteMapRecordTx(txid, record.id);
       } catch (Exception e) {
          exceptionListener.onIOException(e, e.getMessage(), null);
       }

@@ -58,4 +58,7 @@ public interface ActiveMQAMQPProtocolLogger {
 
    @LogMessage(id = 111007, value = "Invalid Connection State: {} for remote IP {}", level = LogMessage.Level.WARN)
    void invalidAMQPConnectionState(Object state, Object remoteIP);
+
+   @LogMessage(id = 111008, value = "The AckManager timed out waiting for operations to complete on the MirrorTarget. timeout = {} milliseconds", level = LogMessage.Level.WARN)
+   void timedOutAckManager(long timeout);
 }

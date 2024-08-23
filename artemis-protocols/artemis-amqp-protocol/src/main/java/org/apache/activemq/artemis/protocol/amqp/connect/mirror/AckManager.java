@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.collections.JournalHashMap;
 import org.apache.activemq.artemis.core.journal.collections.JournalHashMapProvider;
@@ -53,6 +52,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,6 @@ public class AckManager implements ActiveMQComponent {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   final Journal journal;
    final LongSupplier sequenceGenerator;
    final JournalHashMapProvider<AckRetry, AckRetry, Queue> journalHashMapProvider;
    final ActiveMQServer server;
@@ -77,9 +76,10 @@ public class AckManager implements ActiveMQComponent {
       this.server = server;
       this.configuration = server.getConfiguration();
       this.ioCriticalErrorListener = server.getIoCriticalErrorListener();
-      this.journal = server.getStorageManager().getMessageJournal();
       this.sequenceGenerator = server.getStorageManager()::generateID;
-      journalHashMapProvider = new JournalHashMapProvider<>(sequenceGenerator, journal, AckRetry.getPersister(), JournalRecordIds.ACK_RETRY, OperationContextImpl::getContext, server.getPostOffice()::findQueue, server.getIoCriticalErrorListener());
+
+      // The JournalHashMap has to use the storage manager to guarantee we are using the Replicated Journal Wrapper in case this is a replicated journal
+      journalHashMapProvider = new JournalHashMapProvider<>(sequenceGenerator, server.getStorageManager(), AckRetry.getPersister(), JournalRecordIds.ACK_RETRY, OperationContextImpl::getContext, server.getPostOffice()::findQueue, server.getIoCriticalErrorListener());
       this.referenceIDSupplier = new ReferenceIDSupplier(server);
    }
 
@@ -149,13 +149,30 @@ public class AckManager implements ActiveMQComponent {
 
       HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retries = sortRetries();
 
+      scanAndFlushMirrorTargets();
+
       if (retries.isEmpty()) {
          logger.trace("Nothing to retry!, server={}", server);
          return false;
       }
 
-      progress = new MultiStepProgress(sortRetries());
+      progress = new MultiStepProgress(retries);
       return true;
+   }
+
+   private void scanAndFlushMirrorTargets() {
+      logger.debug("scanning and flushing mirror targets");
+      // this will navigate on each connection, find the connection that has a mirror controller, and call flushMirrorTarget for each MirrorTargets. (it should be 1 in most cases)
+      // An alternative design instead of going through the connections, would be to register the MirrorTargets within the AckManager, however to avoid memory leaks after disconnects and reconnects it is safer to
+      // scan through the connections
+      server.getRemotingService().getConnections().stream().
+         filter(c -> c instanceof ActiveMQProtonRemotingConnection && ((ActiveMQProtonRemotingConnection) c).getAmqpConnection().getMirrorControllerTargets() != null).
+         forEach(c -> ((ActiveMQProtonRemotingConnection) c).getAmqpConnection().getMirrorControllerTargets().forEach(this::flushMirrorTarget));
+   }
+
+   private void flushMirrorTarget(AMQPMirrorControllerTarget target) {
+      logger.debug("Flushing mirror {}", target);
+      target.flush();
    }
 
    // Sort the ACK list by address

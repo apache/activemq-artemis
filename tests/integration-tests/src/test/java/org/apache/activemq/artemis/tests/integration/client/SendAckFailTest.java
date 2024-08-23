@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -59,6 +60,7 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
@@ -598,6 +600,36 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public void deletePageTransactional(long recordID) throws Exception {
          manager.deletePageTransactional(recordID);
+      }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync,
+                                 IOCompletion completionCallback) throws Exception {
+         manager.storeMapRecord(id, recordType, persister, record, sync, completionCallback);
+      }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync) throws Exception {
+
+         manager.storeMapRecord(id, recordType, persister, record, sync);
+      }
+
+      @Override
+      public void deleteMapRecord(long id, boolean sync) throws Exception {
+         manager.deleteMapRecord(id, sync);
+      }
+
+      @Override
+      public void deleteMapRecordTx(long txid, long id) throws Exception {
+         manager.deleteMapRecordTx(txid, id);
       }
 
       @Override
