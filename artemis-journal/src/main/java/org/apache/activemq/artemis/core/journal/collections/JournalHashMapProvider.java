@@ -27,13 +27,12 @@ import java.util.function.Supplier;
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
-import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 public class JournalHashMapProvider<K, V, C> {
 
-   final Journal journal;
+   final MapStorageManager journal;
    final Persister<JournalHashMap.MapRecord<K, V>> persister;
    final LongObjectHashMap<JournalHashMap<K, V, C>> journalMaps = new LongObjectHashMap<>();
    final LongSupplier idSupplier;
@@ -42,7 +41,7 @@ public class JournalHashMapProvider<K, V, C> {
    final Supplier<IOCompletion> ioCompletionSupplier;
    final LongFunction<C> contextProvider;
 
-   public JournalHashMapProvider(LongSupplier idSupplier, Journal journal, AbstractHashMapPersister<K, V> persister, byte recordType, Supplier<IOCompletion> ioCompletionSupplier, LongFunction<C> contextProvider, IOCriticalErrorListener ioExceptionListener) {
+   public JournalHashMapProvider(LongSupplier idSupplier, MapStorageManager journal, AbstractHashMapPersister<K, V> persister, byte recordType, Supplier<IOCompletion> ioCompletionSupplier, LongFunction<C> contextProvider, IOCriticalErrorListener ioExceptionListener) {
       this.idSupplier = idSupplier;
       this.persister = persister;
       this.journal = journal;

@@ -27,12 +27,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.collections.AbstractHashMapPersister;
+import org.apache.activemq.artemis.core.journal.collections.MapStorageManager;
 import org.apache.activemq.artemis.core.journal.collections.JournalHashMap;
 import org.apache.activemq.artemis.core.journal.collections.JournalHashMapProvider;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
@@ -42,6 +46,44 @@ import org.junit.jupiter.api.Test;
 
 public class JournalHashMapTest extends ActiveMQTestBase {
 
+
+   static class JournalManager implements MapStorageManager {
+      final Journal journal;
+
+      JournalManager(Journal journal) {
+         this.journal = journal;
+      }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync,
+                                 IOCompletion completionCallback) throws Exception {
+         journal.appendAddRecord(id, recordType, persister, record, sync, completionCallback);
+      }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync) throws Exception {
+         journal.appendAddRecord(id, recordType, persister, record, sync);
+      }
+
+      @Override
+      public void deleteMapRecord(long id, boolean sync) throws Exception {
+         journal.appendDeleteRecord(id, sync);
+      }
+
+      @Override
+      public void deleteMapRecordTx(long txid, long id) throws Exception {
+         journal.appendDeleteRecordTransactional(txid, id);
+
+      }
+   }
 
    @Test
    public void testHashMap() throws Exception {
@@ -60,7 +102,7 @@ public class JournalHashMapTest extends ActiveMQTestBase {
 
       AtomicLong sequence = new AtomicLong(1);
 
-      JournalHashMapProvider<Long, Long, Object> journalHashMapProvider = new JournalHashMapProvider(sequence::incrementAndGet, journal, new LongPersister(), (byte)3, OperationContextImpl::getContext, l -> null, (e, m, f) -> {
+      JournalHashMapProvider<Long, Long, Object> journalHashMapProvider = new JournalHashMapProvider(sequence::incrementAndGet, new JournalManager(journal), new LongPersister(), (byte)3, OperationContextImpl::getContext, l -> null, (e, m, f) -> {
          e.printStackTrace();
       });
 

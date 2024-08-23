@@ -25,6 +25,7 @@ import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,8 +33,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -41,20 +44,33 @@ import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfigur
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.journal.collections.JournalHashMap;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AckRetry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManagerProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RepeatStartBackupTest extends ActiveMQTestBase {
 
@@ -74,7 +90,6 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
    @Override
    public void setUp() throws Exception {
       managerConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newTemporaryFolder("manager").toString()));
-      final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
 
       // start live
       Configuration liveConfiguration = createLiveConfiguration();
@@ -93,6 +108,9 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
       ((ReplicationBackupPolicyConfiguration) backupConfiguration.getHAPolicyConfiguration()).setAllowFailBack(true);
       backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
       backupServer.setIdentity("BACKUP");
+   }
+
+   private void startBackup(int timeout) throws Exception {
       backupServer.start();
 
       Wait.waitFor(backupServer::isStarted);
@@ -102,6 +120,7 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
 
    @Test
    public void testLoopStart() throws Exception {
+      startBackup(30_000);
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
@@ -124,7 +143,7 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
                   connection.start();
                   while (running.get()) {
                      producer.send(session.createTextMessage("hello"));
-                     Assertions.assertNotNull(consumer.receive(1000));
+                     assertNotNull(consumer.receive(1000));
                   }
                }
             } catch (Throwable e) {
@@ -145,19 +164,125 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
                Wait.assertTrue(backupServer::isReplicaSync);
             }
 
-            Assertions.assertFalse(loggerHandler.findText("AMQ229254"));
-            Assertions.assertFalse(loggerHandler.findText("AMQ229006"));
+            assertFalse(loggerHandler.findText("AMQ229254"));
+            assertFalse(loggerHandler.findText("AMQ229006"));
             loggerHandler.clear();
          }
 
          running.set(false);
 
-         Assertions.assertTrue(latch.await(10, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-         Assertions.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       }
+   }
 
+   @Test
+   public void testAckManagerRepetition() throws Exception {
 
+      String queueName = "queue_" + RandomUtil.randomString();
+
+      // some extremely large retry settings
+      // just to make sure these records will never be removed
+      server.getConfiguration().setMirrorAckManagerQueueAttempts(300000);
+      server.getConfiguration().setMirrorAckManagerPageAttempts(300000);
+      server.getConfiguration().setMirrorAckManagerRetryDelay(60_000);
+      backupServer.getConfiguration().setMirrorAckManagerQueueAttempts(300000);
+      backupServer.getConfiguration().setMirrorAckManagerPageAttempts(300000);
+      backupServer.getConfiguration().setMirrorAckManagerRetryDelay(60_000);
+
+      ExecutorService executorService = Executors.newFixedThreadPool(2);
+      runAfter(executorService::shutdownNow);
+
+      AtomicInteger errors = new AtomicInteger(0);
+      AtomicBoolean running = new AtomicBoolean(true);
+
+      runAfter(() -> running.set(false));
+      CountDownLatch latch = new CountDownLatch(1);
+      CountDownLatch backupStarted = new CountDownLatch(1);
+
+      AtomicInteger recordsSent = new AtomicInteger(0);
+
+      int starBackupAt = 100;
+      assertFalse(server.isReplicaSync());
+      assertFalse(backupServer.isStarted());
+
+      AckManager liveAckManager = AckManagerProvider.getManager(server);
+      server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
+      Queue queueOnServerLive = server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      long queueIdOnServerLive = queueOnServerLive.getID();
+
+      OperationContextImpl context = new OperationContextImpl(server.getExecutorFactory().getExecutor());
+
+      executorService.execute(() -> {
+         try {
+            OperationContextImpl.setContext(context);
+            while (running.get()) {
+               int id = recordsSent.getAndIncrement();
+               if (id == starBackupAt) {
+                  executorService.execute(() -> {
+                     try {
+                        backupServer.start();
+                     } catch (Throwable e) {
+                        logger.warn(e.getMessage(), e);
+                     } finally {
+                        backupStarted.countDown();
+                     }
+                  });
+               }
+               CountDownLatch latchAcked = new CountDownLatch(1);
+               liveAckManager.ack(server.getNodeID().toString(), queueOnServerLive, id, AckReason.NORMAL, true);
+               OperationContextImpl.getContext().executeOnCompletion(new IOCallback() {
+                  @Override
+                  public void done() {
+                     latchAcked.countDown();
+                  }
+
+                  @Override
+                  public void onError(int errorCode, String errorMessage) {
+                  }
+               });
+               if (!latchAcked.await(10, TimeUnit.SECONDS)) {
+                  logger.warn("Could not wait ack to finish");
+               }
+               Thread.yield();
+            }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            errors.incrementAndGet();
+         } finally {
+            latch.countDown();
+         }
+      });
+
+      assertTrue(backupStarted.await(10, TimeUnit.SECONDS));
+
+      Wait.assertTrue(server::isReplicaSync);
+      Wait.assertTrue(() -> recordsSent.get() > 200);
+      running.set(false);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+      assertEquals(0, errors.get());
+
+      validateAckManager(server, queueName, queueIdOnServerLive, recordsSent.get());
+
+      server.stop();
+      Wait.assertTrue(backupServer::isActive);
+
+      validateAckManager(backupServer, queueName, queueIdOnServerLive, recordsSent.get());
+   }
+
+   private void validateAckManager(ActiveMQServer server,
+                                   String queueName,
+                                   long queueIdOnServerLive,
+                                   int messagesSent) {
+      AckManager liveManager = AckManagerProvider.getManager(server);
+      HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = liveManager.sortRetries();
+      assertEquals(1, sortedRetries.size());
+
+      LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> retryAddress = sortedRetries.get(SimpleString.of(queueName));
+      JournalHashMap<AckRetry, AckRetry, Queue> journalHashMapBackup = retryAddress.get(queueIdOnServerLive);
+      assertEquals(messagesSent, journalHashMapBackup.size());
    }
 
    protected HAPolicyConfiguration createReplicationLiveConfiguration() {

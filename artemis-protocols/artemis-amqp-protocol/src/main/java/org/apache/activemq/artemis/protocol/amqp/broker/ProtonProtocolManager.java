@@ -108,6 +108,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private Long amqpIdleTimeout;
 
+   private long ackManagerFlushTimeout = 10_000;
+
    private boolean directDeliver = true;
 
    private final AMQPRoutingHandler routingHandler;
@@ -143,6 +145,17 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    @Override
    public void onNotification(Notification notification) {
 
+   }
+
+   /** Before the ackManager retries acks, it must flush the OperationContext on the MirrorTargets.
+    *  This is the timeout is in milliseconds*/
+   public long getAckManagerFlushTimeout() {
+      return ackManagerFlushTimeout;
+   }
+
+   public ProtonProtocolManager setAckManagerFlushTimeout(long ackManagerFlushTimeout) {
+      this.ackManagerFlushTimeout = ackManagerFlushTimeout;
+      return this;
    }
 
    public int getAmqpMinLargeMessageSize() {
