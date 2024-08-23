@@ -68,7 +68,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Set this to true and log4j will be configured with some relevant log.trace for the AckManager at the server's
-   private static final boolean TRACE_LOGS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "TRACE_LOGS", "true"));
+   private static final boolean TRACE_LOGS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "TRACE_LOGS", "false"));
    private static final int NUMBER_MESSAGES = TestParameters.testProperty(TEST_NAME, "NUMBER_MESSAGES", 200);
 
    private static final boolean REUSE_SERVERS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "REUSE_SERVERS", "false"));
@@ -166,7 +166,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
       HelperCreate cliCreateServer = new HelperCreate();
       cliCreateServer.setAllowAnonymous(true).setArtemisInstance(serverLocation);
-      cliCreateServer.setNoWeb(false);
+      cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.addArgs("--queues", QUEUE_NAME);
       cliCreateServer.setPortOffset(portOffset);
@@ -242,7 +242,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       HelperCreate cliCreateServer = new HelperCreate();
       cliCreateServer.setAllowAnonymous(true).setArtemisInstance(serverLocation);
       cliCreateServer.setMessageLoadBalancing("ON_DEMAND");
-      cliCreateServer.setNoWeb(false);
+      cliCreateServer.setNoWeb(true);
       cliCreateServer.setArgs("--no-stomp-acceptor", "--no-hornetq-acceptor", "--no-mqtt-acceptor", "--no-amqp-acceptor", "--max-hops", "1", "--name", DC1_NODE);
       cliCreateServer.setPortOffset(portOffset);
       cliCreateServer.setClustered(true);
@@ -289,7 +289,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       createMirroredServer(paging, DC1_NODE, "mirror", uriWithAlternate(DC2_IP, DC2_BACKUP_IP), 0, true, uri(DC1_BACKUP_IP));
       createMirroredBackupServer(paging, DC1_REPLICA_NODE, 1, uri(DC1_IP), uriWithAlternate(DC2_IP, DC2_BACKUP_IP));
       createMirroredServer(paging, DC2_NODE, "mirror", uriWithAlternate(DC1_IP, DC1_BACKUP_IP), 2, true, uri(DC2_BACKUP_IP));
-      createMirroredBackupServer(paging ,DC2_REPLICA_NODE, 3, uri(DC2_IP), uriWithAlternate(DC1_IP, DC1_BACKUP_IP));
+      createMirroredBackupServer(paging, DC2_REPLICA_NODE, 3, uri(DC2_IP), uriWithAlternate(DC1_IP, DC1_BACKUP_IP));
    }
 
    @Test
@@ -379,11 +379,12 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       SimpleManagement managementDC2Backup = new SimpleManagement(uri(DC2_BACKUP_IP), null, null);
 
       startDC1(managementDC1);
+      startDC2(managementDC2);
 
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory(protocol, uri(DC1_IP));
 
-      final int totalMessages = 1200;
-      final int step1 = 100, step2 = 900, step3 = 1150;
+      final int totalMessages = 1000;
+      final int killAt = 800;
       String snfQueue = "$ACTIVEMQ_ARTEMIS_MIRROR_mirror";
 
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
@@ -398,13 +399,8 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
                logger.info("Sent and received {}", i);
             }
 
-            if (i == step1) { // start DC2
-               processDC2 = startServer(DC2_NODE, -1, -1, new File(getServerLocation(DC2_NODE), "broker.properties"));
-               processDC2_REPLICA = startServer(DC2_REPLICA_NODE, -1, -1, new File(getServerLocation(DC2_REPLICA_NODE), "broker.properties"));
-            } else if (i == step2) { // make sure everything is ok on DC2
-               ServerUtil.waitForServerToStart(2, 10_000);
-               Wait.assertTrue(managementDC2::isReplicaSync);
-            } else if (i == step3) { // kill the live on DC2
+            if (i == killAt) { // kill the live on DC2
+               logger.info("KillAt {}", killAt);
                processDC2.destroyForcibly();
                assertTrue(processDC2.waitFor(10, TimeUnit.SECONDS));
             }

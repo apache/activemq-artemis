@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.collections.MapStorageManager;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -77,7 +78,7 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  * I couldn't just get the IDGenerator from the inner part because the NullPersistent has its own sequence.
  * So the best was to add the interface and adjust the callers for the method
  */
-public interface StorageManager extends IDGenerator, ActiveMQComponent {
+public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQComponent {
 
    default long getMaxRecordSize() {
       /** Null journal is pretty much memory */
