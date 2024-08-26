@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
@@ -120,7 +121,7 @@ public class OperationContextUnitTest extends ServerTestBase {
             public void done() {
                latch1.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          impl.storeLineUp();
 
@@ -134,7 +135,7 @@ public class OperationContextUnitTest extends ServerTestBase {
             public void done() {
                latch3.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          impl.done();
 
@@ -159,7 +160,7 @@ public class OperationContextUnitTest extends ServerTestBase {
             public void done() {
                latch2.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
@@ -180,22 +181,22 @@ public class OperationContextUnitTest extends ServerTestBase {
 
    @Test
    public void testCompletionLateStoreOnly() throws Exception {
-      testCompletionLate(true);
+      testCompletionLate(OperationConsistencyLevel.STORAGE);
    }
 
    @Test
    public void testCompletionLate() throws Exception {
-      testCompletionLate(false);
+      testCompletionLate(OperationConsistencyLevel.FULL);
    }
 
-   private void testCompletionLate(boolean storeOnly) throws Exception {
+   private void testCompletionLate(OperationConsistencyLevel storeType) throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         if (storeOnly) {
+         if (storeType == OperationConsistencyLevel.STORAGE) {
             // if storeOnly, then the pageSyncLinup and replication lineup should not bother the results
             impl.pageSyncLineUp();
             impl.replicationLineUp();
@@ -212,7 +213,7 @@ public class OperationContextUnitTest extends ServerTestBase {
             public void done() {
                latch1.countDown();
             }
-         }, storeOnly);
+         }, storeType);
 
          impl.storeLineUpField = 350000;
          impl.stored = impl.storeLineUpField - 1;
@@ -235,7 +236,7 @@ public class OperationContextUnitTest extends ServerTestBase {
             public void done() {
                latch2.countDown();
             }
-         }, storeOnly);
+         }, storeType);
 
          impl.done();
 
@@ -297,13 +298,13 @@ public class OperationContextUnitTest extends ServerTestBase {
    public void testIgnoreReplication() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       runAfter(executor::shutdownNow);
-      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
+      ConcurrentLinkedQueue<Long> ignoreReplicationCompletions = new ConcurrentLinkedQueue();
+      ConcurrentLinkedQueue<Long> regularCompletion = new ConcurrentLinkedQueue();
       final int N = 500;
       final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
 
       // pending work to queue completions till done
       impl.storeLineUp();
-      impl.setSyncReplication(false);
       impl.replicationLineUp();
 
       for (long l = 0; l < N; l++) {
@@ -315,23 +316,38 @@ public class OperationContextUnitTest extends ServerTestBase {
 
             @Override
             public void done() {
-               completions.add(finalL);
+               ignoreReplicationCompletions.add(finalL);
             }
-         });
+         }, OperationConsistencyLevel.IGNORE_REPLICATION);
+         impl.executeOnCompletion(new IOCallback() {
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               regularCompletion.add(finalL);
+            }
+         }, OperationConsistencyLevel.FULL);
       }
 
       flushExecutor(executor);
-      assertEquals(0, completions.size());
+      assertEquals(0, ignoreReplicationCompletions.size());
+      assertEquals(0, regularCompletion.size());
       impl.done();
 
       flushExecutor(executor);
-      assertEquals(N, completions.size());
+      assertEquals(N, ignoreReplicationCompletions.size());
+      assertEquals(0, regularCompletion.size());
 
       impl.replicationDone();
       flushExecutor(executor);
 
+      assertEquals(N, regularCompletion.size());
+
       for (long i = 0; i < N; i++) {
-         assertEquals(i, (long) completions.poll(), "ordered");
+         assertEquals(i, (long) ignoreReplicationCompletions.poll(), "ordered");
+         assertEquals(i, (long) regularCompletion.poll(), "ordered");
       }
    }
 

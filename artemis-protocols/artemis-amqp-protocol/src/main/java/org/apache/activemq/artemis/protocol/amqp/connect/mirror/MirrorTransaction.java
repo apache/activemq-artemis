@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.util.List;
 
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -59,5 +60,10 @@ public class MirrorTransaction extends TransactionImpl {
    public MirrorTransaction setAllowPageTransaction(boolean allowPageTransaction) {
       this.allowPageTransaction = allowPageTransaction;
       return this;
+   }
+
+   @Override
+   protected OperationConsistencyLevel getRequiredConsistency() {
+      return OperationConsistencyLevel.IGNORE_REPLICATION;
    }
 }

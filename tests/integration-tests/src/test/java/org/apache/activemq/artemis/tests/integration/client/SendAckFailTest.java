@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
@@ -384,6 +385,11 @@ public class SendAckFailTest extends SpawnedTestBase {
 
       @Override
       public void afterCompleteOperations(IOCallback run) {
+         manager.afterCompleteOperations(run);
+      }
+
+      @Override
+      public void afterCompleteOperations(IOCallback run, OperationConsistencyLevel level) {
          manager.afterCompleteOperations(run);
       }
 

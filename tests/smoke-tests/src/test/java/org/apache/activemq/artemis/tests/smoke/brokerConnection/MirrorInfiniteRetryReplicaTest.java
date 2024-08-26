@@ -47,10 +47,10 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
 
    private static final String QUEUE_NAME = "MirrorInfiniteRetryReplicaTestQueue";
 
-   public static final String DC1_NODE = "AckLateRetrySoakTest/DC1";
-   public static final String DC2_NODE = "AckLateRetrySoakTest/DC2";
-   public static final String DC2_REPLICA_NODE = "AckLateRetrySoakTest/DC2_REPLICA";
-   public static final String DC1_REPLICA_NODE = "AckLateRetrySoakTest/DC1_REPLICA";
+   public static final String DC1_NODE = "MirrorInfiniteRetryReplicaTest/DC1";
+   public static final String DC2_NODE = "MirrorInfiniteRetryReplicaTest/DC2";
+   public static final String DC2_REPLICA_NODE = "MirrorInfiniteRetryReplicaTest/DC2_REPLICA";
+   public static final String DC1_REPLICA_NODE = "MirrorInfiniteRetryReplicaTest/DC1_REPLICA";
 
    volatile Process processDC1;
    volatile Process processDC2;
@@ -152,10 +152,10 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
                                       "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n" +
                                       "logger.endpoint.level=DEBUG\n" +
                                       "logger.ackmanager.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager\n" +
-                                      "logger.ackmanager.level=TRACE\n" +
+                                      "logger.ackmanager.level=INFO\n" +
 
                                       "logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget\n" +
-                                      "logger.mirrorTarget.level=TRACE\n" +
+                                      "logger.mirrorTarget.level=INFO\n" +
 
                                       "appender.console.filter.threshold.type = ThresholdFilter\n" +
                                       "appender.console.filter.threshold.level = trace"));
