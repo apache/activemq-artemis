@@ -172,8 +172,10 @@ public class NettyConnector extends AbstractConnector {
    public static final Map<String, Object> DEFAULT_CONFIG;
 
    static {
-      // Disable resource leak detection for performance reasons by default
-      ResourceLeakDetector.setLevel(Level.DISABLED);
+      // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
+      if (System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
+         ResourceLeakDetector.setLevel(Level.DISABLED);
+      }
 
       // Set default Configuration
       Map<String, Object> config = new HashMap<>();
