@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
@@ -355,8 +356,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public void afterCompleteOperations(final IOCallback run, OperationConsistencyLevel consistencyLevel) {
+      getContext().executeOnCompletion(run, consistencyLevel);
+   }
+
+   @Override
    public void afterStoreOperations(IOCallback run) {
-      getContext().executeOnCompletion(run, true);
+      getContext().executeOnCompletion(run, OperationConsistencyLevel.STORAGE);
    }
 
    @Override
@@ -2120,8 +2126,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
 
       @Override
-      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
-         executeOnCompletion(runnable);
+      public void executeOnCompletion(IOCallback runnable, OperationConsistencyLevel consistencyLevel) {
+         // There are no executeOnCompletion calls while using the DummyOperationContext
+         // However we keep the code here for correctness
+         runnable.done();
       }
 
       @Override

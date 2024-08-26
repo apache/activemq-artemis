@@ -440,13 +440,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean managementMessagesRbac = ActiveMQDefaultConfiguration.getManagementMessagesRbac();
 
-   private int mirrorAckManagerMinQueueAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerMinQueueAttempts();
+   private int mirrorAckManagerQueueAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerQueueAttempts();
 
-   private int mirrorAckManagerMaxPageAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerMaxPageAttempts();
+   private int mirrorAckManagerPageAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerPageAttempts();
 
    private int mirrorAckManagerRetryDelay = ActiveMQDefaultConfiguration.getMirrorAckManagerRetryDelay();
 
-   private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getDefaultMirrorPageTransaction();
+   private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getMirrorPageTransaction();
 
 
    /**
@@ -941,6 +941,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
          // Identify the property name and value(s) to be assigned
          final String name = entry.getKey();
          try {
+            if (logger.isDebugEnabled()) {
+               logger.debug("set property target={}, name = {}, value = {}", target.getClass(), name, entry.getValue());
+            }
             // Perform the assignment for this property
             beanUtils.setProperty(target, name, entry.getValue());
          } catch (InvocationTargetException invocationTargetException) {
@@ -3379,25 +3382,25 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public int getMirrorAckManagerQueueAttempts() {
-      return mirrorAckManagerMinQueueAttempts;
+      return mirrorAckManagerQueueAttempts;
    }
 
    @Override
    public ConfigurationImpl setMirrorAckManagerQueueAttempts(int minQueueAttempts) {
       logger.debug("Setting mirrorAckManagerMinQueueAttempts = {}", minQueueAttempts);
-      this.mirrorAckManagerMinQueueAttempts = minQueueAttempts;
+      this.mirrorAckManagerQueueAttempts = minQueueAttempts;
       return this;
    }
 
    @Override
    public int getMirrorAckManagerPageAttempts() {
-      return this.mirrorAckManagerMaxPageAttempts;
+      return this.mirrorAckManagerPageAttempts;
    }
 
    @Override
    public ConfigurationImpl setMirrorAckManagerPageAttempts(int maxPageAttempts) {
       logger.debug("Setting mirrorAckManagerMaxPageAttempts = {}", maxPageAttempts);
-      this.mirrorAckManagerMaxPageAttempts = maxPageAttempts;
+      this.mirrorAckManagerPageAttempts = maxPageAttempts;
       return this;
    }
 

@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -428,6 +429,11 @@ public class TransactionImplTest extends ServerTestBase {
 
       @Override
       public void afterCompleteOperations(IOCallback run) {
+         run.done();
+      }
+
+      @Override
+      public void afterCompleteOperations(IOCallback run, OperationConsistencyLevel consistencyLevel) {
          run.done();
       }
 

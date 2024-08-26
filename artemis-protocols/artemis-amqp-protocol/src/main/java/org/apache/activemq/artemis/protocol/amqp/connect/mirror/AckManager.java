@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -139,7 +140,14 @@ public class AckManager implements ActiveMQComponent {
 
       // schedule a retry
       if (!sortRetries().isEmpty()) {
-         scheduledComponent.delay();
+         ActiveMQScheduledComponent scheduleComponentReference = scheduledComponent;
+         if (scheduleComponentReference != null) {
+            try {
+               scheduleComponentReference.delay();
+            } catch (RejectedExecutionException ree) {
+               logger.debug("AckManager could not schedule a new retry due to the executor being shutdown {}", ree.getMessage(), ree);
+            }
+         }
       }
    }
 
@@ -277,12 +285,12 @@ public class AckManager implements ActiveMQComponent {
          if (retry.getQueueAttempts() >= configuration.getMirrorAckManagerQueueAttempts()) {
             if (retry.attemptedPage() >= configuration.getMirrorAckManagerPageAttempts()) {
                if (logger.isDebugEnabled()) {
-                  logger.debug("Retried {} {} times, giving up on the entry now", retry, retry.getPageAttempts());
+                  logger.debug("Retried {} {} times, giving up on the entry now. Configuration Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
                }
                retries.remove(retry);
             } else {
                if (logger.isDebugEnabled()) {
-                  logger.trace("Retry {} attempted {} times on paging", retry, retry.getPageAttempts());
+                  logger.debug("Retry {} attempted {} times on paging, Configuration Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
                }
             }
          }

@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -6636,7 +6637,7 @@ public class PagingTest extends ParameterDBTestBase {
       }
 
       @Override
-      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+      public void executeOnCompletion(IOCallback runnable, OperationConsistencyLevel consistencyLevel) {
          runnable.done();
       }
    }
