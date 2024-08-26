@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -135,6 +136,7 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
 
    void afterCompleteOperations(IOCallback run);
 
+   void afterCompleteOperations(IOCallback run, OperationConsistencyLevel consistencyLevel);
    /**
     * This is similar to afterComplete, however this only cares about the journal part.
     */

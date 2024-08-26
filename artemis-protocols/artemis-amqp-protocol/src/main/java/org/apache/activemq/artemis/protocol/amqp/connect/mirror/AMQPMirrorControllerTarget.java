@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -261,10 +262,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    @Override
    protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
-      recoverContext();
+      OperationContext oldContext = recoverContext();
       incrementSettle();
 
-      logger.trace("{}::actualdelivery call for {}", server, message);
+      logger.trace("{}::actualDelivery call for {}", server, message);
       setControllerInUse(this);
 
       delivery.setContext(message);
@@ -337,8 +338,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       } finally {
          setControllerInUse(null);
          if (messageAckOperation != null) {
-            server.getStorageManager().afterCompleteOperations(messageAckOperation);
+            server.getStorageManager().afterCompleteOperations(messageAckOperation, OperationConsistencyLevel.FULL);
          }
+
+         OperationContextImpl.setContext(oldContext);
       }
    }
 
@@ -475,7 +478,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       ackManager.ack(nodeID, targetQueue, messageID, reason, true);
 
-      OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
+      OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation, OperationConsistencyLevel.FULL);
    }
 
    /**
@@ -536,8 +539,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          message.setAddress(internalAddress);
       }
 
+      // notice that MirrorTransaction is overriding getRequiredConsistency that is being set to ignore Replication.
+      // that means in case the target server is using replication, we will not wait for a roundtrip before the message is sent
+      // however we will wait the roundtrip before acking the message
+      // This is to alleviate a situation where messages would take too long to be delivered and be ready for ack
       final TransactionImpl transaction = new MirrorTransaction(server.getStorageManager()).setAllowPageTransaction(configuration.isMirrorPageTransaction()).setAsync(true);
-      transaction.addOperation(messageCompletionAck.tx);
       routingContext.setTransaction(transaction);
       duplicateIDCache.addToCache(duplicateIDBytes, transaction);
 
@@ -550,6 +556,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
       // We use this as part of a transaction because of the duplicate detection cache that needs to be done atomically
       transaction.commit();
+      server.getStorageManager().afterCompleteOperations(messageCompletionAck, OperationConsistencyLevel.FULL);
       flow();
 
       // return true here will instruct the caller to ignore any references to messageCompletionAck

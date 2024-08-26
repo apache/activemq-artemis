@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -91,8 +92,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return protonSession;
    }
 
-   protected void recoverContext() {
-      sessionSPI.recoverContext();
+   /** Set the proper operation context in the Thread Local.
+    *  Return the old context*/
+   protected OperationContext recoverContext() {
+      return sessionSPI.recoverContext();
    }
 
    protected void closeCurrentReader() {

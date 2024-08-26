@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionTimeoutException;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -257,6 +258,10 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   protected OperationConsistencyLevel getRequiredConsistency() {
+      return OperationConsistencyLevel.FULL;
+   }
+
    @Override
    public void commit(final boolean onePhase) throws Exception {
       logger.trace("TransactionImpl::commit::{}", this);
@@ -313,7 +318,7 @@ public class TransactionImpl implements Transaction {
             public void done() {
                afterCommit(operationsToComplete);
             }
-         });
+         }, getRequiredConsistency());
 
          final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
          this.storeOperations = null;

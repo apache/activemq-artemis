@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -156,7 +157,7 @@ public class NullStorageManager implements StorageManager {
       }
 
       @Override
-      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+      public void executeOnCompletion(IOCallback runnable, OperationConsistencyLevel consistencyLevel) {
          runnable.done();
       }
 
@@ -422,6 +423,11 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void afterCompleteOperations(final IOCallback run) {
+      run.done();
+   }
+
+   @Override
+   public void afterCompleteOperations(IOCallback run, OperationConsistencyLevel consistencyLevel) {
       run.done();
    }
 
