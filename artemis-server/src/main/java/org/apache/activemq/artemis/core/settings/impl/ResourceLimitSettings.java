@@ -30,7 +30,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    public static final SimpleString DEFAULT_MATCH = null;
 
-   public static final Integer DEFAULT_MAX_CONNECTIONS = -1;
+   public static final Integer DEFAULT_MAX_SESSIONS = -1;
 
    public static final Integer DEFAULT_MAX_QUEUES = -1;
 
@@ -40,7 +40,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    SimpleString match = null;
 
-   Integer maxConnections = null;
+   Integer maxSessions = null;
 
    Integer maxQueues = null;
 
@@ -56,8 +56,13 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       return match != null ? match : DEFAULT_MATCH;
    }
 
+   @Deprecated(forRemoval = true)
    public int getMaxConnections() {
-      return maxConnections != null ? maxConnections : DEFAULT_MAX_CONNECTIONS;
+      return getMaxSessions();
+   }
+
+   public int getMaxSessions() {
+      return maxSessions != null ? maxSessions : DEFAULT_MAX_SESSIONS;
    }
 
    public int getMaxQueues() {
@@ -78,8 +83,13 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       this.match = match;
    }
 
+   @Deprecated(forRemoval = true)
    public void setMaxConnections(int maxConnections) {
-      this.maxConnections = maxConnections;
+      setMaxSessions(maxConnections);
+   }
+
+   public void setMaxSessions(int maxSessions) {
+      this.maxSessions = maxSessions;
    }
 
    public void setMaxQueues(int maxQueues) {
@@ -99,7 +109,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    @Override
    public int getEncodeSize() {
       return SimpleString.sizeofNullableString(match) +
-         BufferHelper.sizeOfNullableInteger(maxConnections) +
+         BufferHelper.sizeOfNullableInteger(maxSessions) +
          BufferHelper.sizeOfNullableInteger(maxQueues);
       //              BufferHelper.sizeOfNullableLong(maxQueueSizeBytes) +
       //              SimpleString.sizeofNullableString(queueNameRegex);
@@ -109,7 +119,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeNullableSimpleString(match);
 
-      BufferHelper.writeNullableInteger(buffer, maxConnections);
+      BufferHelper.writeNullableInteger(buffer, maxSessions);
 
       BufferHelper.writeNullableInteger(buffer, maxQueues);
 
@@ -122,7 +132,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    public void decode(ActiveMQBuffer buffer) {
       match = buffer.readNullableSimpleString();
 
-      maxConnections = BufferHelper.readNullableInteger(buffer);
+      maxSessions = BufferHelper.readNullableInteger(buffer);
 
       maxQueues = BufferHelper.readNullableInteger(buffer);
 
@@ -139,7 +149,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((match == null) ? 0 : match.hashCode());
-      result = prime * result + ((maxConnections == null) ? 0 : maxConnections.hashCode());
+      result = prime * result + ((maxSessions == null) ? 0 : maxSessions.hashCode());
       result = prime * result + ((maxQueues == null) ? 0 : maxQueues.hashCode());
       //      result = prime * result + ((maxQueueSizeBytes == null) ? 0 : maxQueueSizeBytes.hashCode());
       //      result = prime * result + ((queueNameRegex == null) ? 0 : queueNameRegex.hashCode());
@@ -160,7 +170,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       if (match != null ? !match.equals(that.match) : that.match != null) {
          return false;
       }
-      if (maxConnections != null ? !maxConnections.equals(that.maxConnections) : that.maxConnections != null) {
+      if (maxSessions != null ? !maxSessions.equals(that.maxSessions) : that.maxSessions != null) {
          return false;
       }
       return maxQueues != null ? maxQueues.equals(that.maxQueues) : that.maxQueues == null;
@@ -172,8 +182,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    @Override
    public String toString() {
       return "ResourceLimitSettings [match=" + match +
-         ", maxConnections=" +
-         maxConnections +
+         ", maxSessions=" + maxSessions +
          ", maxQueues=" +
          maxQueues +
          //              ", maxQueueSizeBytes=" +
