@@ -1830,10 +1830,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (configuration.getResourceLimitSettings() != null && configuration.getResourceLimitSettings().containsKey(username)) {
          ResourceLimitSettings limits = configuration.getResourceLimitSettings().get(username);
 
-         if (limits.getMaxConnections() == -1) {
+         if (limits.getMaxSessions() == -1) {
             return;
-         } else if (limits.getMaxConnections() == 0 || getSessionCountForUser(username) >= limits.getMaxConnections()) {
-            throw ActiveMQMessageBundle.BUNDLE.sessionLimitReached(username, limits.getMaxConnections());
+         } else if (limits.getMaxSessions() == 0 || getSessionCountForUser(username) >= limits.getMaxSessions()) {
+            throw ActiveMQMessageBundle.BUNDLE.sessionLimitReached(username, limits.getMaxSessions());
          }
       }
    }

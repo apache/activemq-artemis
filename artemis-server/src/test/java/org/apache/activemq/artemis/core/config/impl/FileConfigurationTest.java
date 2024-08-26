@@ -584,7 +584,9 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(conf.isMirrorPageTransaction());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
+      // continue testing deprecated method
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
+      assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxSessions());
       assertEquals(13, conf.getResourceLimitSettings().get("myUser").getMaxQueues());
 
       assertEquals(2, conf.getQueueConfigs().size());

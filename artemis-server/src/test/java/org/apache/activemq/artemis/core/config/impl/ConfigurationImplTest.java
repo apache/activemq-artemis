@@ -1137,7 +1137,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          }
       }
 
+      // continue testing deprecated method
       assertEquals(100, configuration.getResourceLimitSettings().get("joe").getMaxConnections());
+      assertEquals(100, configuration.getResourceLimitSettings().get("joe").getMaxSessions());
    }
 
    @Test

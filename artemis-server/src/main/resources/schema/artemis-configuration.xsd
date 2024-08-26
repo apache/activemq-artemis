@@ -4511,7 +4511,15 @@
          <xsd:element name="max-connections" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  how many connections are allowed by the matched user (-1 means no limit, default is -1)
+                  DEPRECATED: use max-sessions instead
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="max-sessions" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many sessions are allowed by the matched user (-1 means no limit, default is -1)
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
