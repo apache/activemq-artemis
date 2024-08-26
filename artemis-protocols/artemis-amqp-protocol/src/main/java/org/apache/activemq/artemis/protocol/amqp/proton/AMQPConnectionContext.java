@@ -761,6 +761,31 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    @Override
+   public void onLocalClose(Connection connection) {
+      handler.requireHandler();
+
+      // If the connection delegate is marked as destroyed the IO connection is closed
+      // or closing and will never hear back from the remote with a matching Close
+      // performative from the peer on the other side. In this case we should allow the
+      // sessions a chance to clean up any local sender or receiver bindings.
+      if (connectionCallback.getProtonConnectionDelegate().isDestroyed()) {
+         for (AMQPSessionContext protonSession : sessions.values()) {
+            try {
+               protonSession.close();
+            } catch (Exception e) {
+               // We are closing so ignore errors from attempts to cleanup
+               logger.trace("Caught error while handling local connection close: ", e);
+            }
+         }
+
+         sessions.clear();
+
+         // Try and flush any pending work if the IO hasn't yet been closed.
+         handler.flushBytes();
+      }
+   }
+
+   @Override
    public void onRemoteClose(Connection connection) {
       handler.requireHandler();
       connection.close();
