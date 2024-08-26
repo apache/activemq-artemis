@@ -102,6 +102,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.EndpointState;
@@ -933,6 +934,18 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       @Override
       public void close() throws Exception {
+
+      }
+
+      @Override
+      public void close(ErrorCondition error) {
+         // If remote closed already than normal broker connection link closed handling will already kick in,
+         // if not then the connection should be locally force closed as it would otherwise sit in a zombie state
+         // never consuming from the SNF Queue again.
+         if (sender.getRemoteState() != EndpointState.CLOSED) {
+            AMQPBrokerConnection.this.runtimeError(new ActiveMQAMQPInternalErrorException(
+               "Broker connection mirror consumer locally closed unexpectedly: " + error.getCondition().toString()));
+         }
       }
 
       @Override
